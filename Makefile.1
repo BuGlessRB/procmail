@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.51 2001/06/23 08:18:32 guenther Exp $
+#$Id: Makefile.1,v 1.52 2001/07/12 01:27:20 guenther Exp $
 
 all: bins mans recommend
 	@echo If you would like to inspect the results before running make \
@@ -52,7 +52,7 @@ recommend: autoconf.h src/Makefile
 integrating procmail; echo into the mail-delivery system -- for advanced \
 functionality, speed AND; echo SECURITY "--.  For" more information about \
 this topic you should look in the; echo examples/advanced file.; elif \
- cat /usr/lib/sendmail.cf /etc/sendmail.cf 2>$(DEVNULL) | \
+ cat $(SENDMAILCFS) 2>$(DEVNULL) | \
  grep 'Mlocal.*procmail.*F=[a-zA-Z]*u' >$(DEVNULL) ; then \
  echo The recommendation for the sendmail.cf entry of procmail has \
 changed.; echo I suggest you remove the '`u'"'"-flag 'like in:'; echo ; \
