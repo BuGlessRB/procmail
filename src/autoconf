@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.47 1993/05/19 15:03:22 berg Exp $
+#$Id: autoconf,v 1.48 1993/05/19 16:22:46 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -330,8 +330,8 @@ unsigned sfork()
 main(argc,argv)char*argv[];
 { int goodlock,testlock,i,pip[2],pipw[2];unsigned otimet,dtimet;
   static char filename[]="_locktst.l0";
-  close(0);goodlock=0;testlock=FIRST_lock;signal(SIGALRM,(void(*)())stimeout);
-  signal(SIGTERM,SIG_DFL);signal(SIGPIPE,SIG_DFL);	     /* die on these */
+  close(0);goodlock=0;testlock=FIRST_lock;signal(SIGTERM,SIG_DFL);
+  signal(SIGPIPE,SIG_DFL);				     /* die on these */
   if(sfork())				 /* try to ditch the controlling tty */
      return EX_OK;	/* mainly to prevent rather messy kernel-diagnostics */
   setsid();				       /* from appearing on your tty */
@@ -390,6 +390,7 @@ main(argc,argv)char*argv[];
 	   for(j=NR_of_lockfiles;lckdfil[--j]=0,j;);
 	   timeout=0;sleep(1);read(pipw[0],&curflag,1);close(pipw[0]);
 	   kill(ppid,SIGKILL);fdcollect=pip[0];
+	   signal(SIGALRM,(void(*)())stimeout);
 	   dtimet=(((unsigned)time((char*)0)-otimet)*GROW)+TIME_OUT_SEC;
 	   do
 	    { unlink("_locktst.alive");alarm(dtimet+2);		 /* watchdog */
