@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands
-#$Id: unsubscribe,v 1.23 1994/06/07 13:22:45 berg Exp $
+#$Id: unsubscribe,v 1.24 1994/06/07 14:16:23 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -50,12 +50,6 @@ remtext=`
       $echo "If you recognise one of these addresses as being the one you"
       $echo "wanted to unsubscribe, send in a new unsubscribe request"
       $echo "containing the text:  unsubscribe the_address_you_meant."
-      $echo ""
-      $echo "If you already tried this, then the address you are attempting"
-      $echo "to unsubscribe might be marked as unremovable."
-      $echo "To fix this, reply to this message now (do not compose a new"
-      $echo "message, use reply), adding any comments you see fit, and perhaps"
-      $echo "quoting the current message entirely for diagnostic purposes."
    fi
  fi`
 
