@@ -545,7 +545,7 @@
 	       tempfile names
 	    Called nice() when shouldn't have
 	    Workaround SunOS 4.x compiler again
-2001/06/23: v3.20pre
+2001/06/28: v3.20
 	    Changes to procmail:
 	       - SECURITY: don't do unsafe things from signal handlers:
 		  - ignore TRAP when terminating because of a signal
@@ -565,8 +565,6 @@
 		 all platforms
 	       - Drop duplicate and malformed environment entries
 	       - Multiple -a options will now set $2, $3, etc
-	       - Regression bug since v3.12, TRAP wasn't expanded if procmail
-		 was interupted while skipping a nested block (but see above)
 	       - Command line assignments to INCLUDERC and SWITCHRC no longer
 		 have any effect
 	       - Worked around AIX 4.3.3 xlc compiler (incorrect file-scope
