@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.19 1993/01/22 13:42:26 berg Exp $";
+ "$Id: formail.c,v 1.20 1993/01/26 12:30:41 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/22 13:42:26 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/26 12:30:41 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -258,19 +258,18 @@ foundfrom: chp+=j;saddr=tmp=malloc(j=fldp->tot_len-j);tmemmove(tmp,chp,j);
 		 else if(strchr(saddr,'@')&&!strchr(saddr,'.'))
 		    nowm-=maxindex(sest);	     /* depreciate user@host */
 		 if(!namep||nowm>lastm)		/* better than previous ones */
-		    saddr=strcpy(malloc(strlen(saddr)+1),saddr),lastm=nowm;
-		 else
-		    goto nonamep;
+		  { saddr=strcpy(malloc(strlen(saddr)+1),saddr);lastm=nowm;
+		    goto newnamep;
+		  }
 	       }
 	      else if(sest[i].head==returnpath)		/* nill Return-Path: */
-		 saddr=0,nowm=maxindex(sest)+2;			 /* override */
-	      else
-		 goto nonamep;
-	      if(namep)
-		 free(namep);
-	      namep=saddr;
+	       { saddr=0;nowm=maxindex(sest)+2;			 /* override */
+newnamep:	 if(namep)
+		    free(namep);
+		 namep=saddr;
+	       }
 	    }
-nonamep:   free(tmp);
+	   free(tmp);
 	 }				   /* save headers for later perusal */
 	i=maxindex(rex);chp=fldp->fld_text;j=fldp->id_len;    /* e.g. areply */
 	while((rex[i].lenr!=j||strnIcmp(rex[i].headr,chp,j))&&i--);

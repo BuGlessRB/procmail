@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: arch_retrieve,v 1.4 1993/01/18 16:11:00 berg Exp $
+#$Id: arch_retrieve,v 1.5 1993/01/26 12:30:21 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -35,16 +35,16 @@ $formail -k -xSubject: |
 	    do
 	       $echo $from "$1" >>$tmpfrom
 	       case "$1" in
-		  */../*|../*|*/..|..|-*) ;;
+		  */../*|../*|*/..|..|[-/]*) ;;
 		  *)
 		   ( $formail -rt -I"Subject: archive retrieval: $1" \
 		      -i"Sender: $listreq" -i"From: $listaddr" \
 		      -A"X-Loop: $listaddr" -I"Precedence: bulk" <$tmprequest
-		     if $test -f "$1"
+		     if $test -f "./$1"
 		     then
 			$echo "File: $1"
 			$echo "BEGIN---------------cut here------------------"
-			$cat "$1"
+			$cat "./$1"
 			$echo "END-----------------cut here------------------"
 		     else
 			$echo "File $1 is not available."
@@ -59,16 +59,16 @@ $formail -k -xSubject: |
 	    do
 	       $echo $from "$1" ls >>$tmpfrom
 	       case "$1" in
-		  */../*|../*|*/..|..|-*) ;;
+		  */../*|../*|*/..|..|[-/]*) ;;
 		  *)
 		   ( $formail -rt -I"Subject: archive retrieval: ls $1" \
 		      -i"Sender: $listreq" -i"From: $listaddr" \
 		      -A"X-Loop: $listaddr" -I"Precedence: bulk" <$tmprequest
-		     if $test -r "$1"
+		     if $test -r "./$1"
 		     then
 			$echo "ls -l $1"
 			$echo "BEGIN---------------cut here------------------"
-			$ls -lL "$1" 2>/dev/null || $ls -l "$1"
+			$ls -lL "./$1" 2>/dev/null || $ls -l "./$1"
 			$echo "END-----------------cut here------------------"
 		     else
 			$echo "File or directory $1 is not available."

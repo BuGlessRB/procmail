@@ -1,11 +1,11 @@
-/*$Id: sublib.c,v 1.7 1993/01/22 13:42:53 berg Exp $*/
+/*$Id: sublib.c,v 1.8 1993/01/26 12:30:51 berg Exp $*/
 #include "includes.h"
 #include "sublib.h"
 
 #ifdef NOmemmove
 void*smemmove(To,From,count)void*To;const void*From;register size_t count;
-#ifdef NObcopy
-{ register char*to=To,*from=From;/*void*old;*/	  /* silly compromise, throw */
+#ifdef NObcopy					  /* silly compromise, throw */
+{ register char*to=To;register const char*from=From;/*void*old;*/
   /*old=to;*/count++;to--;from--;  /* away space to be syntactically correct */
   if(to<=from)
    { goto jiasc;

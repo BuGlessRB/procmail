@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.15 1992/12/07 20:02:58 berg Exp $
+#$Id: Makefile,v 1.16 1993/01/26 12:30:04 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -44,9 +44,9 @@ MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 
 # Directory for the system include files
 USRINCLUDE = /usr/include
-# Path prefixes for system libraries
-PLIB	= /lib/lib
-PUSRLIB = /usr/lib/lib
+# Path for system libraries
+PLIB	= /lib
+PUSRLIB = /usr/lib
 
 CFLAGS0 = -O #-ansi -pedantic #-Wid-clash-6
 LDFLAGS0= -s
@@ -57,8 +57,6 @@ LDFLAGS1= $(LDFLAGS0) #-lcposix
 ####CC	= cc # gcc
 # object file extension
 O	= o
-# library archive file extension(s)
-A	= [A-Z.]*
 RM	= /bin/rm -f
 MV	= mv -f
 LN	= ln -f
@@ -84,7 +82,7 @@ make:
 init:
 	$(BSHELL) ./initmake $(BSHELL) "$(SHELL)" "$(RM)" "$(MV)" "$(LN)" \
 	 $(USRINCLUDE) $(PLIB) $(PUSRLIB) $(DEVNULL) "$(HIDEMAKE)" $(O) \
-	 "$(A)" "$(CC)" "$(CFLAGS1)" "$(LDFLAGS1)" "$(BINSS)" \
+	 "$(CC)" "$(CFLAGS1)" "$(LDFLAGS1)" "$(BINSS)" \
 	 "$(MANS1S)" "$(MANS5S)" "$(SUBDIRS)"
 
 makefiles makefile Makefiles Makefile: init

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.16 1993/01/22 13:42:40 berg Exp $";
+ "$Id: misc.c,v 1.17 1993/01/26 12:30:48 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -220,7 +220,7 @@ void metaparse(p)const char*p;				    /* result in buf */
      readparse(buf,sgetc,0);				/* parse it yourself */
      if(!strcmp(test,buf))
 	strcpy(buf,p),sh=1;			       /* oops, `test' found */
-     free(p);
+     free((char*)p);
    }
 #else
      sgetcp=p,readparse(buf,sgetc,0);

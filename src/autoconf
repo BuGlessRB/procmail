@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.27 1993/01/22 13:42:19 berg Exp $
+#$Id: autoconf,v 1.28 1993/01/26 12:30:38 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -479,10 +479,11 @@ cat >_autotst.c <<HERE
 #include <unistd.h>		/* execvp() */
 #endif
 main()
-{ char*const*p;char*q="";static struct{const int a;int b;}c[2];
+{ char r[]="",*const*p;char*q="";static struct{const int a;int b;}c[2];
   --(c+1)->b;				 /* AIX 3.1.5 machines can't do this */
   p= &q;
   execvp(q,p);	  /* IRIX 4.0.1 system-include files are wrong on this point */
+  return *r;
 }
 HERE
 

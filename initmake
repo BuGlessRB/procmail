@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.16 1993/01/20 19:46:02 berg Exp $
+#$Id: initmake,v 1.17 1993/01/26 12:30:10 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -112,14 +112,15 @@ $RM _autotst.$O _autotst.c _autotst
 cd ..			# returning to the main procmail directory ######
 
 cat >checklib <<HERE
-for a in $PLIB\$1$A $PUSRLIB\$1$A /usr/local/lib/lib\$1$A
+for libpath in $PLIB $PUSRLIB /usr/local/lib
 do
-  if test -f \$a
+  libname=\$libpath/*lib\$1[A-Z.]*
+  if test -f \$libname
   then
-     case "\$a" in
-	/usr/local/lib*)
+     case "\$libpath" in
+	/usr/local/lib)
 	   case "\$LDFLAGS" in
-	      *-L/usr/local/lib*) LDFLAGS="\$LDFLAGS -L/usr/local/lib";;
+	      *-L\$libpath*) LDFLAGS="\$LDFLAGS -L\$libpath";;
 	   esac;;
      esac
      echo "\$LDFLAGS -l\$1"
