@@ -117,7 +117,12 @@
 	them, you can view an individual man file by typing something like:
 	nroff -man procmail.1 | more
 
-11. None of the above topics cover my problem.	Should I panic?
+11. The leading From_ line on all my arriving mail shows the wrong time.
+    Before putting procmail in the .forward file everything was OK.
+
+	This is a known bug in sendmail-5.65c+IDA.
+
+12. None of the above topics cover my problem.	Should I panic?
 
 	Let me ask you a question :-), have you examined the CAVEATS, WARNINGS,
 	BUGS and NOTES sections of the manual pages *closely* ?

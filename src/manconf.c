@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.21 1993/04/19 14:43:03 berg Exp $*/
+/*$Id: manconf.c,v 1.22 1993/04/27 17:34:08 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -58,8 +58,8 @@ static void pname(name)const char*const name;
 { static cmdcount;
   if(!cmdcount)
      freopen(*++gargv,"w",stdout),cmdcount=64;
-  cmdcount--;putchar('s');putchar('/');putchar('\\');putchar('+');
-  putsesc(name);putchar('\\');putchar('+');putchar('/');
+  cmdcount--;putchar('s');putchar('/');putchar('\\');putchar('@');
+  putsesc(name);putchar('\\');putchar('@');putchar('/');
 }
 
 static void pnr(name,value)const char*const name;const long value;

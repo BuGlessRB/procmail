@@ -1,4 +1,4 @@
-/*$Id: formail.h,v 1.3 1992/11/11 13:59:43 berg Exp $*/
+/*$Id: formail.h,v 1.4 1993/04/27 17:34:03 berg Exp $*/
 
 #define BSIZE		128
 
@@ -24,7 +24,7 @@ extern long totallen;
 extern char*buf,*logsummary;
 
 extern struct field{size_t id_len;size_t tot_len;struct field*fld_next;
- char fld_text[255];}*rdheader;
+ char fld_text[255];}*rdheader,*xheader,*Xheader;
 
 int
  eqFrom_ P((const char*const a)),

@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.12 1993/04/21 15:02:26 berg Exp $
+.Id $Id: procmailex.man,v 1.13 1993/04/27 17:33:47 berg Exp $
 .de Sx
 .PP
 .ne \\$1
@@ -13,7 +13,7 @@
 .SH NAME
 procmailex \- procmail rcfile examples
 .SH SYNOPSIS
-.B $HOME/+PROCMAILRC+ examples
+.B $HOME/@PROCMAILRC@ examples
 .ad
 .Sh DESCRIPTION
 For a description of the rcfile format see
@@ -35,17 +35,17 @@ scubafile
 Forward all mail from peter about compilers to william (and keep a copy
 of it here in petcompil).
 .Sx 7
-:2 +CONTINUE+
+:2 @CONTINUE@
 ^From.*peter
 ^Subject:.*compilers
 ! william@somewhere.edu
 
-   :+ALSO_NEXT_RECIPE+
+   :@ALSO_NEXT_RECIPE@
    petcompil
 .Ex
 An equivalent, but slightly slower solution that accomplishes the same:
 .Sx 9
-:2 +CONTINUE+
+:2 @CONTINUE@
 ^From.*peter
 ^Subject:.*compilers
 ! william@somewhere.edu
@@ -59,11 +59,11 @@ Add the headers of all messages that didn't come from the postmaster
 to your private header collection (for
 statistics or mail debugging); and use the lockfile `headc.lock'.  In order
 to make sure the lockfile is not removed until the pipe has finished,
-you have to specify option `+WAIT_EXIT+'; otherwise the lockfile would be
+you have to specify option `@WAIT_EXIT@'; otherwise the lockfile would be
 removed as soon as the pipe has accepted the mail.
 .Sx 3
-:+PASS_HEAD++WAIT_EXIT++CONTINUE+:
-!+FROMMkey+
+:@PASS_HEAD@@WAIT_EXIT@@CONTINUE@:
+!@FROMMkey@
 | uncompress headc.Z; cat >>headc; compress headc
 .Ex
 Forward all mails shorter than 1000 bytes to my home address (no lockfile
@@ -78,13 +78,13 @@ messages, and store them into surfing, using surfing.lock as the locallockfile.
 .Sx 3
 ::
 ^Subject:.*surfing.*Digest
-| formail +FM_SKIP+1 \-+FM_DIGEST++FM_SPLIT+ cat >>surfing
+| formail @FM_SKIP@1 \-@FM_DIGEST@@FM_SPLIT@ cat >>surfing
 .Ex
 Store everything coming from the postmaster or mailer-daemon (like bounced
 mail) into the file postm, using postm.lock as the locallockfile.
 .Sx 3
 ::
-+FROMMkey+
+@FROMMkey@
 postm
 .Ex
 A simple autoreply recipe.  It makes sure that neither mail from any daemon
@@ -99,10 +99,10 @@ is not a good idea to generate autoreplies to mailinglists (yes, the
 !^FROM_DAEMON regexp should already catch those, but if the mailinglist
 doesn't follow accepted conventions, this might not be enough).
 .Sx 4
-: 2 +PASS_HEAD+ +CONTINUE+
+: 2 @PASS_HEAD@ @CONTINUE@
 !^FROM_DAEMON
 !^From +YOUR_LOGIN_NAME
-| (formail \-+FM_REPLY+ \-+FM_ADD_ALWAYS+"Precedence: junk";\e
+| (formail \-@FM_REPLY@ \-@FM_ADD_ALWAYS@"Precedence: junk";\e
    echo "Mail received.") | $SENDMAIL \-t
 .Ex
 A more complicated autoreply recipe that implements the functional equivalent
@@ -114,7 +114,7 @@ by extracting the name of the sender and appending it to the file
 $ALREADYSENT, if the name is
 .B not
 already in there.  If the name was new, an autoreply will be sent (using the
-`+ALSO_N_IF_SUCC+' flag functionality).  To reliably extract the name of the
+`@ALSO_N_IF_SUCC@' flag functionality).  To reliably extract the name of the
 sender, I let formail generate an autoreply header (thereby making it figure
 out the most appropriate sender address), and then telling it to extract the
 value of the `To:' field.
@@ -122,17 +122,17 @@ value of the `To:' field.
 SHELL=/bin/sh    # for other shells, this might need adjustment
 ALREADYSENT=$HOME/vacation     # the vacation database
 
-: 2 +PASS_HEAD++WAIT_EXIT_QUIET++CONTINUE+:                       # the lockfile is important
+: 2 @PASS_HEAD@@WAIT_EXIT_QUIET@@CONTINUE@:                       # the lockfile is important
 !^FROM_DAEMON
 !^From +YOUR_LOGIN_NAME
-| FROM="`formail \-+FM_REPLY++FM_EXTRACT+ To:`" ;\e
+| FROM="`formail \-@FM_REPLY@@FM_EXTRACT@ To:`" ;\e
   if fgrep \-e "$FROM" <$ALREADYSENT ;\e
   then exit 1 ;\e
   else echo "$FROM" >>$ALREADYSENT ;\e
   fi
 
-   :+ALSO_N_IF_SUCC++PASS_HEAD++CONTINUE+
-   | (formail \-+FM_REPLY++FM_ADD_ALWAYS+"Precedence: junk";\e
+   :@ALSO_N_IF_SUCC@@PASS_HEAD@@CONTINUE@
+   | (formail \-@FM_REPLY@@FM_ADD_ALWAYS@"Precedence: junk";\e
       echo "Mail received.") | $SENDMAIL \-t
 .Ex
 Store all messages concerning TeX in separate, unique filenames, in a directory
@@ -164,7 +164,7 @@ is created automatically:
 .Sx 9
 MONTHFOLDER=`date +%y-%m`
 
-:+IGNORE_WRITERR+
+:@IGNORE_WRITERR@
 ? test ! \-d $MONTHFOLDER
 | mkdir $MONTHFOLDER
 
@@ -184,11 +184,11 @@ ${MONTHFOLDER}/meeting
 To extract certain headers from a mail and put them into environment
 variables you can use any of the following constructs:
 .Sx 5
-SUBJECT=`formail \-+FM_EXTRACT+Subject:`    # regular field
-FROM=`formail \-+FM_REPLY++FM_TRUST+ \-+FM_EXTRACT+To:`        # special case
+SUBJECT=`formail \-@FM_EXTRACT@Subject:`    # regular field
+FROM=`formail \-@FM_REPLY@@FM_TRUST@ \-@FM_EXTRACT@To:`        # special case
 
-:0+PASS_HEAD+                             # alternate method
-KEYWORDS=| formail \-+FM_EXTRACT+Keywords:
+:0@PASS_HEAD@                             # alternate method
+KEYWORDS=| formail \-@FM_EXTRACT@Keywords:
 .Ex
 If you are using temporary files in a procmailrc file, and want to make
 sure that they are removed just before procmail exits, you could use
@@ -207,7 +207,7 @@ TRAP="exit 1;"   # The trailing semi-colon is important
 The following recipe prints every incoming mail that looks like a postscript
 file.
 .Sx 3
-:+BODY_GREP++PASS_BODY+
+:@BODY_GREP@@PASS_BODY@
 ^^%!
 | lpr
 .Ex
@@ -219,7 +219,7 @@ right after the
 .B first
 empty line).
 .Sx
-:2 +HEAD_GREP++BODY_GREP+ +PASS_BODY+
+:2 @HEAD_GREP@@BODY_GREP@ @PASS_BODY@
 ^^(.+$)*From[ :].*print-server
 ^^(.+$)*^%!
 | lpr
@@ -230,14 +230,14 @@ of the accounts).  You would like to forward mail arriving at account one to
 account two, and the other way around.  The first thing that comes to mind is
 using .forward files at both sites; this won't work of course, since you will
 be creating a mail loop.  This mail loop can be avoided by inserting the
-following recipe in front of all other recipes in the +PROCMAILRC+ files on
+following recipe in front of all other recipes in the @PROCMAILRC@ files on
 both sites.  If you make sure that you add the same X-Loop: field at both
 sites, mail can now safely be forwarded to the other account from either of
 them.
 .Sx 4
-:+CONTINUE+
+:@CONTINUE@
 !^X-Loop: yourname@your.main.mail.address
-| formail \-+FM_ADD_ALWAYS+ "X-Loop: yourname@your.main.mail.address" | \e
+| formail \-@FM_ADD_ALWAYS@ "X-Loop: yourname@your.main.mail.address" | \e
    $SENDMAIL \-oi yourname@the.other.account
 .Ex
 The following one is rather exotic, but it only serves to demonstrate a
@@ -250,7 +250,7 @@ increase LINEBUF if necessary):
 .Sx 5
 URGMATCH=`cat $HOME/.urgent`
 
-:+BODY_GREP+:
+:@BODY_GREP@:
 $^From.*${URGMATCH}.*
 urgent
 .Re

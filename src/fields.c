@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: fields.c,v 1.9 1992/11/12 11:38:21 berg Exp $";
+ "$Id: fields.c,v 1.10 1993/04/27 17:33:55 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -51,22 +51,27 @@ void renfield(pointer,oldl,newname,newl)struct field**const pointer;
   tmemmove(chp+newl,chp+oldl,i);tmemmove(chp,newname,newl);   /* shove, copy */
 }
 
-void clearfield(pointer)register struct field**pointer;	 /* delete the whole */
-{ register struct field*p,*q;			    /* linked list of fields */
-  for(p= *pointer,*pointer=0;p;p=q)
-     q=p->fld_next,free(p);
+static void extractfield(p)register struct field*p;
+{ if(xheader||Xheader)					 /* extracting only? */
+   { if(findf(p,xheader))			   /* extract field contents */
+      { putssn(p->fld_text+p->id_len,p->tot_len-p->id_len);return;
+      }
+     if(!findf(p,Xheader))				   /* extract fields */
+	return;
+   }
+  lputssn(p->fld_text,p->tot_len);		      /* display it entirely */
 }
 
 void flushfield(pointer)register struct field**pointer;	 /* delete and print */
 { register struct field*p,*q;				   /* them as you go */
   for(p= *pointer,*pointer=0;p;p=q)
-     q=p->fld_next,lputssn(p->fld_text,p->tot_len),free(p);
+     q=p->fld_next,extractfield(p),free(p);
 }
 
 void dispfield(p)register const struct field*p;
 { for(;p;p=p->fld_next)			     /* print list non-destructively */
      if(p->id_len<p->tot_len-1)			 /* any contents to display? */
-	lputssn(p->fld_text,p->tot_len);
+	extractfield(p);
 }
 
 readhead P((void))  /* try and append one valid field to rdheader from stdin */

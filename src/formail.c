@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.21 1993/02/02 15:27:07 berg Exp $";
+ "$Id: formail.c,v 1.22 1993/04/27 17:33:59 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/02/02 15:27:07 $";
+static /*const*/char rcsdate[]="$Date: 1993/04/27 17:33:59 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -81,9 +81,8 @@ FILE*mystdout;
 size_t nrskip,nrtotal= -1,buflen,buffilled;
 long totallen;
 char*buf,*logsummary;
-struct field*rdheader;
-static struct field*iheader,*Iheader,*aheader,*Aheader,*xheader,*Xheader,
- *Rheader,*nheader;
+struct field*rdheader,*xheader,*Xheader;
+static struct field*iheader,*Iheader,*aheader,*Aheader,*Rheader,*nheader;
 
 static void logfolder P((void))	 /* estimate the no. of characters needed to */
 { size_t i;char num[8*sizeof totallen*4/10+1];	       /* represent totallen */
@@ -346,10 +345,6 @@ newnamep:	 if(namep)
 	      putcs('\n');
 	    }
 	 }
-	else if(findf(fldp,xheader))		   /* extract field contents */
-	   putssn(chp+lnl,fldp->tot_len-lnl);
-	else if(findf(fldp,Xheader))			   /* extract fields */
-	   putssn(chp,fldp->tot_len);
 	if(findf(fldp,Iheader))				    /* delete fields */
 	 { *afldp=fldp->fld_next,free(fldp);fldp= *afldp;continue;
 	 }
@@ -361,14 +356,12 @@ newnamep:	 if(namep)
       }					/* restore the saved contents of buf */
      tmemmove(buf,parkedbuf,buffilled=lenparkedbuf);free(parkedbuf);
    }
-  if(xheader||Xheader)			     /* we're just extracting fields */
-     clearfield(&rdheader),clearfield(&nheader);	    /* throw it away */
-  else			     /* otherwise, display the new & improved header */
-   { flushfield(&rdheader);flushfield(&nheader);dispfield(Aheader);
-     dispfield(iheader);dispfield(Iheader);lputcs('\n');  /* make sure it is */
-   }						/* followed by an empty line */
+  flushfield(&rdheader);flushfield(&nheader);dispfield(Aheader);
+  dispfield(iheader);dispfield(Iheader);
   if(namep)
      free(namep);
+  if(!(xheader||Xheader))		 /* we're not just extracting fields */
+     lputcs('\n');		/* make sure it is followed by an empty line */
   if(!keepb&&(areply||xheader||Xheader))		    /* decision time */
    { logfolder();				   /* we throw away the rest */
      if(split)

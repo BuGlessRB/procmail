@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.31 1993/04/19 10:36:47 berg Exp $";
+ "$Id: procmail.c,v 1.32 1993/04/27 17:34:10 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -550,7 +550,7 @@ forward:      if(locknext)
 		 if(!pwait)		/* try and protect the user from his */
 		    pwait=2;			   /* blissful ignorance :-) */
 	       }
-noloclock:    inittmout(buf);
+noloclock:    inittmout(buf);asgnlastf=1;
 	      if(flags[FILTER])
 	       { if(startchar==themail&&tobesent!=filled)     /* if only 'h' */
 		  { if(!pipthrough(buf,startchar,tobesent))

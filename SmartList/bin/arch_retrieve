@@ -1,10 +1,11 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.12 1993/04/19 10:36:21 berg Exp $
+#$Id: arch_retrieve,v 1.13 1993/04/27 17:33:31 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
 ls=ls			# /bin/ls
+rm=rm			# /bin/rm
 sed=sed			# /bin/sed
 cat=cat			# /bin/cat
 formail=formail		# /usr/local/bin/formail
@@ -18,7 +19,7 @@ tmpfrom=../tmp.from
 cd archive
 
 from=`$echo "arch_retrieve:" \`$cat $tmpfrom\` requested`
-$cat /dev/null >$tmpfrom
+$rm -f $tmpfrom
 
 case "$X_ENVELOPE_TO" in
   *$list-request*) wrongaddress="" ;;
@@ -29,10 +30,16 @@ case "$X_ENVELOPE_TO" in
 esac
 
 $formail -k -xSubject: |
- $sed -e '/^--/,$ d' -e 's/^[	 ]*archive[	 ]//' \
+ $sed -e '/^--/,$ d' -e 's/^[	 ]*archive//w'$tmpfrom \
   -e 's/[	 ]archive\/*/ /g' |
- ( sendhelp=""
+ ( $test -f $tmpfrom ||
+    wrongaddress="WARNING:
+	Please make sure to start the Subject: of requests to the archive-
+	server with the word archive.
+$wrongaddress"
+   sendhelp=""
    ILLEGAL=""
+   $cat /dev/null >$tmpfrom
    while read line
    do
       set dummy $line

@@ -1,4 +1,4 @@
-.Id $Id: lockfile.man,v 1.7 1993/01/13 15:20:28 berg Exp $
+.Id $Id: lockfile.man,v 1.8 1993/04/27 17:33:41 berg Exp $
 .TH LOCKFILE 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -31,7 +31,7 @@ can be used to create one or more
 If lockfile can't create all the specified files (in the specified order),
 it waits
 .I sleeptime
-(defaults to +DEFlocksleep+) seconds and retries the last file that didn't
+(defaults to @DEFlocksleep@) seconds and retries the last file that didn't
 succeed.  You can specify the number of
 .I retries
 to do until failure is returned.
@@ -67,7 +67,7 @@ other program that unexpectedly died a long time ago, and hence could not clean
 up any leftover lockfiles).  Lockfile is clock skew immune.  After a lockfile
 has been removed by force, a suspension of
 .I suspend
-seconds (defaults to +DEFsuspend+) is taken into account, in order to prevent
+seconds (defaults to @DEFsuspend@) is taken into account, in order to prevent
 the inadvertent immediate removal of any newly created lockfile by another
 program (compare
 .BR SUSPEND
@@ -108,7 +108,7 @@ used as a hint to determine the invoker's loginname
 to verify and/or correct the invoker's loginname (and to find out his HOME
 directory, if needed)
 .Tp
-.B +SYSTEM_MBOX++DEFlockext+
+.B @SYSTEM_MBOX@@DEFlockext@
 lockfile for the system mailbox, the environment variables present in here
 will not be taken from the environment, but will be determined by looking
 in /etc/passwd
@@ -159,7 +159,7 @@ Definitely less than one.
 .Sh MISCELLANEOUS
 Lockfile is NFS-resistant and eight-bit clean.
 .Sh NOTES
-Calling up lockfile with the \-+HELPOPT1+ or \-+HELPOPT2+ options will cause
+Calling up lockfile with the \-@HELPOPT1@ or \-@HELPOPT2@ options will cause
 it to display a command-line help page.
 .PP
 Multiple

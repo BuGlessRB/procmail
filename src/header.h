@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.14 1993/03/02 14:41:07 berg Exp $*/
+/*$Id: header.h,v 1.15 1993/04/27 17:34:05 berg Exp $*/
 
 static const char
  returnpath[]=		"Return-Path:",				  /* RFC 822 */
@@ -47,6 +47,9 @@ static const char
  via[]=			"Via:",
  priority[]=		"Priority:",			    /* ELM extension */
  fcc[]=			"Fcc:",				   /* Mush extension */
+ resent[]=		"Resent:",			     /* MH extension */
+ forwarded[]=		"Forwarded:",				/* ditto ... */
+ replied[]=		"Replied:",
  article[]=		"Article:",			 /* USENET extension */
  path[]=		"Path:",				/* ditto ... */
  summary[]=		"Summary:",

@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh install.sh3 # we're in a csh, feed myself to sh
-#$Id: install.sh3,v 1.5 1993/04/21 16:38:11 berg Exp $
+#$Id: install.sh3,v 1.6 1993/04/27 17:33:28 berg Exp $
 
 test -z "$bindir" && echo "Call install.sh instead" && exit 64
 
@@ -25,7 +25,7 @@ cd bin; a=`echo *`
 cd ..
 for b in $a
 do
-   sed -e "s/SedBinDir/$bindir/" <"bin/$b" >"$target/$bindir/$b"
+   sed -e "s/SedBinDir/$bindir/g" <"bin/$b" >"$target/$bindir/$b"
 done
 
 for a in $DIRS

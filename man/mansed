@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.7 1993/04/02 12:38:29 berg Exp $
+#$Id: mansed,v 1.8 1993/04/27 17:33:43 berg Exp $
 
 test 5 != $# &&
  echo "Don't start this script directly, use \`make'" && exit 1
@@ -53,18 +53,18 @@ expr match "$DEST" '.*[18]$' >$DEVNULL && cat <<HERE
 .Sh SOURCE
 This program is part of the
 .I procmail mail-processing-package
-(+PM_VERSION+) available at your nearest USENET comp.sources.misc archive, or
+(@PM_VERSION@) available at your nearest USENET comp.sources.misc archive, or
 at ftp.informatik.rwth-aachen.de (137.226.112.172) as
 .BR pub/unix/procmail.tar.Z .
 .Sh MAILINGLIST
 There exists a mailinglist for questions relating to any program in the
 procmail package:
 .RS
-+PM_MAILINGLIST+
+@PM_MAILINGLIST@
 .RS
 for submitting questions/answers.
 .RE
-+PM_MAILINGLISTR+
+@PM_MAILINGLISTR@
 .RS
 for subscription requests.
 .RE
@@ -74,8 +74,8 @@ cat <<HERE
 .Sh AUTHOR
 Stephen R. van den Berg at RWTH-Aachen, Germany
 .Rs
-+MY_MAIL_ADDR+
-+MY_ALT_MAIL_ADDR+
+@MY_MAIL_ADDR@
+@MY_ALT_MAIL_ADDR@
 .Re
 HERE
  )| sed -f man.sed |

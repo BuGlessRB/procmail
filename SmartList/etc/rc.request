@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.15 1993/04/26 13:36:44 berg Exp $
+#$Id: rc.request,v 1.16 1993/04/27 17:33:34 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -35,14 +35,14 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 # Store the whole mail in tmp.request, for later reference.
 #
 
-	:Ac
+	:Ac w
 	| cat >tmp.request
 
 #
 # Check for a missing Subject: line.
 #
 
-	:1Ahf
+	:1A wfh
 	!^Subject:
 	| formail -a "Subject: "
 
@@ -56,7 +56,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 # Is it an archive retrieval command?
 #
 
-	:1HBA
+	:1HBA w
 	^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
 	 ((archive([	 ]|$))|(archive[	 ]+)?\
 	 ((send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|list|show)\
@@ -67,7 +67,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 # Is it an unsubscription request?
 #
 
-	:1HBA:dist.lock
+	:1HBA w:dist.lock
 	^^(.+$)*Subject:[	 ]*(($(.+$)*(^[	 ]*)+)?(delete|remove|unsub)|\
 	 ($(.*$)*)?(.*[^a-z])?(unsubscri|\
 	 ((delete|remove) .* from|take .* off) .* list([^a-z]|$)))
@@ -79,9 +79,9 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 # already be on the mailinglist.  If not, add him.
 #
 
-	:3HBA:dist.lock
-	^^(.+$)*Subject:[	 ]*\
-	 (($(.+$)*(^[	 ]*)+)?(add|sub(scri|	| |$)?)|\
+	:3HBA w:dist.lock
+	^^(.+$)*Subject:[	 ]*(\
+	 ($(.+$)*(^[	 ]*)+)?(add|sub(scri|[	 ]|$)?)|\
 	 ($(.*$)*)?(.*[^a-z])?(subscri|(add .* to|put .* on) .* list\
 	 ([^a-z]|$)))
 	!?multigram -b1 -l$reject_threshold reject
@@ -92,7 +92,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 # Is it an info or help request?  Send back the help.txt file.
 #
 
-	:1HBA
+	:1HBA w
 	^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
 	 [a-z,.	 ]*(help|info(rm(ation)?)?)([^a-z]|$)
 	| (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
@@ -102,7 +102,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 # Check if there is no envelope From_ address, in that case add one.
 #
 
-:fhw
+:wfh
 !^^From .
 | formail
 
@@ -170,7 +170,7 @@ $^X-Loop: $listaddr
 	| formail -A "X-Diagnostic: Already on the subscriber list" \
 	   -A "X-Diagnostic: `multigram -b1 -l$reject_threshold dist`"
 
-:0fh
+:0wfh
 | formail -A"X-Envelope-To: $X_ENVELOPE_TO"
 
 #

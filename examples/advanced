@@ -39,7 +39,7 @@ appropriate; in that case put something like the following two lines in your
 .forward file:
 
 YOUR_LOGIN_NAME@your.favourite.machine
-"|IFS=' ';if test .`/bin/uname -n` = .your.favourite.machine; then /exec /home/berg/bin/procmail; else exit 0; fi #YOUR_LOGIN_NAME"
+"|IFS=' ';test .`/bin/uname -n` != .your.favourite.machine || exec /usr/local/bin/procmail #YOUR_LOGIN_NAME"
 
 The leading dots are important.	 Check what `/bin/uname -n` returns on
 your.favourite.machine, and substitute that for your.favourite.machine in the

@@ -1,4 +1,4 @@
-/*$Id: fields.h,v 1.3 1992/11/11 13:59:34 berg Exp $*/
+/*$Id: fields.h,v 1.4 1993/04/27 17:33:57 berg Exp $*/
 
 struct field
  *findf P((const struct field*const p,const struct field*hdr)),
@@ -8,7 +8,6 @@ void
  concatenate P((struct field*const fldp)),
  renfield Q((struct field**const pointer,const size_t oldl,
   const char*const newname,const size_t newl)),
- clearfield P((struct field**pointer)),
  flushfield P((struct field**pointer)),
  dispfield P((const struct field*p)),
  addbuf P((void));
