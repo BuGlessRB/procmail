@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.32 1993/04/19 15:13:51 berg Exp $
+#$Id: initmake,v 1.33 1993/05/05 13:18:06 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -273,7 +273,7 @@ do
   echo							>>man/_Makefile
   echo "$a.1: $a.man man.sed mansed"			>>man/_Makefile
   echo \
-   "	@\$(SHELL) ./mansed \$(SHELL) $a.man \$@ \"\$(RM)\" \$(DEVNULL)" \
+   "	\$(SHELL) ./mansed \$(SHELL) $a.man \$@ \"\$(RM)\" \$(DEVNULL)" \
    >>man/_Makefile
 done
 
@@ -282,7 +282,7 @@ do
   echo							>>man/_Makefile
   echo "$a.5: $a.man man.sed mansed"			>>man/_Makefile
   echo \
-   "	@\$(SHELL) ./mansed \$(SHELL) $a.man \$@ \"\$(RM)\" \$(DEVNULL)" \
+   "	\$(SHELL) ./mansed \$(SHELL) $a.man \$@ \"\$(RM)\" \$(DEVNULL)" \
    >>man/_Makefile
 done
 
