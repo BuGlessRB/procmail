@@ -3,7 +3,7 @@
  *			of the list user.				*
  *	This program is used by the SmartList installation script only. *
  ************************************************************************/
-/*$Id: gethome.c,v 1.2 1994/06/01 17:22:21 berg Exp $*/
+/*$Id: gethome.c,v 1.3 1994/06/07 14:04:42 berg Exp $*/
 #include "includes.h"
 
 main(argc,argv)const int argc;const char*const argv[];
@@ -17,7 +17,7 @@ main(argc,argv)const int argc;const char*const argv[];
       { fprintf(stderr,"Couldn't find home directory %s\n");return EX_NOINPUT;
       }
    }
-  ;{ char*first,*chp;
+  ;{ const char*first;char*chp;
      for(chp=strchr(first=argv[2],'\0');;)
       { ;{ int res;struct stat walk;
 	   ;{ int save;			     /* temporarily chop off the end */
