@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.13 1993/04/27 17:33:31 berg Exp $
+#$Id: arch_retrieve,v 1.14 1993/05/05 14:07:48 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -30,7 +30,7 @@ case "$X_ENVELOPE_TO" in
 esac
 
 $formail -k -xSubject: |
- $sed -e '/^--/,$ d' -e 's/^[	 ]*archive//w'$tmpfrom \
+ $sed -e '/^--/,$ d' -e 's/^[	 ]*archive//w '$tmpfrom \
   -e 's/[	 ]archive\/*/ /g' |
  ( $test -f $tmpfrom ||
     wrongaddress="WARNING:

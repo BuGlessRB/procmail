@@ -130,5 +130,10 @@ The reason why parts of the old scripts cannot operate with the new scripts
 is because they expect several new environment variables to be set (like
 digest selection or not).  The new rc.init sets them of course.
 
+You can quickly verify which files are linked to other files by
+simply typing something like:
+
+	showlink rc.init
+
 After you are finished, remove the rc.lock file again.	If it is older
 than 17 minutes it is ignored anyway, but it's cleaner this way.

@@ -40,5 +40,7 @@ archived.
 
 If you want to access this archive, you have to send mails to the -request
 address with the word "archive" as the first word of your Subject:.
-To get you started try "archive help" as a Subject:.
+To get you started try sending a mail to the -request address with
+the following:
+		Subject: archive help
 --

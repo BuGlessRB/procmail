@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.16 1993/04/27 17:33:36 berg Exp $
+#$Id: rc.submit,v 1.17 1993/05/05 14:07:58 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -56,7 +56,7 @@ METOO=	| formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 # housekeeping chores to keep the archive current).
 #
 
-	:1A c
+	:1Ai c
 	!^X-Mailing-List:
 	ARCHIVE=| arch_trunc "$-"
 
