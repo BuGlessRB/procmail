@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.22 1993/04/19 10:41:26 berg Exp $
+#$Id: Makefile,v 1.23 1993/04/19 14:42:48 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -54,6 +54,10 @@ SEARCHLIBS = -ldir -lx -lsocket -lnet -linet -lnsl_s -lnsl_i -lnsl -lgen\
  -lsockdns -lsun
 #			-lresolv	# not really needed, is it?
 
+# Informal list of directories where we look for the libraries in SEARCHLIBS
+LIBPATHS=/lib /usr/lib /usr/local/lib /usr/ucblib /usr/5lib /usr/ucb/lib \
+ /lib/386
+
 CFLAGS0 = -O #-ansi -pedantic #-Wid-clash-6
 LDFLAGS0= -s
 
@@ -88,6 +92,7 @@ make:
 init:
 	$(BSHELL) ./initmake $(BSHELL) "$(SHELL)" "$(RM)" "$(MV)" "$(LN)" \
 	 "$(SEARCHLIBS)" \
+	 "$(LIBPATHS)" \
 	 $(DEVNULL) "$(HIDEMAKE)" $(O) \
 	 "$(CC)" "$(CFLAGS1)" "$(LDFLAGS1)" "$(BINSS)" \
 	 "$(MANS1S)" "$(MANS5S)" "$(SUBDIRS)"

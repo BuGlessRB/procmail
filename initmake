@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.30 1993/04/19 11:20:21 berg Exp $
+#$Id: initmake,v 1.31 1993/04/19 14:42:51 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -9,6 +9,7 @@ shift; RM="$1"
 shift; MV="$1"
 shift; LN="$1"
 shift; SEARCHLIBS="$1"
+shift; LIBPATHS="$1"
 shift; DEVNULL=$1
 shift; MAKE="$1"
 shift; O=$1
@@ -133,18 +134,27 @@ while $cc $CFLAGS1 $CFLAGS _autotst.$O -o _autotst $LDFLAGS1 $LDFLAGS \
 do
   set dummy $LDFLAGS
   shift
-  echo 2>&1 "	... scanning for $# libraries ..."
+  echo 2>&1 "	...scanning for $# libraries..."
   NEWLDFLAGS=""
   for a in $LDFLAGS dummy
   do
      if test dummy != $a
      then
-	if $FGREP lib`expr match $a '-l\(.*\)'` _autotst.rrr >$DEVNULL ||
+	lib=`expr match $a '-l\(.*\)'`
+	if $FGREP lib$lib _autotst.rrr >$DEVNULL ||
 	 $FGREP -e $a _autotst.rrr >$DEVNULL
 	then
 	:
 	else
-	   NEWLDFLAGS="$NEWLDFLAGS $a"
+	   OLDIFS="$IFS"; IFS=":$IFS"
+	   found=no
+	   for libpath in $LIBPATHS $LD_LIBRARY_PATH
+	   do
+	      set $libpath/*lib$lib[A-Z.]*
+	      test -f $1 && found=yes
+	   done
+	   IFS="$OLDIFS"
+	   test yes = $found && NEWLDFLAGS="$NEWLDFLAGS $a"
 	fi
      fi
   done

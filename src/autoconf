@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.40 1993/04/19 10:36:34 berg Exp $
+#$Id: autoconf,v 1.41 1993/04/19 14:43:00 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -596,12 +596,11 @@ do
   test -z "$i0" && grepfor stddef.h "#define STDDEF_H_MISSING" && i0=I
   test -z "$i1" && grepfor stdlib.h "#define STDLIB_H_MISSING" && i1=I
   test -z "$i2" && grepfor dirent.h "#define DIRENT_H_MISSING" && i2=I
-  test -z "$i3" && grepfor sys/ndir.h "#define SYS_NDIR_H_MISSING" && i3=I
-   test I = "$i3$i4" && grepfor ndir.h "#define NDIR_H_MISSING" && i4=I
-   test II = "$i3$i4$i5" && grepfor sys/dir.h "#define SYS_DIR_H_MISSING" &&
-    i5=I
-   test III =  "$3$i4$i5$i6" &&
-    grepfor sys/dirent.h "#define SYS_DIRENT_H_MISSING" && i6=I
+  test -z "$i3" && grepfor ndir.h "#define NDIR_H_MISSING" && i3=I
+   test I = "$i3$i4" && grepfor sys/ndir.h "#define SYS_NDIR_H_MISSING" && i4=I
+    test I = "$i4$i5" && grepfor sys/dir.h "#define SYS_DIR_H_MISSING" && i5=I
+     test I = "$i5$i6" && grepfor sys/dirent.h "#define SYS_DIRENT_H_MISSING" \
+      && i6=I
   test -z "$i7" && grepfor sys/wait.h "#define SYS_WAIT_H_MISSING" && i7=I
   test -z "$i8" && grepfor sys/utsname.h "#define SYS_UTSNAME_H_MISSING" &&
    i8=I
