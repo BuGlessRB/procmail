@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.15 1993/04/13 15:47:44 berg Exp $
+#$Id: install.sh,v 1.16 1993/04/14 10:04:04 berg Exp $
 
 test $# != 1 -a $# != 2 && echo "Usage: install.sh target-directory [.bin]" &&
  exit 64
@@ -39,9 +39,9 @@ then
   /bin/rm -f $TMPF
   AM_ROOT=yes
   installerid=`ls -l install.sh |
-   sed -e 's/^[^ ]*  *[0-9][0-9]*  *\([^ ]*\) /\1/'`
+   sed -e 's/^[^ ]* *[0-9][0-9]*[^0-9] *\([^ ]*\) .*$/\1/'`
   listid=`ls -ld $target/. |
-   sed -e 's/^[^ ]*  *[0-9][0-9]*  *\([^ ]*\) /\1/'`
+   sed -e 's/^[^ ]* *[0-9][0-9]*[^0-9] *\([^ ]*\) .*$/\1/'`
   if test root = $listid
   then
      echo "Please give $target the right owner & group first"
@@ -49,7 +49,7 @@ then
   fi
 else
   /bin/rm -f $TMPF
-  if echo Id test >id.test 2>/dev/null
+  if ( echo Id test >id.test ) 2>/dev/null
   then
   :
   else
@@ -58,7 +58,7 @@ else
   fi
   /bin/rm -f id.test
   listid=`ls -l install.sh |
-   sed -e 's/^[^ ]*  *[0-9][0-9]*  *\([^ ]*\) /\1/'`
+   sed -e 's/^[^ ]* *[0-9][0-9]*[^0-9] *\([^ ]*\) .*$/\1/'`
 fi
 
 trap "" 1 2 3 15
