@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.82 1999/04/13 04:26:50 guenther Exp $";
+ "$Id: mailfold.c,v 1.83 1999/04/13 04:33:17 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -142,7 +142,7 @@ exlb: { nlog(exceededlb);setoverflow();
       NORMperm,verbose,0))
 	goto ret;
      unlink(buf);			 /* found a name, remove file in tmp */
-     strncpy(chp,maildirnew);	    /* but prepare to link directly into new */
+     strncpy(chp,maildirnew,MAILDIRLEN);    /* but to link directly into new */
    }
   else							   /* tofile==to_DIR */
    { struct stat stbuf;
