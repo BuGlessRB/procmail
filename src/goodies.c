@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.60 1999/08/13 02:52:28 guenther Exp $";
+ "$Id: goodies.c,v 1.61 1999/11/01 19:18:33 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -198,7 +198,7 @@ escaped:      CHECKINC();*p++=i;
 	      case '{':						  /* ${name} */
 		 while(EOF!=(i=fgetc())&&alphanum(i))
 		  { if(startb>=fencepost2)
-		     { startb=buf+2;
+		     { startb=buf2+2;
 		       overflow||skiprc++;
 		       overflow=1;
 		     }
@@ -424,6 +424,7 @@ void retStdout(newmyenv)char*const newmyenv;	/* see note on primeStdout() */
 
 void retbStdout(newmyenv)char*const newmyenv;	/* see note on primeStdout() */
 { newmyenv[Stdfilled]='\0';*lastenv=(myenv=(struct dynstring*)newmyenv)->ename;
+  Stdout=0;
 }
 
 void postStdout P((void))		 /* throw it into the keyword parser */

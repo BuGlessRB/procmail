@@ -20,8 +20,3 @@ Address confusion in SmartList
     headers, not from the request itself.  It also appears that
     multigram may have a problem with addresses that don't have a space
     between a double quote and an open angle bracket (unconfirmed).
-
-Variable expansion corners
-    For the underbar variable and numeric variables, putting the name
-    of the variable in braces causes the internal meaning to be
-    ignored.

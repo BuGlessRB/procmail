@@ -468,6 +468,8 @@
 		 (strcpy() builtin doesn't always return pointer type)
 	       - Warn about using 'c' flag with 'f' flag or on variable
 		 capture recipes
+	       - Warn about using 'h', 'b', 'i', or 'r' flags on nested
+		 block recipes.
 	       - Test for allowing rcfiles in sticky directories iff chown
 		 is restricted was reversed
 	       - LASTFOLDER wasn't correctly set when delivering to multiple
@@ -477,6 +479,7 @@
 	       - SENDMAIL and SENDMAILFLAGS are now split in forwarding actions
 	       - Variable capture actions now see the variable's current value
 		 and restore that value if the action fails
+	       - fsync() mailboxes before closing them
 	    Changes to formail:
 	       - Replies without the -t flag go to the envelope sender
 	       - Replies without "-a Resent-" and -t flag ignore the

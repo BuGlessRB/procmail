@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.149 1999/10/24 06:31:29 guenther Exp $";
+ "$Id: procmail.c,v 1.150 1999/11/01 19:18:36 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -819,6 +819,14 @@ nolock:			{ nlog("Couldn't determine implicit lockfile from");
 		       testB('\n')))
 	       { if(locknext&&!flags[CONTINUE])
 		    nlog(extrns),elog("locallockfile"),elog(ignrd);
+		 if(flags[PASS_BODY])
+		    nlog(extrns),elog("deliver-body flag"),elog(ignrd);
+		 if(flags[PASS_HEAD])
+		    nlog(extrns),elog("deliver-head flag"),elog(ignrd);
+		 if(flags[IGNORE_WRITERR])
+		    nlog(extrns),elog("ignore-write-error flag"),elog(ignrd);
+		 if(flags[RAW_NONL])
+		    nlog(extrns),elog("raw-mode flag"),elog(ignrd);
 		 app_val(&ifstack,(off_t)prevcond);	    /* push prevcond */
 		 app_val(&ifstack,(off_t)lastcond);	    /* push lastcond */
 		 if(!i)						/* no match? */

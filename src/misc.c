@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.95 1999/10/20 04:53:19 guenther Exp $";
+ "$Id: misc.c,v 1.96 1999/11/01 19:18:35 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -797,7 +797,6 @@ noconcat:
       i&=lastcond&&lastsucc;
    if(flags[ALSO_NEXT_RECIPE])
       i=i&&lastcond;
-   Stdout=0;
    for(skippedempty=0;;)
     { skipspace();--nrcond;
       if(!testB('*'))			    /* marks a condition, new syntax */

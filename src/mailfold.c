@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.88 1999/10/20 04:53:17 guenther Exp $";
+ "$Id: mailfold.c,v 1.89 1999/11/01 19:18:34 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -91,7 +91,7 @@ jin:	while(part&&(i=rwrite(s,source,BLKSIZ<part?BLKSIZ:(int)part)))
 	emboxseparator(s);	 /* newline and an optional custom separator */
       }
 writefin:
-     i=fsync(s);
+     i=tofile&&fsync(s)&&errno!=EINVAL;		  /* EINVAL => wasn't a file */
      if(to_lock(tofile))
       { int serrno=errno;		       /* save any error information */
 	if(fdunlock())
@@ -167,7 +167,7 @@ didlnk:
 	Stdout=buf;primeStdout("");
 	len=Stdfilled+strlen(Stdout+Stdfilled);
 	p=realloc(Stdout,(Stdfilled=len+1+strlen(buf))+1);
-	p[len]=' ';strcpy(p+len+1,buf);retbStdout(p);Stdout=0;
+	p[len]=' ';strcpy(p+len+1,buf);retbStdout(p);
       }
      goto ret;
    }
