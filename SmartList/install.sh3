@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh3  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh3		  # we're in a buggy zsh
-#$Id: install.sh3,v 1.13 1993/07/30 13:52:57 berg Exp $
+#$Id: install.sh3,v 1.14 1993/09/01 15:53:46 berg Exp $
 
 umask 022
 
@@ -11,6 +11,8 @@ chmod go+x "$target"			# the aliases won't work otherwise
 
 FRAGILE="rc.init "
 DIRS="etc"
+
+TMPFLIST=flist.$$
 
 echo "Preserving any old files: $FRAGILE"
 
@@ -25,7 +27,7 @@ echo Fixing up incompatibilities with older versions...
 ( cd "$target"
   for a in *
   do
-     ln "$a/dist" "$a/accept" 2>/dev/null
+     test -f "$a/accept" || ln "$a/dist" "$a/accept" 2>/dev/null
   done
 )
 
@@ -63,11 +65,17 @@ cp ../src/multigram "$target/$bindir"
 sed -e "s:/home/list/.bin:$target/$bindir:g" <Manual >"$target/.etc/Manual"
 mv -f "$target/$bindir/procmail" "$target/$bindir/.procmail" 2>/dev/null
 chmod 0755 $target/$bindir/* 2>/dev/null
-for a in flist senddigest idhash idcheck
+
+rm -f $TMPFLIST
+ln "$target/$bindir/flist" $TMPFLIST
+mv -f "$target/$bindir/multigram" "$target/$bindir/flist"
+for a in multigram senddigest idhash idcheck
 do
   rm -f "$target/$bindir/$a"
-  ln "$target/$bindir/multigram" "$target/$bindir/$a"
+  ln "$target/$bindir/flist" "$target/$bindir/$a"
 done
+
+rm -f $TMPFLIST
 chmod 04755 "$target/$bindir/flist" 2>/dev/null
 mv -f "$target/$bindir/.procmail" "$target/$bindir/procmail" 2>/dev/null
 

@@ -49,6 +49,12 @@ Next, make sure that you are running as root (su root) and execute the
 
 	sh install.sh /home/list
 
+If you are setting up the mailinglists under your own account, simply
+creating a separate directory and running the install.sh script should
+suffice.  Depending on the setuid semantics of your system (i.e. if
+they follow the posix semantics) the .bin/flist program needs to be
+setuid root anyway.
+
 This script will then create two subdirectories (.bin and .etc) in
 /home/list.  These directories will be filled with the files contained
 in the bin and etc subdirectories here.	 It will also make sure that
@@ -118,7 +124,7 @@ the two sendmailOPT* assigments following it.
 Before you start the upgrade, create the file /home/list/.etc/rc.lock
 Now do a ps and see if any procmail-list instances are currently
 running.  Wait till they are gone.  Now touch the rc.lock file once more.
-You know have 17 minutes to complete the upgrade.  If it should take
+You now have 17 minutes to complete the upgrade.  If it should take
 longer, touch the rc.lock file every so often.	As soon as the difference
 between its mtime and the current time exceeds 17 minutes, the flist
 programs start delivering mail to the lists again.
@@ -127,7 +133,7 @@ You can simply use the install.sh script again to install directly over
 the old installation IF you customised ONLY the master rc.init and rc.custom
 files.	Once you ran the install.sh script, you'll have to merge the changes
 you made to the old rc.init file (still there) into the rc.init.new file.
-Then cat (yes, use `cat', because you have to preserve the hardlinks) the
+Then cat (yes, use `cat', because you have to preserve any hardlinks) the
 rc.init.new file into the rc.init file.
 There are some new entries in the new rc.custom file template.	Since they
 are commented out (i.e. rc.init already provides defaults) their omission

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.47 1993/08/24 12:43:51 berg Exp $";
+ "$Id: procmail.c,v 1.48 1993/09/01 15:54:02 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -54,7 +54,7 @@ main(argc,argv)const char*const argv[];
 { register char*chp,*chp2;register i;int suppmunreadable;
   ;{ int Deliverymode,mailfilter;char*fromwhom=0;const char*idhint=0;
 #define Presenviron	i
-     Deliverymode=mailfilter=0;
+     Deliverymode=mailfilter=0;thepid=getpid();
      if(argc)			       /* sanity check, any argument at all? */
       { Deliverymode=strcmp(lastdirsep(argv0=argv[0]),procmailn);
 	for(Presenviron=argc=0;(chp2=(char*)argv[++argc])&&*chp2=='-';)
@@ -167,7 +167,6 @@ privileged:
 	opnlog(console);
 #endif
 	setbuf(stdin,(char*)0);buf=malloc(linebuf);buf2=malloc(linebuf);
-	thepid=getpid();
 #ifdef SIGXCPU
 	signal(SIGXCPU,SIG_IGN);signal(SIGXFSZ,SIG_IGN);
 #endif

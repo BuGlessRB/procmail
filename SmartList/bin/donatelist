@@ -7,7 +7,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: donatelist,v 1.1 1993/07/19 12:40:43 berg Exp $
+#$Id: donatelist,v 1.2 1993/09/01 15:53:48 berg Exp $
 
 defaults=.etc
 
@@ -64,7 +64,7 @@ fi
 
 fragilef="log tmp.from tmp.request msgid.cache request"
 fragiled="bounce"
-miscf="dist accept"
+miscf="dist accept rc.custom"
 
 if $chown $user $list
 then

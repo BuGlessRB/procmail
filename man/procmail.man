@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.26 1993/08/09 14:10:38 berg Exp $
+.Id $Id: procmail.man,v 1.27 1993/09/01 15:53:54 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -368,7 +368,13 @@ Missing closing quote, or trying to escape EOF.
 Unknown user "x"
 The specified recipient does not have a corresponding uid.
 .Sh "EXTENDED DIAGNOSTICS"
+Extended diagnostics can be turned on and off through setting the
+VERBOSE variable.
 .Tp 2.3i
+[pid] time & date
+Procmail's pid and a timestamp.  Generated whenever procmail logs a
+diagnostic and at least a second has elapsed since the last timestamp.
+.Tp
 Assigning "x"
 Environment variable assignment.
 .Tp

@@ -164,6 +164,7 @@
 	       NeXTStep 3.1 environments
 	    Moved the "Reiterating kernel lock" diagnostic into the "extended"
 	       (i.e. VERBOSE=on) section
+	    Procmail will be logging timestamps in the logfile when VERBOSE=on
 	    Caused the regular TIMEOUT to break a `hanging' kernel lock
 	    SIGUSR1 and SIGUSR2 can be used to turn on and off verbose logging
 	    Extended the procmailex man page (again)

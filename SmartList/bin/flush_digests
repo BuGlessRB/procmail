@@ -9,7 +9,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: flush_digests,v 1.8 1993/08/09 14:10:31 berg Exp $
+#$Id: flush_digests,v 1.9 1993/09/01 15:53:51 berg Exp $
 
 test=test		# /bin/test
 mkdir=mkdir		# /bin/mkdir
@@ -22,8 +22,13 @@ touch=touch		# /bin/touch
 dirname=dirname		# /bin/dirname
 lockfile=lockfile	# /usr/local/bin/lockfile
 
-$test $# = 0 -o .-c = ".$1" -a \( $# = 1 -o .-f = ".$1" -a $# = 2 \) ||
- $echo "Usage: flush_digests [-c [-f]]" 1>&2 && exit 64
+if $test $# = 0 -o .-c = ".$1" -a \( $# = 1 -o .-f = ".$2" -a $# = 2 \)
+then
+:
+else
+  $echo "Usage: flush_digests [-c [-f]]" 1>&2
+  exit 64
+fi
 
 tmprequest=tmp.request
 tmpfrom=tmp.from
@@ -32,6 +37,8 @@ digestbody=archive/latest/digest.body
 
 if $test .-c = ".$1"
 then
+  force=""
+  $test .-f = ".$2" && force=yes
   digestheader=archive/latest/digest.header
   digestadmin=digest.admin
   digestadmin2=archive/latest/$digestadmin
@@ -44,7 +51,7 @@ then
   umask $1; shift
   SENDMAIL="$*"
 
-  $test .-f = ".$1" && digest_age=0	# force digest out
+  $test yes = "$force" && digest_age=0	# force digest out
 
   if senddigest $digest_age $digest_size $digestbody $digesttrailer \
    $tmprequest $tmpfrom $digestheader $digestadmin $digestadmin2
