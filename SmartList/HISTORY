@@ -188,7 +188,7 @@
 	       to noise ratio for typical mail addresses
 	    Mails that did not have a Return-Path: or Reply-To: field were
 	       not replied to correctly (regression bug since v3.06), fixed
-1995/05/17: v3.11pre3
+1995/06/28: v3.11pre4
 	    Cc_unsubrequests and cc_requests had some undesirable side-effects
 	    Procbounce reported spurious errors if badly formatted bounces
 	       were received
