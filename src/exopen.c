@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.27 1997/04/03 01:58:41 srb Exp $";
+ "$Id: exopen.c,v 1.28 1999/02/02 17:00:46 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -18,14 +18,16 @@ static /*const*/char rcsid[]=
 int unique(full,p,mode,verbos,chownit)const char*const full;char*p;
  const mode_t mode;const int verbos,chownit;
 { unsigned long retry=mrotbSERIAL;int i;struct stat filebuf;
-  int nicediff,didnice=0;
+  int nicediff,didnice=0;char*orig;
   if(chownit&doCHOWN)		  /* semi-critical, try raising the priority */
    { nicediff=nice(0);SETerrno(0);nicediff-=nice(-NICE_RANGE);
      if(!errno)
 	didnice=1;
    }
+  *p=UNIQ_PREFIX;orig=p+1;
   do						  /* create unique file name */
-   { *p=UNIQ_PREFIX;p=ultoan(maskSERIAL&(retry-=irotbSERIAL)+(long)thepid,p+1);
+   { p=ultoan(maskSERIAL&(retry-=irotbSERIAL)+(long)thepid,orig);
+     *p++='.';
      strncpy(p,hostname(),HOSTNAMElen);p[HOSTNAMElen]='\0';
    }
 #ifndef O_CREAT

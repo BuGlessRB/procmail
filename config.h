@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.79 1999/01/20 17:58:13 guenther Exp $*/
+/*$Id: config.h,v 1.80 1999/02/02 17:00:45 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -120,7 +120,7 @@
 #define STDBUF		128
 #endif /* SMALLHEAP */
 #define FAKE_FIELD	">From "
-#define HOSTNAMElen	9	  /* determines hostname-ID-len on tempfiles */
+#define HOSTNAMElen	8	  /* determines hostname-ID-len on tempfiles */
 #define BOGUSprefix	"BOGUS."	     /* prepended to bogus mailboxes */
 #define DEFsuspend	16		 /* multi-purpose 'idle loop' period */
 #define DEFlocksleep	8
