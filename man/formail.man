@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.43 2001/01/28 00:46:14 guenther Exp $
+.Id $Id: formail.man,v 1.44 2001/06/03 23:38:05 guenther Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -129,7 +129,7 @@ a program one by one (a new program is started for every part).
 has to be the last option specified, the first argument following it is
 expected to be the name of a program, any other arguments will be
 passed along to it.  If you omit the program, then formail will simply
-concatenate the splitted mails on stdout again.  See
+concatenate the split mails on stdout again.  See
 .BR @FILENO@ .
 .TP
 .I "\fB\-@FM_NOWAIT@\fP [maxprocs]"
@@ -398,7 +398,7 @@ compliant message.  In particular, formail will let you generate
 header fields whose name ends in a space instead of a colon.  While
 this is correct for the leading `@FROM@' line, that line is not a
 header field so much as the message separator for the mbox mailbox
-format.  Multiple occurences of such a line or any other colonless
+format.  Multiple occurrences of such a line or any other colonless
 header field will be considered by many mail programs, including
 formail itself, as the beginning of a new message.  Others will
 consider the message to be corrupt.  Because of this, you should
@@ -447,7 +447,7 @@ field is found in a header, formail will copy the number of specified bytes in
 the body verbatim before resuming the regular scanning for message boundaries
 (except when splitting digests or Berkeley mailbox format is assumed).
 .PP
-Any header lines immeadiately following the leading `@FROM@' line
+Any header lines immediately following the leading `@FROM@' line
 that start with `@ESCAP@@FROM@' are considered to be a continuation
 of the `@FROM@' line.  If instructed to rename the `@FROM@' line,
 formail will change each leading `@ESCAP@' into a space, thereby
