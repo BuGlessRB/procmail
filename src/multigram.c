@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.68 1994/10/07 15:25:01 berg Exp $";
+ "$Id: multigram.c,v 1.69 1994/10/07 17:06:51 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/10/07 15:25:01 $";
+static /*const*/char rcsdate[]="$Date: 1994/10/07 17:06:51 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -206,7 +206,7 @@ static void checkparens(pleft,pright,str,echp)int pleft,pright;
       }
      if(parens>0)			/* more opening than closing parens? */
 shftleft:
-	tmemmove(chp,chp+1,echp-chp+1);			/* delete left paren */
+	tmemmove(chp,chp+1,echp-chp+2);			/* delete left paren */
    }
   else if(parens<0&&*echp==pright)	/* more closing than opening parens? */
      *echp='\0';				       /* delete right paren */
@@ -756,7 +756,7 @@ usg:
 	      lastfrom=!strcmp(SHFROM,chp);
 	   continue;			  /* apparently not an email address */
 	 }
-	lastfrom=0;tmemmove(fuzzstr.text,chp,echp-chp+1);
+	lastfrom=0;tmemmove(fuzzstr.text,chp,echp-chp+2);
 	checkparens('(',')',fuzzstr.text,echp);
 	checkparens('[',']',fuzzstr.text,strchr(fuzzstr.text,'\0'));
 	if(*(chp=fuzzstr.text)=='<'&&*(echp=strchr(chp,'\0')-1)=='>')
