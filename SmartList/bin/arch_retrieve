@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.37 1994/06/16 16:36:58 berg Exp $
+#$Id: arch_retrieve,v 1.38 1994/06/17 16:41:06 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -25,8 +25,16 @@ maxfiles=16			# the maximum number of files returned (per
 				# command), this can be overridden with
 				# the "maxfiles nnn" command.  Setting it
 				# to zero will disable checking.
-waitsleep=8			# number of seconds to sleep between sending
+
+waitsleep=1			# number of seconds to sleep between sending
 				# off files (to limit the load increase)
+				# Don't set this limit too high, or your list
+				# might become unavailable for extended periods
+				# of time (if lots of files are being
+				# requested).
+				# If queueing is enabled, this sleep period
+				# will not be used between putting files in
+				# the queue.
 
 tmprequest=tmp.request
 tmpfrom=tmp.from
@@ -137,7 +145,7 @@ $wrongaddress}"
 			fi
 		      ) | $SENDMAIL $sendmailOPT $sendmailOPTq -t
 			else
-			   $mimesend "$1"
+			   $nice $mimesend "$1"
 			fi
 		      ;;
 		  esac
@@ -154,7 +162,7 @@ $wrongaddress}"
 		 $echo "limit."
 	       ) | $SENDMAIL $sendmailOPT -t
 	    fi
-	    $sleep $waitsleep ;;
+	    $test -z "$sendmailOPTq" && $sleep $waitsleep ;;
 	 ls|dir|directory|list|show|\
 	 LS|DIR|DIRECTORY|LIST|SHOW)
 	    shift
