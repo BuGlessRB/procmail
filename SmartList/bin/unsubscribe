@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands
-#$Id: unsubscribe,v 1.24 1994/06/07 14:16:23 berg Exp $
+#$Id: unsubscribe,v 1.25 1994/06/28 14:49:16 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -44,6 +44,7 @@ remtext=`
    if test ! -z "$unsub_assist" -a 0 != "$unsub_assist"
    then
       $echo "What I did find were the following approximate matches:"
+      $echo ""
       $multigram -b$unsub_assist -l-32767 -x$listreq -x$listaddr $dist \
        <$tmprequest
       $echo ""

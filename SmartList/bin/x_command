@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: x_command,v 1.18 1994/06/14 14:28:30 berg Exp $
+#$Id: x_command,v 1.19 1994/06/28 14:49:19 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -44,6 +44,7 @@ do
      _subscribe)
 	 $echo "The prospective subscriber address generates the following"
 	 $echo "multigram matches to the current list:"
+	 $echo ""
 	 $echo "From $2" | $multigram -b8 -l-32767 dist
 	 $echo ""
 	 $echo "From $2 " >$tmprequest
@@ -60,6 +61,7 @@ do
      _unsubscribe)
 	 $echo "The address that is about to unsubscribed generates the"
 	 $echo "following multigram matches to the current list:"
+	 $echo ""
 	 $echo "From $2" | $multigram -b8 -l-32767 dist
 	 $echo ""
 	 $echo "From $2 " >$tmprequest
@@ -75,6 +77,7 @@ do
      _checkdist)
 	 $echo "Multigram checking the dist file for matches with"
 	 $echo "$2:"
+	 $echo ""
 	 $echo "From $2" | $multigram -b8 -l-32767 dist
 	 $echo ""
 	 shift ;;

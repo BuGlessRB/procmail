@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.47 1994/06/24 10:44:59 berg Exp $";
+ "$Id: mailfold.c,v 1.48 1994/06/28 14:49:28 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -278,7 +278,7 @@ void concon(ch)const int ch;   /* flip between concatenated and split fields */
    }
 }
 
-static void ffrom(const char*chp)
+static void ffrom(chp)const char*chp;
 { while(chp=strstr(chp,FROM_EXPR))
      app_val(&escFrom_,(off_t)(++chp-themail));	       /* bogus From_ found! */
 }
@@ -316,7 +316,7 @@ void readmail(rhead,tobesent)const long tobesent;
 eofheader:
 	contlengthoffset=0;
 	if(chp=egrepin("^Content-Length:",themail,(long)(thebody-themail),0))
-	   contlengthoffset=chp-thebody;
+	   contlengthoffset=chp-themail;
       }
      else			       /* no new header read, keep it simple */
 	thebody=themail+dfilled; /* that means we know where the body starts */

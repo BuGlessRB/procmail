@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.50 1994/06/24 10:44:51 berg Exp $
+.Id $Id: procmail.man,v 1.51 1994/06/28 14:49:23 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -508,6 +508,10 @@ stale lockfile will not remove the newly created lock by mistake.
 Procmail uses the regular TERMINATE signal to terminate any runaway filter,
 but it does not check if the filter responds to that signal and it only sends
 it to the filter itself, not to any of the filter's children.
+.PP
+A continued
+.B Content-Length:
+field is not handled correctly.
 .SH MISCELLANEOUS
 If there is an existing
 .B Content-Length:
