@@ -556,3 +556,5 @@
 		 all platforms
 	    Changes to lockfile:
 	       - Include the system mailbox lockfile path in the -v output
+	    Documented formail's treatment of >From_ lines as continuations
+	       of the From_ line
