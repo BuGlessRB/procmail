@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.55 1994/05/26 14:10:40 berg Exp $
+#$Id: Makefile,v 1.56 1994/06/01 18:52:01 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -71,7 +71,7 @@ SEARCHLIBS = -lm -ldir -lx -lsocket -lnet -linet -lnsl_s -lnsl_i -lnsl -lsun \
 # Informal list of directories where we look for the libraries in SEARCHLIBS
 LIBPATHS=/lib /usr/lib /usr/local/lib
 
-GCC_WARNINGS = -pedantic -Wimplicit -Wreturn-type -Wunused -Wformat \
+GCC_WARNINGS = -O2 -pedantic -Wimplicit -Wreturn-type -Wunused -Wformat \
  -Wtraditional -Wshadow -Wid-clash-6 -Wpointer-arith -Wconversion \
  -Waggregate-return #-Wuninitialized
 

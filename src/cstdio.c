@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.24 1994/05/26 14:12:29 berg Exp $";
+ "$Id: cstdio.c,v 1.25 1994/06/01 18:52:18 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -69,7 +69,7 @@ int bopen(name)const char*const name;				 /* my fopen */
 { rcbufp=rcbufend=0;rc=ropen(name,O_RDONLY,0);
   if(rc>=0)
    { char*md;		 /* if it's a relative name and an absolute $MAILDIR */
-     if(!strchr(dirsep,name)&&strchr(dirsep,*(md=(char*)tgetenv(maildir))))
+     if(!strchr(dirsep,*name)&&strchr(dirsep,*(md=(char*)tgetenv(maildir))))
       { strcpy(buf2,md);*(md=strchr(buf2,'\0'))= *dirsep;strcpy(++md,name);
 	md=buf2;				    /* then prepend $MAILDIR */
       }

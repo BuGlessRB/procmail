@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.52 1994/06/01 17:22:27 berg Exp $";
+ "$Id: multigram.c,v 1.53 1994/06/01 18:52:21 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/06/01 17:22:27 $";
+static /*const*/char rcsdate[]="$Date: 1994/06/01 18:52:21 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -343,7 +343,7 @@ nochdir: { nlog("Couldn't chdir to");logqnl(targetdir);return EX_NOPERM;
 	    { foundlock=0;
 	      if(chdir(arg))		     /* goto the list's subdirectory */
 		 pmexec[1]=RCMAIN,Endpmexec(2)=0,chdir(defdir);
-	      for(rclock(GLOCKFILE,&stbuf)||rclock(LLOCKFILE,&stbuf))
+	      while(rclock(GLOCKFILE,&stbuf)||rclock(LLOCKFILE,&stbuf))
 		 foundlock=1;					    /* stall */
 	    }
 	   while(foundlock&&!chdir(LINKMOVED));	      /* did the lists move? */

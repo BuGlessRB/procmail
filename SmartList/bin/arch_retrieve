@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.31 1994/06/01 17:21:42 berg Exp $
+#$Id: arch_retrieve,v 1.32 1994/06/01 18:52:09 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -110,16 +110,13 @@ $wrongaddress}"
 			 -i"From: $listreq" -A"X-Loop: $listaddr" \
 			 -i"Content-ID: <$1%$listreq>" \
 			 -I"Precedence: bulk" -X "" <$tmprequest
+			$test ! -z "$wrongaddress" && $echo "$wrongaddress"
 			cd $archivedir
 			if $test -f "./$1"
 			then
 			   case `$sed -e 1q <"./$1"` in
-			      Content-[Tt]ype:*) $test ! -z "$wrongaddress" &&
-					       $echo "$wrongaddress"
-				 $cat "./$1" ;;
+			      Content-[Tt]ype:*) $cat "./$1" ;;
 			      *) $echo ""
-				 $test ! -z "$wrongaddress" &&
-				  $echo "$wrongaddress"
 				 $echo "File: $1"
 				 $echo "BEGIN------------cut here-------------"
 				 $cat "./$1"
@@ -128,8 +125,12 @@ $wrongaddress}"
 			   esac
 			else
 			   $echo ""
-			   $test ! -z "$wrongaddress" && $echo "$wrongaddress"
-			   $echo "File $1 is not available."
+			   if $test -d "./$1"
+			   then
+			      $echo "$1 is a directory, use 'ls' instead."
+			   else
+			      $echo "File $1 is currently not available."
+			   fi
 			fi
 		      ) | $SENDMAIL $sendmailOPT -t
 			else
