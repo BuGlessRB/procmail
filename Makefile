@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.31 1993/06/23 14:35:02 berg Exp $
+#$Id: Makefile,v 1.32 1993/06/25 13:38:38 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -60,7 +60,7 @@ SEARCHLIBS = -ldir -lx -lsocket -lnet -linet -lnsl_s -lnsl_i -lnsl -lsun -lgen\
 LIBPATHS=/lib /usr/lib /usr/local/lib /usr/ucblib /usr/5lib /usr/ucb/lib \
  /lib/386
 
-CFLAGS0 = -O #-pedantic-errors #-Wid-clash-6
+CFLAGS0 = -O #-pedantic #-Wid-clash-6
 LDFLAGS0= -s
 
 CFLAGS1 = $(CFLAGS0) #-posix -Xp
