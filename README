@@ -18,6 +18,11 @@ any warranty; without even the implied warranty of merchantability or fitness
 for a particular purpose.  See either the GNU General Public License or the
 Artistic License for more details.
 
+For those of you that choose to use the GNU General Public License,
+my interpretation of the GNU General Public License is that no procmailrc
+script falls under the terms of the GPL unless you explicitly put
+said script under the terms of the GPL yourself.
+
 -------------------------- SYSTEM REQUIREMENTS -------------------------------
 
 Any *NIX-alike (or POSIX compliant) system.
