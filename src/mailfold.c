@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.28 1993/06/07 15:08:45 berg Exp $";
+ "$Id: mailfold.c,v 1.29 1993/06/21 14:24:35 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -150,7 +150,7 @@ makefile:
      tofile=strcmp(devnull,buf)?to_FOLDER:0;return opena(boxname);
    }
   if(linkfolder)		    /* any additional directories specified? */
-   { for(boxname=linkfolder;*boxname!=TMNATE;)
+   { for(boxname=linkfolder;boxname!=Tmnate;)
 	while(*boxname++);		       /* calculate the total length */
      boxname++;
      linkfolder=			       /* copy the names into safety */
@@ -163,7 +163,7 @@ makefile:
   ;{ int fd= -1;		/* generate the name for the first directory */
      if(unique(buf2,strchr(buf2,'\0'),NORMperm,verbose)&&
       (fd=dirfile(chp,0))>=0&&linkfolder)	 /* save the file descriptor */
-	for(strcpy(buf2,buf),boxname=linkfolder;*boxname!=TMNATE;)
+	for(strcpy(buf2,buf),boxname=linkfolder;boxname!=Tmnate;)
 	 { strcpy(buf,boxname);		/* go through the list of other dirs */
 	   if(*(chp=buf))
 	      chp=strchr(buf,'\0')-1;

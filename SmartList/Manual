@@ -1,4 +1,4 @@
-$Id: Manual,v 1.10 1993/05/05 13:05:34 berg Exp $
+$Id: Manual,v 1.11 1993/06/21 14:23:42 berg Exp $
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
@@ -9,7 +9,8 @@ Contents:
 		2. Remote maintenance of mailinglists
 		3. Customisation
 		3a.Digest processing
-		3b.Schematic overview of what goes on behind the scenes
+		3b.Moderated lists
+		3c.Schematic overview of what goes on behind the scenes
 		4. The archive server
 		5. The format of the dist file
 		6. Multigram and the thresholds in rc.init/rc.custom
@@ -185,7 +186,17 @@ This is what you can do:
 	thelist.
 
 
-3b.Schematic overview of what goes on behind the scenes
+3b.Moderated lists
+   ---------------
+
+The easiest way to set up a moderated list would be to rename the "thelist"
+alias into "thelist-approved", and to create a new "thelist" alias that
+points to the moderator.  This way the moderator receives all submissions,
+which he/she then can forward to thelist-approved to finally distribute it
+(after some editing of the message perhaps).
+
+
+3c.Schematic overview of what goes on behind the scenes
    ----------------------------------------------------
 
 Suppose you have two entries in the aliases file, one for thelist@domain

@@ -1,13 +1,4 @@
-.Id $Id: procmailex.man,v 1.15 1993/06/07 15:08:35 berg Exp $
-.de Sx
-.PP
-.ne \\$1
-.Rs
-..
-.de Ex
-.Re
-.PP
-..
+.Id $Id: procmailex.man,v 1.16 1993/06/21 14:24:06 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -28,31 +19,31 @@ or look at the example rcfiles part of the procmail source distribution
 Sort out all mail coming from the scuba-dive mailing list into the mailfolder
 scubafile (uses the locallockfile scubafile.lock).
 .Sx 3
-::
-^TOscuba
+:0:
+* ^TOscuba
 scubafile
 .Ex
 Forward all mail from peter about compilers to william (and keep a copy
 of it here in petcompil).
 .Sx 7
-:2 @CONTINUE@
-^From.*peter
-^Subject:.*compilers
+:0 @CONTINUE@
+* ^From.*peter
+* ^Subject:.*compilers
 ! william@somewhere.edu
 
-   :@ALSO_NEXT_RECIPE@
+   :0 @ALSO_NEXT_RECIPE@
    petcompil
 .Ex
 An equivalent, but slightly slower solution that accomplishes the same:
 .Sx 9
-:2 @CONTINUE@
-^From.*peter
-^Subject:.*compilers
+:0 @CONTINUE@
+* ^From.*peter
+* ^Subject:.*compilers
 ! william@somewhere.edu
 
-   :2
-   ^From.*peter
-   ^Subject:.*compilers
+   :0
+   * ^From.*peter
+   * ^Subject:.*compilers
    petcompil
 .Ex
 Add the headers of all messages that didn't come from the postmaster
@@ -62,29 +53,29 @@ to make sure the lockfile is not removed until the pipe has finished,
 you have to specify option `@WAIT_EXIT@'; otherwise the lockfile would be
 removed as soon as the pipe has accepted the mail.
 .Sx 3
-:@PASS_HEAD@@WAIT_EXIT@@CONTINUE@:
-!@FROMMkey@
+:0 @PASS_HEAD@@WAIT_EXIT@@CONTINUE@:
+* !@FROMMkey@
 | uncompress headc.Z; cat >>headc; compress headc
 .Ex
 Forward all mails shorter than 1000 bytes to my home address (no lockfile
 needed on this recipe).
 .Sx 3
-:
-< 1000
+:0
+* < 1000
 ! myname@home
 .Ex
 Split up incoming digests from the surfing mailing list into their individual
 messages, and store them into surfing, using surfing.lock as the locallockfile.
 .Sx 3
-::
-^Subject:.*surfing.*Digest
+:0:
+* ^Subject:.*surfing.*Digest
 | formail @FM_SKIP@1 \-@FM_DIGEST@@FM_SPLIT@ cat >>surfing
 .Ex
 Store everything coming from the postmaster or mailer-daemon (like bounced
 mail) into the file postm, using postm.lock as the locallockfile.
 .Sx 3
-::
-@FROMMkey@
+:0:
+* @FROMMkey@
 postm
 .Ex
 A simple autoreply recipe.  It makes sure that neither mail from any daemon
@@ -99,9 +90,9 @@ is not a good idea to generate autoreplies to mailinglists (yes, the
 !^FROM_DAEMON regexp should already catch those, but if the mailinglist
 doesn't follow accepted conventions, this might not be enough).
 .Sx 4
-: 2 @PASS_HEAD@ @CONTINUE@
-!^FROM_DAEMON
-!^From +YOUR_LOGIN_NAME
+:0 @PASS_HEAD@ @CONTINUE@
+* !^FROM_DAEMON
+* !^From +YOUR_LOGIN_NAME
 | (formail \-@FM_REPLY@ \-@FM_ADD_ALWAYS@"Precedence: junk";\e
    echo "Mail received.") | $SENDMAIL \-t
 .Ex
@@ -122,16 +113,16 @@ value of the `To:' field.
 SHELL=/bin/sh    # for other shells, this might need adjustment
 ALREADYSENT=$HOME/vacation     # the vacation database
 
-: 2 @PASS_HEAD@@WAIT_EXIT_QUIET@@CONTINUE@:                       # the lockfile is important
-!^FROM_DAEMON
-!^From +YOUR_LOGIN_NAME
+:0 @PASS_HEAD@@WAIT_EXIT_QUIET@@CONTINUE@:                       # the lockfile is important
+* !^FROM_DAEMON
+* !^From +YOUR_LOGIN_NAME
 | FROM="`formail \-@FM_REPLY@@FM_EXTRACT@ To:`" ;\e
   if fgrep \-e "$FROM" <$ALREADYSENT ;\e
   then exit 1 ;\e
   else echo "$FROM" >>$ALREADYSENT ;\e
   fi
 
-   :@ALSO_N_IF_SUCC@@PASS_HEAD@@CONTINUE@
+   :0 @ALSO_N_IF_SUCC@@PASS_HEAD@@CONTINUE@
    | (formail \-@FM_REPLY@@FM_ADD_ALWAYS@"Precedence: junk";\e
       echo "Mail received.") | $SENDMAIL \-t
 .Ex
@@ -139,23 +130,23 @@ Store all messages concerning TeX in separate, unique filenames, in a directory
 named texmail (this directory has to exist); there is no need to use lockfiles
 in this case, so we won't.
 .Sx 3
-:
-(^TO|^Subject:.*)TeX[^t]
+:0
+* (^TO|^Subject:.*)TeX[^t]
 texmail
 .Ex
 The same as above, except now we store the mails in numbered files (MH mail
 folder), again the texmail directory should exist already.
 .Sx 3
-:
-(^TO|^Subject:.*)TeX[^t]
+:0
+* (^TO|^Subject:.*)TeX[^t]
 texmail/.
 .Ex
 Or you could file the mail in several directory folders at the same time.
 The following recipe will deliver the mail to two MH-folders and one
 directory folder.  It is actually only one file with two extra hardlinks.
 .Sx 3
-:
-(^TO|^Subject:.*)TeX[^t]
+:0
+* (^TO|^Subject:.*)TeX[^t]
 texmail/. wordprocessing dtp/.
 .Ex
 Store all the messages about meetings in a folder that is in a directory
@@ -163,8 +154,8 @@ that changes every month.  E.g. if it were January 1994, the folder
 would have the name `94-01/meeting' and the locallockfile would be
 `94-01/meeting.lock'.
 .Sx 3
-::
-meeting
+:0:
+* meeting
 `date +%y-%m`/meeting
 .Ex
 The same as above, but, if the `94-01' directory wouldn't have existed, it
@@ -172,12 +163,12 @@ is created automatically:
 .Sx 9
 MONTHFOLDER=`date +%y-%m`
 
-:@IGNORE_WRITERR@
-? test ! \-d $MONTHFOLDER
+:0 @IGNORE_WRITERR@
+* ? test ! \-d $MONTHFOLDER
 | mkdir $MONTHFOLDER
 
-::
-meeting
+:0:
+* meeting
 ${MONTHFOLDER}/meeting
 .Ex
 The same as above, but now by slightly different means:
@@ -185,8 +176,8 @@ The same as above, but now by slightly different means:
 MONTHFOLDER=`date +%y-%m`
 DUMMY=`test \-d $MONTHFOLDER || mkdir $MONTHFOLDER`
 
-::
-meeting
+:0:
+* meeting
 ${MONTHFOLDER}/meeting
 .Ex
 When delivering to emacs folders (i.e. mailfolders managed by any emacs
@@ -197,8 +188,8 @@ internal buffers.  The following recipe assumes that $HOME equals /home/john.
 .Sx 5
 MAILDIR=Mail
 
-::/usr/local/lib/emacs/lock/!home!john!Mail!mailbox
-^Subject:.*whatever
+:0:/usr/local/lib/emacs/lock/!home!john!Mail!mailbox
+* ^Subject:.*whatever
 mailbox
 .Ex
 To extract certain headers from a mail and put them into environment
@@ -207,7 +198,7 @@ variables you can use any of the following constructs:
 SUBJECT=`formail \-@FM_EXTRACT@Subject:`    # regular field
 FROM=`formail \-@FM_REPLY@@FM_TRUST@ \-@FM_EXTRACT@To:`        # special case
 
-:0@PASS_HEAD@                             # alternate method
+:0 @PASS_HEAD@                            # alternate method
 KEYWORDS=| formail \-@FM_EXTRACT@Keywords:
 .Ex
 If you are using temporary files in a procmailrc file, and want to make
@@ -227,8 +218,8 @@ TRAP="exit 1;"   # The trailing semi-colon is important
 The following recipe prints every incoming mail that looks like a postscript
 file.
 .Sx 3
-:@BODY_GREP@@PASS_BODY@
-^^%!
+:0 @BODY_GREP@@PASS_BODY@
+* ^^%!
 | lpr
 .Ex
 The following recipe does the same, but is a bit more selective.  It only
@@ -239,9 +230,9 @@ right after the
 .B first
 empty line).
 .Sx
-:2 @HEAD_GREP@@BODY_GREP@ @PASS_BODY@
-^^(.+$)*From[ :].*print-server
-^^(.+$)*^%!
+:0 @HEAD_GREP@@BODY_GREP@ @PASS_BODY@
+* ^^(.+$)*From[ :].*print-server
+* ^^(.+$)*^%!
 | lpr
 .Ex
 Suppose you have two accounts, you use both accounts regularly, but they are
@@ -255,8 +246,8 @@ both sites.  If you make sure that you add the same X-Loop: field at both
 sites, mail can now safely be forwarded to the other account from either of
 them.
 .Sx 4
-:@CONTINUE@
-!^X-Loop: yourname@your.main.mail.address
+:0 @CONTINUE@
+* !^X-Loop: yourname@your.main.mail.address
 | formail \-@FM_ADD_ALWAYS@ "X-Loop: yourname@your.main.mail.address" | \e
    $SENDMAIL \-oi yourname@the.other.account
 .Ex
@@ -265,12 +256,12 @@ following will automatically send back the contents of info_file to the
 sender.  Like in all recipes where we send mail, we watch out for mail
 loops.
 .Sx 7
-:2 @CONTINUE@@FILTER@@PASS_HEAD@
-!^X-Loop: yourname@your.main.mail.address
-^Subject:.*retrieve
+:0 @CONTINUE@@FILTER@@PASS_HEAD@
+* !^X-Loop: yourname@your.main.mail.address
+* ^Subject:.*retrieve
 | formail -r -A"X-Loop: yourname@your.main.mail.address"
 
-  :A
+  :0 A
   | (cat ; cat info_file ) | $SENDMAIL -oi -t
 .Ex
 The following one is rather exotic, but it only serves to demonstrate a
@@ -283,8 +274,8 @@ increase LINEBUF if necessary):
 .Sx 5
 URGMATCH=`cat $HOME/.urgent`
 
-:@BODY_GREP@:
-$^From.*${URGMATCH}.*
+:0 @BODY_GREP@:
+* $^From.*${URGMATCH}.*
 urgent
 .Re
 .Sh "SEE ALSO"

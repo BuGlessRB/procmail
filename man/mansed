@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.9 1993/05/18 13:05:21 berg Exp $
+#$Id: mansed,v 1.10 1993/06/21 14:24:00 berg Exp $
 
 test 5 != $# &&
  echo "Don't start this script directly, use \`make'" && exit 1
@@ -46,6 +46,15 @@ fi
 .RE
 .fi
 .ad
+..
+.de Sx
+.PP
+.ne \\$1
+.Rs
+..
+.de Ex
+.Re
+.PP
 ..
 HERE
 cat "$SRC"

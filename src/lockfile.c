@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.14 1993/03/02 14:41:12 berg Exp $";
+ "$Id: lockfile.c,v 1.15 1993/06/21 14:24:28 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/03/02 14:41:12 $";
+static /*const*/char rcsdate[]="$Date: 1993/06/21 14:24:28 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -66,7 +66,7 @@ static size_t parsecopy(dest,org,pass)char*const dest;const char*org;
 	      org+=STRLEN(home),chp=pass->pw_dir;		    /* $HOME */
 	   else
 	      goto capac;			     /* no other fancy stuff */
-	   if((i= *org)-'a'<='z'-'a'||i-'A'<='Z'-'A'||i-'0'<='9'-'0'||i=='_')
+	   if((i= *org)-'a'<='z'-'a'||i-'A'<='Z'-'A'||numeric(i)||i=='_')
 	      goto capac;
 	   if(p)
 	      p+=strlen(strcpy(p,chp));			      /* paste it in */

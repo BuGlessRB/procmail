@@ -92,14 +92,23 @@ to abuse the sgid/suid-ness.
 2a.Special directions for sites with sendmail
    ------------------------------------------
 
-The following line should take the place of the standard
-Mlocal rule in your sendmail.cf:
+The following lines should take the place of the standard Mlocal definition in
+your sendmail.cf:
 
-Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhPfn, S=10, R=20, A=procmail -d $u
+Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhPfn, S=10, R=20,
+	A=procmail -a $h -d $u
 
 The `f' and the `n' flags can be omitted (if your sendmail generates correct
 From_ lines).  As for the options "S=10, R=20": if your system uses others or
-none on the current Mlocal rule, use those instead of "S=10, R=20".
+none on the current Mlocal definition, use those instead of "S=10, R=20".
+
+In order to take advantage of the meta argument that can be passed to
+procmail you'd have to change to $#local mailer rule to set the $@ host name
+(which will be substituted for $h in the mailer definition).
+
+Since you are editing the sendmail.cf file now anyway, you might as well setup
+an extra `procmail' mailer.  This Mprocmail can then be used as a general mail
+filter.	 For more information, see EXAMPLES section the procmail(1) man page.
 
 				---
 
@@ -210,20 +219,20 @@ HELLO = "wheeee`date`${HELLO} this works too"	 HELLO = 'But so does this!'
 
 LOCALLOCKFILE = llf
 
-  ::$LOCALLOCKFILE
-grep for this
+  :0:$LOCALLOCKFILE
+  * grep for this
  |$HELLO		# calls up a program named "But" with 3 arguments
 
-:: "test ing"		# lockfilename with a space in it
-grep for this
+:0: "test ing"		# lockfilename with a space in it
+  * grep for this
   |$HELLO
 
-:
-or for this
+:0
+* or for this
 |"$HELLO"		# tries to call up a program named "But so does this!"
 
-:
-and this
+:0
+* and this
 |$HELLO \
 there		# action lines can be continued
 
@@ -232,25 +241,25 @@ there		# action lines can be continued
 6. Some advanced examples of the use of the 'A' flag
    -------------------------------------------------
 
-:c		# Specify the 'c' otherwise we never arrive at the next recipe
-^From Myfriend
+:0c		# Specify the 'c' otherwise we never arrive at the next recipe
+* ^From Myfriend
 every_message_from_my_friend		# Mailbox for everything he/she writes
 
-:Ac			# Note the 'c' again
+:0 Ac			# Note the 'c' again
 ! my_other_friend      # Forward everything Myfriend writes to my_other_friend
 
-:1Ac
-^Subject:.*jokes
+:0 Ac
+* ^Subject:.*jokes
 ! my_third_friend	# Forward everything Myfriend writes about jokes
 			# to my_third_friend
 
-:2A
-^Subject:.*parties
-!beach
+:0 A
+* ^Subject:.*parties
+* !beach
 ! my_fourth_friend	# Forward everything Myfriend writes about parties,
 			# except beach parties, to my_fourth_friend
 
-:A			# Provide a mail sink, in order to fake procmail into
+:0 A			# Provide a mail sink, in order to fake procmail into
 /dev/null		# believing that the mail was absorbed/delivered,
 			# even if the mail was about beach parties :-).
 		# This is not the best solution though, better would be to

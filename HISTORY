@@ -159,7 +159,7 @@
 	       turns out to be /dev/null
 	    Added a paragraph to the mailinglist/Manual (explaining multigram
 	       and threshold values)
-1993/06/02: v2.82
+1993/06/02: v2.82 (never really released, was only available as prerelease 4)
 	    Fixed sleeptime argument to lockfile
 	    Refined the ^FROM_DAEMON macro again
 	    Added a ^FROM_MAILER macro
@@ -201,3 +201,13 @@
 	       - Updated and extended the Manual file (reading recommended)
 	       - Added the showlink convenience utility
 	       - Added support for non-sendmail compatible mailers
+1993/06/21: v2.90
+	    Condition lines in recipes can now be started with a leading `*',
+	       there is no longer a need to count condition lines, simply
+	       set the number to zero, and let procmail find out by itself
+	    Added the -a and -m options to procmail, for enhanced interfacing
+	       to sendmail
+	    Updated the recommended sendmail.cf mailer entry docs in
+	       examples/advanced
+	    Fixed a race condition when the recipient mailbox did not exist
+	       and two procmails simultaneously tried to create it

@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.20 1993/06/14 13:13:10 berg Exp $
+.Id $Id: procmail.man,v 1.21 1993/06/21 14:24:03 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -13,8 +13,17 @@ procmail \- autonomous mail processor
 .B procmail
 .RB [ \-@PRESERVOPT@@TEMPFAILOPT@ ]
 .RB [ "\-@FROMWHOPT@ \fIfromwhom\fP" ]
+.RB [ "\-@ARGUMENTOPT@ \fIargument\fP" ]
 .B \-@DELIVEROPT@
 .I recipient
+\&.\|.\|.
+.br
+.B procmail
+.RB [ \-@PRESERVOPT@@TEMPFAILOPT@ ]
+.B \-@MAILFILTOPT@
+.RI [ "parameter\fB=\fPvalue" ]
+\&.\|.\|.
+.I rcfile mail_from rcpt_to
 \&.\|.\|.
 .br
 .B procmail
@@ -41,6 +50,9 @@ the mail message that just arrived gets distributed into the right folder
 .PP
 If running suid root or with root privileges, procmail will be able to
 perform as a functionally enhanced, backwards compatible mail delivery agent.
+.PP
+Procmail can also be used as a general purpose mail filter, i.e. provisions
+have been made to enable procmail to be invoked in a special sendmail rule.
 .PP
 The rcfile format is described in detail in the
 .BR procmailrc (5)
@@ -90,6 +102,13 @@ Causes procmail to regenerate the leading `@FROM@' line with
 as the sender (instead of \-@FROMWHOPT@ one could use the alternate and
 obsolete \-@ALTFROMWHOPT@).
 .Tp
+.I "\fB\-@ARGUMENTOPT@\fP argument"
+This will set $1 to be equal to
+.IR argument .
+It can be used to pass meta information along to procmail.  This is
+typically done by passing along the $@x information from the sendmail
+mailer rule.
+.Tp
 .I "\fB\-@DELIVEROPT@\fP recipient .\|.\|."
 This turns on explicit delivery mode, delivery will be to the local user
 .IR recipient .
@@ -98,6 +117,15 @@ Procmail will setuid to the intended recipients and shall
 .I only
 read the recipient's @PROCMAILRC@ file (if present, if not, delivery is like
 ordinary mail).
+.Tp
+.B \-@MAILFILTOPT@
+Turns procmail into a general purpose mail filter.  In this mode an rcfile
+must be specified on the command line.  You should also specify the
+envelope sender and one or more envelope recipient addresses on the command
+line so that the mail can be transparently resent if needed.
+For some typical usage of this option you should look in the
+.B EXAMPLES
+section below.
 .Sh ARGUMENTS
 Any arguments containing an '=' are considered to be environment variable
 assignments, they will
@@ -119,6 +147,43 @@ If no rcfiles are specified, it looks for
 If not even that can be found, processing will continue according to
 the default settings of the environment variables and the ones specified
 on the command line.
+.Sh EXAMPLES
+Examples for rcfile recipes can be looked up in the
+.BR procmailex (5)
+man page.
+A small sample rcfile can be found in the
+.B NOTES
+section below.
+.PP
+The
+.B \-@MAILFILTOPT@
+option is typically used when procmail is called from within a rule in the
+sendmail.cf file.  In order to be able to do this it is convenient to create
+an extra `procmail' mailer in your sendmail.cf file (in addition to the perhaps
+already present `local' mailer that starts up procmail).  To create such a
+`procmail' mailer I'd suggest something like:
+.Sx 2
+Mprocmail, P=/usr/local/bin/procmail, F=mSDFMhun, S=11, R=21,
+        A=procmail \-@MAILFILTOPT@ $h $u
+.Ex
+This enables you to use rules like the following (most likely in ruleset 0)
+to filter mail through the procmail mailer (please note the leading tab
+to continue the rule, and the tab to separate the comments):
+.Sx 4
+R$*<@some.where>$*
+        $#procmail $@/etc/some.rc $:$1@some.where.procmail$2
+R$*<@somehost.somewhere.procmail>$*
+        $1<@somehost.somewhere>$*       Already filtered, map back
+.Ex
+And /etc/some.rc could be as simple as:
+.Sx 6
+:0                              # sink all junk mail
+* ^Subject:.*junk
+/dev/null
+
+:0                              # pass along all other mail
+! \-oi \-f "$@"
+.Ex
 .Sh FILES
 .Tp 2.3i
 .B /etc/passwd
@@ -169,6 +234,9 @@ EX_NOUSER assuming that this mailbox must not be delivered to.
 .Tp
 Bad substitution of "x"
 Not a valid environment variable name specified.
+.Tp
+Conflicting options
+Not all option combinations are useful
 .Tp
 Couldn't create "x"
 The system mailbox was missing and could not/will not be created.
@@ -236,6 +304,13 @@ subdirectories.
 .Tp
 Missing name
 The \-@FROMWHOPT@ option needs an extra argument
+.Tp
+Missing argument
+You specified the \-@ARGUMENTOPT@ option but forgot the argument
+.Tp
+Missing rcfile
+You specified the \-@FILTEROPT@ option, procmail expects the name of an rcfile
+as argument
 .Tp
 Missing recipient
 You specified the \-@DELIVEROPT@ option or called procmail under a different
@@ -470,11 +545,11 @@ PATH=/bin:/usr/bin:/usr/local/bin
 MAILDIR=$HOME/Mail      #you'd better make sure it exists
 DEFAULT=$MAILDIR/mbox
 LOGFILE=$MAILDIR/from
-::
-^From.*berg
+:0:
+* ^From.*berg
 from_me
-:
-^Subject:.*Flame
+:0
+* ^Subject:.*Flame
 /dev/null
 .fi
 .ad

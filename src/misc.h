@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.13 1993/05/28 14:43:44 berg Exp $*/
+/*$Id: misc.h,v 1.14 1993/06/21 14:24:44 berg Exp $*/
 
 void
  elog P((const char*const newt)),
@@ -24,12 +24,12 @@ void
  setdef P((const char*const name,const char*const contents)),
  metaparse P((const char*p)),
  setlastfolder P((const char*const folder)),
- asenvcpy P((char*src)),
  asenv P((const char*const chp)),
  concatenate P((char*p));
 int
  forkerr Q((const pid_t pid,const char*const a)),
  nextrcfile P((void)),
+ asenvcpy P((char*src)),
  alphanum P((const unsigned c));
 char
  *lastdirsep P((const char*filename)),

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.15 1993/05/28 14:43:34 berg Exp $";
+ "$Id: locking.c,v 1.16 1993/06/21 14:24:30 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -35,7 +35,7 @@ void lockit(name,lockp)char*name;char**const lockp;
   name=tstrdup(name); /* allocate now, so we won't hang on memory *and* lock */
   for(lcking|=lck_LOCKFILE;;)
    { yell("Locking",name);	    /* in order to cater for clock skew: get */
-     if(!xcreat(name,LOCKperm,&t,(int*)0))     /* time t from the filesystem */
+     if(!xcreat(name,LOCKperm,&t,0))	       /* time t from the filesystem */
       { *lockp=name;break;			   /* lock acquired, hurray! */
       }
      switch(errno)
@@ -122,19 +122,21 @@ no_lock:
      elog(newline),terminate();
 }
 					/* an NFS secure exclusive file open */
-xcreat(name,mode,tim,chowned)const char*const name;const mode_t mode;
- time_t*const tim;int*const chowned;
+xcreat(name,mode,tim,chownit)const char*const name;const mode_t mode;
+ time_t*const tim;const int chownit;
 { char*p;int j= -2,i;
   i=lastdirsep(name)-name;strncpy(p=malloc(i+UNIQnamelen),name,i);
   if(unique(p,p+i,mode,verbose))       /* try and rename the unique filename */
-   { if(chowned)
-	*chowned=chown(p,uid,sgid);			 /* try and chown it */
+   { if(chownit&&chown(p,uid,sgid))			 /* try and chown it */
+      { unlink(p);goto sorry;			 /* forget it, no permission */
+      }
      if(tim)
       { struct stat stbuf;	 /* return the filesystem time to the caller */
 	stat(p,&stbuf);*tim=stbuf.st_mtime;
       }
      j=myrename(p,name);
    }
+sorry:
   free(p);return j;
 }
 	/* if you've ever wondered what conditional compilation was good for */

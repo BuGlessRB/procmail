@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.23 1993/05/28 14:43:32 berg Exp $*/
+/*$Id: includes.h,v 1.24 1993/06/21 14:24:25 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -314,5 +314,6 @@ extern void*memmove();
 #define maxindex(x)	(sizeof(x)/sizeof((x)[0])-1)
 #define STRLEN(x)	(sizeof(x)-1)
 #define ioffsetof(s,m)	((int)offsetof(s,m))
+#define numeric(x)	((unsigned)((x)-'0')<='9'-'0')
 
 #define mx(a,b)		((a)>(b)?(a):(b))

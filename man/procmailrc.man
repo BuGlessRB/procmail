@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.22 1993/06/14 13:13:13 berg Exp $
+.Id $Id: procmailrc.man,v 1.23 1993/06/21 14:24:10 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -72,7 +72,14 @@ is optional (defaults to 1) and specifies the number of conditions that
 follow the first line of the recipe.  Conditions are complete lines that are
 passed on to the internal egrep
 .BR literally ,
-except for leading and trailing whitespace.
+except for leading and trailing whitespace.  If you start every condition
+line with an `*', you do not need to specify
+.IR number .
+Whitespace after the leading `*' are ignored.  The safest way would be
+to specify
+.I number
+to be zero in that case (to avoid problems when you have no conditions, but
+procmail expects one).
 These regular expressions are
 .B completely
 compatible to the normal
@@ -485,8 +492,14 @@ environment variable.
 .ad
 .Sh BUGS
 The only substitutions of environment variables that can be handled by
-procmail itself are of the type $name, ${name}, $$, $? and $\-; whereas $\-
-will be substituted by $LASTFOLDER.@UPPERCASE_USERNAMES@
+procmail itself are of the type $name, ${name}, $#, $n, $$, $? and $\-;
+whereas $\- will be substituted by $LASTFOLDER.  When the
+.B \-$ARGUMENTOPT@
+or
+.B \-$MAILFILTOPT@
+options are used, "$@" will expand to respectively the specified argument
+or the sender and recipient list; but only when passed as in the
+argument list to a program.@UPPERCASE_USERNAMES@
 .PP
 A line buffer of length $LINEBUF is used when processing the
 .IR rcfile ,

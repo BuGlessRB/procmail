@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.33 1993/05/05 13:06:33 berg Exp $";
+ "$Id: procmail.c,v 1.34 1993/06/21 14:24:49 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -28,20 +28,20 @@ static /*const*/char rcsid[]=
 #include "locking.h"
 #include "mailfold.h"
 
-static const char fdefault[]="DEFAULT",orgmail[]="ORGMAIL",
+static const char fdefault[]="DEFAULT",orgmail[]="ORGMAIL",*const nullp,
  sendmail[]="SENDMAIL",From_[]=FROM,exflags[]=RECFLAGS,
  systm_mbox[]=SYSTEM_MBOX,pmusage[]=PM_USAGE,DEFdeflock[]=DEFdefaultlock;
 char*buf,*buf2,*globlock,*loclock,*tolock;
 const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
  shellmetas[]="SHELLMETAS",lockext[]="LOCKEXT",newline[]="\n",binsh[]=BinSh,
- unexpeof[]="Unexpected EOL\n",*const*gargv,*sgetcp,*rcfile=PROCMAILRC,
- dirsep[]=DIRSEP,msgprefix[]="MSGPREFIX",devnull[]=DevNull,lgname[]="LOGNAME",
- executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",procmailn[]="procmail",
- whilstwfor[]=" whilst waiting for ",home[]="HOME",maildir[]="MAILDIR",
- *defdeflock;
+ unexpeof[]="Unexpected EOL\n",*const*gargv,*const*restargv= &nullp,*sgetcp,
+ *rcfile=PROCMAILRC,dirsep[]=DIRSEP,msgprefix[]="MSGPREFIX",devnull[]=DevNull,
+ lgname[]="LOGNAME",executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",
+ procmailn[]="procmail",whilstwfor[]=" whilst waiting for ",home[]="HOME",
+ maildir[]="MAILDIR",*defdeflock,*argv0="";
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EX_OK,sh,pwait,lcking,rc=rc_INIT,
- ignwerr,lexitcode=EX_OK,asgnlastf,accspooldir;
+ ignwerr,lexitcode=EX_OK,asgnlastf,accspooldir,crestarg;
 size_t linebuf=mx(DEFlinebuf+XTRAlinebuf,STRLEN(systm_mbox)<<1);
 volatile int nextexit;			       /* if termination is imminent */
 pid_t thepid;
@@ -55,13 +55,13 @@ main(argc,argv)const char*const argv[];
   static const char*const keepenv[]=KEEPENV,*const prestenv[]=PRESTENV,
    *const trusted_ids[]=TRUSTED_IDS;
   char*chp,*startchar,*chp2,*fromwhom=0;long tobesent;
-  int i,lastcond,succeed,suppmunreadable;
+  int i,lastcond,succeed,suppmunreadable,mailfilter=0;
 #define Deliverymode	lastcond
 #define Presenviron	i
 #define Privileged	succeed
   Deliverymode=0;
   if(argc)			       /* sanity check, any argument at all? */
-   { Deliverymode=strcmp(lastdirsep(argv[0]),procmailn);
+   { Deliverymode=strcmp(lastdirsep(argv0=argv[0]),procmailn);
      for(Presenviron=argc=0;(chp2=(char*)argv[++argc])&&*chp2=='-';)
 	for(;;)					       /* processing options */
 	 { switch(*++chp2)
@@ -69,6 +69,7 @@ main(argc,argv)const char*const argv[];
 	      case HELPOPT1:case HELPOPT2:elog(pmusage);elog(PM_HELP);
 		 elog(PM_QREFERENCE);return EX_USAGE;
 	      case PRESERVOPT:Presenviron=1;continue;
+	      case MAILFILTOPT:mailfilter=1;continue;
 	      case TEMPFAILOPT:retval=EX_TEMPFAIL;continue;
 	      case FROMWHOPT:case ALTFROMWHOPT:
 		 if(*++chp2)
@@ -78,6 +79,18 @@ main(argc,argv)const char*const argv[];
 		 else
 		    nlog("Missing name\n");
 		 break;
+	      case ARGUMENTOPT:
+	       { static const char*argv1[]={"",0};
+		 if(*++chp2)
+		    goto setarg;
+		 else if(chp2=(char*)argv[argc+1])
+		  { argc++;
+setarg:		    *argv1=chp2;restargv=argv1;crestarg=1;
+		  }
+		 else
+		    nlog("Missing argument\n");
+		 break;
+	       }
 	      case DELIVEROPT:
 		 if(!*(chp= ++chp2)&&!(chp=(char*)argv[++argc]))
 		  { nlog("Missing recipient\n");break;
@@ -97,6 +110,14 @@ main(argc,argv)const char*const argv[];
 	 }
    }
 last_option:
+  if(mailfilter)
+   { if(Deliverymode)					 /* -d supersedes -m */
+      { mailfilter=0;goto conflopt;
+      }
+     if(crestarg)				     /* -m will supersede -a */
+conflopt:
+	nlog("Conflicting options\n"),elog(pmusage);
+   }
   if(!Presenviron)				     /* drop the environment */
    { const char**emax=(const char**)environ,*const*ep,*const*kp;
      for(kp=keepenv;*kp;kp++)			     /* preserve a happy few */
@@ -122,7 +143,7 @@ last_option:
       { struct group*grp;const char*const*kp;
 	if(passinvk)			      /* check out the invoker's uid */
 	   for(chp2=passinvk->pw_name,kp=trusted_ids;*kp;)
-	      if(!strcmp(chp2,*kp++))	      /* is it among the privileged? */
+	      if(!strcmp(chp2,*kp++))	    /* is it amongst the privileged? */
 		goto privileged;
 	if(grp=getgrgid(gid))		      /* check out the invoker's gid */
 	  for(chp2=grp->gr_name,kp=trusted_ids;*kp;)
@@ -261,53 +282,56 @@ keepgid:   sgid=stbuf.st_gid;	   /* keep the gid from the parent directory */
      *	check if the default-mailbox-lockfile is owned by the recipient, if
      *	not, mark it for further investigation, it might need to be removed
      */
-     if(!(Privileged=lstat(defdeflock,&stbuf)||stbuf.st_uid==uid))
-	ultoan((unsigned long)stbuf.st_ino,		  /* i-node numbered */
-	 strchr(strcpy(buf+i,BOGUSprefix),'\0'));
-    /*
-     *	check if the original/default mailbox of the recipient exists, if it
-     *	does, perform some security checks on it (check if it's a regular
-     *	file, check if it's owned by the recipient), if something is wrong
-     *	try and move the bogus mailbox out of the way,	create the
-     *	original/default mailbox file, and chown it to the recipient
-     */
-     if(lstat(chp,&stbuf))				 /* stat the mailbox */
-      { succeed= -(errno==EACCES);goto boglock;
-      }
-     if(!Privileged&&!(stbuf.st_mode&S_IWGRP))	/* lockfile unrightful owner */
-      { succeed=1;
-boglock:
-	if(!Privileged)	  /* try to rename the bogus lockfile out of the way */
-	   rename(defdeflock,buf);
-      }
-     else
-	succeed=1;				 /* mailbox a symbolic link? */
-     if(succeed>0||succeed<0&&(setids(uid,gid),!lstat(chp,&stbuf)))
-	if(!(stbuf.st_mode&S_IWUSR)||S_ISLNK(stbuf.st_mode)||
-	 (S_ISDIR(stbuf.st_mode)?!(stbuf.st_mode&S_IXUSR):stbuf.st_nlink!=1))
-	   goto bogusbox;	 /* we only deliver to real files (security) */
-	else if(stbuf.st_uid!=uid)	     /* the recipient doesn't own it */
-bogusbox:					     /* bogus mailbox found! */
-	 { ultoan((unsigned long)stbuf.st_ino,		  /* i-node numbered */
+     for(;;)
+      { if(!(Privileged=lstat(defdeflock,&stbuf)||stbuf.st_uid==uid))
+	   ultoan((unsigned long)stbuf.st_ino,		  /* i-node numbered */
 	    strchr(strcpy(buf+i,BOGUSprefix),'\0'));
-	   if(rename(chp,buf))		   /* try and move it out of the way */
-	      goto fishy;	 /* couldn't rename, something is fishy here */
-	 }					/* SysV type autoforwarding? */
-	else if(Deliverymode&&stbuf.st_mode&(S_ISGID|S_ISUID))
-	 { nlog("Autoforwarding mailbox found\n");return EX_NOUSER;
+       /*
+	*	check if the original/default mailbox of the recipient exists,
+	*	if it does, perform some security checks on it (check if it's
+	*	a regular file, check if it's owned by the recipient), if
+	*	something is wrong try and move the bogus mailbox out of the
+	*	way, create the original/default mailbox file, and chown it to
+	*	the recipient
+	*/
+	if(lstat(chp,&stbuf))				 /* stat the mailbox */
+	 { succeed= -(errno==EACCES);goto boglock;
+	 }					/* lockfile unrightful owner */
+	if(!Privileged&&!(stbuf.st_mode&S_IWGRP))
+	 { succeed=1;
+boglock:   if(!Privileged)    /* try to rename bogus lockfile out of the way */
+	      rename(defdeflock,buf);
 	 }
 	else
-	   goto notfishy;			       /* everything is fine */
-     if(!xcreat(chp,NORMperm,(time_t*)0,&i))   /* try and create the mailbox */
-	if(i)					       /* could we chown it? */
-	   unlink(chp);		    /* no we couldn't, NFS-mount or not root */
-	else
-	   goto notfishy;		      /* yes we could, fine, proceed */
-     setids(uid,gid);					   /* try some magic */
-     if(xcreat(chp,NORMperm,(time_t*)0,(int*)0))   /* try to create it again */
-fishy:						/* bad news, be conservative */
-	nlog("Couldn't create"),logqnl(chp),sputenv(orgmail),sputenv(fdefault);
-notfishy:
+	   succeed=1;				 /* mailbox a symbolic link? */
+	if(succeed>0||succeed<0&&(setids(uid,gid),!lstat(chp,&stbuf)))
+	   if(!(stbuf.st_mode&S_IWUSR)||S_ISLNK(stbuf.st_mode)||
+	    (S_ISDIR(stbuf.st_mode)?
+	    !(stbuf.st_mode&S_IXUSR):stbuf.st_nlink!=1))
+	      goto bogusbox;	 /* we only deliver to real files (security) */
+	   else if(stbuf.st_uid!=uid)	     /* the recipient doesn't own it */
+bogusbox:   { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
+	       strchr(strcpy(buf+i,BOGUSprefix),'\0'));	    /* bogus mailbox */
+	      if(rename(chp,buf))	   /* try and move it out of the way */
+		 goto fishy;	 /* couldn't rename, something is fishy here */
+	    }					/* SysV type autoforwarding? */
+	   else if(Deliverymode&&stbuf.st_mode&(S_ISGID|S_ISUID))
+	    { nlog("Autoforwarding mailbox found\n");return EX_NOUSER;
+	    }
+	   else
+	      break;				  /* everything is just fine */
+	if(!xcreat(chp,NORMperm,(time_t*)0,1)) /* try and create the mailbox */
+	   break;			      /* yes we could, fine, proceed */
+	if(!lstat(chp,&stbuf))			     /* anything in the way? */
+	   continue;			       /* check if it could be valid */
+	setids(uid,gid);				   /* try some magic */
+	if(!xcreat(chp,NORMperm,(time_t*)0,0))	   /* try to create it again */
+	   break;
+	if(lstat(chp,&stbuf))			      /* nothing in the way? */
+fishy:	 { nlog("Couldn't create");logqnl(chp);sputenv(orgmail);
+	   sputenv(fdefault);break;				 /* so panic */
+	 }
+      }						/* bad news, be conservative */
      umask(INIT_UMASK);
    }
   suppmunreadable=!verbose;
@@ -323,8 +347,17 @@ notfishy:
 	   setdef(scomsat,DEFcomsat)	       /* turn off comsat by default */
 #endif
 	 ;
+     else if(mailfilter)
+      { nlog("Missing rcfile\n");return EX_NOINPUT;
+      }
      while(chp=(char*)argv[argc])      /* interpret command line specs first */
-	argc++,asenvcpy(chp);
+      { argc++;
+	if(!asenvcpy(chp)&&mailfilter)
+	 { gargv= &nullp;
+	   for(restargv=argv+argc;restargv[crestarg];crestarg++);
+	   break;
+	 }
+      }
    }
   do					     /* main rcfile interpreter loop */
    { alarm((unsigned)(alrmtime=0));			    /* reset timeout */
@@ -398,11 +431,11 @@ findrc:	   suppmunreadable=i=0;	    /* should we keep the current directory? */
 		     }
 		    flags[chp2-exflags]=1;		     /* set the flag */
 		 case '\0':
-		    if(*chp!=TMNATE)		/* if not the real end, skip */
+		    if(chp!=Tmnate)		/* if not the real end, skip */
 		       continue;
 		    break;
 		 case ':':locknext=1;	    /* yep, local lockfile specified */
-		    if(*chp||*++chp!=TMNATE)
+		    if(*chp||++chp!=Tmnate)
 		       tolock=tstrdup(chp),chp=strchr(chp,'\0')+1;
 	       }
 	      concatenate(chp);skipped(chp);break;  /* display any leftovers */
@@ -420,8 +453,8 @@ findrc:	   suppmunreadable=i=0;	    /* should we keep the current directory? */
 noconcat:  i=flags[ALSO_NEXT_RECIPE]?lastcond:1;	  /* init test value */
 	   if(flags[ALSO_N_IF_SUCC])
 	      i=lastcond&&succeed;	/* only if the last recipe succeeded */
-	   while(nrcond--)			    /* any conditions (left) */
-	    { skipspace();getlline(buf2);
+	   while(skipspace(),nrcond--,testb('*')||nrcond>=0)
+	    { skipspace();getlline(buf2);	    /* any conditions (left) */
 	      for(chp=strchr(buf2,'\0');--chp>=buf2;)
 	       { switch(*chp)		  /* strip off whitespace at the end */
 		  { case ' ':case '\t':*chp='\0';continue;

@@ -21,13 +21,17 @@
 	then you no longer need the .forward files in your home directory,
 	having a .procmailrc file will suffice.
 
-	On some systems .forward files are not checked, in this case it might
-	be worth trying to put a line looking like this:
-		Forward to "|/usr/local/bin/procmail"
+	On some systems .forward files are not checked.
+	It might be possible that your system supports a command like:
+		mail -F "|/usr/local/bin/procmail"
+	to set up forwarding to a program.
+	If that doesn't seem to work it might be worth trying to put a line
+	looking like this:
+		Forward to |/usr/local/bin/procmail
 	or if that doesn't work, try:
 		Pipe to /usr/local/bin/procmail
-	as the only line in your mail spool file (e.g. /usr/mail/$USER), as
-	well as doing a "chmod 06660 /usr/mail/$USER".	For more information
+	as the only line in your mail spool file (e.g. /usr/mail/$LOGNAME), as
+	well as doing a "chmod 06660 /usr/mail/$LOGNAME".  For more information
 	on such systems, do a "man mail".
 
 	If all of this doesn't work, procmail can be called on a periodical
@@ -92,7 +96,11 @@
 	Other examples (e.g. for autoreplies) are most likely to be found by
 	typing:		man procmailex
 
-9. Why do I have to insert my login name after the '#' in the .forward or
+9. How do I use procmail as a general mail filter inside sendmail?
+
+	See EXAMPLES section of the procmail(1) man page.
+
+10. Why do I have to insert my login name after the '#' in the .forward or
    .maildelivery file?
 
 	Some mailers `optimise' maildelivery and take out duplicates from
@@ -102,7 +110,7 @@
 	it will make the .forward files unique, and will ensure that the mailer
 	doesn't optimise away some addresses.
 
-10. How do I view the man pages?
+11. How do I view the man pages?
 
 	If the man(1) program on your system understands the MANPATH
 	environment variable, make sure that the installation directory listed
@@ -113,12 +121,12 @@
 	them, you can view an individual man file by typing something like:
 	nroff -man procmail.1 | more
 
-11. The leading From_ line on all my arriving mail shows the wrong time.
+12. The leading From_ line on all my arriving mail shows the wrong time.
     Before putting procmail in the .forward file everything was OK.
 
 	This is a known bug in sendmail-5.65c+IDA.
 
-12. I sometimes get these `Lock failure on "/usr/mail/$LOGNAME.lock"' errors
+13. I sometimes get these `Lock failure on "/usr/mail/$LOGNAME.lock"' errors
     from procmail.  What do I do about it?
 
 	The problem here is that as long as procmail has not read a
@@ -165,7 +173,7 @@
 	  system mailbox will be using the same lockfile of course.
 
 
-13. None of the above topics cover my problem.	Should I panic?
+14. None of the above topics cover my problem.	Should I panic?
 
 	Let me ask you a question :-), have you examined the CAVEATS, WARNINGS,
 	BUGS and NOTES sections of the manual pages *closely* ?

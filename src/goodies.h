@@ -1,4 +1,4 @@
-/*$Id: goodies.h,v 1.7 1993/05/07 13:18:04 berg Exp $*/
+/*$Id: goodies.h,v 1.8 1993/06/21 14:24:20 berg Exp $*/
 
 void
  readparse P((char*p,int(*const fpgetc)(),const sarg)),
@@ -14,4 +14,4 @@ extern long Stdfilled;
 extern const char test[];
 #endif
 
-#define TMNATE		'\377'
+extern const char*Tmnate,*All_args;

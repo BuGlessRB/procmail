@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.23 1993/05/05 13:06:30 berg Exp $*/
+/*$Id: manconf.c,v 1.24 1993/06/21 14:24:38 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -186,8 +186,10 @@ is case sensitive, and some users have login names with uppercase letters in\
   pc("VERSIONOPT",VERSIONOPT);
   pc("PRESERVOPT",PRESERVOPT);
   pc("TEMPFAILOPT",TEMPFAILOPT);
+  pc("MAILFILTOPT",MAILFILTOPT);
   pc("FROMWHOPT",FROMWHOPT);
   pc("ALTFROMWHOPT",ALTFROMWHOPT);
+  pc("ARGUMENTOPT",ARGUMENTOPT);
   pc("DELIVEROPT",DELIVEROPT);
   pn("MINlinebuf",MINlinebuf);
   ps("FROM",FROM);

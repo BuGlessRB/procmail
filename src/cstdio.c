@@ -6,14 +6,14 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.13 1993/05/28 14:43:29 berg Exp $";
+ "$Id: cstdio.c,v 1.14 1993/06/21 14:24:15 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
 #include "cstdio.h"
 #include "misc.h"
 
-static uchar rcbuf[STDBUF],*rcbufp,*rcbufend;	 /* buffers for custom stdio */
+static uchar rcbuf[STDBUF],*rcbufp,*rcbufend;	  /* buffer for custom stdio */
 static off_t blasttell;
 static struct dyna_long inced;				  /* includerc stack */
 

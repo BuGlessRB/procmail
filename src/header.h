@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.19 1993/05/28 14:56:13 berg Exp $*/
+/*$Id: header.h,v 1.20 1993/06/21 14:24:22 berg Exp $*/
 
 static const char
  returnpath[]=		"Return-Path:",				  /* RFC 822 */
@@ -45,6 +45,7 @@ static const char
  mssage[]=		"Message:",
  text[]=		"Text:",
  via[]=			"Via:",
+ x400received[]=	"X400-Received:",
  priority[]=		"Priority:",			    /* ELM extension */
  fcc[]=			"Fcc:",				   /* Mush extension */
  resent[]=		"Resent:",			     /* MH extension */
@@ -96,14 +97,14 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
   bsl(res_messageid),bsl(inreplyto),bsl(references),bsl(keywords),bsl(subject),
   bsl(scomments),bsl(ncrypted),bsl(errorsto),bsl(retreceiptto),
   bsl(precedence),bsl(fullname),bsl(postddate),bsl(recvddate),bsl(mssage),
-  bsl(text),bsl(via),bsl(priority),bsl(fcc),bsl(resent),bsl(forwarded),
-  bsl(replied),bsl(article),bsl(path),bsl(summary),bsl(organisation),
-  bsl(aorganization),bsl(newsgroups),bsl(followupto),bsl(approved),bsl(lines),
-  bsl(expires),bsl(control),bsl(distribution),bsl(xref),bsl(originator),
-  bsl(nntppostinghost),bsl(title),bsl(aRticleid),bsl(posted),bsl(cnttype),
-  bsl(encoding),bsl(mimeversion),bsl(cnttransferenc),bsl(cntid),
-  bsl(cntdescription),bsl(transportoptions),bsl(defltoptions),bsl(cntlength),
-  bsl(rference),bsl(msgtype),bsl(autoforwardedfrom),bsl(autofcount),
-  bsl(endofheader),bsl(orgaforwfrom),bsl(orgdate),bsl(notdeliveredto),
-  bsl(reportversion),bsl(status),bsl(readreceiptto)
+  bsl(text),bsl(via),bsl(x400received),bsl(priority),bsl(fcc),bsl(resent),
+  bsl(forwarded),bsl(replied),bsl(article),bsl(path),bsl(summary),
+  bsl(organisation),bsl(aorganization),bsl(newsgroups),bsl(followupto),
+  bsl(approved),bsl(lines),bsl(expires),bsl(control),bsl(distribution),
+  bsl(xref),bsl(originator),bsl(nntppostinghost),bsl(title),bsl(aRticleid),
+  bsl(posted),bsl(cnttype),bsl(encoding),bsl(mimeversion),bsl(cnttransferenc),
+  bsl(cntid),bsl(cntdescription),bsl(transportoptions),bsl(defltoptions),
+  bsl(cntlength),bsl(rference),bsl(msgtype),bsl(autoforwardedfrom),
+  bsl(autofcount),bsl(endofheader),bsl(orgaforwfrom),bsl(orgdate),
+  bsl(notdeliveredto),bsl(reportversion),bsl(status),bsl(readreceiptto)
 };

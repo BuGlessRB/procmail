@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.14 1993/04/02 12:38:47 berg Exp $";
+ "$Id: goodies.c,v 1.15 1993/06/21 14:24:17 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -22,6 +22,7 @@ long Stdfilled;
 #ifndef GOT_bin_test
 const char test[]="test";
 #endif
+const char*Tmnate,*All_args;
 
 #define NOTHING_YET	(-1)	 /* readparse understands a very complete    */
 #define SKIPPING_SPACE	0	 /* subset of the standard /bin/sh syntax    */
@@ -38,6 +39,7 @@ const char test[]="test";
 void readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
  const int sarg;
 { static i;int got;char*startb;
+  All_args=0;
   for(got=NOTHING_YET;;)		    /* buf2 is used as scratch space */
 loop:
    { i=fgetc();
@@ -51,7 +53,7 @@ newchar:
 early_eof:    nlog(unexpeof);
 ready:	   if(got!=SKIPPING_SPACE||sarg)  /* not terminated yet or sarg==2 ? */
 	      *p++='\0';
-	   *p=TMNATE;return;
+	   Tmnate=p;return;
 	case '\\':
 	   if(got==SINGLE_QUOTED)
 	      break;
@@ -91,8 +93,10 @@ forcebquote:	 case EOF:case '`':
 		  { int osh=sh;
 		    *p='\0';
 		    if(!(sh=!!strpbrk(startb,tgetenv(shellmetas))))
-		     { const char*save=sgetcp;
+		     { const char*save=sgetcp,*sall_args=All_args;
 		       sgetcp=p=tstrdup(startb);readparse(startb,sgetc,0);
+		       if(!All_args)	       /* only one can be remembered */
+			  All_args=sall_args;		    /* this is a bug */
 #ifndef GOT_bin_test
 		       if(!strcmp(test,startb))
 			  strcpy(startb,p),sh=1;       /* oops, `test' found */
@@ -132,43 +136,46 @@ escaped:      *p++=i;
 	case '$':
 	   if(got==SINGLE_QUOTED)
 	      break;
-	   if(EOF==(i=fgetc()))
-	    { *p++='$';goto ready;
-	    }
 	   startb=buf2;
-	   if(i=='{')						  /* ${name} */
-	    { while(EOF!=(i=fgetc())&&alphanum(i))
-		 *startb++=i;
-	      *startb='\0';
-	      if(i!='}')
-	       { nlog("Bad substitution of");logqnl(buf2);continue;
-	       }
-	      i='\0';
+	   switch(i=fgetc())
+	    { case EOF:*p++='$';goto ready;
+	      case '@':
+		 if(got!=DOUBLE_QUOTED)
+		    goto normchar;
+		 All_args=p;continue;
+	      case '{':						  /* ${name} */
+		 while(EOF!=(i=fgetc())&&alphanum(i))
+		    *startb++=i;
+		 *startb='\0';
+		 if(i!='}'||numeric(*buf2)&&buf2[1])
+		  { nlog("Bad substitution of");logqnl(buf2);continue;
+		  }
+		 i='\0';break;					  /* $$ =pid */
+	      case '$':ultstr(0,(unsigned long)thepid,p);goto ieofstr;
+	      case '?':strcpy(p,"-1");
+		 if(lexitcode>=0)  /* $? =exitcode from last started program */
+		    ultstr(0,(unsigned long)lexitcode,p);
+		 goto ieofstr; /* $# =number of extra command-line arguments */
+	      case '#':ultstr(0,(unsigned long)crestarg,p);goto ieofstr;
+	      case '-':strcpy(p,tgetenv(lastfolder));
+ieofstr:	 i='\0';goto eofstr;			   /* $- =lastfolder */
+	      default:
+		 if(numeric(i))			   /* $n positional argument */
+		  { *startb++=i;i='\0';goto finsb;
+		  }
+		 if(alphanum(i))				    /* $name */
+		  { do *startb++=i;
+		    while(EOF!=(i=fgetc())&&alphanum(i));
+		    if(i==EOF)
+			i='\0';
+finsb:		    *startb='\0';break;
+		  }
+normchar:	 *p++='$';goto newchar;		       /* not a substitution */
 	    }
-	   else if(alphanum(i))					    /* $name */
-	    { do *startb++=i;
-	      while(EOF!=(i=fgetc())&&alphanum(i));
-	      if(i==EOF)
-		 i='\0';
-	      *startb='\0';
+	   ;{ int j;
+	      startb=(unsigned)(j=(*buf2)-'0')>9?(char*)tgetenv(buf2):
+	       !j?(char*)argv0:j<=crestarg?(char*)restargv[j-1]:"";
 	    }
-	   else if(i=='$')					  /* $$ =pid */
-	    { ultstr(0,(unsigned long)thepid,p);goto ieofstr;
-	    }
-	   else if(i=='?')	   /* $? =exitcode from last started program */
-	    { strcpy(p,"-1");
-	      if(lexitcode>=0)
-		 ultstr(0,(unsigned long)lexitcode,p);
-	      goto ieofstr;
-	    }
-	   else if(i=='-')				   /* $- =lastfolder */
-	    { strcpy(p,tgetenv(lastfolder));
-ieofstr:      i='\0';goto eofstr;
-	    }
-	   else
-	    { *p++='$';goto newchar;		       /* not a substitution */
-	    }
-	   startb=(char*)tgetenv(buf2);
 	   if(got!=DOUBLE_QUOTED)
 simplsplit:   for(;;startb++)		  /* simply split it up in arguments */
 	       { switch(*startb)

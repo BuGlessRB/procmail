@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.20 1993/06/04 13:49:15 berg Exp $
+#$Id: rc.request,v 1.21 1993/06/21 14:23:54 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -24,26 +24,26 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 # If everything matches, we extract the sender address into tmp.from
 #
 
-:4whc
-< 8192
-$!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
-!^Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)([^a-z]|$))
-!^FROM_DAEMON
+:0 whc
+* < 8192
+* $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
+* !^Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)([^a-z]|$))
+* !^FROM_DAEMON
 | formail -rt -xTo: >tmp.from
 
 #
 # Store the whole mail in tmp.request, for later reference.
 #
 
-	:Ac w
+	:0 Ac w
 	| cat >tmp.request
 
 #
 # Check for a missing Subject: line.
 #
 
-	:1A wfh
-	!^Subject:
+	:0 A wfh
+	* !^Subject:
 	| formail -a "Subject: "
 
 ###############################################################################
@@ -56,21 +56,21 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 # Is it an archive retrieval command?
 #
 
-	:1HBA w
-	^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
-	 ((archive([	 ]|$))|(archive[	 ]+)?\
-	 ((send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|list|show)\
-	 ([	 ]|$))
+	:0 HBA w
+	* ^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
+	   ((archive([	 ]|$))|(archive[	 ]+)?\
+	   ((send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|list|show)\
+	   ([	 ]|$))
 	| arch_retrieve
 
 #
 # Is it an unsubscription request?
 #
 
-	:1HBA w:dist.lock
-	^^(.+$)*Subject:[	 ]*(($(.+$)*(^[	 ]*)+)?(delete|remove|unsub)|\
-	 ($(.*$)*)?(.*[^a-z])?(unsubscri|\
-	 ((delete|remove) .* from|take .* off) .* [a-z-]*list([^a-z]|$)))
+	:0 HBA w:dist.lock
+	* ^^(.+$)*Subject:[	 ]*(($(.+$)*(^[	 ]*)+)?(delete|remove|unsub)|\
+	   ($(.*$)*)?(.*[^a-z])?(unsubscri|\
+	   ((delete|remove) .* from|take .* off) .* [a-z-]*list([^a-z]|$)))
 	| unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from`
 
 #
@@ -79,22 +79,22 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 # already be on the mailinglist.  If not, add him.
 #
 
-	:3HBA w $cc_requests:dist.lock
-	^^(.+$)*Subject:[	 ]*(\
-	 ($(.+$)*(^[	 ]*)+)?(add|sub(scri|[	 ]|$)?)|\
-	 ($(.*$)*)?(.*[^a-z])?(subscri|(add .* to|put .* on) .* [a-z-]*list\
-	 ([^a-z]|$)))
-	!?multigram -b1 -l$reject_threshold reject
-	!?multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
+	:0 HBA w $cc_requests:dist.lock
+	* ^^(.+$)*Subject:[	 ]*(\
+	   ($(.+$)*(^[	 ]*)+)?(add|sub(scri|[	 ]|$)?)|\
+	   ($(.*$)*)?(.*[^a-z])?(subscri|(add .* to|put .* on) .* [a-z-]*list\
+	   ([^a-z]|$)))
+	* !?multigram -b1 -l$reject_threshold reject
+	* !?multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
 	| subscribe | $SENDMAIL $sendmailOPT -t
 
 #
 # Is it an info or help request?  Send back the help.txt file.
 #
 
-	:1HBA w $cc_requests
-	^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
-	 [a-z,.	 ]*(help|info(rm(ation)?)?)([^a-z]|$)
+	:0 HBA w $cc_requests
+	* ^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
+	   [a-z,.	 ]*(help|info(rm(ation)?)?)([^a-z]|$)
 	| (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
 	   cat help.txt) | $SENDMAIL $sendmailOPT -t
 
@@ -103,22 +103,22 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 # which will evaluate it.
 #
 
-:3wc
-!^Subject:(.*[^a-z])?Re:
-$!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
-^FROM_DAEMON
+:0 wc
+* !^Subject:(.*[^a-z])?Re:
+* $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
+* ^FROM_DAEMON
 | sed -e $cutoff_bounce',$ d' >tmp.request
 
-	:Ahfw
+	:0 Ahfw
 	| procbounce
 
 #
 # Or is it a remote X-Command from our maintainer?
 #
 
-:2wf:dist.lock
-$^$X_COMMAND:.*$maintainer.*$X_COMMAND_PASSWORD
-$!^X-Loop: $listaddr
+:0 wf:dist.lock
+* $^$X_COMMAND:.*$maintainer.*$X_COMMAND_PASSWORD
+* $!^X-Loop: $listaddr
 | x_command `formail -x$X_COMMAND:`
 
 LOCKFILE				# we don't need the lockfile anymore
@@ -130,40 +130,40 @@ LOCKFILE				# we don't need the lockfile anymore
 # problem (by adding X-Diagnostic: fields to the header).
 #
 
-:wfh
-!< $size_limit
+:0 wfh
+* !< $size_limit
 | formail -A "X-Diagnostic: Submission size exceeds $size_limit bytes"
 
-:wfh
-^FROM_DAEMON
+:0 wfh
+* ^FROM_DAEMON
 | formail -A "X-Diagnostic: Mail coming from a daemon, ignored"
 
-:HB wfh
-$^X-Loop: $listaddr
+:0 HB wfh
+* $^X-Loop: $listaddr
 | formail -A "X-Diagnostic: Possible loopback problem"
 
-:ch
-!^X-(Diagnostic|Processed):
+:0 ch
+* !^X-(Diagnostic|Processed):
 /dev/null
 
-	:1A wfh
-	$^$X_COMMAND:
+	:0 A wfh
+	* $^$X_COMMAND:
 	| formail -A "X-Diagnostic: Suspicious $X_COMMAND format"
 
-	:1A HB wfh
-	?multigram -b1 -l$reject_threshold reject
+	:0 A HB wfh
+	* ?multigram -b1 -l$reject_threshold reject
 	| formail -A "X-Diagnostic: Found on the reject list" \
 	   -A "X-Diagnostic: `multigram -b1 -l$reject_threshold reject`"
 
-	:2A HB wfh
-	^((Subject:)?[a-z,.	 ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
+	:0 A HB wfh
+	* ^((Subject:)?[a-z,.	 ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
 				      (add .* to|put .* on) .* list)([^a-z]|$))
-	?multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
+	* ?multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
 	| formail -A "X-Diagnostic: Already on the subscriber list" \
 	   -A "X-Diagnostic: `multigram -b1 -x$listreq -x$listaddr \
 	    -l$reject_threshold dist`"
 
-:0wfh
+:0 wfh
 | formail -A"X-Envelope-To: $X_ENVELOPE_TO"
 
 #
@@ -173,15 +173,15 @@ $^X-Loop: $listaddr
 
 LOGABSTRACT=yes
 
-::
-?test -z "$maintainer"
+:0:
+* ?test -z "$maintainer"
 request
 
-:0w
+:0 w
 | formail -R"From X-Envelope-From:" -iReturn-Receipt-To: \
    | $SENDMAIL $sendmailOPT $sendmailOPTp $maintainer
 
-:0wfh
+:0 wfh
 | formail -A"X-Diagnostic: Maintainer $maintainer could not be reached"
 
 HOST=continue_with_../.etc/rc.post

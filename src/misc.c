@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.25 1993/05/28 14:43:42 berg Exp $";
+ "$Id: misc.c,v 1.26 1993/06/21 14:24:41 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -179,7 +179,7 @@ void app_val(sp,val)struct dyna_long*const sp;const off_t val;
 }
 
 alphanum(c)const unsigned c;
-{ return c-'0'<='9'-'0'||c-'a'<='z'-'a'||c-'A'<='Z'-'A'||c=='_';
+{ return numeric(c)||c-'a'<='z'-'a'||c-'A'<='Z'-'A'||c=='_';
 }
 
 void firstchd P((void))
@@ -238,7 +238,7 @@ void metaparse(p)const char*p;				    /* result in buf */
 }
 
 void concatenate(p)register char*p;
-{ while(*p!=TMNATE)			  /* concatenate all other arguments */
+{ while(p!=Tmnate)			  /* concatenate all other arguments */
    { while(*p++);
      p[-1]=' ';
    }
@@ -292,20 +292,25 @@ char*skpspace(chp)const char*chp;
 
 char*gobenv(chp)char*chp;
 { int found,i;
-  for(found=0;alphanum(i=getb());found=1,*chp++=i);
+  found=0;
+  if(alphanum(i=getb())&&!numeric(i))
+     for(found=1;*chp++=i,alphanum(i=getb()););
   *chp='\0';ungetb(i);
   switch(i)
-   { case ' ':case '\t':case '\n':case '=':return chp;
+   { case ' ':case '\t':case '\n':case '=':
+	if(found)
+	   return chp;
    }
   return 0;
 }
 
-void asenvcpy(src)char*src;
+asenvcpy(src)char*src;
 { strcpy(buf,src);
   if(src=strchr(buf,'='))			     /* is it an assignment? */
    { strcpy((char*)(sgetcp=buf2),++src);readparse(src,sgetc,2);sputenv(buf);
-     src[-1]='\0';asenv(src);
+     src[-1]='\0';asenv(src);return 1;
    }
+  return 0;
 }
 
 void asenv(chp)const char*const chp;

@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.25 1993/06/02 15:30:32 berg Exp $*/
+/*$Id: config.h,v 1.26 1993/06/21 14:23:24 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -37,7 +37,8 @@
    TRUSTED_IDS should be defined as a comma-separated null-terminated
    list of strings */
 
-#define TRUSTED_IDS	{"root","daemon","uucp","mail","x400",0}
+#define TRUSTED_IDS	{"root","daemon","uucp","mail","x400",\
+			 "list","lists",0}
 
 /*#define NO_USER_TO_LOWERCASE_HACK	/* uncomment if your getpwnam() is
 					   case insensitive or if procmail
@@ -147,20 +148,26 @@ Post(ma(st(er)?|n)|office)|Mailer|daemon|mmdf|root|uucp|serv(ices?|er))\
 #define VERSIONOPT	'v'			/* option to display version */
 #define PRESERVOPT	'p'			     /* preserve environment */
 #define TEMPFAILOPT	't'		      /* return EX_TEMPFAIL on error */
+#define MAILFILTOPT	'm'	     /* act as a general purpose mail filter */
 #define FROMWHOPT	'f'			   /* set name on From_ line */
 #define ALTFROMWHOPT	'r'		/* alternate and obsolete form of -f */
+#define ARGUMENTOPT	'a'					   /* set $1 */
 #define DELIVEROPT	'd'		  /* deliver mail to named recipient */
 #define PM_USAGE	\
  "Usage: procmail [-vpt] [-f fromwhom] [parameter=value | rcfile] ...\
-\n   Or: procmail [-vpt] [-f fromwhom] -d recipient ...\n"
+\n   Or: procmail [-pt] [-f fromwhom] [-a argument] -d recipient ...\
+\n   Or: procmail [-pt] -m [parameter=value] ... rcfile mail_from rcpt_to ...\
+\n"
 #define PM_HELP		\
  "\t-v\t\tdisplay the version number and exit\
 \n\t-p\t\tpreserve (most of) the environment upon startup\
 \n\t-t\t\tfail softly if mail is undeliverable\
 \n\t-f fromwhom\t(re)generate the leading 'From ' line\
-\n\t-d recipient\texplicit delivery mode\n"
+\n\t-a argument\twill set $1\
+\n\t-d recipient\texplicit delivery mode\
+\n\t-m\t\tact as a general purpose mail filter\n"
 #define PM_QREFERENCE	\
- "\nRecipe flag quick reference:\
+ "Recipe flag quick reference:\
 \n\tH\tegrep the header (default)\
 \n\tB\tegrep the body\
 \n\tD\tdistinguish case\
