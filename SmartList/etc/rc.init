@@ -52,7 +52,7 @@
 #		conjunction with the RC_LOCAL_* variables which can be set
 #		in rc.init or rc.custom files)
 
-#$Id: rc.init,v 1.36 1994/06/16 16:37:07 berg Exp $
+#$Id: rc.init,v 1.37 1994/06/30 16:30:32 berg Exp $
 
 DELIVERED=yes	# we're in control of the mail now, tell sendmail to go away
 
@@ -125,6 +125,9 @@ sendmailOPT="-oem -odb -oi -om -f$listreq"
 sendmailOPTp=-oep
 sendmailOPTq=-odq
 sendmailQflush="$SENDMAIL -q"
+#sendmailQflush				# uncomment if you don't want the
+					# queue to be flushed after all archive
+					# retrieval files have been queued
 ########################
 # sendmail options used:
 #
