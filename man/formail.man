@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.23 1994/06/01 17:22:08 berg Exp $
+.Id $Id: formail.man,v 1.24 1994/06/14 12:03:16 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -17,31 +17,31 @@ formail \- mail (re)formatter
 .IR "maxlen idcache" ]
 .if n .ti +0.5i
 .RB [ \-@FM_EXTRACT@
-.IR "header field" ]
+.IR headerfield ]
 .RB [ \-@FM_EXTRC_KEEP@
-.IR "header field" ]
+.IR headerfield ]
 .if n .ti +0.5i
 .RB [ \-@FM_ADD_IFNOT@
-.IR "header field" ]
+.IR headerfield ]
 .RB [ \-@FM_ADD_ALWAYS@
-.IR "header field" ]
+.IR headerfield ]
 .if n .ti +0.5i
 .RB [ \-@FM_REN_INSERT@
-.IR "header field" ]
+.IR headerfield ]
 .RB [ \-@FM_DEL_INSERT@
-.IR "header field" ]
+.IR headerfield ]
 .if n .ti +0.5i
 .RB [ \-@FM_FIRST_UNIQ@
-.IR "header field" ]
+.IR headerfield ]
 .RB [ \-@FM_LAST_UNIQ@
-.IR "header field" ]
+.IR headerfield ]
 .if n .ti +0.5i
 .RB [ \-@FM_ReNAME@
-.I "oldfield"
-.IR "newfield" ]
+.I oldfield
+.IR newfield ]
 .if n .ti +0.5i
 .RB [ \-@FM_MINFIELDS@
-.IR "min fields" ]
+.IR minfields ]
 .RB [ \-@FM_SPLIT@
 .RI [ command
 .RI [ arg
@@ -126,7 +126,7 @@ field.
 .B \-@FM_BABYL@
 Makes formail assume that it is splitting up a BABYL rmail file.
 .TP
-.I "\fB\-@FM_MINFIELDS@\fP min fields"
+.I "\fB\-@FM_MINFIELDS@\fP minfields"
 Allows you to specify the number of consecutive fields formail needs to find
 before it decides it found the start of a new message, it defaults to
 @DEFminfields@.
@@ -144,19 +144,19 @@ file of approximately
 size.  If not splitting, it will return success if a duplicate has been
 found.  If splitting, it will not output duplicate messages.
 .TP
-.I "\fB\-@FM_EXTRACT@\fP header field"
+.I "\fB\-@FM_EXTRACT@\fP headerfield"
 Extract the contents of this
-.I header field
+.I headerfield
 from the header, display it as a single line.
 .TP
-.I "\fB\-@FM_EXTRC_KEEP@\fP header field"
+.I "\fB\-@FM_EXTRC_KEEP@\fP headerfield"
 Same as
 .BR \-@FM_EXTRACT@ ,
 but also preserves the field name.
 .TP
-.I "\fB\-@FM_ADD_IFNOT@\fP header field"
+.I "\fB\-@FM_ADD_IFNOT@\fP headerfield"
 Append a custom
-.I header field
+.I headerfield
 onto the header; but only if a similar field does not exist yet.
 If you specify either one of the field names
 .B Message-ID:
@@ -164,29 +164,29 @@ or
 .B Resent-Message-ID:
 with no field contents, then formail will generate a unique message-ID for you.
 .TP
-.I "\fB\-@FM_ADD_ALWAYS@\fP header field"
+.I "\fB\-@FM_ADD_ALWAYS@\fP headerfield"
 Append a custom
-.I header field
+.I headerfield
 onto the header in any case.
 .TP
-.I "\fB\-@FM_REN_INSERT@\fP header field"
+.I "\fB\-@FM_REN_INSERT@\fP headerfield"
 Same as
 .BR \-@FM_ADD_IFNOT@ ,
 except that any existing similar fields are renamed by prepending
 an ``@OLD_PREFIX@'' prefix.  If
-.I header field
+.I headerfield
 consists only of a field-name, it will not be appended.
 .TP
-.I "\fB\-@FM_DEL_INSERT@\fP header field"
+.I "\fB\-@FM_DEL_INSERT@\fP headerfield"
 Same as
 .BR \-@FM_REN_INSERT@ ,
 except that any existing similar fields are simply removed.
 .TP
-.I "\fB\-@FM_FIRST_UNIQ@\fP header field"
+.I "\fB\-@FM_FIRST_UNIQ@\fP headerfield"
 Make the first occurrence of this field unique, and thus delete all
 subsequent occurrences of it.
 .TP
-.I "\fB\-@FM_LAST_UNIQ@\fP header field"
+.I "\fB\-@FM_LAST_UNIQ@\fP headerfield"
 Make the last occurrence of this field unique, and thus delete all
 preceding occurrences of it.
 .TP
