@@ -448,6 +448,9 @@
 	    Worked around a bug in the Dunix 4.0e compiler (pointer addition
 	       not commutative)
 1999/04/02: v3.14pre
-	    Added support for Maildir mailboxes to procmail and mailstat
 	    Changes to procmail:
+	       - Support delivery to maildir mailboxes
 	       - Include LINEBUF in procmail -v output
+	    Changes to mailstat:
+	       - Work around the detab done on checkin to CVS
+	       - Recognize maildir mailboxes
