@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.36 1996/12/21 03:28:16 srb Exp $
+.Id $Id: formail.man,v 1.37 1998/11/09 21:56:01 srb Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -83,8 +83,8 @@ Concatenate continued fields in the header.  Might be convenient when
 postprocessing mail with standard (line oriented) text utilities.
 .TP
 .B \-@FM_ZAPWHITE@
-Ensure a space exists between field name and content.
-Zap fields which contain only a space.
+Ensure a whitespace exists between field name and content.
+Zap fields which contain only a single whitespace character.
 Zap leading and trailing whitespace on fields extracted with
 .BR \-@FM_EXTRACT@ .
 .TP
