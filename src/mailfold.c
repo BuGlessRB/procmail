@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.27 1993/05/28 14:43:37 berg Exp $";
+ "$Id: mailfold.c,v 1.28 1993/06/07 15:08:45 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -137,18 +137,17 @@ deliver(boxname,linkfolder)char*boxname,*linkfolder;
   if(*(chp=buf))				  /* not null length target? */
      chp=strchr(buf,'\0')-1;		     /* point to just before the end */
   mhdir=ismhdir(chp);				      /* is it an MH folder? */
-  if(stat(boxname,&stbuf))				 /* it doesn't exist */
+  if(!stat(boxname,&stbuf))					/* it exists */
    { if(cumask&&!(stbuf.st_mode&UPDATE_MASK))
 	chmod(boxname,stbuf.st_mode|UPDATE_MASK);
-     if(!mhdir||mkdir(buf,NORMdirperm))		/* should it be a directory? */
+     if(!S_ISDIR(stbuf.st_mode))	 /* it exists and is not a directory */
 	goto makefile;				/* no, create a regular file */
    }
-  else if(!S_ISDIR(stbuf.st_mode))	 /* it exists and is not a directory */
+  else if(!mhdir||mkdir(buf,NORMdirperm))    /* shouldn't it be a directory? */
 makefile:
    { if(linkfolder)	  /* any leftovers?  Now is the time to display them */
 	concatenate(linkfolder),skipped(linkfolder);
-     tofile=strcmp(devnull,buf)?to_FOLDER:0;
-     return opena(boxname);
+     tofile=strcmp(devnull,buf)?to_FOLDER:0;return opena(boxname);
    }
   if(linkfolder)		    /* any additional directories specified? */
    { for(boxname=linkfolder;*boxname!=TMNATE;)

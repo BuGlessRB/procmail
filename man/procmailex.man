@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.14 1993/05/18 13:05:24 berg Exp $
+.Id $Id: procmailex.man,v 1.15 1993/06/07 15:08:35 berg Exp $
 .de Sx
 .PP
 .ne \\$1
@@ -149,6 +149,7 @@ folder), again the texmail directory should exist already.
 :
 (^TO|^Subject:.*)TeX[^t]
 texmail/.
+.Ex
 Or you could file the mail in several directory folders at the same time.
 The following recipe will deliver the mail to two MH-folders and one
 directory folder.  It is actually only one file with two extra hardlinks.
@@ -192,8 +193,7 @@ When delivering to emacs folders (i.e. mailfolders managed by any emacs
 mail package, e.g. RMAIL or VM) directly, you should use emacs-compatible
 lockfiles.  The emacs mailers are a bit braindamaged in that respect, they get
 very upset if someone delivers to mailfolders which they already have in their
-internal buffers.  The following recipe assumes that the $HOME equals
-/home/john.
+internal buffers.  The following recipe assumes that $HOME equals /home/john.
 .Sx 5
 MAILDIR=Mail
 
@@ -259,6 +259,19 @@ them.
 !^X-Loop: yourname@your.main.mail.address
 | formail \-@FM_ADD_ALWAYS@ "X-Loop: yourname@your.main.mail.address" | \e
    $SENDMAIL \-oi yourname@the.other.account
+.Ex
+If someone sends you a mail with the word `retrieve' in the subject, the
+following will automatically send back the contents of info_file to the
+sender.  Like in all recipes where we send mail, we watch out for mail
+loops.
+.Sx 7
+:2 @CONTINUE@@FILTER@@PASS_HEAD@
+!^X-Loop: yourname@your.main.mail.address
+^Subject:.*retrieve
+| formail -r -A"X-Loop: yourname@your.main.mail.address"
+
+  :A
+  | (cat ; cat info_file ) | $SENDMAIL -oi -t
 .Ex
 The following one is rather exotic, but it only serves to demonstrate a
 feature.  Suppose you have a file in your HOME directory called ".urgent",

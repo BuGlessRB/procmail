@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.20 1993/05/28 14:43:15 berg Exp $
+.Id $Id: procmailrc.man,v 1.21 1993/06/07 15:08:39 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -498,7 +498,8 @@ When capturing stdout from a recipe into an environment variable, exactly
 one trailing newline will be stripped.
 .PP
 By using the `^' or `$' in other spots than at the start respectively
-end of a line you can use the internal egrep to do multiline matches.
+end of a regular expression you can use the internal egrep to do multiline
+matches.
 .PP
 When the regular expression starts with `^^' it will anchor the match
 at the very start of the text.
