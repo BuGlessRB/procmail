@@ -185,8 +185,6 @@
 	    Fixed sleeptime argument to lockfile
 	    Refined the ^FROM_DAEMON macro again
 	    Added a ^FROM_MAILER macro
-	    Allowed for the archive server of the mailinglists to be installed
-	       standalone
 	    Fixed the library conflict with openlog
 	    Removed the dependencies on the structure of /usr/include
 	    Removed the dependencies on the structure of /lib, /usr/lib etc.

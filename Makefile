@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.26 1993/04/21 16:38:01 berg Exp $
+#$Id: Makefile,v 1.27 1993/04/22 10:21:50 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -52,8 +52,8 @@ MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 ########################################################################
 
 # Optional system libraries we search for
-SEARCHLIBS = -ldir -lx -lsocket -lnet -linet -lnsl_s -lnsl_i -lnsl -lgen\
- -lsockdns -lsun
+SEARCHLIBS = -ldir -lx -lsocket -lnet -linet -lnsl_s -lnsl_i -lnsl -lsun -lgen\
+ -lsockdns
 #			-lresolv	# not really needed, is it?
 
 # Informal list of directories where we look for the libraries in SEARCHLIBS
