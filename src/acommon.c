@@ -1,12 +1,12 @@
 /************************************************************************
  *	Some routine common to procmail, formail and lockfile		*
  *									*
- *	Copyright (c) 1993-1996, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1993-1997, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: acommon.c,v 1.6 1996/12/21 03:28:19 srb Exp $";
+ "$Id: acommon.c,v 1.7 1997/04/03 01:58:39 srb Exp $";
 #endif
 #include "includes.h"
 #include "acommon.h"

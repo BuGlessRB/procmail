@@ -1,12 +1,12 @@
 /************************************************************************
  *	Miscellaneous routines used by formail				*
  *									*
- *	Copyright (c) 1990-1996, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.36 1996/12/21 03:28:25 srb Exp $";
+ "$Id: formisc.c,v 1.37 1997/04/03 01:58:42 srb Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"

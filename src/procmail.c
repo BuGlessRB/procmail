@@ -7,12 +7,12 @@
  *									*
  *	Seems to be perfect.						*
  *									*
- *	Copyright (c) 1990-1996, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.117 1997/04/02 03:15:43 srb Exp $";
+ "$Id: procmail.c,v 1.118 1997/04/03 01:58:48 srb Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"

@@ -1,9 +1,13 @@
-/*$Id: authenticate.h,v 1.2 1997/04/02 03:15:37 srb Exp $*/
+/*$Id: authenticate.h,v 1.3 1997/04/03 01:58:39 srb Exp $*/
 
 /* Generic authentication interface, substitute a suitable module to
    accomodate arbitrary other authentication databases */
 
 typedef struct auth_identity auth_identity;
+
+#ifndef P
+#define P(x)	x
+#endif
 
 /*const*/auth_identity
  *auth_finduser P((char*const user,const sock)),
@@ -17,7 +21,6 @@ int
 const char
  *auth_getsecret P((const auth_identity*const pass)),
  *auth_mailboxname P((auth_identity*const pass)),
- *const auth_mailboxinfo P((void)),
  *auth_homedir P((const auth_identity*const pass)),
  *auth_shell P((const auth_identity*const pass)),
  *auth_username P((const auth_identity*const pass));

@@ -8,14 +8,14 @@
  *									*
  *	Seems to be relatively bug free.				*
  *									*
- *	Copyright (c) 1990-1996, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.35 1997/04/02 03:15:40 srb Exp $";
+ "$Id: lockfile.c,v 1.36 1997/04/03 01:58:44 srb Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1997/04/02 03:15:40 $";
+static /*const*/char rcsdate[]="$Date: 1997/04/03 01:58:44 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"

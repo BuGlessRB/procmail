@@ -1,12 +1,12 @@
 /************************************************************************
  *	Whatever is needed for (un)locking files in various ways	*
  *									*
- *	Copyright (c) 1990-1996, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.46 1996/12/21 03:28:27 srb Exp $";
+ "$Id: locking.c,v 1.47 1997/04/03 01:58:44 srb Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"

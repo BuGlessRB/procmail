@@ -11,7 +11,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: authenticate.c,v 1.2 1997/04/02 03:15:36 srb Exp $";
+ "$Id: authenticate.c,v 1.3 1997/04/03 01:58:39 srb Exp $";
 #endif
 
 #ifdef PROCMAIL
@@ -38,7 +38,11 @@ static /*const*/char rcsid[]=
 #ifndef MAILSPOOLDIR
 #define MAILSPOOLDIR	"/var/spool/mail/"	     /* watch the trailing / */
 #endif
-
+#ifndef MAILSPOOLHASH
+#define MAILSPOOLHASH	0      /* 2 would deliver to /var/spool/mail/b/a/bar */
+#endif
+/*#define MAILSPOOLHOME "/.mail"		      /* watch the leading / */
+						  /* delivers to $HOME/.mail */
 #define STRLEN(x)	(sizeof(x)-1)
 
 struct auth_identity
@@ -135,6 +139,7 @@ void auth_freeid(pass)auth_identity*pass;
      free(p->pw_name),free(p->pw_dir),free(p->pw_shell),free(p);
   if(pass->mbox)
      free(pass->mbox);
+  free(pass);
 }
 
 int auth_filledid(pass)const auth_identity*pass;
@@ -142,20 +147,32 @@ int auth_filledid(pass)const auth_identity*pass;
 }
 #endif /* PROCMAIL */
 
-static const char mailspooldir[]=MAILSPOOLDIR;
-
 const char*auth_mailboxname(pass)auth_identity*const pass;
 { if(!pass->mbox)
-   { if(!(pass->mbox=malloc(STRLEN(mailspooldir)+strlen(pass->pw->pw_name))))
+#ifdef MAILSPOOLHOME
+   { static const char mailfile[]=MAILSPOOLHOME;size_t i;
+     if(!(pass->mbox=malloc((i=strlen(pass->pw->pw_dir))+STRLEN(mailfile)+1)))
+	return "";
+     strcpy(pass->mbox,pass->pw->pw_dir);
+     strcpy(pass->mbox+i,mailfile);
+#else
+   { static const char mailspooldir[]=MAILSPOOLDIR;
+     if(!(pass->mbox=malloc(
+      STRLEN(mailspooldir)+MAILSPOOLHASH*2+strlen(pass->pw->pw_name)+1)))
 	return "";
      strcpy(pass->mbox,mailspooldir);
-     strcpy(pass->mbox+STRLEN(mailspooldir),pass->pw->pw_name);
+     ;{ char*p,*n;size_t i;int c;
+	for(p=pass->mbox+STRLEN(mailspooldir),n=pass->pw->pw_name,
+	 i=MAILSPOOLHASH;i--;*p++='/')
+	 { if(*n)
+	      c=*n++;
+	   *p++=c;
+	 }
+	strcpy(p,pass->pw->pw_name);
+      }
+#endif /* MAILSPOOLHOME */
    }
   return pass->mbox;
-}
-
-const char*const auth_mailboxinfo P((void))   /* informational purposes only */
-{ return mailspooldir;	     /* returned text is to be displayed to the user */
 }
 
 uid_t auth_whatuid(pass)const auth_identity*const pass;
