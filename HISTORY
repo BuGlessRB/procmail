@@ -553,8 +553,9 @@
 		  - save the absolute path form of $LASTFOLDER for the comsat
 		    message when it is set
 		  - only use the log buffer if it's safe
-	       - Support LMTP for delivery mode (though not enabled by default)
-	       - Use mmap() for `large' messages (ditto)
+	       - Support LMTP for delivery mode (not enabled by default)
+	       - Preliminary support for using mmap() for `large' messages
+		 (this doesn't work yet)
 	       - SWITCHRC=zero-length-file didn't always abort the current
 		 rcfile
 	       - A race to create the mailspool would bounce one of the
