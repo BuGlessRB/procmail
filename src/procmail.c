@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.98 1994/08/29 17:01:54 berg Exp $";
+ "$Id: procmail.c,v 1.99 1994/08/29 17:15:25 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -554,19 +554,20 @@ no_mbox:      sputenv(orgmail);
 	 }					/* bad news, be conservative */
 	doumask(INIT_UMASK);
       }
-     while(chp=(char*)argv[argc])      /* interpret command line specs first */
-       /*
-	*	really change the uid now, since it would not be safe to
-	*	evaluate the extra command line arguments otherwise
-	*/
-      { setids();argc++;
-	if(!asenvcpy(chp)&&mailfilter)
-	 { gargv= &nullp;
-	   for(restargv=argv+argc;restargv[crestarg];crestarg++);
-	   break;
+     if(mailfilter!=2)		 /* special, can't be any command line specs */
+	while(chp=(char*)argv[argc])   /* interpret command line specs first */
+	  /*
+	   *	really change the uid now, since it would not be safe to
+	   *	evaluate the extra command line arguments otherwise
+	   */
+	 { setids();argc++;
+	   if(!asenvcpy(chp)&&mailfilter)
+	    { gargv= &nullp;
+	      for(restargv=argv+argc;restargv[crestarg];crestarg++);
+	      break;
+	    }
+	   resettmout();
 	 }
-	resettmout();
-      }
    }
   ;{ int succeed,lastcond,prevcond;struct dyna_long ifstack;
      ifstack.filled=ifstack.tspace=0;ifstack.offs=0;
