@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.125 2000/10/23 09:04:17 guenther Exp $
+#$Id: autoconf,v 1.126 2000/10/25 07:57:28 guenther Exp $
 
 # All possible entries in autoconf.h:
 
@@ -86,8 +86,6 @@
 #Ok	#define defPATH "PATH=$HOME/bin:/bin:/usr/bin:/usr/local/bin"
 #Ok	#define INEFFICIENTrealloc
 #Ok	#define PM_VERSION "n.nn"
-#Ok	#define NOstpcpy
-#Ok	#define stpcpy_VIA_memcpy
 
 # A conforming ANSI compiler and POSIX library should not have any defines not
 # marked as "Ok" in the autoconf.h file.
@@ -977,7 +975,7 @@ main(){char a[2];
  strtol("0",(char**)0,10);strchr("0",'0');strpbrk(a,"0");rename(a,"0");
  setrgid(0);setegid(0);setregid(0,0);setresgid(0,0,0);opendir("0");
  initgroups("0",0);strstr("0","0");mkdir("0",0);pow(0.,0.);clock();
- waitpid((pid_t)-1,(int*)0,0);ftruncate(0,0);fsync(0);stpcpy(a,"0");
+ waitpid((pid_t)-1,(int*)0,0);ftruncate(0,0);fsync(0);
 #ifdef S_ISLNK
  {struct stat stbuf;fstat(0,&stbuf);}
 #endif
@@ -1092,11 +1090,6 @@ HERE
    echo '#define NObcopy' >>$ACONF
  fi
  $RM _autotst.$O _autotst
-fi
-if $FGREP -e stpcpy _autotst.rrr >$DEVNULL
-then
- echo '#define NOstpcpy' >>$ACONF
- # We should check to see which implmentation is faster
 fi
 test -f /bin/test && echo "#define GOT_bin_test" >>$ACONF
 
