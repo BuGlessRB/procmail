@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.42 1994/01/28 11:57:32 berg Exp $";
+ "$Id: multigram.c,v 1.43 1994/02/16 18:22:30 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/01/28 11:57:32 $";
+static /*const*/char rcsdate[]="$Date: 1994/02/16 18:22:30 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -495,7 +495,7 @@ usg:
    }
   for(lastfrom= -1;readstr(stdin,&fuzzstr,0);)
    { int meter,maxmetric;long linentry;off_t offs1,offs2;
-     ;{ char*chp,*echp;int parens;
+     ;{ char*chp,*echp;
 	const static char punctuation[]="!#$%^&*-_=+|~`';:,.?{}",
 	 tpunctuation[]="@\\/";
 	echp=strchr(chp=fuzzstr.text,'\0')-1;

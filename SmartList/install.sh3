@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh3  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh3		  # we're in a buggy zsh
-#$Id: install.sh3,v 1.25 1994/02/11 18:28:43 berg Exp $
+#$Id: install.sh3,v 1.26 1994/02/16 18:22:20 berg Exp $
 
 umask 022
 
@@ -93,6 +93,8 @@ do
   b="$target/.etc/$a"
   if test -f "$b.old"
   then
+     echo "Attempting to read PATH, domain and listmaster settings from the"
+     echo "old rc.init file, placing them in rc.init.new."
      sed -n -e 's/;/\\;/g' \
       -e 's/^\(PATH[	 ]*=.*bin.*\)/s;^PATH=.*;\1;/p' \
       -e 's/^\(domain[	 ]*=.*\)/s;^domain=.*;\1;/p' \
