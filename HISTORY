@@ -447,7 +447,7 @@
 	       - weights<1 didn't work if floats changed accuracy when stored
 	    Worked around a bug in the Dunix 4.0e compiler (pointer addition
 	       not commutative)
-1999/04/02: v3.14pre
+1999/04/02: v3.14
 	    Changes to procmail:
 	       - Some zero-length extractions using \/ could core dump
 	       - Missed a couple possible overflows
@@ -508,6 +508,6 @@
 	    Cache gethostname() and uname() output
 	    Changed the form of tempfile names to make them `more' unique
 	     and deal with filename length limits more gracefully
-	    Updated list of mirrors in the README
+	    Updated the FAQ and the list of mirrors in the README
 	    Documented the exact behavior of lockfile's -! flag
 	    Documented the suggested usage of -r vs -rt
