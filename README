@@ -5,22 +5,18 @@ Copyright (c) 1990-1998, S.R. van den Berg, The Netherlands.
 
 Some legal stuff:
 
-Use this software package at your own risk.  The programmer cannot
-be held liable for any incurred damages, directly or indirectly due to
-the use or inability to use this software.
+This package is open source software; you can redistribute it and/or modify
+it under the terms of either:
+- the GNU General Public License as published by the Free Software Foundation
+  and can be found in the included file called "COPYING"; either version 2,
+  or (at your option) any later version, or
+- the "Artistic License" which can be found in the included file called
+  "Artistic".
 
-You are encouraged to distribute this package freely.  This package or
-any part thereof or any work derived from it, is however not to be sold
-(minor transfer costs excepted) or included in any commercially sold software
-package (if you want to do this anyway, contact me (address below), and we'll
-work something out).
-
-If you distribute it, please leave the package intact.	You are allowed to
-take parts from this distribution and distribute these separately as long
-as you retain the copyright messages.  If you redistribute any part of this
-package in a modified form, be sure to mark the parts you changed.
-If you have some important changes that might be useful to the rest of the
-world, contact me instead.
+This package is distributed in the hope that it will be useful, but without
+any warranty; without even the implied warranty of merchantability or fitness
+for a particular purpose.  See either the GNU General Public License or the
+Artistic License for more details.
 
 -------------------------- SYSTEM REQUIREMENTS -------------------------------
 
@@ -57,7 +53,7 @@ line).
 
 ----------------------
 
-I made the utmost effort to make procmail as robust as any program can be
+We made the utmost effort to make procmail as robust as any program can be
 (every conceivable system error is caught *and* handled).
 
 Since procmail is written entirely in C, it poses a very low impact
@@ -77,13 +73,14 @@ For a more extensive list of features see the FEATURES file.
 ----------------------
 
 However, as with any program, bugs cannot be completely ruled out.
-I tested the program extensively, and believe it should be relatively
+We tested the program extensively, and believe it should be relatively
 bug free (no known bug at the time).  Should, however, anyone find any
-bugs (highly unlikely :-), I would be pleased (well, sort of :-) to hear
-about it.  Please send me the patches or bug report.
-I'll look at them and will try to fix it in a future release.
+bugs (highly unlikely :-), we would be pleased (well, sort of :-) to hear
+about it.  Please send us the patches or bug report; you can reach
+us by E-mail at <bug@procmail.org>.
+We'll look at them and will try to fix it in a future release.
 (BTW, if you should find any spelling or grammar errors in these files,
-don't hesitate to point them out to me; I like correct English just as much
+don't hesitate to point them out to me; we like correct English just as much
 as you do).
 
 ----------------------
@@ -92,22 +89,26 @@ I would like to take the opportunity to express my gratitude in particular
 to these devoted users of the procmail-package.	 Without their constant
 feedback procmail would not have looked the same:
 
-	David W. Tamkin		An excellent proofreader and betatester
+	David W. Tamkin		An excellent proofreader and betatester.
 	 <dattier@wwa.com>
-	Josh Laff		For stresstesting procmail (and me :-)
+	Josh Laff		For stresstesting procmail (and me :-).
 	 <jal@uiuc.edu>
-	Dan Jacobson		For his many useful suggestions
+	Dan Jacobson		For his many useful suggestions.
 	 <Dan_Jacobson@ATT.COM>
-	Rick Troxel		Because I crashed his Convex way too often :-)
+	Rick Troxel		Because I crashed his Convex way too often :-).
 	 <rick@helix.nih.gov>
-	Roman Czyborra		For his enthusiastic ideas
+	Roman Czyborra		For his enthusiastic ideas.
 	 <czyborra@cs.tu-berlin.de>
-	Ari Kornfeld		The guardian angel of SmartList
+	Ari Kornfeld		The guardian angel of SmartList.
 	 <ari@perspective.com>
-	Alan K. Stebbens	For his endless creativity and suggestions
+	Alan K. Stebbens	For his endless creativity and suggestions.
 	 <aks@sgi.com>
 	Philip Guenther		Sometimes faster at repairing bugs than I can
-	 <guenther@gac.edu>					write them :-)
+	 <guenther@gac.edu>	write them :-)	He's also the current main
+				coordinator of procmail/SmartList development.
+	Era Eriksson		For maintaining the FAQ.  He's also the
+	 <era@iki.fi>		current coordinator of the procmail volunteer
+				group.
 
 ----------------------
 
@@ -120,20 +121,32 @@ Cheers,
        Stephen R. van den Berg	of Cubic Circle, The Netherlands.
 
 Internet E-mail:		<srb@cuci.nl>
-				<berg@pool.informatik.rwth-aachen.de>
 
-Snail-Mail:	P.O.Box 21074
+Snail-Mail:	Procmail Foundation
+		P.O.Box 21074
 		6369 ZG Simpelveld
 		The Netherlands
 
-Procmail mailinglist:		<procmail-request@informatik.rwth-aachen.de>
-SmartList mailinglist:		<SmartList-request@informatik.rwth-aachen.de>
-Procmail & SmartList updates and patches list (readonly):
-			<procmail-announce-request@informatik.rwth-aachen.de>
+Procmail mailinglist:		<procmail-users-request@procmail.org>
+Procmail updates and patches list (readonly):
+				<procmail-announce-request@procmail.org>
+SmartList mailinglist:		<SmartList-users-request@procmail.org>
+SmartList updates and patches list (readonly):
+				<SmartList-announce-request@procmail.org>
+Development:
+	<procmail-dev-request@procmail.org>	Development list for procmail
+	<SmartList-dev-request@procmail.org>	Development list for SmartList
+	<bug@procmail.org>			Coordinator of development
+	<volunteers-request@procmail.org>	List to coordinate volunteers
 
 ----------------------
-A recent version can be picked up at various comp.sources.misc archives.
-The latest version can be obtained from your friendly neighbour mirror site:
+The most recent version can be obtained via http://www.procmail.org/
+or ftp://ftp.procmail.org/pub/procmail/
+You'll be able to find instructions there which direct you to suitable
+mirror sites around the world.
+
+We're in the process of streamlining this, there are currently some
+inofficial mirrors around the world which can still be used:
 
 	ftp://ftp.net.ohio-state.edu/pub/networking/mail/procmail
 	ftp://ftp.fu-berlin.de/pub/unix/mail/procmail
@@ -143,8 +156,5 @@ The latest version can be obtained from your friendly neighbour mirror site:
 	ftp://ftp.tamu.edu/pub/mirrors/procmail/
 	ftp://ftp.kfki.hu/pub/packages/mail/procmail
 	ftp://giswitch.sggw.waw.pl/pub/unix/procmail
-
-Or directly as:
-
 ftp://ftp.informatik.rwth-aachen.de/pub/packages/procmail/procmail.tar.gz
 ----------------------
