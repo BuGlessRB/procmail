@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.84 2000/05/09 06:36:33 guenther Exp $
+#$Id: rc.request,v 1.85 2001/04/11 04:14:14 guenther Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -279,14 +279,14 @@ LOGABSTRACT=yes
   #
 
   :0 A
-  * ^Content-Type:[	]*multipart/report;[	]*\/[^	].*
+  * ^Content-Type:[	 ]*multipart/report;[	 ]*\/[^	 ].*
   * ^Mime-Version:.*1.*\..*0
   * MATCH ?? report-type="?delivery-status"?
   * B ?? ^Content-Type:.*message.*delivery-status
   {
      # If there were no fatal errors, drop it
      :0 B
-     * ! ^Status:[	]*5[	]*\.
+     * ! ^Status:[	 ]*5[	 ]*\.
      /dev/null
 
      isadsn=yes
