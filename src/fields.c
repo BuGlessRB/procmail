@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: fields.c,v 1.21 1994/09/09 17:52:04 berg Exp $";
+ "$Id: fields.c,v 1.22 1994/10/07 17:25:14 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -62,7 +62,7 @@ void concatenate(fldp)struct field*const fldp;
 static void extractfield(p)register struct field*p;
 { if(xheader||Xheader)					 /* extracting only? */
    { if(findf(p,&xheader))			   /* extract field contents */
-      { char*chp,*echp;size_t len;
+      { char*chp,*echp;
 	echp=(chp=(char*)p->fld_text+p->id_len)+(int)(p->tot_len-p->id_len-1);
 	if(zap)
 	 { chp=skpspace(chp);

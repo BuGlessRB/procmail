@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.69 1994/10/07 15:24:54 berg Exp $";
+ "$Id: formail.c,v 1.70 1994/10/07 17:25:17 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/10/07 15:24:54 $";
+static /*const*/char rcsdate[]="$Date: 1994/10/07 17:25:17 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -194,8 +194,8 @@ static int artheadr P((void))	     /* could it be the start of an article? */
   return 0;
 }
 			     /* lifted out of main() to reduce main()'s size */
-static char*getsender(namep,fldp,trust,areply)char*namep;struct field*fldp;
- const int trust,areply;
+static char*getsender(namep,fldp,trust)char*namep;struct field*fldp;
+ const int trust;
 { char*chp;int i,nowm;size_t j;static int lastm;
   chp=fldp->fld_text;j=fldp->id_len;i=maxindex(sest);
   while((sest[i].len!=j||strnIcmp(sest[i].head,chp,j))&&i--);
@@ -528,8 +528,8 @@ startover:
 	 }
 	if(conctenate)
 	   concatenate(fldp);		    /* save fields for later perusal */
-	namep=getsender(namep,fldp,trust,areply);i=maxindex(rex);
-	chp=fldp->fld_text;j=fldp->id_len;
+	namep=getsender(namep,fldp,trust);i=maxindex(rex);chp=fldp->fld_text;
+	j=fldp->id_len;
 	while((rex[i].lenr!=j||strnIcmp(rex[i].headr,chp,j))&&i--);
 	chp+=j;
 	if(i>=0&&(j=fldp->tot_len-j)>1)			  /* found anything? */
