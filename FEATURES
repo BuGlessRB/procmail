@@ -58,6 +58,7 @@ Feature summary for procmail:
 	+ Is clock skew immune (e.g. in the case of NFS mounted mailboxes)
 	+ Can be used as a general mailfilter for whole groups of messages
 	  (e.g. when called from within sendmail.cf rules)
+	+ Can act as an LMTP server for reliable multiple recipient delivery
 	+ Works with (among others?) sendmail, ZMailer, smail, MMDF, mailsurr,
 	  qmail, and postfix
 
