@@ -2,7 +2,7 @@
  *	recommend	Analyses the installation, and makes		*
  *			recommendations about suid/sgid modes		*
  ************************************************************************/
-/*$Id: recommend.c,v 1.2 1992/10/02 14:41:01 berg Exp $*/
+/*$Id: recommend.c,v 1.3 1992/11/11 14:00:42 berg Exp $*/
 #include "includes.h"				       /* also for fprintf() */
 
 #ifndef SYSTEM_MBOX

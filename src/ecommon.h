@@ -1,4 +1,4 @@
-/*$Id: ecommon.h,v 1.1 1992/10/28 17:23:30 berg Exp $*/
+/*$Id: ecommon.h,v 1.2 1992/11/11 13:59:13 berg Exp $*/
 
 void
  *tmalloc Q((const size_t len)),

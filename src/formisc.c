@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: formisc.c,v 1.6 1992/10/28 17:23:39 berg Exp $";
+static const char rcsid[]="$Id: formisc.c,v 1.7 1992/11/11 13:59:46 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"

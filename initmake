@@ -1,7 +1,7 @@
 #! /bin/sh
 : || exec /bin/sh ./initmake $argv:q # we're in a csh, feed myself to sh
 
-#$Id: initmake,v 1.6 1992/11/03 14:09:26 berg Exp $
+#$Id: initmake,v 1.7 1992/11/11 13:57:52 berg Exp $
 
 MSHELL=$1
 PATH=:$PATH
@@ -136,7 +136,7 @@ LDFLAGS=`checklib x`
 LDFLAGS=`checklib socket`
 LDFLAGS=`checklib net`
 LDFLAGS=`checklib nsl`
-LDFLAGS=`checklib resolv`
+#LDFLAGS=`checklib resolv`		# not really needed, is it?
 LDFLAGS=`checklib sun`
 $RM checklib
 

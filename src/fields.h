@@ -1,4 +1,4 @@
-/*$Id: fields.h,v 1.2 1992/10/02 14:39:56 berg Exp $*/
+/*$Id: fields.h,v 1.3 1992/11/11 13:59:34 berg Exp $*/
 
 struct field
  *findf P((const struct field*const p,const struct field*hdr)),

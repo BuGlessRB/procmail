@@ -1,4 +1,4 @@
-/*$Id: robust.h,v 1.2 1992/10/02 14:41:11 berg Exp $*/
+/*$Id: robust.h,v 1.3 1992/11/11 14:00:54 berg Exp $*/
 
 void
  *tmalloc Q((const size_t len)),

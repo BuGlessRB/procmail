@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.4 1992/11/09 18:30:42 berg Exp $
+.Id $Id: procmailex.man,v 1.5 1992/11/11 13:58:28 berg Exp $
 .de Sx
 .PP
 .ne \\$1

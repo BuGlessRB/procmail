@@ -7,9 +7,10 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: formail.c,v 1.6 1992/11/09 18:30:57 berg Exp $";
+static const char rcsid[]="$Id: formail.c,v 1.7 1992/11/11 13:59:40 berg Exp $";
 #endif
-static char rcsdate[]="$Date: 1992/11/09 18:30:57 $";
+static const char rcsdate[]="$Date: 1992/11/11 13:59:40 $";
+static PROGID;
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -322,14 +323,14 @@ foundfrom:
       }
      else if(findf(fldp,xheader))			   /* extract fields */
 	putssn(chp+lnl,fldp->tot_len-lnl);
-     if(fp2=findf(fldp,Iheader))			    /* delete fields */
-      { *afldp=fldp->fld_next;free(fldp);fldp= *afldp;continue;
+     if(findf(fldp,Iheader))				    /* delete fields */
+      { *afldp=fldp->fld_next,free(fldp);fldp= *afldp;continue;
       }
      else if(fp2=findf(fldp,Rheader))		  /* explicitly rename field */
 	renfield(afldp,lnl,fp2->fld_text+lnl,fp2->tot_len-lnl);
      else if((fp2=findf(fldp,iheader))&&!(areply&&lnl==fp2->tot_len-1))
 	renfield(afldp,(size_t)0,old_,STRLEN(old_));	/* implicitly rename */
-     fldp= *(afldp= &fldp->fld_next);
+     fldp= *(afldp= &(*afldp)->fld_next);
    }					/* restore the saved contents of buf */
   tmemmove(buf,parkedbuf,buffilled=lenparkedbuf);free(parkedbuf);
  }

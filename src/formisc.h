@@ -1,4 +1,4 @@
-/*$Id: formisc.h,v 1.4 1992/10/28 17:23:41 berg Exp $*/
+/*$Id: formisc.h,v 1.5 1992/11/11 13:59:49 berg Exp $*/
 
 void
  loadsaved P((const struct saved*const sp)),

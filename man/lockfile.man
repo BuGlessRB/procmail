@@ -1,4 +1,4 @@
-.Id $Id: lockfile.man,v 1.5 1992/11/09 18:30:38 berg Exp $
+.Id $Id: lockfile.man,v 1.6 1992/11/11 13:58:16 berg Exp $
 .TH LOCKFILE 1 \*(Dt BuGless
 .SH NAME
 .na

@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.5 1992/11/03 14:10:04 berg Exp $*/
+/*$Id: misc.h,v 1.6 1992/11/11 14:00:23 berg Exp $*/
 
 void
  elog P((const char*const newt)),

@@ -12,9 +12,11 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: lockfile.c,v 1.5 1992/10/20 15:35:28 berg Exp $";
+static const char rcsid[]=
+ "$Id: lockfile.c,v 1.6 1992/11/11 14:00:03 berg Exp $";
 #endif
-static char rcsdate[]="$Date: 1992/10/20 15:35:28 $";
+static const char rcsdate[]="$Date: 1992/11/11 14:00:03 $";
+static PROGID;
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"

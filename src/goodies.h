@@ -1,4 +1,4 @@
-/*$Id: goodies.h,v 1.3 1992/10/20 15:35:21 berg Exp $*/
+/*$Id: goodies.h,v 1.4 1992/11/11 13:59:54 berg Exp $*/
 
 void
  readparse P((char*p,int(*const fpgetc)(),const int sarg)),

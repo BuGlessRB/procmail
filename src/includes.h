@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.7 1992/10/28 17:23:50 berg Exp $*/
+/*$Id: includes.h,v 1.8 1992/11/11 14:00:00 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -245,6 +245,7 @@ extern int uname();					 /* so we fix it :-) */
 #define offsetof(s,m) ((char*)&(((s*)0)->m)-(char*)0)
 #endif
 
+#define PROGID		const char progid[]="Stephen R. van den Berg"
 #define maxindex(x)	(sizeof(x)/sizeof((x)[0])-1)
 #define STRLEN(x)	(sizeof(x)-1)
 #define ioffsetof(s,m)	((int)offsetof(s,m))

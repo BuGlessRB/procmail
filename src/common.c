@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: common.c,v 1.8 1992/11/09 18:30:55 berg Exp $";
+static const char rcsid[]="$Id: common.c,v 1.9 1992/11/11 13:58:49 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"

@@ -1,4 +1,4 @@
-/*$Id: exopen.h,v 1.2 1992/10/02 14:39:51 berg Exp $*/
+/*$Id: exopen.h,v 1.3 1992/11/11 13:59:23 berg Exp $*/
 
 const char*
  hostname P((void));

@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.8 1992/11/09 18:30:21 berg Exp $
+#$Id: Makefile,v 1.9 1992/11/11 13:57:42 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -48,7 +48,7 @@ USRINCLUDE = /usr/include
 PLIB	= /lib/lib
 PUSRLIB = /usr/lib/lib
 
-CFLAGS0 = -g #-ansi -pedantic -Wid-clash-6
+CFLAGS0 = -O #-ansi -pedantic -Wid-clash-6
 LDFLAGS0= #-s
 
 CFLAGS1 = $(CFLAGS0) #-posix -Xp
@@ -60,6 +60,7 @@ O	= o
 # library archive file extension
 A	= a
 RM	= /bin/rm -f
+MV	= /bin/mv -f
 INSTALL = cp
 DEVNULL = /dev/null
 

@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: locking.c,v 1.6 1992/10/28 17:23:52 berg Exp $";
+static const char rcsid[]="$Id: locking.c,v 1.7 1992/11/11 14:00:06 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -73,7 +73,7 @@ term: { free(name);break;		     /* drop the preallocated buffer */
    }
   lcking&=~lck_LOCKFILE;
   if(nextexit)
-   { nlog(whilstwfor);elog("lockfile");logqnl(name);terminate();
+   { elog(whilstwfor);elog("lockfile");logqnl(name);terminate();
    }
 }
 
@@ -168,13 +168,14 @@ ufcntl:
       { lockf(fd,F_ULOCK,0L);goto ufcntl;
       }
 #endif /* USEflock */
-#endif /* USElockf */
+#else /* USElockf */
 #ifdef USEflock
      if((ret|=flock(fd,LOCK_EX|LOCK_NB))&&(errno==EAGAIN||errno==EACCES||
       errno==EWOULDBLOCK))
       { flck.l_type=F_UNLCK;fcntl(fd,F_SETLK,&flck);continue;
       }
 #endif /* USEflock */
+#endif /* USElockf */
 #else /* NOfcntl_lock */
 #ifdef USElockf
      ret=lockf(fd,F_LOCK,0L);

@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.6 1992/11/09 18:30:23 berg Exp $
+#$Id: Makefile.1,v 1.7 1992/11/11 13:57:47 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -41,11 +41,12 @@ recommend: src/Makefile
 integrating procmail; echo into the mail-delivery system -- for advanced \
 functionality AND SECURITY --.; echo For more information about this topic \
 you should look in the examples/advanced; echo file.; elif \
-	 grep 'Mlocal.*procmail.*F=[a-zA-Z]*u' /usr/lib/sendmail.cf \
-	 /etc/sendmail.cf >$(DEVNULL) 2>&1; then echo The recommendation for \
-the sendmail.cf entry of procmail has changed.; echo I suggest you remove \
-the u-flag 'like in:';	sed -n 's/.*\(Mlocal.*procmail.*F=[a-zA-Z]*\)u/\1/p' \
-	 `if test -f /etc/sendmail.cf; then echo /etc/sendmail.cf; else \
+	 cat /usr/lib/sendmail.cf /etc/sendmail.cf 2>$(DEVNULL) | \
+	 grep 'Mlocal.*procmail.*F=[a-zA-Z]*u' >$(DEVNULL) ; then \
+	 echo The recommendation for the sendmail.cf entry of procmail has \
+changed.; echo I suggest you remove the '`u'"'"-flag 'like in:'; echo ; \
+	  sed -n 's/.*\(Mlocal.*procmail.*F=[a-zA-Z]*\)u/\1/p' `if test -f \
+	 /etc/sendmail.cf; then echo /etc/sendmail.cf; else \
 	 echo /usr/lib/sendmail.cf; fi`; fi
 	@echo
 	@echo "Also, HIGHLY RECOMMENDED (type 'make suid' to execute it):"
@@ -110,7 +111,7 @@ clean: new
 realclean: clean _init
 	-rmdir new; exit 0
 	$(RM) config.check
-	-for a in $(SUBDIRS); do mv $$a/Makefile.init $$a/Makefile; done; \
+	-for a in $(SUBDIRS); do $(MV) $$a/Makefile.init $$a/Makefile; done; \
 	 exit 0
 
 veryclean: realclean
@@ -118,7 +119,7 @@ veryclean: realclean
 _init:
 	sed -e '/^# Makefile.1 - mark/,$$ d' <Makefile >_Makefile
 	cat Makefile.0 >>_Makefile
-	mv _Makefile Makefile
+	$(MV) _Makefile Makefile
 	$(RM) Makefile.0
 
 man/Makefile: man/Makefile.0

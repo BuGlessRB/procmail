@@ -1,4 +1,4 @@
-/*$Id: locking.h,v 1.2 1992/10/02 14:40:30 berg Exp $*/
+/*$Id: locking.h,v 1.3 1992/11/11 14:00:08 berg Exp $*/
 
 void
  lockit P((char*name,char**const lockp)),

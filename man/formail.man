@@ -1,4 +1,4 @@
-.Id $Id: formail.man,v 1.4 1992/11/09 18:30:36 berg Exp $
+.Id $Id: formail.man,v 1.5 1992/11/11 13:58:13 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .SH NAME
 .na

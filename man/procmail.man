@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.8 1992/11/09 18:30:40 berg Exp $
+.Id $Id: procmail.man,v 1.9 1992/11/11 13:58:25 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .SH NAME
 .na

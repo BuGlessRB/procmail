@@ -10,9 +10,11 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: multigram.c,v 1.4 1992/11/09 18:31:04 berg Exp $";
+static const char rcsid[]=
+ "$Id: multigram.c,v 1.5 1992/11/11 14:00:26 berg Exp $";
 #endif
-static char rcsdate[]="$Date: 1992/11/09 18:31:04 $";
+static const char rcsdate[]="$Date: 1992/11/11 14:00:26 $";
+static PROGID;
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -70,7 +72,7 @@ void nlog(a)const char*const a;
 }
 
 main(minweight,argv)const char*argv[];
-{ struct string fuzzstr,hardstr;FILE*hardfile;const char*addit;
+{ struct string fuzzstr,hardstr;FILE*hardfile;const char*addit=0;
   struct match{char*fuzz,*hard;int metric;long lentry,offs1,offs2;}
    **best,*curmatch=0;
   unsigned best_matches,maxgram,maxweight,charoffs=0,remov=0,renam=0;
@@ -89,7 +91,7 @@ main(minweight,argv)const char*argv[];
 	      case 'a':
 		 if(!*chp&&!(chp= *++argv))
 		    goto usg;
-		 addit=chp;continue;
+		 addit=chp;break;
 	      case 'b':case 'l':case 'w':
 		{int i;
 		 {const char*ochp;
@@ -106,18 +108,18 @@ main(minweight,argv)const char*argv[];
 	      case HELPOPT1:case HELPOPT2:elog(usage);
 		 elog(
  "\t-a address\tadd this address to the list\
-\n\t-b nnn\tmaximum no. of best matches shown\
-\n\t-c\tdisplay offsets in characters\
-\n\t-d\tdelete address from list\
-\n\t-l nnn\tlower bound metric\
-\n\t-r\trename address on list\
-\n\t-w nnn\twindow width used when matching\n");return EX_USAGE;
+\n\t-b nnn\t\tmaximum no. of best matches shown\
+\n\t-c\t\tdisplay offsets in characters\
+\n\t-d\t\tdelete address from list\
+\n\t-l nnn\t\tlower bound metric\
+\n\t-r\t\trename address on list\
+\n\t-w nnn\t\twindow width used when matching\n");return EX_USAGE;
 	      default:goto usg;
 	      case '\0':;
 	    }
 	   break;
 	 }
-     if(!chp||*++argv||renam+remov+!!addit>2)
+     if(!chp||*++argv||renam+remov+!!addit>1)
 	goto usg;
      if(!(hardfile=fopen(chp,remov||renam||addit?"r+":"r")))
       { nlog("Couldn't open \"");elog(chp);elog("\"\n");return EX_IOERR;
@@ -128,19 +130,19 @@ usg:
    { elog(usage);return EX_USAGE;
    }
   if(addit)
-   { int lnl;
-     for(lnl=1,lentry=0;;)
+   { int lnl;long lasttell;
+     for(lnl=1,lasttell=0;;)
       { switch(getc(hardfile))
 	 { case '\n':
 	      if(lnl)
 		 break;
-	      lentry=ftell(hardfile);lnl=1;continue;
+	      lasttell=ftell(hardfile);lnl=1;continue;
 	   default:lnl=0;continue;
-	   case EOF:lentry=ftell(hardfile);
+	   case EOF:lasttell=ftell(hardfile);
 	 }
 	break;
       }
-     fseek(hardfile,lentry,SEEK_SET);fprintf(hardfile,"%s\n",addit);
+     fseek(hardfile,lasttell,SEEK_SET);fprintf(hardfile,"%s\n",addit);
      printf("Added: %s\n",addit);fclose(hardfile);return EX_OK;
    }
   if(!maxgram)
@@ -166,7 +168,7 @@ usg:
      switch(*(echp=strchr(chp=fuzzstr.text,'\0')-1))
       { case '.':case ',':case ';':case ':':case '?':case '!':*echp--='\0';
       }
-     if(!strchr(chp,'@')&&(!strchr(chp,'!')||
+     if(!strchr(chp,'@')&&(!strchr(chp,'!')||strchr(chp,'|')||strchr(chp,',')||
       mystrstr(chp,"..",chp+strlen(chp))))
 	continue;			  /* apparently not an email address */
      for(parens=0;chp=strchr(chp,'(');++chp,++parens);
