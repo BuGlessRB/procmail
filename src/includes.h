@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.33 1994/01/12 17:22:00 berg Exp $*/
+/*$Id: includes.h,v 1.34 1994/01/12 19:13:21 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -347,7 +347,7 @@ extern void*memmove();
 #define setruid(uid)	(-1)
 #endif
 #ifdef NOsetegid
-#define setegid(gid)	(-1)
+#define setegid(gid)	setgid(gid)
 #endif
 #endif
 #endif

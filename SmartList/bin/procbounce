@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: procbounce,v 1.17 1993/12/23 13:01:32 berg Exp $
+#$Id: procbounce,v 1.18 1994/01/12 19:13:07 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -24,17 +24,19 @@ bounces=bounces
 
 $test -d $bounces || $mkdir $bounces
 
-addr=`$formail -1 -kde -xSubject: -s \
- $multigram -b1 -l$off_threshold -x$listaddr -x$listreq $dist <$tmprequest |
+addr=`$formail -1 -kdem4 -xSubject: <$tmprequest -s \
+ $sed -e '/^[	 *]*Message-[Ii][Dd]:/ d' -e '/^[	 *]*To:/ d' |
+ $multigram -b1 -l$off_threshold -x$listaddr -x$listreq $dist |
  $sed -e 's/^.* \([^ ]*\)$/\1/' `
 
 test -z "$addr" &&
- addr=`$formail -1 -kde -xSubject: -s \
-  $multigram -i -b1 -l$off_threshold -x$listaddr -x$listreq $dist <$tmprequest|
+ addr=`$formail -1 -kdem4 -xSubject: <$tmprequest -s \
+  $sed -e '/^[	 *]*Message-[Ii][Dd]:/ d' -e '/^[	 *]*To:/ d' |
+  $multigram -i -b1 -l$off_threshold -x$listaddr -x$listreq $dist |
   $sed -e 's/^.* \([^ ]*\)$/\1/' `
 
 test -z "$addr" &&
- addr=`$formail -1 +1 -cqde -xReceived: -s sed -e 1q <$tmprequest |
+ addr=`$formail -1 +1 -cqdem4 -xReceived: -s sed -e 1q <$tmprequest |
   $multigram -i -b1 -l$off_threshold -x$listaddr -x$listreq $dist |
   $sed -e 's/^.* \([^ ]*\)$/\1/' `
 

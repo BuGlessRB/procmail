@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.60 1994/01/11 13:25:09 berg Exp $";
+ "$Id: procmail.c,v 1.61 1994/01/12 19:13:24 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -54,6 +54,9 @@ gid_t gid,sgid;
 
 main(argc,argv)const char*const argv[];
 { register char*chp,*chp2;register i;int suppmunreadable;
+#if 0				/* enable this if you want to trace procmail */
+  kill(getpid(),SIGSTOP);/*raise(SIGSTOP);*/
+#endif
   ;{ int Deliverymode,mailfilter;char*fromwhom=0;const char*idhint=0;
 #define Presenviron	i
      Deliverymode=mailfilter=0;thepid=getpid();

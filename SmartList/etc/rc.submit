@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.37 1994/01/11 13:16:37 berg Exp $
+#$Id: rc.submit,v 1.38 1994/01/12 19:13:11 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -56,7 +56,7 @@ Precedence:.*junk)|^FROM_MAILER
      # Check if we need to autosubscribe anyone not on the dist list.
      #
 
-     :0 cW
+     :0
      * $$force_subscribe
      * !? formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 	   -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
