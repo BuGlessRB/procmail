@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.52 1998/11/19 11:40:02 srb Exp $";
+ "$Id: pipes.c,v 1.53 1998/12/13 04:35:14 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -235,18 +235,17 @@ builtin:
 }
 
 char*readdyn(bf,filled)char*bf;long*const filled;
-{ int blksiz=BLKSIZ;long oldsize= *filled;unsigned shift=EXPBLKSIZ;
+{ int blksiz=BLKSIZ;long oldsize= *filled;unsigned shift=EXPBLKSIZ;char*np;
   for(;;)
    {
 #ifdef SMALLHEAP
      if((size_t)*filled>=(size_t)(*filled+blksiz))
 	lcking|=lck_MEMORY,nomemerr();
 #endif				       /* dynamically adjust the buffer size */
-     ;{ char*np=0;     /* use the real realloc so that we can retry failures */
-	while(EXPBLKSIZ&&blksiz>BLKSIZ&&!(np=(realloc)(bf,*filled+blksiz)))
-	   blksiz>>=1;				  /* try a smaller increment */
-	bf=np?np:realloc(bf,*filled+blksiz);			 /* last try */
-      }
+		       /* use the real realloc so that we can retry failures */
+     while(EXPBLKSIZ&&blksiz>BLKSIZ&&!(np=(realloc)(bf,*filled+blksiz)))
+	blksiz>>=1;				  /* try a smaller increment */
+     bf=EXPBLKSIZ&&np?np:realloc(bf,*filled+blksiz);		 /* last try */
 jumpback:;
      ;{ int got,left=blksiz;
 	do
@@ -274,7 +273,7 @@ eoffound:
 	pipw=waitfor(pidchild);		      /* reap your child in any case */
    }
   pidchild=0;					/* child must be gone by now */
-  return realloc(bf,*filled+1);	     /* minimise+1 for housekeeping purposes */
+  return (np=(realloc)(bf,*filled+1))?np:bf;  /* minimise+1 for housekeeping */
 }
 
 char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
