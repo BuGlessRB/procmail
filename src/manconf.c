@@ -1,17 +1,15 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.68 2000/10/23 09:02:45 guenther Exp $*/
+/*$Id: manconf.c,v 1.69 2000/11/18 07:10:01 guenther Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
-#include "lastdirsep.h"
 
 #define pn(name,val)	pnr(name,(long)(val))
 
 static char pm_version[]=VERSION,ffileno[]=DEFfileno;
 static int lines;
-const char dirsep[]=DIRSEP,pmrc[]=PROCMAILRC;
-char pmrc2[]=PROCMAILRC;			     /* need a writable copy */
+const char dirsep[]=DIRSEP;
 static const char*const keepenv[]=KEEPENV,*const prestenv[]=PRESTENV,
  *const trusted_ids[]=TRUSTED_IDS,*const etcrc=ETCRC,
  *const krnllocks[]={
@@ -230,7 +228,7 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
   pn("DEFlinebuf",DEFlinebuf);
   ps("BOGUSprefix",BOGUSprefix);
   ps("FAKE_FIELD",FAKE_FIELD);
-  ps("PROCMAILRC",pmrc);
+  ps("PROCMAILRC",PROCMAILRC);
   pn("RETRYunique",RETRYunique);
   pn("DEFsuspend",DEFsuspend);
   pn("DEFlocksleep",DEFlocksleep);
@@ -243,8 +241,7 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
   ps("FROMMkey",FROMMkey);
   ps("FROMMsubstitute",FROMMsubstitute);
   ps("DEFshellmetas",DEFshellmetas);
-  *lastdirsep(pmrc2)='\0';
-  ps("DEFmaildir",pmrc2);
+  ps("DEFmaildir",DEFmaildir);
   ps("DEFdefault",DEFdefault);
   ps("DEFmsgprefix",DEFmsgprefix);
   ps("DEFsendmail",DEFsendmail);
