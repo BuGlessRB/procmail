@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: sublib.c,v 1.29 2001/08/10 18:52:29 guenther Exp $";
+ "$Id: sublib.c,v 1.30 2001/08/18 17:16:21 srb Exp $";
 #endif
 #include "includes.h"
 #include "sublib.h"
@@ -88,21 +88,25 @@ char*sstrstr(phaystack,pneedle)const char*const phaystack;
      goto jin;
      for(;;)
       { ;{ register chartype a;
+	   if(0)
+jin:	    { if((a= *++haystack)==c)
+		 goto crest;
+	    }
+	   else
+	      a= *++haystack;
 	   do
-	    { if(!(a= *++haystack))
-		 goto ret0;
-	      if(a==b)
-		 break;
-	      if(!(a= *++haystack))
-		 goto ret0;
-shloop:;    }
-	   while(a!=b);
-jin:	   if(!(a= *++haystack))
-	      goto ret0;
-	   if(a!=c)
-	      goto shloop;
+	    { for(;a!=b;a= *++haystack)
+	       { if(!a)
+		    goto ret0;
+		 if((a= *++haystack)==b)
+		    break;
+		 if(!a)
+		    goto ret0;
+	       }
+	    }
+	   while((a= *++haystack)!=c);
 	 }
-	;{ register chartype a;
+crest:	;{ register chartype a;
 	   ;{ register const uchar*rhaystack,*rneedle;
 	      if(*(rhaystack=haystack--+1)==(a= *(rneedle=needle)))
 		 do
