@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.35 1994/02/09 19:11:17 berg Exp $";
+ "$Id: formail.c,v 1.36 1994/02/11 18:49:16 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/02/09 19:11:17 $";
+static /*const*/char rcsdate[]="$Date: 1994/02/11 18:49:16 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -135,7 +135,7 @@ main(lastm,argv)const char*const argv[];
 	      case FM_REPLY:areply=1;continue;
 	      case FM_FORCE:force=1;continue;
 	      case FM_EVERY:every=1;continue;
-	      case FM_BABYL:babyl=1;
+	      case FM_BABYL:babyl=every=1;
 	      case FM_DIGEST:digest=1;continue;
 	      case FM_NOWAIT:nowait=1;continue;
 	      case FM_KEEPB:keepb=1;continue;
@@ -224,7 +224,7 @@ xusg:
   while(i--);
   fdate=0;addfield(&fdate,date,STRLEN(date)); /* fdate is only for searching */
   if(babyl)						/* skip BABYL leader */
-   { while(getchar()!='\037'||getchar()!='\f'||getchar()!='\n')
+   { while(getchar()!=BABYL_SEP1||getchar()!=BABYL_SEP2||getchar()!='\n')
 	while(getchar()!='\n');
      while(getchar()!='\n');
    }
@@ -462,6 +462,8 @@ splitit:    { if(!lnl)	    /* did the previous mail end with an empty line? */
 putsp:	lputcs(' ');
 #endif /* MAILBOX_SEPARATOR */
      lnl=buffilled==1;		      /* check if we just read an empty line */
+     if(babyl&&*buf==BABYL_SEP1)
+	closemine(),opensink();				 /* discard the rest */
      if(areply&&bogus)					  /* escape the body */
 	if(fldp=rdheader)	      /* we already read some "valid" fields */
 	 { register char*p;

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.14 1994/02/08 16:14:10 berg Exp $
+.Id $Id: formail.man,v 1.15 1994/02/11 18:49:07 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -9,7 +9,7 @@ formail \- mail (re)formatter
 .B formail
 .RI [ "\fB\@FM_SKIP@\fPskip" ]
 .RI [ "\fB\@FM_TOTAL@\fPtotal" ]
-.RB [ \-@FM_BOGUS@@FM_CONCATENATE@@FM_FORCE@@FM_REPLY@@FM_KEEPB@@FM_TRUST@@FM_NOWAIT@@FM_EVERY@@FM_DIGEST@@FM_QUIET@ ]
+.RB [ \-@FM_BOGUS@@FM_CONCATENATE@@FM_FORCE@@FM_REPLY@@FM_KEEPB@@FM_TRUST@@FM_NOWAIT@@FM_EVERY@@FM_DIGEST@@FM_QUIET@@FM_BABYL@ ]
 .RB [ \-@FM_QPREFIX@
 .IR prefix ]
 .if n .ti +0.5i
@@ -109,6 +109,9 @@ messages could start on every line).
 Tell formail that the messages it is supposed to split need not be in strict
 mailbox format (i.e. allows you to split digests/articles or non-standard
 mailbox formats).
+.TP
+.B \-@FM_BABYL@
+Makes formail assume that it is splitting up a BABYL rmail file.
 .TP
 .I "\fB\-@FM_MINFIELDS@\fP min fields"
 Allows you to specify the number of consecutive fields formail needs to find
