@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.43 2001/08/25 04:38:36 guenther Exp $";
+ "$Id: exopen.c,v 1.44 2001/08/26 21:10:11 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -61,7 +61,7 @@ int unique(full,p,len,mode,verbos,flags)char*const full;char*p;
      didnice=!errno;					  /* did we succeed? */
    }
   end=full+len;
-  if(end-p<=UNIQnamelen)		      /* were we given enough space? */
+  if(end-p<=UNIQnamelen-1)		      /* were we given enough space? */
      goto ret0;						    /* nope, give up */
   if(flags&doMAILDIR)				/* 'official' maildir format */
      dot=p;
