@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: x_command,v 1.6 1993/04/13 15:48:10 berg Exp $
+#$Id: x_command,v 1.7 1993/06/02 15:30:55 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -18,6 +18,9 @@ $test -z "$listaddr" &&
  $echo "Don't start this script directly, it is used in rc.request" && exit 64
 
 $formail -R$X_COMMAND: X-Processed:
+
+X_ENVELOPE_TO=$list-request	# to convince (un)subscribe we used the right
+export X_ENVELOPE_TO		# address
 
 while $test $# != 0
 do

@@ -159,7 +159,7 @@
 	       turns out to be /dev/null
 	    Added a paragraph to the mailinglist/Manual (explaining multigram
 	       and threshold values)
-1993/05/18: v2.82
+1993/06/02: v2.82
 	    Fixed sleeptime argument to lockfile
 	    Refined the ^FROM_DAEMON macro again
 	    Added a ^FROM_MAILER macro
@@ -186,6 +186,7 @@
 	    Programs started from within TRAP can read the mail from stdin
 	    Worked my way around the !@#$%^&*() POSIX setgid() semantics (if
 	       your OS supports setrgid() or setregid())
+	    Using off_t now (I seem to have overlooked it in my POSIX docs)
 	    Eliminated all uses of "expr match"
 	    Altered mailstat to work on really broken shells
 	    Extended the FAQ

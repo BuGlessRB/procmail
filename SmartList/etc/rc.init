@@ -33,7 +33,7 @@
 # rc.request	rcfile used when processing requests
 # rc.custom	rcfile that contains all the customisations per list
 
-#$Id: rc.init,v 1.14 1993/05/28 14:43:02 berg Exp $
+#$Id: rc.init,v 1.15 1993/06/02 15:31:01 berg Exp $
 
 PATH=.:$PATH:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises
@@ -126,6 +126,10 @@ foreign_submit	=	yes
 #foreign_submit				# uncomment this line if you
 					# *don't* want to allow
 					# non-subscribers to submit
+cc_requests
+#cc_requests	=	c		# uncomment if you want subscribe
+					# and help requests to be Cc'd to
+					# the maintainer
 digest_flag	=	<0
 #digest_flag	=	>0		# uncomment this if you want digests
 digest_age	=	262144		# maximum age of a digest in seconds

@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.18 1993/05/28 14:43:06 berg Exp $
+#$Id: rc.request,v 1.19 1993/06/02 15:31:04 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -79,7 +79,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 # already be on the mailinglist.  If not, add him.
 #
 
-	:3HBA w:dist.lock
+	:3HBA w $cc_requests:dist.lock
 	^^(.+$)*Subject:[	 ]*(\
 	 ($(.+$)*(^[	 ]*)+)?(add|sub(scri|[	 ]|$)?)|\
 	 ($(.*$)*)?(.*[^a-z])?(subscri|(add .* to|put .* on) .* [a-z-]*list\
@@ -92,7 +92,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 # Is it an info or help request?  Send back the help.txt file.
 #
 
-	:1HBA w
+	:1HBA w $cc_requests
 	^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
 	 [a-z,.	 ]*(help|info(rm(ation)?)?)([^a-z]|$)
 	| (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \

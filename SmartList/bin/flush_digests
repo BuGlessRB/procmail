@@ -8,7 +8,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: flush_digests,v 1.4 1993/05/28 14:42:50 berg Exp $
+#$Id: flush_digests,v 1.5 1993/06/02 15:30:46 berg Exp $
 
 test=test		# /bin/test
 mkdir=mkdir		# /bin/mkdir
@@ -47,7 +47,7 @@ then
    $tmprequest $tmpfrom $digestheader $digestadmin $digestadmin2
   then
      set dummy `$sed -n \
-      -e '1,/^\$/ s/^Subject:.*Digest V\([0-9]*\) #\([0-9]*\)/\1 \2/p' \
+      -e '1,/^$/ s/^Subject:.*Digest V\([0-9]*\) #\([0-9]*\)/\1 \2/p' \
       <$digestheader`
      Volume=archive/volume$2
      Issue=$Volume/$3

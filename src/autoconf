@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.49 1993/05/28 14:43:26 berg Exp $
+#$Id: autoconf,v 1.50 1993/06/02 15:31:09 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -176,8 +176,11 @@ $RM _autotst.$O
 
 cat >_autotst.c <<HERE
 #include <sys/types.h>
+main(){int i;
+ {off_t voff_t;i=voff_t=1;}
+ return !i;}
+struct {char a;char b;} setsid;
 #include <unistd.h>
-int setsid;
 HERE
 
 if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
@@ -185,6 +188,7 @@ if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
 then
   echo "#define setsid()" >>_locktst.h
 else
+  grepfor off_t 'typedef long off_t;'
   if $FGREP setsid _autotst.rrr >$DEVNULL 2>&1
   then
   :
@@ -211,7 +215,7 @@ main(){
  fcntl(0,F_SETLKW,0);
 #endif
 #ifdef F_LOCK
-  lockf(0,F_LOCK,0L);
+  lockf(0,F_LOCK,(off_t)0);
 #endif
 #ifdef LOCK_EX
   flock(0,LOCK_EX);
@@ -266,7 +270,7 @@ cat >_autotst.c <<HERE
 #include <fcntl.h>
 #include <signal.h>		/* SIGKILL */
 #ifndef tell
-#define tell(fd)	lseek(fd,0L,SEEK_CUR)
+#define tell(fd)	lseek(fd,(off_t)0,SEEK_CUR)
 #endif
 #define EX_OK	0
 #include "_locktst.h"
@@ -352,7 +356,7 @@ main(argc,argv)char*argv[];
 	   chdir(dirlocktest);
 	   do			       /* prime the lock, see if it vanishes */
 	    { filename[sizeof filename-2]='0'+--i;
-	      lseek(goodlock=open(filename,O_WRONLY),0L,SEEK_END);
+	      lseek(goodlock=open(filename,O_WRONLY),(off_t)0,SEEK_END);
 	      fdlock(goodlock);
 	    }
 	   while(i);
@@ -371,12 +375,12 @@ main(argc,argv)char*argv[];
 	   for(;;)					   /* and lock away! */
 	    { filename[sizeof filename-2]='0'+(i=psrand()%NR_of_lockfiles);
 	      lockflag=childno|i<<1|1;
-	      lseek(fd=open(filename,O_WRONLY),0L,SEEK_END);
+	      lseek(fd=open(filename,O_WRONLY),(off_t)0,SEEK_END);
 	      if(sfdlock(fd))
 		 lockflag&=~1,fprintf(stderr,"XX%02x",lockflag);
 	      write(pip[1],&lockflag,1);
 	      fprintf(stderr,"%2x%02x",i,childno>>SHIFT_childno);
-	      lseek(fd,0L,SEEK_END);write(fd,&lockflag,1);
+	      lseek(fd,(off_t)0,SEEK_END);write(fd,&lockflag,1);
 	      for(i=SLEEP_loop;i;i--,time((char*)0),sleep(SLEEP_delay));
 	      lockflag&=~1;write(pip[1],&lockflag,1);
 	      if(fdunlock()||close(fd))
@@ -456,7 +460,7 @@ static oldfdlock;
 static struct flock flck;		/* why can't it be a local variable? */
 #endif
 #ifdef F_LOCK
-static long oldlockoffset;
+static off_t oldlockoffset;
 #endif
 
 fdlock(fd)
@@ -473,7 +477,7 @@ fdlock(fd)
 #endif
   if(MSK_lockf&dolock)
 #ifdef F_LOCK
-     oldlockoffset=tell(oldfdlock),fd|=lockf(oldfdlock,F_LOCK,0L);
+     oldlockoffset=tell(oldfdlock),fd|=lockf(oldfdlock,F_LOCK,(off_t)0);
 #else
      fd=1;
 #endif
@@ -497,8 +501,8 @@ fdunlock()
 #endif
   if(MSK_lockf&dolock)
 #ifdef F_LOCK
-   { lseek(oldfdlock,oldlockoffset,SEEK_SET);i|=lockf(oldfdlock,F_LOCK,2L);
-     i|=lockf(oldfdlock,F_ULOCK,0L);
+   { lseek(oldfdlock,oldlockoffset,SEEK_SET);
+     i|=lockf(oldfdlock,F_LOCK,(off_t)2);i|=lockf(oldfdlock,F_ULOCK,(off_t)0);
    }
 #else
      i=1;
@@ -678,7 +682,6 @@ main(){int i;char*p="t";
  {mode_t vmode_t;i=vmode_t=1;}
  {uid_t vuid_t;i=vuid_t=1;}
  {gid_t vgid_t;i=vgid_t=1;}
- {off_t voff_t;i=voff_t=1;}
 #ifndef NO_COMSAT
  {struct hostent host;i=!(host.h_addr_list=0);}
 #endif
@@ -697,7 +700,6 @@ grepfor time_t 'typedef long time_t;'
 grepfor mode_t 'typedef int mode_t;'
 grepfor uid_t 'typedef int uid_t;'
 grepfor gid_t 'typedef int gid_t;'
-grepfor off_t 'typedef long off_t;'
 grepfor h_addr_list '#define h_0addr_list h_addr' ||
  grepfor struct '#define h_0addr_list h_addr'
 
