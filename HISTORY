@@ -436,3 +436,5 @@
 	    Mailstat returns grand totals as well now
 	    Update FAQ and docs to reflect default placing of procmail
 	       in /usr/bin instead of /usr/local/bin
+1999/03/09: v3.13
+	    Mailstat was too lenient in its awk syntax
