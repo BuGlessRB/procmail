@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.54 1994/07/19 14:45:32 berg Exp $";
+ "$Id: formail.c,v 1.55 1994/07/26 17:35:17 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/07/19 14:45:32 $";
+static /*const*/char rcsdate[]="$Date: 1994/07/26 17:35:17 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -96,7 +96,7 @@ int lexitcode;					     /* dummy, for waitfor() */
 pid_t child= -1;
 unsigned long rhash;
 FILE*mystdout;
-int nrskip,nrtotal= -1,retval=EX_OK;
+int nrskip,nrtotal= -1,retval=EXIT_SUCCESS;
 size_t buflen,buffilled;
 long totallen;
 char*buf,*logsummary;
@@ -113,6 +113,28 @@ static void logfolder P((void))	 /* estimate the no. of characters needed to */
      while((i+=TABWIDTH)<LENoffset);
      ultstr(7,totallen,num);putssn(num,strlen(num));putcs('\n');
    }
+}
+
+static void renfield(pointer,oldl,newname,newl)struct field**const pointer;
+ const size_t oldl,newl;const char*const newname;	    /* rename fields */
+{ struct field*p;size_t i;char*chp;		       /* what will we keep? */
+  i=(p= *pointer)->tot_len-oldl;(chp=p->fld_text)[p->tot_len-1]='\0';
+  if(eqFrom_(chp))				       /* continued From_ to */
+     for(;chp=strstr(chp,"\n>");*++chp=' ');	  /* continued regular field */
+  if(newl==STRLEN(From_)&&eqFrom_(newname))
+   { for(chp=p->fld_text;chp=strchr(chp,'\n');)		/* continued regular */
+	if(*++chp==' '||*chp=='\t')		 /* to continued From_ field */
+	   *chp='>';
+     for(chp=p->fld_text;chp=strstr(chp,"\n ");*++chp='>');
+     goto replaceall;
+   }
+  if(newname[newl-1]==HEAD_DELIMITER)		     /* completely new field */
+replaceall:
+     oldl=p->id_len;			     /* replace the old one entirely */
+  p->fld_text[p->tot_len-1]='\n';p->tot_len=i+newl;
+  if(newl>oldl)
+     *pointer=p=realloc(p,FLD_HEADSIZ+p->tot_len);
+  chp=p->fld_text;tmemmove(chp+newl,chp+oldl,i);tmemmove(chp,newname,newl);
 }
     /* checks if the last field in rdheader looks like a known digest header */
 static int digheadr P((void))
@@ -213,13 +235,12 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 	      case FM_FIRST_UNIQ:case FM_LAST_UNIQ:case FM_ReNAME:Qnext_arg();
 		 i=breakfield(chp,lnl=strlen(chp));
 		 switch(lastm)
-		  { case FM_DEL_INSERT:case FM_REN_INSERT:case FM_EXTRACT:
-		    case FM_FIRST_UNIQ:case FM_LAST_UNIQ:case FM_EXTRC_KEEP:
-		       if(-i!=lnl)
-		    default:
-			  if(i<=0)
-			     goto invfield;
-		    case FM_ReNAME:;
+		  { default:
+		       if(-i!=lnl)	  /* it is not an early ending field */
+		    case FM_ADD_IFNOT:case FM_ADD_ALWAYS:
+			  if(i<=0)	      /* and it is not a valid field */
+			     goto invfield;			 /* complain */
+		    case FM_ReNAME:;		       /* everything allowed */
 		  }
 		 chp[lnl]='\n';			       /* terminate the line */
 		 afldp=addfield(lastm==FM_REN_INSERT?&iheader:
@@ -238,11 +259,16 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		       break;
 		     }				   /* second field attached? */
 		    lastm=i;
-		    if((i=breakfield(chp,(size_t)(namep-chp)))>0)
+		    if((i=breakfield(chp,(size_t)(namep-chp)))<0) /* partial */
+		       if(lastm>0)		     /* complete first field */
+			  goto invfield;	   /* impossible combination */
+		       else
+			  i= -i;
+		    if(i)
 		       tmemmove((char*)fldp->fld_text+lnl,chp,i),copied=1;
-		    else if(namep>chp&&lastm<=0|| /* first field ended early */
+		    else if(namep>chp||				 /* garbage? */
 			    !(chp=(char*)*++argv)||	 /* look at next arg */
-			    (i=breakfield(chp,strlen(chp)))<=0) /* no field? */
+			    (i=breakfield(chp,strlen(chp))))	/* fieldish? */
 invfield:	     { nlog("Invalid field-name:");logqnl(chp?chp:"");
 		       goto usg;
 		     }
@@ -479,7 +505,7 @@ dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
 	   msid->rexp[msid->rexl-1]='\n';	      /* restore the newline */
 	 }
 	if(!split)			  /* not splitting?  terminate early */
-	   return dupid?EX_OK:1;
+	   return dupid?EXIT_SUCCESS:1;
 	if(dupid)			       /* duplicate? suppress output */
 	   closemine(),opensink();
       }
@@ -560,7 +586,7 @@ dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
 	   else
 	      addfield(&nheader,fldp->fld_text,fldp->tot_len);
      if((fldp= *(afldp= &rdheader))&&logsummary&&eqFrom_(fldp->fld_text))
-	concatenate(fldp),putssn(fldp->fld_text,fldp->tot_len);
+	putssn(fldp->fld_text,fldp->tot_len);
      while(fldp)
       { lnl=fldp->id_len;chp=fldp->fld_text;
 	if(logsummary)
@@ -661,7 +687,8 @@ splitit:       { if(!lnl)   /* did the previous mail end with an empty line? */
 		  }
 		 if(!nowait&&*argv)	 /* wait till the child has finished */
 		  { int excode;
-		    if((excode=waitfor(child))!=EX_OK&&retval!=EX_OK)
+		    if((excode=waitfor(child))!=EXIT_SUCCESS&&
+		       retval!=EXIT_SUCCESS)
 		       retval=excode;
 		  }
 		 if(!nrtotal)
@@ -731,12 +758,12 @@ onlyhead:
   closemine();
   ;{ int excode;					/* wait for everyone */
      while((excode=waitfor((pid_t)0))!=NO_PROCESS)
-	if(retval==EX_OK&&excode!=EX_OK)
+	if(retval==EXIT_SUCCESS&&excode!=EXIT_SUCCESS)
 	   retval=excode;
    }
   if(retval<0)
      retval=EX_UNAVAILABLE;
-  return retval!=EX_OK?retval:split<0?EX_IOERR:EX_OK;
+  return retval!=EXIT_SUCCESS?retval:split<0?EX_IOERR:EXIT_SUCCESS;
 }
 
 eqFrom_(a)const char*const a;

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: fields.c,v 1.17 1994/06/28 16:56:07 berg Exp $";
+ "$Id: fields.c,v 1.18 1994/07/26 17:35:13 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -57,14 +57,6 @@ void concatenate(fldp)struct field*const fldp;
      while(l--)
 	if(*p++=='\n'&&l)    /* by substituting all newlines except the last */
 	   p[-1]=' ';
-}
-
-void renfield(pointer,oldl,newname,newl)struct field**const pointer;
- const size_t oldl,newl;const char*const newname;	    /* rename fields */
-{ struct field*p;size_t i;char*chp;
-  i=(p= *pointer)->tot_len-oldl;	      /* length of what we will keep */
-  *pointer=p=realloc(p,FLD_HEADSIZ+(p->tot_len=i+newl));chp=p->fld_text;
-  tmemmove(chp+newl,chp+oldl,i);tmemmove(chp,newname,newl);   /* shove, copy */
 }
 
 static void extractfield(p)register struct field*p;

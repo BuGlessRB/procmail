@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.42 1994/06/28 16:56:28 berg Exp $*/
+/*$Id: manconf.c,v 1.43 1994/07/26 17:35:31 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -167,16 +167,17 @@ See also:\1.BR DROPPRIVS .":"");
 #ifdef ETCRCS
   ps("ETCRCS_desc","\1If the rcfile is an absolute path starting with\
 \1.B @ETCRCS@\
-\1 without backward references (i.e. the parent directory cannot\
+\1without backward references (i.e. the parent directory cannot\
  be mentioned) procmail will, only if no security violations are found,\
  take on the identity of the owner of the rcfile (or symbolic link).");
   ps("ETCRCS_files","\1.TP\1.B @ETCRCS@\1special privileges path for rcfiles");
   ps("ETCRCS_warn","\1.PP\1Keep in mind that if\1.BR chown (1)\1is permitted\
  on files in\1.BR @ETCRCS@ ,\1that they can be chowned to root\
- (or anyone else) by their current owners.");
+ (or anyone else) by their current owners.\1For maximum security, make\
+ sure this directory is executable to root only.");
   ps("ETCRCS_error","\1.TP\1Denying special privileges for \"x\"\1\
 Procmail will not take on the identity that comes with the rcfile because\1\
-a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1 or variable\
+a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
  assignments on the command line) or procmail had insufficient privileges\
  to do so.");
   ps("ETCRCS",ETCRCS);
@@ -290,7 +291,7 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1 or variable\
   pc("FM_FIRST_UNIQ",FM_FIRST_UNIQ);
   pc("FM_LAST_UNIQ",FM_LAST_UNIQ);
   pc("FM_ReNAME",FM_ReNAME);
-  pn("EX_OK",EX_OK);
+  pn("EX_OK",EXIT_SUCCESS);
   *(p=strchr(strchr(q=strchr(pm_version,' ')+1,' ')+1,' '))='\0';p++;
   ps("PM_VERSION",q);
   ps("MY_MAIL_ADDR",skltmark(1,&p));
@@ -307,5 +308,5 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1 or variable\
 #endif
   ps("SETRUID",setruid(getuid())?"":	/* is setruid() a valid system call? */
    " (or if procmail is already running with the recipient's euid and egid)");
-  return EX_OK;
+  return EXIT_SUCCESS;
 }

@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.28 1994/06/28 16:56:21 berg Exp $";
+ "$Id: lockfile.c,v 1.29 1994/07/26 17:35:26 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/06/28 16:56:21 $";
+static /*const*/char rcsdate[]="$Date: 1994/07/26 17:35:26 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -101,7 +101,7 @@ static PROGID;
 
 main(argc,argv)const char*const argv[];
 { const char*const*p,*const*lastf;char*cp;uid_t uid;
-  int sleepsec,retries,invert,force,suspend,retval=EX_OK,virgin=1;
+  int sleepsec,retries,invert,force,suspend,retval=EXIT_SUCCESS,virgin=1;
   static const char usage[]="Usage: lockfile -nnn | -r nnn | -l nnn | -s nnn \
 | -! | -ml | -mu | file ...\n";
   if(argc<=1)			       /* sanity check, any argument at all? */
@@ -257,17 +257,17 @@ nfailure:	 sleepsec= -1;argc=lastf-argv+1;	    /* mark sleepsec */
 	 }
 	lastf=p;					  /* last valid file */
       }
-  if(retval==EX_OK&&virgin)		 /* any errors?	 did we do anything? */
+  if(retval==EXIT_SUCCESS&&virgin)	 /* any errors?	 did we do anything? */
 usg:
    { elog(usage);
      return EX_USAGE;
    }
   if(invert)
      switch(retval)			 /* we only invert the regular cases */
-      { case EX_OK:
+      { case EXIT_SUCCESS:
 	   return EX_CANTCREAT;
 	case EX_CANTCREAT:
-	   return EX_OK;
+	   return EXIT_SUCCESS;
       }
   return retval;			       /* all other exitcodes remain */
 }

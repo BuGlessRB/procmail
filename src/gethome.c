@@ -3,7 +3,7 @@
  *			of the list user.				*
  *	This program is used by the SmartList installation script only. *
  ************************************************************************/
-/*$Id: gethome.c,v 1.5 1994/06/28 16:56:15 berg Exp $*/
+/*$Id: gethome.c,v 1.6 1994/07/26 17:35:22 berg Exp $*/
 #include "includes.h"
 
 main(argc,argv)const int argc;const char*const argv[];
@@ -40,5 +40,5 @@ main(argc,argv)const int argc;const char*const argv[];
 breakout:
      printf("%s\n",chp);    /* this should be relative to the home directory */
    }
-  return EX_OK;
+  return EXIT_SUCCESS;
 }

@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.57 1994/06/28 16:56:34 berg Exp $";
+ "$Id: multigram.c,v 1.58 1994/07/26 17:35:36 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/06/28 16:56:34 $";
+static /*const*/char rcsdate[]="$Date: 1994/07/26 17:35:36 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -293,7 +293,7 @@ Usage: flist listname[-request]\n\
 	if(!strcmp(arg=argv[1],"-v"))
 	 { fprintf(stderr,"%s\nUser: %s\nDirectory: %s\n",SLVERSION,listid,
 	    targetdir);
-	   return EX_OK;
+	   return EXIT_SUCCESS;
 	 }
 	;{ uid_t euid;
 	   if((euid=geteuid())==ROOT_uid)
@@ -378,7 +378,7 @@ nochdir: { nlog("Couldn't chdir to");logqnl(targetdir);
 	while(i=fgetc(stdin),!feof(stdin))		       /* hash away! */
 	   hash=hash*67067L+i;
 	printf("%lx",hash);
-	return EX_OK;
+	return EXIT_SUCCESS;
       }
      if(ISPROGRAM(chp,senddigest))		      /* senddigest program? */
       { struct stat stbuf;
@@ -394,13 +394,13 @@ nochdir: { nlog("Couldn't chdir to");logqnl(targetdir);
 	   if(!stat(argv[argc=4],&stbuf))
 	    { off_t maxsize;
 	      if(stbuf.st_mtime+strtol(argv[1],(char**)0,10)<newt)
-		 return EX_OK;				   /* digest too old */
+		 return EXIT_SUCCESS;			   /* digest too old */
 	      maxsize=strtol(argv[2],(char**)0,10);
 	      goto statd;
 	      do
 	       { if(!stat(argv[argc],&stbuf))
 statd:		    if((size+=stbuf.st_size)>maxsize)	  /* digest too big? */
-		       return EX_OK;
+		       return EXIT_SUCCESS;
 	       }
 	      while(argv[++argc]);
 	    }
@@ -491,9 +491,9 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 	 }
 	free(hardstr.text);fclose(hardfile);
 	if(!revfilled)
-	   retval=EX_OK,sterminate();	    /* oops, no recipients, finished */
+	   retval=EXIT_SUCCESS,sterminate();	  /* no recipients, finished */
 	if(fork()>0)					    /* lose our tail */
-	   return EX_OK;	  /* causes procmail to release the lockfile */
+	   return EXIT_SUCCESS;	  /* causes procmail to release the lockfile */
 	revarr=realloc(revarr,revfilled*sizeof*revarr);		/* be modest */
 	hsort(revarr,revfilled,sizeof*revarr,pstrIcmp);		  /* sort'em */
 	if(maxsplits)
@@ -570,7 +570,7 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 	      while((n=best-revarr+1)<revfilled);
 	    }
 	 }
-	retval=EX_OK;sterminate();
+	retval=EXIT_SUCCESS;sterminate();
       }
      minweight=SCALE_WEIGHT;best_matches=maxgram=0;exc2str.text=excstr.text=0;
      while((chp= *++argv)&&*chp=='-')
@@ -677,7 +677,7 @@ usg:
       }				     /* go back there, and add the new entry */
      fseek(hardfile,lasttell,SEEK_SET);fprintf(hardfile,"%s\n",addit);
      printf("Added: %s\n",addit);fclose(hardfile);
-     return EX_OK;
+     return EXIT_SUCCESS;
    }
   if(!maxgram)
      maxgram=DEFmaxgram;
@@ -832,7 +832,7 @@ remv:	 { char*buf;off_t offs1,offs2;size_t readin;
 	   while(ftell(hardfile)<offs2);
 	   fclose(hardfile);
 	 }
-	return EX_OK;
+	return EXIT_SUCCESS;
       }
    }
   if(remov||renam)

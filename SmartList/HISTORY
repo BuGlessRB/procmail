@@ -131,4 +131,8 @@
 	       v2.92pre10 this went wrong), and didn't truncate the archive
 	       at all
 	    Install.sh3 now prompts before overwriting mimencap.local
+	    Install.sh3 now generates diffs between rc.init files and tries
+	       to patch rc.init.new upon installation
+	    Allow submissions with "Precedence: junk"
 	    Inserted the missing newline for reply_to in digests
+	    Put the contents of a digest in an extra MIME message

@@ -232,16 +232,24 @@
 	       - Support some non-BSD compatible syslog() implementations
 	       - Even if the Content-Length is zero, write it out (some
 		 programs can't deal with the empty field)
+	       - Drop the safety margin on Content-Length calculations, some
+		 programs can't deal with those
 	       - Truncate folders to their former length if delivery was not
 		 successful
+	       - Fine-tuned the ^FROM_MAILER and ^FROM_DAEMON macros again
 	    Forgot to define closelog() away if syslog support is missing
+	    Worked around the old syslog() interface
 	    Worked around a compiler bug old HP compilers (pointer-unsigned),
 	       caused the Content-Length: field to be mangled on some older
 	       HP/UX systems (not on every mail)
-	    Worked around compilation problems on SCO
+	    Worked around compilation problems on SCO and old versions of IRIX
 	    Some fixes to the man pages
-	    Updated the ^FROM_DAEMON and ^FROM_MAILER macros
 	    Changes to formail:
 	       - Mistakenly turned X-Loop: fields into Old-X-Loop: when
 		 autoreplying
 	       - Allow wildcard -i when autoreplying
+	       - Renaming short fields to longer fields didn't always work
+	       - Renaming with a wildcard source/destination is possible now
+	    Extended the sendmail directions in examples/advanced, it includes
+	       a direct example on how to make use of the -a feature
+	    Using EXIT_SUCCESS instead of EX_OK

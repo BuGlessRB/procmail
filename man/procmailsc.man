@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailsc.man,v 1.7 1994/05/26 14:12:13 berg Exp $
+.Id $Id: procmailsc.man,v 1.8 1994/07/26 17:35:05 berg Exp $
 .TH PROCMAILSC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -81,7 +81,7 @@ then
 .B n
 obviously can either be zero or one.
 .SH "Weighted program conditions"
-If the program returns an exitcode of EX_OK (=@EX_OK@), then the total
+If the program returns an exitcode of EXIT_SUCCESS (=@EX_OK@), then the total
 added score will be
 .BR w .
 If it returns any other exitcode (indicating failure), the total added

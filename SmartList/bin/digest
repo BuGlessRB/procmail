@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.21 1994/07/20 17:33:24 berg Exp $
+#$Id: digest,v 1.22 1994/07/26 17:34:46 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -123,6 +123,10 @@ Content-Type: multipart/digest; boundary="----------------------------"
 To: $listaddr${reply_to+
 }${reply_to-${undigested_list+
 Reply-To: }$undigested_list}
+
+--------------------------------
+
+Content-Type: text/plain
 
 $list Digest				Volume $Year : Issue $Issue
 

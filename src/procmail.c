@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.87 1994/07/19 14:45:40 berg Exp $";
+ "$Id: procmail.c,v 1.88 1994/07/26 17:35:42 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -46,8 +46,9 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  host[]="HOST",*defdeflock,*argv0="",errwwriting[]="Error while writing to",
  slogstr[]="%s \"%s\"";
 char*Stdout;
-int retval=EX_CANTCREAT,retvl2=EX_OK,sh,pwait,lcking,rcstate,rc= -1,ignwerr,
- lexitcode=EX_OK,asgnlastf,accspooldir,crestarg,skiprc,savstdout;
+int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rcstate,rc= -1,
+ ignwerr,lexitcode=EXIT_SUCCESS,asgnlastf,accspooldir,crestarg,skiprc,
+ savstdout;
 size_t linebuf=mx(DEFlinebuf+XTRAlinebuf,STRLEN(systm_mbox)<<1);
 volatile int nextexit;			       /* if termination is imminent */
 pid_t thepid;
@@ -85,7 +86,7 @@ main(argc,argv)const char*const argv[];
 	   for(;;)				       /* processing options */
 	    { switch(*++chp2)
 	       { case VERSIONOPT:elog(VERSION);
-		    return EX_OK;
+		    return EXIT_SUCCESS;
 		 case HELPOPT1:case HELPOPT2:elog(pmusage);elog(PM_HELP);
 		    elog(PM_QREFERENCE);
 		    return EX_USAGE;
@@ -316,7 +317,8 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 #endif
 	      if(argv[++argc])			  /* more than one recipient */
 		 if(pidchild=sfork())
-		  { if(forkerr(pidchild,procmailn)||waitfor(pidchild)!=EX_OK)
+		  { if(forkerr(pidchild,procmailn)||
+		       waitfor(pidchild)!=EXIT_SUCCESS)
 		       retvl2=retval;
 		    pidchild=0;		      /* loop for the next recipient */
 		  }
@@ -1027,7 +1029,8 @@ forward:	 if(locknext)
 			  else
 			   { int excode;
 			     succeed=1;	  /* wait for our significant other? */
-			     if(pwait&&(excode=waitfor(pidchild))!=EX_OK)
+			     if(pwait&&
+				(excode=waitfor(pidchild))!=EXIT_SUCCESS)
 			      { if(!(pwait&2)||verbose)	 /* do we report it? */
 				   progerr(procmailn,excode);
 				succeed=0;
@@ -1113,7 +1116,7 @@ nomore_rc:
 	else
 	   succeed=1;
      if(succeed)				     /* should we panic now? */
-mailed: retval=EX_OK;			  /* we're home free, mail delivered */
+mailed: retval=EXIT_SUCCESS;		  /* we're home free, mail delivered */
    }
   unlock(&loclock);Terminate();
 }

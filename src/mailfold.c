@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.50 1994/07/19 14:45:37 berg Exp $";
+ "$Id: mailfold.c,v 1.51 1994/07/26 17:35:28 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -317,7 +317,7 @@ void readmail(rhead,tobesent)const long tobesent;
      if(rhead)			      /* did we read in a new header anyway? */
       { confield.filled=0;concnd='\n';
 	while(thebody=strchr(thebody,'\n'))
-	   switch(*++thebody)			  /* mark continuated fields */
+	   switch(*++thebody)			    /* mark continued fields */
 	    { case '\t':case ' ':app_val(&confield,(off_t)(thebody-1-themail));
 	      default:
 		 continue;		   /* empty line marks end of header */
@@ -340,8 +340,10 @@ eofheader:
   if((chp=thebody)>themail)
      chp--;
   if(contlengthoffset)
-   { unsigned places;long cntlen,actcntlen;	    /* minus one, for safety */
-     chp=themail+contlengthoffset;cntlen=filled-(thebody-themail)-1;
+   { unsigned places;long cntlen,actcntlen;		 /* no safety margin */
+     chp=themail+contlengthoffset;cntlen=filled-(thebody-themail);
+     if(filled>1&&themail[filled-2]=='\n')		 /* no phantom '\n'? */
+	cntlen--;		     /* make sure it points to the last '\n' */
      for(actcntlen=places=0;;*chp++='9',places++,actcntlen=actcntlen*10+9)
       { switch(*chp)
 	 { default:					/* fill'r up, please */

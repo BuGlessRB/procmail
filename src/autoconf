@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.88 1994/07/19 14:45:29 berg Exp $
+#$Id: autoconf,v 1.89 1994/07/26 17:35:10 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -234,10 +234,12 @@ cat >_autotst.c <<HERE
 #include "$ACONF"
 #include <sys/types.h>
 #include <time.h>
-main(){int i=0;
+void*vvoid;
+main(){int i=0;char*p="t";
+ vvoid=p;
  {time_t vtime_t;i+=vtime_t=1;}
  {off_t voff_t;i+=voff_t=1;}
- return !i;}
+ return !vvoid+!i;}
 #include <unistd.h>
 struct {char a;char b;} setsid;
 HERE
@@ -247,6 +249,7 @@ if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
 then
   echo "#define setsid()" >>_locktst.h
 else
+  grepfor void '#define void char'
   grepfor time_t 'typedef long time_t;'
   grepfor off_t 'typedef long off_t;'
   if $FGREP setsid _autotst.rrr >$DEVNULL 2>&1
@@ -333,7 +336,9 @@ cat >_autotst.c <<HERE
 #ifndef tell
 #define tell(fd)	lseek(fd,(off_t)0,SEEK_CUR)
 #endif
-#define EX_OK	0
+#ifndef EXIT_SUCCESS
+#define EXIT_SUCCESS	0
+#endif
 #include "_locktst.h"
 #ifndef SYS_FILE_H_MISSING
 #include <sys/file.h>
@@ -378,11 +383,11 @@ cat >_autotst.c <<HERE
 int dolock,child[NR_of_forks],timeout,fdcollect;
 char dirlocktest[]="_locktest";
 
-stimeout()
+void stimeout()
 { timeout=1;close(fdcollect);killchildren();
 }
 
-Terminate()
+void Terminate()
 { stimeout();exit(1);
 }
 
@@ -419,8 +424,11 @@ main(argc,argv)char*argv[];
      goodlock=0;
    }
   if(sfork())				 /* try to ditch the controlling tty */
-     return EX_OK;	/* mainly to prevent rather messy kernel-diagnostics */
+     return EXIT_SUCCESS;      /* to prevent rather messy kernel-diagnostics */
   setsid();				       /* from appearing on your tty */
+  fprintf(stderr,"\
+Every two digits a file is locked.  First digit: which file, second digit:\n\
+which program, XX indicates a lock conflict or failure\n");
   do
    { int countlocks;
      signal(SIGTERM,SIG_DFL);argc=1;dolock=goodlock|testlock;
@@ -472,7 +480,7 @@ main(argc,argv)char*argv[];
 	   int j,ppid;			       /* give all children a chance */
 	   ppid=getppid();
 	   if(sfork())	/* discard the old body, let init adopt our children */
-	      return EX_OK;
+	      return EXIT_SUCCESS;
 	   ;{ FILE*fp;
 	      if(fp=fopen("_locktst.pid","w"))
 		 fprintf(fp,"%ld",(long)getpid()),fclose(fp);
@@ -523,8 +531,8 @@ skip_tests:
      puts("#define SYS_FILE_H_MISSING");
 #endif
    }
-  puts("Kernel-locking tests completed.");
-  return EX_OK;
+  puts("Kernel-locking tests completed.");fprintf(stderr,"\n");
+  return EXIT_SUCCESS;
 }
 
 killchildren()
@@ -582,7 +590,7 @@ fdlock(fd)
 
 fdunlock()
 { int i;unsigned gobble[GOBBLE];
-  for(i=GOBBLE;i;gobble[--i]=~(unsigned)0);		 /* SunOS crash test */
+  for(i=GOBBLE;i;gobble[--i]=~(unsigned)0);  /* some SunOS libs mess this up */
   if(MSK_flock&dolock)
 #ifdef LOCK_EX
      i|=flock(oldfdlock,LOCK_UN);
@@ -779,9 +787,7 @@ cat >_autotst.c <<HERE
 #ifndef NO_COMSAT
 #include "network.h"
 #endif
-void*vvoid;
-main(){int i=0;char*p="t";
- vvoid=p;
+main(){int i=0;
  {size_t vsize_t;i+=vsize_t=1;}
  {pid_t vpid_t;i+=vpid_t=1;}
  {mode_t vmode_t;i+=vmode_t=1;}
@@ -793,29 +799,28 @@ main(){int i=0;char*p="t";
 #ifndef NOuname
  {struct utsname vutsname;i+=!(*vutsname.nodename='\0');}
 #endif
- return !vvoid;}
+ return !i;}
 HERE
 
 echo 'Testing for void*, size_t, off_t, pid_t, time_t, mode_t, uid_t & gid_t'
 
-i0="";i1="";i2="";i3="";i4="";i5="";i6="";i7=""
+i1="";i2="";i3="";i4="";i5="";i6="";i7=""
 oldi=""
 
 while $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
  test ! -f _autotst.$O
 do
-  test -z "$i0" && grepfor void '#define void char' && i7=I
-  test -z "$i1" && grepfor size_t 'typedef unsigned size_t;' && i0=I
-  test -z "$i2" && grepfor pid_t 'typedef int pid_t;' && i1=I
-  test -z "$i3" && grepfor mode_t 'typedef int mode_t;' && i2=I
-  test -z "$i4" && grepfor uid_t 'typedef int uid_t;' && i3=I
-  test -z "$i5" && grepfor gid_t 'typedef int gid_t;' && i4=I
-  test -z "$i6" && grepfor h_addr_list '#define h_0addr_list h_addr' && i5=I
-  test -z "$i6" && grepfor hostent '#define h_0addr_list h_addr' && i5=I
-  test -z "$i6" && grepfor member '#define h_0addr_list h_addr' && i5=I
+  test -z "$i1" && grepfor size_t 'typedef unsigned size_t;' && i1=I
+  test -z "$i2" && grepfor pid_t 'typedef int pid_t;' && i2=I
+  test -z "$i3" && grepfor mode_t 'typedef int mode_t;' && i3=I
+  test -z "$i4" && grepfor uid_t 'typedef int uid_t;' && i4=I
+  test -z "$i5" && grepfor gid_t 'typedef int gid_t;' && i5=I
+  test -z "$i6" && grepfor h_addr_list '#define h_0addr_list h_addr' && i6=I
+  test -z "$i6" && grepfor hostent '#define h_0addr_list h_addr' && i6=I
+  test -z "$i6" && grepfor member '#define h_0addr_list h_addr' && i6=I
   test -z "$i7" && grepfor utsname "#define NOuname			      \
-/* <sys/utsname.h> is there, but empty */" && i6=I
-  newi="$i0$i1$i2$i3$i4$i5$i6$i7"
+/* <sys/utsname.h> is there, but empty */" && i7=I
+  newi="$i1$i2$i3$i4$i5$i6$i7"
   if test a$oldi = a$newi
   then
      echo 2>&1 "Whoeaaa!  There's something fishy going on here."
@@ -1151,7 +1156,7 @@ main(argc,argv)int argc;const char*argv[];
 printit:					   /* we proudly present the */
      printf("#define MAX_argc %d%s\n",argc-2,einfo); /* results of the jury! */
    }
-  return EX_OK;
+  return EXIT_SUCCESS;
 }
 HERE
 

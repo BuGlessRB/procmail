@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.52 1994/07/19 14:45:17 berg Exp $
+.Id $Id: procmail.man,v 1.53 1994/07/26 17:35:02 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -157,7 +157,7 @@ ordinary mail).  This option is incompatible with
 Turns procmail into a general purpose mail filter.  In this mode one rcfile
 must be specified on the command line.  After the rcfile, procmail will
 accept an unlimited number of arguments.@ETCRCS_desc@
-For some typical usage of this option you should look in the
+For some advanced usage of this option you should look in the
 .B EXAMPLES
 section below.
 .SH ARGUMENTS
@@ -191,6 +191,9 @@ A small sample rcfile can be found in the
 .B NOTES
 section below.
 .PP
+Skip the rest of this EXAMPLES section unless you are a system administrator
+who is vaguely familiar with sendmail.cf syntax.
+.PP
 The
 .B \-@MAILFILTOPT@
 option is typically used when procmail is called from within a rule in the
@@ -207,11 +210,11 @@ to filter mail through the procmail mailer (please note the leading tab
 to continue the rule, and the tab to separate the comments):
 .Sx 4
 R$*<@some.where>$*
-        $#procmail $@/etc/some.rc $:$1@some.where.procmail$2
+        $#procmail $@/etc/procmailrcs/some.rc $:$1@some.where.procmail$2
 R$*<@$*.procmail>$*
         $1<@$2>$3       Already filtered, map back
 .Ex
-And /etc/some.rc could be as simple as:
+And /etc/procmailrcs/some.rc could be as simple as:
 .Sx 6
 :0                              # sink all junk mail
 * ^Subject:.*junk
@@ -220,8 +223,8 @@ And /etc/some.rc could be as simple as:
 :0                              # pass along all other mail
 ! \-oi \-f "$@"
 .Ex
-Do watch out when sending mail from within the /etc/some.rc file, if
-you send mail to addresses which match the first rule again, you could
+Do watch out when sending mail from within the /etc/procmailrcs/some.rc file,
+if you send mail to addresses which match the first rule again, you could
 be creating an endless mail loop.
 .SH FILES
 .TP 2.3i
@@ -389,7 +392,8 @@ The unrecognised options on the command line are ignored, proceeding as
 usual.
 .TP
 Program failure (nnn) of "x"
-Program that was started by procmail returned nnn instead of EX_OK (=@EX_OK@);
+Program that was started by procmail returned nnn instead of
+EXIT_SUCCESS (=@EX_OK@);
 if nnn is negative, then this is the signal the program died on.
 .TP
 Renaming bogus "x" into "x"

@@ -122,13 +122,38 @@ To impose a 2MB limit on mails, you could add a `Maxsize=' field like in:
 Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhPfn, S=10, R=20, M=2000000
 	A=procmail -a $h -d $u
 
-In order to take advantage of the meta argument that can be passed to
-procmail you'd have to change to $#local mailer rule to set the $@ host name
-(which will be substituted for $h in the mailer definition).
+In order to take advantage of the optional meta argument that can be passed to
+procmail you'd have to change to add a $#local mailer rule to set the $@ host
+name (which will be substituted for $h in the mailer definition).  There is
+nothing forcing you to do this, but if you do, you'll gain functionality.
+
+For example:
+	Make sure that the definition of operators in the sendmail.cf file
+	includes the + sign (simply tack a + to the end of the "Do" definition,
+	unless it already contains one).
+	Now look for ruleset zero (S0), skip to the end of it.	There
+	usually is a rule there that takes care of local delivery, something
+	like:
+		R$+			$#local $:$1		local names
+	Don't change that rule, leave it there.	 But, right before this
+	rule, create a new one similar to:
+		R$++$*			$#local $@$2 $:$1	local argument
+
+	Now, if someone sends mail to fred+pizza@your.domain, procmail
+	will be called to deliver the mail as:
+		procmail -a pizza -d fred
+	In the .procmailrc file, you can now do an assignment like:
+		ARGUMENT=$1
+	which will expand to ARGUMENT=pizza.
 
 Since you are editing the sendmail.cf file now anyway, you might as well setup
 an extra `procmail' mailer.  This Mprocmail can then be used as a general mail
-filter.	 For more information, see EXAMPLES section the procmail(1) man page.
+filter.	 For more information, see the EXAMPLES section the procmail(1) man
+page.
+
+N.B. Do NOT create the extra rules mentioned in the EXAMPLES section of the
+     procmail(1) man page, unless you already have an application demanding
+     those.  Only create the completely optional Mprocmail mailer.
 
 				---
 

@@ -2,7 +2,7 @@
  *	recommend	Analyses the installation, and makes		*
  *			recommendations about suid/sgid modes		*
  ************************************************************************/
-/*$Id: recommend.c,v 1.9 1994/06/01 17:22:30 berg Exp $*/
+/*$Id: recommend.c,v 1.10 1994/07/26 17:35:45 berg Exp $*/
 #include "includes.h"
 
 #ifndef SYSTEM_MBOX
@@ -56,5 +56,5 @@ main(argc,argv)const int argc;const char*const argv[];
      if(chmdir)
 	printf("chmod g+w %s.\n",systm_mbox);
    }
-  return EX_OK;
+  return EXIT_SUCCESS;
 }

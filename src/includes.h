@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.45 1994/07/19 14:45:35 berg Exp $*/
+/*$Id: includes.h,v 1.46 1994/07/26 17:35:24 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -44,7 +44,7 @@
 #endif
 #ifndef STDLIB_H_MISSING
 #include <stdlib.h>		/* getenv() malloc() realloc() free()
-				/* strtol() exit() */
+				/* strtol() exit() EXIT_SUCCESS */
 #endif
 #include <time.h>		/* time() ctime() time_t */
 #include <fcntl.h>		/* fcntl() struct flock O_RDONLY O_WRONLY
@@ -83,10 +83,9 @@
 #endif
 #include <errno.h>		/* EINTR EEXIST ENFILE EACCES EAGAIN EXDEV */
 #ifndef SYSEXITS_H_MISSING
-#include <sysexits.h>		/* EX_OK EX_USAGE EX_NOINPUT EX_NOUSER
-				/* EX_UNAVAILABLE EX_OSERR EX_OSFILE
-				   EX_CANTCREAT EX_IOERR EX_TEMPFAIL EX_NOPERM
-				   */
+#include <sysexits.h>		/* EX_USAGE EX_NOINPUT EX_NOUSER EX_UNAVAILABLE
+				   EX_OSERR EX_OSFILE EX_CANTCREAT EX_IOERR
+				   EX_TEMPFAIL EX_NOPERM */
 #endif
 
 #ifdef STDLIB_H_MISSING
@@ -141,7 +140,6 @@ double pow();
 #undef SYSEXITS_H_MISSING
 		/* Standard exit codes, original list maintained
 		   by Eric Allman (eric@berkeley.edu) */
-#define EX_OK		0
 #define EX_USAGE	64
 #define EX_NOINPUT	66
 #define EX_NOUSER	67
@@ -152,6 +150,10 @@ double pow();
 #define EX_IOERR	74
 #define EX_TEMPFAIL	75
 #define EX_NOPERM	77
+#endif
+
+#ifndef EXIT_SUCCESS
+#define EXIT_SUCCESS	0
 #endif
 
 #if O_SYNC

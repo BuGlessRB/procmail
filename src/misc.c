@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.55 1994/06/28 16:56:31 berg Exp $";
+ "$Id: misc.c,v 1.56 1994/07/26 17:35:33 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -119,14 +119,14 @@ void readerr(file)const char*const file;
 void verboff P((void))
 { verbose=0;
 #ifdef SIGUSR1
-  qsignal(SIGUSR1,(void(*)())verboff);
+  qsignal(SIGUSR1,verboff);
 #endif
 }
 
 void verbon P((void))
 { verbose=1;
 #ifdef SIGUSR2
-  qsignal(SIGUSR2,(void(*)())verbon);
+  qsignal(SIGUSR2,verbon);
 #endif
 }
 
@@ -209,10 +209,10 @@ void sterminate P((void))
 
 void Terminate P((void))
 { ignoreterm();
-  if(retvl2!=EX_OK)
+  if(retvl2!=EXIT_SUCCESS)
      fakedelivery=0,retval=retvl2;
   if(getpid()==thepid)
-   { if(retval!=EX_OK)
+   { if(retval!=EXIT_SUCCESS)
       { tofile=0;lasttell= -1;			  /* mark it for logabstract */
 	logabstract(fakedelivery?"**Lost**":
 	 retval==EX_TEMPFAIL?"**Requeued**":"**Bounced**");
@@ -224,7 +224,7 @@ void Terminate P((void))
 	exectrap(traps);
      nextexit=2;unlock(&loclock);unlock(&globlock);fdunlock();
    }					/* flush the logfile & exit procmail */
-  elog("");exit(fakedelivery==2?EX_OK:retval);
+  elog("");exit(fakedelivery==2?EXIT_SUCCESS:retval);
 }
 
 void suspend P((void))
@@ -423,7 +423,7 @@ void asenv(chp)const char*const chp;
      if(strcmp(chp,name=hostname()))
       { yell("HOST mismatched",name);
 	if(rc<0||!nextrcfile())			  /* if no rcfile opened yet */
-	   retval=EX_OK,Terminate();		  /* exit gracefully as well */
+	   retval=EXIT_SUCCESS,Terminate();	  /* exit gracefully as well */
 	closerc();
       }
    }
