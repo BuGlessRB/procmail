@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.56 1997/04/02 03:15:39 srb Exp $*/
+/*$Id: includes.h,v 1.57 1998/11/06 05:35:33 guenther Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -30,6 +30,7 @@
 				   getpid() execv() execvp() sleep() setuid()
 				   setgid() setruid() setrgid() setegid()
 				   chown() nice() ftruncate() truncate() */
+#undef EX_OK
 #else
 #undef UNISTD_H_MISSING
 #endif

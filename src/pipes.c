@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.44 1997/04/28 00:27:47 srb Exp $";
+ "$Id: pipes.c,v 1.45 1998/11/06 05:35:40 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -76,9 +76,11 @@ static void getstdin(pip)const int pip;
 static void callnewprog(newname)const char*const newname;
 {
 #ifdef RESTRICT_EXEC
-  syslog(LOG_ERR,slogstr,"Attempt to execute",newname)
-  nlog("Insufficient permission to execute");logqnl(newname);
-  return;
+  if(mailfilter!=2&&restrict&&uid>=RESTRICT_EXEC)
+   { syslog(LOG_ERR,slogstr,"Attempt to execute",newname);
+     nlog("No permission to execute");logqnl(newname);
+     return;
+   }
 #endif
   if(sh)					 /* should we start a shell? */
    { const char*newargv[4];

@@ -348,9 +348,14 @@
 	       - Refuse to open directories for INCLUDERC files
 	       - Syslog failed -o attempts
 	       - Don't log non-delivering recipes, even with 'c' flag
+	       - Use BOGUS.$LOGNAME.inode for bogus files to ease recovery
+	       - Define RESTRICT_EXEC to restrict execution of programs
+	       - Perform continuous checks on heap overflow
+	       - Catch overly long rcfile names
 	    Changes to formail:
 	       - Slightly extended the number of known header fields
 	       - Eliminated the conflict with the 4.4BSD daemon libidentifier
+	       - Fix off-by-one error when zapping whitespace
 	    New Makefile variable VISIBLE_BASE
 	    Added support for a parallelising make
 	    Changed manconf.c to cater for broken systems that have a 100 line
@@ -370,6 +375,7 @@
 	       - Avoid splitting empty messages
 	       - Skip leading spaces when checking for duplicates (will break
 		 checks with old id-databases)
+	       - Generated Message-IDs don't contain "s anymore
 	    Worked around old shells not supporting negated classes
 	    Extended the FAQ
 	    Updated examples/advanced docs for meta-argument setup in
@@ -395,3 +401,4 @@
 	    Changes to procmail and lockfile: use the authenticate library
 	       for easier integration with custom authentication and mailbox
 	       locations
+	    Mailstat returns grand totals as well now

@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.111 1997/04/11 10:29:04 srb Exp $
+#$Id: autoconf,v 1.112 1998/11/06 05:35:29 guenther Exp $
 
 # All possible entries in autoconf.h:
 
@@ -685,6 +685,9 @@ cat >_autotst.c <<HERE
 #ifndef UNISTD_H_MISSING
 #include <unistd.h>		/* execvp() */
 #endif
+int a(b)const int b[];
+{ return *++b;				  /* watcom 10.6 on QNX refuses this */
+}
 main()
 { char r[]="",*const*p;char*q="";const char*s="";
   static const char*const nullp,*const*d= &nullp;	/* AIX 3.2.3 failure */
@@ -1157,10 +1160,14 @@ main(argc,argv)int argc;const char*argv[];
 	      puts("#define TOGGLE_SGID_OK");
 	 }
       }
-     else			       /* some OSes expect an array of ints? */
-      { gid_t groups[3*2];unsigned i;
-	for(i=getgroups(3,groups);--i<3&&groups[i]==getgid(););
-	if(i<3)
+     else
+#ifndef NGROUPS_MAX			 /* is this safeguard really needed? */
+#define NGROUPS_MAX	3
+#endif				       /* some OSes expect an array of ints? */
+      { gid_t groups[NGROUPS_MAX*sizeof(int)/sizeof(gid_t)];unsigned i;
+	for(i=getgroups(NGROUPS_MAX,groups);
+	    --i<NGROUPS_MAX&&groups[i]==getgid(););
+	if(i<NGROUPS_MAX)
 	 { setegid(groups[i]);
 	   if(!setrgid(groups[i])&&getgid()!=groups[i])
 	      puts("#define setrgid_BRAIN_DAMAGE");

@@ -2,7 +2,7 @@
  *	recommend	Analyses the installation, and makes		*
  *			recommendations about suid/sgid modes		*
  ************************************************************************/
-/*$Id: recommend.c,v 1.13 1997/04/02 03:15:45 srb Exp $*/
+/*$Id: recommend.c,v 1.14 1998/11/06 05:35:43 guenther Exp $*/
 #include "includes.h"
 
 #ifndef SYSTEM_MBOX
@@ -52,7 +52,7 @@ main(argc,argv)const int argc;const char*const argv[];
   else if(chmdir==1)
      goto nogchmod;
   if(chmdir)
-     printf("chmod %c+w %s.\n",chmdir==1?'g':'a',mailspooldir);
+     printf("chmod %c+w %s/.\n",chmdir==1?'g':'a',mailspooldir);
 nogchmod:
   return EXIT_SUCCESS;
 }

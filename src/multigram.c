@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.83 1997/04/03 01:58:46 srb Exp $";
+ "$Id: multigram.c,v 1.84 1998/11/06 05:35:39 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1997/04/03 01:58:46 $";
+static /*const*/char rcsdate[]="$Date: 1998/11/06 05:35:39 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -594,7 +594,7 @@ invaddr:	       nlog("Skipping invalid address entry:");*chp=' ';
 	       { int bestval;
 		 cnsize=strlen(*(first=nam=revarr+n))+1+sizeof*nam;cnames=0;
 		 do
-		  { if(first-nam<minnames||
+		  { if(nam-first<minnames||
 		       bestval>=SCALE_WEIGHT/2&&rdist[n]>=SCALE_WEIGHT/2||
 		       rdist[n]<bestval)
 		       bestval=rdist[n],best=nam;

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.26 1995/10/30 02:09:14 srb Exp $
+#$Id: mansed,v 1.27 1998/11/06 05:35:26 guenther Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -113,6 +113,16 @@ Stephen R. van den Berg
 .\" @MY_ALT_MAIL_ADDR@
 .RE
 .\".if n .pl -(\n(.tu-1i)
+.rm SH
+.rn Sh SH
+.rm SS
+.rn Ss SS
+.rm TP
+.rn Tp TP
+.rm RS
+.rn Rs RS
+.rm RE
+.rn Re RE
 HERE
  )| sed -f man.sed.0000 >$TMPF0
 

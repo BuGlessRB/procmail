@@ -39,7 +39,7 @@ Feature summary for procmail:
 	+ Does not impose *any* limits on line lengths, mail length (as long
 	  as memory permits), or the use of any character (any 8-bit character,
 	  including '\0' is allowed) in the mail
-	+ It has man pages (boy, does *it* have man pages)
+	+ It has man pages (boy, does it have man pages)
 	+ Procmail can be used as a local delivery agent with comsat/biff
 	  support (*fully* downwards compatible with /bin/mail); in which case
 	  it can heal your system mailbox, if something messes up the

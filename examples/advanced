@@ -136,7 +136,7 @@ Mlocal, P=/usr/bin/procmail, F=SAw5:|/@glDFMPhsfn, S=10/30, R=20/40,
 
 In case you were wondering why there is no 'm' flag on this definition, you
 can add it if you want, but I recommend omitting it (it would enhance
-performance very slightly, however, if one of the multiple recipients causes
+performance very slightly; however, if one of the multiple recipients causes
 mail to bounce, it will bounce for all recipients (since there is only
 one exitcode)).
 

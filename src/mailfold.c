@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.70 1997/04/03 01:58:45 srb Exp $";
+ "$Id: mailfold.c,v 1.71 1998/11/06 05:35:35 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -68,7 +68,8 @@ long dump(s,source,len)const int s;const char*source;long len;
 	if(part&&tofile==to_FILE)			    /* a_time<m_time */
 	 { struct stat stbuf;
 	   rwrite(s,source++,1);len--;part--;		     /* set the trap */
-	   if(fstat(s,&stbuf)||stbuf.st_mtime==stbuf.st_atime)	  /* needed? */
+	   if(fstat(s,&stbuf)||					  /* needed? */
+	    stbuf.st_mtime==stbuf.st_atime&&stbuf.st_size!=1)
 	      ssleep(1);  /* ...what a difference this (tea) second makes... */
 	 }
 #endif

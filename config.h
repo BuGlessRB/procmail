@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.76 1997/04/28 00:27:41 srb Exp $*/
+/*$Id: config.h,v 1.77 1998/11/06 05:35:16 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -49,7 +49,12 @@
 /*#define NO_lockf_LOCK		/* definitely do not want procmail to make   */
 /*#define NO_flock_LOCK		/* use of those kernel-locking methods	     */
 
-/*#define RESTRICT_EXEC		    /* don't allow everyone to fork programs */
+/*#define RESTRICT_EXEC 100	/* uncomment to prevent users with uids equal
+				   or higher than RESTRICT_EXEC from
+	executing programs from within their .procmailrc files (this
+	restriction does not apply to /etc/procmailrc and /etc/procmailrcs
+	files) */
+
 
 /*#define NO_NFS_ATIME_HACK	/* uncomment if you're definitely not using
 				   NFS mounted filesystems and can't afford
@@ -127,7 +132,7 @@
 #define TOsubstitute	"(^((Original-)?(Resent-)?(To|Cc|Bcc)|\
 (X-Envelope|Apparently(-Resent)?)-To):(.*[^a-zA-Z])?)"
 #define FROMDkey	"^FROM_DAEMON"		     /* matches most daemons */
-#define FROMDsubstitute "(^(Precedence:.*(junk|bulk|list)|\
+#define FROMDsubstitute "(^(Mailing-List:|Precedence:.*(junk|bulk|list)|\
 To: Multiple recipients of |\
 (((Resent-)?(From|Sender)|X-Envelope-From):|>?From )([^>]*[^(.%@a-z0-9])?(\
 Post(ma?(st(e?r)?|n)|office)|(send)?Mail(er)?|daemon|m(mdf|ajordomo)|n?uucp|\

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.120 1997/04/28 00:27:48 srb Exp $";
+ "$Id: procmail.c,v 1.121 1998/11/06 05:35:41 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -50,7 +50,7 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rcstate,rc= -1,
  ignwerr,lexitcode=EXIT_SUCCESS,asgnlastf,accspooldir,crestarg,skiprc,
- savstdout,berkeley;
+ savstdout,berkeley,mailfilter,restrict;
 size_t linebuf=mx(DEFlinebuf+XTRAlinebuf,1024/*STRLEN(systm_mbox)<<1*/);
 volatile int nextexit;			       /* if termination is imminent */
 pid_t thepid;
@@ -84,7 +84,7 @@ static int wipetcrc P((void))	  /* stupid function to avoid a compiler bug */
 #endif
 
 main(argc,argv)const char*const argv[];
-{ register char*chp,*chp2;register int i;int suppmunreadable,mailfilter;
+{ register char*chp,*chp2;register int i;int suppmunreadable;
 #if 0				/* enable this if you want to trace procmail */
   kill(getpid(),SIGSTOP);/*raise(SIGSTOP);*/
 #endif
@@ -231,9 +231,16 @@ conflopt:  nlog(conflicting),elog("options\n"),elog(pmusage);
 	    }
 	 }
 privileged:				       /* move stdout out of the way */
-	endgrent();doumask(INIT_UMASK);savstdout=rdup(STDOUT);
+	endgrent();doumask(INIT_UMASK);
+	while((savstdout=rdup(STDOUT))<=STDERR)
+	 { rclose(savstdout);
+	   if(0>(savstdout=opena(devnull)))
+	      goto nodevnull;
+	   syslog(LOG_EMERG,"Descriptor %d was not open\n",savstdout);
+	 }
 	fclose(stdout);rclose(STDOUT);			/* just to make sure */
 	if(0>opena(devnull))
+nodevnull:
 	 { writeerr(devnull);syslog(LOG_EMERG,slogstr,errwwriting,devnull);
 	   return EX_OSFILE;			     /* couldn't open stdout */
 	 }
@@ -546,6 +553,7 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 		 setids();				/* then transmogrify */
 	    }
 	   while(0>bopen(buf));			   /* try opening the rcfile */
+	   restrict=1;			      /* possibly restrict execs now */
 	   if(i)		  /* opened rcfile in the current directory? */
 	    { if(!didchd)
 		 setmaildir(curdir);
@@ -601,7 +609,7 @@ commint:   do skipspace();				  /* skip whitespace */
 	if(testB(':'))				       /* check for a recipe */
 	 { int locknext,succeed;char*startchar;long tobesent;
 	   static char flags[maxindex(exflags)];
-	   ;{ int nrcond;
+	    { int nrcond;
 	      readparse(buf,getb,0);
 	      ;{ char*chp3;
 		 nrcond=strtol(buf,&chp3,10);chp=chp3;
@@ -632,11 +640,12 @@ commint:   do skipspace();				  /* skip whitespace */
 		 break;
 	       }			      /* parse & test the conditions */
 	      i=conditions(flags,prevcond,lastsucc,lastcond,nrcond);
+	      if(!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC])
+		 lastcond=i==1;		   /* save the outcome for posterity */
+	      if(!prevcond||!flags[ELSE_DO])
+		 prevcond=i==1;	 /* same here, for `else if' like constructs */
 	    }
-	   if(!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC])
-	      lastcond=i;		   /* save the outcome for posterity */
-	   if(!prevcond||!flags[ELSE_DO])
-	      prevcond=i;	 /* same here, for `else if' like constructs */
+	   while(i==2);			     /* missing in action, reiterate */
 	   startchar=themail;tobesent=filled;
 	   if(flags[PASS_HEAD])			    /* body, header or both? */
 	    { if(!flags[PASS_BODY])

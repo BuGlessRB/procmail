@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.71 1997/04/11 10:28:59 srb Exp $
+.Id $Id: procmail.man,v 1.72 1998/11/06 05:35:27 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -309,6 +309,10 @@ Deadlock attempted on "x"
 The locallockfile specified on this recipe is equal to a still active
 $LOCKFILE.@ETCRCS_error@
 .TP
+Descriptor "x" was not open
+As procmail was started, stdin, stdout or stderr was not connected (possibly
+an attempt to subvert security)
+.TP
 Enforcing stricter permissions on "x"
 The system mailbox of the recipient was found to be unsecured, procmail
 secured it.
@@ -375,6 +379,9 @@ Procmail tried to clone itself but could not find back rcfile "x" (it either
 got removed or it was a relative path and you changed directory since
 procmail opened it last time).
 .TP
+Missing action
+The current recipe was found to be incomplete.
+.TP
 Missing closing brace
 A nesting block was started, but never finished.
 .TP
@@ -390,7 +397,7 @@ rcfile as argument.
 .TP
 Missing recipient
 You specified the \-@DELIVEROPT@ option or called procmail under a different
-name, it expects one or more recipients as arguments.
+name, it expects one or more recipients as arguments.@WARN_RESTRICT_EXEC@
 .TP
 No space left to finish writing "x"
 The filesystem containing "x" does not have enough free space to permit
@@ -578,11 +585,12 @@ intact.@TRUSTED_IDS@
 .PP
 For security reasons procmail will only use an absolute or $HOME-relative
 rcfile if it is either owned by the recipient or root and not world writable,
-or if the directory it is contained in is not world writable.
+or if the directory it is contained in is not world writable.@RESTRICT_EXEC@
 .PP
 If @MAILSPOOLDIR@$LOGNAME is a bogus mailbox (i.e. does not belong to the
 recipient, is unwritable, is a symbolic link or is a hard link), procmail will
-upon startup try to rename it into a file starting with `@BOGUSprefix@' and
+upon startup try to rename it into a file starting
+with `@BOGUSprefix@$LOGNAME.' and
 ending in an inode-sequence-code.  If this turns out to be impossible,
 .B ORGMAIL
 will have

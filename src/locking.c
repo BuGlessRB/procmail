@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.47 1997/04/03 01:58:44 srb Exp $";
+ "$Id: locking.c,v 1.48 1998/11/06 05:35:34 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -29,14 +29,14 @@ void lockit(name,lockp)char*name;char**const lockp;
      return;
   if(!strcmp(name,defdeflock))	       /* is it the system mailbox lockfile? */
    { locktype=doCHECK|doLOCK;
+     if(sgid!=gid&&setegid(sgid))      /* try and get some extra permissions */
 #ifndef fdlock
-     if(!accspooldir)
-      { yell("Bypassed locking",name);
-	return;
-      }
-     else
+	if(!accspooldir)
+	 { yell("Bypassed locking",name);
+	   return;
+	 }
 #endif
-	setegid(sgid);		       /* try and get some extra permissions */
+	;
    }
   name=tstrdup(name); /* allocate now, so we won't hang on memory *and* lock */
   for(lcking|=lck_LOCKFILE;;)

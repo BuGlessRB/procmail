@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.42 1997/04/28 00:27:45 srb Exp $*/
+/*$Id: header.h,v 1.43 1998/11/06 05:35:32 guenther Exp $*/
 
 X(returnpath,		"Return-Path:")				  /* RFC 822 */
 X(received,		"Received:")				/* ditto ... */
@@ -81,6 +81,7 @@ X(x400mtsidentifier,	"X400-MTS-Identifier:")
 X(x400originator,	"X400-Originator:")
 X(x400received,		"X400-Received:")
 X(x400rcipients,	"X400-Recipients:")
+X(x400trace,		"X400-Trace:")
 X(altrecipient,		"Alternate-Recipient:")
 X(prevnondeliveryrep,	"Prevent-Nondelivery-Report:")
 X(gendeliveryrep,	"Generate-Delivery-Report:")

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.63 1997/04/11 10:29:00 srb Exp $
+.Id $Id: procmailrc.man,v 1.64 1998/11/06 05:35:28 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -669,7 +669,7 @@ or
 .B \-@MAILFILTOPT@
 options are used, "$@" will expand to respectively the specified argument
 (list); but only when passed as in the argument list to a
-program.@UPPERCASE_USERNAMES@
+program.
 .PP
 Procmail does not support the expansion of `~'.
 .PP

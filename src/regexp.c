@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.61 1997/04/03 01:58:48 srb Exp $";
+ "$Id: regexp.c,v 1.62 1998/11/06 05:35:44 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -219,7 +219,7 @@ fine3:
 
 #define EOS(x)	(jj?Ceps e:(x))
 
-static int endgroup(p)register const char*const p;
+static int endgroup(p)register const uchar*const p;
 { switch(*p)
    { case R_OR:case R_END_GROUP:case '\0':
 	return 1;

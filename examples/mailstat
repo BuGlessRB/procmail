@@ -17,7 +17,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #	Created by S.R. van den Berg, The Netherlands		#
 #	This file can be freely copied for any use.		#
 #################################################################
-#$Id: mailstat,v 1.21 1995/03/20 14:51:08 berg Exp $
+#$Id: mailstat,v 1.22 1998/11/06 05:35:25 guenther Exp $
 
 #	This shell script expects the following programs to be in the
 #	PATH (paths given here are the standard locations, your mileage
@@ -137,11 +137,16 @@ then
      $echo ""
      $echo "  Total Average  Number Folder"
      $echo "  ----- -------  ------ ------"
+     MSterse='"	 ----- -------	------\n%7d %7d %7d\n",
+	gtotal,gtotal/gmessages,gmessages'
   else
      $echo ""
      $echo "  Total  Number Folder"
      $echo "  -----  ------ ------"
+     MSterse='"	 -----	------\n%7d %7d\n",gtotal,gmessages'
   fi
+else
+  MSterse='""'
 fi
 
 if $test .$MSlong = .1
@@ -167,6 +172,7 @@ BEGIN {
   { if(folder!=\$1)
      { if(folder!="")
 	  printf($MSlong);
+       gmessages+=messages;gtotal+=total;
        messages=0;total=0;folder=\$1;
      }
     ++messages;total+=\$2;
@@ -174,6 +180,8 @@ BEGIN {
 END {
     if(folder!="")
        printf($MSlong);
+    gmessages+=messages;gtotal+=total;
+    printf($MSterse);
   }
 HERE
 

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.46 1997/04/03 01:58:43 srb Exp $";
+ "$Id: goodies.c,v 1.47 1998/11/06 05:35:31 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -37,6 +37,7 @@ static const char*evalenv P((void))	/* expects the variable name in buf2 */
 #define SINGLE_QUOTED	3
 
 #define fgetc() (*fpgetc)()	   /* some compilers previously choked on it */
+#define CHECKINC()	(fencepost<p?(p=fencepost):0)
 
 /* sarg==0 : normal parsing, split up arguments like in /bin/sh
  * sarg==1 : environment assignment parsing, parse up till first whitespace
@@ -44,16 +45,16 @@ static const char*evalenv P((void))	/* expects the variable name in buf2 */
  */
 void readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
  const int sarg;
-{ static int i,skipbracelev,bracegot;int got,bracelev,qbracelev;char*startb;
+{ static int i,skipbracelev,bracegot;int got,bracelev,qbracelev,warned;
+  char*startb,*const fencepost=buf+linebuf-XTRAlinebuf;
   static char*skipback;static const char*oldstartb;
-  bracelev=qbracelev=0;All_args=0;
+  warned=bracelev=qbracelev=0;All_args=0;
   for(got=NOTHING_YET;;)		    /* buf2 is used as scratch space */
 loop:
    { i=fgetc();
-     if(buf+linebuf-3<p)	    /* doesn't catch everything, just a hint */
-      { nlog("Exceeded LINEBUF\n");p=buf+linebuf-3;
-	goto ready;
-      }
+     if(CHECKINC())		    /* doesn't catch everything, just a hint */
+	if(!warned)
+	   warned=1,nlog("Exceeded LINEBUF\n");
 newchar:
      switch(i)
       { case EOF:	/* check sarg too to prevent warnings in the recipe- */
@@ -138,7 +139,7 @@ forcebquote:	 case EOF:case '`':
 		     }
 		    *p++='\\';
 	       }
-escaped:      *p++=i;
+escaped:      CHECKINC();*p++=i;
 	    }
 	case '"':
 	   switch(got)
@@ -263,8 +264,8 @@ finsb:		    *startb='\0';
 		       startb="";
 		    if(quoted)
 		     { p=2+strcpy(p,"()");	/* protect leading character */
-		       for(;*startb;*p++= *startb++)	 /* regexp specials? */
-			  if(strchr("(|)*?+.^$[\\",*startb))
+		       for(;CHECKINC(),*startb;*p++= *startb++)
+			  if(strchr("(|)*?+.^$[\\",*startb))	/* specials? */
 			     *p++='\\';		      /* take them literally */
 		       goto newchar;
 		     }
@@ -281,7 +282,8 @@ normchar:	    quoted=0;
 simplsplit: { if(sarg)
 		 goto copyit;
 	      for(;;startb++)		  /* simply split it up in arguments */
-	       { switch(*startb)
+	       { CHECKINC();
+		 switch(*startb)
 		  { case ' ':case '\t':case '\n':
 		       if(got<=SKIPPING_SPACE)
 			  continue;
@@ -294,7 +296,8 @@ simplsplit: { if(sarg)
 	       }
 	    }
 	   else
-copyit:	    { strcpy(p,startb);				   /* simply copy it */
+copyit:	    { strncpy(p,startb,fencepost-p-1);		   /* simply copy it */
+	      *fencepost='\0';
 eofstr:	      if(got<=SKIPPING_SPACE)		/* can only occur if sarg!=0 */
 		 got=NORMAL_TEXT;
 	      p=strchr(p,'\0');

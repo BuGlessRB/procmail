@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.77 1997/04/28 00:27:46 srb Exp $";
+ "$Id: misc.c,v 1.78 1998/11/06 05:35:37 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -172,7 +172,11 @@ int nextrcfile P((void))	/* next rcfile specified on the command line */
   while(p= *gargv)
    { gargv++;
      if(!strchr(p,'='))
-      { rcfile=p;
+      { if(strlen(p)>linebuf-1)
+	 { nlog("Excessively long rcfile path skipped\n");
+	   continue;
+	 }
+	rcfile=p;
 	return rval;
       }
      rval=1;			       /* not the first argument encountered */
@@ -270,7 +274,7 @@ void Terminate P((void))
 	catlim(COMSATxtrsep);				 /* custom seperator */
 	if(lasttell>=0&&!strchr(dirsep,*lstfolder))    /* relative filename? */
 	   catlim(tgetenv(maildir)),catlim(MCDIRSEP_);	   /* prepend curdir */
-	catlim(lstfolder);s=socket(AF_INET,SOCK_DGRAM,UDP_protocolno);
+	catlim(lstfolder);s=socket(PF_INET,SOCK_DGRAM,UDP_protocolno);
 	sendto(s,buf,strlen(buf),0,(const void*)&addr,sizeof(addr));rclose(s);
 	yell("Notified comsat:",buf);
       }
@@ -415,7 +419,7 @@ int asenvcpy(src)char*src;
      *	really change the uid now, since it would not be safe to
      *	evaluate the extra command line arguments otherwise
      */
-   { setids();strcpy(buf,src);src=buf+(chp-src);
+   { restrict=1;setids();strcpy(buf,src);src=buf+(chp-src);
      strcpy((char*)(sgetcp=buf2),++src);readparse(src,sgetc,2);
      chp=sputenv(buf);src[-1]='\0';asenv(chp);
      return 1;
@@ -583,6 +587,13 @@ void rcst_nosgid P((void))
 { if(!rcstate)
      rcstate=rc_NOSGID;
 }
+
+static void inodename(stbuf,i)const struct stat*const stbuf;const size_t i;
+{ static const char bogusprefix[]=BOGUSprefix;char*p;
+  p=strchr(strcpy(strcpy(buf+i,bogusprefix)+i+STRLEN(bogusprefix),
+   getenv(lgname)),'\0');
+  *p++='.';ultoan((unsigned long)stbuf->st_ino,p);	  /* i-node numbered */
+}
 			     /* lifted out of main() to reduce main()'s size */
 int screenmailbox(chp,chp2,egid,Deliverymode)
  char*chp;char*const chp2;const gid_t egid;const int Deliverymode;
@@ -628,8 +639,7 @@ keepgid:			   /* keep the gid from the parent directory */
 	 renfbogus[]="Couldn't rename bogus \"%s\" into \"%s\"";
 	;{ int goodlock;
 	   if(!(goodlock=lstat(defdeflock,&stbuf)||stbuf.st_uid==uid))
-	      ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
-	       strchr(strcpy(buf+i,BOGUSprefix),'\0'));
+	      inodename(&stbuf,i);
 	  /*
 	   *	  check if the original/default mailbox of the recipient
 	   *	  exists, if it does, perform some security checks on it
@@ -668,10 +678,8 @@ boglock:	 if(!goodlock)		      /* try & rename bogus lockfile */
 		 if(checkiter--)	    /* maybe it was a race condition */
 		    suspend();		 /* close eyes, and hope it improves */
 		 else			/* can't deliver to this contraption */
-		  { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
-		     strchr(strcpy(buf+i,BOGUSprefix),'\0'));	    /* bogus */
-		    nlog("Renaming bogus mailbox \"");elog(chp);
-		    elog("\" into");logqnl(buf);
+		  { inodename(&stbuf,i);nlog("Renaming bogus mailbox \"");
+		    elog(chp);elog("\" into");logqnl(buf);
 		    if(rename(chp,buf))	   /* try and move it out of the way */
 		     { syslog(LOG_EMERG,renfbogus,chp,buf);
 		       goto fishy;  /* rename failed, something's fishy here */
@@ -724,8 +732,8 @@ fishy:
 			     /* lifted out of main() to reduce main()'s size */
 int conditions(flags,prevcond,lastsucc,lastcond,nrcond)const char flags[];
  const int prevcond,lastsucc,lastcond;int nrcond;
-{ char*chp,*chp2,*startchar;double score;int scored,i;long tobesent;
-  static const char suppressed[]=" suppressed\n";
+{ char*chp,*chp2,*startchar;double score;int scored,i,skippedempty;
+  long tobesent;static const char suppressed[]=" suppressed\n";
   score=scored=0;
   if(flags[ERROR_DO]&&flags[ELSE_DO])
      nlog(conflicting),elog("else-if-flag"),elog(suppressed);
@@ -755,7 +763,7 @@ noconcat:
    if(flags[ALSO_NEXT_RECIPE])
       i=i&&lastcond;
    Stdout=0;
-   for(;;)
+   for(skippedempty=0;;)
     { skipspace();--nrcond;
       if(!testB('*'))			    /* marks a condition, new syntax */
 	 if(nrcond<0)		/* keep counting, for backward compatibility */
@@ -764,7 +772,13 @@ noconcat:
 	       continue;
 	     }
 	    if(testB('\n'))				 /* skip empty lines */
+	     { skippedempty=1;			 /* make a note of this fact */
 	       continue;
+	     }
+	    if(skippedempty&&testB(':'))
+	     { nlog("Missing action\n");i=2;
+	       goto ret;
+	     }
 	    break;		     /* no more conditions, time for action! */
 	  }
       skipspace();getlline(buf2);
@@ -973,5 +987,6 @@ skiptrue:;
       lastscore=1;					 /* round up +0 to 1 */
    if(scored&&i&&score<=0)
       i=0;					     /* it was not a success */
+ret:
    return i;
 }

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.81 1997/04/11 10:29:05 srb Exp $";
+ "$Id: formail.c,v 1.82 1998/11/06 05:35:30 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1997/04/11 10:29:05 $";
+static /*const*/char rcsdate[]="$Date: 1998/11/06 05:35:30 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -589,7 +589,7 @@ startover:
 	   if(chp[-1]==HEAD_DELIMITER)
 	      if(*chp!=' '&&fldp->Tot_len>j+1)
 	       { chp=j+(*afldp=fldp=
-		  realloc(fldp,FLD_HEADSIZ+(i= ++fldp->Tot_len)))->fld_text;
+		  realloc(fldp,FLD_HEADSIZ+(i=fldp->Tot_len++)+1))->fld_text;
 		 tmemmove(chp+1,chp,i-j);*chp=' ';
 	       }
 	      else if(fldp->Tot_len<=j+2)
@@ -683,12 +683,11 @@ startover:
 	    { char*p;const char*name;unsigned long h1,h2,h3;
 	      static unsigned long h4; /* conjure up a `unique' msg-id field */
 	      h1=time((time_t*)0);h2=thepid;h3=rhash;
-	      p=chp=malloc(fldp->id_len+2+1+((sizeof h1*8+5)/6+1)*4+1+
+	      p=chp=malloc(fldp->id_len+2+((sizeof h1*8+5)/6+1)*4+
 	       strlen(name=hostname())+2);     /* allocate worst case length */
 	      strncpy(p,fldp->fld_text,fldp->id_len);*(p+=fldp->id_len)=' ';
-	      *++p='<';*++p='"';*(p=ultoan(h3,p+1))='.';
-	      *(p=ultoan(h4,p+1))='.';*(p=ultoan(h2,p+1))='.';
-	      *(p=ultoan(h1,p+1))='"';*++p='@';strcpy(p+1,name);
+	      *++p='<';*(p=ultoan(h3,p+1))='.';*(p=ultoan(h4,p+1))='.';
+	      *(p=ultoan(h2,p+1))='.';*(p=ultoan(h1,p+1))='@';strcpy(p+1,name);
 	      *(p=strchr(p,'\0'))='>';*++p='\n';addfield(&nheader,chp,p-chp+1);
 	      free(chp);h4++;					/* put it in */
 	    }

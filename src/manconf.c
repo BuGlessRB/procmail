@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.60 1997/04/28 00:27:46 srb Exp $*/
+/*$Id: manconf.c,v 1.61 1998/11/06 05:35:36 guenther Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -155,19 +155,22 @@ fake mails.",""," or ");
   plist("KERNEL_LOCKING",
    "consistently uses the following kernel locking strategies:",krnllocks,"",
    "doesn't use any additional kernel locking strategies","\1and");
+#ifdef RESTRICT_EXEC
+  ps("RESTRICT_EXEC","\1.PP\1Users with userids >= @RESTRICT_EXEC_ID@ are\1\
+prevented from executing external programs from\1\
+within their own rcfiles");
+  pn("RESTRICT_EXEC_ID",RESTRICT_EXEC);
+  ps("WARN_RESTRICT_EXEC","\1.TP\1No permission to execute \"x\"\1\
+An attempt to execute a program from within the rcfile was blocked.");
+#else
+  ps("RESTRICT_EXEC","");
+  ps("WARN_RESTRICT_EXEC","");
+#endif
 #ifdef LD_ENV_FIX
   ps("LD_ENV_FIX","\1.PP\1For security reasons, procmail will wipe out all\
  environment variables starting with LD_ upon startup.");
 #else
   ps("LD_ENV_FIX","");
-#endif
-#ifdef NO_USER_TO_LOWERCASE_HACK
-  ps("UPPERCASE_USERNAMES","\1.PP\1If the standard\1.BR getpwnam() (3)\1\
-is case sensitive, and some users have login names with uppercase letters in\
- them, procmail will be unable to deliver mail to them, unless started with\
- their uid.");
-#else
-  ps("UPPERCASE_USERNAMES","");
 #endif
   ps("MAILSPOOLDIR",MAILSPOOLDIR);
   ps("ETCRC_desc",etcrc?"\1.PP\1If no rcfiles and no\1.B \2-@PRESERVOPT@\1have\
