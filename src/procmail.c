@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.29 1993/04/02 12:39:15 berg Exp $";
+ "$Id: procmail.c,v 1.30 1993/04/13 15:44:25 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -216,8 +216,9 @@ Setuser:
        /*
 	*	set preferred uid to the intended recipient
 	*/
-      { gid=pass->pw_gid;uid=pass->pw_uid;setdef(home,pass->pw_dir);
+      { gid=pass->pw_gid;uid=pass->pw_uid;
 	setdef(lgname,chp= *pass->pw_name?pass->pw_name:buf);
+	setdef(home,pass->pw_dir);
 	if(euid==ROOT_uid)
 	   initgroups(chp,gid);
 	endgrent();setdef(shell,*pass->pw_shell?pass->pw_shell:binsh);
@@ -226,8 +227,8 @@ Setuser:
        /*
 	*	to prevent security holes, drop any privileges now
 	*/
-      { setdef(home,RootDir);setdef(lgname,buf);setdef(shell,binsh);
-	setgid(gid);setuid(uid);
+      { setdef(lgname,buf);setdef(home,RootDir);setdef(shell,binsh);
+	setids(uid,gid);
       }
      endpwent();
    }
@@ -280,7 +281,7 @@ boglock:
       }
      else
 	succeed=1;				 /* mailbox a symbolic link? */
-     if(succeed>0||succeed<0&&(setgid(gid),setuid(uid),!lstat(chp,&stbuf)))
+     if(succeed>0||succeed<0&&(setids(uid,gid),!lstat(chp,&stbuf)))
 	if(!(stbuf.st_mode&S_IWUSR)||S_ISLNK(stbuf.st_mode)||
 	 (S_ISDIR(stbuf.st_mode)?!(stbuf.st_mode&S_IXUSR):stbuf.st_nlink!=1))
 	   goto bogusbox;	 /* we only deliver to real files (security) */
@@ -301,7 +302,7 @@ bogusbox:					     /* bogus mailbox found! */
 	   unlink(chp);		    /* no we couldn't, NFS-mount or not root */
 	else
 	   goto notfishy;		      /* yes we could, fine, proceed */
-     setgid(gid);setuid(uid);				   /* try some magic */
+     setids(uid,gid);					   /* try some magic */
      if(xcreat(chp,NORMperm,(time_t*)0,(int*)0))   /* try to create it again */
 fishy:						/* bad news, be conservative */
 	nlog("Couldn't create"),logqnl(chp),sputenv(orgmail),sputenv(fdefault);
@@ -314,7 +315,7 @@ notfishy:
      *	really change the uid now, since we are not in explicit
      *	delivery mode
      */
-   { setgid(gid);setuid(uid);rc=rc_NOFILE;
+   { setids(uid,gid);rc=rc_NOFILE;
      if(suppmunreadable=nextrcfile())	  /* any rcfile on the command-line? */
 #ifndef NO_COMSAT
 	if(!getenv(scomsat))
@@ -349,7 +350,7 @@ findrc:	   suppmunreadable=i=0;	    /* should we keep the current directory? */
 	      cat(tgetenv(home),MCDIRSEP);	  /* prepend $HOME directory */
 	   if(stat(strcat(buf,rcfile),&stbuf)?		      /* accessible? */
 	    rc==rc_NOSGID:stbuf.st_mode&S_IRUSR)      /* and owner-readable? */
-	      setgid(gid),setuid(uid);			/* then transmogrify */
+	      setids(uid,gid);				/* then transmogrify */
 	 }
 	while(0>bopen(buf));			   /* try opening the rcfile */
 	if(i&&!didchd)		  /* opened rcfile in the current directory? */
@@ -372,7 +373,7 @@ findrc:	   suppmunreadable=i=0;	    /* should we keep the current directory? */
 	*	have opened his/her .procmailrc (don't remove these, since
 	*	the rcfile might have been created after the first stat)
 	*/
-	*chp=i;yell("Rcfile:",buf);succeed=lastcond=0;setgid(gid);setuid(uid);
+	*chp=i;yell("Rcfile:",buf);succeed=lastcond=0;setids(uid,gid);
 	firstchd();
       }
      unlock(&loclock);				/* unlock any local lockfile */

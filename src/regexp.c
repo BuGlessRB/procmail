@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.17 1993/03/05 18:01:34 berg Exp $";
+ "$Id: regexp.c,v 1.18 1993/04/13 15:44:28 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -32,11 +32,13 @@ static /*const*/char rcsid[]=
 
 #define BITS_P_CHAR		8
 #define OPB			(1<<BITS_P_CHAR)
-#define OPC_EPS			OPB
-#define OPC_CLASS		(OPB+1)
-#define OPC_DOT			(OPB+2)
-#define OPC_BOTEXT		(OPB+3)
-#define OPC_FIN			(OPB+4)
+#define OPC_SEMPTY		OPB
+#define OPC_TSWITCH		(OPB+1)
+#define OPC_EPS			(OPB+2)
+#define OPC_CLASS		(OPB+3)
+#define OPC_DOT			(OPB+4)
+#define OPC_BOTEXT		(OPB+5)
+#define OPC_FIN			(OPB+6)
 
 #define bit_type		unsigned
 #define bit_bits		(sizeof(bit_type)*8)
@@ -316,10 +318,12 @@ char*bregexec(code,text,len,ign_case)struct eps*code;const uchar*const text;
  size_t len;
 { register struct eps*reg,*stack,*other,*thiss;unsigned i,th1,ot1;
   const uchar*str;struct eps*initstack,*initcode;
-  initstack=0;
+  static struct eps tswitch={OPC_TSWITCH,0,0,&tswitch},
+   sempty={OPC_SEMPTY,&sempty,&sempty,0};
+  initstack= &sempty;
   if((initcode=code)->opc==OPC_EPS)
-     initcode=(initstack=code)->next,code->stack=0;
-  thiss= --code;th1=ioffsetof(struct eps,spawn);
+     initcode=(initstack=code)->next,code->stack= &sempty;
+  thiss= &tswitch;th1=ioffsetof(struct eps,spawn);
   ot1=ioffsetof(struct eps,stack);str=text-1;len++;i='\n';goto setups;
   do			      /* make sure any beginning-of-line-hooks catch */
    { i= *++str;				 /* get the next real-text character */
@@ -328,10 +332,10 @@ char*bregexec(code,text,len,ign_case)struct eps*code;const uchar*const text;
 lastrun:				     /* switch this & other pc-stack */
      th1^=XOR1;ot1^=XOR1;thiss=other;
 setups:
-     other=code;stack=initstack;reg=initcode;goto nostack;
-     do					 /* pop next entry off this pc-stack */
+     other= &tswitch;stack=initstack;reg=initcode;goto nostack;
+     for(;;)				 /* pop next entry off this pc-stack */
       { thiss=PC(reg=thiss,th1);PC(reg,th1)=0;reg=reg->next;goto nostack;
-	do				/* pop next entry off the work-stack */
+	for(;;)				/* pop next entry off the work-stack */
 	 { for(reg=stack->spawn,stack=stack->stack;;)
 nostack:    { switch(reg->opc-OPB)  /* push spawned branch on the work-stack */
 	       { default:
@@ -342,6 +346,8 @@ nostack:    { switch(reg->opc-OPB)  /* push spawned branch on the work-stack */
 		    continue;
 		 case OPC_FIN-OPB:	   /* hurray!  complete regexp match */
 		    return(char*)str;		/* return one past the match */
+		 case OPC_SEMPTY-OPB:goto empty_stack;
+		 case OPC_TSWITCH-OPB:goto pcstack_switch;
 		 case OPC_BOTEXT-OPB:
 		    if(str<text)	       /* only at the very beginning */
 		       goto yep;
@@ -358,9 +364,9 @@ yep:		       if(!PC(reg,ot1))		     /* state not yet pushed */
 	      break;
 	    }
 	 }
-	while(stack);			      /* the work-stack is not empty */
+empty_stack:;					  /* the work-stack is empty */
       }
-     while(thiss!=code);		       /* this pc-stack is not empty */
+pcstack_switch:;				   /* this pc-stack is empty */
    }
   while(--len);					     /* still text to search */
   if(ign_case!=2)					      /* out of text */

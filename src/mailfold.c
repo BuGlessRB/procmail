@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.20 1993/04/02 12:38:52 berg Exp $";
+ "$Id: mailfold.c,v 1.21 1993/04/13 15:44:11 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -16,6 +16,7 @@ static /*const*/char rcsid[]=
 #include "pipes.h"
 #include "common.h"
 #include "exopen.h"
+#include "goodies.h"
 #include "locking.h"
 #include "mailfold.h"
 #ifndef NO_COMSAT
@@ -104,9 +105,11 @@ static dirfile(chp,linkonly)char*const chp;const int linkonly;
       }
      unlink(buf2);goto opn;
    }
-  stat(buf2,&stbuf);
-  ultoan((unsigned long)stbuf.st_ino,	      /* filename with i-node number */
-   strchr(strcat(buf,tgetenv(msgprefix)),'\0'));
+  ;{ struct stat stbuf;
+     stat(buf2,&stbuf);
+     ultoan((unsigned long)stbuf.st_ino,      /* filename with i-node number */
+      strchr(strcat(buf,tgetenv(msgprefix)),'\0'));
+   }
   if(linkonly)
    { if(link(buf2,buf))
 nolnk:	nlog("Couldn't make link to"),logqnl(buf);

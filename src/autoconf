@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.37 1993/04/02 12:38:44 berg Exp $
+#$Id: autoconf,v 1.38 1993/04/13 15:44:02 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -33,7 +33,9 @@
 #	#define NOstrpbrk
 #	#define NOopendir
 #	#define NOrename
-#	#define mkdir(d,m) (-1)
+#	#define NOsetrgid
+#	#define NOsetregid
+#	#define NOmkdir
 #	#define NOuname
 #	#define NOstrstr
 #	#define NOstrtol
@@ -130,35 +132,29 @@ cat >$ACONF <<HERE
 
 HERE
 
-echo 'Checking for POSIX and ANSI system include files'
-test -f $USRINC/unistd.h || echo "#define UNISTD_H_MISSING" >>$ACONF
-test -f $USRINC/stddef.h || echo "#define STDDEF_H_MISSING" >>$ACONF
-test -f $USRINC/stdlib.h || echo "#define STDLIB_H_MISSING" >>$ACONF
-if test ! -f $USRINC/dirent.h
-then echo "#define DIRENT_H_MISSING" >>$ACONF
-  if test ! -f $USRINC/ndir.h
-  then echo "#define NDIR_H_MISSING" >>$ACONF
-     if test ! -f $USRINC/sys/ndir.h
-     then echo "#define SYS_NDIR_H_MISSING" >>$ACONF
-	if test ! -f $USRINC/sys/dir.h
-	then echo "#define SYS_DIR_H_MISSING" >>$ACONF
-	   test -f $USRINC/sys/dirent.h ||
-	    echo "#define SYS_DIRENT_H_MISSING" >>$ACONF
-	fi
-     fi
+echo >_locktst.h
+
+$RM _autotst.$O
+
+cat >_autotst.c <<HERE
+#include <sys/types.h>
+#include <unistd.h>
+int setsid;
+HERE
+
+if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr &&
+ test -f _autotst.$O
+then
+  echo "#define setsid()" >>_locktst.h
+else
+  if $FGREP setsid _autotst.rrr >$DEVNULL 2>&1
+  then
+  :
+  else
+     echo "#define setsid()" >>_locktst.h
+     echo "#define UNISTD_H_MISSING" >>$ACONF
   fi
 fi
-test -f $USRINC/sys/wait.h || echo "#define SYS_WAIT_H_MISSING" >>$ACONF
-test -f $USRINC/sys/utsname.h || echo "#define SYS_UTSNAME_H_MISSING" >>$ACONF
-test -f $USRINC/string.h || echo "#define STRING_H_MISSING" >>$ACONF
-test -f $USRINC/sysexits.h || echo "#define SYSEXITS_H_MISSING" >>$ACONF
-
-echo >_locktst.h
-test -f $USRINC/sys/locking.h ||
- echo "#define SYS_LOCKING_H_MISSING" >>_locktst.h
-test -f $USRINC/sys/file.h || echo "#define SYS_FILE_H_MISSING" >>_locktst.h
-$FGREP setsid $USRINC/sys/unistd.h >$DEVNULL 2>&1 ||
- echo "#define setsid()" >>_locktst.h
 
 $RM _autotst.$O _autotst
 
@@ -191,8 +187,6 @@ then
 :
 else
   $RM _autotst.$O
-  echo 'Oops, your <sys/file.h> file seems to be incorrect.'
-  echo 'Retrying without it.'
   echo "#define SYS_FILE_H_MISSING" >>$ACONF
   if $MAKE _autotst.$O >_autotst.rrr 2>&1
   then
@@ -601,6 +595,54 @@ HERE
   $RM _autotst.$O
 fi
 
+echo 'Checking for POSIX and ANSI system include files'
+
+cat >_autotst.c <<HERE
+#include "includes.h"
+int a;
+HERE
+
+
+i0="";i1="";i2="";i3="";i4="";i5="";i6="";i7="";i8="";i9="";i10="";
+oldi=""
+
+while $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr &&
+ test -f _autotst.$O
+ test $? != 0
+do
+  test -z "$i0" && grepfor stddef.h "#define STDDEF_H_MISSING" && i0=I
+  test -z "$i1" && grepfor stdlib.h "#define STDLIB_H_MISSING" && i1=I
+  test -z "$i2" && grepfor dirent.h "#define DIRENT_H_MISSING" && i2=I
+  test -z "$i3" && grepfor sys/ndir.h "#define SYS_NDIR_H_MISSING" && i3=I
+   test I = "$i3$i4" && grepfor ndir.h "#define NDIR_H_MISSING" && i4=I
+   test II = "$i3$i4$i5" && grepfor sys/dir.h "#define SYS_DIR_H_MISSING" &&
+    i5=I
+   test III =  "$3$i4$i5$i6" &&
+    grepfor sys/dirent.h "#define SYS_DIRENT_H_MISSING" && i6=I
+  test -z "$i7" && grepfor sys/wait.h "#define SYS_WAIT_H_MISSING" && i7=I
+  test -z "$i8" && grepfor sys/utsname.h "#define SYS_UTSNAME_H_MISSING" &&
+   i8=I
+  test -z "$i9" && grepfor string.h "#define STRING_H_MISSING" && i9=I
+  test -z "$i10" && grepfor sysexits.h "#define SYSEXITS_H_MISSING" && i10=I
+  newi="$i0$i1$i2$i3$i4$i5$i6$i7$i8$i9$i10"
+  if test a$oldi = a$newi
+  then
+     echo 2>&1 "Whoeaaa!  There's something fishy going on here."
+     echo 2>&1 "You have a look and see if you detect anything uncanny:"
+     echo 2>&1 "*******************************************************"
+     cat 2>&1 _autotst.rrr
+     echo 2>&1 "*******************************************************"
+     echo 2>&1 "I suggest you take a look at the definition of CFLAGS*"
+     echo 2>&1 "in the Makefile before you try make again."
+     kill -15 $$
+  fi
+  oldi=$newi
+  echo \
+   "	...missing `expr length $oldi` include files, doublechecking..."
+done
+
+$RM _autotst.$O
+
 cat >_autotst.c <<HERE
 #include "includes.h"
 #ifndef NO_COMSAT
@@ -662,7 +704,8 @@ cat >_autotst.c <<HERE
 main(){char a[2];
  endpwent();endgrent();memmove(a,"0",1);bcopy("0",a,1);strcspn(a,"0");
  strtol("0",(char**)0,10);strchr("0",'0');strpbrk(a,"0");rename(a,"0");
- opendir("0");initgroups("0",0);strstr("0","0");mkdir("0",0);
+ setrgid(0);setregid(0,0);opendir("0");initgroups("0",0);strstr("0","0");
+ mkdir("0",0);
 #ifndef NOuname
  {struct utsname b;uname(&b);}
 #endif
@@ -674,7 +717,7 @@ main(){char a[2];
 HERE
 
 echo 'Testing for memmove, strchr, strpbrk, strcspn, strtol, strstr,'
-echo '	rename, opendir & mkdir'
+echo '	rename, setrgid, opendir & mkdir'
 if $MAKE _autotst.$O >_autotst.rrr 2>&1
 then
 :
@@ -716,7 +759,9 @@ grepfor opendir "
 			   selected in MH-folders by procmail */
 "
 grepfor rename '#define NOrename'
-grepfor mkdir '#define mkdir(d,m) (-1)'
+grepfor setrgid '#define NOsetrgid' &&
+ grepfor setregid '#define NOsetregid'
+grepfor mkdir '#define NOmkdir'
 grepfor strchr '#define strchr(s,c) index(s,c)'
 grepfor uname "\
 #define NOuname		 \
@@ -905,7 +950,7 @@ while $FGREP -e "Kernel-locking tests completed." _locktst.rrr >$DEVNULL; \
 do
   if test -z "$tailpid"
   then
-     echo "Waiting for kernel-locking tests to finish..."
+     echo "Waiting for the kernel-locking tests to finish..."
      exec 9>&2 2>$DEVNULL
      tail -f lock.log &
      tailpid=$!

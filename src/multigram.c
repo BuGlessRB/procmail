@@ -7,7 +7,7 @@
  *	contain embedded whitespace.					*
  *	This program also contains some swiss-army-knife mailinglist	*
  *	support features.						*
- *
+ *									*
  *	Most notably:	flist	A program that should be setuid root.	*
  *									*
  *	Seems to be relatively bug free.				*
@@ -17,15 +17,15 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.25 1993/04/02 12:39:10 berg Exp $";
+ "$Id: multigram.c,v 1.26 1993/04/13 15:44:22 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/04/02 12:39:10 $";
+static /*const*/char rcsdate[]="$Date: 1993/04/13 15:44:22 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
 #include "ecommon.h"
 
-#include "targetdir.h"				  /* should define TARGETDIR */
+#include "targetdir.h"	  /* see ../mailinglist/install.sh2 for more details */
 
 #define BUFSTEP		16
 #define COPYBUF		16384
@@ -36,8 +36,7 @@ static /*const*/char rcsdate[]="$Date: 1993/04/02 12:39:10 $";
 #define DEFminweight	(SCALE_WEIGHT/4)	      /* sanity cutoff value */
 #define DEFbest_matches 2
 
-#define PROCMAIL	"../.bin/procmail"	  /* some configurable paths */
-#define DEFAULTS_DIR	".etc"
+#define DEFAULTS_DIR	".etc"			  /* some configurable paths */
 #define GLOCKFILE	"../.etc/rc.lock"
 #define RCMAIN		"./.etc/rc.main"
 #define LLOCKFILE	"rc.lock"
@@ -47,7 +46,6 @@ static /*const*/char rcsdate[]="$Date: 1993/04/02 12:39:10 $";
 #define RCPOST		"./../.etc/rc.post"
 #define RCINIT		"RC_INIT=rc.init"
 #define XENVELOPETO	"X_ENVELOPE_TO="
-#define PATH		"PATH="
 #define LIST		"list="
 
 #define metoo_SENDMAIL		"-om"
@@ -156,9 +154,9 @@ main(minweight,argv)char*argv[];
    { char*chp;
      if(!strcmp(chp=lastdirsep(argv[0]),flist))		 /* suid flist prog? */
       { struct stat stbuf;char*arg;
-	static const char request[]=REQUEST,
+	static const char request[]=REQUEST,listid[]=LISTID,
 	 rcrequest[]=RCREQUEST,rcpost[]=RCPOST,list[]=LIST,
-	 defdir[]=DEFAULTSDIR,targetdir[]=TARGETDIR,
+	 defdir[]=DEFAULTS_DIR,targetdir[]=TARGETDIR,
 	 *pmexec[]={PROCMAIL,RCSUBMIT,RCINIT,0,0,0,rcrequest,rcpost,0};
 #define Endpmexec(i)	(pmexec[maxindex(pmexec)-(i)])
 	progname=flist;*chp='\0';
@@ -181,23 +179,25 @@ main(minweight,argv)char*argv[];
 	if(!strcmp(arg,chPARDIR)||strpbrk(arg,dirsep))
 	 { nlog("Bogus listname\n");return EX_NOPERM;
 	 }
-	setgid(stbuf.st_gid);
-	;{ uid_t ownuid=stbuf.st_uid;
-	   if(stat(arg,&stbuf))
-	      setgid(stbuf.st_gid),setuid(stbuf.st_uid);
-	   setuid(ownuid);
+	if(geteuid()==ROOT_uid)		  /* continue as the list maintainer */
+	 { struct passwd*pass;
+	   if(!(pass=getpwnam(listid)))
+	    { nlog("User \");elog(listid);elog(\" unknown\n");
+	      return EX_NOUSER;
+	    }
+	   setgid(pass->pw_gid);initgroups(listid,pass->pw_gid);
+	   setuid(pass->pw_uid);endpwent();
 	 }
+	else
+	   setgid(stbuf.st_gid),setuid(stbuf.st_uid);
 	if(chdir(arg))			     /* goto the list's subdirectory */
 	   pmexec[1]=RCMAIN,Endpmexec(2)=0,chdir(defdir);
-	Endpmexec(5)=argstr(PATH,argv[0]);
+	Endpmexec(5)=INIT_PATH;
 	Endpmexec(4)=argstr(list,arg);		    /* pass on the list name */
 	if(chp)					  /* was it a -request list? */
 	   *chp= *request;		     /* then restore the leading '-' */
-	Endpmexec(3)=argstr(XENVELOPETO,arg);
-	rclock(GLOCKFILE,&stbuf);
-	rclock(LLOCKFILE,&stbuf);
-		    /* stall */
-	execve(pmexec[0],(char*const*)pmexec,environ);	/* start procmail */
+	Endpmexec(3)=argstr(XENVELOPETO,arg);rclock(GLOCKFILE,&stbuf);
+	rclock(LLOCKFILE,&stbuf);execve(pmexec[0],(char*const*)pmexec,environ);
 	nlog("Couldn't exec \"");elog(pmexec[0]);elog("\"\n");
 	return EX_UNAVAILABLE;					    /* panic */
       }

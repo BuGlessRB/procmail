@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.19 1993/04/02 12:38:49 berg Exp $*/
+/*$Id: includes.h,v 1.20 1993/04/13 15:44:08 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -275,6 +275,18 @@ extern void*memmove();
 
 #ifdef NOrename
 #define rename(old,new) (-(link(old,new)||unlink(old)))
+#endif
+
+#ifdef NOsetrgid
+#ifdef NOsetregid
+#define setrgid(gid)	(-1)
+#else
+#define setrgid(gid)	setregid(gid,-1)
+#endif
+#endif
+
+#ifdef NOmkdir
+#define mkdir(dir,mode) (-1)
 #endif
 
 #ifdef NOmemmove

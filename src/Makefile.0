@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.12 1993/04/02 12:38:41 berg Exp $
+#$Id: Makefile.0,v 1.13 1993/04/13 15:43:56 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O)
@@ -37,10 +37,16 @@ _autotst: _autotst.$(O)
 HIDEMAKE = $(MAKE)
 
 ../autoconf.h: autoconf Makefile
-	$(SHELL) ./autoconf $(SHELL) "$(RM)" "$(MV)" $(USRINCLUDE) \
-	 $(DEVNULL) "$(FGREP)" "$(HIDEMAKE)" $(O) $@
+	$(SHELL) ./autoconf $(SHELL) "$(RM)" "$(MV)" $(DEVNULL) \
+	 "$(FGREP)" "$(HIDEMAKE)" $(O) $@
 
 autoconf.h: ../autoconf.h
+
+targetdir.h:
+	echo "You only can/need to make multigram if you are installing"
+	echo "the mailinglist scripts.	Read ../mailinglist/INSTALL for"
+	echo "more directions."
+	exit 64
 
 common.$(O): ../autoconf.h ../config.h includes.h procmail.h sublib.h robust.h
 common.$(O): shell.h misc.h common.h
@@ -123,7 +129,7 @@ clean:
 
 Makefile: ../Makefile Makefile.0
 	@echo "You have made changes to the master Makefile, in order for"
-	@echo "these changes to show through, you will have to do first:"
+	@echo "these changes to show through, you will first have to do:"
 	@echo "$(MAKE) makefiles"
 
 makefiles Makefiles makefile:
