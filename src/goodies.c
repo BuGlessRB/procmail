@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.32 1994/05/26 14:12:51 berg Exp $";
+ "$Id: goodies.c,v 1.33 1994/06/03 18:25:27 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -43,7 +43,7 @@ static const char*evalenv P((void))	/* expects the variable name in buf2 */
  */
 void readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
  const int sarg;
-{ static i,skipbracelev;int got,bracelev,qbracelev;char*startb;
+{ static i,skipbracelev,bracegot;int got,bracelev,qbracelev;char*startb;
   static char*skipback;static const char*oldstartb;
   bracelev=qbracelev=0;All_args=0;
   for(got=NOTHING_YET;;)		    /* buf2 is used as scratch space */
@@ -149,7 +149,7 @@ escaped:      *p++=i;
 	    { bracelev--;
 	      if(skipback&&bracelev==skipbracelev)
 	       { skiprc--;p=skipback;skipback=0;startb=(char*)oldstartb;
-		 goto closebrace;
+		 got=bracegot;goto closebrace;
 	       }
 	      continue;
 	    }
@@ -200,7 +200,7 @@ badsub:			     nlog("Bad substitution of");logqnl(buf2);continue;
 		       if(startb)
 noalt:			  if(!skiprc)
 			   { skiprc++;skipback=p;skipbracelev=bracelev;
-			     oldstartb=startb;
+			     oldstartb=startb;bracegot=got;
 			   }
 doalt:		       bracelev++;continue;
 		    case '}':

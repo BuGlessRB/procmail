@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.47 1994/05/26 14:12:05 berg Exp $
+.Id $Id: procmail.man,v 1.48 1994/06/03 18:25:21 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -398,8 +398,8 @@ Skipped: "x"
 Couldn't do anything with "x" in the rcfile (syntax error), ignoring it.
 .TP
 Suspicious rcfile
-The owner of the rcfile was not the recipient, or the directory that contained
-it was world writable (the rcfile was not used)
+The owner of the rcfile was not the recipient or root, or the directory that
+contained it was world writable (the rcfile was not used).
 .TP
 Terminating prematurely whilst waiting for .\|.\|.
 Procmail received a signal while it was waiting for .\|.\|.
@@ -528,8 +528,8 @@ line if none is present.  If one is already present procmail will leave it
 intact.@TRUSTED_IDS@
 .PP
 For security reasons procmail will only use an absolute or $HOME relative
-rcfile if it is either owned by the recipient and not world writable, or if
-the directory it is contained in is not world writable.
+rcfile if it is either owned by the recipient or root and not world writable,
+or if the directory it is contained in is not world writable.
 .PP
 If @SYSTEM_MBOX@ is a bogus mailbox (i.e. does not belong to the recipient,
 is unwritable, is a symbolic link or is a hard link), procmail will upon

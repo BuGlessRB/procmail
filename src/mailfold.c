@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.45 1994/05/26 14:13:05 berg Exp $";
+ "$Id: mailfold.c,v 1.46 1994/06/03 18:25:30 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -47,7 +47,7 @@ static long getchunk(s,fromw,len)const int s;const char*fromw;const long len;
 
 long dump(s,source,len)const int s;const char*source;long len;
 { int i;long part;
-  zombiecollect();lasttell=i= -1;
+  lasttell=i= -1;
   if(s>=0)
    { if(tofile&&(lseek(s,(off_t)0,SEEK_END),fdlock(s)))
 	nlog("Kernel-lock failed\n");
@@ -75,7 +75,7 @@ writefin:
 	nlog("Kernel-unlock failed\n");
      i=rclose(s);
    }			   /* return an error even if nothing was to be sent */
-  tofile=0;zombiecollect();return i&&!len?-1:len;
+  tofile=0;return i&&!len?-1:len;
 }
 
 static int dirfile(chp,linkonly)char*const chp;const int linkonly;

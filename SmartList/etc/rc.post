@@ -1,4 +1,4 @@
-#$Id: rc.post,v 1.7 1994/05/26 14:11:36 berg Exp $
+#$Id: rc.post,v 1.8 1994/06/03 18:25:14 berg Exp $
 MAILDIR=../$defaults		# back to the defaults directory
 LOGFILE=log			# enabled by default, because when processing
 				# reaches this point, some unusual circumstance
@@ -6,7 +6,7 @@ LOGFILE=log			# enabled by default, because when processing
 LOGABSTRACT=yes
 
 :0 :
-* ?test -z "$listmaster"
+* $${listmaster:+!}
 request
 
 :0 w

@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.archive,v 1.11 1994/05/26 14:11:31 berg Exp $
+#$Id: rc.archive,v 1.12 1994/06/03 18:25:10 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -77,7 +77,7 @@ INCLUDERC=$RC_LOCAL_REQUEST_30
 #
 
 :0:
-* ?test -z "$maintainer"
+* $${maintainer:+!}
 request
 
 :0 w

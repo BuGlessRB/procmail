@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.80 1994/05/26 14:15:16 berg Exp $";
+ "$Id: procmail.c,v 1.81 1994/06/03 18:25:36 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -551,13 +551,14 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 	   else
 	     /*
 	      * OK, so now we have opened an absolute rcfile, but for security
-	      * reasons we only accept it if it is owned by the recipient and
-	      * is not world writable, and the directory it is in is
+	      * reasons we only accept it if it is owned by the recipient or
+	      * root and is not world writable, and the directory it is in is
 	      * not world writable or has the sticky bit set
 	      */
 	    { i= *(chp=lastdirsep(buf));
 	      if(lstat(buf,&stbuf)||
-		 ((stbuf.st_uid!=uid||stbuf.st_mode&S_IWOTH)&&
+		 ((stbuf.st_uid!=uid&&stbuf.st_uid!=ROOT_uid||
+		  stbuf.st_mode&S_IWOTH)&&
 		  strcmp(devnull,buf)&&	      /* /dev/null is a special case */
 		  (*chp='\0',stat(buf,&stbuf)||
 		   (stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)&&
@@ -839,7 +840,7 @@ skiptrue:;	  }
 	   pwait=flags[WAIT_EXIT]|flags[WAIT_EXIT_QUIET]<<1;
 	   ignwerr=flags[IGNORE_WRITERR];Stdout=0;skipspace();
 	   if(i)
-	      concon('\n');
+	      zombiecollect(),concon('\n');
 progrm:	   if(testb('!'))				 /* forward the mail */
 	    { if(!i)
 		 skiprc++;

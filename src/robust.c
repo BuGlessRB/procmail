@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.17 1994/05/26 14:13:37 berg Exp $";
+ "$Id: robust.c,v 1.18 1994/06/03 18:25:40 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -152,13 +152,12 @@ int rwrite(fd,a,len)const int fd,len;const void*const a;
 
 void ssleep(seconds)const unsigned seconds;
 { long t;
-  zombiecollect();sleep(seconds);
+  sleep(seconds);
   if(alrmtime)
      if((t=alrmtime-time((time_t*)0))<=1)	  /* if less than 1s timeout */
 	ftimeout();				  /* activate it by hand now */
      else		    /* set it manually again, to avoid problems with */
 	alarm((unsigned)t);	/* badly implemented sleep library functions */
-  zombiecollect();
 }
 
 void doumask(mask)const mode_t mask;
