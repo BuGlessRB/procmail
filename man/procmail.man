@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.79 1999/07/16 15:57:09 guenther Exp $
+.Id $Id: procmail.man,v 1.80 1999/11/04 23:26:14 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -519,6 +519,12 @@ Assigned "x" to
 .TP
 No match on "x"
 Condition didn't match, recipe skipped.
+.TP
+Non-zero exitcode (nnn) by "x"
+Program that was started by procmail as a condition or as the action of
+a recipe with the `@WAIT_EXIT_QUIET@' flag returned nnn instead of
+EXIT_SUCCESS (=@EX_OK@); the usage indicates that this is not an
+unexpected condition.
 .TP
 Notified comsat: "$LOGNAME@offset:file"
 Sent comsat/biff a notice that mail arrived for user $LOGNAME at `offset'

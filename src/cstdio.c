@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.41 1999/10/20 04:53:15 guenther Exp $";
+ "$Id: cstdio.c,v 1.42 1999/11/04 23:26:16 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -24,8 +24,8 @@ void pushrc(name)const char*const name;		      /* open include rcfile */
      if(stat(name,&stbuf)||!S_ISREG(stbuf.st_mode))
 	goto rerr;
      if(stbuf.st_size)					   /* only if size>0 */
-      { app_val(&inced,rcbufp?(off_t)(rcbufp-rcbuf):(off_t)0);	 /* save old */
-	app_val(&inced,blasttell);app_val(&inced,(off_t)rc);/* position & fd */
+      { app_vali(inced,rcbufp?rcbufp-rcbuf:0);			 /* save old */
+	app_valo(inced,blasttell);app_vali(inced,rc);	    /* position & fd */
 	if(bopen(name)<0)			  /* try to open the new one */
 	 { poprc();			       /* we couldn't, so restore rc */
 rerr:	   readerr(name);
@@ -62,12 +62,12 @@ void duprcs P((void))		/* `duplicate' all the fds of opened rcfiles */
   lseek(rc,blasttell+STDBUF,SEEK_SET);	 /* you'll never know the difference */
   for(i=inced.filled;dp=dp->enext,i;i-=2)
    { int fd;
-     rclose(inced.offs[--i]);
+     rclose(acc_vali(inced,--i));
      if(0>(fd=ropen(dp->ename,O_RDONLY,0)))    /* reopen all (nested) others */
 dupfailed:					   /* oops, file disappeared */
 	nlog("Lost"),logqnl(dp->ename),exit(EX_NOINPUT);	    /* panic */
-     inced.offs[i]=fd; /* new & improved fd, decoupled from fd in the parent */
-   }
+     acc_vali(inced,i)=fd;		/* new & improved fd, decoupled from */
+   }							 /* fd in the parent */
 }
 
 static void closeonerc P((void))
@@ -86,15 +86,15 @@ int poprc P((void))
      skiprc=0,nlog("Missing closing brace\n");
   if(!inced.filled)				  /* include stack is empty? */
      return 0;	      /* restore rc, seekpos, prime rcbuf and restore rcbufp */
-  rc=inced.offs[--inced.filled];
-  blasttell=lseek(rc,inced.offs[--inced.filled],SEEK_SET);
-  refill((int)inced.offs[--inced.filled]);
+  rc=acc_vali(inced,--inced.filled);
+  blasttell=lseek(rc,acc_valo(inced,--inced.filled),SEEK_SET);
+  refill(acc_vali(inced,--inced.filled));
   return 1;
 }
 
 void closerc P((void))					/* {while(poprc());} */
 { while(closeonerc(),inced.filled)
-     rc=inced.offs[inced.filled-1],inced.filled-=3;
+     rc=acc_vali(inced,inced.filled-1),inced.filled-=3;
 }
 							    /* destroys buf2 */
 int bopen(name)const char*const name;				 /* my fopen */

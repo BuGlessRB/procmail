@@ -482,6 +482,10 @@
 	       - fsync() mailboxes before closing them
 	       - Actually suppress the 'E' and 'a' flags when combined with
 		 the 'e' flag instead of just saying so
+	       - Avoid some calls to alarm()
+	       - Overflows at certain times would confuse procmail
+	       - dyna_long code now meets strict ANSI restrictions
+	       - 'W' flag changes "Program failure" to "Non-zero exitcode"
 	    Changes to formail:
 	       - Replies without the -t flag go to the envelope sender
 	       - Replies without "-a Resent-" and -t flag ignore the

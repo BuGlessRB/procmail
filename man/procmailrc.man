@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.72 1999/10/20 04:55:27 guenther Exp $
+.Id $Id: procmailrc.man,v 1.73 1999/11/04 23:26:15 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -508,8 +508,10 @@ program.
 .TP
 .B LASTFOLDER
 This variable is assigned to by procmail whenever it is delivering
-to a folder or program.  It always contains the name of the last folder
-(or program) procmail delivered to.
+to a folder or program.  It always contains the name of the last file
+(or program) procmail delivered to.  If the last delivery was to
+several directory folders together then $LASTFOLDER will contain
+the hardlinked filenames as a space separated list.
 .TP
 .B @MATCHVAR@
 This variable is assigned to by procmail whenever it is told to extract

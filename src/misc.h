@@ -1,7 +1,14 @@
-/*$Id: misc.h,v 1.42 1999/11/02 03:13:08 guenther Exp $*/
+/*$Id: misc.h,v 1.43 1999/11/04 23:26:21 guenther Exp $*/
 
-struct dyna_long{size_t filled,tspace;off_t*offs;};
+struct dyna_long{size_t filled,tspace;union{off_t o;long l;int i;}*vals;};
 struct dynstring{struct dynstring*enext;char ename[255];};
+
+#define app_valo(sp,val)	(*(off_t*)app_val_(&sp)=(val))
+#define app_vall(sp,val)	(*(long *)app_val_(&sp)=(val))
+#define app_vali(sp,val)	(*(int	*)app_val_(&sp)=(val))
+#define acc_valo(sp,off)	sp.vals[off].o		/* this is an lvalue */
+#define acc_vall(sp,off)	sp.vals[off].l			    /* ditto */
+#define acc_vali(sp,off)	sp.vals[off].i			    /* ditto */
 
 void
  elog P((const char*const newt)),
@@ -9,7 +16,7 @@ void
  shutdesc P((void)),
  setids P((void)),
  writeerr P((const char*const line)),
- progerr P((const char*const line,int xitcode)),
+ progerr P((const char*const line,int xitcode,int okay)),
  chderr P((const char*const dir)),
  readerr P((const char*const file)),
  verboff P((void)),
@@ -25,7 +32,7 @@ void
  sterminate P((void)),
  Terminate P((void)),
  suspend P((void)),
- app_val P((struct dyna_long*const sp,const off_t val)),
+ *app_val_ P((struct dyna_long*const sp)),
  setmaildir P((const char*const newdir)),
  setoverflow P((void)),
  srequeue P((void)),

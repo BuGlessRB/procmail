@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.97 1999/11/02 03:13:07 guenther Exp $";
+ "$Id: misc.c,v 1.98 1999/11/04 23:26:20 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -34,7 +34,7 @@ struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
  {"NORESRETRY",DEFnoresretry},{"TIMEOUT",DEFtimeout},{"VERBOSE",DEFverbose},
  {"LOGABSTRACT",DEFlogabstract}};
 struct varstr strenstr[]={{"SHELLMETAS",DEFshellmetas},{"LOCKEXT",DEFlockext},
- {"MSGPREFIX",DEFmsgprefix},{"COMSAT",""},{"TRAP",""},
+ {"MSGPREFIX",DEFmsgprefix},{"COMSAT",empty},{"TRAP",empty},
  {"SHELLFLAGS",DEFshellflags},{"DEFAULT",DEFdefault},{"SENDMAIL",DEFsendmail},
  {"SENDMAILFLAGS",DEFflagsendmail},{"PROCMAIL_VERSION",PM_VERSION}};
 
@@ -106,9 +106,10 @@ int forkerr(pid,a)const pid_t pid;const char*const a;
   return 0;
 }
 
-void progerr(line,xitcode)const char*const line;int xitcode;
+void progerr(line,xitcode,okay)const char*const line;int xitcode,okay;
 { charNUM(num,thepid);
-  nlog("Program failure (");ltstr(0,(long)xitcode,num);elog(num);elog(") of");
+  nlog(okay?"Non-zero exitcode (":"Program failure (");
+  ltstr(0,(long)xitcode,num);elog(num);elog(okay?") from":") of");
   logqnl(line);
 }
 
@@ -239,7 +240,7 @@ void Terminate P((void))
 	else if(!renvint(-1L,chp))		/* or is it a false boolean? */
 	   goto nocomsat;			       /* ok, no comsat then */
 	else
-	   chp="";			  /* set to yes, so take the default */
+	   chp=empty;			  /* set to yes, so take the default */
 	if(!chad||!*chad)					  /* no host */
 #ifndef IP_localhost
 	   chad=COMSAThost;				      /* use default */
@@ -288,20 +289,19 @@ nocomsat:
 	exectrap(traps);
      nextexit=2;unlock(&loclock);unlock(&globlock);fdunlock();
    }					/* flush the logfile & exit procmail */
-  elog("");exit(fakedelivery==2?EXIT_SUCCESS:retval);
+  elog(empty);exit(fakedelivery==2?EXIT_SUCCESS:retval);
 }
 
 void suspend P((void))
 { ssleep((unsigned)suspendv);
 }
 
-void app_val(sp,val)struct dyna_long*const sp;const off_t val;
+void*app_val_(sp)struct dyna_long*const sp;
 { if(sp->filled==sp->tspace)			    /* growth limit reached? */
-   { if(!sp->offs)
-	sp->offs=malloc(1);
-     sp->offs=realloc(sp->offs,(sp->tspace+=4)*sizeof*sp->offs);   /* expand */
+   { size_t len=(sp->tspace+=4)*sizeof*sp->vals;
+     sp->vals=sp->vals?realloc(sp->vals,len):malloc(len);	   /* expand */
    }
-  sp->offs[sp->filled++]=val;				     /* append to it */
+  return &sp->vals[sp->filled++];			     /* append to it */
 }
 
 int alphanum(c)const unsigned c;
@@ -388,7 +388,7 @@ char*tstrdup(a)const char*const a;
 
 const char*tgetenv(a)const char*const a;
 { const char*b;
-  return (b=getenv(a))?b:"";
+  return (b=getenv(a))?b:empty;
 }
 
 char*cstr(a,b)char*const a;const char*const b;	/* dynamic buffer management */
@@ -674,10 +674,9 @@ keepgid:			   /* keep the gid from the parent directory */
 	 }
 	else if(!to_checkcloser(defaulttype))
 	 { setids();
-	   defdeflock="";
 	   if(defaulttype<0)
 	      goto fishy;
-	   return 1;
+	   goto nl;					   /* no lock needed */
 	 }
       }
     /*
@@ -760,7 +759,7 @@ fishy:
      *chp='\0';
    }
   else
-     defdeflock="";					   /* no lock needed */
+nl:  defdeflock=empty;					   /* no lock needed */
   return 1;
 }
 

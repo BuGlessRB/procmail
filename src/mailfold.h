@@ -1,4 +1,4 @@
-/*$Id: mailfold.h,v 1.20 1999/10/20 04:53:18 guenther Exp $*/
+/*$Id: mailfold.h,v 1.21 1999/11/04 23:26:19 guenther Exp $*/
 
 long
  dump P((const int s,const char*source,long len));
@@ -24,15 +24,15 @@ extern off_t lasttell;
 #define to_TOOLONG	(-1)		    /* path + UNIQnamelen > linebuf? */
 /*#define to_PIPE	0		    /* program, stdout, or /dev/null */
 #define to_MAILDIR	1				   /* maildir folder */
-#define to_FILE		2					/* real file */
-#define to_DIR		3			     /* msg.inode# directory */
-#define to_MH		4					/* MH folder */
+#define to_MH		2					/* MH folder */
+#define to_FILE		3					/* real file */
+#define to_DIR		4			     /* msg.inode# directory */
 
 #define to_lock(to)	   ((to)>to_MAILDIR)
 #define to_atime(to)	   ((to)==to_FILE)	      /* force atime < mtime */
 #define to_dotlock(to)	   ((to)==to_FILE)
 #define to_delim(to)	   ((to)==to_FILE)
-#define to_checkcloser(to) (((to)|1)==3)
+#define to_checkcloser(to) ((to)>to_MH)
 
 
 #ifdef sMAILBOX_SEPARATOR

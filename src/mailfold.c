@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.89 1999/11/01 19:18:34 guenther Exp $";
+ "$Id: mailfold.c,v 1.90 1999/11/04 23:26:18 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -164,7 +164,7 @@ nolnk:	nlog("Couldn't make link to"),logqnl(buf);
      else
 didlnk:
       { size_t len;char*p;
-	Stdout=buf;primeStdout("");
+	Stdout=buf;primeStdout(empty);
 	len=Stdfilled+strlen(Stdout+Stdfilled);
 	p=realloc(Stdout,(Stdfilled=len+1+strlen(buf))+1);
 	p[len]=' ';strcpy(p+len+1,buf);retbStdout(p);
@@ -459,7 +459,7 @@ void concon(ch)const int ch;   /* flip between concatenated and split fields */
   if(concnd!=ch)				   /* is this run redundant? */
    { concnd=ch;			      /* no, but note this one for next time */
      for(i=confield.filled;i;)		   /* step through the saved offsets */
-	themail[confield.offs[--i]]=ch;		       /* and flip every one */
+	themail[acc_vall(confield,--i)]=ch;	       /* and flip every one */
    }
 }
 
@@ -487,7 +487,7 @@ void readmail(rhead,tobesent)const long tobesent;
       { confield.filled=0;concnd='\n';
 	while(thebody=strchr(thebody,'\n'))
 	   switch(*++thebody)			    /* mark continued fields */
-	    { case '\t':case ' ':app_val(&confield,(off_t)(thebody-1-themail));
+	    { case '\t':case ' ':app_vall(confield,(long)(thebody-1-themail));
 	      default:
 		 continue;		   /* empty line marks end of header */
 	      case '\n':thebody++;

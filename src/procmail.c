@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.150 1999/11/01 19:18:36 guenther Exp $";
+ "$Id: procmail.c,v 1.151 1999/11/04 23:26:24 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -42,12 +42,12 @@ static const char*const nullp=0,From_[]=FROM,exflags[]=RECFLAGS,
 char*buf,*buf2,*loclock,*tolock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*const*restargv= &nullp,*sgetcp,
- pmrc[]=PROCMAILRC,*rcfile=pmrc,dirsep[]=DIRSEP,devnull[]=DevNull,
+ pmrc[]=PROCMAILRC,*rcfile=pmrc,dirsep[]=DIRSEP,devnull[]=DevNull,empty[]="",
  lgname[]="LOGNAME",executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",
  procmailn[]="procmail",whilstwfor[]=" whilst waiting for ",home[]="HOME",
- host[]="HOST",*defdeflock,*argv0="",errwwriting[]="Error while writing to",
+ host[]="HOST",*defdeflock=empty,*argv0=empty,pathtoolong[]=" path too long",
  slogstr[]="%s \"%s\"",conflicting[]="Conflicting ",orgmail[]="ORGMAIL",
- exceededlb[]="Exceeded LINEBUF\n",pathtoolong[]=" path too long";
+ exceededlb[]="Exceeded LINEBUF\n",errwwriting[]="Error while writing to";
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rcstate,rc= -1,
  ignwerr,lexitcode=EXIT_SUCCESS,asgnlastf,accspooldir,crestarg,skiprc,
@@ -141,7 +141,7 @@ int main(argc,argv)const char*const argv[];
 		       nlog("Missing name\n");
 		    break;
 		 case ARGUMENTOPT:
-		  { static const char*argv1[]={"",0};
+		  { static const char*argv1[]={empty,0};
 		    if(*++chp2)
 		       goto setarg;
 		    else if(chp2=(char*)argv[argc+1])
@@ -497,7 +497,7 @@ Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
       { nlog(orgmail);elog(pathtoolong);elog(newline);
 	syslog(LOG_CRIT,"%s%s for LINEBUF for uid \"%lu\"\n",orgmail,
 	 pathtoolong,(unsigned long)uid);
-	fdefault="";
+	fdefault=empty;
 	goto nix_sysmbox;
       }
      fdefault=tstrdup(buf);sgid=egid;accspooldir=3;	/* presumed innocent */
@@ -506,7 +506,7 @@ Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
 nix_sysmbox:
       { rcst_nosgid();sputenv(orgmail);	 /* nix delivering to system mailbox */
 	if(!strcmp(chp,fdefault))			/* DEFAULT the same? */
-	   free((char*)fdefault),fdefault="";			 /* so panic */
+	   free((char*)fdefault),fdefault=empty;		 /* so panic */
       }						/* bad news, be conservative */
      doumask(INIT_UMASK);
      while(chp=(char*)argv[argc])      /* interpret command line specs first */
@@ -520,7 +520,7 @@ nix_sysmbox:
       }
    }
   ;{ int lastsucc,lastcond,prevcond;struct dyna_long ifstack;
-     ifstack.filled=ifstack.tspace=0;ifstack.offs=0;
+     ifstack.filled=ifstack.tspace=0;ifstack.vals=0;
      if(etcrc)		  /* do we start with an /etc/procmailrc file first? */
       { if(0<=bopen(etcrc))
 	 { yell(drcfile,etcrc);
@@ -827,19 +827,20 @@ nolock:			{ nlog("Couldn't determine implicit lockfile from");
 		    nlog(extrns),elog("ignore-write-error flag"),elog(ignrd);
 		 if(flags[RAW_NONL])
 		    nlog(extrns),elog("raw-mode flag"),elog(ignrd);
-		 app_val(&ifstack,(off_t)prevcond);	    /* push prevcond */
-		 app_val(&ifstack,(off_t)lastcond);	    /* push lastcond */
 		 if(!i)						/* no match? */
-		    skiprc++;		      /* increase the skipping level */
+		    skiprc+=2;		      /* increase the skipping level */
 		 else
-		  { if(locknext)
+		  { app_vali(ifstack,prevcond);		    /* push prevcond */
+		    app_vali(ifstack,lastcond);		    /* push lastcond */
+		    if(locknext)
 		     { *buf2='\0';lcllock();
 		       if(!pwait)	/* try and protect the user from his */
 			  pwait=2;		   /* blissful ignorance :-) */
 		     }
-		    succeed=1;inittmout(procmailn);
+		    succeed=1;
 		    if(flags[CONTINUE])
-		     { yell("Forking",procmailn);onguard();
+		     { yell("Forking",procmailn);inittmout(procmailn);
+		       onguard();
 		       if(!(pidchild=sfork()))		   /* clone yourself */
 			{ if(loclock)	      /* lockfiles are not inherited */
 			     free(loclock),loclock=0;
@@ -856,10 +857,11 @@ nolock:			{ nlog("Couldn't determine implicit lockfile from");
 			     if(pwait&&
 				(excode=waitfor(pidchild))!=EXIT_SUCCESS)
 			      { if(!(pwait&2)||verbose)	 /* do we report it? */
-				   progerr(procmailn,excode);
+				   progerr(procmailn,excode,pwait&2);
 				succeed=0;
 			      }
-			     pidchild=0;skiprc++;    /* skip over the braces */
+			     pidchild=0;skiprc+=2;   /* skip over the braces */
+			     ifstack.filled-=2;		/* retract the stack */
 			   }
 			}
 		     }
@@ -868,7 +870,7 @@ nolock:			{ nlog("Couldn't determine implicit lockfile from");
 		 continue;
 	       }
 	      if(!i)						/* no match? */
-		 skiprc++;		  /* temporarily disable subprograms */
+		 skiprc|=1;		  /* temporarily disable subprograms */
 	      if(readparse(chp,getb,0))
 fail:	       { succeed=0;setoverflow();
 		 goto setlsucc;
@@ -878,15 +880,15 @@ fail:	       { succeed=0;setoverflow();
 		    startchar=themail,tobesent=filled;	    /* whole message */
 tostdout:	 rawnonl=flags[RAW_NONL];
 		 if(locknext)		     /* write to a file or directory */
-		  { strcpy(buf2,buf);
+		  { if(!tolock)strcpy(buf2,buf);
 		    lcllock();
 		  }
 		 inittmout(buf);	  /* to break messed-up kernel locks */
 		 if(writefolder(buf,strchr(buf,'\0')+1,startchar,tobesent,
 		     ignwerr,0)&&
 		    (succeed=1,!flags[CONTINUE]))
-frmailed:	  { if(ifstack.offs)
-		       free(ifstack.offs);
+frmailed:	  { if(ifstack.vals)
+		       free(ifstack.vals);
 		    goto mailed;
 		  }
 logsetlsucc:	 if(succeed&&flags[CONTINUE]&&lgabstract==2)
@@ -894,19 +896,18 @@ logsetlsucc:	 if(succeed&&flags[CONTINUE]&&lgabstract==2)
 setlsucc:	 rawnonl=0;
 jsetlsucc:	 lastsucc=succeed;lasttell= -1;		       /* for comsat */
 	       }
-	      else
-		 skiprc--;			     /* reenable subprograms */
+	      skiprc&=~1;			     /* reenable subprograms */
 	    }
 	 }
 	else if(testB('}'))					/* end block */
-	 { if(ifstack.filled)		      /* restore lastcond from stack */
-	    { lastcond=ifstack.offs[--ifstack.filled];
-	      prevcond=ifstack.offs[--ifstack.filled];	 /* prevcond as well */
-	    }
+	 { if(skiprc>1)					    /* just skipping */
+	      skiprc-=2;				   /* decrease level */
+	   else if(ifstack.filled)	      /* restore lastcond from stack */
+	    { lastcond=acc_vali(ifstack,--ifstack.filled);
+	      prevcond=acc_vali(ifstack,--ifstack.filled);	 /* prevcond */
+	    }							  /* as well */
 	   else
 	      nlog("Closing brace unexpected\n");	      /* stack empty */
-	   if(skiprc)					    /* just skipping */
-	      skiprc--;					   /* decrease level */
 	 }
 	else				    /* then it must be an assignment */
 	 { char*end=buf+linebuf;
@@ -937,8 +938,8 @@ nextrc:	      if(poprc()||wipetcrc())
       }						    /* main interpreter loop */
      while(rc<0||!testB(EOF)||poprc()||wipetcrc());
 nomore_rc:
-     if(ifstack.offs)
-	free(ifstack.offs);
+     if(ifstack.vals)
+	free(ifstack.vals);
    }
   ;{ int succeed;
      concon('\n');succeed=0;

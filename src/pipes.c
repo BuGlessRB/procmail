@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.60 1999/10/24 06:31:28 guenther Exp $";
+ "$Id: pipes.c,v 1.61 1999/11/04 23:26:23 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -160,7 +160,7 @@ int pipthrough(line,source,len)char*line,*source;const long len;
 		 goto perr;
 	    }
 	   else
-perr:	      progerr(line,excode);	      /* I'm going to tell my mommy! */
+perr:	      progerr(line,excode,pwait==4);  /* I'm going to tell my mommy! */
 	   stermchild();
 	 }
       }
@@ -200,7 +200,7 @@ long pipin(line,source,len)char*const line;char*source;long len;
 		    len=0;
 		 if(pwait&&(excode=strcmp(t1,t3)?1:EXIT_SUCCESS)!=EXIT_SUCCESS)
 		  { if(!(pwait&2)||verbose)	  /* do we put it on report? */
-		       progerr(line,excode);
+		       progerr(line,excode,pwait&2);
 		    len=1;
 		  }
 		 goto builtin;
@@ -223,7 +223,7 @@ long pipin(line,source,len)char*const line;char*source;long len;
   ;{ int excode;			    /* optionally check the exitcode */
      if(pwait&&(excode=waitfor(pidchild))!=EXIT_SUCCESS)
       { if(!(pwait&2)||verbose)			  /* do we put it on report? */
-	   progerr(line,excode);
+	   progerr(line,excode,pwait&2);
 	len=1;
       }
    }

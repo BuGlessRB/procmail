@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.61 1999/11/01 19:18:33 guenther Exp $";
+ "$Id: goodies.c,v 1.62 1999/11/04 23:26:17 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -37,7 +37,7 @@ static const char*evalenv P((void))	/* expects the variable name in buf2 */
 #define SINGLE_QUOTED	3
 
 #define fgetc() (*fpgetc)()	   /* some compilers previously choked on it */
-#define CHECKINC() (fencepost<p?(overflow||skiprc++,overflow=1,p=fencepost):0)
+#define CHECKINC() (fencepost<p?(skiprc|=1,overflow=1,p=fencepost):0)
 
 /* sarg==0 : normal parsing, split up arguments like in /bin/sh
  * sarg==1 : environment assignment parsing, parse up till first whitespace
@@ -63,7 +63,7 @@ ready:	   if(got!=SKIPPING_SPACE||sarg)  /* not terminated yet or sarg==2 ? */
 	      *p++='\0';
 	   Tmnate=p;
 	   if(overflow)
-	    { skiprc--;
+	    { skiprc&=~1;
 	      nlog(exceededlb);setoverflow();
 	    }
 	   return overflow;
@@ -170,7 +170,7 @@ escaped:      CHECKINC();*p++=i;
 	      got==DOUBLE_QUOTED&&bracelev>qbracelev)
 	    { bracelev--;
 	      if(skipback&&bracelev==skipbracelev)
-	       { skiprc--;p=skipback;skipback=0;startb=(char*)oldstartb;
+	       { skiprc-=2;p=skipback;skipback=0;startb=(char*)oldstartb;
 		 got=bracegot;
 		 goto closebrace;
 	       }
@@ -198,10 +198,7 @@ escaped:      CHECKINC();*p++=i;
 	      case '{':						  /* ${name} */
 		 while(EOF!=(i=fgetc())&&alphanum(i))
 		  { if(startb>=fencepost2)
-		     { startb=buf2+2;
-		       overflow||skiprc++;
-		       overflow=1;
-		     }
+		       startb=buf2+2,skiprc|=1,overflow=1;
 		    *startb++=i;
 		  }
 		 *startb='\0';
@@ -232,14 +229,14 @@ badsub:			     nlog("Bad substitution of");logqnl(buf2);
 		    case '-':
 		       if(startb)
 noalt:			  if(!skiprc)
-			   { skiprc++;skipback=p;skipbracelev=bracelev;
+			   { skiprc+=2;skipback=p;skipbracelev=bracelev;
 			     oldstartb=startb;bracegot=got;
 			   }
 doalt:		       bracelev++;
 		       continue;
 		    case '}':
 closebrace:	       if(!startb)
-			  startb="";
+			  startb=(char*)empty;
 		  }
 		 goto ibreak;					  /* $$ =pid */
 	      case '$':ultstr(0,(unsigned long)thepid,startb=num);
@@ -251,7 +248,7 @@ closebrace:	       if(!startb)
 	      case '=':ltstr(0,lastscore,startb=num);
 ieofstr:	 i='\0';
 		 goto copyit;
-	      case '_':startb=incnamed?incnamed->ename:"";
+	      case '_':startb=incnamed?incnamed->ename:(char*)empty;
 		 goto ibreak;
 	      case '-':startb=(char*)tgetenv(lastfolder); /* $- =$LASTFOLDER */
 ibreak:		 i='\0';
@@ -267,10 +264,7 @@ ibreak:		 i='\0';
 		 if(alphanum(i))				    /* $name */
 		  { do
 		     { if(startb>=fencepost2)
-			{ startb=buf+2;
-			  overflow||skiprc++;
-			  overflow=1;
-			}
+			  startb=buf2+2,skiprc|=1,overflow=1;
 		       *startb++=i;
 		     }
 		    while(EOF!=(i=fgetc())&&alphanum(i));
@@ -278,7 +272,7 @@ ibreak:		 i='\0';
 			i='\0';
 finsb:		    *startb='\0';
 		    if(!(startb=(char*)evalenv()))
-		       startb="";
+		       startb=(char*)empty;
 		    if(quoted)
 		     { *p++='(';CHECKINC();	/* protect leading character */
 		       *p++=')';
@@ -316,7 +310,7 @@ simplsplit: { if(sarg)
 	   else
 copyit:	    { strncpy(p,startb,fencepost-p+2);		   /* simply copy it */
 	      if(fencepost[1]!='\0')		      /* did we truncate it? */
-		 overflow||skiprc++,overflow=1,fencepost[1]='\0';
+		 skiprc|=1,overflow=1,fencepost[1]='\0';
 	      if(got<=SKIPPING_SPACE)		/* can only occur if sarg!=0 */
 		 got=NORMAL_TEXT;
 	      p=strchr(p,'\0');
@@ -406,7 +400,7 @@ wipenv:
      preenv[1]=0;*(lastenv=preenv)=(char*)(split=newdynstring(&myenv,a));
      return split+eq+1;
    }
-  return "";
+  return empty;
 }
 	   /* between calling primeStdout() and retStdout() *no* environment */
 void primeStdout(varname)const char*const varname;   /* changes are allowed! */
