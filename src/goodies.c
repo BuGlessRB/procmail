@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.48 1998/11/18 03:41:15 guenther Exp $";
+ "$Id: goodies.c,v 1.49 1998/11/18 10:03:31 srb Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -49,13 +49,11 @@ void readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
   char*startb,*const fencepost=buf+linebuf-XTRAlinebuf;
   static char*skipback;static const char*oldstartb;
   warned=bracelev=qbracelev=0;All_args=0;
-  fencepost[1]='\0';
   for(got=NOTHING_YET;;)		    /* buf2 is used as scratch space */
 loop:
-   { i=fgetc();
-     if(CHECKINC())		    /* doesn't catch everything, just a hint */
-	if(!warned)
-	   warned=1,nlog("Exceeded LINEBUF\n");
+   { i=fgetc();fencepost[1]='\0';
+     if(CHECKINC()&&!warned)	    /* doesn't catch everything, just a hint */
+	warned=1,nlog("Exceeded LINEBUF\n");
 newchar:
      switch(i)
       { case EOF:	/* check sarg too to prevent warnings in the recipe- */
