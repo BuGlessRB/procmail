@@ -5,7 +5,8 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static const char rcsid[]="$Id: misc.c,v 1.9 1992/11/11 14:00:21 berg Exp $";
+static /*const*/char rcsid[]=
+ "$Id: misc.c,v 1.10 1992/11/11 16:35:28 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -102,7 +103,7 @@ void skipped(x)const char*const x;
 nextrcfile P((void))		/* next rcfile specified on the command line */
 { const char*p;
   while(p= *gargv)
-   { gargv++;
+   { ++gargv;
      if(!strchr(p,'='))
       { rcfile=p;return 1;
       }

@@ -10,11 +10,10 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static const char rcsid[]=
- "$Id: multigram.c,v 1.5 1992/11/11 14:00:26 berg Exp $";
+static /*const*/char rcsid[]=
+ "$Id: multigram.c,v 1.6 1992/11/11 16:35:31 berg Exp $";
 #endif
-static const char rcsdate[]="$Date: 1992/11/11 14:00:26 $";
-static PROGID;
+static /*const*/char rcsdate[]="$Date: 1992/11/11 16:35:31 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -70,6 +69,8 @@ static void elog(a)const char*const a;
 void nlog(a)const char*const a;
 { elog("adresses: ");elog(a);
 }
+
+static PROGID;
 
 main(minweight,argv)const char*argv[];
 { struct string fuzzstr,hardstr;FILE*hardfile;const char*addit=0;

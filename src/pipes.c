@@ -5,7 +5,8 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static const char rcsid[]="$Id: pipes.c,v 1.8 1992/11/11 14:00:31 berg Exp $";
+static /*const*/char rcsid[]=
+ "$Id: pipes.c,v 1.9 1992/11/11 16:35:34 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -79,7 +80,7 @@ no_1st_comma:
       }
      while(*p++);
    }
-  while(argc++,*p!=TMNATE);
+  while(++argc,*p!=TMNATE);
   if(verbose)
      elog(cquote);
   newargv=malloc(argc*sizeof*newargv);p=newname;argc=0;	 /* alloc argv array */

@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.6 1992/11/11 13:58:42 berg Exp $
+#$Id: Makefile.0,v 1.7 1992/11/11 16:34:52 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O)
@@ -37,7 +37,7 @@ _autotst: _autotst.$(O)
 HIDEMAKE = $(MAKE)
 
 ../autoconf.h: autoconf Makefile
-	$(SHELL) ./autoconf $(SHELL) "$(RM)" $(USRINCLUDE) $(DEVNULL) \
+	$(SHELL) ./autoconf $(SHELL) "$(RM)" "$(MV)" $(USRINCLUDE) $(DEVNULL) \
 	 "$(FGREP)" "$(HIDEMAKE)" $(O) $@
 
 autoconf.h: ../autoconf.h

@@ -7,10 +7,10 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static const char rcsid[]="$Id: formail.c,v 1.7 1992/11/11 13:59:40 berg Exp $";
+static /*const*/char rcsid[]=
+ "$Id: formail.c,v 1.8 1992/11/11 16:35:10 berg Exp $";
 #endif
-static const char rcsdate[]="$Date: 1992/11/11 13:59:40 $";
-static PROGID;
+static /*const*/char rcsdate[]="$Date: 1992/11/11 16:35:10 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -100,6 +100,8 @@ static artheadr P((void))	     /* could it be the start of an article? */
    }
   return 0;
 }
+
+static PROGID;
 
 main(lastm,argv)const char*const argv[];
 { int i,split=0,force=0,bogus=1,every=0,areply=0,trust=0,digest=0,nowait=0,

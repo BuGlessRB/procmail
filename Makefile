@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.9 1992/11/11 13:57:42 berg Exp $
+#$Id: Makefile,v 1.10 1992/11/11 16:34:35 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -49,7 +49,7 @@ PLIB	= /lib/lib
 PUSRLIB = /usr/lib/lib
 
 CFLAGS0 = -O #-ansi -pedantic -Wid-clash-6
-LDFLAGS0= #-s
+LDFLAGS0= -s
 
 CFLAGS1 = $(CFLAGS0) #-posix -Xp
 LDFLAGS1= $(LDFLAGS0) #-lcposix
@@ -61,6 +61,7 @@ O	= o
 A	= a
 RM	= /bin/rm -f
 MV	= /bin/mv -f
+LN	= /bin/ln -f
 INSTALL = cp
 DEVNULL = /dev/null
 
@@ -80,9 +81,10 @@ make:
 	@/bin/sh -c "exit 0"
 
 init:
-	/bin/sh ./initmake "$(SHELL)" "$(RM)" $(USRINCLUDE) $(PLIB) \
-	 $(PUSRLIB) $(DEVNULL) "$(HIDEMAKE)" $(O) $(A) "$(CC)" "$(CFLAGS1)" \
-	 "$(LDFLAGS1)" "$(BINSS)" "$(MANS1S)" "$(MANS5S)" "$(SUBDIRS)"
+	/bin/sh ./initmake "$(SHELL)" "$(RM)" "$(MV)" "$(LN)" $(USRINCLUDE) \
+	 $(PLIB) $(PUSRLIB) $(DEVNULL) "$(HIDEMAKE)" $(O) $(A) "$(CC)" \
+	 "$(CFLAGS1)" "$(LDFLAGS1)" "$(BINSS)" "$(MANS1S)" "$(MANS5S)" \
+	 "$(SUBDIRS)"
 
 makefiles makefile Makefiles Makefile: init
 

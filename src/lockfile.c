@@ -12,11 +12,10 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static const char rcsid[]=
- "$Id: lockfile.c,v 1.6 1992/11/11 14:00:03 berg Exp $";
+static /*const*/char rcsid[]=
+ "$Id: lockfile.c,v 1.7 1992/11/11 16:35:19 berg Exp $";
 #endif
-static const char rcsdate[]="$Date: 1992/11/11 14:00:03 $";
-static PROGID;
+static /*const*/char rcsdate[]="$Date: 1992/11/11 16:35:19 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -90,8 +89,10 @@ exceeds my humble\ncapacities");return 0;
    }
 }
 
+static PROGID;
+
 main(argc,argv)const char*const argv[];
-{ const char*const*p;char*cp;uid_t uid;
+{ const char*const*p,*const*lastf;char*cp;uid_t uid;
   int sleepsec,retries,invert,force,suspend,retval=EX_OK,virgin=1;
   static const char usage[]="Usage: lockfile -nnn | -r nnn | -l nnn | -s nnn \
 | -! | -ml | -mu | file ...\n";
@@ -102,7 +103,7 @@ main(argc,argv)const char*const argv[];
 again:
   signal(SIGHUP,(void(*)())failure);signal(SIGINT,(void(*)())failure);
   signal(SIGQUIT,(void(*)())failure);signal(SIGTERM,(void(*)())failure);
-  for(p=argv;--argc;)
+  for(lastf=p=argv;--argc;)
      if(*(cp=(char*)*++p)=='-')
 	for(++cp;;)
 	 { char*cp2=cp+1;int i;
@@ -173,6 +174,7 @@ xusg:		       retval=EX_USAGE;goto nfailure;
 			}
 		  }
 	       }
+	      case '\0':;
 	    }
 	   break;
 	 }
@@ -181,7 +183,7 @@ xusg:		       retval=EX_USAGE;goto nfailure;
      else
       { time_t t;int permanent;
 	setgid(getgid());		      /* just to be on the safe side */
-stilv:	virgin=0;permanent=nfsTRY;
+stilv:	virgin=0;permanent=nfsTRY;lastf=p;
 	while(0>xcreat(cp,&t))				     /* try and lock */
 	 { struct stat stbuf;
 	   if(exitflag)					    /* time to stop? */
@@ -227,8 +229,8 @@ outofmem:	 retval=EX_OSERR,nlog("Out of memory");
 		 nlog("Filename too long");retval=EX_UNAVAILABLE;
 #endif
 lfailure:	 elog(", giving up on \"");elog(cp);elog("\"\n");
-nfailure:	 sleepsec= -1;argc=p-argv;goto again;	/* mark sleepsec for */
-	    }  /* the second pass, and adjust argc to the no. of args parsed */
+nfailure:	 sleepsec= -1;argc=lastf-argv+1;goto again; /* mark sleepsec */
+	    }  /* for second pass, and adjust argc to the no. of args parsed */
 	   permanent=nfsTRY;	       /* refresh the NFS-error-ignore count */
 	 }
       }

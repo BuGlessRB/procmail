@@ -38,6 +38,7 @@ examples/advanced
 		Some extra info for network mounted mailboxes, examples of
 		advanced .procmailrc expressions and using procmail as
 		a local delivery agent.
-examples/mailinglist
-		Comprehensive instructions on maintaining a mailinglist.
+mailinlist/*	All you need to start up a mailinglist.
+mailinglist/intro
+		Comprehensive introduction on maintaining a mailinglist.
 examples/listrc Model-rcfile for use in mailinglists.

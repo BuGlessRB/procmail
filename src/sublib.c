@@ -1,4 +1,4 @@
-/*$Id: sublib.c,v 1.3 1992/11/11 14:00:59 berg Exp $*/
+/*$Id: sublib.c,v 1.4 1992/11/11 16:35:46 berg Exp $*/
 #include "includes.h"
 #include "sublib.h"
 
@@ -58,10 +58,10 @@ long strtol(start,ptr,base)const char*start,**const ptr;
      case '+':str++;
    }
   if(*str=='0')						 /* leading zero(s)? */
-   { start++;
+   { ++start;
      if((i= *++str)=='x'||i=='X')			/* leading 0x or 0X? */
 	if(!base||base==16)
-	   base=16,str++;			    /* hexadecimal all right */
+	   base=16,++str;			    /* hexadecimal all right */
 	else
 	   goto fault;
      else if(!base)

@@ -5,7 +5,8 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static const char rcsid[]="$Id: common.c,v 1.9 1992/11/11 13:58:49 berg Exp $";
+static /*const*/char rcsid[]=
+ "$Id: common.c,v 1.10 1992/11/11 16:34:59 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -23,7 +24,7 @@ void shexec(argv)const char*const*argv;
   signal(SIGLOST,SIG_DFL);
 #endif						/* or is it a shell script ? */
   signal(SIGPIPE,SIG_DFL);execvp(*argv,(char*const*)argv);
-  for(p=(const char**)argv,i=1;i++,*p++;);	      /* count the arguments */
+  for(p=(const char**)argv,i=1;++i,*p++;);	      /* count the arguments */
   newargv=malloc(i*sizeof*p);
   for(*(p=(const char**)newargv)=binsh;*++p= *argv++;);
   execve(*newargv,newargv,environ);	      /* no shell script? -> trouble */
@@ -37,7 +38,7 @@ void detab(p)char*p;
 
 char*pstrspn(whole,sub)const char*whole,*const sub;
 { while(*whole&&strchr(sub,*whole))
-     whole++;
+     ++whole;
   return(char*)whole;
 }
 
@@ -46,7 +47,7 @@ strcspn(whole,sub)const char*const whole,*const sub;
 { const register char*p;
   p=whole;
   while(*p&&!strchr(sub,*p))
-     p++;
+     ++p;
   return p-whole;
 }
 #endif
@@ -54,7 +55,7 @@ strcspn(whole,sub)const char*const whole,*const sub;
 void ultstr(minwidth,val,dest)unsigned long val;char*dest;
 { int i;unsigned long j;
   j=val;i=0;					   /* a beauty, isn't it :-) */
-  do i++;					   /* determine needed width */
+  do ++i;					   /* determine needed width */
   while(j/=10);
   while(--minwidth>=i)				 /* fill up any excess width */
      *dest++=' ';

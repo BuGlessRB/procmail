@@ -11,8 +11,8 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static const char rcsid[]=
- "$Id: procmail.c,v 1.10 1992/11/11 14:00:37 berg Exp $";
+static /*const*/char rcsid[]=
+ "$Id: procmail.c,v 1.11 1992/11/11 16:35:37 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -302,7 +302,7 @@ notfishy:
      */
    { setgid(gid);setuid(uid);suppmunreadable=nextrcfile();
      while(chp=(char*)argv[argc])      /* interpret command line specs first */
-	argc++,asenvcpy(chp);
+	++argc,asenvcpy(chp);
    }
   do					     /* main rcfile interpreter loop */
    { alarm((unsigned)(alrmtime=0));			    /* reset timeout */

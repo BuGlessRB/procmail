@@ -1,11 +1,13 @@
 #! /bin/sh
 : || exec /bin/sh ./initmake $argv:q # we're in a csh, feed myself to sh
 
-#$Id: initmake,v 1.7 1992/11/11 13:57:52 berg Exp $
+#$Id: initmake,v 1.8 1992/11/11 16:34:46 berg Exp $
 
 MSHELL=$1
 PATH=:$PATH
 shift; RM="$1"
+shift; MV="$1"
+shift; LN="$1"
 shift; USRINCLUDE=$1
 shift; PLIB=$1
 shift; PLIBUSR=$1
@@ -74,9 +76,9 @@ for a in $SUBDIRS
 do
   if test ! -f $a/Makefile.init
   then
-     ln $a/Makefile $a/Makefile.init
+     $LN $a/Makefile $a/Makefile.init
      $RM $a/Makefile
-     ln $a/Makefile.init $a/Makefile
+     $LN $a/Makefile.init $a/Makefile
   fi
 done
 
@@ -194,7 +196,7 @@ do
   echo							>>src/_Makefile
   echo "../new/$a: $a ../new"				>>src/_Makefile
   echo "	@\$(RM) \$@"				>>src/_Makefile
-  echo "	ln $a \$@"				>>src/_Makefile
+  echo "	\$(LN) $a \$@"				>>src/_Makefile
 done
 
 for a in $MANSS
@@ -202,7 +204,7 @@ do
   echo							>>man/_Makefile
   echo "../new/$a: $a ../new"				>>man/_Makefile
   echo "	@\$(RM) \$@"				>>man/_Makefile
-  echo "	ln $a \$@"				>>man/_Makefile
+  echo "	\$(LN) $a \$@"				>>man/_Makefile
 done
 
 for a in $MANS1S
@@ -221,9 +223,9 @@ do
    >>man/_Makefile
 done
 
-mv _Makefile Makefile
+$MV _Makefile Makefile
 
 for a in $SUBDIRS
 do
-  mv $a/_Makefile $a/Makefile
+  $MV $a/_Makefile $a/Makefile
 done
