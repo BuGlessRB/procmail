@@ -607,7 +607,7 @@
 	       - Incorrect prototype broke compilation on Tru64 UNIX
 	       - INCLUDERC was broken by trying to be fancy and not fully
 		 succeeding when support for multiple -a options was added
-2001/08/24: v3.22pre
+2001/08/26: v3.22pre
 	    Changes to procmail:
 	       - Regression bugs from 3.20:
 		  - Broke compilation with K&R compilers

@@ -1,5 +1,5 @@
 #define VERSION "\
- v3.22pre 2001/08/24\n\
+ v3.22pre 2001/08/26\n\
     Copyright (c) 1990-1999, Stephen R. van den Berg\t<srb@cuci.nl>\n\
     Copyright (c) 1997-2001, Philip A. Guenther\t\t<guenther@sendmail.com>\n\
 \n\
