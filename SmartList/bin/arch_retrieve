@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.48 1994/10/07 15:24:05 berg Exp $
+#$Id: arch_retrieve,v 1.49 1995/01/19 18:36:46 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -80,7 +80,7 @@ else
 fi
 
 $formail -k -xSubject: |
- $sed -e '/^[^a-zA-Z	 ]/,$ d' -e 's/^[	 ]*archive/ARCHIVE/' \
+ $sed -e '/^[^a-zA-Z	 ]/,$ d' -e 's/^[	 ]*[Aa]rchive/ARCHIVE/' \
   -e 's/[	 ]archive\/\/*/ /g' |
  (  oldwrongaddress="$wrongaddress"
     wrongaddress="WARNING:
@@ -94,7 +94,7 @@ $wrongaddress}"
       set `cd $archivedir; $echo dummy $line`
       shift
       case "$1" in
-	 archive|ARCHIVE|archive:|ARCHIVE:) shift
+	 ARCHIVE|ARCHIVE[Ss]|ARCHIVE[Ss]:|ARCHIVE:) shift
 	    $test ! -z "$wrongaddress" && wrongaddress="$oldwrongaddress";;
       esac
       #
@@ -228,7 +228,7 @@ Truncating after '$breakoff_ls' names...' -e ${breakoff_ls}q
 	       esac
 	    done
 	    regxp="$1"
-	    shift
+	    $test $# != 0 && shift
 	    case "$*" in
 	       *[/\ ]..[/\ ]*|..[/\ ]*|*[/\ ]..|..|[-/]*|*\ /*)
 		  $echo "$from ILLEGAL $line" >>$tmpfrom
@@ -262,6 +262,11 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 		  procmail -v 2>&1
 		) | $SENDMAIL $sendmailOPT -t
 	       $sleep $waitsleep ;;
+	 quit|QUIT|exit|EXIT)
+	       while read line
+	       do
+	       :
+	       done ;;
 	 ""|\#*) ;;
 	 *) $test -z "$sendhelp" && sendhelp="$1" ;;
       esac
