@@ -13,7 +13,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: authenticate.c,v 1.8 2001/02/20 10:14:04 guenther Exp $";
+ "$Id: authenticate.c,v 1.9 2001/06/04 17:23:06 guenther Exp $";
 #endif
 
 #ifdef PROCMAIL
@@ -130,10 +130,7 @@ void auth_copyid(newpass,oldpass)auth_identity*newpass;
   newpass->sock=oldpass->sock;
   if(!(np=(struct passwd*)newpass->pw))
    { np=(struct passwd*)(newpass->pw=malloc(sizeof*np));
-     np->pw_name=np->pw_dir=np->pw_shell=0;
-#ifndef NOpw_passwd
-     np->pw_passwd=0;
-#endif
+     bzero(np,sizeof*np);
    }
   np->pw_uid=(op=oldpass->pw)->pw_uid;np->pw_gid=op->pw_gid;
   np->pw_name=cstr(np->pw_name,op->pw_name);
