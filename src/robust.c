@@ -1,12 +1,12 @@
 /************************************************************************
  *	The fault-tolerant system-interface				*
  *									*
- *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1995, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.22 1994/09/08 16:12:16 berg Exp $";
+ "$Id: robust.c,v 1.23 1995/03/20 15:30:57 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"

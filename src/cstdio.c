@@ -1,12 +1,12 @@
 /************************************************************************
  *	Custom standard-io library					*
  *									*
- *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1995, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.29 1995/03/20 14:51:35 berg Exp $";
+ "$Id: cstdio.c,v 1.30 1995/03/20 15:30:01 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"

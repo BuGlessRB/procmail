@@ -1,12 +1,12 @@
 /************************************************************************
  *	Collection of NFS resistant exclusive creat routines		*
  *									*
- *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1995, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.23 1994/06/28 16:56:05 berg Exp $";
+ "$Id: exopen.c,v 1.24 1995/03/20 15:30:06 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"

@@ -12,14 +12,14 @@
  *									*
  *	Seems to be relatively bug free.				*
  *									*
- *	Copyright (c) 1992-1994, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1992-1995, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.75 1995/03/20 14:52:09 berg Exp $";
+ "$Id: multigram.c,v 1.76 1995/03/20 15:30:41 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1995/03/20 14:52:09 $";
+static /*const*/char rcsdate[]="$Date: 1995/03/20 15:30:41 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"

@@ -1,12 +1,12 @@
 /************************************************************************
  *	A heap sort implementation					*
  *									*
- *	Copyright (c) 1994, S.R. van den Berg, The Netherlands		*
+ *	Copyright (c) 1994-1995, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: hsort.c,v 1.4 1994/06/28 16:56:19 berg Exp $";
+ "$Id: hsort.c,v 1.5 1995/03/20 15:30:19 berg Exp $";
 #endif
 #include "includes.h"
 #include "hsort.h"

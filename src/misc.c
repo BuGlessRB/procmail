@@ -1,12 +1,12 @@
 /************************************************************************
  *	Miscellaneous routines used by procmail				*
  *									*
- *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1995, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.67 1995/03/20 14:52:03 berg Exp $";
+ "$Id: misc.c,v 1.68 1995/03/20 15:30:38 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"

@@ -1,12 +1,12 @@
 /************************************************************************
  *	A file just for lastdirsep()					*
  *									*
- *	Copyright (c) 1994, S.R. van den Berg, The Netherlands		*
+ *	Copyright (c) 1994-1995, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lastdirsep.c,v 1.1 1994/08/18 13:44:55 berg Exp $";
+ "$Id: lastdirsep.c,v 1.2 1995/03/20 15:30:22 berg Exp $";
 #endif
 #include "includes.h"
 #include "lastdirsep.h"

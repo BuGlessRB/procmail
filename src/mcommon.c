@@ -1,12 +1,12 @@
 /************************************************************************
  *	Some common routines to all programs but formail		*
  *									*
- *	Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1993-1995, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mcommon.c,v 1.1 1994/04/05 15:35:01 berg Exp $";
+ "$Id: mcommon.c,v 1.2 1995/03/20 15:30:34 berg Exp $";
 #endif
 #include "includes.h"
 #include "mcommon.h"

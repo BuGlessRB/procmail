@@ -1,7 +1,7 @@
 #! /bin/sh
 :
-# Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.103 1995/03/20 14:51:31 berg Exp $
+# Copyright (c) 1990-1995, S.R. van den Berg, The Netherlands
+#$Id: autoconf,v 1.104 1995/03/20 15:29:55 berg Exp $
 
 # All possible entries in autoconf.h:
 
