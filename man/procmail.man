@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.68 1995/10/30 02:09:14 srb Exp $
+.Id $Id: procmail.man,v 1.69 1996/12/27 02:53:23 srb Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -457,7 +457,7 @@ Procmail's pid and a timestamp.  Generated whenever procmail logs a
 diagnostic and at least a second has elapsed since the last timestamp.
 .TP
 Acquiring kernel-lock
-Procmail now tries to kernel-lock the most recently opened file(descriptor).
+Procmail now tries to kernel-lock the most recently opened file (descriptor).
 .TP
 Assigning "x"
 Environment variable assignment.

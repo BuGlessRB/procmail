@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1992-1996, S.R. van den Berg, The Netherlands
-#$Id: initmake,v 1.66 1996/12/21 03:28:07 srb Exp $
+#$Id: initmake,v 1.67 1996/12/27 02:53:21 srb Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -208,16 +208,24 @@ $cc $CFLAGS1 $CFLAGS _autotst.$O -o _autotst $LDFLAGS1 -lc >_autotst.rrr 2>&1 \
 LDFLAGS="$SEARCHLIBS"
 firstrun=yes
 checkpath=no
+runcombination=no
 
 while $RM _autotst
  $cc $CFLAGS1 $CFLAGS _autotst.$O -o _autotst $LDFLAGS1 $LDFLAGS \
   $LDFLAGSC >_autotst.rrr 2>&1 || firstrun=yes
  test $firstrun = yes -o ! -f _autotst
 do
-  set dummy $LDFLAGS
-  shift
-  echo 2>&1 "	...scanning for $# libraries..."
-  NEWLDFLAGS=""
+  if test $runcombination = yes
+  then
+     LDFLAGS=""
+     read NEWLDFLAGS 0>&9
+     echo 2>&1 " ...trying $NEWLDFLAGS"
+  else
+     set dummy $LDFLAGS
+     shift
+     echo 2>&1 "	...scanning for $# libraries..."
+     NEWLDFLAGS=""
+  fi
   for lib in `echo _dummy_ $LDFLAGS | sed -e s/-l//g`
   do
      if test _dummy_ != $lib
@@ -270,24 +278,67 @@ do
   then
      if test $checkpath = yes
      then
-	echo 2>&1 "Whoeaaa!  There's something fishy going on here."
-	echo 2>&1 "You have a look and see if you detect anything uncanny:"
-	echo 2>&1 "*******************************************************"
-	echo \ $cc $CFLAGS1 $CFLAGS _autotst.$O -o _autotst $LDFLAGS1 $LDFLAGS\
-	 >>_autotst.rrr
-	echo "	$LDFLAGSC" >>_autotst.rrr
-	cat 2>&1 _autotst.rrr
-	echo 2>&1 "*******************************************************"
-	echo 2>&1 \
+	if test $runcombination = yes
+	then
+	   echo 2>&1 "Whoeaaa!	There's something fishy going on here."
+	   echo 2>&1 "You have a look and see if you detect anything uncanny:"
+	   echo 2>&1 "*******************************************************"
+	   echo \ $cc $CFLAGS1 $CFLAGS _autotst.$O -o _autotst $LDFLAGS1\
+	    $LDFLAGS >>_autotst.rrr
+	   echo "	$LDFLAGSC" >>_autotst.rrr
+	   cat 2>&1 _autotst.rrr
+	   echo 2>&1 "*******************************************************"
+	   echo 2>&1 \
        "I suggest you take a look at the definition of LDFLAGS* and SEARCHLIBS"
-	echo 2>&1 "in the Makefile before you try make again."
-	echo 2>&1 \
-	 "Also: write me a mail showing the errorlog you just generated."
-	echo 2>&1 "The errorlog can still be found in src/_autotst.rrr"
-	echo 2>&1 \
-	 "It would be helpful if you could mention what machine and OS"
-	echo 2>&1 "you are trying to compile this on (uname -a).  Thanks."
-	exit 1
+	   echo 2>&1 "in the Makefile before you try make again."
+	   echo 2>&1 \
+	    "Also: write me a mail showing the errorlog you just generated."
+	   echo 2>&1 "The errorlog can still be found in src/_autotst.rrr"
+	   echo 2>&1 \
+	    "It would be helpful if you could mention what machine and OS"
+	   echo 2>&1 "you are trying to compile this on (uname -a).  Thanks."
+	   exit 1
+	fi
+	echo 2>&1 "Inconsistent libraries found, trying to accomodate..."
+	runcombination=yes
+	cat >_autotst <<\HERE
+#!/bin/sh
+
+exec awk '
+ { split($0,lib);
+   nf=0;
+   for(a in lib)
+      nf++;
+   p[0]=nf;
+   while(!p[nf-1])
+    { for(j=i=0;p[i];i++)
+	 while(++j<p[i])
+	    printf(" %s",lib[j]);
+      while(++j<=nf)
+	 printf(" %s",lib[j]);
+      printf("\n");
+      for(k=0;;k++)
+       { if(!p[k])
+	  { p[k]=nf;
+	    break;
+	  }
+	 if(p[k]!=k+1)
+	  { --p[k];
+	    break;
+	  }
+       }
+      while(--k>=0)
+	 p[k]=p[k+1]-1;
+    }
+   exit;
+ }'
+HERE
+	chmod 755 _autotst
+	echo " $LDFLAGS" | ./_autotst >_autotst.lst
+	echo "" >>_autotst.lst
+	exec 8>&0 <_autotst.lst 9>&0 0>&8 8>&-
+	read NEWLDFLAGS 0>&9
+	echo 2>&1 " ...trying $NEWLDFLAGS"
      fi
      checkpath=yes
   else
@@ -297,7 +348,7 @@ do
   firstrun=no
 done
 
-$RM _autotst.$O _autotst.c _autotst
+$RM _autotst.$O _autotst.c _autotst _autotst.rrr _autotst.lst
 cd ..			# returning to the main procmail directory ######
 
 LDFLAGS="$LDFLAGS$LDFLAGSC"

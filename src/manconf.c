@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.56 1996/12/21 03:28:29 srb Exp $*/
+/*$Id: manconf.c,v 1.57 1996/12/27 02:53:25 srb Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -149,7 +149,7 @@ it will generate an additional `@FAKE_FIELD@' line to help distinguish\1\
 fake mails.",""," or ");
   plist("KERNEL_LOCKING",
    "consistently uses the following kernel locking strategies:",krnllocks,"",
-   "\1doesn't use any additional kernel locking strategies","\1and");
+   "doesn't use any additional kernel locking strategies","\1and");
 #ifdef LD_ENV_FIX
   ps("LD_ENV_FIX","\1.PP\1For security reasons, procmail will wipe out all\
  environment variables starting with LD_ upon startup.");

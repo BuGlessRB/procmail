@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.115 1996/12/21 03:28:35 srb Exp $";
+ "$Id: procmail.c,v 1.116 1996/12/27 02:53:26 srb Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -184,11 +184,14 @@ conflopt:  nlog(conflicting),elog("options\n"),elog(pmusage);
       }
 #ifdef LD_ENV_FIX
      ;{ const char**emax=(const char**)environ,**ep;
-	static const char ld_[]="LD_";
+	static const char ld_[]="LD_",rld[]="_RLD",libpath[]="LIBPATH=",
+	 elfld[]="ELF_LD_",aoutld[]="AOUT_LD_";
+#define CHECKLD(str)	(!strncmp(str,*ep,STRLEN(str)))
 	for(ep=emax;*emax;emax++);	  /* find the end of the environment */
-	while(*ep)
-	   if(!strncmp(ld_,*ep++,STRLEN(ld_)))	       /* it starts with LD_ */
-	      *--ep= *--emax,*emax=0;			/* copy from the end */
+	for(;*ep;ep++)
+	   if(CHECKLD(ld_)||CHECKLD(rld)||CHECKLD(libpath)||CHECKLD(elfld)||
+	    CHECKLD(aoutld))	       /* if it starts with LD_ (or similar) */
+	      *ep--= *--emax,*emax=0;			/* copy from the end */
       }
 #endif /* LD_ENV_FIX */
      ;{ const struct passwd*pass,*passinvk;struct passwd spassinvk;int privs;

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.59 1996/12/21 03:28:35 srb Exp $";
+ "$Id: regexp.c,v 1.60 1996/12/27 02:53:27 srb Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -588,21 +588,20 @@ wrapup:
       }
 checkmatch:
      if(eom)
-      { static char match[]=MATCHVAR;char*q;
+      { static const char match[]=MATCHVAR,amatch[]=AMATCHVAR;char*q;
 	if(bom<(char*)text)
 	   bom=(const char*)text;
 	if(eom>--pend)
 	   eom=pend;
-	len=eom-bom;match[STRLEN(match)-1]='\0';
+	len=eom-bom;
 	if(getenv(match)==(const char*)text)	     /* anal retentive match */
 	   tmemmove(q=(char*)text,bom,len),q[len]='\0',bom=q;
 	else
 	 { char*p;
-	   match[STRLEN(match)-1]='=';
 	   if(*bom=='\n')
 	      bom++;				/* strip one leading newline */
-	   primeStdout(match);p=realloc(Stdout,(Stdfilled+=len)+1);
-	   tmemmove(q=p+Stdfilled-(int)len,bom,len);retStdout(p);
+	   primeStdout(amatch);p=realloc(Stdout,(Stdfilled+=len)+1);
+	   tmemmove(q=p+Stdfilled-(int)len,bom,len);retbStdout(p);
 	 }
 	yell("Matched",q);
       }

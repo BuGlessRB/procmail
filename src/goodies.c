@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.44 1996/12/21 03:28:25 srb Exp $";
+ "$Id: goodies.c,v 1.45 1996/12/27 02:53:24 srb Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -397,7 +397,11 @@ void primeStdout(varname)const char*const varname;   /* changes are allowed! */
 void retStdout(newmyenv)char*const newmyenv;	/* see note on primeStdout() */
 { if(newmyenv[Stdfilled-1]=='\n')	       /* strip one trailing newline */
      Stdfilled--;
-  newmyenv[Stdfilled]='\0';*lastenv=(myenv=(struct dynstring*)newmyenv)->ename;
+  retbStdout(newmyenv);
+}
+
+void retbStdout(newmyenv)char*const newmyenv;	/* see note on primeStdout() */
+{ newmyenv[Stdfilled]='\0';*lastenv=(myenv=(struct dynstring*)newmyenv)->ename;
 }
 
 void postStdout P((void))		 /* throw it into the keyword parser */

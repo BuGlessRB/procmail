@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.73 1996/12/21 03:28:29 srb Exp $";
+ "$Id: misc.c,v 1.74 1996/12/27 02:53:25 srb Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -626,7 +626,9 @@ keepgid:			   /* keep the gid from the parent directory */
 	   setgid(sgid);     /* we were started nosgid, but we might need it */
    }
   else				/* panic, mail-spool directory not available */
-     setids(),mkdir(buf,NORMdirperm);	     /* try creating the last member */
+   { int c;				     /* try creating the last member */
+     setids();c=buf[i-1];buf[i-1]='\0';mkdir(buf,NORMdirperm);buf[i-1]=c;
+   }
  /*
   *	  check if the default-mailbox-lockfile is owned by the
   *	  recipient, if not, mark it for further investigation, it

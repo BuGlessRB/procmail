@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.68 1996/12/21 03:28:27 srb Exp $";
+ "$Id: mailfold.c,v 1.69 1996/12/27 02:53:25 srb Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -122,7 +122,7 @@ static int dirfile(chp,linkonly)char*const chp;const int linkonly;
 	 { yell(lkingto,buf);
 	   if(ok)
 	      goto nolnk;
-	   goto ret;
+	   goto didlnk;
 	 }
       }
      unlink(buf2);
@@ -137,6 +137,13 @@ static int dirfile(chp,linkonly)char*const chp;const int linkonly;
    { yell(lkingto,buf);
      if(link(buf2,buf))	   /* hardlink the new file, it's a directory folder */
 nolnk:	nlog("Couldn't make link to"),logqnl(buf);
+     else
+didlnk:
+      { size_t len;char*p;
+	Stdout=buf;primeStdout("");
+	p=realloc(Stdout,(Stdfilled=(len=strlen(Stdout))+1+strlen(buf))+1);
+	p[len]=' ';strcpy(p+len+1,buf);retbStdout(p);Stdout=0;
+      }
      goto ret;
    }
   if(!rename(buf2,buf))		       /* rename it, we need the same i-node */

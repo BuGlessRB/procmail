@@ -339,6 +339,11 @@
 		 try to create an empty system mailbox (bogus BOGUS.* files)
 	       - SysV autoforwarding mailboxes didn't work, regression bug in
 		 v3.10
+	       - Autocreating the last dirmember of the spooldir didn't
+		 (always?) work due to the trailing /
+	       - Kernel lockf() method doesn't change the position of the
+		 filepointer anymore (results in more accurate lockingtests)
+	       - Multiple directory folders are assigned to LASTFOLDER
 	    Changes to formail:
 	       - Slightly extended the number of known header fields
 	       - Eliminated the conflict with the 4.4BSD daemon libidentifier
@@ -379,3 +384,4 @@
 	    The man pages were remade upon every make, fixed
 	    Changed the Mprocmail example, use $g instead of $f
 	    Corrected the last(?) "make -n" glitch
+	    Fixed library detection loop for some Solaris 2.[3-5] setups

@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.72 1996/12/21 03:28:06 srb Exp $*/
+/*$Id: config.h,v 1.73 1996/12/27 02:53:21 srb Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -149,7 +149,8 @@ MMGR)\
 #define DEFtimeout	(DEFlocktimeout-64)	   /* 64 seconds to clean up */
 #define DEFnoresretry	4      /* default nr of retries if no resources left */
 #define nfsTRY		(7+1) /* nr of times+1 to ignore spurious NFS errors */
-#define MATCHVAR	"MATCH="
+#define MATCHVAR	"MATCH"
+#define AMATCHVAR	"MATCH="
 #define DEFlogabstract	-1    /* abstract by default, but don't mail it back */
 #define COMSAThost	"localhost"    /* where the biff/comsat daemon lives */
 #define COMSATservice	"biff"	    /* the service name of the comsat daemon */
