@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.80 1999/02/02 17:00:45 guenther Exp $*/
+/*$Id: config.h,v 1.81 1999/02/24 07:20:09 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -73,7 +73,8 @@
 #define PROCMAILRC	"$HOME/.procmailrc"	/* default rcfile for every
 						   recipient;  if this file
 	is not found, maildelivery will proceed as normal to the default
-	system mailbox. */
+	system mailbox.	 This must be an absolute path or bad things will
+	happen. */
 
 #define ETCRC	"/etc/procmailrc"	/* optional global procmailrc startup
 					   file (will only be read if procmail

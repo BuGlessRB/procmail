@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.133 1999/02/19 07:28:48 guenther Exp $";
+ "$Id: procmail.c,v 1.134 1999/02/24 07:19:47 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -541,6 +541,8 @@ nix_sysmbox:
 	   *	sgid privileges, if yes, drop all privs and set uid to
 	   *	the recipient beforehand
 	   */
+	   if(mailfilter!=2)			      /* if it isn't special */
+	      setids();		      /* transmogrify now to prevent peeking */
 	   goto findrc;
 	   do
 	    { if(suppmunreadable)	  /* should we supress this message? */
@@ -549,24 +551,25 @@ fake_rc:	 readerr(buf);
 	       { skiprc=0;
 		 goto nomore_rc;
 	       }
-	      suppmunreadable=0;
-findrc:	      i=0;		    /* should we keep the current directory? */
-	      if(rcfile==pmrc)		    /* the default .procmailrc file? */
+	      suppmunreadable=0;	      /* keep the current directory, */
+findrc:	      i=0;			      /* default rcfile, or neither? */
+	      if(rcfile==pmrc&&(i=2))	    /* the default .procmailrc file? */
 	       { if(*strcpy((char*)(rcfile=buf2),pmrc2buf())=='\0')
 pm_overflow:	  { strcpy(buf,pmrc);
 		    goto fake_rc;
 		  }
 	       }
-	      else if(mailfilter!=2)   /* if it isn't special or the default */
-		 setids();	      /* transmogrify now to prevent peeking */
-	      if(strchr(dirsep,*rcfile)||		   /* absolute path? */
+	      else if(strchr(dirsep,*rcfile)||		   /* absolute path? */
 		 (mailfilter||*rcfile==chCURDIR&&strchr(dirsep,rcfile[1]))&&
 		 (i=1))				     /* mailfilter or ./ pfx */
-		 *buf='\0';		/* do not put anything in front then */
+		 strcpy(buf,rcfile);	/* do not put anything in front then */
 	      else		     /* prepend default procmailrc directory */
-		 if(*lastdirsep(pmrc2buf())='\0',buf[0]=='\0')
-		    goto pm_overflow;
-	      strcat(buf,rcfile);			/* append the rcfile */
+	       { *(chp=lastdirsep(pmrc2buf()))='\0';
+		 if(buf[0]=='\0')
+		    goto pm_overflow;		  /* overflow in pmrc2buf()? */
+		 else
+		    strcpy(chp,rcfile);			/* append the rcfile */
+	       }
 	    }
 	   while(0>bopen(buf));			   /* try opening the rcfile */
 #ifndef NOfstat
@@ -574,18 +577,15 @@ pm_overflow:	  { strcpy(buf,pmrc);
 #else
 	   if(lstat(buf,&stbuf))			  /* the best we can */
 #endif
-	      goto susp_rc;
-#if !defined(NOfstat) && defined(S_IFLNK)
-	   if(rcstate!=rc_NORMAL&&mailfilter!=2)  /* if we're still root and */
-	    { struct stat stb;				 /* not special then */
-	      if(lstat(buf,&stb)||		 /* check for symlink tricks */
-	       stb.st_dev!=stbuf.st_dev|| stb.st_ino!=stbuf.st_ino)
-		 goto susp_rc;
+	    { static const char susprcf[]="Suspicious rcfile";
+susp_rc:      closerc();nlog(susprcf);logqnl(buf);
+	      syslog(LOG_ALERT,slogstr,susprcf,buf);
+	      goto fake_rc;
 	    }
-#endif
-	   setids();			     /* change now if we haven't yet */
+	   if(mailfilter==2)		     /* change now if we haven't yet */
+	      setids();
 	   restrict=1;			      /* possibly restrict execs now */
-	   if(i)		  /* opened rcfile in the current directory? */
+	   if(i==1)		  /* opened rcfile in the current directory? */
 	    { if(!didchd)
 		 setmaildir(curdir);
 	    }
@@ -593,22 +593,25 @@ pm_overflow:	  { strcpy(buf,pmrc);
 	     /*
 	      * OK, so now we have opened an absolute rcfile, but for security
 	      * reasons we only accept it if it is owned by the recipient or
-	      * root and is not world writable, or the directory it is in is
-	      * not world writable or has the sticky bit set
+	      * root and is not world writable, and the directory it is in is
+	      * not world writable or has the sticky bit set.  If this is the
+	      * default rcfile then we also outlaw group writibility.
 	      */
-	    { i= *(chp=lastdirsep(buf));
-	      if((stbuf.st_uid!=uid&&stbuf.st_uid!=ROOT_uid||
-		  stbuf.st_mode&S_IWOTH)&&
-		  strcmp(devnull,buf)&&	      /* /dev/null is a special case */
-		  (*chp='\0',stat(buf,&stbuf)||
-		   (stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)&&
-		    !(stbuf.st_mode&S_ISVTX))&&(*chp=i,1))
-	       { static const char susprcf[]="Suspicious rcfile";
-susp_rc:	 closerc();nlog(susprcf);logqnl(buf);
-		 syslog(LOG_ALERT,slogstr,susprcf,buf);
-		 goto fake_rc;
+	    { register char c= *(chp=lastdirsep(buf));
+	      i=i==2?S_IWGRP|S_IXGRP:0;
+	      if(((stbuf.st_uid!=uid&&stbuf.st_uid!=ROOT_uid||
+		   stbuf.st_mode&(i&S_IWGRP|S_IWOTH)&&
+		  strcmp(devnull,buf))||      /* /dev/null is a special case */
+		 (*chp='\0',stat(buf,&stbuf))||
+#ifdef CAN_chown
+		 !(stbuf.st_mode&S_ISVTX)&&
+#endif
+		 ((stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)||
+		  i&&(stbuf.st_mode&i)==i)))
+	       { *chp=c;
+		 goto susp_rc;
 	       }
-	      *chp=i;
+	      *chp=c;
 	    }
 	  /*
 	   *	set uid back to recipient in any case, since we might just
