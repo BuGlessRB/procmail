@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.73 1999/02/12 07:12:07 guenther Exp $
+.Id $Id: procmail.man,v 1.74 1999/02/18 17:42:10 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -553,6 +553,9 @@ it to the filter itself, not to any of the filter's children.
 A continued
 .B Content-Length:
 field is not handled correctly.
+.PP
+The embedded newlines in a continued header should be skipped when
+matching instead of being treated as a single space as they are now.
 .SH MISCELLANEOUS
 If there is an existing
 .B Content-Length:
