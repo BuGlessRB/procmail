@@ -31,8 +31,9 @@ Contents:
 		6. Multigram and the thresholds in rc.init/rc.custom
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
+		9. The FAQ
 
-$Id: Manual,v 1.55 1999/03/02 21:41:31 guenther Exp $
+$Id: Manual,v 1.56 1999/11/29 02:35:29 guenther Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -746,3 +747,20 @@ requests to:
 
 		procmail-announce-request@procmail.org
 		SmartList-announce-request@procmail.org
+
+
+9. The FAQ
+   -------
+
+If you have questions not answered by the above you should check the
+FAQ at:
+	http://www.hartzler.net/smartlist/
+
+This FAQ was created and is maintained by various members of the
+SmartList community, most particularly
+
+	jason@mindwell.com
+	Werner Reisberger <werner@pure.ch>
+	Peter Hartzler <ph@eainet.com>
+
+Suggestions for the FAQ should be sent to <sl-faq@hartzler.net>.

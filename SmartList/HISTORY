@@ -268,3 +268,4 @@
 		 a route address
 	    Reject attempts to subscribe someone twice with an X-Command mail
 	    Recognize DSNs and enable some primitive parsing of them
+	    Mention online FAQ in SmartList Manual
