@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.75 1999/02/26 01:00:41 guenther Exp $
+.Id $Id: procmail.man,v 1.76 1999/03/30 18:17:38 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -544,6 +544,14 @@ Beware when using the
 option, if procmail repeatedly is unable to deliver the mail (e.g. due to
 an incorrect rcfile), the system mailqueue could fill up.  This could
 aggravate both the local postmaster and other users.@ETCRC_warn@@ETCRCS_warn@
+.PP
+Procmail is not the proper tool for sharing one mailbox among many
+users, such as when you have one POP account for all mail to your
+domain. It can be done if you manage to configure your MTA to add some
+headers with the envelope recipient data in order to tell Procmail who
+a message is for, but this is usually not the right thing to do.
+Perhaps you want to investigate if your MTA offers `virtual user
+tables', or see e.g. the `multidrop' facility of Fetchmail.
 .SH BUGS
 After removing a lockfile by force, procmail waits $SUSPEND seconds before
 creating a new lockfile so that another process that decides to remove the

@@ -16,12 +16,12 @@
 	and can be obtained via:
 
 	World Wide Web (the nicest format for online reading!):
-http://www.cis.ohio-state.edu/hypertext/faq/usenet/mail/filtering-faq/faq.html
+	http://www.faqs.org/faqs/mail/filtering-faq/
 
 	Anonymous FTP:
 	ftp://rtfm.mit.edu/pub/usenet/news.answers/mail/filtering-faq
 
-	Email:
+	E-mail:
 	Send mail to mail-server@rtfm.mit.edu containing the following:
 	    send usenet/news.answers/mail/filtering-faq
 
@@ -258,7 +258,6 @@ http://www.cis.ohio-state.edu/hypertext/faq/usenet/mail/filtering-faq/faq.html
 	- You can ignore the problem if you know that both your mail reader
 	  and procmail use an overlapping kernel locking method.
 
-
 18. Is procmail Y2K safe/compliant?
 
 	Both procmail and formail are Y2K compliant if your system's
@@ -276,7 +275,17 @@ http://www.cis.ohio-state.edu/hypertext/faq/usenet/mail/filtering-faq/faq.html
 	Individual recipes and rcfiles may need to be checked for
 	unsafe date handling.
 
-19. None of the above topics cover my problem.	Should I panic?
+19. How can I make procmail deliver a message to all local users?  E-mail
+    for several people all come into a single mailbox and I'm trying to
+    split them back up.
+
+	If you are asking this, you are on the wrong track.  Procmail
+	cannot route messages like this correctly without special help
+	from the MTA (sendmail, qmail, etc).  For a more length
+	discussion about the issues, please refer to
+	http://www.iki.fi/era/procmail/mini-faq.html#advanced
+
+20. None of the above topics cover my problem.	Should I panic?
 
 	Let me ask you a question :-), have you examined the CAVEATS, WARNINGS,
 	BUGS and NOTES sections of the manual pages *closely* ?

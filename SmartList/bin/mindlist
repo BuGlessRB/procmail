@@ -7,7 +7,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by Alan K. Stebbens <aks@hub.ucsb.edu>			#
 #########################################################################
-# $Id: mindlist,v 1.1 1995/10/30 02:58:34 srb Exp $
+# $Id: mindlist,v 1.2 1999/03/30 18:17:37 guenther Exp $
 
 echo mindlist: Customise first
 exit 64
@@ -104,7 +104,7 @@ a fairly simple process given that it is being managed by SmartList.
 
 The procedure for remote list management is:
 
-a. send an email to the address: $list-request@$domain
+a. send an e-mail to the address: $list-request@$domain
 b. place administrative commands on the header: "X-Command:",
    using the syntax:
 
@@ -192,7 +192,7 @@ You need do nothing to remain subscribed -- just the process of
 successfully sending this mail to you automatically verifies your
 subscription.
 
-If you wish to be removed from this list, please send an email with the
+If you wish to be removed from this list, please send an e-mail with the
 subject of "unsubscribe" to "$listreq".
 
 If you have any difficulties with this list, please contact the list owner
@@ -223,7 +223,7 @@ and a verification of your address.  You need do nothing to remain
 subscribed -- just the process of successfully sending this mail
 to you automatically renews your membership.
 
-If you wish to be removed from this list, please send an email with the
+If you wish to be removed from this list, please send an e-mail with the
 subject of "unsubscribe" to "$listreq".
 
 If you have any difficulties with this list, please contact the list owner

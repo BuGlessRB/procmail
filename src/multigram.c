@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.89 1999/02/16 21:13:44 guenther Exp $";
+ "$Id: multigram.c,v 1.90 1999/03/30 18:17:40 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/02/16 21:13:44 $";
+static /*const*/char rcsdate[]="$Date: 1999/03/30 18:17:40 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -811,7 +811,7 @@ usg:
 	      !(incomplete&&strchr(chp,'.')))		      /* domain name */
 	    { if(lastfrom<0)
 		 lastfrom=!strcmp(SHFROM,chp);
-	      continue;			  /* apparently not an email address */
+	      continue;			 /* apparently not an e-mail address */
 	    }
 	   lastfrom=0;tmemmove(fuzzstr.text,chp,echp-chp+2);
 	   checkparens('(',')',fuzzstr.text,echp);
