@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.16 1993/07/16 14:52:36 berg Exp $";
+ "$Id: goodies.c,v 1.17 1993/08/11 14:25:52 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -236,9 +236,9 @@ void sputenv(a)const char*const a;
   yell("Assigning",a);remove=0;
   if(!(split=strchr(a,'=')))			   /* assignment or removal? */
      remove=1,split=strchr(a,'\0');
-  i=split-a;
-  for(curr= *(last= &myenv);curr;curr= *(last= &curr->enext))	/* is it one */
-     if(!strncmp(a,curr->ename,i)&&curr->ename[i]=='=')	  /* I made earlier? */
+  i=split-a;							    /* is it */
+  for(curr= *(last= &myenv);curr;curr= *(last= &curr->enext))  /* one I made */
+     if(!strncmp(a,curr->ename,i)&&((char*)curr->ename)[i]=='=') /* earlier? */
       { split=curr->ename;*last=curr->enext;free(curr);
 	for(preenv=environ;*preenv!=split;preenv++);
 	goto wipenv;

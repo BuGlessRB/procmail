@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.44 1993/08/09 14:11:05 berg Exp $";
+ "$Id: procmail.c,v 1.45 1993/08/11 14:25:55 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -136,7 +136,11 @@ conflopt:  nlog("Conflicting options\n"),elog(pmusage);
      ;{ struct passwd*pass,*passinvk,spassinvk;int privs;
 	uid_t euid=geteuid();
 	if(passinvk=getpwuid(uid=getuid()))	    /* save it by copying it */
-	   tmemmove(&spassinvk,passinvk,sizeof spassinvk),passinvk= &spassinvk;
+	 { spassinvk.pw_uid=passinvk->pw_uid;spassinvk.pw_gid=passinvk->pw_gid;
+	   spassinvk.pw_name=tstrdup(passinvk->pw_name);
+	   spassinvk.pw_dir=tstrdup(passinvk->pw_dir);
+	   spassinvk.pw_shell=tstrdup(passinvk->pw_shell);passinvk= &spassinvk;
+	 }
 	privs=1;gid=getgid();
 	;{ static const char*const trusted_ids[]=TRUSTED_IDS;
 	   if(*trusted_ids&&uid!=euid)
@@ -260,6 +264,10 @@ Setuser: { gid=pass->pw_gid;uid=pass->pw_uid;
 	   */
 	 { setdef(lgname,buf);setdef(home,RootDir);setdef(shell,binsh);
 	   setids(uid,gid);
+	 }
+	if(passinvk)
+	 { free(spassinvk.pw_name);free(spassinvk.pw_dir);
+	   free(spassinvk.pw_shell);
 	 }
 	endpwent();
       }

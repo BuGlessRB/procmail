@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.27 1993/07/23 08:56:06 berg Exp $";
+ "$Id: formail.c,v 1.28 1993/08/11 14:25:49 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/07/23 08:56:06 $";
+static /*const*/char rcsdate[]="$Date: 1993/08/11 14:25:49 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -183,7 +183,7 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		       break;
 		     }				   /* second field attached? */
 		    if(i=breakfield(chp,(size_t)(namep-chp)))  /* squeeze on */
-		       tmemmove(fldp->fld_text+lnl,chp,i),copied=1;
+		       tmemmove((char*)fldp->fld_text+lnl,chp,i),copied=1;
 		    else if(!(chp=(char*)*++argv)||	 /* look at next arg */
 		     !(i=breakfield(chp,strlen(chp))))		/* no field? */
 invfield:	     { nlog("Invalid field-name:");logqnl(chp?chp:"");
@@ -192,7 +192,7 @@ invfield:	     { nlog("Invalid field-name:");logqnl(chp?chp:"");
 		    *afldp=fldp=
 		     realloc(fldp,FLD_HEADSIZ+(fldp->tot_len=lnl+i));
 		    if(!copied)			   /* if not squeezed on yet */
-		       tmemmove(fldp->fld_text+lnl,chp,i);    /* squeeze now */
+		       tmemmove((char*)fldp->fld_text+lnl,chp,i);  /* do now */
 		  }
 	      case '\0':;
 	    }
@@ -234,8 +234,8 @@ startover:
      while(readhead());				 /* read in the whole header */
   ;{ size_t lenparkedbuf;void*parkedbuf;
      if(rdheader&&!strncmp(rdheader->fld_text,Article_,STRLEN(Article_)))
-	rdheader->fld_text[STRLEN(Article_)-1]=HEAD_DELIMITER;	   /* proper */
-     namep=0;totallen=0;i=maxindex(rex);			    /* field */
+	((char*)rdheader->fld_text)[STRLEN(Article_)-1]=HEAD_DELIMITER;
+     namep=0;totallen=0;i=maxindex(rex);		     /* proper field */
      do rex[i].rexl=0;
      while(i--);				 /* all state has been reset */
      for(fldp=rdheader;fldp;fldp=fldp->fld_next)    /* go through the linked */
@@ -355,7 +355,7 @@ newnamep:	 if(namep)
 	 { *afldp=fldp->fld_next,free(fldp);fldp= *afldp;continue;
 	 }
 	else if(fp2=findf(fldp,Rheader))	  /* explicitly rename field */
-	   renfield(afldp,lnl,fp2->fld_text+lnl,fp2->tot_len-lnl);
+	   renfield(afldp,lnl,(char*)fp2->fld_text+lnl,fp2->tot_len-lnl);
 	else if((fp2=findf(fldp,iheader))&&!(areply&&lnl==fp2->tot_len-1))
 	   renfield(afldp,(size_t)0,old_,STRLEN(old_)); /* implicitly rename */
 	fldp= *(afldp= &(*afldp)->fld_next);
@@ -438,7 +438,7 @@ putsp:	lputcs(' ');
 	       { lputssn(escap,escaplen);
 		 lputssn(chp,(p=strchr(chp,'\n')+1)-chp);
 	       }
-	      while((chp=p)<fldp->fld_text+fldp->tot_len);
+	      while((chp=p)<(char*)fldp->fld_text+fldp->tot_len);
 	      free(fldp);					/* delete it */
 	    }
 	   while(fldp=fp2);		       /* escape all fields we found */
