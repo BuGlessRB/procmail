@@ -468,7 +468,6 @@
 	       - Warn about using 'c' flag with 'f' flag
 	       - Test for allowing rcfiles in sticky directories iff chown
 		 is restricted was reversed
-	       - Added Delivered-To: to the ^TO and ^TO_ expansions
 	       - LASTFOLDER wasn't correctly set when delivering to multiple
 		 folders
 	    Changes to formail:
