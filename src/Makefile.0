@@ -1,4 +1,4 @@
-#$Id: Makefile.0,v 1.46 1997/04/02 03:15:36 srb Exp $
+#$Id: Makefile.0,v 1.47 1997/04/02 03:31:57 srb Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O) \
@@ -121,7 +121,6 @@ robust.$(O): misc.h pipes.h common.h mailfold.h shell.h
 sublib.$(O): ../autoconf.h ../config.h includes.h sublib.h shell.h
 
 gethome.$(O) setid.$(O) recommend.$(O): ../autoconf.h ../config.h includes.h
-recommend.$(O): lastdirsep.h
 
 gethome.$(O): gethome.c
 	@$(CC) -c $(CFLAGS) $*.c
@@ -144,8 +143,8 @@ getparams:
 setid: setid.$(O)
 	@$(CC) $(CFLAGS) $@.$(O) -o $@ $(LDFLAGS)
 
-recommend: recommend.$(O) sublib.$(O) lastdirsep.$(O)
-	@$(CC) $(CFLAGS) $@.$(O) sublib.$(O) lastdirsep.$(O) -o $@ $(LDFLAGS)
+recommend: recommend.$(O) sublib.$(O)
+	@$(CC) $(CFLAGS) $@.$(O) sublib.$(O) -o $@ $(LDFLAGS)
 
 ../man/man.sed: manconf.c ../autoconf.h ../config.h includes.h procmail.h
 ../man/man.sed: ../patchlevel.h lastdirsep.h lastdirsep.$(O)

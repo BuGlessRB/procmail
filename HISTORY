@@ -364,7 +364,7 @@
 	       - Return failure if the autoreply could not find a proper
 		 return address
 	       - Multiple -U options sometimes had unfortunate side effects
-	       - When splitting and a maximum number of message was being
+	       - When splitting and a maximum number of messages was being
 		 specified, formail erroneously returned EX_IOERR
 	       - Avoid splitting empty messages
 	       - Skip leading spaces when checking for duplicates (will break
@@ -391,3 +391,6 @@
 	    Changed the Mprocmail example, use $g instead of $f
 	    Corrected the last(?) "make -n" glitch
 	    Fixed library detection loop for some Solaris 2.[3-5] setups
+	    Changes to procmail and lockfile: use the authenticate library
+	       for easier integration custom authentication and mailbox
+	       locations

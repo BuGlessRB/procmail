@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.58 1997/01/01 14:52:52 srb Exp $*/
+/*$Id: manconf.c,v 1.59 1997/04/02 03:31:57 srb Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -62,7 +62,7 @@ static void putsesc(a)const char*a;
       { case '|':case ':':
 	   if(c!=' ')	 /* only insert these if there wasn't a space before */
 	      printf("\\\\h'-\\\\w' 'u' ");		 /* breaking nospace */
-	case '\0:
+	case '\0':
 	   return;
       }
 }
@@ -169,7 +169,7 @@ is case sensitive, and some users have login names with uppercase letters in\
 #else
   ps("UPPERCASE_USERNAMES","");
 #endif
-  ps("SYSTEM_MBOX",SYSTEM_MBOX);
+  ps("MAILSPOOLDIR",MAILSPOOLDIR);
   ps("ETCRC_desc",etcrc?"\1.PP\1If no rcfiles and no\1.B \2-@PRESERVOPT@\1have\
  been specified on the command line, procmail will, prior to reading\
  @PROCMAILRC@, interpret commands from\1.B @ETCRC@\1(if present).\1\

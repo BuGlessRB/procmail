@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.61 1997/04/02 03:15:34 srb Exp $
+.Id $Id: procmailrc.man,v 1.62 1997/04/02 03:31:56 srb Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -273,7 +273,7 @@ Your (the recipient's) defaults
 \&@DEFshellflags@
 .TP
 .BR ORGMAIL
-\&@SYSTEM_MBOX@
+\&@SYSTEM_MBOX@$LOGNAME
 .br
 (Unless
 .B \-@MAILFILTOPT@
