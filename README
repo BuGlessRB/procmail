@@ -2,7 +2,7 @@ For installation instructions see the INSTALL file.
 ----------------------
 Procmail & formail mail processing package.
 Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands.
-Copyright (c) 1997-2000, Philip Guenther, The United States of America
+Copyright (c) 1997-2001, Philip Guenther, The United States of America
 
 Some legal stuff:
 
@@ -36,7 +36,7 @@ see "src/includes.h".
 
 ------------------------------ DESCRIPTION -----------------------------------
 
-The procmail mail processing program. (v3.20pre 2000/09/23)
+The procmail mail processing program. (v3.20pre 2001/06/07)
 
 Can be used to create mail-servers, mailing lists, sort your incoming mail
 into separate folders/files (real convenient when subscribing to one or more

@@ -545,7 +545,7 @@
 	       tempfile names
 	    Called nice() when shouldn't have
 	    Workaround SunOS 4.x compiler again
-2001/01/27: v3.20pre
+2001/06/07: v3.20pre
 	    Changes to procmail:
 	       - Support LMTP for delivery mode
 	       - Use mmap() for `large' messages
