@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.3 1992/10/02 14:38:35 berg Exp $
+#$Id: Makefile,v 1.4 1992/10/16 15:49:08 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -77,6 +77,6 @@ init:
 
 makefiles makefile Makefiles Makefile: init
 
-bins mans install.bin install.man recommend suid clean realclean \
+bins mans install.bin install.man install recommend suid clean realclean \
 deinstall autoconf.h procmail formail lockfile: init
 	$(HIDEMAKE) make $@
