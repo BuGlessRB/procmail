@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.166 2000/11/22 01:30:04 guenther Exp $";
+ "$Id: procmail.c,v 1.167 2000/11/27 07:09:25 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -448,10 +448,9 @@ nix_sysmbox:
 	      break;				     /* normal end of rcfile */
 	 }
 	else				      /* not available? try the next */
-	 { dowarning=0;				/* suppress further messages */
-	   if(!nextrcfile())				       /* none left? */
-	      break;						 /* then out */
-	 }
+	   dowarning=0;				/* suppress further messages */
+	if(!nextrcfile())				       /* none left? */
+	   break;						 /* then out */
       }
    }
   else

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.7 2000/11/22 01:30:06 guenther Exp $";
+ "$Id: variables.c,v 1.8 2000/11/27 07:09:27 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -133,31 +133,40 @@ void cleanupenv(preserve)int preserve;
 { static const char*const keepenv[]=KEEPENV,*const ld_[]=LDENV;
   const char**emax=(const char**)environ,**ep,*const*pp;
   register const char*p;
-  size_t i;
+  size_t len;
   if(!preserve)					     /* drop the environment */
    { for(pp=keepenv;*pp;pp++)			     /* preserve a happy few */
-      { i=strlen(*pp);
+      { len=strlen(*pp);
 	for(ep=emax;p= *ep;ep++)		     /* scan for this keeper */
-	   if(!strncmp(*pp,p,i)&&(p[i]=='='||p[i-1]=='_'))
-	    { *ep= *emax;					 /* swap 'em */
+	   if(!strncmp(*pp,p,len)&&(p[len]=='='||p[len-1]=='_'))
+	    { *ep= *emax;			      /* it's fine, swap 'em */
 	      *emax++=p;
-	    }					   /* keep scanning for dups */
+	      if(p[len]=='=')		  /* if this wasn't a wildcard match */
+		break;			 /* then go on to next keepenv entry */
+	    }
       }
      *emax=0;						    /* drop the rest */
    }
-  else				/* keep the environment, but still drop LD_* */
-   { ep=emax;
-     while(*emax)			  /* find the end of the environment */
+  else
+   { while(*emax)			  /* find the end of the environment */
 	emax++;
-     while(*ep)
-      { for(pp=ld_;p= *pp;pp++)
-	   if(!strncmp(*ep,p,strlen(p))) /* if it starts with LD_ or similar */
-	    { *ep= *--emax;*emax=0;			/* copy from the end */
-	      goto recheck;			  /* check the swapped entry */
-	    }
-	ep++;
+   }
+  ep=(const char**)environ;
+  while(*ep)
+   { p=strchr(*ep,'=');				      /* check for malformed */
+     if(!p)				    /* (no = ) and duplicate entries */
+	goto drop;
+     len=p-*ep+1;			 /* mark how long the actual name is */
+     for(pp=(const char*const*)environ;pp!=ep;pp++)
+	if(!strncmp(*ep,*pp,len))
+	   goto drop;
+     for(pp=ld_;p= *pp;pp++)
+	if(!strncmp(*ep,p,strlen(p)))	 /* if it starts with LD_ or similar */
+drop:	 { *ep= *--emax;*emax=0;			/* copy from the end */
+	   goto recheck;			  /* check the swapped entry */
+	 }
+     ep++;
 recheck:;
-      }
    }
 }
 
@@ -349,14 +358,18 @@ void asenv(chp)const char*const chp;
   else if(!strcmp(buf,eumask))
      doumask((mode_t)strtol(chp,(char**)0,8));
   else if(!strcmp(buf,includerc))
-     pushrc(chp);
+   { if(rc>=0)				 /* INCLUDERC and SWITCHRC only work */
+	pushrc(chp);					   /* inside rcfiles */
+   }					      /* and not on the command line */
   else if(!strcmp(buf,switchrc))
-     changerc(chp);
+   { if(rc>=0)
+	changerc(chp);
+   }
   else if(!strcmp(buf,host))
    { const char*name;
      if(strcmp(chp,name=hostname()))
       { yell("HOST mismatched",name);
-	if(rc<0||!nextrcfile())			  /* if no rcfile opened yet */
+	if(rc<0)				  /* if no rcfile opened yet */
 	   retval=EXIT_SUCCESS,Terminate();	  /* exit gracefully as well */
 	closerc();
       }

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.77 2000/09/28 01:23:09 guenther Exp $
+.Id $Id: procmailrc.man,v 1.78 2000/11/27 07:09:20 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -538,7 +538,9 @@ descriptors).  As no checking is done on the permissions or ownership
 of the rcfile, users of
 .B INCLUDERC
 should make sure that only trusted users have write access to the included
-rcfile or the directory it is in.
+rcfile or the directory it is in.  Command line assignments to
+.B INCLUDERC
+have no effect.
 .TP
 .B SWITCHRC
 Names an rcfile (relative to the current directory) to which processing
@@ -550,7 +552,8 @@ rcfile will be aborted and the named rcfile started.  Unsetting
 aborts processing of the current rcfile as if it had ended at the
 assignment.  As with
 .BR INCLUDERC ,
-no checking is done on the permissions or ownership of the rcfile.
+no checking is done on the permissions or ownership of the rcfile
+and command line assignments have no effect.
 .TP
 .B PROCMAIL_VERSION
 The version number of the running procmail binary.
@@ -825,7 +828,8 @@ The current behavior of assignments on the command line to
 .B INCLUDERC
 and
 .B SWITCHRC
-is not guaranteed and may be changed or removed in future releases.
+is not guaranteed, has been changed once already, and may be changed
+again or removed in future releases.
 .PP
 For
 .I really

@@ -1,7 +1,7 @@
-/*$Id: robust.h,v 1.11 2000/09/28 01:23:38 guenther Exp $*/
+/*$Id: robust.h,v 1.12 2000/11/27 07:09:26 guenther Exp $*/
 
 void
- nomemerr Q((const size_t len)),
+ nomemerr Q((const size_t len))	 __attribute__((noreturn)),
  *tmalloc Q((const size_t len)),
  *trealloc Q((void*const old,const size_t len)),
  *frealloc Q((void*const old,const size_t len)),

@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.69 2000/11/18 07:10:01 guenther Exp $*/
+/*$Id: manconf.c,v 1.70 2000/11/27 07:09:23 guenther Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -169,12 +169,9 @@ An attempt to execute a program from within the rcfile was blocked.");
   ps("RESTRICT_EXEC","");
   ps("WARN_RESTRICT_EXEC","");
 #endif
-#ifdef LD_ENV_FIX
-  ps("LD_ENV_FIX","\1.PP\1For security reasons, procmail will wipe out all\
- environment variables starting with LD_ upon startup.");
-#else
-  ps("LD_ENV_FIX","");
-#endif
+  ps("LD_ENV_FIX","\1.PP\1For security reasons, upon startup procmail will\
+ wipe out all environment variables that are suspected of modifying the\
+ behavior of the runtime linker.");
   ps("MAILSPOOLDIR",MAILSPOOLDIR);
   ps("ETCRC_desc",etcrc?"\1.PP\1If no rcfiles and no\1.B \2-@PRESERVOPT@\1have\
  been specified on the command line, procmail will, prior to reading\
