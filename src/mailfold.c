@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.16 1993/01/19 11:55:14 berg Exp $";
+ "$Id: mailfold.c,v 1.17 1993/01/27 12:53:20 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -129,11 +129,11 @@ void logabstract P((void))
      else
 #endif /* IP_localhost */
       { const struct hostent*host;	      /* what host?  paranoid checks */
-	if(!(host=gethostbyname(chad))||!host->h_addr_list[0])
+	if(!(host=gethostbyname(chad))||!host->h_0addr_list)
 	 { endhostent();return;		     /* host can't be found, too bad */
 	 }
 	addr.sin_family=host->h_addrtype;	     /* address number found */
-	tmemmove(&addr.sin_addr,host->h_addr_list[0],host->h_length);
+	tmemmove(&addr.sin_addr,host->h_0addr_list,host->h_length);
 	endhostent();
       }
      if(!*chp)						       /* no service */

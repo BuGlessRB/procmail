@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.29 1993/01/26 14:49:49 berg Exp $
+#$Id: autoconf,v 1.30 1993/01/27 12:53:15 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -43,7 +43,7 @@
 #Ok	#define endhostent()
 #Ok	#define endservent()
 #Ok	#define endprotoent()
-#	#define h_addr_list h_addr
+#	#define h_0addr_list h_addr
 #Ok	#define NO_COMSAT
 #	#define _GUID_T
 #Ok	#define UDP_protocolno 17
@@ -191,9 +191,9 @@ then
 else
   echo 2>&1 "Whoeaaa!  There's something fishy going on here."
   echo 2>&1 "You have a look and see if you detect anything uncanny:"
-  echo 2>&1 "-------------------------------------------------------"
+  echo 2>&1 "*******************************************************"
   cat 2>&1 _autotst.rrr
-  echo 2>&1 "-------------------------------------------------------"
+  echo 2>&1 "*******************************************************"
   echo 2>&1 "I suggest you take a look at the definition of CFLAGS* and CC"
   echo 2>&1 "in the Makefile before you try make again."
   kill -15 $$
@@ -453,9 +453,9 @@ then
 else
   echo 2>&1 "Whoeaaa!  There's something fishy going on here."
   echo 2>&1 "You have a look and see if you detect anything uncanny:"
-  echo 2>&1 "-------------------------------------------------------"
+  echo 2>&1 "*******************************************************"
   cat 2>&1 _autotst.rrr
-  echo 2>&1 "-------------------------------------------------------"
+  echo 2>&1 "*******************************************************"
   echo 2>&1 "I suggest you take a look at the definition of LDFLAGS*"
   echo 2>&1 "in the Makefile before you try make again."
   kill -15 $$
@@ -559,8 +559,8 @@ grepfor time_t 'typedef long time_t;'
 grepfor mode_t 'typedef int mode_t;'
 grepfor uid_t 'typedef int uid_t;'
 grepfor gid_t 'typedef int gid_t;'
-grepfor h_addr_list '#define h_addr_list h_addr' ||
- grepfor struct '#define h_addr_list h_addr'
+grepfor h_addr_list '#define h_0addr_list h_addr' ||
+ grepfor struct '#define h_0addr_list h_addr'
 
 cat >_autotst.c <<HERE
 #include "includes.h"
@@ -594,7 +594,8 @@ main(){char a[2];
  {struct utsname b;uname(&b);}
 #endif
 #ifndef NO_COMSAT
- gethostbyname("0");endhostent();endservent();endprotoent();
+ gethostbyname("0");getprotobyname(COMSATprotocol);endhostent();endservent();
+ endprotoent();
 #endif
  return 0;}
 HERE
@@ -623,6 +624,7 @@ if grepfor gethostbyname '#define NO_COMSAT'
 then
 :
 else
+  grepfor getprotobyname '#define UDP_protocolno 17'
   grepfor endhostent '#define endhostent()'
   grepfor endservent '#define endservent()'
   grepfor endprotoent '#define endprotoent()'
@@ -688,20 +690,27 @@ main(argc)
   if(argc==1)
    {
 #ifndef NO_COMSAT
+#ifndef UDP_protocolno
      ;{ const struct protoent*p;
 	if(p=getprotobyname(COMSATprotocol))
-	 { const struct servent*serv;
-	   printf("#define UDP_protocolno %d\n",p->p_proto);
-	   if(serv=getservbyname(COMSATservice,COMSATprotocol))
-	      printf("#define BIFF_serviceport \"%d\"\n",ntohs(serv->s_port));
+	 { printf("#define UDP_protocolno %d\n",p->p_proto);
+#else
+     ;{ if(1)
+	 {
+#endif
+	   ;{ const struct servent*serv;
+	      if(serv=getservbyname(COMSATservice,COMSATprotocol))
+		 printf("#define BIFF_serviceport \"%d\"\n",
+		  ntohs(serv->s_port));
+	    }
 #ifdef AF_INET
 	   ;{ const struct hostent*host;
 	      if(!strcmp("localhost",COMSAThost)&&
 	       (host=gethostbyname(COMSAThost))&&
-	       host->h_addr_list[0]&&host->h_addrtype==AF_INET&&
+	       host->h_0addr_list&&host->h_addrtype==AF_INET&&
 	       host->h_length)
 	       { int j=host->h_length;
-		 const unsigned char*ad=(void*)host->h_addr_list[0];
+		 const unsigned char*ad=(void*)host->h_0addr_list;
 		 printf("#define IP_localhost {");
 		 do printf("%d,",*ad++);
 		 while(--j);
@@ -747,9 +756,9 @@ then
 else
   echo 2>&1 "Whoeaaa!  There's something fishy going on here."
   echo 2>&1 "You have a look and see if you detect anything uncanny:"
-  echo 2>&1 "-------------------------------------------------------"
+  echo 2>&1 "*******************************************************"
   cat 2>&1 _autotst.rrr
-  echo 2>&1 "-------------------------------------------------------"
+  echo 2>&1 "*******************************************************"
   echo 2>&1 "It seems that your network-support include files"
   echo 2>&1 "are messed up (see procmail/src/network.h)."
   kill -15 $$

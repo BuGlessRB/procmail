@@ -1,5 +1,5 @@
 Feature summary for procmail:
-	+ It's small
+	+ It's less filling (i.e. small)
 	+ Very easy to install (rated PG6 :-)
 	+ Simple to maintain and configure because
 	  all you need is actually only ONE executable (procmail)
@@ -40,11 +40,13 @@ Feature summary for procmail:
 	  support (*fully* downwards compatible with /bin/mail); in which case
 	  it can heal your system mailbox, if something messes up the
 	  permissions
+	+ Allows you to painlessly shift the system mailboxes into the
+	  user's home directories
 	+ It runs on virtually all (old and future) operating systems which
 	  names start with a 'U' or end in an 'X' :-) (i.e. extremely portable
 	  code; POSIX, ANSI C and K&R conforming)
 	+ Is clock skew immune (e.g. in the case of NFS mounted mailboxes)
-	+ Works with (among others?) sendmail, smail and MMDF
+	+ Works with (among others?) sendmail, smail, MMDF and mailsurr
 
 Feature summary for formail:
 	+ Can generate auto-reply headers
@@ -58,4 +60,4 @@ Feature summary for formail:
 Feature summary for lockfile:
 	+ Provides NFS-secure lockfiles to shell script programmers
 	+ Gives normal users the ability to lock their system mailbox,
-	  regardless of permissions on the mail-spool directory
+	  regardless of the permissions on the mail-spool directory
