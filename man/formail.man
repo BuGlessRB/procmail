@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.38 1999/01/20 17:58:16 guenther Exp $
+.Id $Id: formail.man,v 1.39 1999/10/24 06:30:36 guenther Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -111,35 +111,39 @@ the body as well.
 .TP
 .B \-@FM_TRUST@
 Trust the sender to have used a valid return address in his header.  This
-option will be most useful when generating auto-reply headers from news
-articles.  If this option is not turned on, formail tends to favour
-machine-generated addresses in the header.
+causes formail to select the
+.I header sender
+instead of the
+.I envelope sender
+for the reply.  This option should be used when generating auto-reply
+headers from news articles or when the sender of the message is
+expecting a reply.
 .TP
 .B \-@FM_SPLIT@
 The input will be split up into separate mail messages, and piped into
 a program one by one (a new program is started for every part).
 .B \-@FM_SPLIT@
-has to be the last option specified, the first argument following it
-is expected to be the name of a program, any other arguments will be passed
-along to it.  If you omit the program, then formail will simply concatenate the
-splitted mails on stdout again.  See
+has to be the last option specified, the first argument following it is
+expected to be the name of a program, any other arguments will be
+passed along to it.  If you omit the program, then formail will simply
+concatenate the splitted mails on stdout again.  See
 .BR @FILENO@ .
 .TP
 .I "\fB\-@FM_NOWAIT@\fP [maxprocs]"
-Tell formail not to wait for every program to finish before starting the next
-(causes splits to be processed in parallel).
+Tell formail not to wait for every program to finish before starting
+the next (causes splits to be processed in parallel).
 .I Maxprocs
 optionally specifies an upper limit on the number of concurrently
 running processes.
 .TP
 .B \-@FM_EVERY@
-Do not require empty lines to be preceding the header of a new message (i.e.
-the messages could start on every line).
+Do not require empty lines to be preceding the header of a new message
+(i.e.  the messages could start on every line).
 .TP
 .B \-@FM_DIGEST@
-Tell formail that the messages it is supposed to split need not be in strict
-mailbox format (i.e. allows you to split digests/articles or non-standard
-mailbox formats).  This disables recognition of the
+Tell formail that the messages it is supposed to split need not be in
+strict mailbox format (i.e. allows you to split digests/articles or
+non-standard mailbox formats).  This disables recognition of the
 .B Content-Length:
 field.
 .TP
@@ -147,30 +151,31 @@ field.
 Makes formail assume that it is splitting up a BABYL rmail file.
 .TP
 .I "\fB\-@FM_MINFIELDS@\fP minfields"
-Allows you to specify the number of consecutive headerfields formail needs to
-find before it decides it found the start of a new message, it defaults to
-@DEFminfields@.
+Allows you to specify the number of consecutive headerfields formail
+needs to find before it decides it found the start of a new message, it
+defaults to @DEFminfields@.
 .TP
 .B \-@FM_QUIET@
-Tells formail to (still detect but) be quiet about write errors, duplicate
-messages and mismatched
+Tells formail to (still detect but) be quiet about write errors,
+duplicate messages and mismatched
 .B Content-Length:
-fields.  This option is on by default, to make it display the messages use
+fields.  This option is on by default, to make it display the messages
+use
 .BR \-@FM_QUIET@\- .
 .TP
 .I "\fB\-@FM_DUPLICATE@\fP maxlen idcache"
-Formail will detect if the Message-ID of the current message has already
-been seen using an
+Formail will detect if the Message-ID of the current message has
+already been seen using an
 .I idcache
 file of approximately
 .I maxlen
 size.  If not splitting, it will return success if a duplicate has been
-found.  If splitting, it will not output duplicate messages.
-If used in conjunction with
+found.  If splitting, it will not output duplicate messages.  If used
+in conjunction with
 .BR \-@FM_REPLY@ ,
 formail will look at the
 .I mail address
-of the sender
+of the envelope sender
 .I instead
 at the Message-ID.
 .TP
@@ -187,12 +192,13 @@ but also preserves the field name.
 .I "\fB\-@FM_ADD_IFNOT@\fP headerfield"
 Append a custom
 .I headerfield
-onto the header; but only if a similar field does not exist yet.
-If you specify either one of the field names
+onto the header; but only if a similar field does not exist yet.  If
+you specify either one of the field names
 .B Message-ID:
 or
 .B Resent-Message-ID:
-with no field contents, then formail will generate a unique message-ID for you.
+with no field contents, then formail will generate a unique message-ID
+for you.
 .TP
 .I "\fB\-@FM_ADD_ALWAYS@\fP headerfield"
 Append a custom
@@ -202,8 +208,8 @@ onto the header in any case.
 .I "\fB\-@FM_REN_INSERT@\fP headerfield"
 Same as
 .BR \-@FM_ADD_ALWAYS@ ,
-except that any existing similar fields are renamed by prepending
-an ``@OLD_PREFIX@'' prefix.  If
+except that any existing similar fields are renamed by prepending an
+``@OLD_PREFIX@'' prefix.  If
 .I headerfield
 consists only of a field-name, it will not be appended.
 .TP
@@ -237,6 +243,29 @@ messages while splitting.
 Output at most
 .I total
 messages while splitting.
+.SH NOTES
+When renaming, removing, or extracting fields, partial fieldnames may
+be used to specify all fields that start with the specified value.
+.PP
+By default, when generating an auto-reply header procmail selects the
+envelope sender from the input message.  This is correct for vacation
+messages and other automatic replies regarding the routing or delivery
+of the original message.  If the sender is expecting a reply or the
+reply is being generated in response to the contents of the original
+message then the \-@FM_TRUST@ option should be used.
+.PP
+RFC822, the original standard governing the format of Internet mail
+messages, did not specify whether Resent header fields (those that
+begin with `Resent\-', such as `Resent\-From:') should be considered
+when generating a reply.  Since then, the recommended usage of the
+Resent headers has changed to consider them as purely informational and
+not for use when normally generating a reply.  While formail now
+ignores Resent headers when generating header replies, versions of
+formail prior to 3.14 gave such headers a high precedence.  If the old
+behavior is needed for established applications it can be specified by
+calling formail with the option `-@FM_ADD_IFNOT@ Resent-' in addition
+to the \-@FM_REPLY@ and \-@FM_TRUST@ options.  This usage is deprecated
+and should not be used in new applications.
 .SH ENVIRONMENT
 .TP .5i
 .B @FILENO@
@@ -342,6 +371,10 @@ Too many open files on this machine.
 Invalid field-name: "x"
 The specified field-name "x" contains control characters, or cannot be a
 partial field-name for this option.
+.TP
+No-wait option ignored to prevent corrupt idcache
+The -@FM_NOWAIT@ and -@FM_DUPLICATE@ options cannot be safely used together,
+so the former was ignored.
 .SH WARNINGS
 You can save yourself and others a lot of grief if you try to avoid using
 this autoreply feature on mails coming through mailinglists.  Depending

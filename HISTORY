@@ -451,7 +451,7 @@
 	    Changes to procmail:
 	       - Some zero-length extractions using \/ could core dump
 	       - Missed a couple possible overflows
-	       - Eliminated the conflict with the C9x restrict keyword
+	       - Eliminated the conflict with the C9x `restrict' keyword
 	       - Support delivery to maildir mailboxes
 	       - Support all styles of mailbox for the mail spool
 	       - Don't use a locallockfile on $DEFAULT if it's a directory
@@ -466,7 +466,8 @@
 	       - Small heap compilation would fail on nomemerr() in pipes.c
 	       - Worked around Tru64 UNIX V4.0E and V4.0F compilers
 		 (strcpy() builtin doesn't always return pointer type)
-	       - Warn about using 'c' flag with 'f' flag
+	       - Warn about using 'c' flag with 'f' flag or on variable
+		 capture recipes
 	       - Test for allowing rcfiles in sticky directories iff chown
 		 is restricted was reversed
 	       - LASTFOLDER wasn't correctly set when delivering to multiple
@@ -474,6 +475,8 @@
 	       - -f- couldn't find the timestamp if the address contained a
 		 space
 	       - SENDMAIL and SENDMAILFLAGS are now split in forwarding actions
+	       - Variable capture actions now see the variable's current value
+		 and restore that value if the action fails
 	    Changes to formail:
 	       - Replies without the -t flag go to the envelope sender
 	       - Replies without "-a Resent-" and -t flag ignore the
@@ -481,6 +484,7 @@
 	       - Prevent corrupt idcaches by suppressing the -n option when
 		 splitting with the -D option
 	       - Accept and strip whitespace between the fieldname and colon
+	       - Renaming from a wildcard to nothing now works
 	    Changes to mailstat:
 	       - Work around the detab done on checkin to CVS
 	       - Recognize maildir mailboxes
@@ -491,3 +495,4 @@
 	    Changed the form of tempfile names to make them `more' unique
 	    Updated list of mirrors in the README
 	    Documented the exact behavior of lockfile's -! flag
+	    Documented the suggested usage of -r vs -rt

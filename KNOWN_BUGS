@@ -2,19 +2,10 @@ TIMEOUT doesn't always work
     If a shell is invoked then procmail may wait while executing a
     command for longer than TIMEOUT specifies.
 
-Variable capture actions overwrite before executing
-    Variable capture actions clear the value of the variable being
-    captured before the action is executed, thus causing the following
-    action, for example, to not work as desired:
-	variable=|echo "$variable" | tr '[A-Z]' '[a-z]'
-
 regexp matching bug
     Some regexps may return an incorrect value in the MATCH variable.
-    In particular when 'redundant' * or + operators appear on the left-
-    hand side of the \/ token or 'tenative' matches overlap with the real
-    match.
-
-`formail -R "Resent-" ""' doesn't work
+    In particular, this can happen when 'redundant' * or + operators
+    appear on the lefthand side of the \/ token.
 
 SmartList digest directories are mod 100
     Starting in the year 2000 they should go to being the full year.
