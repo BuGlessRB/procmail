@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.15 1992/11/13 12:58:28 berg Exp $";
+ "$Id: procmail.c,v 1.16 1992/11/24 16:00:22 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -300,7 +300,12 @@ notfishy:
      *	really change the uid now, since we are not in explicit
      *	delivery mode
      */
-   { setgid(gid);setuid(uid);suppmunreadable=nextrcfile();
+   { setgid(gid);setuid(uid);
+     if(suppmunreadable=nextrcfile())	  /* any rcfile on the command-line? */
+#ifndef NO_COMSAT
+	setdef(scomsat,DEFcomsat)	       /* turn off comsat by default */
+#endif
+	 ;
      while(chp=(char*)argv[argc])      /* interpret command line specs first */
 	argc++,asenvcpy(chp);
    }
@@ -400,7 +405,7 @@ noconcat:
 	if(flags[ALSO_N_IF_SUCC])
 	   i=lastcond&&succeed;		/* only if the last recipe succeeded */
 	while(nrcond--)				    /* any conditions (left) */
-	 { skipspace();getbl(buf2);
+	 { skipspace();getlline(buf2);
 	   for(chp=strchr(buf2,'\0');--chp>=buf2;)
 	    { switch(*chp)		  /* strip off whitespace at the end */
 	       { case ' ':case '\t':*chp='\0';continue;
@@ -420,6 +425,24 @@ noconcat:
 			   {TOkey,TOsubstitute},
 			   {0,0}
 			 };
+		      {char*tg;
+		       for(or_nocase=0,tg=chp2=chp;;tg++,chp2++)
+			{ switch(*tg= *chp2)
+			   { case '\n':
+				if(or_nocase==1)
+				   tg-=2;	     /* throw out \ \n pairs */
+				or_nocase=2;continue;
+			     case '\\':or_nocase=1;continue;
+			     case ' ':case '\t':
+				if(or_nocase==2)
+				 { tg--;continue; /* skip leading whitespace */
+				 }
+			     default:or_nocase=0;continue;
+			     case '\0':;
+			   }
+			  break;
+			}
+		      }
 		       or_nocase=0;goto jinregs;
 		       do		   /* find special keyword in regexp */
 			  if((chp2=pstrstr(chp,regsp->regkey))&&
@@ -481,10 +504,7 @@ progrm: if(testb('!'))					 /* forward the mail */
 	      goto forward;
 	 }
 	else if(testb('|'))				    /* pipe the mail */
-	 { for(chp=buf2;getbl(chp2=chp)&&*(chp=strchr(chp,'\0')-1)=='\\';
-	    *chp++='\n')		       /* read the command line-wise */
-	      if(chp2!=chp)				  /* non-empty line? */
-		 chp++;			      /* then preserve the backslash */
+	 { getlline(buf2);			 /* get the command to start */
 	   if(i)
 	    { metaparse(buf2);
 forward:      if(locknext)

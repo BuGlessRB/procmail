@@ -1,0 +1,19 @@
+#! /bin/sh
+
+formail -i"Sender: $listreq" -i"From: $listaddr" -rtA"X-Loop: $listaddr" \
+ <tmp.request
+
+if multigram -b1 -l$off_threshold -d dist
+then
+  echo
+  echo "You have been removed from the list."
+else
+  echo "You have not been removed, I couldn't find your name on the list."
+fi |
+ sed -e '1 s/^ *[0-9]* [^ ]* \(.*\)$/\1/'
+
+echo
+echo "Transcript of unsubsription request follows:"
+echo
+
+sed -e 's/^\(.\)/>\1/' tmp.request

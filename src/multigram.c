@@ -11,9 +11,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.7 1992/11/13 12:58:22 berg Exp $";
+ "$Id: multigram.c,v 1.8 1992/11/24 16:00:16 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1992/11/13 12:58:22 $";
+static /*const*/char rcsdate[]="$Date: 1992/11/24 16:00:16 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -135,16 +135,19 @@ usg:
      for(lnl=1,lasttell=0;;)
       { switch(getc(hardfile))
 	 { case '\n':
-	      if(lnl)
-		 break;
-	      lasttell=ftell(hardfile);lnl=1;continue;
+	      if(!lnl)
+		 lnl=1,lasttell=ftell(hardfile);
+	      continue;
 	   default:lnl=0;continue;
-	   case EOF:lasttell=ftell(hardfile);
+	   case EOF:;
 	 }
 	break;
       }
-     fseek(hardfile,lasttell,SEEK_SET);fprintf(hardfile,"%s\n",addit);
-     printf("Added: %s\n",addit);fclose(hardfile);return EX_OK;
+     fseek(hardfile,lasttell,SEEK_SET);
+     if(lasttell)
+	getc(hardfile),fflush(hardfile);
+     fprintf(hardfile,"%s\n",addit);printf("Added: %s\n",addit);
+     fclose(hardfile);return EX_OK;
    }
   if(!maxgram)
      maxgram=DEFmaxgram;

@@ -1,7 +1,6 @@
 #! /bin/sh
-: &&O= || exec /bin/sh ./autoconf $argv:q # we're in a csh, feed myself to sh
-
-#$Id: autoconf,v 1.16 1992/11/19 12:32:51 berg Exp $
+:
+#$Id: autoconf,v 1.17 1992/11/24 15:59:53 berg Exp $
 
 # All possible entries in autoconf.h:
 

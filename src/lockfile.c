@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.9 1992/11/13 12:58:11 berg Exp $";
+ "$Id: lockfile.c,v 1.10 1992/11/24 16:00:01 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1992/11/13 12:58:11 $";
+static /*const*/char rcsdate[]="$Date: 1992/11/24 16:00:01 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -183,7 +183,7 @@ xusg:		       retval=EX_USAGE;goto nfailure;
      else
       { time_t t;int permanent;
 	setgid(getgid());		      /* just to be on the safe side */
-stilv:	virgin=0;permanent=nfsTRY;lastf=p;
+stilv:	virgin=0;permanent=nfsTRY;
 	while(0>xcreat(cp,&t))				     /* try and lock */
 	 { struct stat stbuf;
 	   if(exitflag)					    /* time to stop? */
@@ -233,6 +233,7 @@ nfailure:	 sleepsec= -1;argc=lastf-argv+1;goto again; /* mark sleepsec */
 	    }  /* for second pass, and adjust argc to the no. of args parsed */
 	   permanent=nfsTRY;	       /* refresh the NFS-error-ignore count */
 	 }
+	lastf=p;					  /* last valid file */
       }
   if(retval==EX_OK&&virgin)		 /* any errors?	 did we do anything? */
 usg:

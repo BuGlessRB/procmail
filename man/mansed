@@ -1,15 +1,15 @@
 #! /bin/sh
-: &&O= || exec /bin/sh ./mansed $argv:q # we're in a csh, feed myself to sh
+:
+#$Id: mansed,v 1.6 1992/11/24 15:59:43 berg Exp $
 
-#$Id: mansed,v 1.5 1992/11/19 12:32:42 berg Exp $
-
-test 4 != $# &&
+test 5 != $# &&
  echo "Don't start this script directly, use \`make'" && exit 1
 
-SRC="$1"
-DEST="$2"
-RM="$3"
-DEVNULL=$4
+SHELL=$1
+SRC="$2"
+DEST="$3"
+RM="$4"
+DEVNULL=$5
 export SHELL SRC DEST RM DEVNULL
 
 if test ! -f "$DEST"

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.12 1992/11/13 12:58:13 berg Exp $";
+ "$Id: mailfold.c,v 1.13 1992/11/24 16:00:05 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -20,8 +20,9 @@ static /*const*/char rcsid[]=
 #include "mailfold.h"
 #ifndef NO_COMSAT
 #include "network.h"
-#endif
 
+const char scomsat[]="COMSAT";
+#endif
 int logopened,tofile;
 long lasttell;
 static long lastdump;
@@ -113,7 +114,6 @@ void logabstract P((void))
    }
 #ifndef NO_COMSAT
  {int s;struct sockaddr_in addr;char*chp,*chad;
-  static const char scomsat[]="COMSAT";
   if(chad=strchr(chp=(char*)tgetenv(scomsat),SERV_ADDRsep))  /* @ seperator? */
      *chad++='\0';		      /* split it up in service and hostname */
   else if(!renvint(-1L,scomsat))		/* or is it a false boolean? */

@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.10 1992/11/13 11:19:43 berg Exp $
+.Id $Id: procmailrc.man,v 1.11 1992/11/24 15:59:46 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .SH NAME
 .na
@@ -217,13 +217,18 @@ Your (the recipient's) defaults
 .B SENDMAIL
 \&+DEFsendmail+
 .Tp
+.B COMSAT
+\&+DEFcomsat+
+.br
+(If an rcfile is specified on the command line)
+.Tp
 .B LOCKEXT
 \&+DEFlockext+
 .Tp
 .B LOCKFILE
 \&+DEFdefaultlock+
 .br
-(after procmail closed the last rcfile)+PRESTENV++LD_ENV_FIX+
+(After procmail closed the last rcfile)+PRESTENV++LD_ENV_FIX+
 .Ss Environment
 .PP
 Before you get lost in the multitude of environment variables, keep in mind
@@ -409,7 +414,8 @@ process needed (first procmail, then the shell (or not, depending on
 .PP
 Don't put comments on the regular expression condition lines in a
 recipe, these lines are fed to the internal egrep
-.IR literally .
+.I literally
+(except for continuation backslashes at the end of a line).
 .PP
 Watch out for deadlocks when doing unhealthy things like forwarding mail
 to your own account.  Deadlocks can be broken by proper use of

@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.7 1992/11/12 12:27:56 berg Exp $*/
+/*$Id: misc.h,v 1.8 1992/11/24 16:00:13 berg Exp $*/
 
 void
  elog P((const char*const newt)),
@@ -26,7 +26,7 @@ void
  asenv P((const char*const chp)),
  concatenate P((char*p));
 int
- forkerr P((const pid_t pid,const char*const a)),
+ forkerr Q((const pid_t pid,const char*const a)),
  nextrcfile P((void)),
  alphanum P((const unsigned c));
 char

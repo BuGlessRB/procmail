@@ -1,4 +1,4 @@
-/*$Id: mailfold.h,v 1.3 1992/11/11 14:00:15 berg Exp $*/
+/*$Id: mailfold.h,v 1.4 1992/11/24 16:00:07 berg Exp $*/
 
 long
  dump P((const s,const char*source,long len));
@@ -10,6 +10,7 @@ void
  concon P((const ch)),
  readmail P((int rhead,const long tobesent));
 
+extern const char scomsat[];
 extern logopened,tofile;
 extern long lasttell;
 

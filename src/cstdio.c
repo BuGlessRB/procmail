@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.8 1992/11/13 12:58:01 berg Exp $";
+ "$Id: cstdio.c,v 1.9 1992/11/24 15:59:55 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -79,4 +79,12 @@ skipspace P((void))
   while(testb(' ')||testb('\t'))
      any=1;
   return any;
+}
+
+void getlline(target)char*target;
+{ char*chp2;
+  for(;getbl(chp2=target)&&*(target=strchr(target,'\0')-1)=='\\';
+   *target++='\n')					   /* read line-wise */
+     if(chp2!=target)					  /* non-empty line? */
+	target++;			      /* then preserve the backslash */
 }
