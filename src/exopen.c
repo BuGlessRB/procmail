@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.35 1999/06/09 07:44:20 guenther Exp $";
+ "$Id: exopen.c,v 1.36 1999/10/20 04:49:35 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -80,7 +80,7 @@ ret0:	return chownit&doFD?-1:0;
    }
   if(chownit&doLOCK)
      rwrite(i,"0",1);			   /* pid 0, `works' across networks */
-  if(doFD)
+  if(chownit&doFD)
      return i;
   rclose(i);
   return 1;
