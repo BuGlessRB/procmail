@@ -78,17 +78,12 @@
 	    Fixed a race condition in autoconf that caused problems on machines
 	       that didn't have memmove(3) and were too fast (make got confused
 	       about the modification time of an object file)
-	    Corrected the SHELL=/bin/shell assignment in mailinglist/install.sh
-	    Made the mailinglist/install.sh script check if procmail was
-	       compiled without "#define console"
 	    Fixed a typo in the regex library (introduced in v2.82pre4),
 	       caused some valid matches not to be found if the regular
 	       expression starts with an epsilon transition
 	    Fixed a few typos in the man pages
 	    Made sure the logfile was flushed before procmail exits
 	    Forgot to redirect output of a test in autoconf to /dev/null
-	    Stripping off leading "From " lines now before passing mails
-	       through the mailinglist
 	    Reached the doubtful milestone to sometimes crash an Ultrix
 	       machine (due to the lockingtests, not procmail itself)
 1993/11/24: v2.92
@@ -147,43 +142,3 @@
 		 man page
 	       - Fixed the "procmail"-mailer definition in the procmail man
 		 page
-	    Changes to the mailinglist package:
-	       Cleaned up install.sh* for the mailinglists: starting su with
-		  commands on stdin, checking some permissions now in the
-		  filesystem to prevent silly mistakes during the installation
-	       v2.91 archive server logged into the wrong file (../log), fixed
-	       Made the x_command script list the nearest match when adding
-		  or removing people from a list
-	       New x_command directive: checkdist
-	       New convenience command: donatelist
-	       Fixed a few typos that slipped into procbounce and flush_digests
-	       Explicit support for moderated lists
-	       Eliminating duplicate submissions
-	       Catering for autoreplies to people not on the accept list
-	       Flush_digests can now be forced to push out digests
-	       Made the generated digests MIME compliant
-	       Clipped an a bit too greedy -request-redirection-regexp in
-		  rc.submit
-	       Implicit subscription can be enabled (force_subscribe in
-		  rc.custom)
-	       You can create a subscreen script to screen the addresses
-		  of prospective subscribers (allows tighter control)
-	       Tuned the procbounce script (it does what I mean now
-		  and it got more verbose in its diagnostics)
-	       Taught procbounce about the more information deprived
-		  bounce messages (it can handle almost every bounce now)
-	       Changes to the arch_retrieve script:
-		  - allow the archive directory to be a symbolic link itself
-		  - friendlier help command
-		  - allow searching for regexps
-		  - protect the user against all too eager wildcards
-		  - fixed the ls command (one mail back per command)
-		  - made it more intelligent with respect to ignoring
-		    signatures
-		  - the standalone archive server will include the contents
-		    of the optional help.txt and info.txt files on a help
-		    request
-	       Carbon copies of subscription requests contained misleading
-		  diagnostics
-	       Subscription notifications will be done to both the sender
-		  and the new subscriber (in case the addresses differ)

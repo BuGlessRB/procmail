@@ -1,0 +1,15 @@
+INSTALL		A description of what has to be done to install SmartList.
+install.sh	The install script which does most things for you.
+install.sh[23]	The supplementary scripts called from within install.sh.
+
+HISTORY		Recent and ancient changes, features (or bugs) documented.
+FEATURES	A summary of all the things SmartList is particularly good at.
+Manifest	You guessed it.
+../src/multigram.c
+		The sources to the swiss-army-knife mailinglist utility
+		program (flist, multigram, etc...).
+INTRO		Comprehensive introduction on maintaining a mailinglist.
+etc/*		All non-executable SmartList scripts/files which will end up
+		in .etc
+bin/*		All shell scripts that will end up in .bin
+examples/*	Miscellaneous example files you might want to use.

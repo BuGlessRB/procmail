@@ -1,8 +1,8 @@
 		SmartList mailinglist management
 		--------------------------------
 
-		Written by Stephen R. van den Berg.
-					berg@pool.informatik.rwth-aachen.de
+	Copyright (c) 1993-1994, Stephen R. van den Berg, The Netherlands.
+				 <berg@pool.informatik.rwth-aachen.de>
 
 Contents:
 ---------	1. Creating and removing mailinglists or archive servers
@@ -20,7 +20,7 @@ Contents:
 		6. Multigram and the thresholds in rc.init/rc.custom
 		7. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.20 1994/01/17 14:40:11 berg Exp $
+$Id: Manual,v 1.21 1994/01/18 14:06:15 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers

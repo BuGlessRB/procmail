@@ -1,0 +1,47 @@
+The SmartList mailinglist package has been built on top of the procmail
+mail processing package.  In order to install it you'll need the source
+of the procmail package as well.
+
+If you now have just the procmail sources, get the SmartList sources and
+unpack them on top of the procmail source tree.
+If you now have just the SmartList sources, get the procmail sources and
+unpack them on top of the SmartList source tree.
+See below on where to get the missing part.
+
+The two source packages should blend together with only this README file
+and the FEATURES file being duplicated.
+----------------------
+For installation instructions see the INSTALL file.
+----------------------
+SmartList mailinglist management package.
+Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands.
+
+Some legal stuff:
+
+Use this software package at your own risk.  The programmer cannot
+be held liable for any incurred damages, directly or indirectly due to
+the use or inability to use this software.
+
+You are encouraged to distribute this package freely.  This package is
+however not to be sold (minor transfer costs excepted) or included in
+any commercially sold software package (if you want to do this anyway,
+contact me (address below), and we'll work something out).
+
+If you distribute it, please leave the package intact.	You are allowed to
+take parts from this distribution and distribute these separately as long
+as you retain the copyright messages.  If you redistribute any part of this
+package in a modified form, be sure to mark the parts you changed.
+If you have some important changes that might be useful to the rest of the
+world, contact me instead.
+----------------------
+A recent version of both packages can be picked up at various
+comp.sources.misc archives.
+The latest versions can be obtained directly from the ftp-archive at:
+
+	ftp.informatik.rwth-aachen.de (137.226.112.172)
+
+as (g)zipped tar files:	   /pub/packages/procmail/procmail.tar.zip
+			   /pub/packages/procmail/SmartList.tar.zip
+as compressed tar files:   /pub/packages/procmail/procmail.tar.Z
+			   /pub/packages/procmail/SmartList.tar.Z
+----------------------

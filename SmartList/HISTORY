@@ -1,0 +1,53 @@
+	Only the last entry is complete, the others might have been condensed.
+
+1993/02/04: v2.80
+	    Started using CVS to manage the source (god's gift to programmers)
+1993/02/19: v2.81
+1993/06/02: v2.82 (never really released, was only available as prerelease 4)
+1993/07/01: v2.90
+1993/07/02: v2.91
+	    Corrected the SHELL=/bin/shell assignment in install.sh
+	    Made install.sh check if procmail was compiled without
+	       "#define console"
+	    Stripping off leading "From " lines now before passing mails
+	       through the mailinglist
+1993/11/24: v2.92
+	    Cleaned up install.sh* for the mailinglists: starting su with
+	       commands on stdin, checking some permissions now in the
+	       filesystem to prevent silly mistakes during the installation
+	    v2.91 archive server logged into the wrong file (../log), fixed
+	    Made the x_command script list the nearest match when adding
+	       or removing people from a list
+	    New x_command directive: checkdist
+	    New convenience command: donatelist
+	    Fixed a few typos that slipped into procbounce and flush_digests
+	    Explicit support for moderated lists
+	    Eliminating duplicate submissions
+	    Catering for autoreplies to people not on the accept list
+	    Flush_digests can now be forced to push out digests
+	    Made the generated digests MIME compliant
+	    Clipped an a bit too greedy -request-redirection-regexp in
+	       rc.submit
+	    Implicit subscription can be enabled (force_subscribe in
+	       rc.custom)
+	    You can create a subscreen script to screen the addresses
+	       of prospective subscribers (allows tighter control)
+	    Tuned the procbounce script (it does what I mean now
+	       and it got more verbose in its diagnostics)
+	    Taught procbounce about the more information deprived
+	       bounce messages (it can handle almost every bounce now)
+	    Changes to the arch_retrieve script:
+	       - allow the archive directory to be a symbolic link itself
+	       - friendlier help command
+	       - allow searching for regexps
+	       - protect the user against all too eager wildcards
+	       - fixed the ls command (one mail back per command)
+	       - made it more intelligent with respect to ignoring
+		 signatures
+	       - the standalone archive server will include the contents
+		 of the optional help.txt and info.txt files on a help
+		 request
+	    Carbon copies of subscription requests contained misleading
+	       diagnostics
+	    Subscription notifications will be done to both the sender
+	       and the new subscriber (in case the addresses differ)
