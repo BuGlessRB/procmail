@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.42 1994/02/22 17:24:42 berg Exp $*/
+/*$Id: config.h,v 1.43 1994/02/24 11:46:57 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -222,6 +222,8 @@ root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
 #define OLD_PREFIX	"Old-"			 /* formail field-Old-prefix */
 #define BABYL_SEP1	'\037'		       /* BABYL format separator one */
 #define BABYL_SEP2	'\f'		       /* BABYL format separator two */
+#define DEFfileno	"FILENO=000"		/* split counter for formail */
+#define LEN_FILENO_VAR	7			       /* =strlen("FILENO=") */
 
 #define FM_SKIP		'+'		      /* skip the first nnn messages */
 #define FM_TOTAL	'-'	    /* only spit out a total of nnn messages */

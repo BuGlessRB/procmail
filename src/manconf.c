@@ -1,13 +1,13 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.35 1994/02/11 19:08:40 berg Exp $*/
+/*$Id: manconf.c,v 1.36 1994/02/24 11:47:26 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
 
 #define pn(name,val)	pnr(name,(long)(val))
 
-static char pm_version[]=VERSION;
+static char pm_version[]=VERSION,ffileno[]=DEFfileno;
 const char dirsep[]=DIRSEP;
 static const char*const keepenv[]=KEEPENV,*const prestenv[]=PRESTENV,
  *const trusted_ids[]=TRUSTED_IDS,*const etcrc=ETCRC,
@@ -232,6 +232,9 @@ See also:\1.BR DROPPRIVS .":"");
   ps("ESCAP",ESCAP);
   ps("UNKNOWN",UNKNOWN);
   ps("OLD_PREFIX",OLD_PREFIX);
+  ps("DEFfileno",ffileno+LEN_FILENO_VAR);
+  ffileno[LEN_FILENO_VAR-1]='\0';
+  ps("FILENO",ffileno);
   pc("FM_SKIP",FM_SKIP);
   pc("FM_TOTAL",FM_TOTAL);
   pc("FM_BOGUS",FM_BOGUS);

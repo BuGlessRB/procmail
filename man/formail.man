@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.15 1994/02/11 18:49:07 berg Exp $
+.Id $Id: formail.man,v 1.16 1994/02/24 11:47:07 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -96,7 +96,8 @@ a program one by one (a new program is started for every part).
 has to be the last option specified, the first argument following it
 is expected to be the name of a program, any other arguments will be passed
 along to it.  If you omit the program, then formail will simply concatenate the
-splitted mails on stdout again.
+splitted mails on stdout again.  See
+.BR @FILENO@ .
 .TP
 .B \-@FM_NOWAIT@
 Tell formail not to wait for every program to finish before starting the next.
@@ -169,6 +170,14 @@ messages while splitting.
 Output at most
 .I total
 messages while splitting.
+.SH ENVIRONMENT
+.TP .5i
+.B @FILENO@
+While splitting, formail assigns the message number currently being output to
+this variable.  By presetting @FILENO@, you can change the initial message
+number being used and the width of the zero-padded output.  If @FILENO@ is
+unset it will default to @DEFfileno@.  If @FILENO@ is non-empty and
+does not contain a number, @FILENO@ generation is disabled.
 .SH EXAMPLES
 To split up a digest one usually uses:
 .RS

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.20 1994/02/22 17:25:03 berg Exp $";
+ "$Id: formisc.c,v 1.21 1994/02/24 11:47:23 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -145,6 +145,15 @@ squelch:
   dup(oldstdout);
   if(*argv)			    /* do we have to start a program at all? */
    { int poutfd[2];
+     if(lenfileno>=0)
+      { long val=initfileno++;char*chp;
+	chp=ffileno+LEN_FILENO_VAR;
+	if(val<0)
+	   *chp++='-';
+	ultstr(lenfileno-(val<0),val<0?-val:val,chp);
+	while(*chp==' ')
+	   *chp++='0';
+      }
      pipe(poutfd);
      if(!(child=fork()))     /* DON'T fclose(stdin), provokes a bug on HP/UX */
       { close(STDIN);close(oldstdout);close(PWRO);dup(PRDO);close(PRDO);

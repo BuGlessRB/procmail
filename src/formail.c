@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.37 1994/02/22 17:24:58 berg Exp $";
+ "$Id: formail.c,v 1.38 1994/02/24 11:47:19 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/02/22 17:24:58 $";
+static /*const*/char rcsdate[]="$Date: 1994/02/24 11:47:19 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -87,7 +87,9 @@ static const char emboxsep[]=eMAILBOX_SEPARATOR;
 
 const char binsh[]=BinSh,sfolder[]=FOLDER,
  couldntw[]="Couldn't write to stdout";
-int errout,oldstdout,quiet,buflast;
+int errout,oldstdout,quiet,buflast,lenfileno;
+long initfileno;
+char ffileno[LEN_FILENO_VAR+8*sizeof(initfileno)*4/10+1+1]=DEFfileno;
 int lexitcode;					     /* dummy, for waitfor() */
 pid_t child= -1;
 FILE*mystdout;
@@ -219,7 +221,26 @@ invfield:	     { nlog("Invalid field-name:");logqnl(chp?chp:"");
 parsedoptions:
   escaplen=strlen(escap);mystdout=stdout;signal(SIGPIPE,SIG_IGN);
   if(split)
-   { oldstdout=dup(STDOUT);fclose(stdout);startprog((const char*Const*)argv);
+   { char**ep;char**vfileno=0;
+     for(ep=environ;*ep;ep++)		   /* gobble through the environment */
+	if(!strncmp(*ep,ffileno,LEN_FILENO_VAR))	 /* look for FILENO= */
+	   vfileno=ep;					    /* yes, found it */
+     if(!vfileno)			/* FILENO= found in the environment? */
+      { size_t envlen;						 /* no, pity */
+	envlen=(ep-environ+1)*sizeof*environ;		   /* current length */
+	tmemmove(ep=malloc(envlen+sizeof*environ),environ,envlen);
+	*(vfileno=(char**)((char*)(environ=ep)+envlen))=0;*--vfileno=ffileno;
+      }						      /* copy over the array */
+     if((lenfileno=strlen(chp= *vfileno+LEN_FILENO_VAR))>
+	STRLEN(ffileno)-LEN_FILENO_VAR-1)	  /* check the desired width */
+	lenfileno=STRLEN(ffileno)-LEN_FILENO_VAR-1;	/* too big, truncate */
+     if((initfileno=strtol(chp,&chp,10))<0)	  /* fetch the initial value */
+	lenfileno--;				 /* correct it for negatives */
+     if(*chp)						 /* no valid number? */
+	lenfileno= -1;			    /* disable the FILENO generation */
+     else
+	*vfileno=ffileno;	    /* stuff our template in the environment */
+     oldstdout=dup(STDOUT);fclose(stdout);startprog((const char*Const*)argv);
      if(!minfields)			       /* no user specified minimum? */
 	minfields=DEFminfields;				 /* take our default */
    }

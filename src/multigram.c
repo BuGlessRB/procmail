@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.43 1994/02/16 18:22:30 berg Exp $";
+ "$Id: multigram.c,v 1.44 1994/02/24 11:47:33 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/02/16 18:22:30 $";
+static /*const*/char rcsdate[]="$Date: 1994/02/24 11:47:33 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -258,6 +258,8 @@ main(minweight,argv)char*argv[];
 	   */
 	   setgid(pass->pw_gid);initgroups(listid,pass->pw_gid);
 	   setuid(pass->pw_uid);endpwent();
+	   if(pass->pw_uid!=stbuf.st_uid||pass->pw_gid!=stbuf.st_gid)
+	      nlog("Strange group or user id\n");
 	 }
 	else
 	  /*
@@ -496,17 +498,15 @@ usg:
   for(lastfrom= -1;readstr(stdin,&fuzzstr,0);)
    { int meter,maxmetric;long linentry;off_t offs1,offs2;
      ;{ char*chp,*echp;
-	const static char punctuation[]="!#$%^&*-_=+|~`';:,.?{}",
-	 tpunctuation[]="@\\/";
+	const static char tpunctuation[]="@\\/!#$%^&*-_=+|~`';:,.?{}";
+#define punctuation	(tpunctuation+3)
 	echp=strchr(chp=fuzzstr.text,'\0')-1;
 	while(*chp&&strchr(punctuation,*chp))	/* strip leading punctuation */
 	   chp++;
-	do				       /* strip trailing punctuation */
-	 { if(!strchr(punctuation,*echp)&&!strchr(tpunctuation,*echp))
-	      break;
-	   *echp='\0';
-	 }
-	while(--echp>chp);
+	while(echp>=chp&&strchr(tpunctuation,*echp))
+	   *echp--='\0';		       /* strip trailing punctuation */
+	if(echp<chp)
+	   continue;
 	if(lastfrom<=0&&      /* roughly check if it could be a mail address */
 	   !strpbrk(chp,"@/")&&			 /* RFC-822 or X-400 address */
 	   (!strchr(chp,'!')||			   /* UUCP bang path address */

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.25 1994/02/08 16:14:22 berg Exp $
+.Id $Id: procmailex.man,v 1.26 1994/02/24 11:47:10 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -246,10 +246,16 @@ TRAP="/bin/rm \-f $TEMPORARY"
 .Ex
 The TRAP keyword can also be used to change the exitcode of procmail.
 I.e. if you want procmail to return an exitcode of `1' instead of its
-regular exitcodes, you could simply use:
-.Sx 2
+regular exitcodes, you could use:
+.Sx 3
+EXITCODE=""
 TRAP="exit 1;"   # The trailing semi-colon is important
                  # since exit is not a standalone program
+.Ex
+Or, if the exitcode does not need to depend on the programs run from
+the TRAP, you can use a mere:
+.Sx 1
+EXITCODE=1
 .Ex
 The following recipe prints every incoming mail that looks like a postscript
 file.
