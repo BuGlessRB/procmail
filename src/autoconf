@@ -1,5 +1,5 @@
 
-#$Id: autoconf,v 1.4 1992/10/02 14:39:31 berg Exp $
+#$Id: autoconf,v 1.5 1992/10/02 15:21:18 berg Exp $
 
 SHELL=/bin/sh || exec /bin/sh ./autoconf $* # we're in a csh, feed myself to sh
 
@@ -184,6 +184,7 @@ cat >_autotst.c <<HERE
 #endif
 #include <stdio.h>
 #include <time.h>
+#include <fcntl.h>
 #include <signal.h>
 #define EX_OK	0
 #include "_locktst.h"

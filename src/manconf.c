@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.4 1992/10/02 14:40:40 berg Exp $*/
+/*$Id: manconf.c,v 1.5 1992/10/02 15:21:46 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -8,7 +8,7 @@
 #define pn(name,val)	pnr(name,(long)(val))
 
 static char pm_version[]=VERSION;
-static const char dirsep[]=DIRSEP;
+const char dirsep[]=DIRSEP;
 static const char*const keepenv[]=KEEPENV,*const prestenv[]=PRESTENV,
  *const trusted_ids[]=TRUSTED_IDS;
 
