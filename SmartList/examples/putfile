@@ -4,7 +4,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: putfile,v 1.1 1994/08/25 19:00:33 berg Exp $
+#$Id: putfile,v 1.2 1994/08/26 12:32:29 berg Exp $
 
 #
 # This script can either be:
@@ -14,7 +14,7 @@
 #	  perform a "chmod 700 /etc/procmailrcs".  Make sure that
 #	  /etc/procmailrcs is owned by root.  And enter the following
 #	  entry in the alias file:
-# your_favourite_alias: "|exec /usr/local/bin/procmail -m /etc/procmailrcs/putfile"
+# whatever: "|exec /usr/local/bin/procmail -m /etc/procmailrcs/putfile"
 #
 
 #
@@ -28,7 +28,8 @@
 
 #
 # Actually we only need one MAILDIR setting, namely the one that changes
-# directory to the root of the archive tree we're serving.
+# directory to the root of the archive tree we're serving.  So edit the
+# following to taste:
 #
 
 MAILDIR=$HOME
@@ -39,7 +40,7 @@ MAILDIR=/the/archive/directory/tree
 # the archive tree.  People could overwrite it if it is.
 #
 
-LOGFILE=../.log
+LOGFILE=../log
 
 #
 # Create a directory named $MAILDIR/default, so that any files
@@ -98,7 +99,7 @@ Content-Disposition: attachment; filename=\1/"
 
 :0
 *  ^Content-Disposition: attachment; filename=
-* !^Content-Disposition: attachment; filename=(/|(.+/)?\.\.(/|$)|.*")
+* !^Content-Disposition: attachment; filename=(/|(.+/)?\.\.(/|$))
 {
 
   #
@@ -106,7 +107,15 @@ Content-Disposition: attachment; filename=\1/"
   #
 
        :0 hw
-  file=| sed -e 's/^.*filename=\(.*\)$/\1/'
+  file=| sed -n -e 's/\([:\\]\)/\\\1/g' \
+	  -e '/filename=/ {s/^.*filename=\(.*\)$/\1/p;q}'
+
+  #
+  # If you have many persons writing the same file (not a good idea to
+  # start with), you could use a global lockfile.
+  #
+
+  #LOCKFILE=../putfile.lock
 
   #
   # Decoding and saving the file.

@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.95 1994/08/25 11:36:53 berg Exp $
+#$Id: autoconf,v 1.96 1994/08/26 12:32:36 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -1240,7 +1240,7 @@ cat /usr/lib/sendmail.cf /etc/sendmail.cf /etc/mail/sendmail.cf 2>$DEVNULL |
  grep 'Mlocal.*procmail' >$DEVNULL ||
  echo '#define CF_no_procmail_yet' >>$ACONF
 
-path='PATH=$HOME/bin:/bin'
+lpath='PATH=$HOME/bin:/bin'
 bins="/bin"
 
 for newd in /usr/bin /usr/ucb /usr/5bin $BINDIR /local/bin /usr/local/bin \
@@ -1253,11 +1253,11 @@ do
      do
 	test "X`cd $oldd; ls -id . .. ../..`" = "X$oldid" && oldid=found
      done
-     test found != "$oldid" && bins="$bins $newd" && path="$path:$newd"
+     test found != "$oldid" && bins="$bins $newd" && lpath="$lpath:$newd"
   fi
 done
 
-echo "#define defPATH \"$path\"" >>$ACONF
+echo "#define defPATH \"$lpath\"" >>$ACONF
 
 while $FGREP -e "Kernel-locking tests completed." _locktst.rrr >$DEVNULL; \
  test 0 != $?
@@ -1278,8 +1278,9 @@ do
   sleep 4
 done
 exec 9>&2 2>$DEVNULL
-test ! -z "$tailpid" && kill $tailpid >$DEVNULL && echo && echo
+test ! -z "$tailpid" && kill $tailpid && echo "" && echo ""
 tailpid=""
+wait			# wait now, to prevent a notification message afterward
 exec 2>&9 9>&-
 echo "Collecting results from kernel-locking tests"
 sed -e '/^Kernel-locking tests completed./,$ d' <_locktst.rrr >>$ACONF
