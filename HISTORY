@@ -78,7 +78,7 @@
 	       demand (examples/mailstat)
 	    Gave procmail, formail, lockfile and mailstat a more verbose
 	       command line help (called up by -h or -?)
-1993/02/01: v2.80
+1993/02/04: v2.80
 	    Started using CVS to manage the source (god's gift to programmers)
 	    In procmail, lockfile and formail I built in a sanity check now,
 	       in case they would be called with argc==0
@@ -173,8 +173,8 @@
 	       - to make sure that all this is possible, the Makefiles are
 		 created in a two step-process now (make init)
 	       - missing libraries for network/socket and opendir support
-		 are searched for (you won't believe what people use for
-		 network support libraries, not in your wildest dreams :-)
+		 are searched for (you won't believe what names people picked
+		 for network support libraries, not in your wildest dreams :-)
 	       - the autoconf script now performs a reliability test on kernel
 		 locking support
 	       - also, network support for comsat tries to build up a compile
