@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.6 1993/07/30 13:52:59 berg Exp $
+#$Id: digest,v 1.7 1993/09/16 16:17:56 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -97,11 +97,11 @@ then
 
   $cat >$digestheader <<HERE
 From: $listreq
-Reply-To: $undigested_list
 Subject: $list Digest V$Year #$Issue
 X-Loop: $listaddr
 Precedence: list
 To: $listaddr
+Reply-To: $undigested_list
 
 $list Digest				Volume $Year : Issue $Issue
 
