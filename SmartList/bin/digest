@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.20 1994/06/06 12:27:16 berg Exp $
+#$Id: digest,v 1.21 1994/07/20 17:33:24 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -86,9 +86,7 @@ do
   fi
 done
 
-$formail -X Content-Type: -X Content-MD5: -X Content-Transfer-Encoding: \
- -X Content-ID: -X Content-Description: -X Content-Disposition: \
- -X Content-Length: <$tmpfrom >>$digestbody
+$formail -X Content- <$tmpfrom >>$digestbody
 
 $echo "" >>$digestbody
 $cat $tmprequest >>$digestbody
@@ -122,7 +120,8 @@ X-Mailing-List: <$listaddr> archive/volume$Year/$Issue
 Precedence: list
 MIME-Version: 1.0
 Content-Type: multipart/digest; boundary="----------------------------"
-To: $listaddr${reply_to-${undigested_list+
+To: $listaddr${reply_to+
+}${reply_to-${undigested_list+
 Reply-To: }$undigested_list}
 
 $list Digest				Volume $Year : Issue $Issue

@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.47 1994/06/06 17:33:26 berg Exp $
+#$Id: install.sh,v 1.48 1994/07/20 17:33:19 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -125,13 +125,13 @@ then
      echo "Then run this script again."
      exit 64
   fi
+  exec 4>&0
   case $installerid in
-     [0-9]*) exec 4>&0
-	 . ./install.sh2
-	 exec 4>&- ;;
-     *) $setid $installerid 4>&0 <install.sh2 || exit 1;;
+     [0-9]*) . ./install.sh2 ;;
+     *) $setid $installerid <install.sh2 || exit 1;;
   esac
   $setid $listid $target <install.sh3 || exit 64
+  exec 4>&-
   echo "Making $target/$bindir/flist suid root..."
   if chown root "$target/$bindir/flist" && chmod 04755 "$target/$bindir/flist"
   then
@@ -147,8 +147,8 @@ then
 else
   exec 4>&0
   . ./install.sh2
-  exec 4>&-
   . ./install.sh3
+  exec 4>&-
 fi
 
 chmod 0644 install.list

@@ -131,3 +131,4 @@
 	       v2.92pre10 this went wrong), and didn't truncate the archive
 	       at all
 	    Install.sh3 now prompts before overwriting mimencap.local
+	    Inserted the missing newline for reply_to in digests
