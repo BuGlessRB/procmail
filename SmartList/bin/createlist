@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.35 1996/12/21 03:28:11 srb Exp $
+#$Id: createlist,v 1.36 2000/08/22 04:35:59 guenther Exp $
 
 defaults=.etc
 
@@ -142,7 +142,13 @@ $chmod go+x . .bin $defaults			# to preserve sanity
 if $mkdir "$list" 2>$DEVNULL
 then
   $chmod g+s "$list" 2>$DEVNULL		# to ensure the gid is inherited
-else $echo "createlist: \"$list\" already exists" 1>&2; exit $EX_USAGE
+elif $test -d "$list" 2>$DEVNULL
+then
+  $echo "createlist: \"$list\" already exists" 1>&2; exit $EX_USAGE
+else
+  $echo "createlist: \"$list\" cannot be created" 1>&2
+  $echo "createlist: (can you write to the list directory?)" 1>&2
+  exit $EX_UNAVAILABLE
 fi
 cd "$list"
 for a in rc.submit rc.init rc.request help.txt subscribe.txt unsubscribe.txt \
