@@ -78,7 +78,7 @@
 	       demand (examples/mailstat)
 	    Gave procmail, formail, lockfile and mailstat a more verbose
 	       command line help (called up by -h or -?)
-1992/08/17: v2.80
+1992/10/28: v2.80
 	    Started using CVS to manage the source (god's gift to programmers)
 	    In procmail, lockfile and formail I built in a sanity check now,
 	       in case they would be called with argc==0
@@ -137,6 +137,10 @@
 		 newline remains
 	       - comsat/biff is fully supported now
 	       - added the TRAP keyword, to allow for temporary file cleanup
+	       - in explicit delivery mode, unknown users are now rejected
+	       - system mailboxes with their suid or sgid bits set will not
+		 be delivered to anymore, they are presumed to contain SysV
+		 autoforwarding information
 	    Changes to the installation scripts:
 	       - preset values for $(MAKE), $(CC) and $(SHELL) are respected
 		 in Makefiles now
@@ -144,6 +148,8 @@
 	       - the need for any -D_POSIX_SOURCE is recognised automatically
 	       - to make sure that all this is possible, the Makefiles are
 		 created in a two step-process now (make init)
+	       - missing libraries for network/socket and opendir support
+		 are searched for
 	       - the autoconf script now performs a reliability test on kernel
 		 locking support
 	       - also, network support for comsat tries to build up a compile

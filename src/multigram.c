@@ -1,13 +1,22 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-
-#define tmemmove	memmove
-#define EX_USAGE	64
-#define EX_IOERR	74
-#define EX_OK		0
-#define HELPOPT1	'h'
-#define HELPOPT2	'?'
+/************************************************************************
+ *	multigram - The human mail address reader			*
+ *									*
+ *	It uses multigrams to intelligently filter out mail addresses	*
+ *	from the garbage in the arbitrary mail.				*
+ *									*
+ *	Seems to be relatively bug free.				*
+ *									*
+ *	Copyright (c) 1990-1992, S.R. van den Berg, The Netherlands	*
+ *	#include "README"						*
+ ************************************************************************/
+#ifdef RCS
+static char rcsid[]="$Id: multigram.c,v 1.3 1992/10/28 17:23:57 berg Exp $";
+#endif
+static char rcsdate[]="$Date: 1992/10/28 17:23:57 $";
+#include "includes.h"
+#include "sublib.h"
+#include "shell.h"
+#include "ecommon.h"
 
 #define MIN_addr_len	3		/* shortest meaningful email address */
 #define BUFSTEP		16
@@ -19,6 +28,10 @@
 #define DEFbest_matches 2
 
 struct string{char*text,*itext;size_t buflen;};
+
+strnIcmp(a,b,l)const char*a,*b;size_t l;
+{ return strncmp(a,b,l);
+}
 
 static size_t readstr(file,p)FILE*const file;struct string*p;
 { size_t len=0;int i;
@@ -52,7 +65,7 @@ static void elog(a)const char*const a;
 { fputs(a,stderr);
 }
 
-static void nlog(a)const char*const a;
+void nlog(a)const char*const a;
 { elog("adresses: ");elog(a);
 }
 
@@ -132,7 +145,8 @@ usg:
      switch(*(echp=strchr(chp=fuzzstr.text,'\0')-1))
       { case '.':case ',':case ';':case ':':case '?':case '!':*echp--='\0';
       }
-     if(!strchr(chp,'@')&&(!strchr(chp,'!')||!strcmp("..",chp)))
+     if(!strchr(chp,'@')&&(!strchr(chp,'!')||
+      mystrstr(chp,"..",chp+strlen(chp))))
 	continue;			  /* apparently not an email address */
      for(parens=0;chp=strchr(chp,'(');++chp,++parens);
      for(chp=fuzzstr.text;chp=strchr(chp,')');++chp,--parens);

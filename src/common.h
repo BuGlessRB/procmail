@@ -1,4 +1,4 @@
-/*$Id: common.h,v 1.3 1992/10/02 14:39:39 berg Exp $*/
+/*$Id: common.h,v 1.4 1992/10/28 17:23:25 berg Exp $*/
 
 void
  shexec P((const char*const*argv)),
@@ -7,7 +7,7 @@ void
 char*
  pstrspn P((const char*whole,const char*const sub));
 int
- strnIcmp P((const char*a,const char*b,unsigned l));
+ strnIcmp P((const char*a,const char*b,size_t l));
 
 #ifdef NOstrcspn
 int

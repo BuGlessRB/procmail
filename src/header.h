@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.4 1992/10/20 15:35:25 berg Exp $*/
+/*$Id: header.h,v 1.5 1992/10/28 17:23:47 berg Exp $*/
 
 static const char
  returnpath[]=		"Return-Path:",				  /* RFC 822 */
@@ -65,6 +65,8 @@ static const char
  cnttransferenc[]=	"Content-Transfer-Encoding:",		/* ditto ... */
  cntid[]=		"Content-ID:",
  cntdescription[]=	"Content-Description:",
+ transportoptions[]=	"Transport-Options:",	    /* SysV mailer extension */
+ defltoptions[]=	"Default-Options:",
  status[]=		"Status:";			 /* mailer extension */
 
 static const struct {const char*hedr;int lnr;}cdigest[]=
@@ -78,5 +80,6 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
   bsl(newsgroups),bsl(followupto),bsl(approved),bsl(lines),bsl(expires),
   bsl(control),bsl(distribution),bsl(xref),bsl(originator),
   bsl(nntppostinghost),bsl(cnttype),bsl(encoding),bsl(mimeversion),
-  bsl(cnttransferenc),bsl(cntid),bsl(cntdescription),bsl(status)
+  bsl(cnttransferenc),bsl(cntid),bsl(cntdescription),bsl(transportoptions),
+  bsl(defltoptions),bsl(status)
 };

@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.3 1992/10/20 15:34:21 berg Exp $*/
+/*$Id: config.h,v 1.4 1992/10/28 17:22:45 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -228,7 +228,7 @@ Usage: formail [+nnn] [-nnn] [-bcfrktnedq] [-m nnn] [-l folder] [-xaAiI field]\
 \n\t-q\tbe quiet about write errors on stdout\
 \n\t-s prg arg\tsplit the mail, startup prg for every message\
 \n\t-n\tdon't wait for every prg while splitting\
-\n\t-e\tdon't require empty lines to preceed a header\
+\n\t-e\tdon't require empty lines to precede a header\
 \n\t-d\taccept digest format\
 \n\t-m nnn\tmin fields threshold (default 2) for start of message\
 \n\t+nnn\tskip the first nnn messages while splitting\

@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.4 1992/10/20 15:34:54 berg Exp $
+.Id $Id: procmailrc.man,v 1.5 1992/10/28 17:23:13 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .SH NAME
 .na
@@ -418,7 +418,7 @@ present as well, the body respectively the header of the mail will be silently
 lost.
 .PP
 The `+CONTINUE+' flag defaults to on when a conditional variable assignment
-preceeds the action line.
+precedes the action line.
 .Sh "SEE ALSO"
 .na
 .BR procmail (1),
@@ -458,6 +458,9 @@ lockfile will not be removed if procmail exits at that point (remedy:
 use
 .I absolute
 paths to specify global lockfiles).
+.PP
+When capturing stdout from a recipe into an environment variable, exactly
+one trailing newline will be stripped.
 .Sh MISCELLANEOUS
 If the regular expression starts with `\fB+TOkey+\fP' it will be substituted by
 .na

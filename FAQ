@@ -22,10 +22,18 @@
 
 	On some systems .forward files are not checked, in this case it might
 	be worth trying to put a line looking like this:
+		Forward to "|/usr/local/bin/procmail"
+	or if that doesn't work, try:
 		Pipe to /usr/local/bin/procmail
 	as the only line in your mail spool file (e.g. /usr/mail/$USER), as
-	well as doing a "chmod 04600 /usr/mail/$USER".	For more information
+	well as doing a "chmod 06600 /usr/mail/$USER".	For more information
 	on such systems, do a "man mail".
+
+	If all of this doesn't work, procmail can be called on a periodical
+	basis, either via "cron", "at" or whenever you start reading mail (or
+	log in).  The command line you would need in such a case would be
+	something like:
+		formail -s procmail </usr/mail/$USER
 
 3. When I compile everything the compiler complains about invalid or illegal
    pointer combinations, but it produces the executables anyway.

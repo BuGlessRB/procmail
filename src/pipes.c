@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: pipes.c,v 1.5 1992/10/20 15:35:47 berg Exp $";
+static char rcsid[]="$Id: pipes.c,v 1.6 1992/10/28 17:24:00 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -210,12 +210,13 @@ char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
 
 void exectrap(tp)const char*const tp;
 { if(*tp)
-   { metaparse(tp);inittmout(buf);
-     if(!(pidchild=sfork()))
+   { int newret;
+     metaparse(tp);inittmout(buf);
+     if(!(pidchild=sfork()))	     /* connect stdout to stderr before exec */
       { signal(SIGTERM,SIG_DFL);signal(SIGINT,SIG_DFL);signal(SIGHUP,SIG_DFL);
 	signal(SIGQUIT,SIG_DFL);rclose(STDOUT);rdup(STDERR);callnewprog(buf);
       }
-     if(!forkerr(pidchild,buf))
-	waitfor(pidchild);
+     if(!forkerr(pidchild,buf)&&(newret=waitfor(pidchild))!=EX_OK)
+	retval=newret;			       /* supersede the return value */
    }
 }

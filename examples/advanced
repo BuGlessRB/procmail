@@ -3,6 +3,7 @@ Discusses:
 		2. Procmail as an integrated local mail delivery agent
 		2a.Special directions for sites with sendmail
 		2b.Special directions for sites with smail
+		2c.Special directions for sites with SysV /etc/mail/mailsurr
 		3. Security considerations (when installing procmail suid root)
 		4. Some exorbitant examples of rcfile formats
 		5. Some advanced examples of the use of the 'A' flag
@@ -149,6 +150,18 @@ local: return_path, local, from, driver=pipe;
 
 For any ideas on suid/sgid modes which *might* be needed, see the previous
 section (2).
+
+				---
+
+2c.Special directions for sites with SysV /etc/mail/mailsurr
+   ---------------------------------------------------------
+
+Some systems use a SysV /bin/mail that supports mailsurr.  To interface
+procmail with mailsurr the following two lines should be inserted in the
+/etc/mail/mailsurr file (preferably at the bottom):
+
+'(.+)' '([^@!]+)' '<S=0;C=67,75;F=*;
+	/usr/local/bin/procmail -f \\1 -d \\2'
 
 				---
 

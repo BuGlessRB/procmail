@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: goodies.c,v 1.6 1992/10/21 20:11:56 berg Exp $";
+static char rcsid[]="$Id: goodies.c,v 1.7 1992/10/28 17:23:44 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -252,9 +252,10 @@ void primeStdout P((void))	    /* *no* environment changes are allowed! */
 }
 
 void retStdout(newmyenv)char*newmyenv;		/* see note on primeStdout() */
-{ while(newmyenv[--Stdfilled]=='\n');		  /* strip trailing newlines */
-  newmyenv=realloc(newmyenv,++Stdfilled);newmyenv[Stdfilled]='\0';
-  *lastenv=(myenv=(struct lienv*)newmyenv)->ename;Stdout=0;
+{ if(newmyenv[Stdfilled-1]=='\n')	       /* strip one trailing newline */
+     --Stdfilled;
+  newmyenv[Stdfilled]='\0';*lastenv=(myenv=(struct lienv*)newmyenv)->ename;
+  Stdout=0;
 }
 
 void postStdout P((void))		 /* throw it into the keyword parser */

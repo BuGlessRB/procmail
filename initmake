@@ -1,14 +1,18 @@
 
-#$Id: initmake,v 1.4 1992/10/20 15:34:24 berg Exp $
+#$Id: initmake,v 1.5 1992/10/28 17:22:48 berg Exp $
 
 SHELL=/bin/sh || exec /bin/sh ./initmake $* # we're in a csh, feed myself to sh
 
 MSHELL=$1
+PATH=:$PATH
 shift; RM="$1"
 shift; USRINCLUDE=$1
+shift; PLIB=$1
+shift; PLIBUSR=$1
 shift; DEVNULL=$1
 shift; MAKE="$1"
 shift; O=$1
+shift; A=$1
 shift; CC="$1"
 shift; CFLAGS1="$1"
 shift; LDFLAGS1="$1"
@@ -19,6 +23,8 @@ shift; SUBDIRS="$1"
 
 test 1 != $# &&
  echo "Don't start this script directly, use \`make init'" && exit 1
+
+export SHELL PATH
 
 FGREP="fgrep"		# POSIX, or not POSIX, that is the question...
 if test \^hello = "`echo '^hello' | grep -F '^hello' 2>&1`"
@@ -104,8 +110,34 @@ HERE
   $RM src/_autotst.$O src/_autotst.c
 fi
 
-echo "CFLAGS	= \$(CFLAGS1)$CFLAGS"			>>_Makefile
-echo "LDFLAGS	= \$(LDFLAGS1)"				>>_Makefile
+LDFLAGS=""
+export LDFLAGS
+cat >checklib <<HERE
+if test -f $PLIB\$1.$A -o -f $PUSRLIB\$1.$A
+then
+  LDFLAGS="\$LDFLAGS -l\$1"
+elif test -f /usr/local/lib/lib\$1.$A
+then
+  case "$LDFLAGS" in
+     *-L/usr/local/lib*) LDFLAGS="\$LDFLAGS -L/usr/local/lib";;
+  esac
+  LDFLAGS="\$LDFLAGS -l\$1"
+fi
+echo "\$LDFLAGS"
+HERE
+chmod 0755 checklib
+LDFLAGS=`checklib c`
+test ! -f $USRINC/dirent.h -a ! -f $USRINC/ndir.h -a -f $USRINC/sys/ndir.h ||
+ LDFLAGS=`checklib dir`
+LDFLAGS=`checklib x`
+LDFLAGS=`checklib socket`
+LDFLAGS=`checklib net`
+LDFLAGS=`checklib nsl`
+LDFLAGS=`checklib resolv`
+$RM checklib
+
+echo "CFLAGS	= \$(CFLAGS1) $CFLAGS"			>>_Makefile
+echo "LDFLAGS	= \$(LDFLAGS1) $LDFLAGS"		>>_Makefile
 echo							>>_Makefile
 
 MANSS=""

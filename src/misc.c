@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: misc.c,v 1.6 1992/10/21 20:12:06 berg Exp $";
+static char rcsid[]="$Id: misc.c,v 1.7 1992/10/28 17:23:55 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -24,6 +24,7 @@ struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
  {"LOCKTIMEOUT",DEFlocktimeout},{"SUSPEND",DEFsuspend},
  {"NORESRETRY",DEFnoresretry},{"TIMEOUT",DEFtimeout},{"VERBOSE",DEFverbose}};
 int didchd;
+static fakedelivery;
 		       /* line buffered to keep concurrent entries untangled */
 void elog(newt)const char*const newt;
 { int lnew,i;static lold;static char*old;char*p;

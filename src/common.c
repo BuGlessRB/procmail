@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: common.c,v 1.6 1992/10/20 15:35:00 berg Exp $";
+static char rcsid[]="$Id: common.c,v 1.7 1992/10/28 17:23:23 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -62,7 +62,7 @@ void ultstr(minwidth,val,dest)unsigned long val;char*dest;
   while(val/=10);
 }
 
-strnIcmp(a,b,l)register const char*a,*b;register unsigned l;
+strnIcmp(a,b,l)register const char*a,*b;register size_t l;
 { unsigned i,j;
   if(l)						 /* case insensitive strncmp */
      do

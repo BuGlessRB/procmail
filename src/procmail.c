@@ -11,7 +11,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: procmail.c,v 1.5 1992/10/20 15:35:52 berg Exp $";
+static char rcsid[]="$Id: procmail.c,v 1.6 1992/10/28 17:24:03 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -39,7 +39,7 @@ static const char tokey[]=TOkey,fromdaemon[]=FROMDkey,fdefault[]="DEFAULT",
  systm_mbox[]=SYSTEM_MBOX,pmusage[]=PM_USAGE;
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EX_OK,sh,pwait,lcking,rc=rc_INIT,
- ignwerr,fakedelivery,lexitcode=EX_OK;
+ ignwerr,lexitcode=EX_OK;
 size_t linebuf=mx(DEFlinebuf+XTRAlinebuf,STRLEN(systm_mbox)<<1);
 volatile int nextexit;			       /* if termination is imminent */
 pid_t thepid;
@@ -276,9 +276,12 @@ bogusbox:					     /* bogus mailbox found! */
 	if(rename(chp,buf))		   /* try and move it out of the way */
 	   goto fishy;		 /* couldn't rename, something is fishy here */
       }
+     else if(stbuf.st_mode&(S_ISGID|S_ISUID))	/* SysV type autoforwarding? */
+      { nlog("Autoforwarding mailbox found\n");return EX_NOUSER;
+      }
      else
 	goto notfishy;				       /* everything is fine */
-  if(!xcreat(chp,NORMperm,(time_t*)0,&i))	  /* try and create the file */
+  if(!xcreat(chp,NORMperm,(time_t*)0,&i))      /* try and create the mailbox */
      if(i)					       /* could we chown it? */
 	unlink(chp);		    /* no we couldn't, NFS-mount or not root */
      else

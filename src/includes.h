@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.6 1992/10/21 20:11:59 berg Exp $*/
+/*$Id: includes.h,v 1.7 1992/10/28 17:23:50 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -64,6 +64,10 @@ const char*getenv();
 #include <ndir.h>
 #define dirent	direct
 #else
+#ifndef SYS_NDIR_H_MISSING
+#include <sys/ndir.h>
+#define dirent	direct
+#else
 #ifndef SYS_DIR_H_MISSING
 #include <sys/dir.h>
 #define dirent	direct
@@ -72,6 +76,7 @@ const char*getenv();
 #include <sys/dirent.h>
 #else
 /* I give up, I can only hope that your system defines DIR and struct dirent */
+#endif
 #endif
 #endif
 #endif

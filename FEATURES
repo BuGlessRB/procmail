@@ -21,7 +21,7 @@ Feature summary for procmail:
 	  will bounce back to the sender (or not, your choice)
 	+ Is one of the few mailers to perform reliable mailbox locking across
 	  NFS as well (DON'T use NFS mounted mailboxes WITHOUT installing
-	  procmail, you may loose valuable mail one day)
+	  procmail; you may lose valuable mail one day)
 	+ Supports four mailfolder standards: single file folders (standard
 	  and nonstandard VNIX format), directory folders that contain one file
 	  per message, or the similar MH directory folders (numbered files)

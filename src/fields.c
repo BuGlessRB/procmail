@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: fields.c,v 1.5 1992/10/20 15:35:09 berg Exp $";
+static char rcsid[]="$Id: fields.c,v 1.6 1992/10/28 17:23:33 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -13,6 +13,7 @@ static char rcsid[]="$Id: fields.c,v 1.5 1992/10/20 15:35:09 berg Exp $";
 #include "shell.h"
 #include "common.h"
 #include "fields.h"
+#include "ecommon.h"
 #include "formisc.h"
 
 struct field*findf(p,hdr)const struct field*const p,*hdr;

@@ -35,7 +35,7 @@ For a more complete list of all library references see "includes.h"
 
 ------------------------------ DESCRIPTION -----------------------------------
 
-The procmail mail processing program. (v2.71 1992/07/01)
+The procmail mail processing program. (v2.80pre3 1992/10/28)
 
 Can be used to create mail-servers, mailing lists, sort your incoming mail
 into separate folders/files (real convenient when subscribing to one or more

@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.6 1992/10/20 15:36:45 berg Exp $
+#$Id: Makefile,v 1.7 1992/10/28 17:22:37 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -42,17 +42,23 @@ MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 
 # Makefile.0 - mark, don't (re)move this, a sed script needs it
 
-# Directory for the standard include files
+# Directory for the system include files
 USRINCLUDE = /usr/include
+# Path prefixes for system libraries
+PLIB	= /lib/lib
+PUSRLIB = /usr/lib/lib
 
 CFLAGS0 = -O #-ansi -pedantic -Wid-clash-6
 LDFLAGS0= -s
 
-CFLAGS1 = $(CFLAGS0)
+CFLAGS1 = $(CFLAGS0) #-posix -Xp
 LDFLAGS1= $(LDFLAGS0) #-lcposix
 
 ####CC	= cc # gcc
+# object file extension
 O	= o
+# library archive file extension
+A	= a
 RM	= /bin/rm -f
 INSTALL = cp
 DEVNULL = /dev/null
@@ -73,9 +79,9 @@ make:
 	@/bin/sh -c "exit 0"
 
 init:
-	/bin/sh ./initmake "$(SHELL)" "$(RM)" $(USRINCLUDE) $(DEVNULL) \
-	 "$(HIDEMAKE)" $(O) "$(CC)" "$(CFLAGS1)" "$(LDFLAGS1)" "$(BINSS)" \
-	 "$(MANS1S)" "$(MANS5S)" "$(SUBDIRS)"
+	/bin/sh ./initmake "$(SHELL)" "$(RM)" $(USRINCLUDE) $(PLIB) \
+	 $(PUSRLIB) $(DEVNULL) "$(HIDEMAKE)" $(O) $(A) "$(CC)" "$(CFLAGS1)" \
+	 "$(LDFLAGS1)" "$(BINSS)" "$(MANS1S)" "$(MANS5S)" "$(SUBDIRS)"
 
 makefiles makefile Makefiles Makefile: init
 

@@ -1,5 +1,5 @@
 
-#$Id: autoconf,v 1.6 1992/10/21 20:11:53 berg Exp $
+#$Id: autoconf,v 1.7 1992/10/28 17:23:21 berg Exp $
 
 SHELL=/bin/sh || exec /bin/sh ./autoconf $* # we're in a csh, feed myself to sh
 
@@ -11,6 +11,7 @@ SHELL=/bin/sh || exec /bin/sh ./autoconf $* # we're in a csh, feed myself to sh
 #	#define DIRENT_H_MISSING
 #	#define SYS_DIRENT_H_MISSING
 #	#define NDIR_H_MISSING
+#	#define SYS_NDIR_H_MISSING
 #	#define SYS_DIR_H_MISSING
 #	#define SYS_WAIT_H_MISSING
 #	#define SYS_UTSNAME_H_MISSING
@@ -112,10 +113,13 @@ if test ! -f $USRINC/dirent.h
 then echo "#define DIRENT_H_MISSING" >>$ACONF
   if test ! -f $USRINC/ndir.h
   then echo "#define NDIR_H_MISSING" >>$ACONF
-     if test ! -f $USRINC/sys/dir.h
-     then echo "#define SYS_DIR_H_MISSING" >>$ACONF
-	test -f $USRINC/sys/dirent.h ||
-	 echo "#define SYS_DIRENT_H_MISSING" >>$ACONF
+     if test ! -f $USRINC/sys/ndir.h
+     then echo "#define SYS_NDIR_H_MISSING" >>$ACONF
+	if test ! -f $USRINC/sys/dir.h
+	then echo "#define SYS_DIR_H_MISSING" >>$ACONF
+	   test -f $USRINC/sys/dirent.h ||
+	    echo "#define SYS_DIRENT_H_MISSING" >>$ACONF
+	fi
      fi
   fi
 fi
@@ -251,7 +255,7 @@ main()
   close(0);goodlock=0;testlock=FIRST_lock;
   if(fork())				 /* try to loose the controlling tty */
      return EX_OK;	/* mainly to prevent rather messy kernel-diagnostics */
-  setsid();				    /* from appearing on your tty on */
+  setsid();				       /* from appearing on your tty */
   do
    { otimet=time((char*)0);signal(SIGTERM,SIG_DFL);
      if(fork())							  /* cloning */
@@ -260,7 +264,7 @@ main()
      while((child[--i]=fork())&&i);		       /* divide and conquer */
      if(!*child)
       { unsigned char lockflag;int fd,childno=i<<SHIFT_childno;
-	close(pip[0]);close(1);
+	close(pip[0]);close(1);nice(1);
 	for(;;)						   /* and lock away! */
 	 { filename[sizeof filename-2]='0'+(i=(psrand()%NR_of_lockfiles));
 	   lockflag=childno|i<<1|1;
@@ -647,13 +651,12 @@ echo 'Determining the most applicable block size'
 $MAKE _autotst >$DEVNULL 2>&1
 _autotst >>$ACONF
 
-if test -d /usr/spool/mail
-then
- echo '#define SYSTEM_MAILBOX "/usr/spool/mail/$USER"' >>$ACONF
-elif test -d /usr/mail
-then
- echo '#define SYSTEM_MAILBOX "/usr/mail/$USER"' >>$ACONF
-elif _autotst 2 >>$ACONF
+found=0
+for a in /usr/spool/mail /usr/mail /var/spool/mail /var/mail
+do
+  test -d $a && echo '#define SYSTEM_MAILBOX "'$a'/$USER"' >>$ACONF && found=1
+done
+if test $found != 1 && _autotst 2 >>$ACONF
 then
  echo '#define SYSTEM_MAILBOX "$HOME/.mail"' >>$ACONF
  echo Could not find the system-mailbox directory, supplied substitute

@@ -7,15 +7,17 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: formail.c,v 1.4 1992/10/20 15:35:12 berg Exp $";
+static char rcsid[]="$Id: formail.c,v 1.5 1992/10/28 17:23:36 berg Exp $";
 #endif
-static char rcsdate[]="$Date: 1992/10/20 15:35:12 $";
+static char rcsdate[]="$Date: 1992/10/28 17:23:36 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
 #include "sublib.h"
+#include "shell.h"
 #include "common.h"
 #include "fields.h"
+#include "ecommon.h"
 #include "formisc.h"
 
 static const char unknown[]=UNKNOWN,re[]=" Re:",fmusage[]=FM_USAGE,
@@ -70,8 +72,6 @@ struct field*rdheader;
 static struct field*iheader,*Iheader,*aheader,*Aheader,*xheader,*Rheader,
  *nheader;
 
-#include "shell.h"
-
 static void logfolder P((void))	 /* estimate the no. of characters needed to */
 { size_t i;char num[8*sizeof totallen*4/10+1];	       /* represent totallen */
   static const char tabchar[]=TABCHAR;
@@ -85,7 +85,7 @@ static void logfolder P((void))	 /* estimate the no. of characters needed to */
 }
     /* checks if the last field in rdheader looks like a known digest header */
 static digheadr P((void))
-{ char*chp;int i,j;struct field*fp;
+{ char*chp;int i;size_t j;struct field*fp;
   for(fp=rdheader;fp->fld_next;fp=fp->fld_next);	 /* skip to the last */
   i=maxindex(cdigest);chp=fp->fld_text;j=fp->id_len;
   while((cdigest[i].lnr!=j||strnIcmp(cdigest[i].hedr,chp,j))&&i--);
@@ -101,9 +101,9 @@ static artheadr P((void))	     /* could it be the start of an article? */
 }
 
 main(lastm,argv)const char*const argv[];
-{ int i,j,split=0,force=0,bogus=1,every=0,areply=0,trust=0,digest=0,
-   nowait=0,keepb=0,minfields=0,conctenate=0;
-  size_t lnl;char*chp,*namep;struct field*fldp,*fp2,**afldp,*fdate;
+{ int i,split=0,force=0,bogus=1,every=0,areply=0,trust=0,digest=0,nowait=0,
+   keepb=0,minfields=0,conctenate=0;
+  size_t j,lnl;char*chp,*namep;struct field*fldp,*fp2,**afldp,*fdate;
   if(lastm)			       /* sanity check, any argument at all? */
 #define Qnext_arg()	if(!*chp&&!(chp=(char*)*++argv))goto usg
      while(chp=(char*)*++argv)
@@ -245,8 +245,11 @@ foundfrom:
 	      case '\n':;
 	    }
 	   break;
-	 }	       /* check if the address has any length and extract it */
-	if((i=skipwords(saddr,end)-saddr)&&(!namel||nowm>lastm))
+	 }
+	if(*(chp=skipwords(saddr,end))=='>'&&*saddr=='<'&&
+	 chp==strpbrk(saddr,"([\">,; \t\n"))	      /* strip '<' and '>' ? */
+	   ++saddr,--chp;      /* check length of the address and extract it */
+	if((i=chp-saddr)&&(!namel||nowm>lastm))
 	 { tmemmove(namep=realloc(namep,i+1),saddr,namel=i);
 	   lastm=mystrstr(namep,".UUCP",end)?nowm-maxindex(sest)-3:nowm;
 	 }

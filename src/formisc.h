@@ -1,9 +1,6 @@
-/*$Id: formisc.h,v 1.3 1992/10/02 14:40:06 berg Exp $*/
+/*$Id: formisc.h,v 1.4 1992/10/28 17:23:41 berg Exp $*/
 
 void
- *tmalloc Q((const size_t len)),
- *trealloc Q((void*old,const size_t len)),
- tfree P((void*a)),
  loadsaved P((const struct saved*const sp)),
  loadbuf Q((const char*const text,const size_t len)),
  loadchar P((const c)),
@@ -21,5 +18,4 @@ void
 char*
  skipwords P((const char*start,const char*const end));
 int
- getline P((void)),
- mystrstr P((const char*whole,const char*const part,const char*end));
+ getline P((void));

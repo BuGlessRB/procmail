@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.3 1992/10/20 15:34:13 berg Exp $
+#$Id: Makefile.1,v 1.4 1992/10/28 17:22:40 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -100,7 +100,8 @@ deinstall:
 
 clean: new
 	-for a in $(SUBDIRS); do cd $$a; $(MAKE) $@; cd ..; done; exit 0
-	$(RM) $(MANS) $(BINS) install.man install.bin suid.sh _Makefile core
+	$(RM) $(MANS) $(BINS) libcheck install.man install.bin suid.sh \
+	 _Makefile core
 
 realclean: clean _init
 	-rmdir new; exit 0

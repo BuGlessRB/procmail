@@ -5,34 +5,15 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: formisc.c,v 1.5 1992/10/20 15:35:16 berg Exp $";
+static char rcsid[]="$Id: formisc.c,v 1.6 1992/10/28 17:23:39 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
 #include "sublib.h"
-#include "common.h"
-#include "formisc.h"
-
-static const char outofmem[]="Out of memory\n";
-
-void*tmalloc(len)const size_t len;
-{ void*p;
-  if(p=malloc(len))
-     return p;
-  nlog(outofmem);exit(EX_OSERR);
-}
-
-void*trealloc(old,len)void*old;const size_t len;
-{ if(old=realloc(old,len))
-     return old;
-  nlog(outofmem);exit(EX_OSERR);
-}
-
-void tfree(a)void*a;
-{ free(a);
-}
-
 #include "shell.h"
+#include "common.h"
+#include "ecommon.h"
+#include "formisc.h"
 						 /* skips an RFC 822 address */
 char*skipwords(start,end)const char*start,*const end;
 { int delim='>',firstch;
@@ -175,12 +156,4 @@ void closemine P((void))
 void opensink P((void))
 { if(!(mystdout=fopen(DevNull,"a")))
      nofild();
-}
-
-mystrstr(whole,part,end)const char*whole,*const part,*end;
-{ size_t i;
-  for(end-=(i=strlen(part))+1;--end>=whole;)
-     if(!strnIcmp(end,part,i))
-	return 1;
-  return 0;
 }
