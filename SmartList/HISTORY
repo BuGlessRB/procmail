@@ -103,3 +103,10 @@
 1994/06/15: v3.01
 	    v3.00 didn't react to plain (un)subscribe requests
 	    Installation as non-root had problems finding the right directory
+1994/06/16: v3.02
+	    Modifications to the archive server:
+	       - support the MIME dir="" and name="" parameters
+	       - force it to sleep between sending files (lowers load)
+	       - only queue sent files, then flush the queue (lowers load)
+	    Modifications to multigram:
+	       - Strip leading or trailing unbalanced "'s from mailaddresses

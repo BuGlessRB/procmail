@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.36 1994/06/14 17:36:40 berg Exp $
+#$Id: arch_retrieve,v 1.37 1994/06/16 16:36:58 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -12,6 +12,7 @@ cat=cat			# /bin/cat
 egrep=egrep		# /bin/egrep
 nice=nice		# /bin/nice
 mimesend=mimesend	# SedHomeDir/.bin/mimesend
+sleep=sleep		# /bin/sleep
 mimencode=mimencode	# /usr/local/bin/mimencode	# metamail MIME package
 formail=formail		# /usr/local/bin/formail
 
@@ -24,6 +25,8 @@ maxfiles=16			# the maximum number of files returned (per
 				# command), this can be overridden with
 				# the "maxfiles nnn" command.  Setting it
 				# to zero will disable checking.
+waitsleep=8			# number of seconds to sleep between sending
+				# off files (to limit the load increase)
 
 tmprequest=tmp.request
 tmpfrom=tmp.from
@@ -132,7 +135,7 @@ $wrongaddress}"
 			      $echo "File $1 is currently not available."
 			   fi
 			fi
-		      ) | $SENDMAIL $sendmailOPT -t
+		      ) | $SENDMAIL $sendmailOPT $sendmailOPTq -t
 			else
 			   $mimesend "$1"
 			fi
@@ -150,7 +153,8 @@ $wrongaddress}"
 		 $echo "'archive maxfiles $#' command first to raise the"
 		 $echo "limit."
 	       ) | $SENDMAIL $sendmailOPT -t
-	    fi ;;
+	    fi
+	    $sleep $waitsleep ;;
 	 ls|dir|directory|list|show|\
 	 LS|DIR|DIRECTORY|LIST|SHOW)
 	    shift
@@ -171,7 +175,8 @@ $wrongaddress}"
 		     $ls -lL "$@" 2>&1 | $sed -e $breakoff_ls'a\
 Truncating after '$breakoff_ls' names...' -e ${breakoff_ls}q
 		     $echo "END-----------------cut here------------------"
-		   ) | $SENDMAIL $sendmailOPT -t ;;
+		   ) | $SENDMAIL $sendmailOPT -t
+		  $sleep $waitsleep ;;
 	    esac ;;
 	 search|grep|egrep|fgrep|find|\
 	 SEARCH|GREP|EGREP|FGREP|FIND)
@@ -205,7 +210,8 @@ Truncating after '$breakoff_ls' names...' -e ${breakoff_ls}q
 		   </dev/null 2>&1 | $sed -e $breakoff_search'a\
 Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 		  $echo "END-----------------cut here------------------"
-		) | $SENDMAIL $sendmailOPT -t ;;
+		) | $SENDMAIL $sendmailOPT -t
+		  $sleep $waitsleep ;;
 	    esac ;;
 	 version|VERSION)
 		( $formail -rt -I"Subject: archive retrieval: $line" \
@@ -215,7 +221,8 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 		  flist -v 2>&1 | sed -e "/^User:/,$ d"
 		  echo ""
 		  procmail -v 2>&1
-		) | $SENDMAIL $sendmailOPT -t ;;
+		) | $SENDMAIL $sendmailOPT -t
+	       $sleep $waitsleep ;;
 	 ""|\#*) ;;
 	 *) $test -z "$sendhelp" && sendhelp="$1" ;;
       esac
@@ -246,4 +253,9 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 if $test ! -z "$archive_log"
 then
   $cat $tmpfrom >>$archive_log
+fi
+
+if $test ! -z "$sendmailQflush"
+then
+  $sendmailQflush 2>/dev/null &
 fi

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.51 1994/06/14 13:49:08 berg Exp $";
+ "$Id: formail.c,v 1.52 1994/06/16 16:37:21 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/06/14 13:49:08 $";
+static /*const*/char rcsdate[]="$Date: 1994/06/16 16:37:21 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -604,7 +604,7 @@ delfld:	    { fldp=delfield(afldp);continue;
 	if((buflast=tbl)=='\n'&&lwr!=tbl)	/* just before a line break? */
 	   putcs('\n'),buflast=getchar();		/* wrap up loose end */
       }
-     if(ctlength>0)
+     if(!quiet&&ctlength>0)
       { charNUM(num,ctlength);
 	nlog(cntlength);elog(" field exceeds actual length by ");
 	ultstr(0,(unsigned long)ctlength,num);elog(num);elog(" bytes\n");

@@ -52,7 +52,7 @@
 #		conjunction with the RC_LOCAL_* variables which can be set
 #		in rc.init or rc.custom files)
 
-#$Id: rc.init,v 1.35 1994/06/07 14:04:28 berg Exp $
+#$Id: rc.init,v 1.36 1994/06/16 16:37:07 berg Exp $
 
 DELIVERED=yes	# we're in control of the mail now, tell sendmail to go away
 
@@ -123,6 +123,8 @@ minnames mindiffnames maxnames maxsplits maxsize maxconcur
 
 sendmailOPT="-oem -odb -oi -om -f$listreq"
 sendmailOPTp=-oep
+sendmailOPTq=-odq
+sendmailQflush="$SENDMAIL -q"
 ########################
 # sendmail options used:
 #
@@ -131,6 +133,8 @@ sendmailOPTp=-oep
 # -oi	do not regard a single dot on an otherwise empty line as EOF
 # -om	include myself in any alias expansions
 # -odb	background deliverymode command returns immediately
+# -odq	queued deliverymode (put messages in the queue only)
+# -q	flush the queue
 # -oem	mail back error messages
 # -oep	print error messages
 # -onF	do not check aliases while expanding them (use it, if available)
@@ -138,9 +142,10 @@ sendmailOPTp=-oep
 #
 # If you only have /bin/mail and not some sendmail compatible mailer that
 # understands the -t option of sendmail, then you have to uncomment the
-# following line:
+# following two lines:
 #
-#sendmailOPT sendmailOPTp SENDMAIL=../SedBinDir/sendmails
+#sendmailOPT sendmailOPTp sendmailOPTq sendmailQflush
+#SENDMAIL=../SedBinDir/sendmails
 #
 ########################
 

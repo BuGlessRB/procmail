@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.26 1994/06/14 14:38:34 berg Exp $
+.Id $Id: formail.man,v 1.27 1994/06/16 16:37:15 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -132,9 +132,10 @@ before it decides it found the start of a new message, it defaults to
 @DEFminfields@.
 .TP
 .B \-@FM_QUIET@
-Tells formail not to report write errors on stdout and not to report that it
-found duplicate messages.  This option is on by default, to make it
-report write errors use
+Tells formail to (still detect but) be quiet about write errors, duplicate
+messages and mismatched
+.B Content-Length:
+fields.  This option is on by default, to make it display the messages use
 .BR \-@FM_QUIET@\- .
 .TP
 .I "\fB\-@FM_DUPLICATE@\fP maxlen idcache"

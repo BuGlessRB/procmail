@@ -208,3 +208,5 @@
 	       - Autoconf determines MAX_argc (for choplist)
 1994/06/14: v3.01
 	    No changes, version number bump to keep in sync with SmartList
+1994/06/16: v3.02
+	    Made formail quiet (by default) about Content-Length mismatches

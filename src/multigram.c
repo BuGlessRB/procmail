@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.55 1994/06/13 18:08:53 berg Exp $";
+ "$Id: multigram.c,v 1.56 1994/06/16 16:37:24 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/06/13 18:08:53 $";
+static /*const*/char rcsdate[]="$Date: 1994/06/16 16:37:24 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -672,6 +672,14 @@ usg:
 	echp=strchr(chp=fuzzstr.text,'\0')-1;
 	while(*chp&&strchr(punctuation,*chp))	/* strip leading punctuation */
 	   chp++;
+	if(*chp=='"'&&!strchr(chp+1,'"'))      /* strip leading unbalanced " */
+	   chp++;
+	while(*chp&&strchr(punctuation,*chp))	/* strip leading punctuation */
+	   chp++;
+	while(echp>=chp&&strchr(tpunctuation,*echp))
+	   *echp--='\0';		       /* strip trailing punctuation */
+	if(echp>=chp&&*echp=='"'&&strchr(chp,'"')==echp)
+	   *echp--='\0';		      /* strip trailing unbalanced " */
 	while(echp>=chp&&strchr(tpunctuation,*echp))
 	   *echp--='\0';		       /* strip trailing punctuation */
 	if(echp<chp)

@@ -6,12 +6,15 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: mimesend,v 1.5 1994/06/07 17:05:33 berg Exp $
+#$Id: mimesend,v 1.6 1994/06/16 16:37:02 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
 rm=rm			# /bin/rm
 cat=cat			# /bin/cat
+sed=sed			# /bin/sed
+dirname=dirname		# /bin/dirname
+basename=basename	# /bin/basename
 splitmail=splitmail	# /usr/local/bin/splitmail	# MIME metamail package
 mimencode=mimencode	# /usr/local/bin/mimencode	# MIME metamail package
 formail=formail		# /usr/local/bin/formail
@@ -29,7 +32,10 @@ $rm -f $TMPF*
 
 filename=$1
 
-export filename archivedir mimencode formail	# for mimencap
+name="`$basename $filename`"
+dir="`$dirname $filename`"
+
+export name dir filename archivedir mimencode formail sed	# for mimencap
 
 ( $formail -rt -I"Subject: archive retrieval: $1" \
    -i"From: $listreq" -A"X-Loop: $listaddr" \
@@ -62,12 +68,12 @@ shift
 
 if $test $# = 1
 then
-  $SENDMAIL $sendmailOPT -t <$1
+  $SENDMAIL $sendmailOPT $sendmailOPTq -t <$1
 else
   for a in "$@"
   do
      $formail -fb -A"X-Loop: $listaddr" -I"Precedence: bulk" <"$a" |
-      $SENDMAIL $sendmailOPT -t
+      $SENDMAIL $sendmailOPT $sendmailOPTq -t
      $rm -f "$a"
   done
 fi

@@ -9,7 +9,7 @@
 #	This file is *not* automatically replaced during an upgrade of	#
 #	SmartList.							#
 #########################################################################
-#$Id: mimencap.local,v 1.9 1994/06/14 13:48:59 berg Exp $
+#$Id: mimencap.local,v 1.10 1994/06/16 16:37:12 berg Exp $
 
 # What we have at our disposal are:
 #
@@ -124,11 +124,11 @@
 
 :0 E wfh D
 * ^Content-ID: <[^%]*\.tar.Z%
-| $formail -fb -I "Content-Type: application/x-tar_compress"
+| $formail -fb -I "Content-Type: application/x-tar-compress"
 
 :0 E wfh
 * ^Content-ID: <[^%]*\.tar\.g?z(ip)?%
-| $formail -fb -I "Content-Type: application/x-tar_gzip"
+| $formail -fb -I "Content-Type: application/x-tar-gzip"
 
 :0 E wfh D
 * ^Content-ID: <[^%]*\.Z%
@@ -186,8 +186,10 @@
   }
 
   :0 wfh
-  * !^MIME-Version:
-  | $formail -fb -I "MIME-Version: 1.0"
+  | $formail -fb -a "MIME-Version: 1.0" | \
+    $sed -e '/^Content-Type:/ a\
+; dir="'$dir'"; name="'$name\"
+
 
   :0
   |

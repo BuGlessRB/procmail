@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.59 1994/06/15 17:06:39 berg Exp $
+#$Id: rc.request,v 1.60 1994/06/16 16:37:09 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -204,8 +204,8 @@ LOGABSTRACT=yes
   /dev/null
 
   :0 Ah
-  * ^Subject: mail warning
-  * ^From:.*uucp
+  * ^Subject: (mail warning|Waiting Mail)
+  * ^(From|Sender):.*uucp
   /dev/null
 
   :0 AhBD
