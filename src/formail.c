@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.95 1999/06/17 06:29:59 guenther Exp $";
+ "$Id: formail.c,v 1.96 1999/08/13 02:54:32 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/06/17 06:29:59 $";
+static /*const*/char rcsdate[]="$Date: 1999/08/13 02:54:32 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -50,17 +50,19 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
  *	reply-address determination fields (wrepl specifies the weight
  *	for header replies and wrrepl specifies the weight for header
  *	replies where Resent- header are used, while the position in the
- *	table index specifies the weight for envelope replies)
+ *	table index specifies the weight for envelope replies and From_
+ *	line creation.
  *
- *	I bet this is the first time you see a bar graph in C-source-code :-)
+ *	I bet this is the first time you've seen a bar graph in
+ *	C-source-code :-)
  */
 static const struct {const char*head;int len,wrepl,wrrepl;}sest[]=
-{ sslbar(res_from	,"*"		,"**********"	),
-  sslbar(res_replyto	,"*"		,"***********"	),
-  sslbar(res_sender	,"*"		,"*********"	),
-  sslbar(Fromm		,"********"	,"*******"	),
-  sslbar(replyto	,"*********"	,"********"	),
+{ sslbar(replyto	,"*********"	,"********"	),
+  sslbar(Fromm		,"**foo***"	,"**bar**"	),
   sslbar(sender		,"*******"	,"******"	),
+  sslbar(res_replyto	,"*"		,"***********"	),
+  sslbar(res_from	,"*"		,"**********"	),
+  sslbar(res_sender	,"*"		,"*********"	),
   sslbar(path		,"**"		,"*"		),
   sslbar(retreceiptto	,"***"		,"**"		),
   sslbar(errorsto	,"****"		,"***"		),
@@ -878,8 +880,6 @@ int eqFrom_(a)const char*const a;
 
 int breakfield(line,len)const char*const line;size_t len;  /* look where the */
 { const char*p=line;			   /* fieldname ends (RFC 822 specs) */
-  if(eqFrom_(p))				      /* special case, From_ */
-     return STRLEN(From_);
   while(len&&!iscntrl(*p))		    /* no control characters allowed */
    { switch(*p++)
       { default:len--;
@@ -893,6 +893,8 @@ good:	   len=p-line;
 		 q++;
 	      if(len&&*q==HEAD_DELIMITER)
 		 goto good;
+	      if(eqFrom_(line))			      /* special case, From_ */
+		 return STRLEN(From_);
 	      p--;
 	    }					   /* it was bogus after all */
       }
