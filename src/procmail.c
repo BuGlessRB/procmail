@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.134 1999/02/24 07:19:47 guenther Exp $";
+ "$Id: procmail.c,v 1.135 1999/02/25 19:19:15 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -541,8 +541,6 @@ nix_sysmbox:
 	   *	sgid privileges, if yes, drop all privs and set uid to
 	   *	the recipient beforehand
 	   */
-	   if(mailfilter!=2)			      /* if it isn't special */
-	      setids();		      /* transmogrify now to prevent peeking */
 	   goto findrc;
 	   do
 	    { if(suppmunreadable)	  /* should we supress this message? */
@@ -572,6 +570,12 @@ pm_overflow:	  { strcpy(buf,pmrc);
 	       }
 	    }
 	   while(0>bopen(buf));			   /* try opening the rcfile */
+	   if(rcstate!=rc_NORMAL&&mailfilter!=2)      /* if it isn't special */
+	    { closerc();			    /* but we are, close it, */
+	      setids();			  /* transmogrify to prevent peeking */
+	      if(0>bopen(buf))				    /* and try again */
+		 goto fake_rc;
+	    }
 #ifndef NOfstat
 	   if(fstat(rc,&stbuf))				    /* the right way */
 #else
