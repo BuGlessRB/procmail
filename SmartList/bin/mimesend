@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: mimesend,v 1.4 1994/06/01 18:52:13 berg Exp $
+#$Id: mimesend,v 1.5 1994/06/07 17:05:33 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -66,7 +66,7 @@ then
 else
   for a in "$@"
   do
-     $formail -A"X-Loop: $listaddr" -I"Precedence: bulk" <"$a" |
+     $formail -fb -A"X-Loop: $listaddr" -I"Precedence: bulk" <"$a" |
       $SENDMAIL $sendmailOPT -t
      $rm -f "$a"
   done

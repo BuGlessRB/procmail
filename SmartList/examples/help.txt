@@ -12,13 +12,6 @@ To unsubscribe from a mailinglist, simply send a message with the word (you
 guessed it :-) "unsubscribe" in the Subject: field to the -request address of
 that list.
 
-With the subscription request you can optionally specify that you do
-not want to receive back any copies of your own submissions.  You can
-do this by adding the following text in your subscription request:
-	"no copies please."
-This feature is not fully supported yet.  You will be marked as such, but
-you will receive back copies anyway.
-
 In the event of an address change, it would probably be the wisest to first
 send an unsubscribe for the old address (this can be done from the new
 address), and then a new subscribe to the new address (the order is important).
@@ -28,6 +21,13 @@ intervention.
 
 Do not send multiple (un)subscription or info requests in one mail.  Only one
 will be processed per mail.
+
+NOTE: The -request server usually does quite a good job in discriminating
+      between (un)subscribe requests and messages intended for the maintainer.
+      If you'd like to make sure a human reads your message, make it look
+      like a reply (i.e. the first word in the Subject: field should be "Re:",
+      without the quotes of course); the -request server does not react to
+      replies.
 
 
 			The archive server

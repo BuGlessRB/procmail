@@ -9,7 +9,7 @@
 #	This file is not automatically replaced during an upgrade of	#
 #	SmartList.							#
 #########################################################################
-#$Id: mimencap.local,v 1.6 1994/06/06 17:33:32 berg Exp $
+#$Id: mimencap.local,v 1.7 1994/06/07 17:05:38 berg Exp $
 
 # What we have at our disposal are:
 #
@@ -30,53 +30,53 @@
 
 :0 wfh
 * ^Content-ID: <[^%]*\.rtf%
-| $formail -I "Content-Type: text/richtext"
+| $formail -fb -I "Content-Type: text/richtext"
 
 :0 E wfh
 * ^Content-ID: <[^%]*\.TeX%
-| $formail -I "Content-Type: text/TeX"
+| $formail -fb -I "Content-Type: text/TeX"
 
 :0 E wfh
 * ^Content-ID: <[^%]*\.dvi%
-| $formail -I "Content-Type: text/dvi"
+| $formail -fb -I "Content-Type: text/dvi"
 
 :0 EB wfh
 * ^^(From .+$(>From .+$)*)?\
   [-_a-z0-9]+:.*$([	 ].*$)*\
   [-_a-z0-9]+:.*$([	 ].*$)*
-| $formail -I "Content-Type: message/rfc822"
+| $formail -fb -I "Content-Type: message/rfc822"
 
 :0 EB wfh
 * ^^%!
-| $formail -I "Content-Type: application/postscript"
+| $formail -fb -I "Content-Type: application/postscript"
 
 :0 EB wfh
 * ^^GIF
-| $formail -I "Content-Type: image/gif"
+| $formail -fb -I "Content-Type: image/gif"
 
 :0 EB wfh
 * ^^пип
-| $formail -I "Content-Type: image/jpeg"
+| $formail -fb -I "Content-Type: image/jpeg"
 
 :0 EB wfh
 * ^^[^-џ][^-џ]ГY
-| $formail -I "Content-Type: video/mpeg"
+| $formail -fb -I "Content-Type: video/mpeg"
 
 :0 E wfh
 * ^Content-ID: <[^%]*\.tar%
-| $formail -I "Content-Type: application/tar"
+| $formail -fb -I "Content-Type: application/tar"
 
 :0 E wfh
 * ^Content-ID: <[^%]*\.zip%
-| $formail -I "Content-Type: application/zip"
+| $formail -fb -I "Content-Type: application/zip"
 
 :0 E wfh
 * ^Content-ID: <[^%]*\.tar\.gz%
-| $formail -I "Content-Type: application/tar_gzip"
+| $formail -fb -I "Content-Type: application/tar_gzip"
 
 :0 E wfh
 * ^Content-ID: <[^%]*\.gz%
-| $formail -I "Content-Type: application/gzip"
+| $formail -fb -I "Content-Type: application/gzip"
 
 #########################################################
 # If any of them matched, encode and output the message #
@@ -95,13 +95,13 @@
       | $mimencode
 
       :0 wfh
-      | $formail -I "Content-Transfer-Encoding: base64"
+      | $formail -fb -I "Content-Transfer-Encoding: base64"
     }
   }
 
   :0 wfh
   * !^MIME-Version:
-  | $formail -I "MIME-Version: 1.0"
+  | $formail -fb -I "MIME-Version: 1.0"
 
   :0
   |
