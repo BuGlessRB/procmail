@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.67 2000/09/28 01:23:29 guenther Exp $*/
+/*$Id: manconf.c,v 1.68 2000/10/23 09:02:45 guenther Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -264,7 +264,8 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
   pc("SERV_ADDRsep",SERV_ADDRsep);
   ps("DEFcomsat",DEFcomsat);
   ps("BinSh",BinSh);
-  ps("RootDir",RootDir);
+  ps("ROOT_DIR",ROOT_DIR);
+  ps("DEAD_LETTER",DEAD_LETTER);
   pc("MCDIRSEP",*MCDIRSEP);
   pc("chCURDIR",chCURDIR);
   pc("HELPOPT1",HELPOPT1);

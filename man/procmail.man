@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.81 2000/09/28 01:23:08 guenther Exp $
+.Id $Id: procmail.man,v 1.82 2000/10/23 09:02:46 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -613,8 +613,9 @@ If the destination name used in explicit delivery mode is not in /etc/passwd,
 procmail will proceed as if explicit delivery mode was not in effect.
 If not in explicit delivery mode and
 should the uid procmail is running under, have no corresponding /etc/passwd
-entry, then HOME will default to @RootDir@, LOGNAME will default to #uid and
-SHELL will default to @BinSh@.
+entry, then HOME will default to @ROOT_DIR@, LOGNAME will default to the
+numeric uid, SHELL will default to @BinSh@, and ORGMAIL will default to
+@DEAD_LETTER@.
 .PP
 When in explicit delivery mode, procmail will generate a leading `@FROM@'
 line if none is present.  If one is already present procmail will leave it
