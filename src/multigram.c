@@ -15,9 +15,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.23 1993/03/04 15:31:20 berg Exp $";
+ "$Id: multigram.c,v 1.24 1993/03/05 14:40:14 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/03/04 15:31:20 $";
+static /*const*/char rcsdate[]="$Date: 1993/03/05 14:40:14 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -195,7 +195,7 @@ main(minweight,argv)char*argv[];
 	printf("%lx",hash);return EX_OK;
       }
      if(!strcmp(chp,senddigest))		      /* senddigest program? */
-      { struct stat stbuf;unsigned long size,maxsize;time_t newt;
+      { struct stat stbuf;
 	progname=senddigest;
 	if(minweight<5)
 	 { elog(
@@ -203,9 +203,11 @@ main(minweight,argv)char*argv[];
 	   return EX_USAGE;
 	 }
 	if(!stat(argv[3],&stbuf))
-	 { newt=stbuf.st_mtime;size=stbuf.st_size;
+	 { time_t newt;unsigned long size;
+	   newt=stbuf.st_mtime;size=stbuf.st_size;
 	   if(!stat(argv[minweight=4],&stbuf))
-	    { if(stbuf.st_mtime+strtol(argv[1],(char**)0,10)<newt)
+	    { unsigned long maxsize;
+	      if(stbuf.st_mtime+strtol(argv[1],(char**)0,10)<newt)
 		 return EX_OK;				   /* digest too old */
 	      maxsize=strtol(argv[2],(char**)0,10);goto statd;
 	      do

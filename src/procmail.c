@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.27 1993/02/11 12:08:41 berg Exp $";
+ "$Id: procmail.c,v 1.28 1993/03/05 14:40:17 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -138,7 +138,7 @@ privileged:
       { writeerr(devnull);return EX_OSFILE;	     /* couldn't open stdout */
       }
 #ifdef console
-     openlog(console);
+     opnlog(console);
 #endif
      setbuf(stdin,(char*)0);buf=malloc(linebuf);buf2=malloc(linebuf);
      lastfolder=cstr(lastfolder,"");thepid=getpid();

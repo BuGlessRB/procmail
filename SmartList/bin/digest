@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.2 1993/03/04 15:31:00 berg Exp $
+#$Id: digest,v 1.3 1993/03/05 14:39:52 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -27,7 +27,7 @@ digestadmin2=archive/latest/$digestadmin
 digestbody=archive/latest/digest.body
 digesttrailer=archive/latest/digest.trailer
 
-$echo "$digest_age $digest_size $archive_hist
+$echo "$digest_age $digest_size $archive_hist $UMASK
 $SENDMAIL $sendmailOPT $listdist" >.digest.params
 
 $awk '
@@ -37,7 +37,7 @@ BEGIN					{ lines=0;mode=0; }
 /^[	 ][	 ]*$/			{ match=2; }
 /^------------------------------$/	{ match=3; }
 { if(mode==0)
-   { print($0) >'$tmpfrom';
+   { print($0) >"'$tmpfrom'";
      if(match==1)
 	mode=1;
      next;
@@ -61,31 +61,17 @@ END { print("");print("------------------------------");print(""); }
 
 flush_digests -c
 
-Date="`		$formail -X Date:	<$tmpfrom`"
-From="`		$formail -X From:	<$tmpfrom`"
-To="`		$formail -X To:		<$tmpfrom`"
-Cc="`		$formail -X Cc:		<$tmpfrom`"
-Subject="`	$formail -x Subject:	<$tmpfrom`"
-MessageID="`	$formail -X Message-ID: <$tmpfrom`"
-Keywords="`	$formail -X Keywords:	<$tmpfrom`"
-Summary="`	$formail -X Summary:	<$tmpfrom`"
-
-for a in Date From To Cc Subject MessageID Keywords Summary
+for a in Date From To Cc Subject Message-ID Keywords Summary
 do
-  b="`$echo \$$a`"
+  b="`$formail -X $a: <$tmpfrom`"
   if $test ! -z "$b"
   then
-     if $test $a = Subject
-     then
-	$echo "Subject:$b" >>$digestbody
-     else
-	$echo "$b" >>$digestbody
-     fi
+     $echo "$b" >>$digestbody
   fi
 done
 
-$echo "" >>$$digestbody
-$cat $tmprequest >>$$digestbody
+$echo "" >>$digestbody
+$cat $tmprequest >>$digestbody
 
 if $test ! -f $digesttrailer
 then
@@ -121,5 +107,12 @@ HERE
   $echo "$b" >>$digesttrailer
 fi
 
-$echo  "	$Subject" >>$digestheader
+$echo  "	`$formail -x Subject: <$tmpfrom`" >>$digestheader
 $cat /dev/null >$tmprequest 2>$tmpfrom
+
+#
+# Check again, maybe we exceed the time or size limits now already.
+#
+
+flush_digests -c
+exit 0

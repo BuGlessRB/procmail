@@ -16,14 +16,15 @@
 #	Created by S.R. van den Berg, The Netherlands		#
 #	This file can be freely copied for any use.		#
 #################################################################
-#$Id: mailstat,v 1.12 1993/03/04 15:30:46 berg Exp $
+#$Id: mailstat,v 1.13 1993/03/05 14:39:48 berg Exp $
 
 #	This shell script expects the following programs to be in the
 #	PATH (paths given here are the standard locations, your mileage
 #	may vary (if the programs can not be found, extend the PATH or
 #	put their absolute pathnames in here):
 
-test=test		# /bin/test	(or built-in in /bin/sh)
+test=test		# /bin/test
+echo=echo		# /bin/echo
 expr=expr		# /bin/expr
 tty=tty			# /bin/tty
 sed=sed			# /bin/sed
@@ -68,15 +69,15 @@ do
 	 o*) MSoldlog=1; MSkeeplogfile=1;;
 	 t*) MSterse=1;;
 	 s*) MSsilent=1;;
-	 h*|\?*) echo 'Usage: mailstat [-klmots] [logfile]' 1>&2
-	    echo '	-k	keep logfile intact' 1>&2
-	    echo '	-l	long display format' 1>&2
-	    echo '	-m	merge any errors into one line' 1>&2
-	    echo '	-o	use the old logfile' 1>&2
-	    echo '	-t	terse display format' 1>&2
-	    echo '	-s	silent in case of no mail' 1>&2
+	 h*|\?*) $echo 'Usage: mailstat [-klmots] [logfile]' 1>&2
+	    $echo '	-k	keep logfile intact' 1>&2
+	    $echo '	-l	long display format' 1>&2
+	    $echo '	-m	merge any errors into one line' 1>&2
+	    $echo '	-o	use the old logfile' 1>&2
+	    $echo '	-t	terse display format' 1>&2
+	    $echo '	-s	silent in case of no mail' 1>&2
 	    exit $EX_USAGE;;
-	 *) echo 'Usage: mailstat [-klmots] [logfile]' 1>&2; exit $EX_USAGE;;
+	 *) $echo 'Usage: mailstat [-klmots] [logfile]' 1>&2; exit $EX_USAGE;;
      esac
   done
 done
@@ -103,11 +104,11 @@ then
      then
 	if $test -f "$LOGFILE"
 	then
-	   echo No mail arrived since \
+	   $echo No mail arrived since \
 	    `$expr match "\`LANG= LC_TIME= $ls -l \"$OLDLOGFILE\"
 	    \`" '.*[0-9] \\([A-Z][a-z][a-z] .[^ ] .....\\) [^ ]'`
 	else
-	   echo "Can't find your LOGFILE=$LOGFILE"
+	   $echo "Can't find your LOGFILE=$LOGFILE"
 	fi
      fi
      exit 1
@@ -115,7 +116,7 @@ then
 else
   if $test ."$LOGFILE" != .- && $tty -s
   then
-     echo \
+     $echo \
       "Most people don't type their own logfiles;  but, what do I care?" 1>&2
      MSterse=1
   fi
@@ -131,13 +132,13 @@ if $test .$MSterse = .
 then
   if $test .$MSlong = .1
   then
-     echo ""
-     echo "  Total Average  Number Folder"
-     echo "  ----- -------  ------ ------"
+     $echo ""
+     $echo "  Total Average  Number Folder"
+     $echo "  ----- -------  ------ ------"
   else
-     echo ""
-     echo "  Total  Number Folder"
-     echo "  -----  ------ ------"
+     $echo ""
+     $echo "  Total  Number Folder"
+     $echo "  -----  ------ ------"
   fi
 fi
 

@@ -199,10 +199,13 @@
 	       turns out to be /dev/null
 	    Added a paragraph to the mailinglist/Manual (explaining multigram
 	       and threshold values)
-1993/03/02: v2.82
+1993/03/05: v2.82
 	    Fixed sleeptime argument to lockfile
-	    Refined the FROM_DAEMON macro again
+	    Refined the ^FROM_DAEMON macro again
 	    Allowed for the archive server of the mailinglists to be installed
 	       standalone
 	    Tuned a few of the mailinglist scripts
 	    The mailinglist scripts now support digested lists
+	    Fixed a conflict with the NeXT Mach 2.1 library (openlog)
+	    Made the internal egrep in procmail warn about mismatching parens
+	       in a regexp

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.19 1993/02/10 17:08:03 berg Exp $";
+ "$Id: misc.c,v 1.20 1993/03/05 14:40:11 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -303,7 +303,7 @@ void asenv(chp)const char*const chp;
      else
 	didchd=1;
   else if(!strcmp(buf,logfile))
-     openlog(chp);
+     opnlog(chp);
   else if(!strcmp(buf,Log))
      elog(chp);
   else if(!strcmp(buf,sdelivered))			    /* fake delivery */

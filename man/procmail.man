@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.13 1993/01/28 14:22:05 berg Exp $
+.Id $Id: procmail.man,v 1.14 1993/03/05 14:40:05 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -222,6 +222,10 @@ Forcing lock on "x"
 .B Lockfile
 "x" is going to be removed by force because of a timeout (see also:
 .BR LOCKTIMEOUT ).
+.Tp
+Invalid regexp "x"
+The regular expression "x" contains errors (most likely some missing or
+extraneous parens).
 .Tp
 Kernel-lock failed
 While trying to use the kernel-supported locking calls, one of them failed

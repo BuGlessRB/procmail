@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.15 1993/01/13 20:18:03 berg Exp $";
+ "$Id: regexp.c,v 1.16 1993/03/05 14:40:20 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -60,7 +60,7 @@ static struct eps*r;
 static struct{unsigned topc;struct eps*tnext;}aleps;
 static uchar*p,*cachea,*cachep;
 static size_t cacher;
-static ignore_case;
+static ignore_case,errorno;
 
 struct chclass {unsigned opc_;struct eps*stack_,*spawn_,*next_;
  bit_field(c,OPB);};
@@ -89,11 +89,14 @@ static void bseti(i,j)unsigned i;const int j;
    }
 }
 
-static void por P((const struct eps*const e));
+static por P((const struct eps*const e));
 
 static void psimp(e)const struct eps*const e;
 { switch(*p)
-   { case R_BEG_GROUP:p++;por(e);return;	  /* not so simple after all */
+   { case R_BEG_GROUP:p++;			  /* not so simple after all */
+	if(por(e))
+	   errorno=1;
+	return;
      case R_BEG_CLASS:					   /* a simple class */
       { unsigned i,j=R_NOT_CLASS==*++p;
 	if(e)
@@ -200,7 +203,7 @@ incagoon:  switch(*++p)			/* at the end of this group already? */
    }
 }
 
-static void por(e)const struct eps*const e;
+static por(e)const struct eps*const e;
 { uchar*pvold;struct eps*rvold;
   if(!e)
    { rvold=r;
@@ -221,11 +224,14 @@ static void por(e)const struct eps*const e;
 	       }
 	      else
 		 p=pold,pnorm(e);			/* normal last group */
-	      if(*p)
-		 p++;
 	      if(!e)
-		 cachea=pvold,cachep=p,cacher=(char*)r-(char*)rvold;
-	      return;
+	       { cachea=pvold;cachep=p;cacher=(char*)r-(char*)rvold;goto ret0;
+	       }
+	      if(*p)
+	       { p++;
+ret0:		 return 0;
+	       }
+	      return 1;
 	   case R_OR:r++;
 	      if(p==pold)				 /* empty 'or' group */
 	       { if(e)
@@ -280,12 +286,17 @@ static fillout(stack)struct eps**const stack;
   RECURS(next);RECURS(spawn);return 0;				  /* recurse */
 }
 
-struct eps*bregcomp(a,ign_case)const char*a;
+struct eps*bregcomp(a,ign_case)const char*const a;
 { struct eps*st;size_t i;      /* first a trial run, determine memory needed */
-  p=(uchar*)a;ignore_case=ign_case;r=Ceps&aleps;cachea=0;por(Ceps 0);
+  errorno=0;p=(uchar*)a;ignore_case=ign_case;r=Ceps&aleps;cachea=0;por(Ceps 0);
   st=r=
    malloc((i=(char*)r-(char*)&aleps)+ioffsetof(struct eps,stack)+sizeof r);
-  p=(uchar*)a;por(epso(st,i));r->opc=OPC_FIN;r->stack=0;	  /* compile */
+  p=(uchar*)a;
+  if(!por(epso(st,i)))					   /* really compile */
+     errorno=1;
+  r->opc=OPC_FIN;r->stack=0;
+  if(errorno)
+     nlog("Invalid regexp"),logqnl(a);
   for(r=st;;)				 /* simplify the compiled code (i.e. */
      switch(st->opc)		      /* take out cyclic epsilon references) */
       { case OPC_FIN:return r;					 /* finished */
