@@ -153,6 +153,7 @@
 	       - the ^TO and ^FROM_DAEMON special keywords can now be used
 		 anywhere in the regular expression
 	       - taught the ^^ special token to the internal egrep
+	       - more than doubled the speed of the builtin regexp library
 	    Changes to the installation scripts:
 	       - preset values for $(MAKE), $(CC) and $(SHELL) are respected
 		 in Makefiles now

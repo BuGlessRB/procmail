@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.9 1992/12/08 14:11:13 berg Exp $";
+ "$Id: regexp.c,v 1.10 1992/12/09 12:59:24 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -282,10 +282,9 @@ static fillout(stack)struct eps**const stack;
 
 struct eps*bregcomp(a,ign_case)const char*a;
 { struct eps*st;size_t i;      /* first a trial run, determine memory needed */
-  p=(uchar*)a;ignore_case=ign_case;r=Ceps&aleps+1;por(Ceps 0);
-  st=malloc((i=(char*)r-(char*)&aleps)+ioffsetof(struct eps,stack)+sizeof r);
-  putneps(st,r=st+1);p=(uchar*)a;por(Ceps((char*)st+i));   /* really compile */
-  r->opc=OPC_FIN;r->stack=0;				  /* tack on the end */
+  p=(uchar*)a;ignore_case=ign_case;r=Ceps&aleps+1;cachea=0;por(Ceps 0);
+  r=st=malloc((i=(char*)r-(char*)&aleps)+ioffsetof(struct eps,stack)+sizeof r);
+  p=(uchar*)a;por(Ceps((char*)st+i));r->opc=OPC_FIN;r->stack=0;	  /* compile */
   for(r=st;;)				 /* simplify the compiled code (i.e. */
      switch(st->opc)		      /* take out cyclic epsilon references) */
       { case OPC_FIN:
@@ -307,9 +306,9 @@ char*bregexec(code,text,len,ign_case)struct eps*code;const uchar*const text;
 { register struct eps*reg,*t,*stack,*other,*thiss;unsigned i,th1,ot1;
   const uchar*str;struct eps*initstack,*initcode;
   initstack=0;
-  if(code[1].opc==OPC_EPS)
-     initstack= ++code;	   /* two epsilons at the start would be superfluous */
-  initcode=code->next;(thiss=code)->stack=0;th1=ioffsetof(struct eps,spawn);
+  if((initcode=code)->opc==OPC_EPS)
+     initcode=(initstack=code)->next;
+  (thiss=code)->stack=0;th1=ioffsetof(struct eps,spawn);
   ot1=ioffsetof(struct eps,stack);str=text-1;len++;i='\n';goto setups;
   do			      /* make sure any beginning-of-line-hooks catch */
    { i= *++str;				 /* get the next real-text character */

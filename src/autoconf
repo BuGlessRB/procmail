@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.18 1992/12/02 17:26:50 berg Exp $
+#$Id: autoconf,v 1.19 1992/12/09 12:59:21 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -426,10 +426,22 @@ fdunlock()
 }
 HERE
 
-$MAKE _autotst >$DEVNULL 2>&1
+if $MAKE _autotst >_autotst.rrr 2>&1
+then
+:
+else
+  echo 2>&1 "Whoeaaa!  There's something fishy going on here."
+  echo 2>&1 "You have a look and see if you detect anything uncanny:"
+  echo 2>&1 "-------------------------------------------------------"
+  cat 2>&1 _autotst.rrr
+  echo 2>&1 "-------------------------------------------------------"
+  echo 2>&1 "I suggest you take a look at the definition of LDFLAGS*"
+  echo 2>&1 "in the Makefile before you try make again."
+  kill -15 $$
+fi
 
 $MV _locktst _locktst.$$ 2>$DEVNULL
-$RM _autotst.$O _locktst* 2>$DEVNULL
+$RM _autotst.$O _autotst.rrr locktst* 2>$DEVNULL
 $MV _autotst _locktst
 for a in 0 1 2 3
 do echo dummy_file >_locktst.l$a
