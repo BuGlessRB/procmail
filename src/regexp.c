@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.62 1998/11/06 05:35:44 guenther Exp $";
+ "$Id: regexp.c,v 1.63 1998/11/09 05:06:15 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -598,8 +598,6 @@ checkmatch:
 	   tmemmove(q=(char*)text,bom,len),q[len]='\0',bom=q;
 	else
 	 { char*p;
-	   if(*bom=='\n')
-	      bom++;				/* strip one leading newline */
 	   primeStdout(amatch);p=realloc(Stdout,(Stdfilled+=len)+1);
 	   tmemmove(q=p+Stdfilled-(int)len,bom,len);retbStdout(p);
 	 }
