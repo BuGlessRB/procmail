@@ -123,9 +123,10 @@ Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhPfn, S=10, R=20, M=2000000,
 	A=procmail -a $h -d $u
 
 In order to take advantage of the optional meta argument that can be passed to
-procmail you'd have to change to add a $#local mailer rule to set the $@ host
-name (which will be substituted for $h in the mailer definition).  There is
-nothing forcing you to do this, but if you do, you'll gain functionality.
+procmail you'd have to change the sendmail.cf file to add a $#local mailer
+rule to set the $@ host name (which will be substituted for $h in the mailer
+definition).  There is nothing forcing you to do this, but if you do, you'll
+gain functionality.
 
 For example:
 	Make sure that the definition of operators in the sendmail.cf file
@@ -138,6 +139,14 @@ For example:
 	Don't change that rule, leave it there.	 But, right BEFORE this
 	rule, create a new one similar to:
 		R$++$*			$#local $@$2 $:$1	local argument
+	Depending on the actual contents of your sendmail.cf file, there
+	still might be some other $#local rule(s) you need to preceed with
+	a corresponding +-handling rule, e.g. in some files you also
+	find:
+		R$+ < $+ @ $+ >		$#local $: $1
+	Preceed that with:
+		R$+ + $* < $+ @ $+ >	$#local $@ $2 $: $1
+	(The spaces are not significant, the tabs are!)
 
 	Now, if someone sends mail to fred+pizza@your.domain, procmail
 	will be called to deliver the mail as:

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.32 1994/09/09 11:13:05 berg Exp $
+.Id $Id: formail.man,v 1.33 1994/09/22 17:13:19 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -9,7 +9,7 @@ formail \- mail (re)formatter
 .B formail
 .RI [ "\fB\@FM_SKIP@\fPskip" ]
 .RI [ "\fB\@FM_TOTAL@\fPtotal" ]
-.RB [ \-@FM_BOGUS@@FM_CONCATENATE@@FM_ZIPWHITE@@FM_FORCE@@FM_REPLY@@FM_KEEPB@@FM_TRUST@@FM_NOWAIT@@FM_EVERY@@FM_DIGEST@@FM_QUIET@@FM_BABYL@@FM_BERKELEY@ ]
+.RB [ \-@FM_BOGUS@@FM_CONCATENATE@@FM_ZAPWHITE@@FM_FORCE@@FM_REPLY@@FM_KEEPB@@FM_TRUST@@FM_NOWAIT@@FM_EVERY@@FM_DIGEST@@FM_QUIET@@FM_BABYL@@FM_BERKELEY@ ]
 .RB [ \-@FM_QPREFIX@
 .IR prefix ]
 .if n .ti +0.5i
@@ -79,7 +79,7 @@ fields.
 Concatenate continued fields in the header.  Might be convenient when
 postprocessing mail with standard (line oriented) text utilities.
 .TP
-.B \-@FM_ZIPWHITE@
+.B \-@FM_ZAPWHITE@
 Ensure a space exists between field name and content.
 Zap fields which contain only a space.
 Zap leading and trailing whitespace on fields extracted with

@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: mimesend,v 1.12 1994/08/23 14:47:15 berg Exp $
+#$Id: mimesend,v 1.13 1994/09/22 17:13:08 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -62,9 +62,7 @@ export name dir filename archivedir mimencode formail sed	# for mimencap
 	$echo "File $filename is currently not available."
      fi
   fi
-) | $formail -fb -a "Content-Disposition: inline; filename=\"$filename\"" \
-     -I "Content-Length: 0000000000" |
-    $procmail -pm SHELL=$SHELL ./../SedBinDir/mimencap | $splitmail -p $TMPF
+) | $procmail -pm SHELL=$SHELL ./../SedBinDir/mimencap | $splitmail -p $TMPF
 
 set dummy $TMPF*
 shift

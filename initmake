@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1992-1994, S.R. van den Berg, The Netherlands
-#$Id: initmake,v 1.59 1994/09/09 17:51:53 berg Exp $
+#$Id: initmake,v 1.60 1994/09/22 17:12:53 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -119,7 +119,7 @@ cd src				# diving into the source directory ######
 newln=""
 $RM _autotst.rrr _autotst
 echo hi >_autotst.rrr
-if $LN _autotst.rrr _autotst 2>$DEVNULL
+if $LN _autotst.rrr _autotst #2>$DEVNULL
 then
 :
 else
@@ -297,10 +297,10 @@ do
   if test ! -f $a/Makefile.init
   then
      case "$LN" in
-	*-s*) cp $a/Makefile $a/Makefile.init ;;
-	*) $LN $a/Makefile $a/Makefile.init
+	ln|*/ln|link|*/link) $LN $a/Makefile $a/Makefile.init
 	   $RM $a/Makefile
 	   $LN $a/Makefile.init $a/Makefile ;;
+	*) cp $a/Makefile $a/Makefile.init ;;
      esac
   fi
 done

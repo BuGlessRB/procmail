@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.47 1994/09/20 19:32:11 berg Exp $";
+ "$Id: regexp.c,v 1.48 1994/09/22 17:13:36 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -470,11 +470,11 @@ setups:
 		    continue;
 		 case OPC_FILL-OPB:		/* nop, nothing points at it */
 		    if(thiss==Ceps&tswitch)  /* so the stack is always empty */
-		       goto setmatch;	   /* even empty pc-stack? terminate */
-		 case OPC_TSWITCH-OPB:
-		    goto pcstack_switch;
+		       goto setmatch;
 		 case OPC_SEMPTY-OPB:
 		    goto empty_stack;
+		 case OPC_TSWITCH-OPB:
+		    goto pcstack_switch;
 		 case OPC_EOTEXT-OPB:
 		    if(ign_case==2)		     /* only at the very end */
 		 case OPC_FIN-OPB:

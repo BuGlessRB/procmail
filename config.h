@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.60 1994/09/12 16:10:08 berg Exp $*/
+/*$Id: config.h,v 1.61 1994/09/22 17:12:50 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -144,6 +144,7 @@ mmdf|root|n?uucp|response|serv(ices?|er)|Admin(istrator)?\
 #define DEFtimeout	(DEFlocktimeout-64)	   /* 64 seconds to clean up */
 #define DEFnoresretry	4      /* default nr of retries if no resources left */
 #define nfsTRY		(7+1) /* nr of times+1 to ignore spurious NFS errors */
+#define MATCHVAR	"MATCH="
 #define DEFlogabstract	-1    /* abstract by default, but don't mail it back */
 #define COMSAThost	"localhost"    /* where the biff/comsat daemon lives */
 #define COMSATservice	"biff"	    /* the service name of the comsat daemon */
@@ -203,8 +204,8 @@ mmdf|root|n?uucp|response|serv(ices?|er)|Admin(istrator)?\
 \n\te  on error execute this recipe, if the previous recipe failed\
 \n\th  deliver header (default)\tb  deliver body (default)\
 \n\tf  filter\t\t\ti  ignore write errors\
-\n\tc  continue with the next recipe in any case\
-\n\tw  wait for a filter or program\
+\n\tc  carbon copy or clone message\
+\n\tw  wait for a program\t\tr	raw mode, mail as is\
 \n\tW  same as 'w', but suppress 'Program failure' messages\n"
 
 #define MINlinebuf	128    /* minimal LINEBUF length (don't change this) */
@@ -219,7 +220,7 @@ mmdf|root|n?uucp|response|serv(ices?|er)|Admin(istrator)?\
 #define TABCHAR		"\t"
 #define TABWIDTH	8
 
-#define RECFLAGS	"HBDAahbfcwWiEe"
+#define RECFLAGS	"HBDAahbfcwWiEer"
 #define HEAD_GREP	 0
 #define BODY_GREP	  1
 #define DISTINGUISH_CASE   2
@@ -228,12 +229,13 @@ mmdf|root|n?uucp|response|serv(ices?|er)|Admin(istrator)?\
 #define PASS_HEAD	      5
 #define PASS_BODY	       6
 #define FILTER			7
-#define CONTINUE		 8
+#define CONTINUE		 8			      /* carbon copy */
 #define WAIT_EXIT		  9
 #define WAIT_EXIT_QUIET		   10
 #define IGNORE_WRITERR		    11
 #define ELSE_DO			     12
 #define ERROR_DO		      13
+#define RAW_NONL		       14
 
 #define UNIQ_PREFIX	'_'	  /* prepended to temporary unique filenames */
 #define ESCAP		">"

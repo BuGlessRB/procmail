@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.51 1994/09/14 18:54:25 berg Exp $
+.Id $Id: procmailrc.man,v 1.52 1994/09/22 17:13:28 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -46,9 +46,10 @@ filter to be captured back by procmail or those that start a nesting block.
 You can tell procmail to treat a
 .I delivering recipe
 as if it were a non-delivering recipe by specifying the `@CONTINUE@' flag on
-such a recipe.  This will make procmail
-.I continue
-processing the rcfile even if it just delivered successfully to this recipe.
+such a recipe.  This will make procmail generate a
+.I carbon copy
+of the mail by delivering it to this recipe, yet continue processing the
+rcfile.
 .PP
 By using any number of recipes you can presort your mail extremely
 straightforward into several mailfolders.  Bear in mind though that the mail
@@ -110,7 +111,8 @@ These regular expressions are
 .B completely
 compatible to the normal
 .BR egrep (1)
-regular expressions.
+extended regular expressions.  See also
+.BR "Extended regular expressions" .
 .PP
 Conditions are anded; if
 .I number
@@ -164,10 +166,14 @@ Feed the body to the pipe (default).
 Consider the pipe as a filter.
 .TP
 .B @CONTINUE@
-Continue processing the rcfile even if this recipe matches (not needed
-when procmail has to read back the output (e.g. from a filter), nor on the
-start of a nesting block).  If you do specify it on a nesting block this will
-clone the running procmail process (lockfiles will not be inherited), whereas
+Generate a
+.B carbon copy
+of this mail.  This only makes sense on
+.I delivering
+recipes.  The only non-delivering recipe this flag has an effect on is
+on a nesting block, in order to generate a carbon copy this will
+.B clone
+the running procmail process (lockfiles will not be inherited), whereas
 the clone will proceed as usual and the parent will jump across the block.
 .TP
 .B @WAIT_EXIT@
@@ -182,6 +188,10 @@ Has the same meaning as the `@WAIT_EXIT@' flag, but will suppress any
 .B @IGNORE_WRITERR@
 Ignore any write errors on this recipe (i.e. usually due to an early closed
 pipe).
+.TP
+.B @RAW_NONL@
+Raw mode, do not try to ensure the mail ends with an empty line, write
+it out as is.
 .PP
 There are some special conditions you can use that are not straight regular
 expressions.  To select them, the condition must start with:
@@ -336,8 +346,9 @@ Just before procmail exits it logs an abstract of the delivered message in
 $LOGFILE showing the `@FROM@' and `Subject:' fields of the header, what folder
 it finally went to and how long (in bytes) the message was.  By setting this
 variable to `no', generation of this abstract is suppressed.  If you set
-it to `all', procmail will log an abstract for every successful recipe it
-processes.
+it to `all', procmail will log an abstract for every successful
+.I delivering recipe
+it processes.
 .TP
 .B LOG
 Anything assigned to this variable will be appended to $LOGFILE.
@@ -491,7 +502,7 @@ This variable is assigned to by procmail whenever it is delivering
 to a folder or program.  It always contains the name of the last folder
 (or program) procmail delivered to.
 .TP
-.B MATCH
+.B @MATCHVAR@
 This variable is assigned to by procmail whenever it is told to extract
 text from a matching regular expression.  It will contain all text
 matching the regular expression past the `\fB\e/\fP' token.
@@ -515,6 +526,67 @@ to `no'.  Alternatively the biff-service can be customised by setting it to
 either `service@SERV_ADDRsep@', `@SERV_ADDRsep@hostname', or
 `service@SERV_ADDRsep@hostname'.  When not specified it defaults
 to @COMSATservice@@SERV_ADDRsep@@COMSAThost@.@DROPPRIVS@
+.SS "Extended regular expressions"
+The following tokens are known to both the procmail internal egrep and the
+standard
+.BR egrep (1):
+.TP 1.0i
+.B ^
+Start of a line.
+.TP
+.B $
+End of a line.
+.TP
+.B .
+Any character except a newline.
+.TP
+.B a*
+Any sequence of zero or more a's.
+.TP
+.B a+
+Any sequence of one or more a's.
+.TP
+.B a?
+Either zero or one a.
+.TP
+.B [^-a-d]
+Any character which is
+.B not
+either a dash, a, b, c, d or newline.
+.TP
+.B de|abc
+Either the sequence `de' or `abc'.
+.TP
+.B (abc)*
+Zero or more times the sequence `abc'.
+.PP
+These were only samples, of course, any more complex combination is valid
+as well.
+.PP
+The following token meanings are special procmail extensions:
+.TP 1.0i
+\fB^\fP or \fB$\fP
+Match a newline (for multiline matches).
+.TP
+.B ^^
+Anchor the expression at the very start of the search area, or if encountered
+at the end of the expression, anchor it at the very end of the search area.
+.TP
+\fB\e<\fP or \fB\e>\fP
+Match the character before or after a word.  They are merely a shorthand
+for `[^a-zA-Z0-9_]', but can also match newlines.
+Since they match actual characters, they are only suitable to delimit
+words, not to delimit inter-word space.
+.TP
+.B \e/
+Splits the expression in a search part (to the left) and a match part
+(to the right).  The search part determines whether or not and where the
+expression matches, the match part determines what will be assigned to the
+@MATCHVAR@ environment variable.  The search part searches for the
+.I shortest
+match, the match part searches for the
+.I longest
+match.
 .SH EXAMPLES
 Look in the
 .BR procmailex (5)
@@ -558,13 +630,10 @@ subshell of procmail.  To make sure the value of an environment variable is
 retained you have to put the assignment to the variable before the leading `|'
 of a recipe, so that it can capture stdout of the program.
 .PP
-If you specify only a `@PASS_HEAD@' or a `@PASS_BODY@' flag on a recipe,
-and the recipe matches, then, unless a `@FILTER@' or `@CONTINUE@' flag is
+If you specify only a `@PASS_HEAD@' or a `@PASS_BODY@' flag on a delivering
+recipe, and the recipe matches, then, unless the `@CONTINUE@' flag is
 present as well, the body respectively the header of the mail will be silently
 lost.
-.PP
-The `@CONTINUE@' flag defaults to on when capturing stdout of a recipe in an
-environment variable.
 .SH "SEE ALSO"
 .na
 .nh
@@ -623,28 +692,6 @@ does not work as expected.
 .PP
 When capturing stdout from a recipe into an environment variable, exactly
 one trailing newline will be stripped.
-.PP
-By using the `^' or `$' in other spots than at the start respectively
-end of a regular expression you can use the internal egrep to do multiline
-matches.
-.PP
-When the regular expression starts with `^^' it will anchor the match
-at the very start of the text.
-When the regular expression ends with `^^' it will anchor the match
-at the very end of the text.
-.PP
-If the regular expression contains the `\e/' token, the success and location
-of the expression depends solely on the expression part that preceeds the `\e/'
-token.  If the part after the `\e/' matches some text, this text will
-be assigned to the
-.B MATCH
-variable; contrary to other procmail regular expressions this will be the
-longest match possible.
-.PP
-The start and end of a word can be matched by `\e<' and `\e>'.  They
-are merely a shorthand for `[^a-zA-Z0-9_]', but can also match newlines.
-Since they match actual characters, they are only suitable to delimit
-words, not to delimit inter-word space.
 .SH MISCELLANEOUS
 If the regular expression contains `\fB@TOkey@\fP' it will be substituted by
 .na

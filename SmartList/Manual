@@ -29,7 +29,7 @@ Contents:
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.40 1994/09/20 19:33:08 berg Exp $
+$Id: Manual,v 1.41 1994/09/22 17:13:01 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -306,7 +306,9 @@ submitted.  To enable this you have to uncomment the appropriate
 "foreign_submit" line in rc.custom.  By default the accept file is hardlinked
 to the dist file (i.e. if submissions are restricted, only subcsribers
 can do so).  If you want to allow only an even more select group, delink the
-accept file and edit it to taste.
+accept file and edit it to taste.  If you'd like to have both the dynamic
+accept file and a static one, create a new file "accept2", it will be
+searched in addition to the regular accept file.
 
 Beware that using an accept file is incompatible with having an owner- alias
 for this list (procmail administered lists do not need the owner- alias

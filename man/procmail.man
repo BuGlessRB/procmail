@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.59 1994/08/23 14:47:21 berg Exp $
+.Id $Id: procmail.man,v 1.60 1994/09/22 17:13:22 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -478,6 +478,10 @@ Creating a hardlink between directory folders.
 Match on "x"
 Condition matched.
 .TP
+Matched "x"
+Assigned "x" to
+.BR @MATCHVAR@ .
+.TP
 No match on "x"
 Condition didn't match, recipe skipped.
 .TP
@@ -674,8 +678,8 @@ exit 0
 .nf
 PATH=/bin:/usr/bin:@BINDIR@
 MAILDIR=$HOME/Mail      #you'd better make sure it exists
-DEFAULT=$MAILDIR/mbox
-LOGFILE=$MAILDIR/from
+DEFAULT=$MAILDIR/mbox   #completely optional
+LOGFILE=$MAILDIR/from   #recommended
 
 :0:
 * ^From.*berg

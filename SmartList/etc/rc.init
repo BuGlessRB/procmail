@@ -25,6 +25,7 @@
 # dist		the subscriber list, one address per line
 # accept	the list of people allowed to submit messages (usually a
 #		link to dist, only checked if $foreign_submit != yes)
+# accept2	an optional second accept file
 # reject	list of people you definitely do not want to subscribe
 # subscreen	program (e.g. shell script) to screen prospective subscribers
 #		(see in the examples directory for a sample script)
@@ -52,7 +53,7 @@
 #		conjunction with the RC_LOCAL_* variables which can be set
 #		in rc.init or rc.custom files)
 
-#$Id: rc.init,v 1.39 1994/09/20 19:33:22 berg Exp $
+#$Id: rc.init,v 1.40 1994/09/22 17:13:11 berg Exp $
 
 DELIVERED=yes	# we're in control of the mail now, tell sendmail to go away
 

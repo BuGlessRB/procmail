@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.37 1994/09/09 12:39:35 berg Exp $
+.Id $Id: procmailex.man,v 1.38 1994/09/22 17:13:25 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -288,15 +288,12 @@ file.
 .Ex
 The following recipe does the same, but is a bit more selective.  It only
 prints the postscript file if it comes from the print-server.  The first
-condition matches only if it is found in the header (i.e. no preceding empty
-line).  The second condition only matches at the start of the body (i.e.
-right after the
-.B first
-empty line).
+condition matches only if it is found in the header.  The second condition
+only matches at the start of the body.
 .Sx 4
-:0 @HEAD_GREP@@BODY_GREP@ @PASS_BODY@
-* ^^(.+$)*From[ :].*print-server
-* ^^(.+$)*^%!
+:0 @PASS_BODY@
+* ^From[ :].*print-server
+* B ?? ^^%!
 | lpr
 .Ex
 The same as above, but now by slightly different means:
@@ -308,6 +305,13 @@ The same as above, but now by slightly different means:
   * ^^%!
   | lpr
 }
+.Ex
+Likewise:
+.Sx 4
+:0 @HEAD_GREP@@BODY_GREP@ @PASS_BODY@
+* ^^(.+$)*From[ :].*print-server
+* ^^(.+$)*^%!
+| lpr
 .Ex
 Suppose you have two accounts, you use both accounts regularly, but they are
 in very distinct places (i.e. you can only read mail that arrived at either one
@@ -340,30 +344,32 @@ loops.
 Now follows an example for a very simple fileserver accessible by mail.
 For more demanding applications, I suggest you take a look at
 .B SmartList
-(available from the same place as the procmail distribution).  The most notable
-deficiency of the `fileserver' you see below is that it doesn't do any
-access checking.  It simply looks at the Subject: field in the header and
-extracts the names mentioned after the word `request'.  These names are
-put in the variable FILE, which is subsequently used to cat the files.
-The best way to enhance this fileserver would probably be to create a shell
-script to take care of the more complicated checks and operations.
-.Sx 17
+(available from the same place as the procmail distribution).
+As listed, this fileserver sends back at most one file per request, it
+ignores the body of incoming mails, the Subject: line has to look
+like "Subject: send file the_file_you_want" (the blanks are significant),
+it does not return files that have names starting with a dot, nor does
+it allow files to be retrieved that are outside the fileserver directory
+tree (if you decide to munge this example, make sure you do not inadvertently
+loosen this last restriction).
+.Sx 18
 :0
+* ^Subject: send file [0-9a-z]
 * !^X-Loop: yourname@your.main.mail.address
 * !^Subject:.*Re:
 * !^FROM_DAEMON
-* ^Subject:.*request
+* !^Subject: send file .*[/.]\.
 {
-  MAILDIR=$HOME/fileserver   # chdir to the fileserver directory
+  MAILDIR=$HOME/fileserver # chdir to the fileserver directory
 
-  :0 @PASS_HEAD@             # extract the requested filename(s)
-  FILES=| sed \-n \-e 's/^Subject:.*request \e(.*\e)/\e1/p'
-
-  :0 @FILTER@                # reverse the mailheader
+  :0 fhw                   # reverse mailheader and extract name
+  * ^Subject: send file \/[^ ]*
   | formail \-@FM_REPLY@@FM_ADD_ALWAYS@ "X-Loop: yourname@your.main.mail.address"
 
-  :0
-  | (cat; cat $FILES) | $SENDMAIL \-oi \-t
+  FILE="$MATCH"            # the requested filename
+
+  :0 ah
+  | cat \- ./$FILE 2>&1 | $SENDMAIL \-oi \-t
 }
 .Ex
 The following example preconverts all plain-text mail arriving in certain

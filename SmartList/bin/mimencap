@@ -5,9 +5,17 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: mimencap,v 1.11 1994/06/30 15:48:57 berg Exp $
+#$Id: mimencap,v 1.12 1994/09/22 17:13:06 berg Exp $
 
 DEFAULT=|
+
+oldshellmetas="$SHELLMETAS" SHELLMETAS
+
+:0 fhw
+| $formail -fb -a "Content-Disposition: inline; filename=\"$filename\"" \
+   -I "Content-Length: 0000000000"
+
+SHELLMETAS="$oldshellmetas" oldshellmetas
 
 :0
 * ^Content-Type:
@@ -25,7 +33,7 @@ INCLUDERC=../.bin/mimencap.local
     * [^- -~-][^- -~-][^- -~-][^- -~-][^- -~-]\
        [^- -~-][^- -~-][^- -~-]
     {
-      :0 wfb
+      :0 wfbr
       | $mimencode -b
 
       :0 wfh
@@ -39,7 +47,7 @@ INCLUDERC=../.bin/mimencap.local
       |
     }
 
-    :0 wfb
+    :0 wfbr
     | $mimencode -q
 
     :0 wfh

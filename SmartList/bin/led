@@ -10,7 +10,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: led,v 1.3 1994/09/20 19:33:16 berg Exp $
+#$Id: led,v 1.4 1994/09/22 17:13:04 berg Exp $
 
 test=test				# /bin/test
 touch=touch				# /bin/touch
@@ -18,6 +18,8 @@ rm=rm					# /bin/rm
 ls=ls					# /bin/ls
 echo=echo				# /bin/echo
 kill=kill				# /bin/kill
+sleep=sleep				# /bin/sleep
+chmod=chmod				# /bin/chmod
 basename=basename			# /bin/basename
 dirname=dirname				# /bin/dirname
 lockfile=lockfile			# /usr/local/bin/lockfile
@@ -37,7 +39,7 @@ touchfiles=""
 
 TMPF=/tmp/led.$$
 
-trap "$test -z \"\$childpid\" || $kill \$childpid 2>/dev/null
+trap "$test -z \"\$childpid\" || $kill -1 \$childpid 2>/dev/null
  $rm -f $TMPF \$lockfiles; exit 1" 1 2 3 15
 
 $touch $TMPF
@@ -58,7 +60,7 @@ do
 	lf=""
 	tf=""
 	case "$file" in
-	   dist|dist.digest)			lk=$dir/$file.lock ;;
+	   dist|dist.digest)			lf=$dir/$file.lock ;;
 	   rc.init|rc.submit|rc.request)	tf=$dir/../.etc/rc.lock ;;
 	   rc.custom|subscreen|subscribe.file|log) tf=$dir/rc.lock ;;
 	   tmp.from|tmp.request)		lf=$dir/tmp.lock ;;
@@ -88,18 +90,22 @@ if $test ! -z "$lockfiles" -o ! -z "$touchfiles"
 then
   parent=$$
   exec 9>&2 2>/dev/null
-   ( while $kill -0 $parent
+   ( trap 1 2 3 15
+     while $kill -0 $parent
      do
-	$sleep 64
+	$sleep 32
+	$chmod u+w $lockfiles
 	$touch $touchfiles $lockfiles
+	$chmod u-w $lockfiles
      done
    ) &
   childpid=$!
-  exec 2>&9 9>&-
+#  exec 2>&9 9>&-
 fi
 
 $VISUAL "$@"
-( exec 4<$TMPF
+( trap 1 2 3 15
+  exec 4<$TMPF
   test -z "$SHELL" && SHELL=/bin/sh
   test -z "$PS1" && PS1="$ "
   PS1="Type 'exit' to resume checking after you have corrected it.
@@ -131,7 +137,7 @@ $PS1"
 )
 
 exec 9>&2 2>/dev/null
-$test -z "$childpid" || $kill $childpid
+$test -z "$childpid" || $kill -1 $childpid
 wait
 exec 2>&9 9>&-
 $rm -f _dummy_ $lockfiles $TMPF
