@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.53 1994/06/01 18:52:21 berg Exp $";
+ "$Id: multigram.c,v 1.54 1994/06/13 16:12:26 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/06/01 18:52:21 $";
+static /*const*/char rcsdate[]="$Date: 1994/06/13 16:12:26 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -288,8 +288,8 @@ Usage: flist listname[-request]\n\
 	   return EX_USAGE;
 	 }
 	if(!strcmp(arg=argv[1],"-v"))
-	 { fprintf(stderr,"%s\nUser: %s\nDirectory: %s\n",listid,targetdir,
-	    SLVERSION);
+	 { fprintf(stderr,"%s\nUser: %s\nDirectory: %s\n",SLVERSION,listid,
+	    targetdir);
 	   return EX_OK;
 	 }
 	;{ uid_t euid;

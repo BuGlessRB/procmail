@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.33 1994/06/10 18:07:22 berg Exp $
+#$Id: arch_retrieve,v 1.34 1994/06/13 16:12:09 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -18,7 +18,7 @@ formail=formail		# /usr/local/bin/formail
 $test -z "$listaddr" &&
  $echo "Don't start this script directly, it is used in rc.request" && exit 64
 
-breakoff_search=64		# the maximum number of matches returned
+breakoff_search=512		# the maximum number of matches returned
 breakoff_ls=512			# the maximum number of files listed with ls
 maxfiles=16			# the maximum number of files returned (per
 				# command), this can be overridden with
@@ -31,8 +31,6 @@ tmpfrom=tmp.from
 archivetxt=archive.txt		# the helpfile
 archivedir=archive
 
-export tmprequest archivedir	# for mimesend
-
 standalone=$1
 
 from=`$echo "arch_retrieve:" \`$cat $tmpfrom\` requested`
@@ -44,6 +42,8 @@ case "$X_ENVELOPE_TO" in
 	Please try to use '$listreq'
 	the next time when issuing archive server requests." ;;
 esac
+
+export tmprequest archivedir wrongaddress	# for mimesend
 
 #
 # Check if mimencode is available
@@ -175,7 +175,19 @@ Truncating after '$breakoff_ls' names...' -e ${breakoff_ls}q
 	    esac ;;
 	 search|grep|egrep|fgrep|find|\
 	 SEARCH|GREP|EGREP|FGREP|FIND)
-	    shift; regxp="$1"; shift
+	    iflag="-i"; nflag="-n"; flags=""; ready=no
+	    while shift; $test ! -z "$ready"
+	    do
+	       case "$1" in
+		  -i-) iflag="";;
+		  -n-) nflag="";;
+		  -[chlnv]) flags="$flags $1" ;;
+		  -?) ;;				# skip unknown flags
+		  *) ready="" ;;
+	       esac
+	    done
+	    regxp="$1"
+	    shift
 	    case "$*" in
 	       *[/\ ]..[/\ ]*|..[/\ ]*|*[/\ ]..|..|[-/]*|*\ /*)
 		  $echo $from ILLEGAL "$line" >>$tmpfrom
@@ -188,8 +200,8 @@ Truncating after '$breakoff_ls' names...' -e ${breakoff_ls}q
 		  cd $archivedir
 		  $echo "$line"
 		  $echo "BEGIN---------------cut here------------------"
-		  $nice $egrep -n -i -e $regxp $* </dev/null 2>&1 |
-		   $sed -e $breakoff_search'a\
+		  $nice $egrep $nflag $iflag $flags -e $regxp $* \
+		   </dev/null 2>&1 | $sed -e $breakoff_search'a\
 Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 		  $echo "END-----------------cut here------------------"
 		) | $SENDMAIL $sendmailOPT -t ;;
@@ -199,7 +211,8 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 		   -i"From: $listreq" -A"X-Loop: $listaddr" \
 		   <$tmprequest
 		  $test ! -z "$wrongaddress" && $echo "$wrongaddress"
-		  flist -v 2>&1
+		  flist -v 2>&1 | sed -e "/^User:/ q"
+		  echo ""
 		  procmail -v 2>&1
 		) | $SENDMAIL $sendmailOPT -t ;;
 	 ""|\#*) ;;

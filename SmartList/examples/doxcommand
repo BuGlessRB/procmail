@@ -8,7 +8,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Customise to taste.						#
 #########################################################################
-#$Id: doxcommand,v 1.5 1994/05/26 14:11:44 berg Exp $
+#$Id: doxcommand,v 1.6 1994/06/13 16:12:20 berg Exp $
 
 #
 # Edit the following three definitions to suit your list
@@ -42,11 +42,12 @@ case "$command" in
   showd*|sd*|shd*) command=showdist ;;
   showl*|sl*|shl*) command=showlog ;;
   w*) command=wipelog ;;
+  v*) command=version ;;
   h*) command=help ;;
   i*) command=info ;;
   *) $echo "Unknown command, use any of the following:" 1>&2
      $echo "subscribe, unsubscribe, checkdist, showdist, showlog," 1>&2
-     $echo "wipelog, help or info." 1>&2
+     $echo "wipelog, version, help or info." 1>&2
      exit 64
 esac
 

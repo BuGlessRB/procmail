@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: x_command,v 1.16 1994/06/07 13:22:50 berg Exp $
+#$Id: x_command,v 1.17 1994/06/13 16:12:11 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -69,6 +69,9 @@ do
 	 $test -z "$subscribe_log" ||
 	  $echo "x_command: unsubscribe" >>$subscribe_log
 	 $unsubscribe <$tmprequest | $SENDMAIL $sendmailOPT `cat $tmpfrom`
+	 $echo "The unsubscribed address generates the following"
+	 $echo "multigram matches to the updated list:"
+	 $echo "From $2" | $multigram -b8 -l-32767 dist`"
 	 shift ;;
      _checkdist)
 	 $echo "Multigram checking the dist file for matches with"
@@ -86,6 +89,10 @@ do
 	 $echo "--- End of log" ;;
      _wipelog)
 	 $cat /dev/null >$log ;;
+     _version)
+	 flist -v 2>&1
+	 echo ""
+	 procmail -v 2>&1 ;;
      _help|_info)
 	 $echo "Known $X_COMMAND keywords:"
 	 $echo "	subscribe mailaddress"
@@ -94,6 +101,7 @@ do
 	 $echo "	showdist"
 	 $echo "	showlog"
 	 $echo "	wipelog"
+	 $echo "	version"
 	 $echo "	help"
 	 $echo "	info" ;;
      *) $echo "X-Diagnostic: Unknown command $1" ; set dummy help ;;

@@ -47,6 +47,8 @@
 	       - the standalone archive server will include the contents
 		 of the optional help.txt and info.txt files on a help
 		 request
+	       - raise the breakoff_search limit
+	       - allow the most common flags on egrep
 	    Carbon copies of subscription requests contained misleading
 	       diagnostics
 	    Subscription notifications will be done to both the sender

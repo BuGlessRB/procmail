@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.58 1994/06/10 18:07:29 berg Exp $
+#$Id: rc.submit,v 1.59 1994/06/13 16:12:18 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -46,7 +46,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 	(help|info|join|leave|add|sign( [^ ]+ |-)?o(n|ff)|(un)?sub)[	 ]*$)|\
        .*( (join|leave|add .* to|(delete|remove) .* from|\
 	 (take|sign) .* off|(put|sign) .* on) .* [a-z-]*list|\
-	 subscri(be|ption))\>)
+	 (un|sub?)scri(be|ption))\>)
 * -50^0 ^Subject:[	 ]*\(none\)$
 *  50^0 ^Subject:.*[a-z]
 *  25^2 >2048
@@ -68,7 +68,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 	(add|join|sign( [^ ]+ |-)?o(n|ff)|(un)?sub).*)|\
        .*( (join|leave|add .* to|(delete|remove) .* from|\
 	 (take|sign) .* off|(put|sign) .* on) .* [a-z-]*list|\
-	 subscri(be|ption))\>)
+	 (un|sub?)scri(be|ption))\>)
 {
   #
   # Then check to see if sender is on the accept list (if foreign_submit

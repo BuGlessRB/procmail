@@ -14,6 +14,7 @@ Lines starting with a '#' are ignored.
 Multiple commands per mail are allowed.
 Setting maxfiles to zero will remove the limit (to protect you against
 yourself no more than maxfiles files will be returned per request).
+Egrep supports most common flags.
 
 Examples:
 ls latest
