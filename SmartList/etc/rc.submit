@@ -6,7 +6,7 @@
 # shortly before writing out the new version of this file (remove the lockfile
 # afterwards of course)
 
-#$Id: rc.submit,v 1.5 1993/01/15 16:59:58 berg Exp $
+#$Id: rc.submit,v 1.6 1993/01/15 18:16:03 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -41,12 +41,17 @@ METOO=| multigram -b1 -m -l$submit_threshold dist
 	archive/latest/.
 
 #
-# Truncate the archive to the correct size.
+# Truncate the archive to the correct number of files (and possibly other
+# housekeeping chores to keep the archive current).
 #
 
 	:1 ${foreign_submit} c
 	!^X-Mailing-List:
 	ARCHIVE=| arch_trunc "$-"
+
+#
+# Main header munger for submissions passing through this list.
+#
 
 	: ${foreign_submit} fh
 	| formail -b -IReceived: -IReturn-Receipt-To: -IErrors-To: \
