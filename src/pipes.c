@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.58 1999/04/06 02:36:21 guenther Exp $";
+ "$Id: pipes.c,v 1.59 1999/08/13 02:53:10 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -234,18 +234,20 @@ builtin:
   return len;
 }
 
+#undef realloc				/* unshell realloc for finer control */
+
 char*readdyn(bf,filled)char*bf;long*const filled;
 { int blksiz=BLKSIZ;long oldsize= *filled;unsigned shift=EXPBLKSIZ;char*np;
   for(;;)
    {
 #ifdef SMALLHEAP
      if((size_t)*filled>=(size_t)(*filled+blksiz))
-	lcking|=lck_MEMORY,nomemerr();
+	lcking|=lck_MEMORY,nomemerr(*filled);
 #endif				       /* dynamically adjust the buffer size */
 		       /* use the real realloc so that we can retry failures */
-     while(EXPBLKSIZ&&(np=0,blksiz>BLKSIZ)&&!(np=(realloc)(bf,*filled+blksiz)))
+     while(EXPBLKSIZ&&(np=0,blksiz>BLKSIZ)&&!(np=realloc(bf,*filled+blksiz)))
 	blksiz>>=1;				  /* try a smaller increment */
-     bf=EXPBLKSIZ&&np?np:realloc(bf,*filled+blksiz);		 /* last try */
+     bf=EXPBLKSIZ&&np?np:trealloc(bf,(size_t)(*filled+blksiz));	 /* last try */
 jumpback:;
      ;{ int got,left=blksiz;
 	do
@@ -264,7 +266,8 @@ eoffound:
    { if(!Stdout)
       { getstdin(PRDB);			       /* filter ready, get backpipe */
 	if(1==rread(STDIN,buf,1))		      /* backup pipe closed? */
-	 { bf=realloc(bf,(*filled=oldsize+1)+blksiz);bf[oldsize]= *buf;
+	 { bf=trealloc(bf,(size_t)((*filled=oldsize+1)+blksiz));
+	   bf[oldsize]= *buf;
 	   Stdout=buf;pwait=2;		      /* break loop, definitely reap */
 	   goto jumpback;		       /* filter goofed, rescue data */
 	 }
@@ -273,8 +276,10 @@ eoffound:
 	pipw=waitfor(pidchild);		      /* reap your child in any case */
    }
   pidchild=0;					/* child must be gone by now */
-  return (np=(realloc)(bf,*filled+1))?np:bf;  /* minimise+1 for housekeeping */
+  return (np=realloc(bf,*filled+1))?np:bf;  /* minimise+1 for housekeeping */
 }
+
+#define realloc foobar		      /* make sure don't accidentally use it */
 
 char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
 { int pinfd[2],poutfd[2];int i;char*p;
