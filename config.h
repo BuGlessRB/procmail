@@ -1,7 +1,7 @@
-/*$Id: config.h,v 1.64 1995/03/20 14:49:29 berg Exp $*/
+/*$Id: config.h,v 1.65 1995/03/20 20:15:06 berg Exp $*/
 
-#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
-#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
+/*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
+/*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
 						   if your mail system uses
 	nonstandard mail separators (non sendmail or smail compatible mailers
 	like MMDF), if yours is even different, uncomment and change the
