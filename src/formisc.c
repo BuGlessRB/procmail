@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.26 1994/05/26 14:12:45 berg Exp $";
+ "$Id: formisc.c,v 1.27 1994/06/14 13:49:11 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -197,8 +197,11 @@ void logqnl(a)const char*const a;
 }
 
 void closemine P((void))
-{ if((fclose(mystdout)==EOF||errout==EOF)&&!quiet)
-     nlog(couldntw),elog("\n"),exit(EX_IOERR);
+{ if(fclose(mystdout)==EOF||errout==EOF)
+   { if(!quiet)
+	nlog(couldntw),elog("\n");
+     exit(EX_IOERR);
+   }
 }
 
 void opensink P((void))

@@ -181,6 +181,7 @@
 		 lengthy messages
 	       - Clean up zombies more often
 	       - Handle bangpath reconstruction
+	       - Made -q the default, use -q- to disable
 	    Miscellaneous changes:
 	       - Detecting and dodging buggy zshs everywhere
 	       - Slightly adjusted autoconf for the new non-standard 386BSD

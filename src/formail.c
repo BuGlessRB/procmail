@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.50 1994/06/09 14:44:57 berg Exp $";
+ "$Id: formail.c,v 1.51 1994/06/14 13:49:08 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/06/09 14:44:57 $";
+static /*const*/char rcsdate[]="$Date: 1994/06/14 13:49:08 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -89,7 +89,7 @@ static const char emboxsep[]=eMAILBOX_SEPARATOR;
 
 const char binsh[]=BinSh,sfolder[]=FOLDER,
  couldntw[]="Couldn't write to stdout";
-int errout,oldstdout,quiet,buflast,lenfileno;
+int errout,oldstdout,quiet=1,buflast,lenfileno;
 long initfileno;
 char ffileno[LEN_FILENO_VAR+8*sizeof(initfileno)*4/10+1+1]=DEFfileno;
 int lexitcode;					     /* dummy, for waitfor() */
@@ -158,7 +158,10 @@ main(lastm,argv)int lastm;const char*const argv[];
 	      case FM_NOWAIT:nowait=1;continue;
 	      case FM_KEEPB:keepb=1;continue;
 	      case FM_CONCATENATE:conctenate=1;continue;
-	      case FM_QUIET:quiet=1;continue;
+	      case FM_QUIET:quiet=1;
+		 if(*chp=='-')
+		    chp++,quiet=0;
+		 continue;
 	      case FM_LOGSUMMARY:Qnext_arg();
 		 if(strlen(logsummary=chp)>MAXfoldlen)
 		    chp[MAXfoldlen]='\0';
@@ -628,8 +631,11 @@ accuhdr:    { for(i=minfields;--i&&readhead()&&digheadr();); /* found enough */
 splitit:       { if(!lnl)   /* did the previous mail end with an empty line? */
 		    lputcs('\n');		      /* but now it does :-) */
 		 logfolder();
-		 if((fclose(mystdout)==EOF||errout==EOF)&&!quiet)
-		    nlog(couldntw),elog(", continuing...\n"),split= -1;
+		 if(fclose(mystdout)==EOF||errout==EOF)
+		  { split= -1;
+		    if(!quiet)
+		       nlog(couldntw),elog(", continuing...\n");
+		  }
 		 if(!nowait&&*argv)	 /* wait till the child has finished */
 		  { int excode;
 		    if((excode=waitfor(child))!=EX_OK&&retval!=EX_OK)

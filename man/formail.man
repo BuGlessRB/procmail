@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.24 1994/06/14 12:03:16 berg Exp $
+.Id $Id: formail.man,v 1.25 1994/06/14 13:49:02 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -133,7 +133,9 @@ before it decides it found the start of a new message, it defaults to
 .TP
 .B \-@FM_QUIET@
 Tells formail not to report write errors on stdout and not to report that it
-found duplicate messages.
+found duplicate messages.  This option is on by default, to make it
+report write errors use
+.BR \-@FM_QUIET@\- .
 .TP
 .I "\fB\-@FM_DUPLICATE@\fP maxlen idcache"
 Formail will detect if the Message-ID of the current message has already
