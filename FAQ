@@ -281,7 +281,7 @@
 
 	If you are asking this, you are on the wrong track.  Procmail
 	cannot route messages like this correctly without special help
-	from the MTA (sendmail, qmail, etc).  For a more length
+	from the MTA (sendmail, qmail, etc).  For a more lengthy
 	discussion about the issues, please refer to
 	http://www.iki.fi/era/procmail/mini-faq.html#advanced
 
