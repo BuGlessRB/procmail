@@ -1,7 +1,7 @@
-/*$Id: misc.h,v 1.55 2001/06/30 00:18:37 guenther Exp $*/
+/*$Id: misc.h,v 1.56 2001/06/30 01:14:19 guenther Exp $*/
 
 struct dyna_array{int filled,tspace;char*vals;};
-union offori{off_t o;int i};
+union offori{off_t o;int i;};
 
 #define app_val_type(sp,t,s,v)	(*(t*)app_val_(&sp,sizeof(s))=(v))
 #define app_valo(sp,val)	app_val_type(sp,off_t,union offori,val)
