@@ -1,0 +1,181 @@
+#! /bin/sh
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
+#########################################################################
+#	showlist	To show list status and details			#
+#									#
+#	Created by Alan K. Stebbens <aks@hub.ucsb.edu>			#
+#########################################################################
+# $Id: showlist,v 1.1 1995/10/30 02:58:34 srb Exp $
+
+echo showlist: Customise first
+exit 64
+
+# Site configuration (should be externalized)
+#
+domain=hub.ucsb.edu
+listmaster=lists@$domain
+admin="\"Mailing List Mailer-Daemon\" <$listmaster>"
+#
+
+cd $HOME
+
+# Syntax:	showlist	[-d] [-s] [-l] [list ...]
+
+test=test		# /bin/test
+ln=ln			# /bin/ln
+rm=rm			# /bin/rm
+cp=cp			# /bin/cp
+echo=echo		# /bin/echo
+cat=cat			# /bin/cat
+awk=awk			# /bin/awk
+SENDMAIL=/usr/lib/sendmail
+
+usage="usage: showlist [-d] [-s] [-l] [list ...]"
+
+lists=
+summary=1
+while $test $# -gt 0
+do
+  case "$1" in
+  -d|-debug)	debug=1 ;;
+  -s|-summary)	summary=1 long= ;;
+  -l|-long)	long=1 summary= ;;
+  -*)	$echo $usage 1>&2 && exit 64 ;;
+  *)	lists="$lists $1" ;;
+  esac
+  shift
+done
+
+if $test -z "$lists" ; then
+    lists="`ls | tr '\012' ' '`"
+fi
+
+ifdebug () {
+  if $test -n "$debug" ; then
+    "$@"
+  fi
+}
+
+ifndebug () {
+  if $test -z "$debug" ; then
+    "$@"
+  fi
+}
+
+decho () {
+  ifdebug echo "$@"
+}
+
+necho () {
+  ifndebug echo "$@"
+}
+
+# getvar flag pattern
+
+getvar () {
+  pat="${2:-$1}"
+  val="`$awk '/^'$pat'/{print \$3;exit}' $list/rc.custom $list/rc.init 2>/dev/null`"
+  if $test "${val}" = "#"; then
+    val="`$awk '/^'$pat'/{print \$2;exit}' $list/rc.custom $list/rc.init 2>/dev/null`"
+  fi
+  eval "$1=\"$val\""
+}
+
+# showvar VAR [LBL]
+showvar () {
+  var=$1
+  lbl="${2:-$1}"
+  getvar $var
+  showval "$lbl" "$val"
+}
+
+# showflag VAR [LBL] (null value == "no")
+showflag () {
+  var=$1
+  lbl="${2:-$1}"
+  getvar $var
+  val="${val:-no}"
+  showval "$lbl" "$val"
+}
+
+# showval LBL VAL
+showval () {
+  lbl="${1:?'Missing label'}"
+  val="${2:-$val}"
+  $awk "BEGIN{printf(\"%30s: %s\n\", \"$lbl\", \"$val\")}" </dev/null
+}
+
+#######################
+
+# Scan the lists and show a summary or details
+
+for list in $lists
+do
+  # does the list exist?
+  $test -d $list || continue
+
+  listaddr=${list}@${domain}
+  listreq=${list}-request@${domain}
+
+  getvar digest_flag
+
+  if $test -n "$summary" ; then
+    echo "List \"$list\" summary:"
+  else
+    echo "List \"$list\" details:"
+  fi
+
+  showvar maintainer			"Owner"
+
+  showflag X_COMMAND			"Remote commands"
+  if $test -n "$X_COMMAND"; then
+    showvar X_COMMAND_PASSWORD		Password
+  fi
+
+  showvar moderated_flag		"Moderated"
+
+  showflag digest_flag			"Digested"
+
+  $test -n "$summary" && continue
+
+  moderators=
+  if $test -f $list/moderators; then
+    moderators="`(cat $list/moderators 2>/dev/null) | tr '\012' ' '`"
+  fi
+  showval	Moderators		"$moderators"
+
+  showvar	unsub_assist		"Unsubscribe assistance"
+  showflag	foreign_submit		"Foreign submissions"
+  showflag	restrict_archive	"Restrict archive access"
+  showflag	force_subscribe		"Force subscriptions"
+  showflag	auto_subscribe		"Automatic subscribes"
+  showflag	auto_unsubscribe	"Automatic unsubscribes"
+  showflag	auto_help		"Automatic help"
+
+  showflag	cc_requests		"Cc requests"
+  showflag	cc_unsubrequests	"Cc unsubscribe requests"
+  showflag	pass_diverts		"Pass diverted requests"
+
+  showvar	reply_to		"Reply-to"
+
+  showvar	digest_age		"Digest age limit (seconds)"
+  showvar	digest_size		"Digest size limit"
+  showvar	undigested_list		"Undigested list"
+
+  showvar	size_limit		"Size limit"
+  showvar	idcache_size		"ID cache size"
+
+  showvar	archive_hist		"Archive history limit"
+  showvar	archive_log		"Archive log"
+  showvar	subscribe_log		"Subscribe log"
+
+  showvar	maxhist			"Bounce history limit"
+  showvar	minbounce		"Bounce minimum"
+  showvar	cutoff_bounce		"Bounce text limit"
+
+  showvar	match_threshold		"Close match threshold"
+  showvar	medium_threshold	"Medium match threshold"
+  showvar	loose_threshold		"Loose match threshold"
+
+done

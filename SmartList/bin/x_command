@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: x_command,v 1.21 1994/10/14 18:43:18 berg Exp $
+#$Id: x_command,v 1.22 1995/10/30 02:58:35 srb Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -10,6 +10,7 @@ formail=formail		# /usr/local/bin/formail
 subscribe=subscribe	# ../SedBinDir/subscribe
 unsubscribe=unsubscribe # ../SedBinDir/unsubscribe
 multigram=multigram	# ../SedBinDir/multigram
+showlist=showlist	# ../SedBinDir/showlist
 
 tmprequest=tmp.request
 tmpfrom=tmp.from
@@ -81,6 +82,8 @@ do
 	 $echo "From $2" | $multigram -m -b8 -l-32767 dist
 	 $echo ""
 	 shift ;;
+     _showlist)
+	 $showlist -l $list ;;
      _showdist)
 	 $echo "--- Current subscribers:"
 	 $cat $dist
@@ -101,6 +104,7 @@ do
 	 $echo "	unsubscribe mailaddress"
 	 $echo "	checkdist mailaddress"
 	 $echo "	showdist"
+	 $echo "	showlist"
 	 $echo "	showlog"
 	 $echo "	wipelog"
 	 $echo "	version"

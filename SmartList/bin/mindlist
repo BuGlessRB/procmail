@@ -1,0 +1,366 @@
+#! /bin/sh
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
+#########################################################################
+#	mindlists	To send notices or reminders to list owners	#
+#			and members					#
+#									#
+#	Created by Alan K. Stebbens <aks@hub.ucsb.edu>			#
+#########################################################################
+# $Id: mindlist,v 1.1 1995/10/30 02:58:34 srb Exp $
+
+echo mindlist: Customise first
+exit 64
+
+# Site configuration (should be externalized)
+#
+domain=hub.ucsb.edu
+listmaster=lists@$domain
+admin="\"Mailing List Mailer-Daemon\" <$listmaster>"
+#
+
+cd $HOME
+
+# Syntax:	reminder	[-d] [-n] [-u] [-o] list ...
+
+test=test		# /bin/test
+ln=ln			# /bin/ln
+rm=rm			# /bin/rm
+cp=cp			# /bin/cp
+echo=echo		# /bin/echo
+cat=cat			# /bin/cat
+awk=awk			# /bin/awk
+SENDMAIL=/usr/lib/sendmail
+
+usage="usage: mindlists [-d] [-n] [-u] [-o] list ..."
+
+lists=
+while $test $# -gt 0
+do
+  case "$1" in
+  -d|-debug)	debug=1 ;;
+  -o|-owners)	owners=1 ;;
+  -u|-users)	users=1;;
+  -m|-moderators) moders=1 ;;
+  -n|-new)	new=1 ;;
+  -*)	$echo $usage 1>&2 && exit 64 ;;
+  *)	lists="$lists $1" ;;
+  esac
+  shift
+done
+
+if $test -z "$lists" ; then
+    lists="`ls | tr '\012' ' '`"
+fi
+
+
+ifdebug () {
+  if $test -n "$debug" ; then
+    "$@"
+  fi
+}
+
+ifndebug () {
+  if $test -z "$debug" ; then
+    "$@"
+  fi
+}
+
+decho () {
+  ifdebug echo "$@"
+}
+
+necho () {
+  ifndebug echo "$@"
+}
+
+sendmail () {
+  if $test -n "$debug" ; then
+    echo $SENDMAIL $*
+    cat
+  else
+    $SENDMAIL $*
+  fi
+}
+
+#######################
+# welcome the owner to his/her new list
+
+welcome_owner () {
+  if $test -z "${owner}" ; then
+    echo List ${list} has no owner.
+    return
+  fi
+  necho "Sending welcoming mail to $owner.."
+  $cat <<EOF | sendmail -f $listmaster -oi -t $owner
+From:	$admin
+To:	$owner
+X-Loop: $listaddr
+Subject: Welcome to your new list: $listaddr
+
+Welcome to your new list, $listaddr, of which you are the owner.
+As the owner, you are responsible for its maintenance, which is
+a fairly simple process given that it is being managed by SmartList.
+
+The procedure for remote list management is:
+
+a. send an email to the address: $list-request@$domain
+b. place administrative commands on the header: "X-Command:",
+   using the syntax:
+
+   X-Command: $owner PASSWORD COMMAND
+
+   where for your list, $list, the password is: "$passwd".
+
+   Command is one of:
+
+   subscribe MAILADDRESS	- add MAILADDRESS to the dist list
+   unsubscribe MAILADDRESS	- remove MAILADDRESS from the dist list
+   checkdist MAILADDRESS	- see if MAILADDRESS is on the dist list
+
+   showdist		- show the current dist list
+   showlist		- show details of the list configuration
+   showlog		- show the log of subs, unsubs, and archive requests
+   wipelog		- clear the log
+   help			- send help
+   info			- same as help
+
+If you ever need further assistance in managing your list, you can
+contact the list master at $listmaster.
+EOF
+}
+
+###############
+# remind the owner of his list
+
+remind_owner () {
+  if $test -z "${owner}" ; then
+    echo List ${list} has no owner.
+    return
+  fi
+  necho "Sending reminder to list \"$list\" owner \"$owner\".."
+  $cat <<EOF | sendmail -f $listmaster -oi -t $owner
+From:	$admin
+To:	$owner
+X-Loop: $listaddr
+Subject: Reminder: You are the owner of list $listaddr
+
+This is a reminder that you are registered as the owner of the
+list "$listaddr".
+
+If this is still true, then do nothing -- you do not need to
+reply to this mail.  Just the process of successfully sending
+this mail to you automatically renews your ownership.
+
+If you are not the owner of this list, please respond to this mail
+with an explanation, provide the new owner address, or ask to
+have the list removed.
+
+If you ever need further assistance in managing your list, you can
+contact the list master at $listmaster.
+EOF
+}
+####################
+# Welcome the users to their new list
+
+welcome_users () {
+  necho "Sending welcome mail to users of list \"$list\"..."
+  ( $cat <<EOF
+Sender:	 $listreq
+From:	 $admin
+To:	 $listaddr
+Subject: Welcome to the mailing list "$listaddr"
+X-Loop:	 $listaddr
+Precedence: bulk
+X-Mailing-List: <$listaddr>
+
+Welcome to the mailing list "$listaddr".
+
+EOF
+  if $test -f $list/info.txt ; then
+    echo "The purpose of this list is:"
+    echo ""
+    $cat $list/info.txt
+    echo ""
+  fi
+  $cat <<EOF
+
+All administrative correspondance should be directed to
+"$listreq".
+
+You need do nothing to remain subscribed -- just the process of
+successfully sending this mail to you automatically verifies your
+subscription.
+
+If you wish to be removed from this list, please send an email with the
+subject of "unsubscribe" to "$listreq".
+
+If you have any difficulties with this list, please contact the list owner
+at "$owner".
+EOF
+  ) | sendmail -oi -t
+}
+
+####################
+# Remind users about their list
+#
+# variables:
+# $list, $listreq, $admin, $listaddr, $owner
+
+remind_users () {
+  necho "Sending reminder to users of list \"$list\"..."
+  $cat <<EOF | sendmail -oi -t
+Sender:	 $listreq
+From:	 $admin
+To:	 $listaddr
+Subject: Reminder: You are on the mailing list "$listaddr"
+X-Loop:	 $listaddr
+Precedence: bulk
+X-Mailing-List: <$listaddr>
+
+This is a reminder that you are a member of the list "$listaddr",
+and a verification of your address.  You need do nothing to remain
+subscribed -- just the process of successfully sending this mail
+to you automatically renews your membership.
+
+If you wish to be removed from this list, please send an email with the
+subject of "unsubscribe" to "$listreq".
+
+If you have any difficulties with this list, please contact the list owner
+at $owner.
+EOF
+}
+
+# Send welcome/reminder to moderators
+
+welcome_moderators () {
+  flag=`$awk '/^moderated_flag/{print $3}' $list/rc.custom 2>/dev/null`
+  if $test "${flag}" != yes ; then
+    echo List $list is not moderated
+    return
+  fi
+  necho -n "Sending welcome mail to moderators of list \"$list\".."
+  for moderator in $moderators
+  do
+    necho -n " $moderator"
+    ( $cat <<EOF
+Sender:	 $listreq
+From:	 $admin
+To:	 $moderator
+Subject: Welcome as a moderator of the mailing list "$listaddr"
+X-Loop:	 $listaddr
+X-Mailing-List: <$listaddr>
+
+Welcome as a moderator of the list "$listaddr".
+
+You have been selected as a moderator of the list "$listaddr".
+This means that you, along with any other moderators, will receive
+unmoderated submissions to "$list".
+
+If you choose to authorize the submission, you must resend the mail
+with the following header added:
+
+  Approved: $moderator
+
+If you choose to not authorize a particular submission, simply ignore
+it.
+
+Any moderator may choose to authorize a submission, but only the first
+approved submission will actually be forwarded to the list; succeeding
+authorizations of the same submission will be filtered automatically.
+
+The current list of moderators for list "$list" is:
+
+EOF
+      echo "$moderators" | tr ' ' '\012'
+      $cat <<EOF
+
+If you wish to be removed as a moderator from this list, or have
+other questions about this list, please contact the list owner at
+$owner.
+
+EOF
+    ) | sendmail -oi -t
+  done
+  necho ""
+}
+
+remind_moderators () {
+  flag=`$awk '/^moderated_flag/{print $3}' $list/rc.custom 2>/dev/null`
+  if $test "${flag}" != yes ; then
+    echo List $list is not moderated
+    return
+  fi
+  necho -n "Sending reminder to moderators of list \"$list\".."
+  for moderator in $moderators
+  do
+    necho " $moderator"
+    ( $cat <<EOF
+Sender:	 $listreq
+From:	 $admin
+To:	 $moderator
+Subject: Reminder: you are a moderator of the mailing list "$listaddr"
+X-Loop:	 $listaddr
+X-Mailing-List: <$listaddr>
+
+This is a reminder of your status as a moderator of the list
+"$listaddr".
+
+You do not need to reply to this message, unless you have
+questions or concerns regarding, or no longer wish to act as
+a moderator for the list "$listaddr".
+
+A reminder of your duties as moderator:
+
+You will receive unmoderated submissions to the list "$list".
+If you choose to authorize a particular submission, you must
+resend the mail with the following header added:
+
+  Approved: $moderator
+
+If you choose to not authorize a particular submission, simply ignore
+it.
+
+Any moderator may choose to authorize a submission, but only the first
+approved submission will actually be forwarded to the list; succeeding
+authorizations of the same submission will be filtered automatically.
+
+The current list of moderators for list "$list" is:
+
+EOF
+      echo "$moderators" | tr ' ' '\012'
+    ) | sendmail -oi -t
+  done
+  necho ""
+}
+
+# Collect all owners, users, and moderators
+
+for list in $lists
+do
+  $test -d $list || continue
+  listaddr=${list}@${domain}
+  listreq=${list}-request@${domain}
+  owner=`$awk '/^maintainer/{print $3;exit}' $list/rc.custom $list/rc.init 2>/dev/null`
+  passwd=`$awk '/^X_COMMAND_PASSWORD/{print $3}' $list/rc.custom 2>/dev/null`
+  moderators=
+  if $test -f $list/moderators; then
+    moderators="`(cat $list/moderators 2>/dev/null) | tr '\012' ' '`"
+  fi
+
+  # Invoke either "welcome_" or "remind_"
+  what='remind'
+  if $test -n "$new"; then
+    what='welcome'
+  fi
+
+  if $test -n "$owners" ; then
+    eval "$what\_owner"
+  fi
+  if $test -n "$moders"; then
+    eval "$what\_moderators"
+  fi
+  if $test -n "$users"; then
+    eval "$what\_users"
+  fi
+done
