@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.126 1999/01/20 17:58:26 guenther Exp $";
+ "$Id: procmail.c,v 1.127 1999/01/23 06:29:20 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -609,6 +609,7 @@ commint:   do skipspace();				  /* skip whitespace */
 	if(testB(':'))				       /* check for a recipe */
 	 { int locknext,succeed;char*startchar;long tobesent;
 	   static char flags[maxindex(exflags)];
+	   do
 	    { int nrcond;
 	      readparse(buf,getb,0);
 	      ;{ char*chp3;
