@@ -8,13 +8,15 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: foldinfo.c,v 1.8 2001/06/23 08:18:43 guenther Exp $";
+ "$Id: foldinfo.c,v 1.9 2001/06/27 06:41:26 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "misc.h"
 #include "lastdirsep.h"
 #include "robust.h"
 #include "exopen.h"
+#include "goodies.h"
+#include "looking.h"
 #include "foldinfo.h"
 
 static const char

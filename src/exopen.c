@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.41 2001/06/23 08:18:41 guenther Exp $";
+ "$Id: exopen.c,v 1.42 2001/06/27 06:41:25 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -16,6 +16,7 @@ static /*const*/char rcsid[]=
 #include "misc.h"
 #include "exopen.h"
 #include "lastdirsep.h"
+#include "sublib.h"
 
 int unique(full,p,len,mode,verbos,flags)char*const full;char*p;
  const size_t len;const mode_t mode;const int verbos,flags;

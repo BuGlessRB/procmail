@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.16 2001/06/23 08:18:52 guenther Exp $";
+ "$Id: variables.c,v 1.17 2001/06/27 06:41:30 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -21,6 +21,7 @@ static /*const*/char rcsid[]=
 #include "misc.h"
 #include "locking.h"		/* for lockit() */
 #include "comsat.h"
+#include "sublib.h"
 #include "variables.h"
 
 struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
