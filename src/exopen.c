@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.39 2001/01/28 00:48:04 guenther Exp $";
+ "$Id: exopen.c,v 1.40 2001/06/03 21:58:59 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -24,7 +24,7 @@ int unique(full,p,len,mode,verbos,flags)char*const full;char*p;
   int nicediff,i,didnice,retry=RETRYunique;
   if(flags&doCHOWN)		  /* semi-critical, try raising the priority */
    { nicediff=nice(0);SETerrno(0);nicediff-=nice(-NICE_RANGE);
-     didnice=errno;
+     didnice=!errno;
    }
   *(end=len?full+len-1:p+UNIQnamelen-1)='\0';
   *(op=p)=UNIQ_PREFIX;dot=ultoan((long)thepid,p+1);
