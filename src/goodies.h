@@ -1,4 +1,4 @@
-/*$Id: goodies.h,v 1.24 2000/10/28 08:47:25 guenther Exp $*/
+/*$Id: goodies.h,v 1.25 2000/11/18 02:41:10 guenther Exp $*/
 
 int
  readparse P((char*p,int(*const fpgetc)(),const int sarg));
@@ -11,7 +11,7 @@ void
 
 #ifdef NOstrtod
 double
- strtod P((const char*str,const char**const ptr));
+ strtod P((const char*str,char**const ptr));
 #endif
 
 extern const char test[];

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.69 2000/10/28 08:47:24 guenther Exp $";
+ "$Id: goodies.c,v 1.70 2000/11/18 02:41:09 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -398,7 +398,7 @@ void ltstr(minwidth,val,dest)const int minwidth;const long val;char*dest;
 }
 
 #ifdef NOstrtod
-double strtod(str,ptr)const char*str;const char**const ptr;
+double strtod(str,ptr)const char*str;char**const ptr;
 { int sign,any;unsigned i;char*chp;double acc,fracc;
   fracc=1;acc=any=sign=0;
   switch(*(chp=skpspace(str)))					 /* the sign */
@@ -413,7 +413,7 @@ double strtod(str,ptr)const char*str;const char**const ptr;
 	   acc+=fracc*i,any=1;
    }
   if(ptr)
-     *ptr=any?chp-1:str;
+     *ptr=any?chp-1:(char**)str;
   return sign?-acc:acc;
 }
 #endif
