@@ -1,9 +1,10 @@
-#$Id: Makefile,v 1.18 1993/02/11 12:07:55 berg Exp $
+#$Id: Makefile,v 1.19 1993/02/11 12:21:22 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
 
 # You can predefine ARCHITECTURE to a bin directory suffix
+ARCHITECTURE=
 #ARCHITECTURE=.sun4
 
 BINDIR	  = $(BASENAME)/bin$(ARCHITECTURE)
