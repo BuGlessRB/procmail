@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: robust.c,v 1.5 1992/10/21 20:12:09 berg Exp $";
+static char rcsid[]="$Id: robust.c,v 1.6 1992/11/03 14:18:18 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -89,7 +89,9 @@ void openlog(file)const char*file;
 }
 
 opena(a)const char*const a;
-{ lastfolder=cstr(lastfolder,a);yell("Opening",a);
+{ if(asgnlastf)
+     asgnlastf=0,lastfolder=cstr(lastfolder,a);
+  yell("Opening",a);
 #ifdef O_CREAT
   return ropen(a,O_WRONLY|O_APPEND|O_CREAT,NORMperm);
 #else
