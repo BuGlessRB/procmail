@@ -1,18 +1,18 @@
 
-#$Id: Makefile.0,v 1.3 1992/11/11 13:58:11 berg Exp $
+#$Id: Makefile.0,v 1.4 1993/02/10 19:17:47 berg Exp $
 
 all: $(MANSS)
 
 make:
 	@$(SHELL) -c "exit 0"
 
-../new:
-	@-mkdir $@ 2>$(DEVNULL); exit 0
+../config.check:
+	@cd ..; $(MAKE) config.check
 
 man.sed: man_sed
 
 man_sed:
-	cd ../src; $(MAKE) ../man/man.sed
+	@cd ../src; $(MAKE) ../man/man.sed
 
 clean:
 	$(RM) $(MANSS) man.sed _Makefile core

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.22 1993/02/10 17:07:32 berg Exp $
+#$Id: initmake,v 1.23 1993/02/10 19:17:44 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -220,7 +220,7 @@ done
 for a in $BINSS
 do
   echo							>>src/_Makefile
-  echo "../new/$a: $a ../new"				>>src/_Makefile
+  echo "../new/$a: $a ../config.check"			>>src/_Makefile
   echo "	@\$(RM) \$@"				>>src/_Makefile
   echo "	\$(LN) $a \$@"				>>src/_Makefile
 done
@@ -228,7 +228,7 @@ done
 for a in $MANSS
 do
   echo							>>man/_Makefile
-  echo "../new/$a: $a ../new"				>>man/_Makefile
+  echo "../new/$a: $a ../config.check"			>>man/_Makefile
   echo "	@\$(RM) \$@"				>>man/_Makefile
   echo "	\$(LN) $a \$@"				>>man/_Makefile
 done

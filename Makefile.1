@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.10 1993/02/10 17:07:27 berg Exp $
+#$Id: Makefile.1,v 1.11 1993/02/10 19:17:40 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -31,6 +31,7 @@ multigram: config.check src/Makefile man/Makefile
 
 config.check: config.h
 	@echo Housekeeping file >$@
+	@-mkdir new 2>$(DEVNULL); exit 0
 	@-if $(FGREP) -n -e '`' config.h $(DEVNULL) | $(FGREP) -v EOFName ; \
 	 then \
 	 echo;echo '	^^^^^^^^^^^^^^^^^^^^ WARNING ^^^^^^^^^^^^^^^^^^^^^';\
@@ -96,9 +97,6 @@ install: install.man install.bin
 	@cd $(MAN5DIR); echo Installed in $(MAN5DIR); ls -l $(MANS5)
 	@$(MAKE) recommend
 
-new:
-	@-mkdir $@ 2>$(DEVNULL); exit 0
-
 deinstall:
 	@echo ----------------------------- Deinstalling the procmail package.
 	@$(RM) install.man install.bin
@@ -108,7 +106,7 @@ deinstall:
 	@-cd $(MAN5DIR); $(RM) $(MANS5); ls -l $(MANS5); exit 0
 	@echo ----------------------------- Ready.
 
-clean: new
+clean: config.check
 	-for a in $(SUBDIRS); do cd $$a; $(MAKE) $@; cd ..; done; exit 0
 	$(RM) $(MANS) $(BINS) libcheck install.man install.bin suid.sh \
 	 _Makefile core
