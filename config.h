@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.77 1998/11/06 05:35:16 guenther Exp $*/
+/*$Id: config.h,v 1.78 1998/11/09 22:14:52 srb Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -54,7 +54,6 @@
 	executing programs from within their .procmailrc files (this
 	restriction does not apply to /etc/procmailrc and /etc/procmailrcs
 	files) */
-
 
 /*#define NO_NFS_ATIME_HACK	/* uncomment if you're definitely not using
 				   NFS mounted filesystems and can't afford
