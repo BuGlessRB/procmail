@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.20 1994/06/28 16:56:45 berg Exp $";
+ "$Id: robust.c,v 1.21 1994/06/28 17:03:36 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -21,7 +21,7 @@ mode_t cumask;
 #define noforkretry	noresretry
 		       /* set nextexit to prevent elog() from using malloc() */
 static void nomemerr(len)const size_t len;
-{ static const char outofmem[]="Out of memory");
+{ static const char outofmem[]="Out of memory";
   nextexit=2;nlog(outofmem);elog("\n");
   syslog(LOG_NOTICE,"%s as I tried to allocate %ld bytes\n",outofmem,
    (long)len);
