@@ -110,3 +110,4 @@
 	       - only queue sent files, then flush the queue (lowers load)
 	    Modifications to multigram:
 	       - Strip leading or trailing unbalanced "'s from mailaddresses
+	    The installation makes the scripts in .examples executable

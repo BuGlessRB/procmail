@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh3  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh3		  # we're in a buggy zsh
-#$Id: install.sh3,v 1.38 1994/06/13 18:08:42 berg Exp $
+#$Id: install.sh3,v 1.39 1994/06/17 18:04:26 berg Exp $
 
 umask 022
 
@@ -100,8 +100,8 @@ for a in $OPTIONAL
 do
   if test -f "$target/$bindir/$a"
   then
-     echo "I'm *not* overwriting $bindir/$a, you can copy it from"
-     echo "the .examples directory by hand, if you like."
+     echo "Skipped: $bindir/$a"
+     echo "	Copy by hand from .examples/$a if you like."
   else
      sed -e "s:SedBinDir:$bindir:g" -e "s:SedHomeDir:$homedir:g" \
       -e "s:SedBinMail:$binmail:g" <"examples/$a" \
@@ -135,6 +135,8 @@ cp ../src/multigram "$target/$bindir"
 
 sed -e "s:/home/list/.bin:$target/$bindir:g" <Manual >"$target/.etc/Manual"
 mv -f "$target/$bindir/procmail" "$target/$bindir/.procmail" 2>/dev/null
+chmod 0755 $target/.examples/*
+chmod 0644 $target/.examples/mimencap*
 chmod 0755 $target/$bindir/* 2>/dev/null
 chmod 0644 $target/$bindir/mimencap*
 

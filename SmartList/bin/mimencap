@@ -5,7 +5,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: mimencap,v 1.6 1994/06/16 16:37:00 berg Exp $
+#$Id: mimencap,v 1.7 1994/06/17 18:04:29 berg Exp $
 
 DEFAULT=|
 
@@ -33,7 +33,7 @@ INCLUDERC=../SedBinDir/mimencap.local
 	 -a "Content-Type: application/octet-stream" \
 	 -I "Content-Transfer-Encoding: base64" | \
 	$sed -e '/^Content-Type:/ a\
-; dir="'$dir'"; name="'$name\"
+\	; dir="'$dir'"; name="'$name\"
 
       :0
       |
@@ -47,7 +47,7 @@ INCLUDERC=../SedBinDir/mimencap.local
        -a "Content-Type: application/octet-stream" \
        -I "Content-Transfer-Encoding: quoted-printable" | \
 	$sed -e '/^Content-Type:/ a\
-; dir="'$dir'"; name="'$name\"
+\	; dir="'$dir'"; name="'$name\"
 
     :0
     |
