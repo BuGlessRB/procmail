@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.86 2001/06/04 00:01:10 guenther Exp $
+.Id $Id: procmail.man,v 1.87 2001/06/04 00:33:53 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -439,7 +439,7 @@ Out of memory
 The system is out of swap space (and NORESRETRY has been exhausted).
 .TP
 Processing continued
-The unrecognized options on the command line are ignored, proceeding as
+The unrecognised options on the command line are ignored, proceeding as
 usual.
 .TP
 Program failure (nnn) of "x"

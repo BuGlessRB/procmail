@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailsc.man,v 1.12 2001/06/04 00:01:13 guenther Exp $
+.Id $Id: procmailsc.man,v 1.13 2001/06/04 00:33:55 guenther Exp $
 .TH PROCMAILSC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -74,7 +74,7 @@ Every match will contribute more to the score than the previous one.
 The score will grow exponentially.
 .TP
 x<0
-Can be utilized to favour odd or even number of matches.
+Can be utilised to favour odd or even number of matches.
 .PP
 If the regular expression is negated (i.e. matches if it isn't found),
 then
