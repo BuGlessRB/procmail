@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.22 1993/06/28 16:22:57 berg Exp $
+#$Id: install.sh,v 1.23 1993/06/28 17:02:37 berg Exp $
 
 SHELL=/bin/shell
 export SHELL
@@ -16,8 +16,8 @@ test -z "$bindir" && bindir=.bin
 test ! -d "$target" && echo "Please create the target directory first" &&
  exit 2
 
-if
- binmail=`procmail /dev/null DEFAULT=/dev/null LOG=\$SENDMAIL </dev/null 2>&1`
+if binmail=`procmail /dev/null DEFAULT=/dev/null LOG=\\\$SENDMAIL \
+  </dev/null 2>&1`
 then
 :
 else

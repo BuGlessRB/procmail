@@ -201,7 +201,7 @@
 	       - Updated and extended the Manual file (reading recommended)
 	       - Added the showlink convenience utility
 	       - Added support for non-sendmail compatible mailers
-1993/06/21: v2.90
+1993/06/28: v2.90
 	    Condition lines in recipes can now be started with a leading `*',
 	       there is no longer a need to count condition lines, simply
 	       set the number to zero, and let procmail find out by itself
