@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.76 1995/03/31 17:30:36 berg Exp $
+#$Id: rc.submit,v 1.77 1995/04/03 19:00:34 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -49,7 +49,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 * 9876543210^0 !divertcheck ?? y
 * 9876543210^0 B ?? ^^.*$.*$.*$.*$.*$.*$.*$.*$.*$
 * $${maintainer:+9876543210^0 ^From[: ](.*\<)?$\maintainer\>}
-* 9876543210^0 ^(Subject:(.*\<)?(Re:|magazine)\>)|X-(Diagnostic|Mailing-List):)
+* 9876543210^0 ^(Subject:(.*\<)?(Re:|magazine)\>)|X-(Diagnostic|Mailing-List):
 * -25^0 ^\
       Subject:([	 ]*(archives?:?([	 ]+(\
 	  (send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|\
