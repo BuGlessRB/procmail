@@ -1,5 +1,5 @@
 /************************************************************************
- *	Miscellaneous routines used by procmail				*
+ *	Routines for dealing with comsat, as used by procmail		*
  *									*
  *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
  *	Copyright (c) 1999-2001, Philip Guenther, The United States	*
@@ -9,7 +9,7 @@
 
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: comsat.c,v 1.1 2001/06/21 11:59:26 guenther Exp $";
+ "$Id: comsat.c,v 1.2 2001/06/26 08:42:51 guenther Exp $";
 #endif
 
 #include "procmail.h"
