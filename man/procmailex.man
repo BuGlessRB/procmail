@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.7 1993/01/15 15:11:05 berg Exp $
+.Id $Id: procmailex.man,v 1.8 1993/01/18 18:17:26 berg Exp $
 .de Sx
 .PP
 .ne \\$1
@@ -122,7 +122,7 @@ value of the `To:' field.
 SHELL=/bin/sh    # for other shells, this might need adjustment
 ALREADYSENT=$HOME/vacation     # the vacation database
 
-: 2 +PASS_HEAD++WAIT_EXIT_QUIET++CONTINUE+:                          # the lockfile is important
+: 2 +PASS_HEAD++WAIT_EXIT_QUIET++CONTINUE+:                       # the lockfile is important
 !^FROM_DAEMON
 !^From +YOUR_LOGIN_NAME
 | FROM="`formail \-+FM_REPLY++FM_EXTRACT+ To:`" ;\e
@@ -151,7 +151,7 @@ folder), again the texmail directory has to exist already.
 texmail/.
 .Ex
 Store all the messages about meetings in a folder that is in a directory
-date changes every month.  E.g. if it were January 1994, the folder
+that changes every month.  E.g. if it were January 1994, the folder
 would have the name `94-01/meeting' and the locallockfile would be
 `94-01/meeting.lock'.
 .Sx 3
@@ -160,12 +160,12 @@ meeting
 `date +%y-%m`/meeting
 .Ex
 The same as above, but, if the `94-01' directory wouldn't have existed, it
-is automatically created:
+is created automatically:
 .Sx 9
 MONTHFOLDER=`date +%y-%m`
 
 :i
-? test -d $MONTHFOLDER
+? test ! -d $MONTHFOLDER
 | mkdir $MONTHFOLDER
 
 ::
@@ -200,9 +200,29 @@ TRAP="/bin/rm -f $TEMPORARY"
 The TRAP keyword can also be used to change the exitcode of procmail.
 I.e. if you want procmail to return an exitcode of `1' instead of its
 regular exitcodes, you could simply use:
-.Sx 1
-TRAP="exit 1;"          # The trailing semi-colon is important
-                        # since exit is not a standalone program
+.Sx 2
+TRAP="exit 1;"   # The trailing semi-colon is important
+                 # since exit is not a standalone program
+.Ex
+The following recipe prints every incoming mail that looks like a postscript
+file.
+.Sx 3
+:Bb
+^^%!
+| lpr
+.Ex
+The following recipe does the same, but is a bit more selective.  It only
+prints the postscript file if it comes from the print-server.  The first
+condition matches only if it is found in the header (i.e. no preceding empty
+line).  The second condition only matches at the start of the body (i.e.
+right after the
+.B first
+empty line).
+.Sx
+:2 HB b
+^^(.+$)*From[ :].*print-server
+^^(.+$)*^%!
+| lpr
 .Ex
 Suppose you have two accounts, you use both accounts regularly, but they are
 in very distinct places (i.e. you can only read mail that arrived at either one

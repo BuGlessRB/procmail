@@ -16,7 +16,7 @@
 #	Created by S.R. van den Berg, The Netherlands		#
 #	This file can be freely copied for any use.		#
 #################################################################
-#$Id: mailstat,v 1.10 1993/01/18 16:10:57 berg Exp $
+#$Id: mailstat,v 1.11 1993/01/18 18:17:15 berg Exp $
 
 #	This shell script expects the following programs to be in the
 #	PATH (paths given here are the standard locations, your mileage
@@ -81,7 +81,7 @@ do
   done
 done
 
-$test a"$1" == a-- && shift
+$test a"$1" = a-- && shift
 
 LOGFILE="$1"
 

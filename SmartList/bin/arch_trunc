@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: arch_trunc,v 1.1 1993/01/15 14:40:43 berg Exp $
+#$Id: arch_trunc,v 1.2 1993/01/18 18:17:20 berg Exp $
 
 echo=echo		# /bin/echo
 ls=ls			# /bin/ls
@@ -11,7 +11,7 @@ if cd archive && cd latest
 then
   case "$1" in		# do not start removing every time, to decrease load
      *[248])
-	$rm -f `$ls -t | $sed -e '1,'$archive_hist' d' -e '[^0-9] d' ` ;;
+	$rm -f `$ls -t | $sed -e '1,'$archive_hist' d' -e '/[^0-9]/ d' ` ;;
   esac
 
   $echo "$1"

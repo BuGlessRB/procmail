@@ -1,5 +1,5 @@
-General info:
-
+			General info
+			------------
 Subcription/unsubscription/info requests should always be sent to the -request
 address of a mailinglist.
 If a mailinglist for example is called "thelist@some.domain", then the -request
@@ -25,4 +25,20 @@ address), and then a new subscribe to the new address (the order is important).
 
 Most (un)subscription requests are processed automatically without human
 intervention.
+
+			The archive server
+			------------------
+Every submission sent to this list is archived.	 The size of the archive
+depends on the limits set by the list maintainer (it is very well possible
+that only, say, the last two mails sent to the list are still archived, the
+rest might have expired).
+
+You can look at the header of every mail coming from this list to see
+under what name it has been archived.  The X-Mailing-List: field contains
+the mailaddress of the list and the file in which this submission was
+archived.
+
+If you want to access this archive, you have to send mails to the -request
+address with the word "archive" as the first word of your Subject:.
+To get you started try "archive help" as a Subject:.
 --
