@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.108 2000/11/18 06:49:03 guenther Exp $";
+ "$Id: misc.c,v 1.109 2000/11/18 06:55:34 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -146,7 +146,7 @@ bad: nlog(name);elog(toolong);elog(newline);
       { name="full rcfile";		  /* this should be passed in... XXX */
 	goto bad;
       }
-     *chp++=MCDIRSEP_;
+     *chp++=*MCDIRSEP_;
      strcpy(chp,file);				      /* append the filename */
    }
   return 0;
