@@ -7,7 +7,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lmtp.c,v 1.8 2001/02/20 09:35:22 guenther Exp $"
+ "$Id: lmtp.c,v 1.9 2001/06/03 21:54:55 guenther Exp $"
 #endif
 #include "procmail.h"
 #ifdef LMTP
@@ -595,6 +595,7 @@ void freeoverread P(())			    /* blow away the extra LMTP data */
 { if(overread)
    { bzero(overread,overlen);
      free(overread);
+     overread=0;
    }
 }
 
