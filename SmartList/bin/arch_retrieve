@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.14 1993/05/05 14:07:48 berg Exp $
+#$Id: arch_retrieve,v 1.15 1993/05/05 15:15:55 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -19,7 +19,7 @@ tmpfrom=../tmp.from
 cd archive
 
 from=`$echo "arch_retrieve:" \`$cat $tmpfrom\` requested`
-$rm -f $tmpfrom
+$cat /dev/null >$tmpfrom
 
 case "$X_ENVELOPE_TO" in
   *$list-request*) wrongaddress="" ;;
@@ -30,20 +30,23 @@ case "$X_ENVELOPE_TO" in
 esac
 
 $formail -k -xSubject: |
- $sed -e '/^--/,$ d' -e 's/^[	 ]*archive//w '$tmpfrom \
-  -e 's/[	 ]archive\/*/ /g' |
- ( $test -f $tmpfrom ||
+ $sed -e '/^--/,$ d' -e 's/^[	 ]*archive/ARCHIVE/' \
+  -e 's/[	 ]archive\/\/*/ /g' |
+ (  oldwrongaddress="$wrongaddress"
     wrongaddress="WARNING:
 	Please make sure to start the Subject: of requests to the archive-
 	server with the word archive.
 $wrongaddress"
    sendhelp=""
    ILLEGAL=""
-   $cat /dev/null >$tmpfrom
    while read line
    do
       set dummy $line
       shift
+      case "$1" in
+	 archive|ARCHIVE) shift
+	    $test ! -z "$wrongaddress" && wrongaddress="$oldwrongaddress";;
+      esac
       case "$1" in
 	 send|sendme|get|getme|gimme|retrieve|mail|\
 	 SEND|SENDME|GET|GETME|GIMME|RETRIEVE|MAIL)
