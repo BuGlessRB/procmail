@@ -1,6 +1,12 @@
-/*$Id: includes.h,v 1.24 1993/06/21 14:24:25 berg Exp $*/
+/*$Id: includes.h,v 1.25 1993/07/30 13:17:33 berg Exp $*/
 
 #include "../autoconf.h"
+#ifdef NO_const
+#ifdef const
+#undef const
+#endif
+#define const
+#endif
 #include "../config.h"
 	/* not all the "library identifiers" specified here need to be
 	   available for all programs in this package; some have substitutes
@@ -16,12 +22,16 @@
 				/* fork() getuid() getgid() getpid() execve()
 				   execvp() sleep() setuid() setgid()
 				   setrgid() chown() */
+#else
+#undef UNISTD_H_MISSING
 #endif
 #include <stdio.h>		/* setbuf() fclose() stdin stdout stderr
 				/* fopen() fread() fwrite() fgetc() getc()
 				   fdopen() putc() fputs() FILE EOF */
 #ifndef STDDEF_H_MISSING
 #include <stddef.h>		/* ptrdiff_t size_t */
+#else
+#undef STDDEF_H_MISSING
 #endif
 #ifndef STDLIB_H_MISSING
 #include <stdlib.h>		/* getenv() malloc() realloc() free()
@@ -39,6 +49,8 @@
 #ifndef SYS_WAIT_H_MISSING
 #include <sys/wait.h>		/* wait() WIFEXITED() WIFSTOPPED()
 				/* WEXITSTATUS() */
+#else
+#undef SYS_WAIT_H_MISSING
 #endif
 #ifndef SYS_UTSNAME_H_MISSING
 #include <sys/utsname.h>	/* uname() utsname */
@@ -61,25 +73,31 @@
 #endif
 
 #ifdef STDLIB_H_MISSING
+#undef STDLIB_H_MISSING
 void*malloc(),*realloc();
 const char*getenv();
 #endif
 #ifdef DIRENT_H_MISSING
+#undef DIRENT_H_MISSING
 #ifndef NDIR_H_MISSING
 #include <ndir.h>
 #define dirent	direct
 #else
+#undef NDIR_H_MISSING
 #ifndef SYS_NDIR_H_MISSING
 #include <sys/ndir.h>
 #define dirent	direct
 #else
+#undef SYS_NDIR_H_MISSING
 #ifndef SYS_DIR_H_MISSING
 #include <sys/dir.h>
 #define dirent	direct
 #else			  /* due to brain-damaged NeXT sys/dirent.h contents */
+#undef SYS_DIR_H_MISSING
 #ifndef SYS_DIRENT_H_MISSING	     /* sys/dirent.h must be moved down here */
 #include <sys/dirent.h>
 #else
+#undef SYS_DIRENT_H_MISSING
 /* I give up, I can only hope that your system defines DIR and struct dirent */
 #endif
 #endif
@@ -87,6 +105,7 @@ const char*getenv();
 #endif
 #endif /* DIRENT_H_MISSING */
 #ifdef STRING_H_MISSING
+#undef STRING_H_MISSING
 #include <strings.h>
 #ifndef strchr
 char*strchr();
@@ -94,9 +113,11 @@ char*strchr();
 char*strpbrk();
 #endif
 #ifdef SYS_UTSNAME_H_MISSING
+#undef SYS_UTSNAME_H_MISSING
 #define NOuname
 #endif
 #ifdef SYSEXITS_H_MISSING
+#undef SYSEXITS_H_MISSING
 		/* Standard exit codes, original list maintained
 		   by Eric Allman (eric@berkeley.edu) */
 #define EX_OK		0
@@ -196,6 +217,7 @@ char*strpbrk();
 #endif
 
 #ifdef WMACROS_NON_POSIX
+#undef WMACROS_NON_POSIX
 #ifdef WIFEXITED
 #undef WIFEXITED
 #endif
@@ -259,8 +281,8 @@ extern int uname();					 /* so we fix it :-) */
 
 #ifndef strchr		   /* for very old K&R compatible include files with */
 #ifdef P						/* new K&R libraries */
-#ifdef const
 #ifdef void
+#ifdef NO_const
 extern char*strchr();
 extern char*strpbrk();
 extern char*strstr();
@@ -272,18 +294,21 @@ extern void*memmove();
 
 #define Const			/*const*/     /* Convex cc doesn't grok this */
 
-#ifdef const
 #ifndef P				      /* no prototypes without const */
+#ifdef NO_const
 #define P(args) ()
 #endif
 #endif
 
 #ifdef NOrename
+#undef NOrename
 #define rename(old,new) (-(link(old,new)||unlink(old)))
 #endif
 
 #ifdef NOsetrgid
+#undef NOsetrgid
 #ifdef NOsetregid
+#undef NOsetregid
 #define setrgid(gid)	(-1)
 #else
 #define setrgid(gid)	setregid(gid,-1)
@@ -291,6 +316,7 @@ extern void*memmove();
 #endif
 
 #ifdef NOmkdir
+#undef NOmkdir
 #define mkdir(dir,mode) (-1)
 #endif
 
@@ -304,6 +330,7 @@ extern void*memmove();
 #define Q(args)		() /* needed until function definitions are ANSI too */
 
 #ifdef oBRAIN_DAMAGE
+#undef oBRAIN_DAMAGE
 #undef offsetof
 #endif
 #ifndef offsetof
@@ -317,3 +344,7 @@ extern void*memmove();
 #define numeric(x)	((unsigned)((x)-'0')<='9'-'0')
 
 #define mx(a,b)		((a)>(b)?(a):(b))
+
+#ifdef NO_const
+#undef NO_const
+#endif

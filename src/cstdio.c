@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.15 1993/07/16 14:52:27 berg Exp $";
+ "$Id: cstdio.c,v 1.16 1993/07/30 13:17:31 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -60,7 +60,7 @@ getbl(p)char*p;							  /* my gets */
 getb P((void))							 /* my fgetc */
 { if(rcbufp==rcbufend)						   /* refill */
      blasttell=tell(rc),rcbufend=rcbuf+rread(rc,rcbufp=rcbuf,STDBUF);
-  return rcbufp<rcbufend?*rcbufp++:EOF;
+  return rcbufp<rcbufend?(int)*rcbufp++:EOF;
 }
 
 void ungetb(x)const int x;	/* only for pushing back original characters */
@@ -76,7 +76,7 @@ testb(x)const int x;		   /* fgetc that only succeeds if it matches */
 }
 
 sgetc P((void))					/* a fake fgetc for a string */
-{ return *sgetcp?*(uchar*)sgetcp++:EOF;
+{ return *sgetcp?(int)*(uchar*)sgetcp++:EOF;
 }
 
 skipspace P((void))

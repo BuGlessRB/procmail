@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.60 1993/07/27 11:45:58 berg Exp $
+#$Id: autoconf,v 1.61 1993/07/30 13:17:27 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -17,7 +17,7 @@
 #	#define STRING_H_MISSING
 #	#define SYSEXITS_H_MISSING
 #Ok	#define SYS_FILE_H_MISSING
-#	#define const
+#	#define NO_const
 #	#define volatile
 #	#define P(args) ()
 #	#define void char
@@ -589,9 +589,9 @@ echo 'Testing for const'
 if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
  test -f _autotst.$O
 then
-  grepfor const '#define const'
+  grepfor const '#define NO_const'
 else
-  echo '#define const' >>$ACONF
+  echo '#define NO_const' >>$ACONF
 fi
 $RM _autotst.$O
 
@@ -608,7 +608,7 @@ else
 fi
 $RM _autotst.$O
 
-if $FGREP const $ACONF >$DEVNULL
+if $FGREP NO_const $ACONF >$DEVNULL
 then
   echo '#define P(args) ()' >>$ACONF
 else
