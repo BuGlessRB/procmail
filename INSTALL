@@ -42,7 +42,7 @@ procmail must be installed.
 Optional files (depending on your requirements):
 
 lockfile only needs to be installed if you plan to read several mailboxes
-	with one of the standard mailers that don't support lockfiles.
+	with one of the standard mailers that doesn't support lockfiles.
 formail only needs to be installed if mail sometimes arrives in nonstandard
 	mailbox format (or if you want to generate auto replies, split up
 	mailboxes/digests etc., see the man page of formail for more info).
@@ -119,12 +119,12 @@ think you know it better than autoconf.
 3. DEBUGGING AID
    -------------
 
-Since procmail is intended to run completely independent of any terminals, it
-doesn't use the stderr output to display error messages.  It is recommended,
-especially during debugging, to specify a LOGFILE (see man page) in the
-rcfile or on the command line.	Procmail will log all serious problems it
-encounters.  Of course, instead of a regular file, one could also specify a
-terminal as the default logfile.
+Since procmail is intended to run completely independent of any terminals, you
+will typically have difficulties seeing it display error messages on the stderr
+output.	 It is recommended, especially during debugging, to specify a LOGFILE
+(see the procmailrc(5) man page) in the rcfile or on the command line.
+Procmail will log all serious problems it encounters.  Of course, instead of a
+regular file, one could also specify a terminal as the default logfile.
 
 Also, procmail can be persuaded to be a lot more verbose by inserting the
 following assignment at the top of your rcfile:
@@ -157,7 +157,7 @@ itself.
 Every user that wants to use procmail should have a .forward and a
 .procmailrc file in his HOME directory.	 For starters, you can look
 at the supplied example files in "examples".
-(BTW, be sure to make .forward *world* readable).
+BTW, be sure to make .forward *world* readable.
 MMDF users should note that they need a .maildelivery file *instead* of the
 .forward file (see the procmail(1) man page for more information).
 
@@ -172,8 +172,8 @@ maildelivery-capabilities of /bin/mail), this has the advantage that users do
 not need to have a .forward file anymore that calls up procmail.  Simply
 having a .procmailrc file in the HOME directory will suffice.  Operation is
 transparent in this case (i.e. if no .procmailrc file is present in the HOME
-directory, mail will be delivered as usual and procmail behaves like a more
-reliable /bin/mail substitute).
+directory, mail will be delivered as usual and procmail behaves like a faster
+and more reliable /bin/mail substitute).
 
 For direct examples on how to do this, look at the examples/advanced file.
 

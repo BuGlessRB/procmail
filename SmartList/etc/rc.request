@@ -5,10 +5,12 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.32 1994/01/14 15:54:00 berg Exp $
+#$Id: rc.request,v 1.33 1994/01/17 14:40:43 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
+
+INCLUDERC=$RC_LOCAL_REQUEST_00
 
 LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 			# also makes sure that the load doesn't go sky-high
@@ -47,6 +49,8 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
   :0 wfh
   * !^Subject:
   | formail -a "Subject: "
+
+  INCLUDERC=$RC_LOCAL_REQUEST_10
 
 ###############################################################################
 # Reader beware, the following four regular expressions are not for the faint #
@@ -112,6 +116,8 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
      [a-z,.	 ]*(help|info(rm(ation)?)?)([^a-z]|$)
   | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
      cat help.txt info.txt 2>/dev/null ) | $SENDMAIL $sendmailOPT -t
+
+  INCLUDERC=$RC_LOCAL_REQUEST_20
 }
 
 #
@@ -178,6 +184,8 @@ LOCKFILE				# we don't need the lockfile anymore
      -A "X-Diagnostic: `multigram -b1 -x$listreq -x$listaddr \
      -l$reject_threshold dist`"
 }
+
+INCLUDERC=$RC_LOCAL_REQUEST_30
 
 :0 wfh
 | formail -A"X-Envelope-To: $X_ENVELOPE_TO" -a"X-Diagnostic: Unprocessed"

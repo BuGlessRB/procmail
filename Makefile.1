@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.26 1994/01/14 15:53:43 berg Exp $
+#$Id: Makefile.1,v 1.27 1994/01/17 14:39:50 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -112,7 +112,7 @@ deinstall:
 
 clean: config.check
 	-for a in $(SUBDIRS); do cd $$a; $(MAKE) $@; cd ..; done; exit 0
-	cd mailinglist; $(RM) targetdir.h list.id.* id.test
+	cd SmartList; $(RM) targetdir.h list.id.* id.test
 	$(RM) $(MANS) $(BINS) install.man install.bin suid.sh _Makefile \
 	 *core* autoconf.h.tmp
 
@@ -135,11 +135,10 @@ man/Makefile: man/Makefile.0 Makefile
 src/Makefile: src/Makefile.0 Makefile
 
 man/Makefile src/Makefile Makefile: Makefile.1 initmake
-	$(MAKE) _init; $(HIDEMAKE) init
-	@echo "***************************************************"
-	@echo "* 'make init' was successful.			  *"
-	@echo "* Ignore the following 'error', and restart make. *"
-	@echo "***************************************************"
-	@exit 1
+	sed -e '/^# Makefile.1 - mark/,$$ d' <Makefile >_Makefile
+	cat Makefile.0 >>_Makefile
+	$(MV) _Makefile Makefile
+	$(RM) Makefile.0
+	$(HIDEMAKE) init
 
 init makefiles Makefiles makefile: man/Makefile src/Makefile

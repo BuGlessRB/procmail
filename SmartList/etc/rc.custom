@@ -63,6 +63,14 @@ undigested_list =	$list@$domain	# Reply-To: address for digests
 #X_COMMAND_PASSWORD =			# put the password for
 					# X-Command mails here
 
+#RC_LOCAL_SUBMIT_00	= rc.local.s00	# Uncomment (and change) these to
+#RC_LOCAL_SUBMIT_10	= rc.local.s10	# call up customised local scripts
+#RC_LOCAL_SUBMIT_20	= rc.local.s20	# at predefined points.
+#RC_LOCAL_REQUEST_00	= rc.local.r00
+#RC_LOCAL_REQUEST_10	= rc.local.r10
+#RC_LOCAL_REQUEST_20	= rc.local.r20
+#RC_LOCAL_REQUEST_30	= rc.local.r30
+
 RC_CUSTOM				# clear this one from the environment
 					# so that we include this file only
 					# once

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.72 1994/01/12 17:21:55 berg Exp $
+#$Id: autoconf,v 1.73 1994/01/17 14:41:06 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -412,7 +412,7 @@ main(argc,argv)char*argv[];
 	      for(i=SLEEP_loop;i;i--,time((time_t*)0),sleep(SLEEP_delay));
 	      lockflag&=~1;write(pip[1],&lockflag,1);
 	      if(fdunlock()||close(fd))
-	       { write(pip[1],&lockflag,1);fprintf(stderr,"XX%02x",lockflag);
+	       { write(pip[1],&lockflag,1);fprintf(stderr,"XX%x",lockflag);
 		 return 1;
 	       }
 	      if(--mylocks<0)
@@ -497,8 +497,11 @@ fdlock(fd)
   oldfdlock=fd;fd=0;
   if(MSK_fcntl&dolock)
 #ifdef F_SETLKW
-   { flck.l_type=F_WRLCK;flck.l_whence=SEEK_SET;flck.l_len=0;
-     flck.l_start=tell(oldfdlock);fd|=fcntl(oldfdlock,F_SETLKW,&flck);
+   { static unsigned extra;
+     flck.l_type=F_WRLCK;flck.l_whence=SEEK_SET;flck.l_start=tell(oldfdlock);
+     if(!extra--)
+	extra=MIN_locks/4,flck.l_len=2,i|=fcntl(oldfdlock,F_SETLK,&flck);
+     flck.l_len=0;fd|=fcntl(oldfdlock,F_SETLKW,&flck);
    }
 #else
      fd=1;
@@ -537,9 +540,7 @@ fdunlock()
 #endif
   if(MSK_fcntl&dolock)
 #ifdef F_SETLKW
-   { flck.l_len=2;i|=fcntl(oldfdlock,F_SETLK,&flck);flck.l_type=F_UNLCK;
-     flck.l_len=0;i|=fcntl(oldfdlock,F_SETLK,&flck);
-   }
+     flck.l_type=F_UNLCK,flck.l_len=0,i|=fcntl(oldfdlock,F_SETLK,&flck);
 #else
      i=1;
 #endif

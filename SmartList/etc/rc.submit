@@ -5,10 +5,12 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.39 1994/01/14 15:54:04 berg Exp $
+#$Id: rc.submit,v 1.40 1994/01/17 14:40:46 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
+
+INCLUDERC=$RC_LOCAL_SUBMIT_00
 
 #
 # The following recipe makes sure that:
@@ -37,6 +39,8 @@ INCLUDERC=$RC_CUSTOM
 
   :0 a
    {
+
+     INCLUDERC=$RC_LOCAL_SUBMIT_10
 
      :0
      * $$moderated_flag
@@ -122,11 +126,7 @@ INCLUDERC=$RC_CUSTOM
 	-a"Subject: Unidentified subject!" -a "$reply_to" \
 	-a"X-Mailing-List: <$listaddr> $ARCHIVE"
 
-     #
-     # Any other local transformations can be done in rc.out
-     #
-
-     INCLUDERC=rc.out
+     INCLUDERC=$RC_LOCAL_SUBMIT_20
 
      #
      # The following recipe will distribute the message to the subscribers.

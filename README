@@ -56,8 +56,6 @@ digests/mailboxes into the original messages, do some very simple
 header-munging/extraction, or force mail into mail-format (with leading From
 line).
 
-Also included is a comprehensive mailinglist/archive management system.
-
 ----------------------
 
 I made the utmost effort to make procmail as robust as any program can be
@@ -65,7 +63,8 @@ I made the utmost effort to make procmail as robust as any program can be
 
 Since procmail is written entirely in C, it poses a very low impact
 on your system's resources (under normal conditions, when you don't
-start other programs/scripts from within it).
+start other programs/scripts from within it, it is faster and more
+robust than the average /bin/mail you have on your system now).
 
 Procmail was designed to deliver the mail under the worst conditions
 (file system full, out of swap space, process table full, file table full,
@@ -116,13 +115,13 @@ Cheers,
        Stephen R. van den Berg	at RWTH-Aachen, Germany.
 
 Internet E-mail:		berg@pool.informatik.rwth-aachen.de
-				berg@physik.tu-muenchen.de
 
 Snail-Mail:	P.O.Box 21074
 		6369 ZG Simpelveld
 		The Netherlands
 
 Procmail mailinglist:		procmail-request@informatik.rwth-aachen.de
+SmartList mailinglist:		SmartList-request@informatik.rwth-aachen.de
 
 ----------------------
 A recent version can be picked up at various comp.sources.misc archives.

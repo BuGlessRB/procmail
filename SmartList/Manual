@@ -1,8 +1,8 @@
-$Id: Manual,v 1.19 1993/12/23 13:01:21 berg Exp $
+		SmartList mailinglist management
+		--------------------------------
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
-					berg@physik.tu-muenchen.de
 
 Contents:
 ---------	1. Creating and removing mailinglists or archive servers
@@ -18,6 +18,9 @@ Contents:
 		4. The archive server
 		5. The format of the dist file
 		6. Multigram and the thresholds in rc.init/rc.custom
+		7. FTP addresses & the SmartList mailinglist
+
+$Id: Manual,v 1.20 1994/01/17 14:40:11 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -122,8 +125,9 @@ maintainer (and only the maintainer) will always receive the X-Processed:
 mail.
 
 For your convenience, a sample script "doxcommand" is present in the
-example directory.  It can be used to easily generate these X-Command mails.
-Do remember to readprotect this script once the password has been changed.
+SmartList/examples directory.  It can be used to easily generate these
+X-Command mails.  Do remember to read-protect this script once the password
+has been changed.
 
 
 3. Customisation
@@ -142,9 +146,11 @@ The mailinglists can be customised in several ways:
 	- Every list directory contains an "rc.custom" rcfile which can
 	  be edited to your hearts content to customise certain parameters
 	  for this list only.
-	- Small local customisations concerning the particular
-	  format for outgoing submissions (like adding a general signature
-	  or disclaimer), can be put in the optional "rc.out" rcfile.
+	- Small local customisations can be realised by uncommenting one
+	  or more of the RC_LOCAL_* assignments in rc.custom.
+	  You then have to create the appropriate rc.local* file in which
+	  you can put any commands you'd like (e.g. adding a general signature
+	  or disclaimer to every outgoing submission).
 	- For graver customisation you can remove the hardlink (using
 	  .bin/delink for example) to any of the files in a list directory and
 	  provide that list with its own copy in order to edit that to taste.
@@ -506,3 +512,26 @@ the following test:
 	entries in altered_distfile by mutilating them more and more in
 	order to see what multigram makes of it (try inserting some non-
 	existing addresses as well).
+
+
+7. FTP addresses & the SmartList mailinglist
+   -----------------------------------------
+
+A recent version can be picked up at various comp.sources.misc archives.
+The latest version can be obtained directly from the ftp-archive at:
+
+	ftp.informatik.rwth-aachen.de (137.226.112.172)
+
+as (g)zipped tar file:	   /pub/packages/procmail/SmartList.tar.zip	<160KB
+as compressed tar file:	   /pub/packages/procmail/SmartList.tar.Z	<216KB
+
+There exists a dedicated mailinglist for SmartList users, send your
+subscription requests to:
+
+		SmartList-request@informatik.rwth-aachen.de
+
+For procmail related questions not specific to the SmartList package
+you can also write to the procmail mailinglist, send your subscription
+requests to:
+
+		procmail-request@informatik.rwth-aachen.de

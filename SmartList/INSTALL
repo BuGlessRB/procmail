@@ -1,29 +1,30 @@
-Discusses:
+	SmartList Installation guide:
+
 		1. Prerequisites
 		2. Installing the scripts
 		3. Sharing the scripts on multiple architectures
 		4. If you don't have a sendmail compatible mailer
-		5. Upgrading from previous versions of these scripts
+		5. Upgrading from previous versions of SmartList
 
 				---
 
 1. Prerequisites
    -------------
 
-In order to make sure that the mailinglist scripts work reliably for both
-remote and local mail, they have to be run under someone's account.
+In order to make sure that SmartList works reliably for both remote and
+local mail, it has to be run under someone's account.
 The recommended procedure would be to create a new account and group named
-"list" that is only going to be used to manage the mailinglist stuff.
+"list" that is only going to be used to manage SmartList mailinglists.
 
-If you are unable/unwilling to create a new user just for the mailinglist
-stuff, then the mailinglist scripts should be installed in a separate
-subdirectory.  This user will still be able to receive regular mail.
+If you are unable/unwilling to create a new user just for SmartList,
+then it should be installed in a separate subdirectory.	 The owner of this
+directory will still be able to receive regular mail.
 
-In the mailinglist scripts I made use of the -f option of sendmail.  This
-option makes sure that the sender address on the envelope (the From_ line)
-contains the proper list address.  In order for this option to work, the
-user using it (either "list" or the regular user the lists run under) must
-be on the trusted-user-list of sendmail.  To enter the user "list" on the
+SmartList makes use of the -f option of sendmail.  This option makes sure
+that the sender address on the envelope (the From_ line) contains the
+proper list address.  In order for this option to work, the user using it
+(either "list" or the regular user the lists run under) must be on the
+trusted-user-list of sendmail.	To enter the user "list" on the
 trusted-user-list simply edit the sendmail.cf file and add a line reading:
 
 Tlist
@@ -43,15 +44,15 @@ Suppose you have created this pseudo user "list" with a specified home
 directory of /home/list
 
 Now create /home/list by hand and make sure that you chown it to "list".
+(Also chgrp it to "list" now if you created a group for that).
 
 Next, make sure that you are running as root (su root) and execute the
 "install.sh" script present in this directory by typing something like:
 
 	sh install.sh /home/list
 
-If you are setting up the mailinglists under your own account, simply
-creating a separate directory and running the install.sh script should
-suffice.
+If you are setting up SmartList under your own account, simply creating
+a separate directory and running the install.sh script should suffice.
 
 This script will then create two subdirectories (.bin and .etc) in
 /home/list.  These directories will be filled with the files contained
@@ -84,14 +85,14 @@ you are still using this account to receive regular mail.
 
 Depending on your mail configuration, if procmail has not been integrated
 in the maildelivery system (see procmail*/examples/advanced for more
-information on that topic) you also have to create a .forward file with an
+information on that topic) you should also create a .forward file with an
 appropriate content (see "man procmail", the NOTES section at the end).	 This,
 however, is only necessary if you created a seperate "list" account.
 
 	Next, edit the /home/list/.etc/rc.init file.	Make sure that
 	"domain" is set to the right value, and you can optionally specify a
 	"listmaster";  also check if the PATH is correct and make sure
-	that the procmail and formail are in the path.
+	that procmail and formail are in the path.
 
 On some sites the aliases file is not exactly /usr/lib/aliases, or its format
 is slightly incompatible with standard sendmail.  In those cases (for
@@ -108,12 +109,12 @@ quick reference.
 3. Sharing the scripts on multiple architectures
    ---------------------------------------------
 
-For people that want to run the lists on a shared filesystem across different
+For people that want to run SmartList on a shared filesystem across different
 architectures there exists the possibility of using several .bin directories.
 Simply use something like:
 	sh install.sh /home/list .bin.sun4
 to install to a different .bin directory.  Repeat the complete procmail and
-mailinglist installation for every architecture, specifying a different .bin
+SmartList installation for every architecture, specifying a different .bin
 directory every time.
 
 				---
@@ -121,7 +122,7 @@ directory every time.
 4. If you don't have a sendmail compatible mailer
    ----------------------------------------------
 
-As is, these scripts are preconfigured to use sendmail (or a compatible
+As is, SmartList is preconfigured to use sendmail (or a compatible
 mailer like smail) to actually transport the mails.  If your system only
 supplies a /bin/rmail or /bin/mail to transport mails, then several of
 the options used when invoking sendmail will not work.
@@ -129,21 +130,21 @@ the options used when invoking sendmail will not work.
 For these cases you have to edit the /home/list/.etc/rc.init file.
 Look for a SENDMAIL assignment.	 Supplied with these scripts is a poor man's
 sendmail.  It was installed in the .bin directory belonging to the
-list.  Make sure that the SENDMAIL assignment points at the sendmails script.
+list.  Make sure that the SENDMAIL assignment points at the "sendmails" script.
 And, of course, don't forget to uncomment the SENDMAIL assignment and
 the two sendmailOPT* assigments following it.
 
 				---
 
-5. Upgrading from previous versions of these scripts
-   -------------------------------------------------
+5. Upgrading from previous versions of SmartList
+   ---------------------------------------------
 
 You can simply use the install.sh script again to install directly over
 the old installation IF you customised ONLY the master rc.init and rc.custom
 files.	Once you ran the install.sh script, you'll have to merge the changes
 you made to the old rc.init file (still there) into the rc.init.new file.
 
-Since the install.sh script created the .etc/rc.lock file for you,
+Since the install.sh script will create the .etc/rc.lock file for you,
 you have 17 minutes to do that.	 If it should take longer, touch the rc.lock
 file every so often.  As soon as the difference between its mtime and the
 current time exceeds 17 minutes, the flist programs start delivering mail to
@@ -159,9 +160,6 @@ new rc.init already provides the new defaults).
 If you customised more than just the rc.init or rc.custom files, you'll
 have to make diffs between the old versions of the scripts, then install
 the new scripts and then apply back the diffs (probably by hand).
-The reason why parts of the old scripts cannot operate with the new scripts
-is because they expect several new environment variables to be set (like
-digest selection or not).  The new rc.init sets them of course.
 
 You can quickly verify which files are linked to other files by
 simply typing something like:

@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh3  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh3		  # we're in a buggy zsh
-#$Id: install.sh3,v 1.20 1993/12/23 13:01:28 berg Exp $
+#$Id: install.sh3,v 1.21 1994/01/17 14:40:19 berg Exp $
 
 umask 022
 
@@ -44,7 +44,6 @@ then
     do
        if test -d $a
        then
-	  test -f $a/rc.out || touch $a/rc.out
 	  test -f $a/accept || (cd $a && $ln dist accept 2>/dev/null )
 	  test -f $a/unsubscribe.txt ||
 	   (cd $a && $ln ../.etc/unsubscribe.txt unsubscribe.txt 2>/dev/null )
@@ -97,7 +96,7 @@ do
   $ln "$target/$bindir/flist" "$target/$bindir/$a"
 done
 
-rm -f "$TMPFLIST"
+rm -f "$TMPFLIST" $target/$bindir/flist.[0-9]*
 chmod 06755 "$target/$bindir/flist" 2>/dev/null
 mv -f "$target/$bindir/.procmail" "$target/$bindir/procmail" 2>/dev/null
 
@@ -107,6 +106,13 @@ for a in $DIRS
 do
   ls -ld "$target/.$a" $target/.$a/*
 done
+
+if test -f "$TMPFLIST"
+then
+  echo "The old flist binary seems to be busy, so I couldn't remove it."
+  echo "You'll have to remove it yourself:"
+  echo "	/bin/rm -f $TMPFLIST"
+fi
 
 echo "Linking .etc/rc.main to $target/.procmailrc"
 if test -f "$target/.procmailrc.old"
