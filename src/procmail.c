@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.132 1999/02/19 00:20:12 guenther Exp $";
+ "$Id: procmail.c,v 1.133 1999/02/19 07:28:48 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -552,10 +552,13 @@ fake_rc:	 readerr(buf);
 	      suppmunreadable=0;
 findrc:	      i=0;		    /* should we keep the current directory? */
 	      if(rcfile==pmrc)		    /* the default .procmailrc file? */
-		 if(*strcpy((char*)(rcfile=buf2),pmrc2buf())=='\0')
+	       { if(*strcpy((char*)(rcfile=buf2),pmrc2buf())=='\0')
 pm_overflow:	  { strcpy(buf,pmrc);
 		    goto fake_rc;
 		  }
+	       }
+	      else if(mailfilter!=2)   /* if it isn't special or the default */
+		 setids();	      /* transmogrify now to prevent peeking */
 	      if(strchr(dirsep,*rcfile)||		   /* absolute path? */
 		 (mailfilter||*rcfile==chCURDIR&&strchr(dirsep,rcfile[1]))&&
 		 (i=1))				     /* mailfilter or ./ pfx */
@@ -564,12 +567,23 @@ pm_overflow:	  { strcpy(buf,pmrc);
 		 if(*lastdirsep(pmrc2buf())='\0',buf[0]=='\0')
 		    goto pm_overflow;
 	      strcat(buf,rcfile);			/* append the rcfile */
-	      if(mailfilter!=2&&			 /* nothing special? */
-		 (stat(buf,&stbuf)?			      /* accessible? */
-		  rcstate==rc_NOSGID:stbuf.st_mode&S_IRUSR))	/* readable? */
-		 setids();				/* then transmogrify */
 	    }
 	   while(0>bopen(buf));			   /* try opening the rcfile */
+#ifndef NOfstat
+	   if(fstat(rc,&stbuf))				    /* the right way */
+#else
+	   if(lstat(buf,&stbuf))			  /* the best we can */
+#endif
+	      goto susp_rc;
+#if !defined(NOfstat) && defined(S_IFLNK)
+	   if(rcstate!=rc_NORMAL&&mailfilter!=2)  /* if we're still root and */
+	    { struct stat stb;				 /* not special then */
+	      if(lstat(buf,&stb)||		 /* check for symlink tricks */
+	       stb.st_dev!=stbuf.st_dev|| stb.st_ino!=stbuf.st_ino)
+		 goto susp_rc;
+	    }
+#endif
+	   setids();			     /* change now if we haven't yet */
 	   restrict=1;			      /* possibly restrict execs now */
 	   if(i)		  /* opened rcfile in the current directory? */
 	    { if(!didchd)
@@ -579,19 +593,18 @@ pm_overflow:	  { strcpy(buf,pmrc);
 	     /*
 	      * OK, so now we have opened an absolute rcfile, but for security
 	      * reasons we only accept it if it is owned by the recipient or
-	      * root and is not world writable, and the directory it is in is
+	      * root and is not world writable, or the directory it is in is
 	      * not world writable or has the sticky bit set
 	      */
 	    { i= *(chp=lastdirsep(buf));
-	      if(lstat(buf,&stbuf)||
-		 ((stbuf.st_uid!=uid&&stbuf.st_uid!=ROOT_uid||
+	      if((stbuf.st_uid!=uid&&stbuf.st_uid!=ROOT_uid||
 		  stbuf.st_mode&S_IWOTH)&&
 		  strcmp(devnull,buf)&&	      /* /dev/null is a special case */
 		  (*chp='\0',stat(buf,&stbuf)||
 		   (stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)&&
-		    !(stbuf.st_mode&S_ISVTX))))
+		    !(stbuf.st_mode&S_ISVTX))&&(*chp=i,1))
 	       { static const char susprcf[]="Suspicious rcfile";
-		 *chp=i;closerc();nlog(susprcf);logqnl(buf);
+susp_rc:	 closerc();nlog(susprcf);logqnl(buf);
 		 syslog(LOG_ALERT,slogstr,susprcf,buf);
 		 goto fake_rc;
 	       }
@@ -602,7 +615,7 @@ pm_overflow:	  { strcpy(buf,pmrc);
 	   *	have opened his/her .procmailrc (don't remove these, since
 	   *	the rcfile might have been created after the first stat)
 	   */
-	   yell(drcfile,buf);setids();
+	   yell(drcfile,buf);
 	   if(!didchd)			       /* have we done this already? */
 	    { if((chp=lastdirsep(pmrc2buf()))>buf)	/* not the root dir? */
 		 chp[-1]='\0';		     /* eliminate trailing separator */
