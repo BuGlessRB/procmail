@@ -17,7 +17,7 @@ Discusses:
 For users that have the very same home directory on machines with differing
 architectures (i.e. you need different executables), and they
 have to explicitly use (i.e. the system administrator did not arrange,
-for example, /usr/local/bin/procmail to have exactly the right contents
+for example, /usr/bin/procmail to have exactly the right contents
 depending on from which machine it is called) two executables of procmail,
 I have the following suggestion to use as a .forward file (examples are for
 sparc and sun3 architectures):
@@ -43,13 +43,13 @@ YOUR_LOGIN_NAME@your.favourite.machine
 
 And, in a second file named .forward.your.favourite.machine you put:
 
-"|exec /usr/local/bin/procmail #YOUR_USERNAME"
+"|exec /usr/bin/procmail #YOUR_USERNAME"
 
 If you have an older sendmail, you could put something like the following two
 lines in your .forward file:
 
 YOUR_LOGIN_NAME@your.favourite.machine
-"|IFS=' ';test .`/bin/uname -n` != .your.favourite.machine || exec /usr/local/bin/procmail #YOUR_USERNAME"
+"|IFS=' ';test .`/bin/uname -n` != .your.favourite.machine || exec /usr/bin/procmail #YOUR_USERNAME"
 
 The leading dots are important.	 Check what `/bin/uname -n` returns on
 your.favourite.machine, and substitute that for your.favourite.machine in the
@@ -60,7 +60,7 @@ With some sendmails, the last suggestion causes you to get a superfluous
 copy in the system mailfolder.	If that is the case, you'll have to change
 your .forward to something like:
 
-"|IFS=' ';if test .`/bin/uname -n` = .your.favourite.machine ; then exec /usr/local/bin/procmail; else exec /usr/lib/sendmail -oi YOUR_LOGIN_NAME@your.favourite.machine; fi"
+"|IFS=' ';if test .`/bin/uname -n` = .your.favourite.machine ; then exec /usr/bin/procmail; else exec /usr/lib/sendmail -oi YOUR_LOGIN_NAME@your.favourite.machine; fi"
 
 				---
 
@@ -90,7 +90,7 @@ without the "-d" option) is this:
 
 Move your current local mail delivery agent (e.g. /bin/mail, /bin/lmail,
 /usr/lib/mail/mail.local, etc.) out of the way, and create a (symbolic or hard)
-link from there to procmail, as in "ln /usr/local/bin/procmail /bin/lmail".
+link from there to procmail, as in "ln /usr/bin/procmail /bin/lmail".
 
 Beware, however, that if you are using this method, /bin/mail can *only* be
 used to deliver mail.  On many systems /bin/mail has several uses (also to
@@ -122,7 +122,7 @@ or none on the current Mlocal definition, use those *instead* of "S=10, R=20"):
 
 If you're using a sendmail 8.6.x or older:
 
-Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhPfn, S=10, R=20,
+Mlocal, P=/usr/bin/procmail, F=lsSDFMhPfn, S=10, R=20,
 	A=procmail -Y -a $h -d $u
 
 If you're using sendmail 8.7 or newer:
@@ -142,7 +142,7 @@ one exitcode)).
 
 To impose a 2MB limit on mails, you could add a `Maxsize=' field like in:
 
-Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhPfn, S=10, R=20, M=2000000,
+Mlocal, P=/usr/bin/procmail, F=lsSDFMhPfn, S=10, R=20, M=2000000,
 	A=procmail -Y -a $h -d $u
 
 In order to take advantage of the optional meta argument that can be passed to
@@ -207,7 +207,7 @@ and started it with an absolute path).
 The following line should be inserted into (or take the place of any previous
 local definition in) your sm.conf file for the Transport Agent:
 
-local	sSPfn	/usr/local/bin/procmail		procmail -a $h -d $u
+local	sSPfn	/usr/bin/procmail		procmail -a $h -d $u
 
 				---
 
@@ -217,9 +217,9 @@ local	sSPfn	/usr/local/bin/procmail		procmail -a $h -d $u
 For smail 2.x users there are two options:
  i. Move the current local-mail-delivery program (probably /bin/lmail) out of
     the way, make a symbolic or hard link from procmail to the name of that
-    program (e.g. "ln /usr/local/bin/procmail /bin/lmail")
+    program (e.g. "ln /usr/bin/procmail /bin/lmail")
  ii.Make sure the following macro is defined in src/defs.h:
-    #define LMAIL(frm,sys) "/usr/local/bin/procmail -d"
+    #define LMAIL(frm,sys) "/usr/bin/procmail -d"
 
 For smail 3.x users there are also two options:
  i. The same solution as for smail 2.x (however, method ii is preferred)
@@ -227,7 +227,7 @@ For smail 3.x users there are also two options:
     (create one, if need be) with the following two lines:
 
 local: return_path, local, from, driver=pipe; user=root,
-	cmd="/usr/local/bin/procmail -d $($user$)"
+	cmd="/usr/bin/procmail -d $($user$)"
 
 				---
 
@@ -239,7 +239,7 @@ procmail with mailsurr the following two lines should be inserted in the
 /etc/mail/mailsurr file (preferably at the bottom):
 
 '(.+)' '([^@!]+)' '<S=0;C=67,75;F=*;
-	/usr/local/bin/procmail -f \\1 -d \\2'
+	/usr/bin/procmail -f \\1 -d \\2'
 
 				---
 

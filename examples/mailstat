@@ -17,7 +17,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #	Created by S.R. van den Berg, The Netherlands		#
 #	This file can be freely copied for any use.		#
 #################################################################
-#$Id: mailstat,v 1.22 1998/11/06 05:35:25 guenther Exp $
+#$Id: mailstat,v 1.23 1999/01/18 20:35:34 guenther Exp $
 
 #	This shell script expects the following programs to be in the
 #	PATH (paths given here are the standard locations, your mileage

@@ -49,13 +49,14 @@ http://www.cis.ohio-state.edu/hypertext/faq/usenet/mail/filtering-faq/faq.html
 
 	On some systems .forward files are not checked.
 	It might be possible that your system supports a command like:
-		mail -F "|/usr/local/bin/procmail"
-	to set up forwarding to a program.
+		mail -F "|/usr/bin/procmail"
+	to set up forwarding to a program.  (If procmail is in /usr/local/bin
+	then use that path instead when trying these.)
 	If that doesn't seem to work it might be worth trying to put a line
 	looking like this:
-		Forward to |/usr/local/bin/procmail
+		Forward to |/usr/bin/procmail
 	or if that doesn't work, try:
-		Pipe to /usr/local/bin/procmail
+		Pipe to /usr/bin/procmail
 	as the only line in your mail spool file (e.g. /usr/mail/$LOGNAME), as
 	well as doing a "chmod 06660 /usr/mail/$LOGNAME".  For more information
 	on such systems, do a "man mail".

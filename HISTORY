@@ -423,3 +423,5 @@
 	    Changes to autoconf:
 	       - Detect & work around inefficient realloc() implementations
 	    Mailstat returns grand totals as well now
+	    Update FAQ and docs to reflect default placing of procmail
+	       in /usr/bin instead of /usr/local/bin
