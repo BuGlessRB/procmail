@@ -452,6 +452,7 @@
 	       - Support delivery to maildir mailboxes
 	       - Don't use a locallockfile on $DEFAULT if it's a directory
 	       - Include LINEBUF in procmail -v output
+	       - Eliminated the conflict with the C9x restrict keyword
 	    Changes to mailstat:
 	       - Work around the detab done on checkin to CVS
 	       - Recognize maildir mailboxes

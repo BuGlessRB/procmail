@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.91 1999/04/05 17:35:03 guenther Exp $";
+ "$Id: misc.c,v 1.92 1999/04/06 02:36:20 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -432,7 +432,7 @@ int asenvcpy(src)char*src;
      *	really change the uid now, since it would not be safe to
      *	evaluate the extra command line arguments otherwise
      */
-   { restrict=1;setids();strcpy(buf,src);src=buf+(chp-src);
+   { erestrict=1;setids();strcpy(buf,src);src=buf+(chp-src);
      strcpy((char*)(sgetcp=buf2),++src);
      if(!readparse(src,sgetc,2))
       { chp=sputenv(buf);src[-1]='\0';

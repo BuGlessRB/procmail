@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.141 1999/04/05 17:35:05 guenther Exp $";
+ "$Id: procmail.c,v 1.142 1999/04/06 02:36:22 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -51,7 +51,7 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rcstate,rc= -1,
  ignwerr,lexitcode=EXIT_SUCCESS,asgnlastf,accspooldir,crestarg,skiprc,
- savstdout,berkeley,mailfilter,restrict;
+ savstdout,berkeley,mailfilter,erestrict;
 size_t linebuf=mx(DEFlinebuf+XTRAlinebuf,1024/*STRLEN(systm_mbox)<<1*/);
 volatile int nextexit;			       /* if termination is imminent */
 pid_t thepid;
@@ -591,7 +591,7 @@ susp_rc:      closerc();nlog(susprcf);logqnl(buf);
 	    }
 	   if(mailfilter==2)		 /* change now if we haven't already */
 	      setids();
-	   restrict=1;			      /* possibly restrict execs now */
+	   erestrict=1;			      /* possibly restrict execs now */
 	   if(i==1)		  /* opened rcfile in the current directory? */
 	    { if(!didchd)
 		 setmaildir(curdir);
