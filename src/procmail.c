@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.164 2000/11/18 04:33:34 guenther Exp $";
+ "$Id: procmail.c,v 1.165 2000/11/18 06:49:05 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -42,14 +42,15 @@ static /*const*/char rcsid[]=
 static const char*const nullp,exflags[]=RECFLAGS,drcfile[]="Rcfile:",
  pmusage[]=PM_USAGE,*etcrc=ETCRC,misrecpt[]="Missing recipient\n",
  extrns[]="Extraneous ",ignrd[]=" ignored\n",pardir[]=chPARDIR,
- curdir[]={chCURDIR,'\0'},defspath[]=DEFSPATH,defpath[]=DEFPATH;
+ curdir[]={chCURDIR,'\0'},defspath[]=DEFSPATH,defpath[]=DEFPATH,
+ defmaildir[]=DEFmaildir;
 char*buf,*buf2,*loclock,*tolock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*const*restargv= &nullp,*sgetcp,
  pmrc[]=PROCMAILRC,*rcfile=pmrc,dirsep[]=DIRSEP,devnull[]=DevNull,empty[]="",
  lgname[]="LOGNAME",executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",
  procmailn[]="procmail",whilstwfor[]=" whilst waiting for ",home[]="HOME",
- host[]="HOST",*defdeflock=empty,*argv0=empty,pathtoolong[]=" path too long",
+ host[]="HOST",*defdeflock=empty,*argv0=empty,
  slogstr[]="%s \"%s\"",conflicting[]="Conflicting ",orgmail[]="ORGMAIL",
  insufprivs[]="Insufficient privileges\n",
  exceededlb[]="Exceeded LINEBUF\n",errwwriting[]="Error while writing to",
@@ -390,16 +391,12 @@ Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
      /*
       * Processing point of proposed /etc/procmail.conf file
       */
-     sgetcp=fdefault;	    /* setup DEFAULT and ORGMAIL and check the spool */
-     if(readparse(buf,sgetc,2))		   /* uh, Houston, we have a problem */
-      { nlog(orgmail);elog(pathtoolong);elog(newline);
-	syslog(LOG_CRIT,"%s%s for LINEBUF for uid \"%lu\"\n",orgmail,
-	 pathtoolong,(unsigned long)uid);
-	fdefault=empty;
+     if(buildpath(orgmail,fdefault,(char*)0))	/* setup DEFAULT and ORGMAIL */
+      { fdefault=empty;			   /* uh, Houston, we have a problem */
 	goto nix_sysmbox;
       }
      fdefault=tstrdup(buf);sgid=egid;
-     chp=(char*)getenv(orgmail);
+     chp=(char*)tgetenv(orgmail);
      if(mailfilter||!screenmailbox(chp,egid,Deliverymode))
 nix_sysmbox:
       { sputenv(orgmail);		 /* nix delivering to system mailbox */
@@ -441,11 +438,8 @@ nix_sysmbox:
 	else if(*rcfile==chCURDIR&&strchr(dirsep,rcfile[1]))   /* ./ prefix? */
 	   strcpy(buf,rcfile),rctype=rct_CURRENT;
 	else			     /* prepend default procmailrc directory */
-	 { char*chp=lastdirsep(pmrc2buf());
-	   if(chp==buf)
-	      goto pmrc_of;
-	   strcpy(chp,rcfile);			      /* append the filename */
-	 }
+	   if(buildpath(maildir,defmaildir,rcfile))
+	      break;
 	if(tryopen(0,rctype,dowarning))
 	 { register int rcs=mainloop();				   /* run it */
 	   if(rcs==rcs_DELIVERED)
@@ -464,11 +458,8 @@ nix_sysmbox:
    { int rctype;
      if(rcfile==pmrc)			    /* no rcfile on the command line */
       { rctype=rct_DEFAULT;
-	rcfile=pmrc2buf();
-	if(*rcfile=='\0')
-pmrc_of: { readerr(pmrc);
+	if(buildpath("default rcfile",pmrc,(char*)0))
 	   goto nomore_rc;
-	 }
       }
      else						  /* mailfilter mode */
       { rctype=strchr(dirsep,*rcfile)?rct_ABSOLUTE:rct_CURRENT;
@@ -598,20 +589,14 @@ suspicious_rc:
    *	Chdir now if we haven't already
    */
   if(!didchd)				       /* have we done this already? */
-   { char*chp=lastdirsep(pmrc2buf());
-     if(chp==buf)						 /* arrrrgh! */
-      { nlog(pmrc);elog(pathtoolong);elog(newline);
-	syslog(LOG_CRIT,"procmailrc%s for LINEBUF for uid \"%lu\"\n",
-	 pathtoolong,(unsigned long)uid);
-	exit(EX_OSERR);					/* give up the ghost */
-      }
-     if(chp>buf+1)					/* not the root dir? */
-	chp--;
-     *chp='\0';				     /* eliminate trailing separator */
+   { const char*chp;
+     if(buildpath(maildir,defmaildir,(char*)0))
+	exit(EX_OSERR);		   /* something was wrong: give up the ghost */
      if(chdir(chp=buf))
       { chderr(buf);		      /* no, well, then try an initial chdir */
-	if(chdir(chp=(char*)tgetenv(home)))
-	   chderr(chp),chp=(char*)curdir;
+	chp=tgetenv(home);
+	if(!strcmp(chp,buf)||chdir(chp))
+	   chderr(chp),chp=curdir;		/* that didn't work, use "." */
       }
      setmaildir(chp);
    }

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.107 2000/11/18 03:43:34 guenther Exp $";
+ "$Id: misc.c,v 1.108 2000/11/18 06:49:03 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -122,6 +122,34 @@ void chderr(dir)const char*const dir;
 
 void readerr(file)const char*const file;
 { nlog("Couldn't read");logqnl(file);
+}
+
+int buildpath(name,path,file)const char*name,*const path,*const file;
+{ static const char toolong[]=" path too long",
+   notabsolute[]=" is not an absolute path";
+  sgetcp=path;
+  if(readparse(buf,sgetc,2))
+   { syslog(LOG_CRIT,"%s%s for LINEBUF for uid \"%lu\"\n",name,toolong,
+      (unsigned long)uid);
+bad: nlog(name);elog(toolong);elog(newline);
+     return 1;
+   }
+  if(!strchr(dirsep,buf[0]))
+   { nlog(name);elog(notabsolute);elog(newline);
+     syslog(LOG_CRIT,"%s%s for uid \"%lu\"\n",name,notabsolute,
+      (unsigned long)uid);
+     return 1;
+   }
+  if(file)
+   { char*chp=strchr(buf,'\0');
+     if(chp-buf+strlen(file)+2>linebuf)			  /* +2 for / and \0 */
+      { name="full rcfile";		  /* this should be passed in... XXX */
+	goto bad;
+      }
+     *chp++=MCDIRSEP_;
+     strcpy(chp,file);				      /* append the filename */
+   }
+  return 0;
 }
 
 void verboff P((void))

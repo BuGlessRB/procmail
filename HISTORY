@@ -559,3 +559,5 @@
 	       - Include the system mailbox lockfile path in the -v output
 	    Documented formail's treatment of >From_ lines as continuations
 	       of the From_ line
+	    The default MAILDIR is now configurable separately from the
+	       default rcfile location

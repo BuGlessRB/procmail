@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.4 2000/11/18 03:41:15 guenther Exp $";
+ "$Id: variables.c,v 1.5 2000/11/18 06:49:06 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -214,13 +214,6 @@ int alphanum(c)const unsigned c;
      default:
 	return 0;
    }
-}
-
-char*pmrc2buf P((void))
-{ sgetcp=pmrc;
-  if(readparse(buf,sgetc,2))
-     buf[0]='\0';
-  return buf;
 }
 
 void setmaildir(newdir)const char*const newdir;		    /* destroys buf2 */

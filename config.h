@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.92 2000/10/27 22:07:20 guenther Exp $*/
+/*$Id: config.h,v 1.93 2000/11/18 06:49:01 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -79,15 +79,15 @@
 /*#define RESTRICT_EXEC 100	/* uncomment to prevent users with uids equal
 				   or higher than RESTRICT_EXEC from
 	executing programs from within their .procmailrc files (this
-	restriction does not apply to /etc/procmailrc and /etc/procmailrcs
-	files) */
+	restriction does not apply to the /etc/procmailrc and
+	/etc/procmailrcs files) */
 
 /*#define NO_NFS_ATIME_HACK	/* uncomment if you're definitely not using
 				   NFS mounted filesystems and can't afford
 	procmail to sleep for 1 sec. before writing a regular mailbox
 	(under heavy load procmail automatically suppresses this) */
 
-/* This usually allowed you to define SYSTEM_MBOX.  This has changed.
+/* This previously allowed you to define SYSTEM_MBOX.  This has changed.
    If you want mail delivery to custom mail-spool-files, edit the
    src/authenticate.c file and change the content of:  auth_mailboxname()
    (either directly, or through changing the definitions in the same file
@@ -97,11 +97,13 @@
 					   autoconfigured default SENDMAIL is
 	not suitable */
 
+#define DEFmaildir	"$HOME"	     /* default value for the MAILDIR variable;
+					this must be an absolute path */
+
 #define PROCMAILRC	"$HOME/.procmailrc"	/* default rcfile for every
 						   recipient;  if this file
 	is not found, maildelivery will proceed as normal to the default
-	system mailbox.	 This must be an absolute path or bad things will
-	happen. */
+	system mailbox.	 This also must be an absolute path */
 
 #define ETCRC	"/etc/procmailrc"	/* optional global procmailrc startup
 					   file (will only be read if procmail

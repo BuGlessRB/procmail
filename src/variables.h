@@ -1,4 +1,4 @@
-/* $Id: variables.h,v 1.3 2000/11/18 03:41:16 guenther Exp $ */
+/* $Id: variables.h,v 1.4 2000/11/18 06:49:07 guenther Exp $ */
 
 const char
  *sputenv P((const char*const a)),
@@ -22,7 +22,6 @@ int
  setexitcode P((int trapisset)),
  alphanum P((const unsigned c));
 char
- *pmrc2buf P((void)),
  *gobenv P((char*chp,char*end));
 long
  renvint P((const long i,const char*const env));

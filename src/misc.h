@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.49 2000/11/18 03:43:35 guenther Exp $*/
+/*$Id: misc.h,v 1.50 2000/11/18 06:49:04 guenther Exp $*/
 
 struct dyna_array{int filled,tspace;char*vals;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -42,6 +42,7 @@ void
  setupsigs P((void));
 int
  forkerr Q((const pid_t pid,const char*const a)),
+ buildpath P((const char*name,const char*const path,const char*const file)),
  nextrcfile P((void)),
  enoughprivs Q((const auth_identity*const passinvk,const uid_t euid,
   const gid_t egid,const uid_t uid,const gid_t gid)),
