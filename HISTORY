@@ -453,6 +453,7 @@
 	       - Missed a couple possible overflows
 	       - Eliminated the conflict with the C9x restrict keyword
 	       - Support delivery to maildir mailboxes
+	       - Support all styles of mailbox for the mail spool
 	       - Don't use a locallockfile on $DEFAULT if it's a directory
 	       - Set LINEBUF in the environment on startup
 	       - Avoid renaming over old messages in directory folders
@@ -470,6 +471,9 @@
 		 is restricted was reversed
 	       - LASTFOLDER wasn't correctly set when delivering to multiple
 		 folders
+	       - -f- couldn't find the timestamp if the address contained a
+		 space
+	       - SENDMAIL and SENDMAILFLAGS are now split in forwarding actions
 	    Changes to formail:
 	       - Replies without the -t flag go to the envelope sender
 	       - Replies without "-a Resent-" and -t flag ignore the
@@ -481,7 +485,7 @@
 	       - Work around the detab done on checkin to CVS
 	       - Recognize maildir mailboxes
 	    Changes to autoconf:
-	       - Don't assume realloc(0,size) works (doesn't on SunOS 4)
+	       - Don't assume realloc(0,size) works (doesn't under SunOS 4)
 	    Stopped using `implicit int' (for C9x)
 	    Cache gethostname() or uname() output
 	    Changed the form of tempfile names to make them `more' unique
