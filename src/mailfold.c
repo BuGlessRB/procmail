@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.79 1999/04/03 19:30:44 guenther Exp $";
+ "$Id: mailfold.c,v 1.80 1999/04/03 19:50:47 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -141,6 +141,9 @@ exlb: { nlog(exceededlb);setoverflow();
   else if(tofile==to_MAILDIR)			     /* linkonly must be one */
    { strcpy(strcpy(strcpy(chp,maildirnew)+MAILDIRLEN,MCDIRSEP_)+1,
       lastdirsep(buf2));
+      /* this isn't right.  We need to make up our own unique name here,
+	 as th previous directory may have not been a maildir mailbox.	Don't
+	 bother to #include lastdirsep.h XXX */
      yell(lkingto,buf);
      if(rlink(buf2,buf,0))
 	goto nolnk;
@@ -265,6 +268,10 @@ ret0:	return 0;
      else
 	linkfolder=0;
    }
+/* this isn't right either: if delivery to the first mailbox fails we should
+   continue trying on the others.  Wrap the loop to all the way back here XXX
+   with a flag (fd>=0?) to mark whether we've succeeded in delivering yet.
+   Also, don't forget to add new error messages to procmail manpage */
   switch(tofile)
    { case to_MAILDIR:
 	if(mkmaildir(chp))			    /* had to save buf first */
