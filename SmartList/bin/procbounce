@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: procbounce,v 1.13 1993/07/16 14:51:35 berg Exp $
+#$Id: procbounce,v 1.14 1993/08/25 14:10:01 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -26,7 +26,7 @@ $test -d $bounces || $mkdir $bounces
 
 addr=`$formail -1 -kde -xSubject: -s \
  $multigram -b1 -l$off_threshold $dist <$tmprequest |
- $sed -e 's/^ *[0-9]* \([^ ]*\).*$/\1/' `
+ $sed -e 's/^.* \([^ ]*\)$/\1/' `
 
 if test ! -z "$addr"
 then
