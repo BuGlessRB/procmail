@@ -579,6 +579,7 @@
 	       of the From_ line and warned of problems caused by non-RFC822
 	       field names like 'Old-From '
 	    Fixed manpage formatting problem
+	    Use long, not off_t, with fseek()/ftell()
 	    The default MAILDIR is now configurable separately from the
 	       default rcfile location
 	    Include an RPM spec file in the examples directory for automated		       builds

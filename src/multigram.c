@@ -19,9 +19,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.95 2000/10/28 08:47:26 guenther Exp $";
+ "$Id: multigram.c,v 1.96 2001/02/03 08:24:37 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 2000/10/28 08:47:26 $";
+static /*const*/char rcsdate[]="$Date: 2001/02/03 08:24:37 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -76,17 +76,17 @@ int strncasecmp(a,b,l)const char*a,*b;size_t l;			     /* stub */
 }
 #endif
 
-static off_t tcoffset;
+static long tcoffset;
 static tcguessed;
 
 static void ctellinit P((void))
 { tcoffset=tcguessed=0;
 }
 
-static off_t ctell(fp)FILE*fp;				  /* caching ftell() */
+static long ctell(fp)FILE*fp;				  /* caching ftell() */
 { if(tcguessed==3)			/* three good guesses for confidence */
      return tcoffset;			       /* eliminated another lseek() */
-  ;{ off_t offset;
+  ;{ long offset;
      if((offset=ftell(fp))==tcoffset)
 	tcguessed++;				       /* got this one right */
      return offset;
@@ -303,7 +303,7 @@ dble_gram:;
 int main(argc,argv)int argc;char*argv[];
 { struct string fuzzstr,hardstr,excstr,exc2str;FILE*hardfile,**hfiles;
   const char*addit=0,*ldomain=0;char**nargv;size_t lldomain;
-  struct match{char*fuzz,*hard;int metric;long lentry;off_t offs1,offs2;
+  struct match{char*fuzz,*hard;int metric;long lentry;long offs1,offs2;
    FILE*hardfile;}
    **best,*curmatch=0;
   unsigned best_matches,charoffs=0,fremov=0,remov=0,renam=0,multiple=0,
@@ -438,10 +438,10 @@ nochdir: { nlog("Couldn't chdir to");logqnl(chp);
 	   return EX_USAGE;
 	 }
 	if(!stat(argv[3],&stbuf))
-	 { time_t newt;off_t size;
+	 { time_t newt;long size;
 	   newt=stbuf.st_mtime;size=stbuf.st_size;
 	   if(!stat(argv[argc=4],&stbuf))
-	    { off_t maxsize;
+	    { long maxsize;
 	      if(stbuf.st_mtime+strtol(argv[1],(char**)0,10)-newt<=0)
 		 return EXIT_SUCCESS;			   /* digest too old */
 	      maxsize=strtol(argv[2],(char**)0,10);
@@ -747,7 +747,7 @@ usg:
      return EX_USAGE;
    }
   if(addit)			      /* special subfunction, to add entries */
-   { int lnl;off_t lasttell;				 /* to the dist file */
+   { int lnl;long lasttell;				 /* to the dist file */
      for(lnl=1,lasttell=0;;)
       { switch(getc(hardfile))			    /* step through the file */
 	 { case '\n':
@@ -781,7 +781,7 @@ usg:
      while(i--);
    }
   for(lastfrom= -1;dodomain||readstr(stdin,&fuzzstr,0);)
-   { int meter;long linentry;off_t offs1,offs2;
+   { int meter;long linentry;long offs1,offs2;
      unsigned hfile;
      ;{ char*chp;
 	static const char tpunctuation[]="@\\/!#$%^&*-_=+|~`';:,.?{}";
@@ -870,7 +870,7 @@ reject:	    { if(lastfrom<0)
       }
      for(hfile=0;hfile<argc;)
       { int maxmetric=best[best_matches]->metric;
-	fseek(hardfile=hfiles[hfile++],(off_t)0,SEEK_SET);ctellinit();
+	fseek(hardfile=hfiles[hfile++],(long)0,SEEK_SET);ctellinit();
 	for(remov_delim=offs2=linentry=0;
 	 offs1=offs2,readstr(hardfile,&hardstr,1);)
 	 { offs2=ctell(hardfile);linentry++;
@@ -942,7 +942,7 @@ remv1:	       { worse=mp;mp= *best;
 	   goto norenam;
 	 }
 	if(remov)
-remv:	 { char*buf;off_t offs1,offs2;size_t readin;
+remv:	 { char*buf;long offs1,offs2;size_t readin;
 	   buf=malloc(COPYBUF);offs1=mp->offs1;offs2=mp->offs2;
 	   hardfile=mp->hardfile;
 	   while(fseek(hardfile,offs2,SEEK_SET),
@@ -958,7 +958,7 @@ remv:	 { char*buf;off_t offs1,offs2;size_t readin;
 	   if(renam)
 	      fputs(worse->fuzz,hardfile),printf("Added: %s\n",worse->fuzz);
 	   fflush(hardfile);			 /* flush before we truncate */
-	   if(ftruncate(fileno(hardfile),ftell(hardfile)))
+	   if(ftruncate(fileno(hardfile),(off_t)ftell(hardfile)))
 	      do putc('\n',hardfile);	  /* truncate failed, erase the tail */
 	      while(ftell(hardfile)<offs2);			  /* by hand */
 	 }

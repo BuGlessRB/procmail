@@ -10,9 +10,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.99 2000/10/28 08:47:23 guenther Exp $";
+ "$Id: formail.c,v 1.100 2001/02/03 08:24:38 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 2000/10/28 08:47:23 $";
+static /*const*/char rcsdate[]="$Date: 2001/02/03 08:24:38 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -304,7 +304,7 @@ pnewname:  lastm=nowm;saddr=strcpy(malloc(strlen(saddr)+1),saddr);
 }
 			     /* lifted out of main() to reduce main()'s size */
 static void elimdups(namep,idcache,maxlen,split)const char*const namep;
- FILE*idcache;const off_t maxlen;const int split;
+ FILE*idcache;const long maxlen;const int split;
 { int dupid=0;char*key,*oldnewl;
   key=(char*)namep;		  /* not to worry, no change will be noticed */
   if(!areply)
@@ -313,7 +313,7 @@ static void elimdups(namep,idcache,maxlen,split)const char*const namep;
 	*(oldnewl=(key=msid->rexp)+msid->rexl-1)='\0';
    }						/* wipe out trailing newline */
   if(key)
-   { off_t insoffs=maxlen;
+   { long insoffs=maxlen;
      while(*key==' ')				     /* strip leading spaces */
 	key++;
      do
@@ -350,7 +350,7 @@ noluck:
      fseek(idcache,insoffs,SEEK_SET);fwrite(key,1,strlen(key)+1,idcache);
      putc('\0',idcache);			   /* mark new end of buffer */
 dupfound:
-     fseek(idcache,(off_t)0,SEEK_SET);		 /* rewind, for any next run */
+     fseek(idcache,(long)0,SEEK_SET);		 /* rewind, for any next run */
      if(!areply)
 	*oldnewl='\n';				      /* restore the newline */
    }
@@ -366,7 +366,7 @@ int main(lastm,argv)int lastm;const char*const argv[];
 { int i,split=0,force=0,bogus=1,every=0,headreply=0,digest=0,nowait=0,keepb=0,
    minfields=(char*)progid-(char*)progid,conctenate=0,babyl=0,babylstart,
    berkeley=0,forgetclen;
-  off_t maxlen,ctlength;FILE*idcache=0;pid_t thepid;
+  long maxlen,ctlength;FILE*idcache=0;pid_t thepid;
   size_t j,lnl,escaplen;char*chp,*namep,*escap=ESCAP;
   struct field*fldp,*fp2,**afldp,*fdate,*fcntlength,*fsubject,*fFrom_;
   if(lastm)			       /* sanity check, any argument at all? */
