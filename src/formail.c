@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.55 1994/07/26 17:35:17 berg Exp $";
+ "$Id: formail.c,v 1.56 1994/07/27 18:04:41 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/07/26 17:35:17 $";
+static /*const*/char rcsdate[]="$Date: 1994/07/27 18:04:41 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -117,8 +117,8 @@ static void logfolder P((void))	 /* estimate the no. of characters needed to */
 
 static void renfield(pointer,oldl,newname,newl)struct field**const pointer;
  const size_t oldl,newl;const char*const newname;	    /* rename fields */
-{ struct field*p;size_t i;char*chp;		       /* what will we keep? */
-  i=(p= *pointer)->tot_len-oldl;(chp=p->fld_text)[p->tot_len-1]='\0';
+{ struct field*p;size_t i;char*chp;
+  p= *pointer;(chp=p->fld_text)[p->tot_len-1]='\0';
   if(eqFrom_(chp))				       /* continued From_ to */
      for(;chp=strstr(chp,"\n>");*++chp=' ');	  /* continued regular field */
   if(newl==STRLEN(From_)&&eqFrom_(newname))
@@ -131,7 +131,7 @@ static void renfield(pointer,oldl,newname,newl)struct field**const pointer;
   if(newname[newl-1]==HEAD_DELIMITER)		     /* completely new field */
 replaceall:
      oldl=p->id_len;			     /* replace the old one entirely */
-  p->fld_text[p->tot_len-1]='\n';p->tot_len=i+newl;
+  p->fld_text[p->tot_len-1]='\n';p->tot_len=(i=p->tot_len-oldl)+newl;
   if(newl>oldl)
      *pointer=p=realloc(p,FLD_HEADSIZ+p->tot_len);
   chp=p->fld_text;tmemmove(chp+newl,chp+oldl,i);tmemmove(chp,newname,newl);
@@ -159,7 +159,7 @@ static PROGID;
 main(lastm,argv)int lastm;const char*const argv[];
 { int i,split=0,force=0,bogus=1,every=0,areply=0,trust=0,digest=0,nowait=0,
    keepb=0,minfields=(char*)progid-(char*)progid,conctenate=0,babyl=0,
-   babylstart;
+   babylstart,berkeley=0;
   off_t maxlen,insoffs,ctlength;FILE*idcache=0;pid_t thepid;
   size_t j,lnl,escaplen;char*chp,*namep,*escap=ESCAP;
   struct field*fldp,*fp2,**afldp,*fdate,*fcntlength;
@@ -228,6 +228,8 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		 continue;
 	      case FM_BOGUS:bogus=0;
 		 continue;
+	      case FM_BERKELEY:berkeley=1;
+		 continue;
 	      case FM_QPREFIX:Qnext_arg();escap=chp;
 		 break;
 	      case FM_ADD_IFNOT:case FM_ADD_ALWAYS:case FM_REN_INSERT:
@@ -268,7 +270,8 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		       tmemmove((char*)fldp->fld_text+lnl,chp,i),copied=1;
 		    else if(namep>chp||				 /* garbage? */
 			    !(chp=(char*)*++argv)||	 /* look at next arg */
-			    (i=breakfield(chp,strlen(chp))))	/* fieldish? */
+			    !(i=breakfield(chp,strlen(chp)))||	/* fieldish? */
+			    i<0&&(i= -i,lastm>0))  /* impossible combination */
 invfield:	     { nlog("Invalid field-name:");logqnl(chp?chp:"");
 		       goto usg;
 		     }
@@ -510,7 +513,7 @@ dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
 	   closemine(),opensink();
       }
      ctlength=0;
-     if(!digest&&(fldp=findf(fcntlength,&rdheader)))
+     if(!digest&&!berkeley&&(fldp=findf(fcntlength,&rdheader)))
       { *(chp=(char*)fldp->fld_text+fldp->tot_len-1)='\0';   /* terminate it */
 	ctlength=strtol((char*)fldp->fld_text+STRLEN(cntlength),(char**)0,10);
 	*chp='\n';			     /* restore the trailing newline */
@@ -615,7 +618,8 @@ delfld:	    { fldp=delfield(afldp);
 	    }
 	 }
 	if(fp2=findf(fldp,&Rheader))		  /* explicitly rename field */
-	   renfield(afldp,lnl,(char*)fp2->fld_text+lnl,fp2->tot_len-lnl);
+	   renfield(afldp,fp2->id_len,(char*)fp2->fld_text+fp2->id_len,
+	    fp2->tot_len-fp2->id_len);
 	else if((fp2=findf(fldp,&iheader))&&!(areply&&lnl>=fp2->tot_len-1))
 	   renfield(afldp,(size_t)0,old_,STRLEN(old_)); /* implicitly rename */
 	fldp= *(afldp= &(*afldp)->fld_next);
