@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.53 1994/06/07 14:04:32 berg Exp $
+#$Id: rc.request,v 1.54 1994/06/08 18:38:43 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -42,7 +42,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 #
 
   :0 wc
-  | formail -IIn-Reply-To: >tmp.request
+  | formail -IIn-Reply-To: -ICc: >tmp.request
 
 #
 # Check for a missing Subject: line.
@@ -78,10 +78,13 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
   cc_unsubrequests="${cc_unsubrequests:+$maintainer}"
 
   :0 EHB w:dist.lock
-  * ^^(.+$)*Subject:[	 ]*(((\(none\))?$(.+$)*(^[ ]*)+)?\
-      (Please +)?(signoff|delete|remove|unsub)|\
-     ((\(none\))?$(.*$)*)?(.*[^a-z])?(unsubscri|\
-      ((delete|remove) .* from|take .* off) .* [a-z-]*list\>))
+  * ^^(.+$)*Subject:[	 ]*(\(none\))?(\
+     ($(.+$)*(^[	 ]*)+((.+|$)+[,.:;]([	 ]+|$)+)?)?\
+      (Could you )?(please )?\
+      (sign( [^ ]+ |-)?off|leave|delete|remove|unsub)\>|\
+     ($(.+$)*$(.*$)*)?(.*[^a-z])?\
+      (unsubscri|\
+      (leave|(delete|remove) .* from|(sign|take) .* off) .* [a-z-]*list)\>)
   | unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from` ${cc_unsubrequests}
 
   cc_unsubrequests
@@ -94,13 +97,14 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 
   :0 EHB
   * $!${auto_subscribe:+!}
-  * ^^(.+$)*Subject:[	 ]*(\
-     ((\(none\))?$(.+$)*(^[	 ]*)+)?\
-      (Please +)?(signon|add|sub(scri|[	 ]|$)?)|\
-     ((\(none\))?$(.*$)*)?\
-      (.*[^a-z])?(subscri|(add .* to|put .* on) .* [a-z-]*list\>))
+  * ^^(.+$)*Subject:[	 ]*(\(none\))?(\
+     ($(.+$)*(^[	 ]*)+((.+|$)+[,.:;]([	 ]+|$)+)?)?\
+      (Could you )?(please )?\
+      (sign( [^ ]+ |-)?on|add|join|sub)\>|\
+     ($(.+$)*$(.*$)*)?(.*[^a-z])?\
+      (subscri.*|(join|add .* to|(sign|put) .* on) .* [a-z-]*list)\>)
   * !? multigram -b1 -l$reject_threshold reject
-  * !? formail -IIn-Reply-To: | \
+  * !? formail -IIn-Reply-To: -ICc: | \
 	multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
    {
      :0 W ${cc_requests:+c}:dist.lock
@@ -121,6 +125,17 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
   :0 EhHB w ${cc_requests:+c}
   * ^^(.+$)*Subject:[	 ]*((\(none\))?$(.+$)*(^[	 ]*)+)?\
      [a-z,.	 ]*(help|info(rm(ation)?)?)\>
+  | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
+     cat help.txt info.txt 2>/dev/null ) | $SENDMAIL $sendmailOPT -t
+
+#
+# We do the same on a complete empty mail (except for perhaps a signature).
+#
+
+  :0 EhHB w ${cc_requests:+c}
+  *  1^0 ^^(.+$)*Subject:[	 ]*((\(none\))?$
+  * -2^0 ^^(.+$)*(^[	 ]*)+[a-z]
+  *  3^0 ^^(.+$)*^([	 ]*$)*--
   | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
      cat help.txt info.txt 2>/dev/null ) | $SENDMAIL $sendmailOPT -t
 
@@ -226,7 +241,7 @@ LOCKFILE				# we don't need the lockfile anymore
   :0 HB wfh
   * ^((Subject:)?[a-z,. ]*(add|sub.*[@!])|(.*[^a-z])?(signon|subscri.*|\
 			      (add .* to|put .* on) .* list)\>)
-  * ? formail -IIn-Reply-To: | \
+  * ? formail -IIn-Reply-To: -ICc: | \
        multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
   | formail -A "X-Diagnostic: Already on the subscriber list" \
      -A "X-Diagnostic: `multigram -b1 -x$listreq -x$listaddr \
