@@ -1,4 +1,4 @@
-$Id: Manual,v 1.15 1993/08/09 14:10:22 berg Exp $
+$Id: Manual,v 1.16 1993/09/09 11:02:24 berg Exp $
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
@@ -83,6 +83,9 @@ X-Command: joe@somewhere.edu password command
 
 	subscribe mailaddress
 	unsubscribe mailaddress
+	checkdist mailaddress		To multigram-match mailaddress to
+					the list (showing the eight best
+					matches)
 	showdist			To list the distfile
 	showlog				To list the log
 	wipelog				To clear the log

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: x_command,v 1.9 1993/07/16 14:51:49 berg Exp $
+#$Id: x_command,v 1.10 1993/09/09 11:02:37 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -27,7 +27,8 @@ while $test $# != 0
 do
   case "_$1" in
      _subscribe)
-	 $echo "X-Diagnostic: `$echo $2 | $multigram -b1 -l-32767 dist`"
+	 $echo \
+	  "X-Diagnostic: `$echo \"From $2\" | $multigram -b1 -l-32767 dist`"
 	 $echo "From $2 " >$tmprequest
 	 $echo "From: $listreq" >>$tmprequest
 	 $echo "Reply-To: $2" >>$tmprequest
@@ -39,7 +40,8 @@ do
 	 $subscribe <$tmprequest | $SENDMAIL $sendmailOPT -t
 	 shift ;;
      _unsubscribe)
-	 $echo "X-Diagnostic: `$echo $2 | $multigram -b1 -l-32767 dist`"
+	 $echo \
+	  "X-Diagnostic: `$echo \"From $2\" | $multigram -b1 -l-32767 dist`"
 	 $echo "From $2 " >$tmprequest
 	 $echo "From: $listreq" >>$tmprequest
 	 $echo "Reply-To: $2" >>$tmprequest
@@ -49,6 +51,10 @@ do
 	 $test -z "$subscribe_log" ||
 	  $echo "x_command: unsubscribe" >>$subscribe_log
 	 $unsubscribe <$tmprequest | $SENDMAIL $sendmailOPT `cat $tmpfrom`
+	 shift ;;
+     _checkdist)
+	 $echo "Multigram checking the dist file for $2:"
+	 $echo "From $2" | $multigram -b8 -l-32767 dist
 	 shift ;;
      _showdist)
 	 $echo "--- Current subscribers:"
@@ -64,6 +70,7 @@ do
 	 $echo "Known $X_COMMAND keywords:"
 	 $echo "	subscribe mailaddress"
 	 $echo "	unsubscribe mailaddress"
+	 $echo "	checkdist mailaddress"
 	 $echo "	showdist"
 	 $echo "	showlog"
 	 $echo "	wipelog"

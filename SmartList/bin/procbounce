@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: procbounce,v 1.15 1993/08/25 15:29:59 berg Exp $
+#$Id: procbounce,v 1.16 1993/09/09 11:02:35 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -47,7 +47,8 @@ then
   if $expr $bounced \>= $minbounce >/dev/null
   then
      fieldcontent=`
-	if echo "$addr" | $multigram -b1 -l$auto_off_threshold -d $dist
+	if echo "$addr" |
+	 $multigram -b1 -l$auto_off_threshold -d $dist 2>/dev/null
 	then
 	:
 	else

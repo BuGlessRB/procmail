@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.28 1993/08/09 14:10:25 berg Exp $
+#$Id: install.sh,v 1.29 1993/09/09 11:02:27 berg Exp $
 
 SHELL=/bin/sh
 export SHELL
@@ -88,7 +88,7 @@ if test $AM_ROOT = yes
 then
   case $installerid in
      [0-9]*) . ./install.sh2;;
-     *) su $installerid <install.sh2;;
+     *) su $installerid 4>&0 <install.sh2 ;;
   esac
   if echo ls | su $listid 2>&1 | fgrep install.sh2 >/dev/null
   then
