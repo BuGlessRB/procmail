@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.39 1999/04/02 19:05:05 guenther Exp $*/
+/*$Id: procmail.h,v 1.40 1999/04/03 19:30:47 guenther Exp $*/
 
 #include "includes.h"
 
@@ -76,8 +76,8 @@ extern struct varstr{const char*const sname,*sval;}strenstr[];
 
 int
  eqFrom_ P((const char*const a));
-char
- *skipFrom_ P((char*startchar,long*tobesentp));
+const char
+ *skipFrom_ P((const char*startchar,long*tobesentp));
 
 extern char*buf,*buf2,*loclock,*tolock,*Stdout,*themail,*thebody;
 extern const char shell[],lockfile[],newline[],binsh[],unexpeof[],*const*gargv,
