@@ -154,7 +154,7 @@
 	       on the accept list
 	    Improved fuzzy search for explicit mail addresses in the
 	       subscription request
-1994/10/07: v3.10pre5
+1994/10/14: v3.10pre6
 	    Changes to rc.submit:
 	       - Moved the accept.txt in front of the body of the mail
 	       - The initial submission of force subscribed people was lost,
@@ -180,3 +180,6 @@
 	    Choplist supports kernels that don't support the #! hack
 	    Subscribing third parties was impossible in v3.06, fixed
 	    Forgot to export PATH in the cronlist example
+	    Put in support to recognise the default domain for the accept
+	       list and force_subscribe flag
+	    Allow multigram to really display multiple matches

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.63 1994/09/29 18:43:49 berg Exp $";
+ "$Id: misc.c,v 1.64 1994/10/14 18:43:37 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -92,7 +92,13 @@ void setids P((void))
 }
 
 void writeerr(line)const char*const line;
-{ nlog(errwwriting);logqnl(line);
+{
+#ifdef EDQUOT
+  nlog(dumperr==EDQUOT?"Quota exceeded while writing":errwwriting);
+#else
+  nlog(errwwriting);
+#endif
+  logqnl(line);
 }
 
 int forkerr(pid,a)const pid_t pid;const char*const a;

@@ -3,7 +3,7 @@
  *			uid/gid (can only be executed by root)		*
  *	This program is used by the SmartList installation script only. *
  ************************************************************************/
-/*$Id: setid.c,v 1.7 1994/06/28 16:56:47 berg Exp $*/
+/*$Id: setid.c,v 1.8 1994/10/14 18:43:49 berg Exp $*/
 #include "includes.h"
 
 #define CHECK_FILE	"install.sh"
@@ -17,13 +17,18 @@ main(argc,argv)const int argc;const char*const argv[];
   endpwent();initgroups(argv[1],p->pw_gid);setgid(p->pw_gid);setuid(p->pw_uid);
   if(fopen(CHECK_FILE,"r"))
    { struct stat stbuf;
-     if(argc==2||!stat(argv[2],&stbuf)&&
-	stbuf.st_uid==p->pw_uid&&
-	stbuf.st_gid==p->pw_gid)
-	nargv[0]=getenv("SHELL"),nargv[1]=0,execve(nargv[0],nargv,environ);
+     if(argc==2)
+	goto nodir;
+     if(stat(argv[2],&stbuf)||(stbuf.st_mode&S_IRWXU)!=S_IRWXU)
+	fprintf(stderr,"Can't access %s, please create it first\n",argv[2]);
+     else if(stbuf.st_uid!=p->pw_uid)
+	fprintf(stderr,"%s is owned by uid %ld!=%s, please fix this first\n",
+	 (long)stbuf.st_uid,p->pw_name);
+     else if(stbuf.st_gid!=p->pw_gid)
+	fprintf(stderr,"%s is owned by gid %ld!=%ld, please fix this first\n",
+	 (long)stbuf.st_gid,(long)p->pw_gid);
      else
-	fprintf(stderr,
-	 "Please create %s with the correct owner and group first\n",argv[2]);
+nodir:	nargv[0]=getenv("SHELL"),nargv[1]=0,execve(nargv[0],nargv,environ);
    }
   else
      fprintf(stderr,

@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.70 1994/10/07 15:24:17 berg Exp $
+#$Id: rc.submit,v 1.71 1994/10/14 18:43:21 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -80,8 +80,8 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
   * 1^1 !$${foreign_submit:+!}
   * 2^0 ? formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 	   -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
-	   multigram -b1 -m -l$submit_threshold -x$listaddr -x$listreq accept \
-	    accept2
+	   multigram -b1 -m -l$submit_threshold -L$domain \
+	    -x$listaddr -x$listreq accept accept2
    {
 
      INCLUDERC=$RC_LOCAL_SUBMIT_10
@@ -109,7 +109,8 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      * $!${force_subscribe:+!}
      * !? formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 	   -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
-	    multigram -b1 -m -l$submit_threshold -x$listaddr -x$listreq dist
+	    multigram -b1 -m -l$submit_threshold -L$domain \
+	     -x$listaddr -x$listreq dist
      {
        LOCKFILE=tmp.lock
 

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.58 1994/10/07 15:24:58 berg Exp $";
+ "$Id: mailfold.c,v 1.59 1994/10/14 18:43:33 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -21,7 +21,7 @@ static /*const*/char rcsid[]=
 #include "locking.h"
 #include "mailfold.h"
 
-int logopened,tofile,rawnonl;
+int logopened,tofile,rawnonl,dumperr;
 off_t lasttell;
 static long lastdump;
 static volatile mailread;	/* if the mail is completely read in already */
@@ -73,11 +73,11 @@ jin:	while(part&&(i=rwrite(s,source,BLKSIZ<part?BLKSIZ:(int)part)))
 	   lastdump++,rwrite(s,newline,1);     /* message always ends with a */
 	emboxseparator(s);	 /* newline and an optional custom separator */
       }
-writefin:
-     rawnonl=0;				     /* only do this once per recipe */
+writefin:				       /* save any error information */
+     dumperr=errno;rawnonl=0;	       /* only allow rawnonl once per recipe */
      if(tofile&&fdunlock())
 	nlog("Kernel-unlock failed\n");
-     if(tofile==to_FOLDER&&len&&lasttell>=0&&!ftruncate(s,lasttell))
+     if(tofile==to_FOLDER&&len&&lasttell>=0&&!ftruncate(s,lasttell)&&logopened)
 	nlog("Truncated file to former size\n");    /* undo appended garbage */
      i=rclose(s);
    }			   /* return an error even if nothing was to be sent */

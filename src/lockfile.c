@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.29 1994/07/26 17:35:26 berg Exp $";
+ "$Id: lockfile.c,v 1.30 1994/10/14 18:43:30 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/07/26 17:35:26 $";
+static /*const*/char rcsdate[]="$Date: 1994/10/14 18:43:30 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -100,7 +100,7 @@ exceeds my humble\ncapacities");
 static PROGID;
 
 main(argc,argv)const char*const argv[];
-{ const char*const*p,*const*lastf;char*cp;uid_t uid;
+{ const char*const*p;char*cp;uid_t uid;
   int sleepsec,retries,invert,force,suspend,retval=EXIT_SUCCESS,virgin=1;
   static const char usage[]="Usage: lockfile -nnn | -r nnn | -l nnn | -s nnn \
 | -! | -ml | -mu | file ...\n";
@@ -111,7 +111,7 @@ main(argc,argv)const char*const argv[];
 again:
   invert=(char*)progid-(char*)progid;qsignal(SIGHUP,failure);
   qsignal(SIGINT,failure);qsignal(SIGQUIT,failure);qsignal(SIGTERM,failure);
-  for(lastf=p=argv;--argc;)
+  for(p=argv;--argc;)
      if(*(cp=(char*)*++p)=='-')
 	for(cp++;;)
 	 { char*cp2=cp;int i;
@@ -250,12 +250,11 @@ outofmem:	 retval=EX_OSERR,nlog("Out of memory");
 		 nlog("Filename too long");retval=EX_UNAVAILABLE;
 #endif
 lfailure:	 elog(", giving up on \"");elog(cp);elog("\"\n");
-nfailure:	 sleepsec= -1;argc=lastf-argv+1;	    /* mark sleepsec */
+nfailure:	 sleepsec= -1;argc=p-argv;		    /* mark sleepsec */
 		 goto again;
 	    }  /* for second pass, and adjust argc to the no. of args parsed */
 	   permanent=nfsTRY;	       /* refresh the NFS-error-ignore count */
 	 }
-	lastf=p;					  /* last valid file */
       }
   if(retval==EXIT_SUCCESS&&virgin)	 /* any errors?	 did we do anything? */
 usg:

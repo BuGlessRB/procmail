@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.107 1994/10/07 15:25:06 berg Exp $";
+ "$Id: procmail.c,v 1.108 1994/10/14 18:43:46 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -844,9 +844,9 @@ nomore_rc:
 	   writeerr(buf);
 	else
 	   succeed=1;
-      }
-     if(!succeed&&*(chp=(char*)tgetenv(orgmail)))      /* if all else failed */
-	if(dump(deliver(chp,(char*)0),themail,filled))	      /* don't panic */
+      }						       /* if all else failed */
+     if(!succeed&&*(chp2=(char*)tgetenv(orgmail))&&strcmp(chp2,chp))
+	if(dump(deliver(chp2,(char*)0),themail,filled))	      /* don't panic */
 	   writeerr(buf);			      /* try the last resort */
 	else
 	   succeed=1;

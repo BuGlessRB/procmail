@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.61 1994/10/07 15:24:24 berg Exp $
+.Id $Id: procmail.man,v 1.62 1994/10/14 18:43:25 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -91,11 +91,11 @@ Force a timeout (see
 .TP
 .B USR1
 Equivalent to a
-.BR VERBOSE =on.
+.BR VERBOSE =off.
 .TP
 .B USR2
 Equivalent to a
-.BR VERBOSE =off.
+.BR VERBOSE =on.
 .SH OPTIONS
 .TP 0.5i
 .B \-@VERSIONOPT@

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.36 1994/09/20 19:32:05 berg Exp $";
+ "$Id: pipes.c,v 1.37 1994/10/14 18:43:43 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -57,7 +57,7 @@ static void stermchild P((void))
      rawnonl=1;				       /* give back the raw contents */
      if(dump(PWRB,backblock,backlen))	  /* pump data back via the backpipe */
 	nlog(rescdata),elog("failed\n");
-     else if(pwait!=4)			/* are we not looking the other way? */
+     else if(verbose||pwait!=4)		/* are we not looking the other way? */
 	nlog(rescdata),elog("succeeded\n");
    }
   exit(lexitcode);

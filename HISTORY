@@ -253,7 +253,7 @@
 	    Sharpened the autoconf const check, AIX 3.2.3 managed to slip past
 	       it again
 	    Made sure that "make -n" with any make works as expected
-1994/10/07: v3.10pre5
+1994/10/14: v3.10pre6
 	    Changes to procmail:
 	       - Minor corrections to the semantics of the 'a' and 'e' flags
 	       - Minor correction to the semantics of the -o option
@@ -273,6 +273,10 @@
 		 searched relative to the home directory, fixed
 	       - Carved out two subroutines from main() to get it below the
 		 optimisation threshold
+	       - Eliminated duplicate error messages when procmailrcless
+		 delivery fails
+	       - Logging "Quota exceeded" messages when appropriate
+	       - Truncate notification suppressed when logfile not opened
 	    Changes to formail:
 	       - New option: -z (zap whitespace and empty fields)
 	       - Reading from stdin doesn't require the silly three EOFs
@@ -287,3 +291,5 @@
 	       examples/advanced file again
 	    Revised detection of hard-link incapable filesystems during the
 	       installation
+	    Fixed bug in lockfile, the exitcode was not correct if
+	       you used -! (I hope this finally fixes this -! problem)

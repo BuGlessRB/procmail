@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.70 1994/10/07 18:00:54 berg Exp $";
+ "$Id: multigram.c,v 1.71 1994/10/14 18:43:40 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/10/07 18:00:54 $";
+static /*const*/char rcsdate[]="$Date: 1994/10/14 18:43:40 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -257,16 +257,17 @@ dble_gram:;
 
 main(argc,argv)int argc;char*argv[];
 { struct string fuzzstr,hardstr,excstr,exc2str;FILE*hardfile,**hfiles;
-  const char*addit=0;char**nargv;
+  const char*addit=0,*ldomain=0;char**nargv;size_t lldomain;
   struct match{char*fuzz,*hard;int metric;long lentry;off_t offs1,offs2;
    FILE*hardfile;}
    **best,*curmatch=0;
-  unsigned best_matches,charoffs=0,fremov=0,remov=0,renam=0,incomplete=0,
-   chkmetoo=(char*)progid-(char*)progid;
-  int lastfrom,minweight;
+  unsigned best_matches,charoffs=0,fremov=0,remov=0,renam=0,multiple=0,
+   incomplete=(char*)progid-(char*)progid;
+  int lastfrom,minweight;static unsigned dodomain;
   static const char cldntopen[]="Couldn't open";
   static const char usage[]=
-"Usage: multigram [-cdimr] [-b nnn] [-l nnn] [-w nnn] [-ax address] file ...\n"
+"Usage: multigram [-cdimr] [-b nnn] [-l nnn] [-w nnn] [-ax address]\n\
+\t[-L domain] file ...\n"
    ;
   if(argc)			      /* sanity check, any arguments at all? */
    { char*chp;						 /* suid flist prog? */
@@ -595,12 +596,17 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 		 continue;
 	      case 'r':renam=1;
 		 continue;
-	      case 'm':chkmetoo=1;
+	      case 'm':
 		 continue;
 	      case 'a':
 		 if(!*chp&&!(chp= *++nargv))
 		    goto usg;
 		 addit=chp;
+		 break;
+	      case 'L':
+		 if(!*chp&&!(chp= *++nargv))
+		    goto usg;
+		 lldomain=strlen(ldomain=chp)+1;
 		 break;
 	      case 'x':
 		 if(!*chp&&!(chp= *++nargv))
@@ -634,8 +640,9 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 \n\t-d\t\tgently delete address from list\
 \n\t-D\t\tforce delete address from list\
 \n\t-i\t\tcheck for incomplete addresses too\
-\n\t-m\t\tcheck for metoo\
+\n\t-m\t\tdisplay multiple matches per address\
 \n\t-l nnn\t\tlower bound metric\
+\n\t-L domain\tdefault domain for local addresses\
 \n\t-r\t\trename address on list\
 \n\t-x address\texclude this address from the search (max. 2)\
 \n\t-w nnn\t\twindow width used when matching\n");
@@ -714,57 +721,69 @@ usg:
       }
      while(i--);
    }
-  for(lastfrom= -1;readstr(stdin,&fuzzstr,0);)
-   { int meter,maxmetric;long linentry;off_t offs1,offs2;
+  for(lastfrom= -1;dodomain||readstr(stdin,&fuzzstr,0);)
+   { int meter;long linentry;off_t offs1,offs2;
      unsigned hfile;
-     ;{ char*chp,*echp;
+     ;{ char*chp;
 	const static char tpunctuation[]="@\\/!#$%^&*-_=+|~`';:,.?{}";
 #define punctuation	(tpunctuation+3)
-	echp=strchr(chp=fuzzstr.text,'\0')-1;
-	while(*chp&&strchr(punctuation,*chp))	/* strip leading punctuation */
-	   chp++;
-	if(*chp=='"'&&!strchr(chp+1,'"'))      /* strip leading unbalanced " */
-	   chp++;
-	while(*chp&&strchr(punctuation,*chp))	/* strip leading punctuation */
-	   chp++;
-	while(echp>=chp&&strchr(tpunctuation,*echp))
-	   *echp--='\0';		       /* strip trailing punctuation */
-	if(echp>=chp&&*echp=='"'&&strchr(chp,'"')==echp)
-	   *echp--='\0';		      /* strip trailing unbalanced " */
-	while(echp>=chp&&strchr(tpunctuation,*echp))
-	   *echp--='\0';		       /* strip trailing punctuation */
-	;{ const char*colon,*sep;
-	   if((colon=strchr(chp,':'))&&
-	      colon[1]!=':'&&				/* no decnet address */
-	      (sep=strpbrk(chp,"@!/"))&&	 /* address information only */
-	      sep>colon)				    /* beyond colon? */
-	      chp=(char*)colon+1;	       /* strip leading ...: garbage */
+	chp=fuzzstr.text;
+	if(!dodomain)			    /* still have to do with domain? */
+	 { char*echp=strchr(chp,'\0')-1;
+	   while(*chp&&strchr(punctuation,*chp))
+	      chp++;				/* strip leading punctuation */
+	   if(*chp=='"'&&!strchr(chp+1,'"'))   /* strip leading unbalanced " */
+	      chp++;
+	   while(*chp&&strchr(punctuation,*chp))
+	      chp++;				/* strip leading punctuation */
+	   while(echp>=chp&&strchr(tpunctuation,*echp))
+	      *echp--='\0';		       /* strip trailing punctuation */
+	   if(echp>=chp&&*echp=='"'&&strchr(chp,'"')==echp)
+	      *echp--='\0';		      /* strip trailing unbalanced " */
+	   while(echp>=chp&&strchr(tpunctuation,*echp))
+	      *echp--='\0';		       /* strip trailing punctuation */
+	   ;{ const char*colon,*sep;
+	      if((colon=strchr(chp,':'))&&
+		 colon[1]!=':'&&			/* no decnet address */
+		 (sep=strpbrk(chp,"@!/"))&&	 /* address information only */
+		 sep>colon)				    /* beyond colon? */
+		 chp=(char*)colon+1;	       /* strip leading ...: garbage */
+	    }
+	   if(echp<chp)
+	      continue;
+	   if(lastfrom<=0&&   /* roughly check if it could be a mail address */
+	      !strpbrk(chp,"@/")&&		 /* RFC-822 or X-400 address */
+	      (!strchr(chp,'!')||		   /* UUCP bang path address */
+	       strchr(chp,'|')||
+	       strchr(chp,',')||
+	       strstr(chp,".."))&&
+	      !(*chp=='<'&&*echp=='>')&&	  /* RFC-822 machine literal */
+	      !(incomplete&&strchr(chp,'.')))		      /* domain name */
+	    { if(lastfrom<0)
+		 lastfrom=!strcmp(SHFROM,chp);
+	      continue;			  /* apparently not an email address */
+	    }
+	   lastfrom=0;tmemmove(fuzzstr.text,chp,echp-chp+2);
+	   checkparens('(',')',fuzzstr.text,echp);
+	   checkparens('[',']',fuzzstr.text,strchr(fuzzstr.text,'\0'));
+	   if(*(chp=fuzzstr.text)=='<'&&*(echp=strchr(chp,'\0')-1)=='>')
+	    { if(chp=strstr(chp,">,<"))		/* take the first of a dense */
+		 (echp=chp)[1]='\0';			/* list of addresses */
+	      if(!strchr(chp=fuzzstr.text,','))	      /* strip '<' and '>' ? */
+		 *echp='\0',tmemmove(chp,chp+1,echp-chp);
+	    }
 	 }
-	if(echp<chp)
-	   continue;
-	if(lastfrom<=0&&      /* roughly check if it could be a mail address */
-	   !strpbrk(chp,"@/")&&			 /* RFC-822 or X-400 address */
-	   (!strchr(chp,'!')||			   /* UUCP bang path address */
-	    strchr(chp,'|')||
-	    strchr(chp,',')||
-	    strstr(chp,".."))&&
-	   !(*chp=='<'&&*echp=='>')&&		  /* RFC-822 machine literal */
-	   !(incomplete&&strchr(chp,'.')))		      /* domain name */
-	 { if(lastfrom<0)
-	      lastfrom=!strcmp(SHFROM,chp);
-	   continue;			  /* apparently not an email address */
+	;{ size_t len;
+	   if(!(len=strlen(chp)))		    /* still something left? */
+	      continue;			      /* it's gone, next word please */
+	   if(dodomain)		   /* add default local domain and reiterate */
+	    { dodomain=0;fuzzstr.text=chp=realloc(chp,len+lldomain+1);
+	      chp[len]='@';strcpy(chp+len+1,ldomain);len+=lldomain;
+	    }
+	   else if(ldomain&&!strprbk(chp,"@!/"))      /* no domain attached? */
+	      dodomain=1;			 /* mark it for the next run */
+	   fuzzstr.textlen=len;
 	 }
-	lastfrom=0;tmemmove(fuzzstr.text,chp,echp-chp+2);
-	checkparens('(',')',fuzzstr.text,echp);
-	checkparens('[',']',fuzzstr.text,strchr(fuzzstr.text,'\0'));
-	if(*(chp=fuzzstr.text)=='<'&&*(echp=strchr(chp,'\0')-1)=='>')
-	 { if(chp=strstr(chp,">,<"))		/* take the first of a dense */
-	      (echp=chp)[1]='\0';			/* list of addresses */
-	   if(!strchr(chp=fuzzstr.text,','))	      /* strip '<' and '>' ? */
-	      *echp='\0',tmemmove(chp,chp+1,echp-chp);
-	 }
-	if(!(fuzzstr.textlen=strlen(chp)))	    /* still something left? */
-	   continue;			      /* it's gone, next word please */
 	lowcase(&fuzzstr);			   /* cast it into lowercase */
 	if(excstr.text&&matchgram(&fuzzstr,&excstr)>=EXCL_THRESHOLD||
 	 exc2str.text&&matchgram(&fuzzstr,&exc2str)>=EXCL_THRESHOLD)
@@ -786,8 +805,8 @@ usg:
 	curmatch->metric= -SCALE_WEIGHT;
       }
      for(hfile=0;hfile<argc;)
-      { fseek(hardfile=hfiles[hfile++],(off_t)0,SEEK_SET);
-	maxmetric=best[best_matches]->metric;
+      { int maxmetric=best[best_matches]->metric;
+	fseek(hardfile=hfiles[hfile++],(off_t)0,SEEK_SET);
 	for(remov_delim=offs2=linentry=0;
 	 offs1=offs2,readstr(hardfile,&hardstr,1);)
 	 { offs2=ftell(hardfile);linentry++;
@@ -798,17 +817,29 @@ usg:
 	   if(meter>maxmetric&&(fremov||remov_delim||!renam&&!remov))
 	    { size_t hardlen;
 	      curmatch->metric=maxmetric=meter;curmatch->lentry=linentry;
-	      free(curmatch->hard);hardlen=hardstr.textlen+1;
-	      hardlen+=strlen(hardstr.text+hardlen)+1;
-	      curmatch->hard=malloc(hardlen+=strlen(hardstr.text+hardlen)+1);
-	      tmemmove(curmatch->hard,hardstr.text,hardlen);
 	      curmatch->offs1=offs1;curmatch->offs2=offs2;
 	      curmatch->hardfile=hardfile;
+	      free(curmatch->hard);hardlen=hardstr.textlen+1;
+	      curmatch->hard=malloc(hardlen+=strlen(hardstr.text+hardlen)+1);
+	      tmemmove(curmatch->hard,hardstr.text,hardlen);
+	      if(multiple)
+	       { struct match*mp,**mmp;
+		 free((mp= *(mmp=best+best_matches))->fuzz);free(mp->hard);
+		 mp->fuzz=tstrdup(curmatch->fuzz);
+		 tmemmove(mp->hard=malloc(hardlen),hardstr.text,hardlen);
+		 mp->metric=meter;mp->lentry=linentry;mp->offs1=offs1;
+		 mp->offs2=offs2;mp->hardfile=hardfile;
+		 ;{ struct const match*mpt;
+		    while(--mmp>=best&&(mpt= *mmp)->metric<meter)
+		       mmp[1]=mpt;			   /* keep it sorted */
+		  }
+		 mmp[1]=mp;maxmetric=best[best_matches]->metric;
+	       }
 	    }
 	 }
       }
      free(fuzzstr.itext);	 /* maybe this match can be put in the array */
-     if(curmatch->metric>-SCALE_WEIGHT)		   /* of best matches so far */
+     if(!multiple&&curmatch->metric>-SCALE_WEIGHT) /* of best matches so far */
       { struct match*mp,**mmp;
 	free((mp= *(mmp=best+best_matches))->fuzz);free(mp->hard);free(mp);
 	while(--mmp>=best&&(mp= *mmp)->metric<curmatch->metric)
@@ -821,12 +852,14 @@ dupl_addr:;
    }
   ;{ int i;struct match*mp;
      for(i=0;i<=best_matches&&(mp=best[i++])->metric>=minweight;)
+#if 0			 /* metoo support removed, not supported by sendmail */
 	if(chkmetoo)
 	   printf("%s\n",strcmp(mp->hard+strlen(mp->hard)+1,NOT_METOO)
 	    ?metoo_SENDMAIL:nometoo_SENDMAIL);
 	else
-	   printf("%3ld %-34s %5d %s\n",
-	    charoffs?mp->offs1:mp->lentry,mp->hard,mp->metric,mp->fuzz);
+#endif
+	printf("%3ld %-34s %5d %s\n",
+	 charoffs?mp->offs1:mp->lentry,mp->hard,mp->metric,mp->fuzz);
      if((mp= *best)->metric>=minweight)
       { struct match*worse;
 	if(renam)

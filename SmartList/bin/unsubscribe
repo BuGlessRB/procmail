@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands
-#$Id: unsubscribe,v 1.27 1994/09/14 18:54:17 berg Exp $
+#$Id: unsubscribe,v 1.28 1994/10/14 18:43:16 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -50,7 +50,7 @@ remtext=`
    then
       $echo "What I did find were the following approximate matches:"
       $echo ""
-      $multigram -b$unsub_assist -l-32767 -x$listreq -x$listaddr $dist \
+      $multigram -m -b$unsub_assist -l-32767 -x$listreq -x$listaddr $dist \
        <$tmprequest
       $echo ""
       $echo "If you recognise one of these addresses as being the one you"
