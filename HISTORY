@@ -468,6 +468,7 @@
 	       - Warn about using 'c' flag with 'f' flag
 	       - Test for allowing rcfiles in sticky directories iff chown
 		 is restricted was reversed
+	       - Added Delivered-To: to the ^TO and ^TO_ expansions
 	    Changes to formail:
 	       - Replies without the -t flag go to the envelope sender
 	       - Replies without "-a Resent-" and -t flag ignore the

@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.86 1999/06/17 06:04:07 guenther Exp $*/
+/*$Id: config.h,v 1.87 1999/08/10 19:43:14 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -133,10 +133,10 @@
 #define DEFlocksleep	8
 #define TO_key		"^TO_"				    /* for addresses */
 #define TO_substitute	"(^((Original-)?(Resent-)?(To|Cc|Bcc)|\
-(X-Envelope|Apparently(-Resent)?)-To):(.*[^-a-zA-Z0-9_.])?)"
+(X-Envelope|Delivered|Apparently(-Resent)?)-To):(.*[^-a-zA-Z0-9_.])?)"
 #define TOkey		"^TO"					/* for words */
 #define TOsubstitute	"(^((Original-)?(Resent-)?(To|Cc|Bcc)|\
-(X-Envelope|Apparently(-Resent)?)-To):(.*[^a-zA-Z])?)"
+(X-Envelope|Delivered|Apparently(-Resent)?)-To):(.*[^a-zA-Z])?)"
 #define FROMDkey	"^FROM_DAEMON"		     /* matches most daemons */
 #define FROMDsubstitute "(^(Mailing-List:|Precedence:.*(junk|bulk|list)|\
 To: Multiple recipients of |\
