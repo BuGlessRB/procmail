@@ -1,7 +1,7 @@
 #! /bin/sh
-: || exec /bin/sh ./mansed $argv:q # we're in a csh, feed myself to sh
+: &&O= || exec /bin/sh ./mansed $argv:q # we're in a csh, feed myself to sh
 
-#$Id: mansed,v 1.4 1992/11/11 13:58:21 berg Exp $
+#$Id: mansed,v 1.5 1992/11/19 12:32:42 berg Exp $
 
 test 4 != $# &&
  echo "Don't start this script directly, use \`make'" && exit 1

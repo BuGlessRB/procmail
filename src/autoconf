@@ -1,7 +1,7 @@
 #! /bin/sh
-: || exec /bin/sh ./autoconf $argv:q # we're in a csh, feed myself to sh
+: &&O= || exec /bin/sh ./autoconf $argv:q # we're in a csh, feed myself to sh
 
-#$Id: autoconf,v 1.15 1992/11/13 12:57:54 berg Exp $
+#$Id: autoconf,v 1.16 1992/11/19 12:32:51 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -51,6 +51,7 @@
 #	#define WMACROS_NON_POSIX
 #	#define oBRAIN_DAMAGE
 #Ok	#define LD_ENV_FIX
+#Ok	#define GOT_bin_test
 #Ok	#define SMALLHEAP
 #	#define NOfcntl_lock
 #	#define USElockf
@@ -633,6 +634,7 @@ HERE
 fi
 
 $FGREP -e LD_ /bin/ld >/dev/null 2>&1 && echo "#define LD_ENV_FIX" >>$ACONF
+test -f /bin/test && echo "#define GOT_bin_test" >>$ACONF
 
 cat >_autotst.c <<HERE
 #include "includes.h"

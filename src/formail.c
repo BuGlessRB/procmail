@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.9 1992/11/13 12:58:03 berg Exp $";
+ "$Id: formail.c,v 1.10 1992/11/19 12:32:55 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1992/11/13 12:58:03 $";
+static /*const*/char rcsdate[]="$Date: 1992/11/19 12:32:55 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -191,7 +191,7 @@ parsedoptions:
    }
   else if(every||digest||minfields)	      /* these combinations are only */
      goto usg;				  /* valid in combination with split */
-  if(!areply&&keepb||xheader&&logsummary)	     /* options sanity check */
+  if(xheader&&logsummary||keepb&&!(areply||xheader)) /* options sanity check */
 usg:							   /* impossible mix */
    { elog(fmusage);
 xusg:
@@ -342,7 +342,7 @@ foundfrom:
    { flushfield(&rdheader);flushfield(&nheader);dispfield(Aheader);
      dispfield(iheader);dispfield(Iheader);lputcs('\n');  /* make sure it is */
    }						/* followed by an empty line */
-  if(areply&&!keepb||xheader)	      /* decision time, do we keep the rest? */
+  if(!keepb&&(areply||xheader))	      /* decision time, do we keep the rest? */
    { logfolder();
      if(split)
 	closemine();

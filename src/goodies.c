@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.10 1992/11/13 12:58:08 berg Exp $";
+ "$Id: goodies.c,v 1.11 1992/11/19 12:32:59 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -19,6 +19,9 @@ static /*const*/char rcsid[]=
 #include "goodies.h"
 
 long Stdfilled;
+#ifndef GOT_bin_test
+const char test[]="test";
+#endif
 
 #define NOTHING_YET	(-1)	 /* readparse understands a very complete    */
 #define SKIPPING_SPACE	0	 /* subset of the standard /bin/sh syntax    */
@@ -32,20 +35,20 @@ long Stdfilled;
  * sarg==1 : environment assignment parsing, parse up till first whitespace
  * sarg==2 : normal parsing, split up arguments by single spaces
  */
-void readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
+readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
  const int sarg;
 { static i;int got;char*startb;
   for(got=NOTHING_YET;;)		    /* buf2 is used as scratch space */
 loop:
    { i=fgetc();
      if(buf+linebuf-3<p)	    /* doesn't catch everything, just a hint */
-      { elog("Exceeded LINEBUF\n");p=buf+linebuf-3;goto ready;
+      { nlog("Exceeded LINEBUF\n");p=buf+linebuf-3;goto ready;
       }
 newchar:
      switch(i)
       { case EOF:	/* check sarg too to prevent warnings in the recipe- */
 	   if(sarg!=2&&got>NORMAL_TEXT)		 /* condition expansion code */
-early_eof:    elog(unexpeof);
+early_eof:    nlog(unexpeof);
 ready:	   if(got!=SKIPPING_SPACE||sarg)  /* not terminated yet or sarg==2 ? */
 	      *p++='\0';
 	   *p=TMNATE;return;
@@ -73,7 +76,7 @@ noesc:	      *p++='\\';		/* nothing to escape, just echo both */
 	    { switch(i=fgetc())			 /* copy till next backquote */
 	       { case '\\':
 		    switch(i=fgetc())
-		     { case EOF:elog(unexpeof);goto forcebquote;
+		     { case EOF:nlog(unexpeof);goto forcebquote;
 		       case '\n':continue;
 		       case '"':
 			  if(got!=DOUBLE_QUOTED)
@@ -90,6 +93,10 @@ forcebquote:	 case EOF:case '`':
 		    if(!(sh=!!strpbrk(startb,tgetenv(shellmetas))))
 		     { const char*save=sgetcp;
 		       sgetcp=p=tstrdup(startb);readparse(startb,sgetc,0);
+#ifndef GOT_bin_test
+		       if(!strcmp(test,startb))
+			  strcpy(startb,p),sh=1;       /* oops, `test' found */
+#endif
 		       free(p);sgetcp=save;		       /* chopped up */
 		     }		    /* drop source buffer, read from program */
 		    startb=
@@ -134,7 +141,7 @@ escaped:      *p++=i;
 		 *startb++=i;
 	      *startb='\0';
 	      if(i!='}')
-	       { elog("Bad substitution of");logqnl(buf2);continue;
+	       { nlog("Bad substitution of");logqnl(buf2);continue;
 	       }
 	      i='\0';
 	    }

@@ -1,7 +1,7 @@
 #! /bin/sh
-: || exec /bin/sh ./initmake $argv:q # we're in a csh, feed myself to sh
+: &&O= || exec /bin/sh ./initmake $argv:q # we're in a csh, feed myself to sh
 
-#$Id: initmake,v 1.9 1992/11/12 11:37:53 berg Exp $
+#$Id: initmake,v 1.10 1992/11/19 12:32:26 berg Exp $
 
 MSHELL=$1
 PATH=:$PATH
@@ -10,7 +10,7 @@ shift; MV="$1"
 shift; LN="$1"
 shift; USRINCLUDE=$1
 shift; PLIB=$1
-shift; PLIBUSR=$1
+shift; PUSRLIB=$1
 shift; DEVNULL=$1
 shift; MAKE="$1"
 shift; O=$1
@@ -131,9 +131,10 @@ chmod 0755 checklib
 test ! -f $USRINC/dirent.h -a ! -f $USRINC/ndir.h -a -f $USRINC/sys/ndir.h ||
  LDFLAGS=`checklib dir`
 LDFLAGS=`checklib x`
-LDFLAGS=`checklib socket`
 LDFLAGS=`checklib net`
+LDFLAGS=`checklib nsl_s`
 LDFLAGS=`checklib nsl`
+LDFLAGS=`checklib socket`
 #LDFLAGS=`checklib resolv`		# not really needed, is it?
 LDFLAGS=`checklib sun`
 $RM checklib
