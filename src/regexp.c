@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.14 1993/01/13 16:17:33 berg Exp $";
+ "$Id: regexp.c,v 1.15 1993/01/13 20:18:03 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -317,7 +317,7 @@ lastrun:				     /* switch this & other pc-stack */
 setups:
      other=code;stack=initstack;reg=initcode;goto nostack;
      do					 /* pop next entry off this pc-stack */
-      { reg=thiss->next;PC(thiss,th1)=0;thiss=PC(thiss,th1);goto nostack;
+      { thiss=PC(reg=thiss,th1);PC(reg,th1)=0;reg=reg->next;goto nostack;
 	do				/* pop next entry off the work-stack */
 	 { for(reg=stack->spawn,stack=stack->stack;;)
 nostack:    { switch(reg->opc-OPB)  /* push spawned branch on the work-stack */

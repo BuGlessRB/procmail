@@ -6,7 +6,7 @@
 # shortly before writing out the new version of this file (remove the lockfile
 # afterwards of course)
 
-#$Id: rc.request,v 1.1 1993/01/13 15:20:16 berg Exp $
+#$Id: rc.request,v 1.2 1993/01/13 20:17:51 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -85,7 +85,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 #
 
 :2f:dist.lock
-^$X_COMMAND:.*$maintainer.*$X_COMMAND_PASSWORD
+$^$X_COMMAND:.*$maintainer.*$X_COMMAND_PASSWORD
 $!^X-Loop: $listaddr
 | x_command `formail -x$X_COMMAND:`
 
@@ -112,11 +112,11 @@ $^X-Loop: $listaddr
 !^X-(Diagnostic|Processed):
 /dev/null
 
-	:A fh
-	^$X_COMMAND:
+	:1A fh
+	$^$X_COMMAND:
 	| formail -A "X-Diagnostic: Suspicious $X_COMMAND format"
 
-	:A BH fh
+	:1A BH fh
 	?multigram -b1 -l$reject_threshold reject
 	| formail -A "X-Diagnostic: Found on the reject list" \
 	   -A "X-Diagnostic: `multigram -b1 -l$reject_threshold reject`"

@@ -11,9 +11,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.11 1993/01/13 16:17:22 berg Exp $";
+ "$Id: multigram.c,v 1.12 1993/01/13 20:18:01 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/13 16:17:22 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/13 20:18:01 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -32,10 +32,11 @@ static /*const*/char rcsdate[]="$Date: 1993/01/13 16:17:22 $";
 #define GLOCKFILE	"../.etc/rc.lock"
 #define LLOCKFILE	"rc.lock"
 #define REQUEST		"-request"
-#define RCSUBMIT	"rc.submit"
-#define RCREQUEST	"rc.request"
+#define RCSUBMIT	"./rc.submit"
+#define RCREQUEST	"./rc.request"
 #define RCINIT		"RC_INIT=rc.init"
 #define XENVELOPETO	"X_ENVELOPE_TO="
+#define LIST		"list="
 
 #define metoo_SENDMAIL		"-om"
 #define nometoo_SENDMAIL	"-omF"
@@ -121,6 +122,12 @@ static void rclock(file,stbuf)const char*const file;struct stat*const stbuf;
      sleep(DEFlocksleep);
 }
 
+static char*argstr(first,last)const char*first,*last;
+{ char*chp;size_t i;
+  strcpy(chp=malloc((i=strlen(first))+strlen(last)+1),first);
+  strcpy(chp+i,last);return chp;
+}
+
 static PROGID;
 
 main(minweight,argv)char*argv[];
@@ -140,7 +147,7 @@ main(minweight,argv)char*argv[];
 	if(!chdir(argv[0])&&!lstat(flist,&stbuf)&&S_ISREG(stbuf.st_mode)&&
 	 stbuf.st_mode&S_ISUID&&stbuf.st_uid==geteuid()&&!chdir(chPARDIR))
 	 { static const char request[]=REQUEST,xenvlpto[]=XENVELOPETO,
-	    *pmexec[]={PROCMAIL,RCSUBMIT,RCINIT,0,0};
+	    list[]=LIST,*pmexec[]={PROCMAIL,RCSUBMIT,RCINIT,0,0,0};
 	   char*arg;
 	   if(minweight!=2)
 	    { elog("Usage: flist listname[-request]\n");return EX_USAGE;
@@ -154,12 +161,12 @@ main(minweight,argv)char*argv[];
 	    { nlog("Couldn't chdir to \"");elog(arg);elog("\"\n");
 	      return EX_NOINPUT;
 	    }
+	   pmexec[maxindex(pmexec)-2]=argstr(list,arg);
 	   if(chp)
 	      *chp= *request;
+	   pmexec[maxindex(pmexec)-1]=argstr(xenvlpto,arg);
 	   setuid(stbuf.st_uid);setgid(stbuf.st_gid);
 	   rclock(GLOCKFILE,&stbuf);rclock(LLOCKFILE,&stbuf);
-	   strcpy(chp=malloc(strlen(arg)+STRLEN(xenvlpto)+1),xenvlpto);
-	   strcpy(chp+STRLEN(xenvlpto),arg);pmexec[maxindex(pmexec)-1]=chp;
 	   execve(pmexec[0],pmexec,environ);nlog("Couldn't exec \"");
 	   elog(pmexec[0]);elog("\"\n");return EX_UNAVAILABLE;
 	 }

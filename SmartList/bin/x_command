@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: x_command,v 1.1 1993/01/13 15:20:03 berg Exp $
+#$Id: x_command,v 1.2 1993/01/13 20:17:46 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -42,7 +42,7 @@ do
      _distfile)
 	 $echo "--- Current subscribers:"
 	 $cat $dist
-	 $echo "--- End of subscriber list"
+	 $echo "--- End of subscriber list" ;;
      _help|_info)
 	 $echo "Known $X_COMMAND keywords:"
 	 $echo "	subscribe mailaddress"
