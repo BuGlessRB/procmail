@@ -133,6 +133,7 @@
 	       - Implicit delivery mode is now entered if argv[0] doesn't start
 		 with the word `procmail'
 	       - Fixed the BSD support for kernel-locking only operation
+	       - Taught the regexp engine about \< and \>
 	    Changes to formail:
 	       - Fixed a sender-determination-weight problem, it mixed up
 		 the weights when autoreplying and when regenerating the From_
@@ -146,6 +147,7 @@
 		 (causing it to coredump on occasion)
 	       - Supports the -s option withouth a program argument
 	       - Recognise extra UUCP >From_ lines
+	       - Introduced the -B option to split up BABYL rmail files
 	    Miscellaneous changes:
 	       - Detecting and dodging buggy zshs everywhere
 	       - Slightly adjusted autoconf for the new non-standard 386BSD

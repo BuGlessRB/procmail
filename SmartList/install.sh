@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.40 1994/02/09 19:10:55 berg Exp $
+#$Id: install.sh,v 1.41 1994/02/11 16:09:19 berg Exp $
 
 SHELL=/bin/sh
 export SHELL
@@ -103,7 +103,7 @@ then
      [0-9]*) exec 4>&0
 	 . ./install.sh2
 	 exec 4>&- ;;
-     *) if echo ls | su $installerid | fgrep install.sh2 /dev/null
+     *) if echo ls | su $installerid | fgrep install.sh2 >/dev/null
 	then
 	:
 	else
@@ -163,7 +163,9 @@ echo "that \`PATH', \`domain' and \`listmaster' reflect your installation."
 if test -f $target/.etc/rc.init.new
 then
   echo "Finally, to reenable the lists execute:"
+  echo ""
   echo "		/bin/rm -f $target/.etc/rc.lock"
+  echo ""
   touch "$target/.etc/rc.lock"
 fi
 echo '**********************************************************************'

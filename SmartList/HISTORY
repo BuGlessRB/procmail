@@ -59,3 +59,7 @@
 	    Split off the mailinglist scripts in a separate package called
 	       "SmartList"
 	    Flist recognises itself as flist if argv[0] starts with `flist'
+	    Install.sh now tries to preset rc.init.new with values for
+	       PATH, domain and listmaster (if you are upgrading)
+	    Rc.submit will add a To: field to outgoing mails if there wasn't
+	       any

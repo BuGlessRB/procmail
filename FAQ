@@ -193,6 +193,8 @@
 
 	  You have to make sure that all other programs that update your
 	  system mailbox will be using the same lockfile of course.
+	- You can ignore the problem if you know that both your mail reader
+	  and procmail use an overlapping kernel locking method.
 
 
 16. None of the above topics cover my problem.	Should I panic?
