@@ -7,7 +7,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lmtp.c,v 1.13 2001/06/28 21:44:28 guenther Exp $"
+ "$Id: lmtp.c,v 1.14 2001/09/23 20:17:57 guenther Exp $"
 #endif
 #include "procmail.h"
 #ifdef LMTP
@@ -708,7 +708,7 @@ loop_exit:
      got-=in-p;				     /* correct for what disappeared */
    }
   while(left-=got);				/* change listed buffer size */
-  *(long*)statep=state;					       /* save state */
+  *(int*)statep=state;					       /* save state */
   return 0;
 }
 
@@ -765,7 +765,7 @@ loop_exit:
      got-=in-p;				     /* correct for what disappeared */
    }
   while(left-=got);				/* change listed buffer size */
-  *(long*)statep=state;					       /* save state */
+  *(int*)statep=state;					       /* save state */
   return 0;
 }
 
