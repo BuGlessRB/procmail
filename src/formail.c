@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.83 1998/11/09 21:48:14 srb Exp $";
+ "$Id: formail.c,v 1.84 1999/01/20 17:58:21 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1998/11/09 21:48:14 $";
+static /*const*/char rcsdate[]="$Date: 1999/01/20 17:58:21 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -21,6 +21,7 @@ static /*const*/char rcsdate[]="$Date: 1998/11/09 21:48:14 $";
 #include "fields.h"
 #include "ecommon.h"
 #include "formisc.h"
+#include "../patchlevel.h"
 
 #define ssl(str)		str,STRLEN(str)
 #define bsl(str)		{ssl(str)}
@@ -480,6 +481,8 @@ invfield:	     { nlog("Invalid field-name:");logqnl(chp?chp:"");
 		    if(!copied)			   /* if not squeezed on yet */
 		       tmemmove((char*)fldp->fld_text+lnl,chp,i);  /* do now */
 		  }
+	      case FM_VERSION:elog("formail");elog(VERSION);
+		 return EXIT_SUCCESS;
 	      case '\0':;
 	    }
 	   break;

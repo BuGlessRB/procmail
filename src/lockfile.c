@@ -13,14 +13,15 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.36 1997/04/03 01:58:44 srb Exp $";
+ "$Id: lockfile.c,v 1.37 1999/01/20 17:58:22 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1997/04/03 01:58:44 $";
+static /*const*/char rcsdate[]="$Date: 1999/01/20 17:58:22 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
 #include "mcommon.h"
 #include "authenticate.h"
+#include "../patchlevel.h"
 
 #ifndef SYSTEM_MBOX
 #define SYSTEM_MBOX	SYSTEM_MAILBOX
@@ -63,8 +64,8 @@ static PROGID;
 main(argc,argv)const char*const argv[];
 { const char*const*p;char*cp;uid_t uid;
   int sleepsec,retries,invert,force,suspend,retval=EXIT_SUCCESS,virgin=1;
-  static const char usage[]="Usage: lockfile -nnn | -r nnn | -l nnn | -s nnn \
-| -! | -ml | -mu | file ...\n";
+  static const char usage[]="Usage: lockfile -v | -nnn | -r nnn | -l nnn \
+| -s nnn | -! | -ml | -mu | file ...\n";
   if(argc<=1)			       /* sanity check, any argument at all? */
      goto usg;
   sleepsec=DEFlocksleep;retries= -1;suspend=DEFsuspend;thepid=getpid();force=0;
@@ -94,9 +95,12 @@ again:
 		       suspend=i;
 		       goto checkrdec;
 		  }
+	      case VERSIONOPT:elog("lockfile");elog(VERSION);
+		  return EXIT_SUCCESS;
 	      case HELPOPT1:case HELPOPT2:elog(usage);
 		 elog(
- "\t-nnn\twait nnn seconds between locking attempts\
+ "\t-v\tdisplay the version number and exit\
+\n\t-nnn\twait nnn seconds between locking attempts\
 \n\t-r nnn\tmake at most nnn retries before giving up on a lock\
 \n\t-l nnn\tset locktimeout to nnn seconds\
 \n\t-s nnn\tsuspend nnn seconds after a locktimeout occurred\

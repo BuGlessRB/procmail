@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.125 1998/12/17 07:41:11 guenther Exp $";
+ "$Id: procmail.c,v 1.126 1999/01/20 17:58:26 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -99,7 +99,7 @@ main(argc,argv)const char*const argv[];
 	for(presenviron=argc=0;(chp2=(char*)argv[++argc])&&*chp2=='-';)
 	   for(;;)				       /* processing options */
 	    { switch(*++chp2)
-	       { case VERSIONOPT:elog(VERSION);
+	       { case VERSIONOPT:elog(procmailn);elog(VERSION);
 		    elog("\nLocking strategies:\tdotlocking");
 #ifndef NOfcntl_lock
 		    elog(", fcntl()");		    /* a peek under the hood */

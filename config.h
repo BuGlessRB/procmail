@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.78 1998/11/09 22:14:52 srb Exp $*/
+/*$Id: config.h,v 1.79 1999/01/20 17:58:13 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -294,14 +294,16 @@ MMGR)\
 #define FM_FIRST_UNIQ	'u'		    /* preserve the first occurrence */
 #define FM_LAST_UNIQ	'U'		     /* preserve the last occurrence */
 #define FM_ReNAME	'R'				   /* rename a field */
+#define FM_VERSION	VERSIONOPT		/* option to display version */
 #define FM_USAGE	"\
-Usage: formail [-bczfrktqY] [-D nnn idcache] [-p prefix] [-l folder]\n\
+Usage: formail [-vbczfrktqY] [-D nnn idcache] [-p prefix] [-l folder]\n\
 \t[-xXaAiIuU field] [-R ofield nfield]\n\
    Or: formail [+nnn] [-nnn] [-bczfrktedqBY] [-D nnn idcache] [-p prefix]\n\
 \t[-n [nnn]] [-m nnn] [-l folder] [-xXaAiIuU field] [-R ofield nfield]\n\
 \t-s [prg [arg ...]]\n"	    /* split up FM_HELP, token too long for some ccs */
 #define FM_HELP		\
- " -b\t\tdon't escape bogus mailbox headers\
+ " -v\t\tdisplay the version number and exit\
+\n -b\t\tdon't escape bogus mailbox headers\
 \n -Y\t\tBerkeley format mailbox, disregard Content-Length:\
 \n -c\t\tconcatenate continued header-fields\
 \n -z\t\tzap whitespace and empty header-fields\

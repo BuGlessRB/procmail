@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: lockfile.man,v 1.15 1997/04/11 10:28:58 srb Exp $
+.Id $Id: lockfile.man,v 1.16 1999/01/20 17:58:18 guenther Exp $
 .TH LOCKFILE 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -162,7 +162,8 @@ Definitely less than one.
 Lockfile is NFS-resistant and eight-bit clean.
 .SH NOTES
 Calling up lockfile with the \-@HELPOPT1@ or \-@HELPOPT2@ options will cause
-it to display a command-line help page.
+it to display a command-line help page.  Calling it up with the \-@VERSIONOPT@
+option will cause it to display its version information.
 .PP
 Multiple
 .B \-!

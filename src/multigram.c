@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.87 1998/11/16 03:43:09 srb Exp $";
+ "$Id: multigram.c,v 1.88 1999/01/20 17:58:24 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1998/11/16 03:43:09 $";
+static /*const*/char rcsdate[]="$Date: 1999/01/20 17:58:24 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -27,6 +27,7 @@ static /*const*/char rcsdate[]="$Date: 1998/11/16 03:43:09 $";
 #include "ecommon.h"
 #include "mcommon.h"
 #include "lastdirsep.h"
+#include "../patchlevel.h"
 
 #include "targetdir.h"	    /* see ../SmartList/install.sh2 for more details */
 
@@ -326,8 +327,8 @@ Usage: flist listname[-request]\n\
 	   return EX_USAGE;
 	 }
 	if(!strcmp(arg=argv[1],"-v"))
-	 { fprintf(stderr,"%s\nUser: %s\nDirectory: %s\n",SLVERSION,listid,
-	    targetdir);
+	 { fprintf(stderr,"SmartList%s\nUser: %s\nDirectory: %s\n",VERSION,
+	    listid,targetdir);
 	   return EXIT_SUCCESS;
 	 }
 	;{ uid_t euid;

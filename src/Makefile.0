@@ -1,4 +1,4 @@
-#$Id: Makefile.0,v 1.50 1998/11/16 05:13:26 guenther Exp $
+#$Id: Makefile.0,v 1.51 1999/01/20 17:58:19 guenther Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O) \
@@ -73,6 +73,7 @@ fields.$(O): common.h fields.h ecommon.h formisc.h
 
 formail.$(O): ../autoconf.h ../config.h includes.h formail.h acommon.h sublib.h
 formail.$(O): shell.h common.h fields.h ecommon.h formisc.h header.h
+formail.$(O): ../patchlevel.h
 
 formisc.$(O): ../autoconf.h ../config.h includes.h formail.h sublib.h shell.h
 formisc.$(O): common.h ecommon.h formisc.h
@@ -85,7 +86,7 @@ hsort.$(O): ../autoconf.h ../config.h includes.h hsort.h
 lastdirsep.$(O): ../autoconf.h ../config.h includes.h lastdirsep.h
 
 lockfile.$(O): ../autoconf.h ../config.h includes.h sublib.h exopen.h mcommon.h
-lockfile.$(O): authenticate.h
+lockfile.$(O): authenticate.h ../patchlevel.h
 
 locking.$(O): ../autoconf.h ../config.h includes.h procmail.h robust.h shell.h
 locking.$(O): misc.h pipes.h exopen.h locking.h lastdirsep.h

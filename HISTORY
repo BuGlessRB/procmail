@@ -420,6 +420,8 @@
 	       - Generated Message-IDs don't contain "s anymore
 	       - Fix off-by-one error when zapping whitespace
 	       - -z option allows for leading tab instead of space
+	    Changes to formail and lockfile:
+	       - -v option displays version information
 	    Changes to autoconf:
 	       - Detect & work around inefficient realloc() implementations
 	    Mailstat returns grand totals as well now

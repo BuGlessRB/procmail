@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.37 1998/11/09 21:56:01 srb Exp $
+.Id $Id: formail.man,v 1.38 1999/01/20 17:58:16 guenther Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -9,7 +9,7 @@ formail \- mail (re)formatter
 .B formail
 .RI [ "\fB\@FM_SKIP@\fPskip" ]
 .RI [ "\fB\@FM_TOTAL@\fPtotal" ]
-.RB [ \-@FM_BOGUS@@FM_CONCATENATE@@FM_ZAPWHITE@@FM_FORCE@@FM_REPLY@@FM_KEEPB@@FM_TRUST@@FM_EVERY@@FM_DIGEST@@FM_QUIET@@FM_BABYL@@FM_BERKELEY@ ]
+.RB [ \-@FM_VERSION@@FM_BOGUS@@FM_CONCATENATE@@FM_ZAPWHITE@@FM_FORCE@@FM_REPLY@@FM_KEEPB@@FM_TRUST@@FM_EVERY@@FM_DIGEST@@FM_QUIET@@FM_BABYL@@FM_BERKELEY@ ]
 .RB [ \-@FM_QPREFIX@
 .IR prefix ]
 .if n .ti +0.5i
@@ -67,6 +67,9 @@ mail coming from stdin into mailbox format and will escape
 bogus `@FROM@' lines with a `@ESCAP@'.
 .SH OPTIONS
 .TP 0.5i
+.B \-@FM_VERSION@
+Formail will print its version number and exit.
+.TP
 .B \-@FM_BOGUS@
 Don't escape any bogus mailbox headers (i.e. lines starting with `@FROM@').
 .TP
