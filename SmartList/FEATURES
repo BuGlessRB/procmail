@@ -4,7 +4,7 @@ Summary of what the mailinglist scripts in here provide:
 	+ Convenient and simple removal of existing mailinglists
 	+ Fully automated subscription/unsubscription/help-request processing
 	  (no operator intervention needed)
-	+ Enough intelligence to overcome the stupidity of some subscribers
+	+ Enough intelligence to overcome the ignorance of some subscribers
 	  (will direct subscribe and unsubscribe requests away from the
 	  regular list and automatically onto the -request address)
 	+ No hardwired format for (un)subscribe requests (i.e. new subscribers

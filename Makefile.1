@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.12 1993/02/10 19:21:24 berg Exp $
+#$Id: Makefile.1,v 1.13 1993/02/10 19:37:23 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -112,8 +112,8 @@ clean: config.check
 	 _Makefile core autoconf.h.tmp
 
 realclean: clean _init
-	-rmdir new; exit 0
 	$(RM) config.check
+	-rmdir new; exit 0
 	-for a in $(SUBDIRS); do $(MV) $$a/Makefile.init $$a/Makefile; done; \
 	 exit 0
 
