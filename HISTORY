@@ -411,6 +411,11 @@
 	       - LOGABSTRACT=all no longer logs filtering or variable capture
 		 actions
 	       - Don't strip leading \n in a $MATCH
+	       - Work around a compiler bug in Sun C compiler 4.2 (fdefault
+		 cached past function calls)
+	    Worked around a compiler bug old HP compilers (pointer-unsigned),
+	       caused the Content-Length: field to be mangled on some older
+	       HP/UX systems (not on every mail)
 	    Changes to formail:
 	       - Generated Message-IDs don't contain "s anymore
 	       - Fix off-by-one error when zapping whitespace
