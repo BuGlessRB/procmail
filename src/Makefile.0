@@ -1,4 +1,4 @@
-#$Id: Makefile.0,v 1.51 1999/01/20 17:58:19 guenther Exp $
+#$Id: Makefile.0,v 1.52 1999/03/04 14:58:28 guenther Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O) \
@@ -37,7 +37,7 @@ multigram: multigram.$(O) $(MG_OBJ) setid
 _autotst: _autotst.$(O) sublib.c sublib.h
 	$(CC) $(CFLAGS) $@.$(O) -o $@ $(LDFLAGS)
 
-../autoconf.h: autoconf Makefile
+../autoconf.h: autoconf Makefile ../patchlevel.h
 	@echo No this was not make -n >make_n
 	$(SHELL) ./autoconf $(SHELL) "$(RM)" "$(MV)" $(DEVNULL) \
  "$(FGREP)" "$(MAKE)" $(O) "$(LOCKINGTEST)" \
@@ -162,7 +162,7 @@ clean:
  $(FM_OBJ) multigram.$(O) $(MG_OBJ) $(BINSS) multigram ../autoconf.h \
  _autotst* lookfor _locktst* grepfor recommend recommend.$(O) manconf \
  _Makefile lock.log *core* targetdir.h setid setid.$(O) gethome \
- gethome.$(O) make_n
+ gethome.$(O) make_n realloc.log
 
 Makefile: ../Makefile Makefile.0
 	@echo "You have made changes to the master Makefile, in order for"
