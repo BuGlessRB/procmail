@@ -438,3 +438,6 @@
 	       in /usr/bin instead of /usr/local/bin
 1999/03/09: v3.13
 	    Mailstat was too lenient in its awk syntax
+	    Changes to formail
+	       - Formail was ignoring the exitcode of all but the last
+		 invocation (or last several, if -n was in effect)
