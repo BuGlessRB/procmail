@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.23 1993/07/19 12:40:53 berg Exp $
+#$Id: rc.request,v 1.24 1993/10/22 16:40:24 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -26,25 +26,27 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 
 :0 whc
 * < 8192
-* $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
-* !^Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)([^a-z]|$))
-* !^FROM_DAEMON
-| formail -rt -xTo: >tmp.from
+* $!^((X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)|\
+    Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)([^a-z]|$)))|\
+   ^FROM_DAEMON
+{
+  :0 whc
+  | formail -rt -xTo: >tmp.from
 
 #
 # Store the whole mail in tmp.request, for later reference.
 #
 
-	:0 Ac w
-	| cat >tmp.request
+  :0 wc
+  | cat >tmp.request
 
 #
 # Check for a missing Subject: line.
 #
 
-	:0 A wfh
-	* !^Subject:
-	| formail -a "Subject: "
+  :0 wfh
+  * !^Subject:
+  | formail -a "Subject: "
 
 ###############################################################################
 # Reader beware, the following four regular expressions are not for the faint #
@@ -56,63 +58,70 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 # Is it an archive retrieval command?
 #
 
-	:0 HBA w
-	* ^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
-	   ((archive([	 ]|$))|(archive[	 ]+)?\
-	   ((send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|list|show|\
-	    search|[fe]?grep|find)([	 ]|$))
-	| arch_retrieve
+  :0 HB w
+  * ^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
+     ((archive([	 ]|$))|(archive[	 ]+)?\
+     ((send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|list|show|\
+      search|[fe]?grep|find)([	 ]|$))
+  | arch_retrieve
 
 #
 # Is it an unsubscription request?
 #
 
-	:0 HBA w:dist.lock
-	* ^^(.+$)*Subject:[	 ]*(($(.+$)*(^[	 ]*)+)?\
-	   (signoff|delete|remove|unsub)|\
-	   ($(.*$)*)?(.*[^a-z])?(unsubscri|\
-	   ((delete|remove) .* from|take .* off) .* [a-z-]*list([^a-z]|$)))
-	| unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from`
+  :0 HB w:dist.lock
+  * ^^(.+$)*Subject:[	 ]*(($(.+$)*(^[  ]*)+)?\
+     (signoff|delete|remove|unsub)|\
+     ($(.*$)*)?(.*[^a-z])?(unsubscri|\
+     ((delete|remove) .* from|take .* off) .* [a-z-]*list([^a-z]|$)))
+  | unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from`
 
 #
-# Is it a subscription request?	 Yes, well, then check if the person
-# subscribing isn't on the reject list.	 If not, then let's see if he might
+# Is it a subscription request?  Yes, well, then check if the person
+# subscribing isn't on the reject list.  If not, then let's see if he might
 # already be on the mailinglist.  If not, add him.
 #
 
-	:0 HBA w $cc_requests:dist.lock
-	* $$auto_subscribe
-	* ^^(.+$)*Subject:[	 ]*(\
-	   ($(.+$)*(^[	 ]*)+)?(signon|add|sub(scri|[	 ]|$)?)|\
-	   ($(.*$)*)?(.*[^a-z])?(subscri|(add .* to|put .* on) .* [a-z-]*list\
-	   ([^a-z]|$)))
-	* !?multigram -b1 -l$reject_threshold reject
-	* !?multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
-	| subscribe | $SENDMAIL $sendmailOPT -t
+  :0 HB
+  * $$auto_subscribe
+  * ^^(.+$)*Subject:[	 ]*(\
+     ($(.+$)*(^[	 ]*)+)?(signon|add|sub(scri|[	 ]|$)?)|\
+     ($(.*$)*)?(.*[^a-z])?(subscri|(add .* to|put .* on) .* [a-z-]*list\
+     ([^a-z]|$)))
+  * !?multigram -b1 -l$reject_threshold reject
+  * !?multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
+   {
+     :0 w $cc_requests:dist.lock
+     | subscribe | $SENDMAIL $sendmailOPT -t
+
+     :0 wfh
+     | formail -A "X-Diagnostic: Added to the subscriber list"
+   }
 
 #
 # Is it an info or help request?  Send back the help.txt file.
 #
 
-	:0 HBA w $cc_requests
-	* ^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
-	   [a-z,.	 ]*(help|info(rm(ation)?)?)([^a-z]|$)
-	| (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
-	   cat help.txt) | $SENDMAIL $sendmailOPT -t
+  :0 HB w $cc_requests
+  * ^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
+     [a-z,.	 ]*(help|info(rm(ation)?)?)([^a-z]|$)
+  | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
+     cat help.txt) | $SENDMAIL $sendmailOPT -t
+}
 
 #
 # Could it be a bounce message from a daemon?  Hand it down to procbounce
 # which will evaluate it.
 #
 
-:0 wc
-* !^Subject:(.*[^a-z])?Re:
-* $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
-* ^FROM_DAEMON
-| sed -e $cutoff_bounce',$ d' >tmp.request
+:0 wic
+* $!^(Subject:(.*[^a-z])?Re:|
+     X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)|\
+    ^FROM_DAEMON
+| sed -e $cutoff_bounce' q' >tmp.request
 
-	:0 Ahfw
-	| procbounce
+  :0 Ahfw
+  | procbounce
 
 #
 # Or is it a remote X-Command from our maintainer?
@@ -157,7 +166,7 @@ LOCKFILE				# we don't need the lockfile anymore
      -A "X-Diagnostic: `multigram -b1 -l$reject_threshold reject`"
 
   :0 HB wfh
-  * ^((Subject:)?[a-z,.	 ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
+  * ^((Subject:)?[a-z,.  ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
 			      (add .* to|put .* on) .* list)([^a-z]|$))
   * ?multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
   | formail -A "X-Diagnostic: Already on the subscriber list" \

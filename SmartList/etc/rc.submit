@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.28 1993/08/09 14:10:34 berg Exp $
+#$Id: rc.submit,v 1.29 1993/10/22 16:40:26 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -21,14 +21,14 @@ INCLUDERC=$RC_CUSTOM
 
 :0 Wch i
 * < $size_limit
-* $!^$X_COMMAND:
-* !^Subject:([	 ]*(archive([	 ]+((send|get)(me)?|gimme|retrieve|\
-   mail|ls|dir(ectory)?|list|show|search|[fe]?grep|find|help|info)\
-   ([	 ]|$)|[	 ]*$)|\
-   (help|info)[	 ]*$)|[^:]*( (add .* to|(delete|remove) .* from|\
-   take .* off|put .* on) .* [a-z-]*list|subscri(be|ption))([^a-z-]|$))
-* $!^X-Loop: $listaddr
-* !^Precedence:.*junk|^FROM_MAILER
+* $!^($X_COMMAND:|\
+    Subject:([	 ]*(archive([	 ]+((send|get)(me)?|gimme|retrieve|\
+     mail|ls|dir(ectory)?|list|show|search|[fe]?grep|find|help|info)\
+     ([  ]|$)|[  ]*$)|\
+     (help|info)[	 ]*$)|[^:]*( (add .* to|(delete|remove) .* from|\
+     take .* off|put .* on) .* [a-z-]*list|subscri(be|ption))([^a-z-]|$))|\
+    X-Loop: $listaddr|\
+    Precedence:.*junk)|^FROM_MAILER
 | test yes = "$foreign_submit" && exit 0; \
   formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
    -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
@@ -39,7 +39,7 @@ INCLUDERC=$RC_CUSTOM
 
      :0
      * $$moderated_flag
-     * !Approved:
+     * !^Approved:
      * !? formail -xApproved: | \
 	   multigram -b1 -m -l$reject_threshold moderators
      | formail -R"From X-Envelope-From:" -IReturn-Receipt-To: \
@@ -53,7 +53,7 @@ INCLUDERC=$RC_CUSTOM
      | formail -xMessage-ID: | idcheck $idcache_size msgid.cache
 
      #
-     # Check if this is a digested mailinglist.	 If yes, processing stops
+     # Check if this is a digested mailinglist.  If yes, processing stops
      # here and the mail will be added to the digest.
      #
 
