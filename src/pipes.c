@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.37 1994/10/14 18:43:43 berg Exp $";
+ "$Id: pipes.c,v 1.38 1994/12/19 16:57:43 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -296,22 +296,19 @@ void exectrap(tp)const char*const tp;
       }
    }
   if(*tp)
-   { metaparse(tp);concon('\n');inittmout(buf);
+   { int poutfd[2];
+     metaparse(tp);concon('\n');rpipe(poutfd);inittmout(buf);
      if(!(pidchild=sfork()))	     /* connect stdout to stderr before exec */
-      { int poutfd[2];
-	Stdout=buf;childsetup();rpipe(poutfd);rclose(STDOUT);pidfilt=thepid;
-	getstdin(PRDO);
-	if(!(pidchild=sfork()))			/* fork off sending procmail */
-	 { rclose(STDIN);rclose(STDERR);dump(PWRO,themail,filled);
-	   exit(lexitcode);		/* finished dumping to stdin of TRAP */
-	 }					 /* call up the TRAP program */
-	rclose(PWRO);rdup(STDERR);forkerr(pidchild,buf);callnewprog(buf);
+      { rclose(PWRO);shutdesc();getstdin(PRDO);rclose(STDOUT);rdup(STDERR);
+	callnewprog(buf);			      /* trap your heart out */
       }
-     ;{ int newret;
-	if(!forkerr(pidchild,buf)&&
-	   (newret=waitfor(pidchild))!=EXIT_SUCCESS&&
-	   forceret==-2)
+     rclose(PRDO);					     /* neat & clean */
+     if(!forkerr(pidchild,buf))
+      { int newret;
+	dump(PWRO,themail,filled);	      /* try and shove down the mail */
+	if((newret=waitfor(pidchild))!=EXIT_SUCCESS&&forceret==-2)
 	   retval=newret;		       /* supersede the return value */
+	pidchild=0;
       }
    }
 }
