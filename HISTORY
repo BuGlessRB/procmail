@@ -201,7 +201,7 @@
 	       - Updated and extended the Manual file (reading recommended)
 	       - Added the showlink convenience utility
 	       - Added support for non-sendmail compatible mailers
-1993/06/29: v2.90
+1993/07/01: v2.90
 	    Condition lines in recipes can now be started with a leading `*',
 	       there is no longer a need to count condition lines, simply
 	       set the number to zero, and let procmail find out by itself
@@ -213,3 +213,5 @@
 	       and two procmails simultaneously tried to create it
 	    Cleaned up main() in procmail.c (localised variables)
 	    Made sure the logfile was flushed before procmail exits
+	    When procmail gobbles up the leading From_ line, it reads in 2KB
+	       blocks now (instead of character wise; saves a few system calls)

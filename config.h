@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.26 1993/06/21 14:23:24 berg Exp $*/
+/*$Id: config.h,v 1.27 1993/07/01 11:58:23 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -124,7 +124,7 @@ Post(ma(st(er)?|n)|office)|Mailer|daemon|mmdf|root|uucp|serv(ices?|er))\
 #define DEFtimeout	(DEFlocktimeout-64)	   /* 64 seconds to clean up */
 #define DEFnoresretry	4      /* default nr of retries if no resources left */
 #define nfsTRY		2     /* nr of times-1 to ignore spurious NFS errors */
-#define DEFlogabstract	1
+#define DEFlogabstract	-1    /* abstract by default, but don't mail it back */
 #define COMSAThost	"localhost"    /* where the biff/comsat daemon lives */
 #define COMSATservice	"biff"	    /* the service name of the comsat daemon */
 #define COMSATprotocol	"udp" /* if you change this, comsat() needs patching */

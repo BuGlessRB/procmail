@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.31 1993/06/25 11:09:38 berg Exp $";
+ "$Id: mailfold.c,v 1.32 1993/07/01 11:58:32 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -185,7 +185,7 @@ makefile:
 }
 
 void logabstract(lstfolder)const char*const lstfolder;
-{ if(logopened&&lgabstract)    /* don't mail it back & only log if requested */
+{ if(lgabstract>0||logopened&&lgabstract)  /* don't mail it back unrequested */
    { char*chp,*chp2;int i;static const char sfolder[]=FOLDER;
      if(mailread)			  /* is the mail completely read in? */
       { *thebody='\0';		       /* terminate the header, just in case */

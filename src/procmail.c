@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.36 1993/06/25 13:38:45 berg Exp $";
+ "$Id: procmail.c,v 1.37 1993/07/01 11:58:36 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -181,26 +181,26 @@ privileged:
 	 }
 	;{ size_t already;
 	   thebody=themail=
-	    malloc((already=STRLEN(From_)+strlen(buf2))+STRLEN(From_));
+	    malloc((already=STRLEN(From_)+strlen(buf2))+linebuf);
 	   filled=0;
 	   if(Deliverymode||fromwhom)  /* need to peek for a leading From_ ? */
-	    { int r;					     /* skip garbage */
+	    { char*rstart;int r;			     /* skip garbage */
 	      while(1==(r=rread(STDIN,themail,1))&&*themail=='\n');
-	      if(STRLEN(From_)-1==(i=rread(STDIN,themail+1,STRLEN(From_)-1))&&
-	       eqFrom_(themail))		      /* is it a From_ line? */
-	       { if(fromwhom||!privs)
-		  { char a;			       /* discard From_ line */
-		    while(1==rread(STDIN,&a,1)&&a!='\n');
-		    i=0;goto Frominserted;
-		  }
-		 filled=STRLEN(From_);	       /* leave the From_ line alone */
-	       }
-	      else	   /* move the read-ahead text beyond our From_ line */
-	       { tmemmove(themail+already,themail,i=r<=0?0:i>0?i+1:1);
-		 strcpy(themail,From_);		  /* insert From_ of our own */
-Frominserted:	 tmemmove(themail+STRLEN(From_),buf2,already-STRLEN(From_));
-		 filled=already+i;
-	       }
+	      i=0;
+	      if(r>0&&STRLEN(From_)<=(i=rread(	      /* is it a From_ line? */
+	       STDIN,(rstart=themail)+1,linebuf-2)+1)&&eqFrom_(themail))
+		 if(fromwhom||!privs)
+		    do				       /* discard From_ line */
+		       if(!i--&&(i=rread(STDIN,rstart=themail,linebuf-1)-1)<0)
+			{ i=0;break;
+			}
+		    while(*rstart++!='\n');
+		 else			       /* leave the From_ line alone */
+		  { already=0;goto leaveFrom;
+		  }	   /* move the read-ahead text beyond our From_ line */
+	      tmemmove(themail+already,rstart,i);strcpy(themail,From_);
+	      tmemmove(themail+STRLEN(From_),buf2,already-STRLEN(From_));
+leaveFrom:    filled=already+i;
 	    }
 	 }
 	readmail(0,0L);			      /* read in the mail completely */
