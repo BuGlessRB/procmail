@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.35 1994/08/24 17:27:07 berg Exp $
+.Id $Id: procmailex.man,v 1.36 1994/08/30 16:15:48 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -158,7 +158,7 @@ SHELL=/bin/sh    # for other shells, this might need adjustment
 
   :0 @CONTINUE@:                       # the lockfile is important
   * !? fgrep \-e "$FROM" $ALREADYSENT
-  | echo $FROM >>$ALREADYSENT; \e
+  | echo "$FROM" >>$ALREADYSENT; \e
     (formail \-@FM_REPLY@@FM_ADD_ALWAYS@"Precedence: junk" \e
        \-@FM_ADD_ALWAYS@"X-Loop: your@own.mail.address" ; \e
      echo "I received your mail,"; \e

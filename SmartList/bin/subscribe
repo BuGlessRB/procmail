@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands
-#$Id: subscribe,v 1.26 1994/08/29 16:47:13 berg Exp $
+#$Id: subscribe,v 1.27 1994/08/30 16:15:43 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -41,7 +41,8 @@ address=`$formail -k -xSubject: |
   -e 's/^[^@]*sub[	 ]*'\
 '[^	 ]*[	 ]\([^	 ]*[-a-z0-9_][@!][a-z][^	 ]*\).*/\1/p' \
   -e 's/^[^@]*subscribe[	 ]*'\
-'[^	 ]*[	 ]\([^	 ]*[-a-z0-9_][@!][a-z][^	 ]*\).*/\1/p' `
+'[^	 ]*[	 ]\([^	 ]*[-a-z0-9_][@!][a-z][^	 ]*\).*/\1/p' |
+ $sed -e 's/^[^@!]*://' `
 
 for a in $address ""
 do
