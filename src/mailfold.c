@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.60 1994/10/20 18:14:31 berg Exp $";
+ "$Id: mailfold.c,v 1.61 1995/02/07 16:14:58 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -162,7 +162,7 @@ static int deliver(boxname,linkfolder)char*boxname,*linkfolder;
 makefile:
    { if(linkfolder)	  /* any leftovers?  Now is the time to display them */
 	concatenate(linkfolder),skipped(linkfolder);
-     tofile=strcmp(devnull,buf)?to_FOLDER:0;
+     tofile=strcmp(devnull,buf)?to_FOLDER:(rawnonl=1,0);
      return opena(boxname);
    }
   if(linkfolder)		    /* any additional directories specified? */
