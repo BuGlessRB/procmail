@@ -1,4 +1,4 @@
-$Id: Manual,v 1.17 1993/11/24 19:45:30 berg Exp $
+$Id: Manual,v 1.18 1993/12/08 17:33:27 berg Exp $
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
@@ -128,9 +128,9 @@ mail.
 The mailinglists can be customised in several ways:
 
 - For all the lists:
-	- Since all the lists share the same help.txt, subscibe.txt, rc.init,
-	  rc.submit and rc.request files (hardlinked), any change to them
-	  will affect all lists.
+	- Since all the lists initially share the same help.txt, subscibe.txt,
+	  unsubscribe.txt, rc.init, rc.submit and rc.request files
+	  (hardlinked), any change to them will affect all lists.
 	- Since all the lists have the .bin directory in their PATH, any
 	  change to one of the Bourne shell scripts in there will affect
 	  them all.
@@ -138,6 +138,9 @@ The mailinglists can be customised in several ways:
 	- Every list directory contains an "rc.custom" rcfile which can
 	  be edited to your hearts content to customise certain parameters
 	  for this list only.
+	- Small local customisations concerning the particular
+	  format for outgoing submissions (like adding a general signature
+	  or disclaimer), can be put in the optional "rc.out" rcfile.
 	- For graver customisation you can remove the hardlink (using
 	  .bin/delink for example) to any of the files in a list directory and
 	  provide that list with its own copy in order to edit that to taste.

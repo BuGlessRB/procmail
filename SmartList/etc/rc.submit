@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.35 1993/11/26 16:24:46 berg Exp $
+#$Id: rc.submit,v 1.36 1993/12/08 17:33:50 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -56,13 +56,24 @@ Precedence:.*junk)|^FROM_MAILER
      # Check if we need to autosubscribe anyone not on the dist list.
      #
 
-     :0 c
+     :0 cW
      * $$force_subscribe
      * !? formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 	   -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
 	    multigram -b1 -m -l$submit_threshold -x$listaddr -x$listreq dist
-     | sed -e '/^$/,/^-- $/ d' | formail -I "Subject: auto subscribe" | \
-	flist $list-request
+     {
+       LOCKFILE=tmp.lock
+
+       :0 whc
+       | formail -rt -xTo: >tmp.from
+
+       :0 W :dist.lock
+       | sed -e '/^$/,/^-- $/ d' | formail -I "Subject: auto subscribe" \
+	  >tmp.request; subscribe <tmp.request && test ! -z "$subscribe_log" \
+	   && echo "rc.submit: auto subscribed" >>$subscribe_log
+
+       LOCKFILE
+     }
 
      #
      # Check if this is a digested mailinglist.	 If yes, processing stops
@@ -104,11 +115,17 @@ Precedence:.*junk)|^FROM_MAILER
 
      :0 wfh
      | formail -b -IFrom\  -IReceived: -IReturn-Receipt-To: -IErrors-To: \
-	-iReturn-Path: -iX-Envelope-To: -iX-Envelope-From: \
+	-IX-Pmrqc: -iReturn-Path: -iX-Envelope-To: -iX-Envelope-From: \
 	-I"Precedence: list" -I"Resent-Sender: $listreq" \
 	-a"Resent-From: $listaddr" -A"X-Loop: $listaddr" \
 	-a"Subject: Unidentified subject!" -a "$reply_to" \
 	-a"X-Mailing-List: <$listaddr> $ARCHIVE"
+
+     #
+     # Any other local transformations can be done in rc.out
+     #
+
+     INCLUDERC=rc.out
 
      #
      # The following recipe will distribute the message to the subscribers.

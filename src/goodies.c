@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.22 1993/11/29 17:22:52 berg Exp $";
+ "$Id: goodies.c,v 1.23 1993/12/08 17:34:12 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -168,25 +168,36 @@ escaped:      *p++=i;
 		 if(numeric(*buf2)&&buf2[1])
 		    goto badsub;
 		 switch(i)
-		  { case ':':
-		       if(fgetc()!='-')
-		    default:
-badsub:			{ nlog("Bad substitution of");logqnl(buf2);continue;
+		  { default:goto badsub;
+		    case ':':
+		       switch(i=fgetc())
+badsub:			{ default:nlog("Bad substitution of");logqnl(buf2);
+			     continue;
+			  case'-':
+			     if(startb&&*startb)
+				goto noalt;
+			     goto doalt;
+			  case '+':
+			     if(startb&&*startb)
+				goto doalt;
+			     startb=0;
 			}
-		       if(!startb||!*startb)
+		    case '+':
+		       if(startb)
 			  goto doalt;
+		       goto noalt;
 		    case '-':
-		       if(!startb)
-doalt:			  startb=p;
+		       if(startb)
+noalt:			  skiprc++;
 		       else
-			  skiprc++;
+doalt:			  startb=p;
 		       ;{ const char*sall_args;
 			  sall_args=All_args;readparse(p,sgetc,3);
 			  if(!All_args)	       /* only one can be remembered */
 			     All_args=sall_args;	    /* this is a bug */
 			}
-			if(startb!=p)
-			   skiprc--;
+		       if(startb!=p)
+			  skiprc--;
 		    case '}':
 		       if(!startb)
 			  startb="";

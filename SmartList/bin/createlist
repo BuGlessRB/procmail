@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.22 1993/10/29 16:42:04 berg Exp $
+#$Id: createlist,v 1.23 1993/12/08 17:33:40 berg Exp $
 
 defaults=.etc
 
@@ -123,7 +123,8 @@ then
 else $echo "createlist: \"$list\" already exists" 1>&2; exit $EX_USAGE
 fi
 cd "$list"
-for a in rc.submit rc.init rc.request help.txt subscribe.txt reject
+for a in rc.submit rc.init rc.request help.txt subscribe.txt unsubscribe.txt \
+ reject
 do
   $cat $DEVNULL >>../$defaults/$a		# to make sure it exists
   $ln ../$defaults/$a $a
@@ -142,13 +143,14 @@ $chmod ugo+r dist
 if $test $archiveserver = yes
 then
   $rmdir archive/latest
-  $rm -f dist subscribe.txt help.txt rc.submit rc.request
+  $rm -f dist subscribe.txt unsubscribe.txt help.txt rc.submit rc.request
   $cat >rc.submit <<HERE
 HOST=continue_with_rc.request
 HERE
   $ln ../$defaults/rc.archive rc.request
 else
   $ln dist accept
+  $touch rc.out
 fi
 
 cd ..
@@ -177,8 +179,8 @@ flist=$listdir/SedBinDir/flist
 
 $echo "Now make the following entries in your /usr/lib/aliases file:" 1>&2
 $echo \########################################################################
-$echo "$list: \"|IFS=' ';exec $flist $list\""
-$echo "$list-request: \"|IFS=' ';exec $flist $list-request\""
+$echo "$list: \"|exec $flist $list\""
+$echo "$list-request: \"|exec $flist $list-request\""
 $test $archiveserver = no && $echo "$list-dist: :include:$listdir/$list/dist"
 $echo \########################################################################
 $echo "And make sure to run newaliases afterwards." 1>&2

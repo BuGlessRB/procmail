@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.67 1993/11/24 19:46:07 berg Exp $
+#$Id: autoconf,v 1.68 1993/12/08 17:34:07 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -37,6 +37,8 @@
 #	#define NOrename
 #	#define NOsetrgid
 #	#define NOsetregid
+#	#define NOsetresgid
+#	#define NOpow
 #	#define NOmkdir
 #	#define NOuname
 #	#define NOstrstr
@@ -786,8 +788,8 @@ cat >_autotst.c <<HERE
 main(){char a[2];
  endpwent();endgrent();memmove(a,"0",1);bcopy("0",a,1);strcspn(a,"0");
  strtol("0",(char**)0,10);strchr("0",'0');strpbrk(a,"0");rename(a,"0");
- setrgid(0);setregid(0,0);opendir("0");initgroups("0",0);strstr("0","0");
- mkdir("0",0);
+ setrgid(0);setregid(0,0);setresgid(0,0,0);opendir("0");initgroups("0",0);
+ strstr("0","0");mkdir("0",0);pow(0.);
 #ifndef NOuname
  {struct utsname b;uname(&b);}
 #endif
@@ -799,7 +801,7 @@ main(){char a[2];
 HERE
 
 echo 'Testing for memmove, strchr, strpbrk, strcspn, strtol, strstr,'
-echo '	rename, setrgid, opendir & mkdir'
+echo '	rename, setrgid, pow, opendir & mkdir'
 if $MAKE _autotst.$O >$DEVNULL 2>&1
 then
 :
@@ -825,7 +827,9 @@ grepfor opendir "
 "
 grepfor rename '#define NOrename'
 grepfor setrgid '#define NOsetrgid' &&
- grepfor setregid '#define NOsetregid'
+ grepfor setregid '#define NOsetregid' &&
+  grepfor setresgid '#define NOsetresgid'
+grepfor pow '#define NOpow'
 grepfor mkdir '#define NOmkdir'
 grepfor strchr '#define strchr(s,c) index(s,c)'
 grepfor uname "\

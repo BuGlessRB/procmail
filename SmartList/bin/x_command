@@ -1,11 +1,13 @@
 #! /bin/sh
 :
-#$Id: x_command,v 1.10 1993/09/09 11:02:37 berg Exp $
+#$Id: x_command,v 1.11 1993/12/08 17:33:44 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
 cat=cat			# /bin/cat
+rm=rm			# /bin/rm
 formail=formail		# /usr/local/bin/formail
+lockfile=lockfile	# /usr/local/bin/lockfile
 subscribe=subscribe	# ../SedBinDir/subscribe
 unsubscribe=unsubscribe # ../SedBinDir/unsubscribe
 multigram=multigram	# ../SedBinDir/multigram
@@ -37,7 +39,9 @@ do
 	 $echo "$2" >$tmpfrom
 	 $test -z "$subscribe_log" ||
 	  $echo "x_command: subscribe" >>$subscribe_log
+	 $lockfile $dist.lock; trap "$rm -f $dist.lock;exit 1" 1 2 3 15
 	 $subscribe <$tmprequest | $SENDMAIL $sendmailOPT -t
+	 $rm -f $dist.lock; trap "" 1 2 3 15
 	 shift ;;
      _unsubscribe)
 	 $echo \
@@ -50,7 +54,9 @@ do
 	 $echo "$maintainer" "$2" >$tmpfrom
 	 $test -z "$subscribe_log" ||
 	  $echo "x_command: unsubscribe" >>$subscribe_log
+	 $lockfile $dist.lock; trap "$rm -f $dist.lock;exit 1" 1 2 3 15
 	 $unsubscribe <$tmprequest | $SENDMAIL $sendmailOPT `cat $tmpfrom`
+	 $rm -f $dist.lock; trap "" 1 2 3 15
 	 shift ;;
      _checkdist)
 	 $echo "Multigram checking the dist file for $2:"

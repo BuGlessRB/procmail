@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.22 1993/11/24 19:45:35 berg Exp $
+#$Id: arch_retrieve,v 1.23 1993/12/08 17:33:37 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -69,11 +69,11 @@ $wrongaddress"
 	    then
 	       while $test $# != 0
 	       do
-		  $echo $from "$1" >>$tmpfrom
 		  case "$1" in
 		     */../*|../*|*/..|..|[-/]*)
+			$echo $from ILLEGAL "$1" >>$tmpfrom
 			$test -z "$ILLEGAL" && ILLEGAL="$1";;
-		     *)
+		     *) $echo $from "$1" >>$tmpfrom
 		      ( $formail -rt -I"Subject: archive retrieval: $1" \
 			 -i"From: $listreq" -A"X-Loop: $listaddr" \
 			 -I"Precedence: bulk" <$tmprequest
@@ -107,7 +107,8 @@ $wrongaddress"
 	 LS|DIR|DIRECTORY|LIST|SHOW)
 	    shift
 	    case "$*" in
-	       *[/\ ]../*|../*|*/..|..|[-/]*|*\ /*)
+	       *[/\ ]..[/\ ]*|..[/\ ]*|*[/\ ]..|..|[-/]*|*\ /*)
+		  $echo $from ILLEGAL ls "$line" >>$tmpfrom
 		  $test -z "$ILLEGAL" && ILLEGAL="$line";;
 	       *)
 		  $echo $from ls "$line" >>$tmpfrom
@@ -125,12 +126,12 @@ Truncating after '$breakoff_ls' names...' -e ${breakoff_ls}q
 	    esac ;;
 	 search|grep|egrep|fgrep|find|\
 	 SEARCH|GREP|EGREP|FGREP|FIND)
-	    $echo $from "$line" >>$tmpfrom
 	    shift; regxp="$1"; shift
 	    case "$*" in
-	       *[/\ ]../*|../*|*/..|..|[-/]*|*\ /*)
+	       *[/\ ]..[/\ ]*|..[/\ ]*|*[/\ ]..|..|[-/]*|*\ /*)
+		  $echo $from ILLEGAL "$line" >>$tmpfrom
 		  $test -z "$ILLEGAL" && ILLEGAL="$line";;
-	       *)
+	       *) $echo $from "$line" >>$tmpfrom
 		( $formail -rt -I"Subject: archive retrieval: $line" \
 		   -i"From: $listreq" -A"X-Loop: $listaddr" \
 		   -I"Precedence: bulk" <$tmprequest

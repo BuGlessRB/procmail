@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: unsubscribe,v 1.18 1993/11/24 19:45:43 berg Exp $
+#$Id: unsubscribe,v 1.19 1993/12/08 17:33:42 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -15,6 +15,7 @@ $test -z "$listaddr" &&
 
 tmprequest=tmp.request
 tmpfrom=tmp.from
+unsubscribetxt=unsubscribe.txt
 dist=dist
 
 case "$X_ENVELOPE_TO" in
@@ -58,11 +59,6 @@ fi
 $echo "$fromaddr" >>$tmpfrom
 
 $echo ""
-$echo "If this wasn't your intention, reply to this mail now (quoting it"
-$echo "entirely (for diagnostic purposes), and of course adding any"
-$echo "comments you see fit)."
-$echo ""
-$echo "Transcript of unsubscription request follows:"
-$echo "-- "
+$cat $unsubscribetxt
 
 $sed -e 's/^\(.\)/>\1/' $tmprequest

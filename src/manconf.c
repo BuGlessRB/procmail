@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.26 1993/10/29 17:08:11 berg Exp $*/
+/*$Id: manconf.c,v 1.27 1993/12/08 17:34:16 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -258,5 +258,10 @@ See also:\1.BR DROPPRIVS .":"");
   ps("PM_MAILINGLIST",skltmark(2,&p));
   ps("PM_MAILINGLISTR",skltmark(2,&p));
   ps("BINDIR",BINDIR);
+#ifdef NOpow
+  pc("POW",'1');
+#else
+  pc("POW",'x');
+#endif
   return EX_OK;
 }

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.55 1993/11/29 17:23:00 berg Exp $";
+ "$Id: procmail.c,v 1.56 1993/12/08 17:34:26 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -32,7 +32,7 @@ static /*const*/char rcsid[]=
 static const char fdefault[]="DEFAULT",orgmail[]="ORGMAIL",*const nullp,
  sendmail[]="SENDMAIL",From_[]=FROM,exflags[]=RECFLAGS,drcfile[]="Rcfile:",
  systm_mbox[]=SYSTEM_MBOX,pmusage[]=PM_USAGE,DEFdeflock[]=DEFdefaultlock,
- *etcrc=ETCRC;
+ *etcrc=ETCRC,misrecpt[]="Missing recipient\n";
 char*buf,*buf2,*loclock,*tolock;
 const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
  shellmetas[]="SHELLMETAS",lockext[]="LOCKEXT",newline[]="\n",binsh[]=BinSh,
@@ -90,7 +90,7 @@ setarg:		       *argv1=chp2;restargv=argv1;crestarg=1;
 		  }
 		 case DELIVEROPT:
 		    if(!*(chp= ++chp2)&&!(chp=(char*)argv[++argc]))
-		     { nlog("Missing recipient\n");break;
+		     { nlog(misrecpt);break;
 		     }
 		    else
 		     { Deliverymode=1;goto last_option;
@@ -106,6 +106,8 @@ setarg:		       *argv1=chp2;restargv=argv1;crestarg=1;
 	      break;
 	    }
       }
+     if(Deliverymode&&!(chp=chp2))
+	nlog(misrecpt),Deliverymode=0;
 last_option:
      if(mailfilter)
       { if(Deliverymode)				 /* -d supersedes -m */
@@ -244,7 +246,7 @@ leaveFrom:    filled=already+i;
 	 { if(!(pass=getpwnam(chp2)))
 	    { nlog("Unknown user");logqnl(chp2);return EX_NOUSER;
 	    }
-	   if(euid==ROOT_uid)
+	   if(euid==ROOT_uid||euid==pass->pw_uid)
 	      goto Setuser;
 QSetuser:  if(passinvk&&passinvk->pw_uid==pass->pw_uid)
 	      goto Setuser;
@@ -297,7 +299,9 @@ Setuser: { gid=pass->pw_gid;uid=pass->pw_uid;
 		stbuf.st_gid==getegid()||
 	       (rcstate=rc_NOSGID,0))&&
 	      (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH))==(S_IWGRP|S_IXGRP))
-	    { umask(INIT_UMASK&~S_IRWXG);goto keepgid;	  /* group-writeable */
+	    { if(!Deliverymode)		     /* we aren't the only deliverer */
+		 umask(INIT_UMASK&~S_IRWXG);	  /* make it group-writeable */
+	      goto keepgid;
 	    }
 	   else if(stbuf.st_mode&S_ISGID)
 keepgid:      sgid=stbuf.st_gid;   /* keep the gid from the parent directory */
@@ -614,7 +618,8 @@ jinregs:			   regsp=regs;	/* start over and look again */
 					igncase)))
 				       { score+=weight;weight*=xponent;
 					 ;{ double nweight;
-					    if((nweight=weight*weight)<oweight						     &&oweight<1)
+					    if((nweight=weight*weight)<oweight
+					       &&oweight<1)
 					       break;
 					  }
 					 if(chp==chp2)
@@ -670,7 +675,7 @@ copyrest:		     strcpy(buf,chp2);continue;
 				   f=(double)filled/pivot;
 				else
 				   goto plusinfty;
-				score+=weight*pow(f,xponent);
+				score+=weight*tpow(f,xponent);
 			      }
 			     else if(!((*buf=='<'?
 					 filled<pivot:

@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.32 1993/11/29 17:22:30 berg Exp $
+#$Id: install.sh,v 1.33 1993/12/08 17:33:31 berg Exp $
 
 SHELL=/bin/sh
 export SHELL
@@ -25,6 +25,8 @@ then
      ""|*procmail:*)
 	 echo \
 	"Please make sure that the new version of procmail has been installed"
+	 echo \
+       'If you already have, make sure that "console" is undefined in config.h'
 	 exit 64 ;;
   esac
 else
@@ -128,7 +130,8 @@ echo '**********************************************************************'
 echo "Finished installing, now you should"
 if test -f $target/.etc/rc.init.new
 then
-  echo "edit $target/.etc/rc.init.new, AND move it over the"
+  echo "edit $target/.etc/rc.init.new,"
+  echo "AND *cat* (preserving hardlinks) it into the"
   echo "old $target/.etc/rc.init to make sure"
 else
   echo "edit $target/.etc/rc.init to make sure"

@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.30 1993/11/29 17:22:56 berg Exp $*/
+/*$Id: includes.h,v 1.31 1993/12/08 17:34:14 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -24,7 +24,7 @@
 #include <unistd.h>		/* open() read() write() close() dup() pipe()
 				/* fork() getuid() getgid() getpid() execve()
 				   execvp() sleep() setuid() setgid()
-				   setrgid() chown() */
+				   setruid() setrgid() chown() */
 #else
 #undef UNISTD_H_MISSING
 #endif
@@ -326,12 +326,26 @@ extern void*memmove();
 
 #ifdef NOsetrgid
 #undef NOsetrgid
-#ifdef NOsetregid
-#undef NOsetregid
-#define setrgid(gid)	(-1)
-#else
+#ifndef NOsetregid
 #define setrgid(gid)	setregid(gid,-1)
+#define setruid(uid)	setreuid(uid,-1)
+#else
+#undef NOsetregid
+#ifndef NOsetresgid
+#define setrgid(gid)	setresgid(gid,-1,-1)
+#define setruid(uid)	setresuid(uid,-1,-1)
+#else
+#undef NOsetresgid
+#define setrgid(gid)	(-1)
+#define setruid(uid)	(-1)
 #endif
+#endif
+#endif
+
+#ifdef NOpow
+#define tpow(x,y)	(x)
+#else
+#define tpow(x,y)	pow(x,y)
 #endif
 
 #ifdef NOmkdir

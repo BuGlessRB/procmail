@@ -1,4 +1,4 @@
-.Id $Id: procmailsc.man,v 1.2 1993/11/29 17:22:46 berg Exp $
+.Id $Id: procmailsc.man,v 1.3 1993/12/08 17:34:00 berg Exp $
 .TH PROCMAILSC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -101,7 +101,7 @@ then:
 .Ex
 will generate an additional score of:
 .Sx 4
-           x
+           @POW@
     /  M  \e
 w * | --- |
     \e  L  /
@@ -112,7 +112,7 @@ And:
 .Ex
 will generate an additional score of:
 .Sx 4
-           x
+           @POW@
     /  L  \e
 w * | --- |
     \e  M  /

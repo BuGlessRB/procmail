@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.42 1993/10/29 16:41:56 berg Exp $
+#$Id: initmake,v 1.43 1993/12/08 17:33:23 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -169,13 +169,13 @@ $cc $CFLAGS1 $CFLAGS _autotst.$O -o _autotst $LDFLAGS1 -lc >_autotst.rrr 2>&1 \
 
 LDFLAGS="$SEARCHLIBS"
 firstrun=yes
+checkpath=no
 
 while $RM _autotst
  $cc $CFLAGS1 $CFLAGS _autotst.$O -o _autotst $LDFLAGS1 $LDFLAGS \
   $LDFLAGSC >_autotst.rrr 2>&1
  test $firstrun = yes -o ! -f _autotst
 do
-  firstrun=no
   set dummy $LDFLAGS
   shift
   echo 2>&1 "	...scanning for $# libraries..."
@@ -185,41 +185,58 @@ do
      if test dummy != $a
      then
 	lib=`expr $a : '-l\(.*\)'`
-	if $FGREP lib$lib _autotst.rrr >$DEVNULL ||
-	 $FGREP -e $a _autotst.rrr >$DEVNULL ||
-	 grep "[\"']$lib['\"]" _autotst.rrr >$DEVNULL
-	then
-	:
-	else
-	   OLDIFS="$IFS"; IFS=":$IFS"
-	   found=no
-	   for libpath in $LIBPATHS $LD_LIBRARY_PATH
+	if <_autotst.rrr (
+	   while read b
 	   do
-	      set $libpath/*lib$lib[A-Z.]*
-	      test -f $1 && found=yes
+	      case "X$bX" in
+		 *lib$lib[!a-z]z*|*$a[!a-z]*|*[!a-z]$lib[!a-z]*) exit 1;;
+	      esac
 	   done
-	   IFS="$OLDIFS"
+	   exit 0
+	 )
+	then
+	   found=yes
+	   if test $checkpath = yes
+	   then
+	      OLDIFS="$IFS"; IFS=":$IFS"
+	      found=no
+	      for libpath in $LIBPATHS $LD_LIBRARY_PATH
+	      do
+		 set $libpath/*lib$lib[A-Z.]*
+		 test -f $1 && found=yes
+	      done
+	      IFS="$OLDIFS"
+	   fi
 	   test yes = $found && NEWLDFLAGS="$NEWLDFLAGS $a"
 	fi
      fi
   done
   if test a"$LDFLAGS" = a"$NEWLDFLAGS"
   then
-     echo 2>&1 "Whoeaaa!  There's something fishy going on here."
-     echo 2>&1 "You have a look and see if you detect anything uncanny:"
-     echo 2>&1 "-------------------------------------------------------"
-     cat 2>&1 _autotst.rrr
-     echo 2>&1 "-------------------------------------------------------"
-     echo 2>&1 \
+     if test $checkpath = yes
+     then
+	echo 2>&1 "Whoeaaa!  There's something fishy going on here."
+	echo 2>&1 "You have a look and see if you detect anything uncanny:"
+	echo 2>&1 "*******************************************************"
+	cat 2>&1 _autotst.rrr
+	echo 2>&1 "*******************************************************"
+	echo 2>&1 \
        "I suggest you take a look at the definition of LDFLAGS* and SEARCHLIBS"
-     echo 2>&1 "in the Makefile before you try make again."
-     echo 2>&1 "Also: write me a mail showing the errorlog you just generated."
-     echo 2>&1 "The errorlog can still be found in src/_autotst.rrr"
-     echo 2>&1 "It would be helpful if you could mention what machine and OS"
-     echo 2>&1 "you are trying to compile this on (uname -a).  Thanks."
-     exit 1
+	echo 2>&1 "in the Makefile before you try make again."
+	echo 2>&1 \
+	 "Also: write me a mail showing the errorlog you just generated."
+	echo 2>&1 "The errorlog can still be found in src/_autotst.rrr"
+	echo 2>&1 \
+	 "It would be helpful if you could mention what machine and OS"
+	echo 2>&1 "you are trying to compile this on (uname -a).  Thanks."
+	exit 1
+     fi
+     checkpath=yes
+  else
+     checkpath=no
   fi
   LDFLAGS="$NEWLDFLAGS"
+  firstrun=no
 done
 
 $RM _autotst.$O _autotst.c _autotst

@@ -37,13 +37,16 @@
 #		the various info.txt files are optionally gathered in
 #		order to advertise the availability of the mailinglists
 # subscribe.txt file sent to new subscribers
+# unsubscribe.txt file sent to unsubscribers
 # accept.txt	file sent to people not on the accept list
 # bounces	directory containing the bounce history files
 # rc.submit	rcfile used when distributing submissions
 # rc.request	rcfile used when processing requests
 # rc.custom	rcfile that contains all the customisations per list
+# rc.out	optional rcfile for any local transformations on outgoing
+#		submissions
 
-#$Id: rc.init,v 1.23 1993/11/24 19:45:50 berg Exp $
+#$Id: rc.init,v 1.24 1993/12/08 17:33:47 berg Exp $
 
 PATH=.:$PATH:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises

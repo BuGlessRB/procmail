@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.36 1993/11/26 16:25:11 berg Exp $";
+ "$Id: multigram.c,v 1.37 1993/12/08 17:34:22 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/11/26 16:25:11 $";
+static /*const*/char rcsdate[]="$Date: 1993/12/08 17:34:22 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -245,7 +245,9 @@ main(minweight,argv)char*argv[];
 	  /*
 	   *	we weren't root, so try to get the uid of the .etc directory
 	   */
-	   setgid(stbuf.st_gid),setuid(stbuf.st_uid);
+	 { setrgid(stbuf.st_gid);setgid(stbuf.st_gid);setruid(stbuf.st_uid);
+	   setuid(stbuf.st_uid);
+	 }
 	if(chdir(arg))			     /* goto the list's subdirectory */
 	   pmexec[1]=RCMAIN,Endpmexec(2)=0,chdir(defdir);
 	Endpmexec(5)=INIT_PATH;
@@ -558,7 +560,7 @@ dupl_addr:;
 	   printf("%s\n",strcmp(mp->hard+strlen(mp->hard)+1,NOT_METOO)
 	    ?metoo_SENDMAIL:nometoo_SENDMAIL);
 	else
-	   printf("%3ld %-34s %5d %-34s\n",
+	   printf("%3ld %-34s %5d %s\n",
 	    charoffs?mp->offs1:mp->lentry,mp->hard,mp->metric,mp->fuzz);
      if((mp= *best)->metric>=minweight)
       { struct match*worse;
