@@ -135,7 +135,7 @@ For example:
 	usually is a rule there that takes care of local delivery, something
 	like:
 		R$+			$#local $:$1		local names
-	Don't change that rule, leave it there.	 But, right before this
+	Don't change that rule, leave it there.	 But, right BEFORE this
 	rule, create a new one similar to:
 		R$++$*			$#local $@$2 $:$1	local argument
 

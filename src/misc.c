@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.56 1994/07/26 17:35:33 berg Exp $";
+ "$Id: misc.c,v 1.57 1994/08/02 17:41:26 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -400,7 +400,11 @@ void asenv(chp)const char*const chp;
    }
   else if(!strcmp(buf,dropprivs))			  /* drop privileges */
    { if(renvint(0L,chp))
-	setids();
+      { unsigned saveverbose;
+	if(saveverbose=verbose)
+	   nlog("Assuming identity of the recipient\n");
+	setids(),verbose=saveverbose;
+      }
    }
   else if(!strcmp(buf,sdelivered))			    /* fake delivery */
    { if(renvint(0L,chp))				    /* is it really? */

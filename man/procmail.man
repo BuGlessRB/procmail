@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.54 1994/08/02 14:31:27 berg Exp $
+.Id $Id: procmail.man,v 1.55 1994/08/02 17:41:16 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -101,7 +101,8 @@ Equivalent to a
 .SH OPTIONS
 .TP 0.5i
 .B \-@VERSIONOPT@
-Procmail will print its version number and exit.
+Procmail will print its version number, display its compile time
+configuration and exit.
 .TP
 .B \-@PRESERVOPT@
 Preserve any old environment.  Normally procmail clears the environment
@@ -237,7 +238,9 @@ be creating an endless mail loop.
 to set the recipient's LOGNAME, HOME and SHELL variable defaults
 .TP
 .B @SYSTEM_MBOX@
-system mailbox@ETCRC_files@@ETCRCS_files@
+system mailbox; both the system mailbox and the immediate directory
+it is in will be created everytime procmail starts and either one is
+not present@ETCRC_files@@ETCRCS_files@
 .TP
 .B $HOME/@PROCMAILRC@
 default rcfile
@@ -450,6 +453,9 @@ Procmail now tries to kernel-lock the most recently opened file(descriptor).
 .TP
 Assigning "x"
 Environment variable assignment.
+.TP
+Assuming identity of the recipient
+Dropping all privileges (if any).
 .TP
 Bypassed locking "x"
 The mail spool directory was not accessible to procmail, it relied solely

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.52 1994/08/02 14:31:39 berg Exp $";
+ "$Id: mailfold.c,v 1.53 1994/08/02 17:41:24 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -341,13 +341,17 @@ eofheader:
   if((chp=thebody)>themail)
      chp--;
   if(contlengthoffset)
-   { unsigned places;long cntlen,actcntlen;		 /* no safety margin */
+   { unsigned places;long cntlen,actcntlen;charNUM(num,cntlen);
      chp=themail+contlengthoffset;cntlen=filled-(thebody-themail);
      if(filled>1&&themail[filled-2]=='\n')		 /* no phantom '\n'? */
 	cntlen--;		     /* make sure it points to the last '\n' */
-     for(actcntlen=places=0;;*chp++='9',places++,actcntlen=actcntlen*10+9)
+     for(actcntlen=places=0;;)
       { switch(*chp)
 	 { default:					/* fill'r up, please */
+	      if(places<=sizeof num-2)
+		 *chp++='9',places++,actcntlen=(unsigned long)actcntlen*10+9;
+	      else
+		 *chp++=' ';		 /* ultra long Content-Length: field */
 	      continue;
 	   case '\n':case '\0':;		      /* ok, end of the line */
 	 }
@@ -355,12 +359,10 @@ eofheader:
       }
      if(cntlen<=0)			       /* any Content-Length at all? */
 	cntlen=0;
-     ;{ charNUM(num,cntlen);
-	ultstr(places,cntlen,num);		       /* our preferred size */
-	if(!num[places])	       /* does it fit in the existing space? */
-	   tmemmove(chp-(int)places,num,places),actcntlen=cntlen;     /* yup */
-	chp=thebody+actcntlen;		  /* skip the actual no we specified */
-      }
+     ultstr(places,cntlen,num);			       /* our preferred size */
+     if(!num[places])		       /* does it fit in the existing space? */
+	tmemmove(themail+contlengthoffset,num,places),actcntlen=cntlen;
+     chp=thebody+actcntlen;		  /* skip the actual no we specified */
    }
   ffrom(chp);mailread=1;	  /* eradicate From_ in the rest of the body */
 }

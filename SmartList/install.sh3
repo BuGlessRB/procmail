@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh3  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh3		  # we're in a buggy zsh
-#$Id: install.sh3,v 1.41 1994/07/20 17:33:21 berg Exp $
+#$Id: install.sh3,v 1.42 1994/08/02 17:41:09 berg Exp $
 
 umask 022
 
@@ -102,7 +102,7 @@ do
   then
      echo "*****************************************************************"
      echo "$target/$bindir/$a already exists, replace it? [y]"
-     read b
+     read b <&4
      case "X$b" in
 	X[yY]|X) echo "Replacing old $a."
 	   rm -f "$target/$bindir/$a" ;;
@@ -132,16 +132,30 @@ do
      if test "X$a" = "Xrc.init"
      then
 	if test -f "$b.dist" &&
-	 ( exec 2>/dev/null >"$b.dif"
-	   diff -au "$b.dist" "$b" || diff -c "$b.dist" "$b" || exit 1
+	 ( exec 2>/dev/null
+	   if diff >/dev/null; test $? = 2
+	   then
+	      diff -au "$b.dist" "$b" >"$b.dif"
+	      test "$?" = 0 -o "$?" = 1 && exit 0
+	      diff -c "$b.dist" "$b" >"$b.dif"
+	      test "$?" = 0 -o "$?" = 1 && exit 0
+	   fi
+	   exit 1
 	 )
 	then
 	   echo "Diffing $b.dist $b"
+	   rm -f $b.dist
+	   cp $b.new $b.dist
 	   echo "Patching $b.new to match $b"
 	   patch -s "$b.new" <"$b.dif" ||
 	    echo "Patch failed (partially perhaps, look for a .rej file)"
+	   diff "$b" "$b.new" >/dev/null &&
+	    echo "The patched $b.new and existing
+	$b appear to be identical now."
+	else
+	   rm -f $b.dist
+	   cp $b.new $b.dist
 	fi
-	cp $b.new $b.dist
 	chmod 0440 $b.dist
      fi
   fi

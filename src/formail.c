@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.57 1994/08/02 14:31:33 berg Exp $";
+ "$Id: formail.c,v 1.58 1994/08/02 17:41:21 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/08/02 14:31:33 $";
+static /*const*/char rcsdate[]="$Date: 1994/08/02 17:41:21 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -374,7 +374,7 @@ xusg:
 	     keepb&&			    /* if we're keeping the body and */
 	      (areply||					     /* autoreplying */
 	       Xheader&&			    /* or eXtracting without */
-	       !findf(fcntlength,&Xheader)));	  /* getting Content-Length: */
+	       !findf(fcntlength,&Xheader));	  /* getting Content-Length: */
   if(areply)					       /* when auto-replying */
      addfield(&iheader,xloop,STRLEN(xloop));	  /* preserve X-Loop: fields */
   if(babyl)						/* skip BABYL leader */

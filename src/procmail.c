@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.89 1994/08/02 14:31:45 berg Exp $";
+ "$Id: procmail.c,v 1.90 1994/08/02 17:41:30 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -94,7 +94,7 @@ main(argc,argv)const char*const argv[];
 		    elog(", lockf()");
 #endif
 #ifdef USEflock
-		    elog(", flock()"):
+		    elog(", flock()");
 #endif
 		    elog(newline);
 		    return EXIT_SUCCESS;
@@ -461,6 +461,8 @@ Setuser: { gid=pass->pw_gid;uid=pass->pw_uid;
 	   else if(stbuf.st_mode&S_ISGID)
 keepgid:      sgid=stbuf.st_gid;   /* keep the gid from the parent directory */
 	 }
+	else			/* panic, mail-spool directory not available */
+	   setids(),mkdir(buf,NORMdirperm);  /* try creating the last member */
        /*
 	*	check if the default-mailbox-lockfile is owned by the
 	*	recipient, if not, mark it for further investigation, it
