@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands
-#$Id: subscribe,v 1.25 1994/06/08 18:38:39 berg Exp $
+#$Id: subscribe,v 1.26 1994/08/29 16:47:13 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -29,16 +29,18 @@ case "$X_ENVELOPE_TO" in
 esac
 
 subscraddr=""
+fromaddr=`$cat $tmpfrom`
 
 address=`$formail -k -xSubject: |
  $sed -n -e 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/' \
-  -e 's/^.*add[	 ]*'\
+  -e '/^[	 ]*[^a-z]/ q' \
+  -e 's/^[^@]*add[	 ]*'\
 '[^	 ]*[	 ]\([^	 ]*[-a-z0-9_][@!][a-z][^	 ]*\).*/\1/p' \
-  -e 's/^.*address[	 ]*'\
+  -e 's/^[^@]*address[	 ]*'\
 '[^	 ]*[	 ]\([^	 ]*[-a-z0-9_][@!][a-z][^	 ]*\).*/\1/p' \
-  -e 's/^.*sub[	 ]*'\
+  -e 's/^[^@]*sub[	 ]*'\
 '[^	 ]*[	 ]\([^	 ]*[-a-z0-9_][@!][a-z][^	 ]*\).*/\1/p' \
-  -e 's/^.*subscribe[	 ]*'\
+  -e 's/^[^@]*subscribe[	 ]*'\
 '[^	 ]*[	 ]\([^	 ]*[-a-z0-9_][@!][a-z][^	 ]*\).*/\1/p' `
 
 for a in $address ""
@@ -46,25 +48,25 @@ do
   if $test -z "$subscraddr"
   then
      case $a in
-      $listreq|$listaddr) ;;
-      *) subscraddr=$a ;;
+	$listreq|$listaddr) ;;
+	?*) subscraddr=$a
+	   $echo " $subscraddr" >$tmpfrom ;;
      esac
   fi
 done
 
-if $test -z "$subscraddr"
-then
-  address=`$formail -k -xSubject: <$tmprequest |
-   $multigram -b1 -x$listreq -x$listaddr -l$off_threshold $tmpfrom |
-   $sed -e 's/^ *[^ ]* *[^ ]* *[^ ]* *\([^ ]*\)/\1/' `
+subscraddr=""	# let multigram eliminate trailing and leading punctuation
 
-  for a in $address ""
-  do
-     $test -z "$subscraddr" && subscraddr=$a
-  done
+address=`$formail -k -xSubject: <$tmprequest |
+ $multigram -b1 -x$listreq -x$listaddr -l$off_threshold $tmpfrom |
+ $sed -e 's/^ *[^ ]* *[^ ]* *[^ ]* *\([^ ]*\)/\1/' `
 
-  $test -z "$subscraddr" && subscraddr=`$cat $tmpfrom`
-fi
+for a in $address ""
+do
+  $test -z "$subscraddr" && subscraddr=$a
+done
+
+$test -z "$subscraddr" && subscraddr=$fromaddr
 
 if $test -f subscreen
 then

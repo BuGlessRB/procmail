@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.95 1994/08/23 17:53:36 berg Exp $";
+ "$Id: procmail.c,v 1.96 1994/08/29 16:47:22 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -397,8 +397,8 @@ nospecial:	     { static const char densppr[]=
 		       nlog(densppr);logqnl(rcfile);
 		       syslog(LOG_ALERT,slogstr,densppr,rcfile);
 		     }
-		    else
-		       passinvk= &spassinvk;	    /* no security violation */
+		    else			    /* no security violation */
+		       mailfilter=2,passinvk= &spassinvk;
 		  }				      /* accept new identity */
 	       }
 #endif
@@ -610,8 +610,9 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 		 *buf='\0';		/* do not put anything in front then */
 	      else		     /* prepend default procmailrc directory */
 		 lastdirsep(pmrc2buf())[1]='\0';
-	      if(stat(strcat(buf,rcfile),&stbuf)?	      /* accessible? */
-	       rcstate==rc_NOSGID:stbuf.st_mode&S_IRUSR)  /* owner-readable? */
+	      if(mailfilter!=2&&			 /* nothing special? */
+		 stat(strcat(buf,rcfile),&stbuf)?	      /* accessible? */
+		  rcstate==rc_NOSGID:stbuf.st_mode&S_IRUSR)	/* readable? */
 		 setids();				/* then transmogrify */
 	    }
 	   while(0>bopen(buf));			   /* try opening the rcfile */

@@ -149,6 +149,8 @@
 	    Some new example files in the example directory
 	    Insert some appropriate Reply-To's in the archive server, in order
 	       to prevent people from replying to archive server mails
-	    Typo fixed in rc.init
+	    Typo fixed in comments in rc.init
 	    Return the body of the mail as well if the person was not
 	       on the accept list
+	    Improved fuzzy search for explicit mail addresses in the
+	       subscription request
