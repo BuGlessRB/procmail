@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.5 2000/11/18 06:49:06 guenther Exp $";
+ "$Id: variables.c,v 1.6 2000/11/21 08:29:07 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -191,8 +191,7 @@ void initdefenv(pass,fallback,do_presets)auth_identity*pass;
      sputenv(lastfolder);
      sputenv(exitcode);
      for(pp=prestenv;*pp;pp++)			     /* non-standard presets */
-	if(!eputenv(*pp,buf))
-	   setoverflow();
+	eputenv(*pp,buf);
    }
 }
 
