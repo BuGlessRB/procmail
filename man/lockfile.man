@@ -1,4 +1,4 @@
-.Id $Id: lockfile.man,v 1.4 1992/10/20 15:34:47 berg Exp $
+.Id $Id: lockfile.man,v 1.5 1992/11/09 18:30:38 berg Exp $
 .TH LOCKFILE 1 \*(Dt BuGless
 .SH NAME
 .na
@@ -113,11 +113,13 @@ will not be taken from the environment, but will be determined by looking
 in /etc/passwd
 .Sh "SEE ALSO"
 .na
+.nh
 .BR rm (1),
 .BR mail (1),
 .BR binmail (1),
 .BR sendmail (8),
 .BR procmail (1)
+.hy
 .ad
 .Sh DIAGNOSTICS
 .Tp 2.3i

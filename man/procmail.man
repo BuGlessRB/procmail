@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.7 1992/11/03 14:43:38 berg Exp $
+.Id $Id: procmail.man,v 1.8 1992/11/09 18:30:40 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .SH NAME
 .na
@@ -148,6 +148,7 @@ default mail forwarder
 temporary `unique' zero-length files created by procmail
 .Sh "SEE ALSO"
 .na
+.nh
 .BR procmailrc (5),
 .BR procmailex (5),
 .BR sh (1),
@@ -165,6 +166,7 @@ temporary `unique' zero-length files created by procmail
 .BR lockfile (1),
 .BR formail (1),
 .BR cron (1)
+.hy
 .ad
 .Sh DIAGNOSTICS
 .Tp 2.3i
@@ -409,10 +411,7 @@ Procmail is NFS-resistant and eight-bit clean.
 Calling up procmail with the \-+HELPOPT1+ or \-+HELPOPT2+ options will cause
 it to display a command-line help and recipe flag quick-reference page.
 .PP
-If procmail is
-.I not
-installed globally as the default mail delivery agent (ask your system
-administrator), you have to make sure it is invoked when your mail arrives.
++CF_procmail+
 In this case your $HOME/+DOT_FORWARD+ (beware, it
 .B has
 to be world readable) file should contain the line below.  Be sure to include

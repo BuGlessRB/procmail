@@ -7,9 +7,9 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: formail.c,v 1.5 1992/10/28 17:23:36 berg Exp $";
+static char rcsid[]="$Id: formail.c,v 1.6 1992/11/09 18:30:57 berg Exp $";
 #endif
-static char rcsdate[]="$Date: 1992/10/28 17:23:36 $";
+static char rcsdate[]="$Date: 1992/11/09 18:30:57 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -348,7 +348,7 @@ foundfrom:
   lnl=1;					  /* last line was a newline */
   if(buffilled==1)		   /* the header really ended with a newline */
      buffilled=0;	      /* throw it away, since we already inserted it */
-  do					 /* continue the quest, line by line */
+  while(buffilled||!lnl||buflast!=EOF)	 /* continue the quest, line by line */
    { if(!buffilled)				      /* is it really empty? */
 	readhead();				      /* read the next field */
      if(rdheader)		    /* anything looking like a header found? */
@@ -421,7 +421,6 @@ putsp:	lputcs(' ');
      else
 flbuf:	lputssn(buf,buffilled),buffilled=0;
    }			       /* make sure the mail ends with an empty line */
-  while(buffilled||!lnl||buflast!=EOF);
   logfolder();closemine();child= -1;waitforit();	/* wait for everyone */
   return split<0?EX_IOERR:EX_OK;
 }

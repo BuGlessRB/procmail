@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.5 1992/11/03 14:09:17 berg Exp $
+#$Id: Makefile.1,v 1.6 1992/11/09 18:30:23 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -36,13 +36,17 @@ recommend: src/Makefile
 	@cd src; $(MAKE) $@ >$(DEVNULL)
 	@echo ----------------------------------------------------------------\
 ---------------
-	@echo If you are a system administrator you should consider \
-integrating procmail
-	@echo into the mail-delivery system -- for advanced functionality \
-AND SECURITY --.
-	@echo For more information about this topic you should look in the \
-examples/advanced
-	@echo file.
+	@if $(FGREP) CF_no_procmail_yet autoconf.h >$(DEVNULL); \
+	 then echo If you are a system administrator you should consider \
+integrating procmail; echo into the mail-delivery system -- for advanced \
+functionality AND SECURITY --.; echo For more information about this topic \
+you should look in the examples/advanced; echo file.; elif \
+	 grep 'Mlocal.*procmail.*F=[a-zA-Z]*u' /usr/lib/sendmail.cf \
+	 /etc/sendmail.cf >$(DEVNULL) 2>&1; then echo The recommendation for \
+the sendmail.cf entry of procmail has changed.; echo I suggest you remove \
+the u-flag 'like in:';	sed -n 's/.*\(Mlocal.*procmail.*F=[a-zA-Z]*\)u/\1/p' \
+	 `if test -f /etc/sendmail.cf; then echo /etc/sendmail.cf; else \
+	 echo /usr/lib/sendmail.cf; fi`; fi
 	@echo
 	@echo "Also, HIGHLY RECOMMENDED (type 'make suid' to execute it):"
 	@echo

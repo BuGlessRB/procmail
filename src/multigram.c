@@ -10,9 +10,9 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: multigram.c,v 1.3 1992/10/28 17:23:57 berg Exp $";
+static char rcsid[]="$Id: multigram.c,v 1.4 1992/11/09 18:31:04 berg Exp $";
 #endif
-static char rcsdate[]="$Date: 1992/10/28 17:23:57 $";
+static char rcsdate[]="$Date: 1992/11/09 18:31:04 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -70,12 +70,12 @@ void nlog(a)const char*const a;
 }
 
 main(minweight,argv)const char*argv[];
-{ struct string fuzzstr,hardstr;FILE*hardfile;
+{ struct string fuzzstr,hardstr;FILE*hardfile;const char*addit;
   struct match{char*fuzz,*hard;int metric;long lentry,offs1,offs2;}
    **best,*curmatch=0;
   unsigned best_matches,maxgram,maxweight,charoffs=0,remov=0,renam=0;
   static const char usage[]=
-   "Usage: addresses [-cdr] [-b nnn] [-l nnn] [-w nnn] filename\n";
+  "Usage: multigram [-cdr] [-b nnn] [-l nnn] [-w nnn] [-a address] filename\n";
   if(minweight)			      /* sanity check, any arguments at all? */
    { const char*chp;
      minweight=SCALE_WEIGHT;best_matches=maxgram=0;
@@ -86,6 +86,10 @@ main(minweight,argv)const char*argv[];
 	    { case 'c':charoffs=1;continue;
 	      case 'd':remov=1;continue;
 	      case 'r':renam=1;continue;
+	      case 'a':
+		 if(!*chp&&!(chp= *++argv))
+		    goto usg;
+		 addit=chp;continue;
 	      case 'b':case 'l':case 'w':
 		{int i;
 		 {const char*ochp;
@@ -101,7 +105,8 @@ main(minweight,argv)const char*argv[];
 		}
 	      case HELPOPT1:case HELPOPT2:elog(usage);
 		 elog(
- "\t-b nnn\tmaximum no. of best matches shown\
+ "\t-a address\tadd this address to the list\
+\n\t-b nnn\tmaximum no. of best matches shown\
 \n\t-c\tdisplay offsets in characters\
 \n\t-d\tdelete address from list\
 \n\t-l nnn\tlower bound metric\
@@ -112,15 +117,31 @@ main(minweight,argv)const char*argv[];
 	    }
 	   break;
 	 }
-     if(!chp||*++argv||renam&&remov)
+     if(!chp||*++argv||renam+remov+!!addit>2)
 	goto usg;
-     if(!(hardfile=fopen(chp,remov||renam?"r+":"r")))
+     if(!(hardfile=fopen(chp,remov||renam||addit?"r+":"r")))
       { nlog("Couldn't open \"");elog(chp);elog("\"\n");return EX_IOERR;
       }
    }
   else
 usg:
    { elog(usage);return EX_USAGE;
+   }
+  if(addit)
+   { int lnl;
+     for(lnl=1,lentry=0;;)
+      { switch(getc(hardfile))
+	 { case '\n':
+	      if(lnl)
+		 break;
+	      lentry=ftell(hardfile);lnl=1;continue;
+	   default:lnl=0;continue;
+	   case EOF:lentry=ftell(hardfile);
+	 }
+	break;
+      }
+     fseek(hardfile,lentry,SEEK_SET);fprintf(hardfile,"%s\n",addit);
+     printf("Added: %s\n",addit);fclose(hardfile);return EX_OK;
    }
   if(!maxgram)
      maxgram=DEFmaxgram;

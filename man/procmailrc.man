@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.7 1992/11/03 14:43:48 berg Exp $
+.Id $Id: procmailrc.man,v 1.8 1992/11/09 18:30:45 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .SH NAME
 .na
@@ -433,6 +433,7 @@ The `+CONTINUE+' flag defaults to on when capturing stdout of a recipe in an
 environment variable.
 .Sh "SEE ALSO"
 .na
+.nh
 .BR procmail (1),
 .BR procmailex (5),
 .BR sh (1),
@@ -449,6 +450,7 @@ environment variable.
 .BR comsat (8),
 .BR lockfile (1),
 .BR formail (1)
+.hy
 .ad
 .Sh BUGS
 The only substitutions of environment variables that can be handled by
@@ -476,16 +478,20 @@ one trailing newline will be stripped.
 .Sh MISCELLANEOUS
 If the regular expression contains `\fB+TOkey+\fP' it will be substituted by
 .na
+.nh
 `\fB+TOsubstitute+\fP',
 which should catch all destination specifications.
+.hy
 .ad
 .PP
 If the regular expression contains `\fB+FROMDkey+\fP' it will be
 substituted by
 .na
+.nh
 `\fB+FROMDsubstitute+\fP',
 which should catch mails coming from most daemons (how's that for a regular
 expression :-).
+.hy
 .ad
 .PP
 When assigning boolean values to variables like VERBOSE, DELIVERED or COMSAT,

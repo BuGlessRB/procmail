@@ -78,7 +78,7 @@
 	       demand (examples/mailstat)
 	    Gave procmail, formail, lockfile and mailstat a more verbose
 	       command line help (called up by -h or -?)
-1992/10/28: v2.80
+1992/11/09: v2.80
 	    Started using CVS to manage the source (god's gift to programmers)
 	    In procmail, lockfile and formail I built in a sanity check now,
 	       in case they would be called with argc==0
@@ -108,6 +108,10 @@
 		 summaries
 	       - introduced the -R option for renaming header-fields (to make
 		 the toolset complete)
+	       - taught it about the Resent- fields when looking for a reply
+		 address
+	       - made sure that it does not generate an extra empty line at
+		 the end of a mail with no body
 	    Changes to procmail:
 	       - procmail does *NOT* CONCATENATE continued header-fields
 		 anymore, filter through "formail -c" for this
@@ -141,6 +145,8 @@
 	       - system mailboxes with their suid or sgid bits set will not
 		 be delivered to anymore, they are presumed to contain SysV
 		 autoforwarding information
+	       - a condition line of a recipe can now start with '?' in order
+		 to use the exitcode of a program as true or false
 	    Changes to the installation scripts:
 	       - preset values for $(MAKE), $(CC) and $(SHELL) are respected
 		 in Makefiles now

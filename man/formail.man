@@ -1,4 +1,4 @@
-.Id $Id: formail.man,v 1.3 1992/11/03 14:43:34 berg Exp $
+.Id $Id: formail.man,v 1.4 1992/11/09 18:30:36 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .SH NAME
 .na
@@ -182,11 +182,13 @@ The regular expression that is used to find `real' postmarks is:
 .Re
 .Sh "SEE ALSO"
 .na
+.nh
 .BR mail (1),
 .BR binmail (1),
 .BR sendmail (8),
 .BR procmail (1),
 .BR sh (1)
+.hy
 .ad
 .Sh DIAGNOSTICS
 .Tp 2.3i

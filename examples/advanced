@@ -1,3 +1,4 @@
+
 Discusses:
 		1. One home directory, several machine architectures
 		2. Procmail as an integrated local mail delivery agent
@@ -99,7 +100,7 @@ The following line should take the place of the standard
 Mlocal rule in your sendmail.cf (this way sendmail will start up procmail with
 root priv, procmail will immediately setuid itself to the recipient's uid):
 
-Mlocal, P=/usr/local/bin/procmail, F=lsSDFMuhP, S=10, R=20, A=procmail -d $u
+Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhP, S=10, R=20, A=procmail -d $u
 
 )Ad ii.
 If your sendmail does not allow starting programs with root privs (the
@@ -114,7 +115,7 @@ suid root is a slightly more flexible approach (not at all more dangerous).
 If using the suid root version of procmail, you only need to insert the
 following line in your sendmail.cf:
 
-Mlocal, P=/usr/local/bin/procmail, F=lsDFMuhP, S=10, R=20, A=procmail -d $u
+Mlocal, P=/usr/local/bin/procmail, F=lsDFMhP, S=10, R=20, A=procmail -d $u
 
 So, to summarise, if you install procmail not-suid-root you should use the
 first rule (with the 'S' flag), and if you install it suid-root you should

@@ -5,9 +5,10 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: common.c,v 1.7 1992/10/28 17:23:23 berg Exp $";
+static char rcsid[]="$Id: common.c,v 1.8 1992/11/09 18:30:55 berg Exp $";
 #endif
 #include "procmail.h"
+#include "sublib.h"
 #include "robust.h"
 #include "shell.h"
 #include "misc.h"
@@ -30,8 +31,8 @@ void shexec(argv)const char*const*argv;
 }
 
 void detab(p)char*p;
-{ while(p=strchr(p,'\t'))
-     *p=' ';						/* take out all tabs */
+{ while(p=strpbrk(p,"\t\n\v\f\r"))
+     *p=' ';			     /* take out all tabs and other specials */
 }
 
 char*pstrspn(whole,sub)const char*whole,*const sub;

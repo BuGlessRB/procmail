@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.5 1992/11/03 14:09:23 berg Exp $*/
+/*$Id: config.h,v 1.6 1992/11/09 18:30:28 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -100,7 +100,7 @@
 ^(Precedence:.*(bulk|junk)|((Resent-)?(From|Sender):|From )(.*[^.a-z])?(\
 postma(st(er)?|n)|Mailer|daemon|mmdf|root|uucp|LISTSERV|owner|request|bounce\
 )([^.a-z]|$))"			       /* should match most kinds of daemons */
-#define DEFshellmetas	"&|<>~;?*[]="		    /* never put '$' in here */
+#define DEFshellmetas	"&|<>~;?*[]"		    /* never put '$' in here */
 #define DEFmaildir	"$HOME"
 #define DEFdefault	"$ORGMAIL"
 #define DEFdefaultlock	"LOCKFILE=$DEFAULT$LOCKEXT"

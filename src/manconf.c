@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.7 1992/11/03 14:43:53 berg Exp $*/
+/*$Id: manconf.c,v 1.8 1992/11/09 18:31:02 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -78,6 +78,16 @@ static void pc(name,value)const char*const name;const int value;
 
 main P((void))
 { char*p,*q;
+#ifdef CF_no_procmail_yet
+  ps("CF_procmail","If procmail is\1\
+.I not\1\
+installed globally as the default mail delivery agent (ask your system \
+administrator), you have to make sure it is invoked when your mail arrives.");
+#else
+  ps("CF_procmail","Instead of using the system provided invocation of \
+procmail when mail arrives, you can control the invokation of procmail \
+yourself.");
+#endif
 #ifndef MAILBOX_SEPARATOR
   ps("DOT_FORWARD",".forward");
   ps("FW_content",

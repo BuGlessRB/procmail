@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.4 1992/10/28 17:23:18 berg Exp $
+#$Id: Makefile.0,v 1.5 1992/11/09 18:30:49 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O)
@@ -42,7 +42,7 @@ HIDEMAKE = $(MAKE)
 
 autoconf.h: ../autoconf.h
 
-common.$(O): procmail.h robust.h shell.h misc.h common.h
+common.$(O): procmail.h sublib.h robust.h shell.h misc.h common.h
 
 cstdio.$(O): procmail.h robust.h cstdio.h misc.h
 

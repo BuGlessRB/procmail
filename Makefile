@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.7 1992/10/28 17:22:37 berg Exp $
+#$Id: Makefile,v 1.8 1992/11/09 18:30:21 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -48,8 +48,8 @@ USRINCLUDE = /usr/include
 PLIB	= /lib/lib
 PUSRLIB = /usr/lib/lib
 
-CFLAGS0 = -O #-ansi -pedantic -Wid-clash-6
-LDFLAGS0= -s
+CFLAGS0 = -g #-ansi -pedantic -Wid-clash-6
+LDFLAGS0= #-s
 
 CFLAGS1 = $(CFLAGS0) #-posix -Xp
 LDFLAGS1= $(LDFLAGS0) #-lcposix

@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: mailfold.c,v 1.7 1992/11/03 14:09:58 berg Exp $";
+static char rcsid[]="mailfold.c,v 1.7 1992/11/03 14:09:58 berg Exp";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -175,18 +175,17 @@ void concon(ch)const int ch;   /* flip between concatenated and split fields */
 void readmail(rhead,tobesent)const long tobesent;
 { char*chp,*pastend,*realstart;
  {long dfilled;
-  mailread=0;
   if(rhead)					/* only read in a new header */
-   { dfilled=0;chp=readdyn(malloc(1),&dfilled);filled-=tobesent;
+   { dfilled=mailread=0;chp=readdyn(malloc(1),&dfilled);filled-=tobesent;
      if(tobesent<dfilled)		   /* adjust buffer size (grow only) */
 	themail=realloc(themail,dfilled+filled);
      tmemmove(themail+dfilled,thebody,filled);tmemmove(themail,chp,dfilled);
      free(chp);themail=realloc(themail,1+(filled+=dfilled));
    }
   else
-   { if(!filled)
-	rhead=1;		     /* yup, we read in a new header as well */
-     dfilled=thebody-themail;themail=readdyn(themail,&filled);	 /* new mail */
+   { if(!mailread||!filled)
+	rhead=1;	 /* yup, we read in a new header as well as new mail */
+     mailread=0;dfilled=thebody-themail;themail=readdyn(themail,&filled);
    }
   pastend=filled+(thebody=themail);
   while(thebody<pastend&&*thebody++=='\n');	     /* skip leading garbage */

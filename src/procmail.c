@@ -11,7 +11,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: procmail.c,v 1.8 1992/11/03 14:43:56 berg Exp $";
+static char rcsid[]="$Id: procmail.c,v 1.9 1992/11/09 18:31:07 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -131,7 +131,7 @@ privileged:
   openlog(console);
 #endif
   setbuf(stdin,(char*)0);buf=malloc(linebuf);buf2=malloc(linebuf);
-  thepid=getpid();
+  lastfolder=cstr(lastfolder,"");thepid=getpid();
 #ifdef SIGXCPU
   signal(SIGXCPU,SIG_IGN);signal(SIGXFSZ,SIG_IGN);
 #endif
@@ -359,9 +359,10 @@ findrc:	  suppmunreadable=i=0;	    /* should we keep the current directory? */
      while(testb('\n'));
      if(testb(':'))				       /* check for a recipe */
       { int locknext;
-	readparse(buf,getb,0);sh=strtol(buf,&chp,10);
+       {int nrcond;
+	readparse(buf,getb,0);nrcond=strtol(buf,&chp,10);
 	if(chp==buf)					 /* no number parsed */
-	   sh= -1;
+	   nrcond= -1;
 	if(tolock)		 /* clear temporary buffer for lockfile name */
 	   free(tolock);
 	for(i=maxindex(flags);flags[i]=0,i--;);		  /* clear the flags */
@@ -383,8 +384,8 @@ findrc:	  suppmunreadable=i=0;	    /* should we keep the current directory? */
 	    }
 	   concatenate(chp);skipped(chp);break;	    /* display any leftovers */
 	 }
-	if(sh<0)	  /* assume the appropriate default nr of conditions */
-	   sh=!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC];
+	if(nrcond<0)	  /* assume the appropriate default nr of conditions */
+	   nrcond=!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC];
 	startchar=themail;tobesent=thebody-themail;
 	if(flags[BODY_GREP])		       /* what needs to be egrepped? */
 	   if(flags[HEAD_GREP])
@@ -397,7 +398,7 @@ noconcat:
 	i=flags[ALSO_NEXT_RECIPE]?lastcond:1;		  /* init test value */
 	if(flags[ALSO_N_IF_SUCC])
 	   i=lastcond&&succeed;		/* only if the last recipe succeeded */
-	while(sh--)				    /* any conditions (left) */
+	while(nrcond--)				    /* any conditions (left) */
 	 { skipspace();getbl(buf2);
 	   for(chp=strchr(buf2,'\0');--chp>=buf2;)
 	    { switch(*chp)		  /* strip off whitespace at the end */
@@ -436,17 +437,24 @@ noconcat:
 		    case '$':*buf2='"';readparse(buf,sgetc,2);continue;
 		    case '!':negate^=1;strcpy(buf,chp);continue;
 		    case '?':pwait=2;metaparse(chp);inittmout(buf);ignwerr=1;
-			i=!pipin(buf,themail,filled);strcpy(buf2,buf);break;
+			i=!pipin(buf,startchar,tobesent);strcpy(buf2,buf);
+			break;
 		    case '>':case '<':readparse(buf,sgetc,2);
 		       i=strtol(buf+1,&chp,10);i='<'==*buf?filled<i:filled>i;
 		       skipped(skpspace(chp));strcpy(buf2,buf); /* leftovers */
 		  }
 		 break;
 	       }
+	      i^=negate;
 	      if(verbose)	     /* not entirely correct, but it will do */
-		 nlog((i^=negate)?"M":"No m"),elog("atch on"),logqnl(buf2);
+	       { nlog(i?"M":"No m");elog("atch on");
+		 if(negate)
+		    elog(" !");
+		 logqnl(buf2);
+	       }
 	    }
 	 }
+       }
 	if(!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC])
 	   lastcond=i;			   /* save the outcome for posterity */
 	startchar=themail;tobesent=filled;	    /* body, header or both? */
