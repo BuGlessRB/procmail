@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.27 1993/10/29 17:08:05 berg Exp $
+.Id $Id: procmailrc.man,v 1.28 1993/11/05 12:40:17 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -450,6 +450,13 @@ recipe, these lines are fed to the internal egrep
 .I literally
 (except for continuation backslashes at the end of a line).
 .PP
+Leading whitespace on continued regular expression condition lines
+is usually ignored (so that they can be indented), but
+.B not
+on continued condition lines that are evaluated according to the
+.BR sh (1)
+substitution rules inside double quotes.
+.PP
 Watch out for deadlocks when doing unhealthy things like forwarding mail
 to your own account.  Deadlocks can be broken by proper use of
 .BR LOCKTIMEOUT .
@@ -570,8 +577,8 @@ procmail accepts as true every string starting with: a non-zero value, `on',
 If the action line of a recipe specifies a program, a sole backslash-newline
 pair in it on an otherwise empty line will be converted into a newline.
 .Sh NOTES
-Since whitespace is generally ignored in the rcfile you can indent everything
-to taste.
+Since unquoted leading whitespace is generally ignored in the rcfile you can
+indent everything to taste.
 .PP
 The leading `|' on the action line to specify a program or filter is stripped
 before checking for $SHELLMETAS.

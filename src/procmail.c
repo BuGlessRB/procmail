@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.50 1993/10/29 16:42:46 berg Exp $";
+ "$Id: procmail.c,v 1.51 1993/11/05 12:40:46 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -391,11 +391,10 @@ fishy:	    { nlog("Couldn't create");logqnl(chp);sputenv(orgmail);
   ;{ int succeed,lastcond;struct dyna_long ifstack;
      ifstack.filled=ifstack.tspace=0;ifstack.offs=0;
      if(etcrc)
-      { if(0>bopen(etcrc))
+      { if(0<=bopen(etcrc))
 	 { yell(drcfile,etcrc);goto startrc;
 	 }
-	else
-	   etcrc=0;
+	etcrc=0;
       }
      do					     /* main rcfile interpreter loop */
       { resettmout();
@@ -751,7 +750,7 @@ nomore_rc:
      concon('\n');succeed=0;
      if(*(chp=(char*)tgetenv(fdefault)))		     /* DEFAULT set? */
       { setuid(uid);firstchd();
-	if(strcmp(chp,devnull))			     /* don't lock /dev/null */
+	if(strcmp(chp,devnull)&&strcmp(chp,"|"))  /* neither /dev/null nor | */
 	   asenvcpy((char*)DEFdeflock);			    /* implicit lock */
 	if(dump(deliver(chp,(char*)0),themail,filled))		  /* default */
 	   writeerr(buf);

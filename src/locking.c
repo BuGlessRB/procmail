@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.22 1993/10/29 16:42:33 berg Exp $";
+ "$Id: locking.c,v 1.23 1993/11/05 12:40:41 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -92,8 +92,8 @@ term: { free(name);break;		     /* drop the preallocated buffer */
 }
 
 void lcllock P((void))				    /* lock a local lockfile */
-{ char*lckfile;
-  if(tolock||strcmp(buf2,devnull))	 /* locking /dev/null would be silly */
+{ char*lckfile;			    /* locking /dev/null or | would be silly */
+  if(tolock||strcmp(buf2,devnull)&&strcmp(buf2,"|"))
      if(!strcmp(lckfile=tolock?tolock:strcat(buf2,tgetenv(lockext)),
       tgetenv(lockfile)))
 	nlog("Deadlock attempted on"),logqnl(lckfile);

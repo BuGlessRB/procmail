@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.27 1993/10/29 16:42:16 berg Exp $
+#$Id: rc.request,v 1.28 1993/11/05 12:40:05 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -24,11 +24,11 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 # If everything matches, we extract the sender address into tmp.from
 #
 
-:0 whc
+:0 wh
 * < 8192
 * $!^((X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)|\
-    Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)([^a-z]|$)))|\
-   ^FROM_DAEMON
+Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)([^a-z]|$)))|\
+^FROM_DAEMON
 {
   :0 whc
   | formail -rt -xTo: >tmp.from
@@ -116,8 +116,8 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 
 :0 wic
 * $!^(Subject:(.*[^a-z])?Re:|
-     X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)|\
-    ^FROM_DAEMON
+X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)|\
+^FROM_DAEMON
 | sed -e $cutoff_bounce' q' >tmp.request
 
   :0 Ahfw
