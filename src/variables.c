@@ -8,10 +8,11 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.3 2000/10/28 08:47:29 guenther Exp $";
+ "$Id: variables.c,v 1.4 2000/11/18 03:41:15 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
+#include "common.h"		/* for ultstr() */
 #include "cstdio.h"
 #include "robust.h"
 #include "shell.h"

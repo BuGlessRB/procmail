@@ -1,4 +1,4 @@
-/* $Id: variables.h,v 1.2 2000/10/24 00:16:52 guenther Exp $ */
+/* $Id: variables.h,v 1.3 2000/11/18 03:41:16 guenther Exp $ */
 
 const char
  *sputenv P((const char*const a)),
@@ -28,5 +28,5 @@ long
  renvint P((const long i,const char*const env));
 
 extern long Stdfilled;
-extern const char lastfolder[],maildir[],exitcode[];
+extern const char lastfolder[],maildir[];
 extern int didchd;
