@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: mimesend,v 1.13 1994/09/22 17:13:08 berg Exp $
+#$Id: mimesend,v 1.14 1994/09/27 15:03:31 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -47,10 +47,9 @@ export name dir filename archivedir mimencode formail sed	# for mimencap
   if $test -f "./$filename"
   then
      case "`sed -e 1q <\"./$filename\"`" in
-	Content-[Tt]ype:*) ;;
-	*) echo "" ;
+	Content-[Tt]ype:*) $cat "./$filename" ;;
+	*) echo "" ; $decode "./$filename" ;;
      esac
-     $cat "./$filename"
   else
      $echo "MIME-Version: 1.0"
      $echo "Content-Type: text/plain"

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.46 1994/09/22 17:44:43 berg Exp $
+#$Id: arch_retrieve,v 1.47 1994/09/27 15:03:26 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -21,6 +21,13 @@ formail=formail		# /usr/local/bin/formail
 
 $test -z "$listaddr" &&
  $echo "Don't start this script directly, it is used in rc.request" && exit 64
+
+decode=$cat			# program or script to read the files that
+				# are to be retrieved.	If any decoding needs
+				# to be done, do it in that program.
+
+search=$egrep			# program or script to egrep the files, it
+				# should accept most egrep options
 
 breakoff_search=512		# the maximum number of matches returned
 breakoff_ls=512			# the maximum number of files listed with ls
@@ -59,7 +66,7 @@ case "$X_ENVELOPE_TO" in
 	the next time when issuing archive server requests." ;;
 esac
 
-export tmprequest archivedir wrongaddress	# for mimesend
+export decode tmprequest archivedir wrongaddress	# for mimesend
 
 #
 # Check if mimencode is available
@@ -139,7 +146,7 @@ $wrongaddress}"
 			      *) $echo ""
 				 $echo "File: $1"
 				 $echo "BEGIN------------cut here-------------"
-				 $cat "./$1"
+				 $decode "./$1"
 				 $echo "END--------------cut here-------------"
 				 ;;
 			   esac
@@ -228,7 +235,7 @@ Truncating after '$breakoff_ls' names...' -e ${breakoff_ls}q
 		  cd $archivedir
 		  $echo "$line"
 		  $echo "BEGIN---------------cut here------------------"
-		  $nice $egrep $nflag $iflag $flags -e $regxp $* \
+		  $nice $search $nflag $iflag $flags -e $regxp $* \
 		   </dev/null 2>&1 | $sed -e $breakoff_search'a\
 Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 		  $echo "END-----------------cut here------------------"

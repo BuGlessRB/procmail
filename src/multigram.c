@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.63 1994/09/22 17:13:33 berg Exp $";
+ "$Id: multigram.c,v 1.64 1994/09/27 15:03:55 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/09/22 17:13:33 $";
+static /*const*/char rcsdate[]="$Date: 1994/09/27 15:03:55 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -406,7 +406,7 @@ statd:		    if((size+=stbuf.st_size)>maxsize)	  /* digest too big? */
      hardstr.text=malloc(hardstr.buflen=BUFSTEP);
      if(ISPROGRAM(chp,choplist))
       { unsigned long minnames,mindiffnames,maxnames,maxsplits,maxsize,
-	 maxconcur;
+	 maxconcur,maxensize;
 	char*distfile,**revarr;int mailfd;size_t revfilled;
 	static const char tmpmailfile[]=TMPMAILFILE;
 	char lmailfile[STRLEN(TMPMAILFILE)+8*sizeof(pid_t)*4/10+1+1];
@@ -500,8 +500,16 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 		 maxnames=minnames+mindiffnames;
 	    }
 	 }
-	if(!maxnames||(maxnames+argc>MAX_argc))
+	if(!maxnames||maxnames>MAX_argc-argc)
 	   maxnames=MAX_argc-argc;
+	;{ size_t envc;
+	   nam=environ;envc=argc;
+#define MAX_envc	0		  /* should be dynamic in the future */
+	   for(maxensize=(MAX_argc+MAX_envc)*16L;*nam;
+	    envc++,maxensize-=strlen(*nam++)+1+sizeof*nam);
+	   if(maxnames>MAX_argc+MAX_envc-envc)
+	      maxnames=MAX_argc+MAX_envc-envc;
+	 }
 	if(minnames>maxnames)
 	   minnames=maxnames;
 	if(!minnames)
@@ -525,18 +533,23 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 	   tmemmove(nam,nargv,argc*sizeof*argv);nargv=nam;
 	   ;{ unsigned long cnames,cnsize,cconcur,maxnsize;
 	      char**first,**best;
-	      for(maxnsize=MAX_argc*16L;*nam;maxnsize-=strlen(*nam++));
+	      ;{ unsigned long maxnsize;
+		 for(maxnsize=0;*nam;maxnsize+=strlen(*nam++)+1+sizeof*nam);
+		 maxensize-=maxnsize;
+		 if(maxensize<(maxnsize=MAX_argc-maxnsize))
+		    maxensize=maxnsize;
+	       }
 	      n=cconcur=0;
 	      do
 	       { int bestval;
-		 cnsize=strlen(*(first=nam=revarr+n));cnames=0;
+		 cnsize=strlen(*(first=nam=revarr+n))+1+sizeof*nam;cnames=0;
 		 do
 		  { if(first-nam<minnames||rdist[n]<=bestval)
 		       bestval=rdist[n],best=nam;
 		    cnames++;
 		  }
 		 while(++n<revfilled&&
-		       maxnsize>=(cnsize+=strlen(*++nam)+1)&&
+		       maxensize>=(cnsize+=strlen(*++nam)+1+sizeof*nam)&&
 		       maxnames>cnames);
 		 nam=(nargv=realloc(nargv,
 		  ((bestval=best-first+1)+argc)*sizeof*argv))+argc-1;

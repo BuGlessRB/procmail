@@ -10,7 +10,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: led,v 1.4 1994/09/22 17:13:04 berg Exp $
+#$Id: led,v 1.5 1994/09/27 15:03:29 berg Exp $
 
 test=test				# /bin/test
 touch=touch				# /bin/touch
@@ -100,7 +100,7 @@ then
      done
    ) &
   childpid=$!
-#  exec 2>&9 9>&-
+  exec 2>&9 9>&-
 fi
 
 $VISUAL "$@"

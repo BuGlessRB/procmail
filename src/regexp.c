@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.48 1994/09/22 17:13:36 berg Exp $";
+ "$Id: regexp.c,v 1.49 1994/09/27 15:04:02 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -528,5 +528,5 @@ set2match:
       }
      yell("Matched",q);
    }
-  return (char*)bom;						 /* no match */
+  return (char*)eom;						   /* match? */
 }

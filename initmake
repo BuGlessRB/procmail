@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1992-1994, S.R. van den Berg, The Netherlands
-#$Id: initmake,v 1.60 1994/09/22 17:12:53 berg Exp $
+#$Id: initmake,v 1.61 1994/09/27 15:03:16 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -117,14 +117,14 @@ fi
 cd src				# diving into the source directory ######
 
 newln=""
-$RM _autotst.rrr _autotst
+$RM _autotst.rrr ../man/core_ln
 echo hi >_autotst.rrr
-if $LN _autotst.rrr _autotst #2>$DEVNULL
+if $LN ../src/_autotst.rrr ../man/core_ln 2>$DEVNULL
 then
 :
 else
-   $RM _autotst
-   $LN -s _autotst.rrr _autotst && LN="$LN -s" && newln=yes
+   $RM ../man/core_ln
+   $LN -s ../src/_autotst.rrr ../man/core_ln && LN="$LN -s" && newln=yes
 fi
 
 cat >_autotst.c <<HERE
@@ -132,7 +132,7 @@ main()
 { return 0;
 }
 HERE
-$RM _autotst.rrr _autotst.$O _autotst
+$RM _autotst.rrr _autotst.$O _autotst ../man/core_ln
 
 cc=""
 

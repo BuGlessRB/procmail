@@ -140,7 +140,7 @@ For example:
 	rule, create a new one similar to:
 		R$++$*			$#local $@$2 $:$1	local argument
 	Depending on the actual contents of your sendmail.cf file, there
-	still might be some other $#local rule(s) you need to preceed with
+	still might be some other $#local rule(s) you need to precede with
 	a corresponding +-handling rule, e.g. in some files you also
 	find:
 		R$+ < $+ @ $+ >		$#local $: $1

@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.99 1994/09/13 19:12:47 berg Exp $
+#$Id: autoconf,v 1.100 1994/09/27 15:03:49 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -69,6 +69,7 @@
 #Ok	#define LD_ENV_FIX
 #Ok	#define GOT_bin_test
 #Ok	#define MAX_argc 128
+#Ok	#define MAX_envc 128
 #Ok	#define SMALLHEAP
 #	#define NOfcntl_lock
 #Ok	#define USElockf

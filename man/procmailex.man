@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.38 1994/09/22 17:13:25 berg Exp $
+.Id $Id: procmailex.man,v 1.39 1994/09/27 15:03:39 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -358,12 +358,12 @@ loosen this last restriction).
 * !^X-Loop: yourname@your.main.mail.address
 * !^Subject:.*Re:
 * !^FROM_DAEMON
-* !^Subject: send file .*[/.]\.
+* !^Subject: send file .*[/.]\e.
 {
   MAILDIR=$HOME/fileserver # chdir to the fileserver directory
 
   :0 fhw                   # reverse mailheader and extract name
-  * ^Subject: send file \/[^ ]*
+  * ^Subject: send file \e/[^ ]*
   | formail \-@FM_REPLY@@FM_ADD_ALWAYS@ "X-Loop: yourname@your.main.mail.address"
 
   FILE="$MATCH"            # the requested filename

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.52 1994/09/22 17:13:28 berg Exp $
+.Id $Id: procmailrc.man,v 1.53 1994/09/27 15:03:42 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -216,9 +216,9 @@ decimal) number of bytes.
 Analogous to '<'.
 .TP
 .B "variablename \fI??\fP"
-Match the remainder against the value of this environment variable.  Special
-cases are `B', `H', `HB' and `BH', which merely override the default
-header/body search area defined for this recipe.
+Match the remainder against the value of this environment variable (this cannot
+be a pseudo variable).  Special cases are `B', `H', `HB' and `BH', which
+merely override the default header/body search area defined for this recipe.
 .TP
 .B \e
 To quote any of the above at the start of the line.
@@ -580,9 +580,10 @@ words, not to delimit inter-word space.
 .TP
 .B \e/
 Splits the expression in a search part (to the left) and a match part
-(to the right).  The search part determines whether or not and where the
-expression matches, the match part determines what will be assigned to the
-@MATCHVAR@ environment variable.  The search part searches for the
+(to the right).  The search part determines where the match part is tried,
+the match part determines where and if the entire expression matches and what
+will be assigned to the @MATCHVAR@ environment variable.  The search part
+searches for the
 .I shortest
 match, the match part searches for the
 .I longest

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.104 1994/09/20 19:32:08 berg Exp $";
+ "$Id: procmail.c,v 1.105 1994/09/27 15:03:58 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -577,7 +577,7 @@ no_mbox:      sputenv(orgmail);
 	   */
 	 { setids();argc++;
 	   if(!asenvcpy(chp)&&mailfilter)
-	    { gargv= &nullp;
+	    { gargv= &nullp;			 /* stop at the first rcfile */
 	      for(restargv=argv+argc;restargv[crestarg];crestarg++);
 	      break;
 	    }
