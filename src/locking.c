@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.34 1994/04/12 13:21:51 berg Exp $";
+ "$Id: locking.c,v 1.35 1994/04/12 16:28:18 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -117,7 +117,7 @@ void unlock(lockp)char**const lockp;
 	free(*lockp);
      *lockp=0;
    }
-  guardoff();
+  offguard();
 }
 					/* an NFS secure exclusive file open */
 xcreat(name,mode,tim,chownit)const char*const name;const mode_t mode;

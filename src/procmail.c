@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.74 1994/04/12 13:21:59 berg Exp $";
+ "$Id: procmail.c,v 1.75 1994/04/12 16:28:30 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -934,16 +934,16 @@ forward:	 if(locknext)
 		     }
 		    inittmout(procmailn);
 		    if(flags[CONTINUE])
-		     { yell("Forking",procmailn);guardon();
+		     { yell("Forking",procmailn);onguard();
 		       if(!(pidchild=sfork()))		   /* clone yourself */
 			{ if(loclock)	      /* lockfiles are not inherited */
 			     free(loclock),loclock=0;
 			  if(globlock)
 			     free(globlock),globlock=0;	     /* clear up the */
-			  newid();guardoff();duprcs();	  /* identity crisis */
+			  newid();offguard();duprcs();	  /* identity crisis */
 			}
 		       else
-			{ guardoff();
+			{ offguard();
 			  if(forkerr(pidchild,procmailn))
 			     succeed=0;	       /* Tsk, tsk, no cloning today */
 			  else

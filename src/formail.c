@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.41 1994/04/12 13:21:38 berg Exp $";
+ "$Id: formail.c,v 1.42 1994/04/12 16:28:06 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/04/12 13:21:38 $";
+static /*const*/char rcsdate[]="$Date: 1994/04/12 16:28:06 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -377,16 +377,16 @@ newnamep:	 if(namep)
      if(idcache)
       { int dupid=0;
 	if(msid->rexl)					/* any Message-ID: ? */
-	 { int i;char*p;			/* wipe out trailing newline */
-	   insoffs=maxlen;msid->rexp[msid->rexl-1]='\0';
-	   do			  /* start reading & comparing the next word */
-	    { for(p=msid->rexp;(i=fgetc(idcache))==*p;p++)
-		 if(!i)					     /* end of word? */
+	 { insoffs=maxlen;msid->rexp[msid->rexl-1]='\0';
+	   do					/* wipe out trailing newline */
+	    { int j;char*p;	  /* start reading & comparing the next word */
+	      for(p=msid->rexp;(j=fgetc(idcache))==*p;p++)
+		 if(!j)					     /* end of word? */
 		  { if(!quiet)
 		       nlog("Duplicate ID found:"),elog(msid->rexp),elog("\n");
 		    dupid=1;goto dupfound;	     /* YES! duplicate found */
 		  }
-	      if(!i)					     /* end of word? */
+	      if(!j)					     /* end of word? */
 	       { if(p==msid->rexp&&insoffs==maxlen)	 /* first character? */
 		  { insoffs=ftell(idcache)-1;goto skiprest;	    /* found */
 		  }				   /* end of circular buffer */

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.48 1994/04/08 15:22:31 berg Exp $";
+ "$Id: misc.c,v 1.49 1994/04/12 16:28:22 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -171,11 +171,11 @@ nextrcfile P((void))		/* next rcfile specified on the command line */
   return 0;
 }
 
-void guardon P((void))
+void onguard P((void))
 { lcking|=lck_LOCKFILE;
 }
 
-void guardoff P((void))
+void offguard P((void))
 { lcking&=~lck_LOCKFILE;
   if(nextexit==1)	  /* make sure we are not inside Terminate() already */
      elog(newline),Terminate();
@@ -396,12 +396,12 @@ void asenv(chp)const char*const chp;
    }
   else if(!strcmp(buf,sdelivered))			    /* fake delivery */
    { if(renvint(0L,chp))				    /* is it really? */
-      { guardon();
+      { onguard();
 	if((thepid=sfork())>0)			/* signals may cause trouble */
 	   nextexit=2,lcking&=~lck_LOCKFILE,exit(retvl2);
 	if(!forkerr(thepid,procmailn))
 	   fakedelivery=1;
-	newid();guardoff();
+	newid();offguard();
       }
    }
   else if(!strcmp(buf,lockfile))
@@ -513,7 +513,7 @@ void initdefenv P((void))
   while(i--);
 }
 
-struct dynstring*newdynstring(adrp,chp)const struct dynstring**const adrp;
+const char*newdynstring(adrp,chp)struct dynstring**const adrp;
  const char*const chp;
 { struct dynstring*curr;size_t len;
   curr=malloc(ioffsetof(struct dynstring,ename[0])+(len=strlen(chp)+1));
