@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.49 1998/11/10 11:07:55 srb Exp $";
+ "$Id: pipes.c,v 1.50 1998/11/19 04:44:26 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -242,7 +242,12 @@ char*readdyn(bf,filled)char*bf;long*const filled;
      if((size_t)*filled>=(size_t)(*filled+blksiz))
 	lcking|=lck_MEMORY,nomemerr();
 #endif
-     bf=realloc(bf,*filled+blksiz);    /* dynamically adjust the buffer size */
+     ;{ char*new=0;		       /* dynamically adjust the buffer size */
+	 /* the parens get us the real realloc so that we can retry failures */
+	while(EXPBLKSIZ&&blksiz>BLKSIZ&&!(new=(realloc)(bf,*filled+blksiz)))
+	   blksiz>>=1;			  /* try a smaller increment */
+	bf=new?new:realloc(bf,*filled+blksiz);			 /* last try */
+      }
 jumpback:;
      ;{ int got,left=blksiz;
 	do
@@ -250,7 +255,7 @@ jumpback:;
 	      goto eoffound;
 	while(*filled+=got,left-=got);		/* change listed buffer size */
       }
-     if(shift)						 /* room for growth? */
+     if(EXPBLKSIZ&&shift)				 /* room for growth? */
       { int newbs=blksiz;newbs<<=shift--;	/* capped exponential growth */
 	if(blksiz<newbs)				  /* no overflowing? */
 	   blksiz=newbs;				    /* yes, take me! */

@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.118 1998/11/18 11:36:20 srb Exp $
+#$Id: autoconf,v 1.119 1998/11/19 04:44:25 guenther Exp $
 
 # All possible entries in autoconf.h:
 
@@ -899,28 +899,26 @@ cat >_autotst.c <<HERE
 #include <stdio.h>
 #ifndef STDLIB_H_MISSING
 #include <stdlib.h>
+#define INITIAL 60
 #else
-void*malloc(),*realloc();
+void*realloc();
 #endif
 int main()
 { char*p=0,*q=0;
-  size_t len=0,step=BLKSIZ,max=step*64,last=0;/* 1M on non-SMALLHEAP systems */
-  int count=-1;			     /* take into account the initial malloc */
-  while((len+step)<=max)
-   { /* touch at least every new page */
-     for(;last<len;last+=1024)
-	p[last]=last%127;
-     len+=step;
-     p=realloc(p,len);
-     if(!p)
+  size_t len,last,max=BLKSIZ*64;	      /* 1M on non-SMALLHEAP systems */
+  int count= -1;		     /* take into account the initial malloc */
+  for(last=len=INITIAL;len<=max+INITIAL;len+=BLKSIZ)
+   { if(!(p=realloc(p,len)))
 	break;
      if(p!=q)
-	count++,q=p;
+	count++,q=p,fprintf(stderr,"len=%lu p=%p\n",(unsigned long)len,p);
+     for(;last<len;last+=1024)		    /* touch at least every new page */
+	p[last]=last%127;
    }
   free(q);
   printf("/* %d move%s in %d steps of size %d when reallocing */\n",
-	 count,count==1?"":"s",(int)(max/step),step);
-  if(step*(4*count+1)>max)
+	 count,count==1?"":"s",(int)(max/BLKSIZ),BLKSIZ);
+  if(BLKSIZ*(10*count+1)>max)
    { puts("#define INEFFICIENTrealloc");
      exit(1);
    }
@@ -933,7 +931,7 @@ echo 'Checking realloc implementation'
 if $MAKE _autotst >$DEVNULL 2>&1
  test -f _autotst
 then
- _autotst >_autotst.rrr
+ _autotst >_autotst.rrr 2>realloc.log
  case "$?" in
  0) cat _autotst.rrr >>$ACONF;;
  1) cat _autotst.rrr >>$ACONF
