@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.84 2001/06/23 08:22:10 guenther Exp $
+.Id $Id: procmailrc.man,v 1.85 2001/08/04 06:08:21 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -735,7 +735,7 @@ or
 options are used, $# will expand to the number of arguments so
 specified and "$@" (the quotes are required) will expand to the
 specified arguments.  However, "$@" will only be expanded when
-passed as in the argument list to a program, and
+used in the argument list to a program, and
 then only one such occurrence will be expanded.
 .PP
 Unquoted variable expansions performed by procmail are always split on
