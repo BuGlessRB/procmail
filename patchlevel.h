@@ -12,4 +12,4 @@ And of course, subscription and information requests for this list to:\n\
    src/manconf.c needs to be changed as well */
 
 /* change to whatever the procmail version is */
-#define VERSIONNUMBER "v3.11pre8"
+#define VERSIONNUMBER "3.11pre8"
