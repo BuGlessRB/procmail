@@ -15,9 +15,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.18 1993/01/22 13:42:45 berg Exp $";
+ "$Id: multigram.c,v 1.19 1993/01/22 14:38:15 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/22 13:42:45 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/22 14:38:15 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -338,28 +338,30 @@ shftleft:     tmemmove(chp,chp+1,strlen(chp));
 	maxweight=SCALE_WEIGHT/(gramsize+1);
 	meter=(int)((unsigned long)SCALE_WEIGHT/2*minlen/
 	 (hardlen==minlen?fuzzlen:hardlen))-SCALE_WEIGHT/2;
-	do
-	 { register lmeter=0;		    /* reset local multigram counter */
+	do				    /* reset local multigram counter */
+	 { register lmeter=0;size_t cminlen=minlen;
 	   ;{ register const char*fzz,*hrd;
 	      fzz=fuzzstr.itext;
 	      do
 	       { for(hrd=fzz+1;hrd=strchr(hrd,*fzz);)	 /* is it present in */
 		    if(!strncmp(++hrd,fzz+1,gramsize))	      /* own string? */
-		     { minlen--;goto double_gram;    /* skip until it's last */
+		     { if(cminlen>gramsize+1)
+			  cminlen--;
+		       goto dble_gram;		    /* skip until it's last */
 		     }
 		 for(hrd=hardstr.itext;hrd=strchr(hrd,*fzz);)	/* otherwise */
 		    if(!strncmp(++hrd,fzz+1,gramsize))	 /* search it in the */
 		     { lmeter++;break;			       /* dist entry */
 		     }
-double_gram:;  }
+dble_gram:;    }
 	      while(*(++fzz+gramsize));				/* next gram */
 	    }
 	   if(lmeter)
 	    { unsigned weight;
-	      meter+=lmeter*(weight=maxweight/(unsigned)(minlen-gramsize));
+	      meter+=lmeter*(weight=maxweight/(unsigned)(cminlen-gramsize));
 	      meter-=weight*
-	       (unsigned long)((lmeter+=gramsize-minlen)<0?-lmeter:lmeter)/
-	       minlen;
+	       (unsigned long)((lmeter+=gramsize-cminlen)<0?-lmeter:lmeter)/
+	       cminlen;
 	    }
 	 }
 	while(gramsize--);		 /* search all gramsizes down to one */
