@@ -147,7 +147,7 @@
 	       through the mailinglist
 	    Reached the doubtful milestone to sometimes crash an Ultrix
 	       machine (due to the lockingtests, not procmail itself)
-1993/08/09: v2.92
+1993/08/20: v2.92
 	    Fixed a formail sender-determination-weight problem, it mixed up
 	       the weights when autoreplying and when regenerating the From_
 	       line (and thus didn't always pick the optimal field)
@@ -158,6 +158,8 @@
 	       an rcfile to be grouped hierarchically
 	    Fixed a discrepancy between /bin/sh backquote expansion in
 	       environment assignments and procmail (preserving all spaces)
+	    Procmail logs the value of time() when verbose logging is turned
+	       on
 	    Slightly adjusted autoconf for the new non-standard 386BSD and
 	       NeXTStep 3.1 environments
 	    Moved the "Reiterating kernel lock" diagnostic into the "extended"
@@ -169,6 +171,11 @@
 	    Updated the crontab script recommendation in the procmail man page
 	    Fixed the "procmail"-mailer definition in the procmail man page
 	    Worked around a bug in the `ANSI'-compiler of Domain/OS
+	    Made formail pay attention to the exitcode of the programs it
+	       started
+	    Formail mistakenly didn't accept both -X and -k options
+	    Fixed a bug introduced in v2.82 in formail when using both
+	       the -x and the -k options
 	    Changes to the mailinglist package:
 	       Cleaned up install.sh* for the mailinglists: starting su with
 		  commands on stdin now, checking some permissions now in the

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: common.c,v 1.11 1992/11/13 12:57:58 berg Exp $";
+ "$Id: common.c,v 1.12 1993/08/20 11:22:35 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -62,6 +62,14 @@ void ultstr(minwidth,val,dest)unsigned long val;char*dest;
   *(dest+=i)='\0';
   do *--dest='0'+val%10;			  /* display value backwards */
   while(val/=10);
+}
+
+waitfor(pid)const pid_t pid;		      /* wait for a specific process */
+{ int i;pid_t j;
+  while(pid!=(j=wait(&i))||WIFSTOPPED(i))
+     if(-1==j)
+	return -1;
+  return lexitcode=WIFEXITED(i)?WEXITSTATUS(i):-1;
 }
 
 strnIcmp(a,b,l)register const char*a,*b;register size_t l;

@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.33 1993/08/09 14:10:56 berg Exp $";
+ "$Id: multigram.c,v 1.34 1993/08/20 11:22:56 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/08/09 14:10:56 $";
+static /*const*/char rcsdate[]="$Date: 1993/08/20 11:22:56 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -462,7 +462,7 @@ usg:
    { int meter,maxmetric;long linentry;off_t offs1,offs2;
      ;{ char*chp,*echp;int parens;
 	echp=strchr(chp=fuzzstr.text,'\0')-1;
-	do
+	do				       /* strip trailing punctuation */
 	 { switch(*echp)
 	    { case '.':case ',':case ';':case ':':case '?':case '!':*echp='\0';
 		 continue;
@@ -472,29 +472,29 @@ usg:
 	while(--echp>chp);    /* roughly check if it could be a mail address */
 	if(lastfrom<=0&&!strpbrk(chp,"@/")&&(!strchr(chp,'!')||
 	 strchr(chp,'|')||strchr(chp,',')||strstr(chp,".."))&&
-	 !(*chp=='<'&&strchr(chp,'\0')[-1]=='>'))
+	 !(*chp=='<'&&*echp=='>'))
 	 { if(lastfrom<0)
 	      lastfrom=!strcmp(SHFROM,chp);
 	   continue;			  /* apparently not an email address */
 	 }
-	lastfrom=0;
+	lastfrom=0;				    /* count matching parens */
 	for(parens=0;chp=strchr(chp,'(');chp++,parens++);
 	for(chp=fuzzstr.text;chp=strchr(chp,')');chp++,parens--);
-	if(*(chp=fuzzstr.text)=='(')
-	 { if(!parens&&*echp==')')
+	if(*(chp=fuzzstr.text)=='(')		       /* any opening paren? */
+	 { if(!parens&&*echp==')')	    /* parens matched and enclosing? */
 	    { *echp='\0';goto shftleft;
 	    }
-	   if(parens>0)
-shftleft:     tmemmove(chp,chp+1,strlen(chp));
+	   if(parens>0)			/* more opening than closing parens? */
+shftleft:     tmemmove(chp,chp+1,strlen(chp));		/* delete left paren */
 	 }
-	else if(parens<0&&*echp==')')
-	   *echp='\0';
+	else if(parens<0&&*echp==')')	/* more closing than opening parens? */
+	   *echp='\0';				       /* delete right paren */
 	if(*(chp=fuzzstr.text)=='<'&&*(echp=strchr(chp,'\0')-1)=='>'
 	 &&!strchr(chp,','))			      /* strip '<' and '>' ? */
 	   *echp='\0',tmemmove(chp,chp+1,echp-chp);
-	if(!(fuzzstr.textlen=strlen(chp)))
-	   continue;
-	lowcase(&fuzzstr);
+	if(!(fuzzstr.textlen=strlen(chp)))	    /* still something left? */
+	   continue;			      /* it's gone, next word please */
+	lowcase(&fuzzstr);			   /* cast it into lowercase */
 	if(excstr.text&&matchgram(&fuzzstr,&excstr)>=EXCL_THRESHOLD||
 	 exc2str.text&&matchgram(&fuzzstr,&exc2str)>=EXCL_THRESHOLD)
 	 { free(fuzzstr.itext);continue;

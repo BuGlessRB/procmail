@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.15 1993/02/04 12:44:49 berg Exp $";
+ "$Id: formisc.c,v 1.16 1993/08/20 11:22:43 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -156,13 +156,6 @@ squelch:
 
 void nofild P((void))
 { nlog("File table full\n");exit(EX_OSERR);
-}
-
-void waitforit P((void))
-{ int i;pid_t j;
-  while(child!=(j=wait(&i))||WIFSTOPPED(i))
-    if(-1==j)
-       return;
 }
 
 void nlog(a)const char*const a;

@@ -1,5 +1,5 @@
 #define VERSION "\
-procmail v2.92pre4 1993/08/11 written and created by Stephen R. van den Berg\n\
+procmail v2.92pre5 1993/08/20 written and created by Stephen R. van den Berg\n\
 \t\t\t\tberg@pool.informatik.rwth-aachen.de\n\
 \t\t\t\tberg@physik.tu-muenchen.de\n\
 \n\
@@ -8,3 +8,6 @@ Submit questions/answers to the procmail-related mailinglist by sending to:\n\
 \n\
 And of course, subscription and information requests for this list to:\n\
 \tprocmail-request@informatik.rwth-aachen.de\n"
+
+/* If the formatting or number of newlines of VERSION substantially changes,
+   src/manconf.c needs to be changed as well */

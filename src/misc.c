@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.28 1993/08/09 14:10:52 berg Exp $";
+ "$Id: misc.c,v 1.29 1993/08/20 11:22:53 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -110,7 +110,12 @@ void yell(a,b)const char*const a,*const b;		/* log if VERBOSE=on */
 }
 
 void nlog(a)const char*const a;
-{ elog(procmailn);elog(": ");elog(a);
+{ elog(procmailn);elog(": ");
+  if(verbose)
+   { char num[8*sizeof time_t*4/10+1];
+     ultstr(0,(unsigned long)time((time_t*)0),num);elog(num);elog(" ");
+   }
+  elog(a);
 }
 
 void logqnl(a)const char*const a;

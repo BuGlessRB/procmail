@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.28 1993/08/11 14:25:49 berg Exp $";
+ "$Id: formail.c,v 1.29 1993/08/20 11:22:40 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/08/11 14:25:49 $";
+static /*const*/char rcsdate[]="$Date: 1993/08/20 11:22:40 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -76,6 +76,7 @@ static const char emboxsep[]=eMAILBOX_SEPARATOR;
 const char binsh[]=BinSh,sfolder[]=FOLDER,
  couldntw[]="Couldn't write to stdout";
 int errout,oldstdout,quiet,buflast;
+int lexitcode;					     /* dummy, for waitfor() */
 pid_t child= -1;
 FILE*mystdout;
 size_t nrskip,nrtotal= -1,buflen,buffilled;
@@ -116,7 +117,7 @@ static PROGID;
 
 main(lastm,argv)const char*const argv[];
 { int i,split=0,force=0,bogus=1,every=0,areply=0,trust=0,digest=0,nowait=0,
-   keepb=0,minfields=(char*)progid-(char*)progid,conctenate=0;
+   keepb=0,minfields=(char*)progid-(char*)progid,conctenate=0,retval=EX_OK;
   size_t j,lnl,escaplen;char*chp,*namep,*escap=ESCAP;
   struct field*fldp,*fp2,**afldp,*fdate;
   if(lastm)			       /* sanity check, any argument at all? */
@@ -208,7 +209,7 @@ parsedoptions:
    }
   else if(every||digest||minfields)	      /* these combinations are only */
      goto usg;				  /* valid in combination with split */
-  if((xheader||Xheader)&&logsummary||keepb&&!(areply||xheader))
+  if((xheader||Xheader)&&logsummary||keepb&&!(areply||xheader||Xheader))
 usg:						     /* options sanity check */
    { elog(fmusage);					   /* impossible mix */
 xusg:
@@ -399,8 +400,11 @@ splitit:    { if(!lnl)	    /* did the previous mail end with an empty line? */
 	      logfolder();
 	      if((fclose(mystdout)==EOF||errout==EOF)&&!quiet)
 		 nlog(couldntw),elog(", continuing...\n"),split= -1;
-	      if(!nowait)
-		 waitforit();		 /* wait till the child has finished */
+	      if(!nowait)		 /* wait till the child has finished */
+	       { int excode;
+		 if((excode=waitfor(child))!=EX_OK&&retval!=EX_OK)
+		    retval=excode;
+	       }
 	      startprog((const char*Const*)argv);goto startover;
 	    }					    /* and there we go again */
 	 }
@@ -449,12 +453,23 @@ putsp:	lputcs(' ');
 	   goto flbuf;
 	 }
      else if(rdheader)
-	flushfield(&rdheader); /* beware, after this buf can still be filled */
+      { struct field*ox=xheader,*oX=Xheader;
+	ox=xheader;oX=Xheader;xheader=Xheader=0;flushfield(&rdheader);
+	xheader=ox;Xheader=oX; /* beware, after this buf can still be filled */
+      }
      else
 flbuf:	lputssn(buf,buffilled),buffilled=0;
    }			       /* make sure the mail ends with an empty line */
-  logfolder();closemine();child= -1;waitforit();	/* wait for everyone */
-  return split<0?EX_IOERR:EX_OK;
+  logfolder();closemine();
+  ;{ int excode;					/* wait for everyone */
+     while(-1!=wait(&excode)&&!WIFSTOPPED(excode))
+	if(retval==EX_OK&&
+	 (excode=WIFEXITED(excode)?WEXITSTATUS(excode):-1)!=EX_OK)
+	   retval=excode;
+   }
+  if(retval==-1)
+     retval=EX_UNAVAILABLE;
+  return retval!=EX_OK?retval:split<0?EX_IOERR:EX_OK;
 }
 
 eqFrom_(a)const char*const a;

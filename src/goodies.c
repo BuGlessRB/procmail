@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.17 1993/08/11 14:25:52 berg Exp $";
+ "$Id: goodies.c,v 1.18 1993/08/20 11:22:48 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -218,14 +218,6 @@ nodelim:
      if(got<=SKIPPING_SPACE)		 /* should we bother to change mode? */
 	got=NORMAL_TEXT;
    }
-}
-
-waitfor(pid)const pid_t pid;		      /* wait for a specific process */
-{ int i;pid_t j;
-  while(pid!=(j=wait(&i))||WIFSTOPPED(i))
-     if(-1==j)
-	return -1;
-  return lexitcode=WIFEXITED(i)?WEXITSTATUS(i):-1;
 }
 
 static struct lienv{struct lienv*enext;char ename[255];}*myenv;
