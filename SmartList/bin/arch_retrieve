@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.26 1994/03/10 16:20:13 berg Exp $
+#$Id: arch_retrieve,v 1.27 1994/04/14 12:32:49 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -93,6 +93,7 @@ $wrongaddress"
 		     *) $echo $from "$1" >>$tmpfrom
 		      ( $formail -rt -I"Subject: archive retrieval: $1" \
 			 -i"From: $listreq" -A"X-Loop: $listaddr" \
+			 -i"Content-ID: <$1%$listreq>" \
 			 -I"Precedence: bulk" <$tmprequest
 			$test ! -z "$wrongaddress" && $echo "$wrongaddress"
 			cd $archivedir
@@ -131,6 +132,7 @@ $wrongaddress"
 		  $echo $from ls "$line" >>$tmpfrom
 		   ( $formail -rt -I"Subject: archive retrieval: ls $1" \
 		      -i"From: $listreq" -A"X-Loop: $listaddr" \
+		      -i"Content-ID: <$line%$listreq>" \
 		      -I"Precedence: bulk" <$tmprequest
 		     $test ! -z "$wrongaddress" && $echo "$wrongaddress"
 		     cd $archivedir
