@@ -1,5 +1,5 @@
 
-#$Id: autoconf,v 1.5 1992/10/02 15:21:18 berg Exp $
+#$Id: autoconf,v 1.6 1992/10/21 20:11:53 berg Exp $
 
 SHELL=/bin/sh || exec /bin/sh ./autoconf $* # we're in a csh, feed myself to sh
 
@@ -248,12 +248,12 @@ unsigned psrand()
 main()
 { int goodlock,testlock,i,pip[2];unsigned otimet,dtimet;
   static char filename[]="_locktst.l0";
-  signal(SIGTERM,SIG_DFL);close(0);goodlock=0;testlock=FIRST_lock;
+  close(0);goodlock=0;testlock=FIRST_lock;
   if(fork())				 /* try to loose the controlling tty */
      return EX_OK;	/* mainly to prevent rather messy kernel-diagnostics */
   setsid();				    /* from appearing on your tty on */
   do
-   { otimet=time((char*)0);
+   { otimet=time((char*)0);signal(SIGTERM,SIG_DFL);
      if(fork())							  /* cloning */
 	return EX_OK; /* discard the old body, let "init" adopt our children */
      dolock=goodlock|testlock;pipe(pip);i=NR_of_forks;*child=0;
@@ -702,5 +702,5 @@ sed -e '/^Kernel-locking tests completed./,$ d' <_locktst.rrr >>$ACONF
 $RM _autotst* _locktst* lookfor grepfor 2>$DEVNULL
 
 echo -----------------------------autoconf.h-----------------------------------
-cat $ACONF >&2
+cat $ACONF
 echo --------------------------------------------------------------------------

@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: mailfold.c,v 1.5 1992/10/20 15:35:35 berg Exp $";
+static char rcsid[]="$Id: mailfold.c,v 1.6 1992/10/21 20:12:04 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -66,7 +66,7 @@ jin:	while(part&&(i=rwrite(s,source,BLKSIZ<part?BLKSIZ:(int)part)))
       }
      while(len);
      if(!len&&(lastdump<2||!(source[-1]=='\n'&&source[-2]=='\n')))
-	lastdump++,rwrite(s,newline,1);	       /* message always ends with a */
+	++lastdump,rwrite(s,newline,1);	       /* message always ends with a */
      emboxseparator(s);		 /* newline and an optional custom separator */
 writefin:
      if(tofile&&fdunlock())
@@ -192,8 +192,8 @@ void readmail(rhead,tobesent)const long tobesent;
   if(rhead)			      /* did we read in a new header anyway? */
    { confield.filled=0;concnd='\n';
      while(thebody=egrepin("[^\n]\n[\n\t ]",thebody,(long)(pastend-thebody),1))
-	if(*--thebody!='\n')			  /* mark continuated fields */
-	   app_val(&confield,(long)(thebody-1-themail));
+	if(thebody[-1]!='\n')			  /* mark continuated fields */
+	   app_val(&confield,(long)(--thebody-1-themail));
 	else
 	   goto eofheader;		   /* empty line marks end of header */
      thebody=pastend;	      /* provide a default, in case there is no body */
@@ -202,13 +202,13 @@ eofheader:;
   else				       /* no new header read, keep it simple */
      thebody=themail+dfilled;	 /* that means we know where the body starts */
  }
- {int firstchar;      /* to make sure that the first From_ line is uninjured */
-  firstchar= *realstart;*(chp=realstart)='\0';escFrom_.filled=0;
+ {int f1stchar;	      /* to make sure that the first From_ line is uninjured */
+  f1stchar= *realstart;*(chp=realstart)='\0';escFrom_.filled=0;
   while(chp=egrepin(FROM_EXPR,chp,(long)(pastend-chp),1))
    { while(*--chp!='\n');		       /* where did this line start? */
      app_val(&escFrom_,(long)(++chp-themail));++chp;		   /* bogus! */
    }
-  *realstart=firstchar;mailread=1;
+  *realstart=f1stchar;mailread=1;
  }
 }
 

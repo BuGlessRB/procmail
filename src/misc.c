@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: misc.c,v 1.5 1992/10/20 15:35:41 berg Exp $";
+static char rcsid[]="$Id: misc.c,v 1.6 1992/10/21 20:12:06 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -308,7 +308,7 @@ void asenv(chp)const char*const chp;
       }
    }
   else if(!strcmp(buf,lockfile))
-     lockit(chp,&globlock),chown(chp,uid,gid);
+     lockit((char*)chp,&globlock),chown(chp,uid,gid);
   else if(!strcmp(buf,eumask))
      umask((int)strtol(chp,(char**)0,8));
   else if(!strcmp(buf,includerc))

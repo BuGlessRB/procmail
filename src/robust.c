@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: robust.c,v 1.4 1992/10/20 15:35:58 berg Exp $";
+static char rcsid[]="$Id: robust.c,v 1.5 1992/10/21 20:12:09 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -102,7 +102,7 @@ opena(a)const char*const a;
 ropen(name,mode,mask)const char*const name;const int mode;const mode_t mask;
 { int i,r;					       /* a SysV secure open */
   for(r=noresretry,lcking|=lck_FILDES;0>(i=open(name,mode,mask));)
-     if(errno!=EINTR&&!((errno==EMFILE||errno==ENFILE)&&(r<0||r--)))
+     if(errno!=EINTR&&!(errno==ENFILE&&(r<0||r--)))
 	break;		 /* survives a temporary "file table full" condition */
   lcking&=~lck_FILDES;return i;
 }
@@ -110,7 +110,7 @@ ropen(name,mode,mask)const char*const name;const int mode;const mode_t mask;
 rpipe(fd)int fd[2];
 { int i,r;					  /* catch "file table full" */
   for(r=noresretry,lcking|=lck_FILDES;0>(i=pipe(fd));)
-     if(!((errno==EMFILE||errno==ENFILE)&&(r<0||r--)))
+     if(!(errno==ENFILE&&(r<0||r--)))
       { *fd=fd[1]= -1;break;
       }
   lcking&=~lck_FILDES;return i;
@@ -119,7 +119,7 @@ rpipe(fd)int fd[2];
 rdup(p)const int p;
 { int i,r;					  /* catch "file table full" */
   for(r=noresretry,lcking|=lck_FILDES;0>(i=dup(p));)
-     if(!((errno==EMFILE||errno==ENFILE)&&(r<0||r--)))
+     if(!(errno==ENFILE&&(r<0||r--)))
 	break;
   lcking&=~lck_FILDES;return i;
 }

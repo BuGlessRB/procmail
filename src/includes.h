@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.5 1992/10/02 15:21:43 berg Exp $*/
+/*$Id: includes.h,v 1.6 1992/10/21 20:11:59 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -48,7 +48,7 @@
 				   strspn() strcspn() strchr() strcmp()
 				   strncmp() strpbrk() memmove() */
 #endif
-#include <errno.h>		/* EINTR EEXIST ENFILE */
+#include <errno.h>		/* EINTR EEXIST ENFILE EACCES EAGAIN */
 #ifndef SYSEXITS_H_MISSING
 #include <sysexits.h>		/* EX_OK EX_USAGE EX_NOUSER EX_UNAVAILABLE
 				   EX_OSERR EX_OSFILE EX_CANTCREAT EX_IOERR
@@ -116,6 +116,13 @@ char*strpbrk();
 #endif
 #ifndef tell
 #define tell(fd)	lseek(fd,0L,SEEK_CUR)
+#endif
+
+#ifndef EWOULDBLOCK
+#define EWOULDBLOCK	EACCES
+#endif
+#ifndef EAGAIN
+#define EAGAIN		EINTR
 #endif
 
 #ifndef EOF
@@ -193,10 +200,6 @@ char*strpbrk();
 
 extern /*const*/char**environ;
 extern errno;
-
-#ifndef EMFILE						 /* not POSIX anyway */
-#define EMFILE	ENFILE
-#endif
 
 #ifndef STDIN_FILENO
 #define STDIN	0

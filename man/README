@@ -1,6 +1,6 @@
 Please note that the *.man files in this directory still need to be converted
 into their *.1 and *.5 counterparts.  You can do this by typing "make" in
-this directory, or by typing "make" in the directory below.
+this directory, or by typing "make" in the directory above.
 
 The man pages *.1 and *.5 can now either be converted to readable plain text
 by typing something like:

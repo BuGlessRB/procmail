@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: locking.c,v 1.4 1992/10/20 15:35:32 berg Exp $";
+static char rcsid[]="$Id: locking.c,v 1.5 1992/10/21 20:12:01 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -116,25 +116,35 @@ xcreat(name,mode,tim,chowned)const char*const name;const mode_t mode;
    }
   free(p);return j;
 }
-
-#ifndef fdlock
+	/* if you've ever wondered what conditional compilation was good for */
+#ifndef fdlock						/* watch closely :-) */
 #ifdef USEflock
 #ifndef SYS_FILE_H_MISSING
 #include <sys/file.h>
 #endif
+#define REITflock	1
+#else
+#define REITflock	0
 #endif /* USEflock */
 static oldfdlock= -1;				    /* the fd we locked last */
 #ifndef NOfcntl_lock
 static struct flock flck;		/* why can't it be a local variable? */
-#endif
+#define REITfnctl	1
+#else
+#define REITfnctl	0
+#endif /* NOfcntl_lock */
 #ifdef USElockf
 static long oldlockoffset;
-#endif
-	/* if you've ever wondered what conditional compilation was good for */
-fdlock(fd)						/* watch closely :-) */
+#define REITlockf	1
+#else
+#define REITlockf	0
+#endif /* USElockf */
+
+fdlock(fd)
 { int ret;
-  for(oldfdlock=fd;;
-   nlog("Reiterating kernel-lock\n"),sleep((unsigned)locksleep))
+#if REITfcntl+REITflock+REITlockf>1
+  for(;;nlog("Reiterating kernel-lock\n"),sleep((unsigned)locksleep))
+#endif
    {
 #ifndef NOfcntl_lock
      flck.l_type=F_WRLCK;flck.l_whence=SEEK_SET;flck.l_len=0;
@@ -147,26 +157,30 @@ fdlock(fd)						/* watch closely :-) */
 #ifndef NOfcntl_lock
      ret=fcntl(fd,F_SETLKW,&flck);
 #ifdef USElockf
-     if(ret|=lockf(fd,F_TLOCK,0L))
+     if((ret|=lockf(fd,F_TLOCK,0L))&&(errno==EAGAIN||errno==EACCES||
+      errno==EWOULDBLOCK))
 ufcntl:
-      { flck.l_type=F_UNLCK;fcntl(oldfdlock,F_SETLK,&flck);continue;
+      { flck.l_type=F_UNLCK;fcntl(fd,F_SETLK,&flck);continue;
       }
 #ifdef USEflock
-     if(ret|=flock(fd,LOCK_EX|LOCK_NB))
+     if((ret|=flock(fd,LOCK_EX|LOCK_NB))&&(errno==EAGAIN||errno==EACCES||
+      errno==EWOULDBLOCK))
       { lockf(fd,F_ULOCK,0L);goto ufcntl;
       }
 #endif /* USEflock */
 #endif /* USElockf */
 #ifdef USEflock
-     if(ret|=flock(fd,LOCK_EX|LOCK_NB))
-      { flck.l_type=F_UNLCK;fcntl(oldfdlock,F_SETLK,&flck);continue;
+     if((ret|=flock(fd,LOCK_EX|LOCK_NB))&&(errno==EAGAIN||errno==EACCES||
+      errno==EWOULDBLOCK))
+      { flck.l_type=F_UNLCK;fcntl(fd,F_SETLK,&flck);continue;
       }
 #endif /* USEflock */
 #else /* NOfcntl_lock */
 #ifdef USElockf
      ret=lockf(fd,F_LOCK,0L);
 #ifdef USEflock
-     if(ret|=flock(fd,LOCK_EX|LOCK_NB))
+     if((ret|=flock(fd,LOCK_EX|LOCK_NB))&&(errno==EAGAIN||errno==EACCES||
+      errno==EWOULDBLOCK))
       { lockf(fd,F_ULOCK,0L);continue;
       }
 #endif /* USEflock */
@@ -176,7 +190,7 @@ ufcntl:
 #endif /* USEflock */
 #endif /* USElockf */
 #endif /* NOfcntl_lock */
-     lcking&=~lck_KERNEL;return ret;
+     oldfdlock=fd;lcking&=~lck_KERNEL;return ret;
    }
 }
 
