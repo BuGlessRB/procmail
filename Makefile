@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.66 1995/03/20 14:49:22 berg Exp $
+#$Id: Makefile,v 1.67 1995/03/20 15:33:21 berg Exp $
 
 # BASENAME should point to where the whole lot will be installed
 # change BASENAME to your home directory if need be
@@ -54,7 +54,6 @@ MAN5DIR		= $(MANDIR)/man$(MAN5SUFFIX)
 # Makefile.0 - mark, don't (re)move this, a sed script needs it
 
 LOCKINGTEST=__defaults__
-LOCKINGTEST=000
 
 #LOCKINGTEST=/tmp .	# Uncomment and add any directories you see fit.
 #			If LOCKINGTEST is defined, autoconf will NOT
