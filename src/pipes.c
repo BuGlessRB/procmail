@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.48 1998/11/10 05:08:47 guenther Exp $";
+ "$Id: pipes.c,v 1.49 1998/11/10 11:07:55 srb Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -236,14 +236,8 @@ builtin:
 
 char*readdyn(bf,filled)char*bf;long*const filled;
 { int blksiz=BLKSIZ;long oldsize= *filled;unsigned shift=EXPBLKSIZ;
-  goto jumpin;
   for(;;)
-   { if(shift)						 /* room for growth? */
-      { int newbs=blksiz;newbs<<=shift--;	/* capped exponential growth */
-	if(blksiz<newbs)				  /* no overflowing? */
-	   blksiz=newbs;				    /* yes, take me! */
-      }
-jumpin:
+   {
 #ifdef SMALLHEAP
      if((size_t)*filled>=(size_t)(*filled+blksiz))
 	lcking|=lck_MEMORY,nomemerr();
@@ -255,6 +249,11 @@ jumpback:;
 	   if(0>=(got=rread(STDIN,bf+*filled,left)))		/* read mail */
 	      goto eoffound;
 	while(*filled+=got,left-=got);		/* change listed buffer size */
+      }
+     if(shift)						 /* room for growth? */
+      { int newbs=blksiz;newbs<<=shift--;	/* capped exponential growth */
+	if(blksiz<newbs)				  /* no overflowing? */
+	   blksiz=newbs;				    /* yes, take me! */
       }
    }
 eoffound:
