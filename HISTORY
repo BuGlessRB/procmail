@@ -167,7 +167,7 @@
 	    Procmail will be logging timestamps in the logfile when VERBOSE=on
 	    Caused the regular TIMEOUT to break a `hanging' kernel lock
 	    SIGUSR1 and SIGUSR2 can be used to turn on and off verbose logging
-	    Extended the procmailex man page (again)
+	    Extended and fixed the procmailex man page
 	    Tightened the loop when skipping comments in rcfiles
 	    Updated the crontab script recommendation in the procmail man page
 	    Fixed the "procmail"-mailer definition in the procmail man page

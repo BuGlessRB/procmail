@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.19 1993/07/21 18:59:41 berg Exp $
+.Id $Id: procmailex.man,v 1.20 1993/09/08 12:44:30 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -176,7 +176,7 @@ is created automatically:
 .Sx 9
 MONTHFOLDER=`date +%y-%m`
 
-:0 @IGNORE_WRITERR@
+:0 @IGNORE_WRITERR@@CONTINUE@
 * ? test ! \-d $MONTHFOLDER
 | mkdir $MONTHFOLDER
 
