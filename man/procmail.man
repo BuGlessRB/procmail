@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.15 1993/04/02 12:38:32 berg Exp $
+.Id $Id: procmail.man,v 1.16 1993/04/20 16:42:43 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -302,6 +302,9 @@ This host was called "x", HOST contained something else.
 Locking "x"
 Creating lockfile "x".
 .Tp
+Linking to "x"
+Creating a hardlink between directory folders.
+.Tp
 Match on "x"
 Condition matched.
 .Tp
@@ -314,9 +317,6 @@ in `file'.
 .Tp
 Opening "x"
 Opening file "x" for appending.
-.Tp
-Opening directory "x"
-Opening a directory for finding the highest file number.
 .Tp
 Rcfile: "x"
 Rcfile changed to "x".

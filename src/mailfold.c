@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.22 1993/04/19 10:36:37 berg Exp $";
+ "$Id: mailfold.c,v 1.23 1993/04/20 16:42:51 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -84,7 +84,6 @@ static dirfile(chp,linkonly)char*const chp;const int linkonly;
    { long i=0;			     /* first let us try to prime i with the */
 #ifndef NOopendir		     /* highest MH folder number we can find */
      long j;DIR*dirp;struct dirent*dp;char*chp2;
-     yell("Opening directory",buf);
      if(dirp=opendir(buf))
       { while(dp=readdir(dirp))		/* there still are directory entries */
 	   if((j=strtol(dp->d_name,&chp2,10))>i&&!*chp2)
@@ -111,7 +110,8 @@ static dirfile(chp,linkonly)char*const chp;const int linkonly;
       strchr(strcat(buf,tgetenv(msgprefix)),'\0'));
    }
   if(linkonly)
-   { if(link(buf2,buf))
+   { yell("Linking to",buf);
+     if(link(buf2,buf))	   /* hardlink the new file, it's a directory folder */
 nolnk:	nlog("Couldn't make link to"),logqnl(buf);
      goto ret;
    }
@@ -120,52 +120,63 @@ opn: return opena(buf);
 ret:
   return -1;
 }
+
+static ismhdir(chp)const char*const chp;
+{ if(chp-1>=buf&&chp[-1]==*MCDIRSEP_&&*chp==chCURDIR)
+   { chp[-1]='\0';return 1;
+   }
+  return 0;
+}
 				       /* open file or new file in directory */
 deliver(boxname,linkfolder)char*boxname,*linkfolder;
 { struct stat stbuf;char*chp;int mhdir;
   tofile=to_FILE;asgnlastf=1;
   if(boxname!=buf)
      strcpy(buf,boxname);		 /* boxname can be found back in buf */
-  if(*(chp=buf))
-     chp=strchr(buf,'\0')-1;
-  if(mhdir=chp-1>=buf&&chp[-1]==*MCDIRSEP_&&*chp==chCURDIR)
-     chp[-1]='\0';
-  if(stat(boxname,&stbuf)&&mhdir&&mkdir(buf,NORMdirperm)||
-   !S_ISDIR(stbuf.st_mode))
-   { if(linkfolder)
+  if(*(chp=buf))				  /* not null length target? */
+     chp=strchr(buf,'\0')-1;		     /* point to just before the end */
+  mhdir=ismhdir(chp);				      /* is it an MH folder? */
+  if(stat(boxname,&stbuf))				 /* it doesn't exist */
+   { if(!mhdir||mkdir(buf,NORMdirperm))		/* should it be a directory? */
+	goto makefile;				/* no, create a regular file */
+   }
+  else if(!S_ISDIR(stbuf.st_mode))	 /* it exists and is not a directory */
+makefile:
+   { if(linkfolder)	  /* any leftovers?  Now is the time to display them */
 	concatenate(linkfolder),skipped(linkfolder);
      tofile=strcmp(devnull,buf)?to_FOLDER:0;return opena(boxname);
    }
-  if(linkfolder)
+  if(linkfolder)		    /* any additional directories specified? */
    { for(boxname=linkfolder;*boxname!=TMNATE;)
-	while(*boxname++);
+	while(*boxname++);		       /* calculate the total length */
      boxname++;
-     linkfolder=
+     linkfolder=			       /* copy the names into safety */
       tmemmove(malloc(boxname-linkfolder),linkfolder,boxname-linkfolder);
    }
   if(mhdir)				/* buf should contain directory name */
      *chp='\0',chp[-1]= *MCDIRSEP_,strcpy(buf2,buf);	   /* it ended in /. */
-  else
-     chp=0,strcpy(buf2,strcat(buf,MCDIRSEP_));
-  ;{ int fd= -1;
+  else					 /* fixup directory name, append a / */
+     strcat(chp,MCDIRSEP_),strcpy(buf2,buf),chp=0;
+  ;{ int fd= -1;		/* generate the name for the first directory */
      if(unique(buf2,strchr(buf2,'\0'),NORMperm,verbose)&&
-      (fd=dirfile(chp,0))>=0&&linkfolder)
+      (fd=dirfile(chp,0))>=0&&linkfolder)	 /* save the file descriptor */
 	for(strcpy(buf2,buf),boxname=linkfolder;*boxname!=TMNATE;)
-	 { strcpy(buf,boxname);
+	 { strcpy(buf,boxname);		/* go through the list of other dirs */
 	   if(*(chp=buf))
 	      chp=strchr(buf,'\0')-1;
-	   if(mhdir=chp-1>=buf&&chp[-1]==*MCDIRSEP_&&*chp==chCURDIR)
-	      chp[-1]='\0';
-	   else
-	      chp=0;
-	   if(stat(boxname,&stbuf))
-	      mkdir(buf,NORMdirperm);
-	   dirfile(chp,1);
-	   while(*boxname++);
+	   mhdir=ismhdir(chp);			      /* is it an MH folder? */
+	   if(stat(boxname,&stbuf))			 /* it doesn't exist */
+	      mkdir(buf,NORMdirperm);				/* create it */
+	   if(mhdir)
+	      *chp='\0',chp[-1]= *MCDIRSEP_;
+	   else				 /* fixup directory name, append a / */
+	      strcat(chp,MCDIRSEP_),chp=0;
+	   dirfile(chp,1);		/* link it with the original in buf2 */
+	   while(*boxname++);		  /* skip to the next directory name */
 	 }
-     if(linkfolder)
+     if(linkfolder)					   /* free our cache */
 	free(linkfolder);
-     return fd;
+     return fd;			      /* return the file descriptor we saved */
    }
 }
 
