@@ -1,0 +1,477 @@
+.Id $Id: procmailrc.man,v 1.1 1992/09/28 14:27:57 berg Exp $
+.TH PROCMAILRC 5 \*(Dt BuGless
+.SH NAME
+.na
+procmailrc \- procmail rcfile
+.SH SYNOPSIS
+.B $HOME/+PROCMAILRC+
+.ad
+.Sh DESCRIPTION
+For a quick start, see
+.B NOTES
+at the end of the
+.BR procmail (1)
+man page.
+.PP
+The rcfile can contain a mixture of environment variable assignments (some
+of which have special meanings to procmail), and recipes.  In their most
+simple appearance, the recipes are simply one line regular expressions
+that are searched for in the header of the arriving mail, the first recipe
+that matches is used to determine where the mail has to go (usually a file).
+.PP
+If a matching recipe does not specify any special flags (like `+FILTER+' or
+`+CONTINUE+') and the recipe is successful (i.e. no write failures or other
+calamities), then processing of the rcfile will cease at this point, and
+procmail will consider the mail to have been delivered.
+.PP
+This enables you to presort your mail extremely straightforward into several
+mailfolders.  Bear in mind though that the mail can arrive concurrently in
+these mailfolders (if several procmail programs happen to run at the same time,
+not unlikely if a lot of mail arrives), to make sure this does not result in a
+mess, proper use of lockfiles is highly recommended.
+.PP
+The environment variable
+.B assignments
+and
+.B recipes
+can be freely intermixed in the rcfile. If any environment variable has
+a special meaning to procmail, it will be used appropiately the moment
+it is parsed. (i.e. you can change the current directory whenever you
+want by specifying a new
+.BR MAILDIR ,
+switch lockfiles by specifying a new
+.BR LOCKFILE ,
+change the umask at any time, etc., the possibilities are endless :-).
+.PP
+The assignments and substitutions of these environment variables are handled
+exactly like in
+.BR sh (1)
+(that includes all possible quotes and escapes),
+with the added bonus that blanks around the '=' sign are ignored and that,
+if an environment variable appears without a trailing '=', it will be
+removed from the environment.  Any program in backquotes started by procmail
+will have the entire mail at its stdin.
+.PP
+.Ss Comments
+A word beginning with # and all the following characters up to a NEWLINE
+are ignored.
+.Ss Recipes
+.PP
+A line starting with ':' marks the beginning of a recipe.  It has the
+following format:
+.PP
+.Rs
+: [\fInumber\fP] [\fIflags\fP] [ : [\fIlocallockfile\fP] ]
+<zero or more conditions (one per line)>
+<exactly one action line>
+.Re
+.PP
+The
+.I number
+is optional (defaults to 1) and specifies the number of conditions that
+follow the first line of the recipe.  Conditions are complete lines that are
+passed on to the internal egrep
+.BR literally ,
+except for leading and trailing whitespace.
+If a condition starts with an '!', the condition is inverted.  If you really
+want the condition to start with an '!', precede the '!' by a '\\'.
+These conditions are
+.B completely
+compatible to the normal
+.BR egrep (1)
+regular expressions.
+.PP
+A special case condition is one starting with either '<' or '>', this
+condition is true only if the total length of the mail is shorter,
+respectively longer than the specified (in decimal) number of bytes.
+.PP
+Another special case condition is one starting with a '$'.  This condition
+will be evaluated according to
+.BR sh (1)
+subtitution rules inside double quotes, i.e. environment variable
+substitutions take place here, prior to being interpreted as a condition.
+.PP
+Conditions are anded; if
+.I number
+is zero, then the condition is always true and no conditions are expected
+next.
+.PP
+.I Flags
+can be any of the following:
+.Tp 0.5i
+.B +HEAD_GREP+
+Egrep the header (default).
+.Tp
+.B +BODY_GREP+
+Egrep the body.
+.Tp
+.B +DISTINGUISH_CASE+
+Tell the internal egrep to distinguish between upper and lower case (defaults
+to ignoring case).
+.Tp
+.B +ALSO_NEXT_RECIPE+
+This recipe will depend on the last preceding recipe without the
+`+ALSO_NEXT_RECIPE+' or `+ALSO_N_IF_SUCC+' flag.  This allows you to chain
+actions that depend on a common condition.  The number of conditions that
+are expected to follow default to none.
+.Tp
+.B +ALSO_N_IF_SUCC+
+Has the same meaning as the `+ALSO_NEXT_RECIPE+' flag, but will depend on the
+.I successful
+completion of the immediately preceding recipe as well.
+.Tp
+.B +PASS_HEAD+
+Feed the header to the pipe (default).
+.Tp
+.B +PASS_BODY+
+Feed the body to the pipe (default).
+.Tp
+.B +FILTER+
+Consider the pipe as a filter.
+.Tp
+.B +CONTINUE+
+Continue processing rcfile even if this recipe matches (not needed when 'f'
+specified).
+.Tp
+.B +WAIT_EXIT+
+Wait for the filter or program to finish and check its exitcode (normally
+ignored); if the filter is unsuccessful, then the text will not have been
+filtered.
+.Tp
+.B +WAIT_EXIT_QUIET+
+Has the same meaning as the `+WAIT_EXIT+' flag, but will suppress any
+`Program failure' message.
+.Tp
+.B +IGNORE_WRITERR+
+Ignore any write errors on this recipe (i.e. usually due to an early closed
+pipe).
+.Ss "Local lockfile"
+.PP
+If you put a second ':' on the first recipe line, then procmail will use a
+.I locallockfile
+(for this recipe only).  You can optionally specify the locallockfile
+to use; if you don't however, procmail will use the destination filename
+(or the filename following the first '>>') and will append $LOCKEXT to it.
+.Ss "Recipe action line"
+.PP
+The action line can start with the following characters:
+.Tp
+.B !
+Forwards to all the specified mail addresses.
+.Tp
+.B |
+Starts the specified program, possibly in $SHELL if any
+of the characters $SHELLMETAS are spotted.  You can optionally prepend this
+pipe symbol with
+.IR variable= ,
+which will cause stdout of the program to be captured in the environment
+.IR variable .
+.PP
+Anything else will be taken as a mailbox name (either a filename or a
+directory, absolute or relative to the current directory (see MAILDIR)).
+If it is a filename (or nonexistent), the mail will be appended to it.
+.PP
+If it is a directory, the mail will be delivered to a newly created, guaranteed
+to be unique file named $MSGPREFIX* in the specified directory.  If the
+directory name ends in "+MCDIRSEP++chCURDIR+", then this directory is presumed
+to be an MH folder; i.e. procmail will use the next number it finds available.
+.Ss "Environment variable defaults"
+.Tp 2.2i
+.B "USER, HOME and SHELL"
+Your (the recipient's) defaults
+.Tp
+.B SHELLMETAS
+\&+DEFshellmetas+
+.Tp
+.B SHELLFLAGS
+\&+DEFshellflags+
+.Tp
+.BR ORGMAIL
+\&+SYSTEM_MBOX+
+.Tp
+.B MAILDIR
+\&+DEFmaildir+
+.br
+(Unless the name of the first successfully opened rcfile starts with
+`+chCURDIR++MCDIRSEP+', in which case it defaults to `+chCURDIR+')
+.Tp
+.B DEFAULT
+\&+DEFdefault+
+.Tp
+.B MSGPREFIX
+\&+DEFmsgprefix+
+.Tp
+.B SENDMAIL
+\&+DEFsendmail+
+.Tp
+.B LOCKEXT
+\&+DEFlockext+
+.Tp
+.B LOCKFILE
+\&+DEFdefaultlock+
+.br
+(after procmail closed the last rcfile)+PRESTENV++LD_ENV_FIX+
+.Ss Environment
+.PP
+Before you get lost in the multitude of environment variables, keep in mind
+that all of them have reasonable defaults.
+.Tp 1.2i
+.B MAILDIR
+Current directory while procmail is executing (that means that all paths
+are relative to $MAILDIR).
+.Tp
+.B DEFAULT
+Default
+.B mailbox
+file (if not told otherwise, procmail will dump mail in this mailbox).
+Procmail will automatically use LOCKFILE=$DEFAULT$LOCKEXT prior to writing
+to this mailbox.
+.Tp
+.B MSGPREFIX
+Filename prefix that is used when delivering to a directory (not used when
+delivering to an MH directory).
+.Tp
+.B LOGFILE
+All incoming messages will be logged here with their `+FROM+' and `Subject:'
+lines in the header, and an additional line specifying what folder it
+finally went to and how long (in bytes) the message was.  This file will
+also contain any error or diagnostic messages from procmail
+(normally none :-) or any other programs started by procmail.  If this file
+is not specified, any diagnostics or error messages will
++pconsole++console++aconsole+
+.Tp
+.B VERBOSE
+You can turn on
+.I extended diagnostics
+by setting this variable to `yes' or `on', to turn it off again set it to `no'
+or `off'.
+.Tp
+.B LOG
+Anything assigned to this variable will be echoed in $LOGFILE.
+.Tp
+.B ORGMAIL
+Usually the system mailbox (\fBOR\fPi\fBG\fPinal \fBMAIL\fPbox).  If, for
+some obscure reason (like `\fBfilesystem full\fP') the mail could not be
+delivered, then this mailbox will be the last resort.  If procmail
+fails to save the mail in here (deep, deep trouble :-), then the mail
+will bounce back to the sender.
+.Tp
+.B LOCKFILE
+Global semaphore file.  If this file already exists, procmail
+will wait until it has gone before proceeding, and will create it itself
+(cleaning it up when ready, of course).  If more than one
+.I lockfile
+are specified, then the previous one will be removed before trying to create
+the new one.  The use of a global lockfile is discouraged, whenever possible
+use locallockfiles (on a per recipe basis) instead.
+.Tp
+.B LOCKEXT
+Default extension that is appended to a destination file to determine
+what local
+.I lockfile
+to use (only if turned on, on a per-recipe basis).
+.Tp
+.B LOCKSLEEP
+Number of seconds procmail will sleep before retrying on a
+.I lockfile
+(if it already existed); if not specified, it defaults to +DEFlocksleep+
+seconds.
+.Tp
+.B LOCKTIMEOUT
+Number of seconds that have to have passed since a
+.I lockfile
+was last modified/created before procmail decides that this must be an
+erroneously leftover lockfile that can be removed by force now.  If zero,
+then no timeout will be used and procmail will wait forever until the
+lockfile is removed; if not specified, it defaults to +DEFlocktimeout+ seconds.
+This variable is useful to prevent indefinite hangups of
+.BR sendmail /procmail.
+Procmail is immune to clock skew.
+.Tp
+.B TIMEOUT
+Number of seconds that have to have passed before procmail decides that
+some child it started must be hanging.  The offending program will receive
+a TERMINATE signal from procmail, and processing of the rcfile will continue.
+If zero, then no timeout will be used and procmail will wait forever until the
+child has terminated; if not specified, it defaults to +DEFtimeout+ seconds.
+.Tp
+.B HOST
+If this is not the
+.I hostname
+of the machine, processing of the current
+.I rcfile
+will immediately cease. If other rcfiles were specified on the
+command line, processing will continue with the next one.  If all rcfiles
+are exhausted, the program will terminate, but will not generate an error
+(i.e. to the mailer it will seem that the mail has been delivered).  Only the
+first +HOSTNAMElen+ characters of the HOST are significant.
+.Tp
+.B UMASK
+The name says it all (if it doesn't, then forget about this one :-).  It
+is taken as an
+.B octal
+number.  If not specified, it defaults to +INIT_UMASK+.
+.Tp
+.B SHELLMETAS
+If any of the characters in SHELLMETAS appears in the line specifying
+a filter or program, the line will be fed to $SHELL
+instead of being executed directly.
+.Tp
+.B SHELLFLAGS
+Any invocation of $SHELL will be like:
+.br
+"$SHELL" "$SHELLFLAGS" "$*";
+.Tp
+.B SENDMAIL
+If you're not using the
+.I forwarding
+facility don't worry about this one.  It specifies the program being
+called to forward any mail.
+.br
+It gets invoked as: "$SENDMAIL" "$@";
+.Tp
+.B NORESRETRY
+Number of retries that are to be made if any `\fBprocess table full\fP',
+`\fBfile table full\fP', `\fBout of memory\fP' or
+`\fBout of swap space\fP' error should occur.  If this number is negative,
+then procmail will retry indefinitely; if not specified, it defaults to
++DEFnoresretry+ times.  The retries occur with a $SUSPEND second interval.  The
+idea behind this is, that if e.g. the
+.I swap
+.I space
+has been exhausted or the
+.I process
+.I table
+is full, usually several other programs will either detect this too
+and abort or crash 8-), and thereby freeing valuable
+.I resources
+for procmail.
+.Tp
+.B SUSPEND
+Number of seconds that procmail will pause if it has to wait for something
+that is currently unavailable (memory, fork, etc.); if not specified, it will
+default to +DEFsuspend+ seconds.  See also:
+.BR LOCKSLEEP .
+.Tp
+.B LINEBUF
+Length of the internal line buffers, cannot be set smaller than +MINlinebuf+.
+All lines read from the
+.I rcfile
+should not exceed $LINEBUF characters before and after expansion.  If not
+specified, it defaults to +DEFlinebuf+.  This limit, of course, does
+.I not
+apply to the mail itself, which can have arbitrary line lengths, or could
+be a binary file for that matter.
+.Tp
+.B DELIVERED
+If set to `yes' procmail will pretend (to the mail agent) the mail
+has been delivered.  If mail cannot be delivered after meeting this
+assignment (to `yes'), the mail will be lost (i.e. it will not bounce).
+.Tp
+.B INCLUDERC
+Names an rcfile (relative to the current directory) which will be included
+here as if it were part of the current rcfile.  Unlimited nesting is
+permitted.
+.Tp
+.B COMSAT
+.BR Comsat (8)/ biff (1)
+notification is on by default, it can be turned off by setting this variable
+to `no'.  Alternatively the biff-service can be customised by setting it to
+either `service+SERV_ADDRsep+', `+SERV_ADDRsep+hostname', or
+`service+SERV_ADDRsep+hostname'.  When not specified it defaults
+to +COMSATservice++SERV_ADDRsep++COMSAThost+.
+.Sh EXAMPLES
+Look in the
+.BR procmailex (5)
+man page.
+.Sh CAVEATS
+Continued lines in a recipe that are to be executed always have to end
+in a backslash, even if the underlying shell would not need or want the
+backslash to indicate continuation.  This is due to the two pass parsing
+process needed (first procmail, then the shell (or not, depending on
+.BR SHELLMETAS )).
+.PP
+Don't put comments on the condition lines (the regular expressions) in a
+recipe, these lines are fed to the internal egrep
+.IR literally .
+(Exceptions: leading or trailing whitespace, or a leading `!', `$' or `\\', it
+will be stripped.  Precede leading whitespace, or a leading `!', `$' or `\\'
+by another `\\' if you want it to be taken literally too.)
+.PP
+Watch out for deadlocks when doing unhealthy things like forwarding mail
+to your own account.  Deadlocks can be broken by proper use of
+.BR LOCKTIMEOUT .
+.PP
+Any default values that procmail has for some environment variables will
+.B always
+override the ones that were already defined.  If you really want to
+override the defaults, you either have to put them in the
+.B rcfile
+or on the command line as arguments.
+.Sh "SEE ALSO"
+.na
+.BR procmail (1),
+.BR procmailex (5),
+.BR sh (1),
+.BR csh (1),
+.BR mail (1),
+.BR mailx (1),
+.BR binmail (1),
+.BR uucp (1),
+.BR aliases (5),
+.BR sendmail (8),
+.BR egrep (1),
+.BR grep (1),
+.BR biff (1),
+.BR comsat (8),
+.BR lockfile (1),
+.BR formail (1)
+.ad
+.Sh BUGS
+The only substitutions of environment variables that can be handled by
+procmail itself are of the type $name, ${name}, $$, $? and $\-; whereas $\-
+will be substituted by the name of the last folder delivered
+to.+UPPERCASE_USERNAMES+
+.PP
+A line buffer of length $LINEBUF is used when processing the
+.IR rcfile ,
+any expansions
+.B have
+to fit within this limit; if they don't, behaviour is undefined.
+.PP
+If the global lockfile has a
+.I relative
+path, and the current directory
+is not the same as when the global lockfile was created, then the global
+lockfile will not be removed if procmail exits at that point (remedy:
+use
+.I absolute
+paths to specify global lockfiles).
+.Sh MISCELLANEOUS
+If the regular expression starts with `\fB+TOkey+\fP' it will be substituted by
+`\fB+TOsubstitute+\fP', which should catch all destination specifications.
+.PP
+If the regular expression starts with `\fB+FROMDkey+\fP' it will be substituted
+by
+`\fB+FROMDsubstitute+\fP',
+which should catch mails coming from most daemons.
+.PP
+When assigning boolean values to variables like VERBOSE, DELIVERY or COMSAT,
+procmail accepts as true every string starting with: a non-zero value, `on',
+`y' or `t'.  False is every string starting with: a zero value, `off', `n' or
+`f'.
+.Sh NOTES
+Since whitespace generally is ignored in the rcfile you can indent everything
+to taste.
+.PP
+The leading `|' on the action line to specify a program or filter is stripped
+before checking for $SHELLMETAS.
+.PP
+Files included with the INCLUDERC directive containing only environment
+variable assignments can be shared with sh.
+.PP
+For
+.I really
+complicated processing you can even consider calling
+.B procmail
+recursively.

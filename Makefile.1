@@ -1,0 +1,126 @@
+#$Id: Makefile.1,v 1.1 1992/09/28 14:27:49 berg Exp $
+
+HIDEMAKE=$(MAKE)
+
+all: bins mans recommend
+
+bins: config.check src/Makefile
+	cd src; $(MAKE) $(NBINS)
+
+mans: config.check man/Makefile
+	cd man; $(MAKE) $(NMANS)
+
+autoconf.h: src/Makefile src/autoconf
+	cd src; $(MAKE) ../$@
+
+procmail: config.check src/Makefile man/Makefile
+	cd src; $(MAKE) ../new/$@ ../new/mailstat
+	cd man; $(MAKE) ../new/$@.1 ../new/$@rc.5 ../new/$@ex.5
+
+formail lockfile: config.check src/Makefile man/Makefile
+	cd src; $(MAKE) ../new/$@
+	cd man; $(MAKE) ../new/$@.1
+
+install: install.man install.bin
+
+config.check: config.h
+	@echo Housekeeping file >$@
+	@-if $(FGREP) -n -e '`' config.h $(DEVNULL) | $(FGREP) -v EOFName ; \
+	 then \
+	 echo;echo '	^^^^^^^^^^^^^^^^^^^^ WARNING ^^^^^^^^^^^^^^^^^^^^^';\
+	      echo '	* Having backquotes in there could be unhealthy! *';\
+	 echo;fi;exit 0
+
+recommend: src/Makefile
+	@cd src; $(MAKE) $@ >$(DEVNULL)
+	@echo ----------------------------------------------------------------\
+---------------
+	@echo If you are a system administrator you should consider \
+integrating procmail
+	@echo into the mail-delivery system -- for advanced functionality \
+AND SECURITY --.
+	@echo For more information about this topic you should look in the \
+examples/advanced
+	@echo file.
+	@echo
+	@echo "Also, HIGHLY RECOMMENDED (type 'make suid' to execute it):"
+	@echo
+	@src/$@ $(BINDIR)/procmail $(BINDIR)/lockfile >suid.sh
+	@src/$@ $(BINDIR)/procmail $(BINDIR)/lockfile
+	@echo ----------------------------------------------------------------\
+---------------
+
+suid.sh: recommend
+
+suid: suid.sh install.bin
+	@cat $@.sh
+	@$(SHELL) ./$@.sh
+	@cd $(BINDIR); echo Installed in $(BINDIR); ls -l $(BINS)
+
+$(MANS): mans
+
+$(BINS): bins
+
+install.man: $(MANS)
+	@echo Housekeeping file >install.man
+	@-mkdir $(MANDIR) 2>$(DEVNULL); exit 0
+	@-mkdir $(MAN1DIR) 2>$(DEVNULL); exit 0
+	@-mkdir $(MAN5DIR) 2>$(DEVNULL); exit 0
+	@chmod 0644 $(MANS)
+	@for a in $(MANS1S); \
+	  do $(INSTALL) new/$$a.1 $(MAN1DIR)/$$a.$(MAN1SUFFIX); done
+	@for a in $(MANS5S); \
+	  do $(INSTALL) new/$$a.5 $(MAN5DIR)/$$a.$(MAN5SUFFIX); done
+
+install.bin: $(BINS)
+	@echo Housekeeping file >install.bin
+	@-mkdir $(BINDIR) 2>$(DEVNULL); exit 0
+	@chmod 0755 $(BINS)
+	$(INSTALL) $(BINS) $(BINDIR)
+
+install: install.man install.bin
+	@echo
+	@cd $(BINDIR); echo Installed in $(BINDIR); ls -l $(BINSS)
+	@cd $(MAN1DIR); echo Installed in $(MAN1DIR); ls -l $(MANS1)
+	@cd $(MAN5DIR); echo Installed in $(MAN5DIR); ls -l $(MANS5)
+	@$(MAKE) recommend
+
+new:
+	@-mkdir $@ 2>$(DEVNULL); exit 0
+
+deinstall:
+	@echo ----------------------------- Deinstalling the procmail package.
+	@echo ----------------------------- Checking if everything was removed:
+	@-cd $(BINDIR); $(RM) $(BINSS); ls -l $(BINSS)
+	@-cd $(MAN1DIR); $(RM) $(MANS1); ls -l $(MANS1)
+	@-cd $(MAN5DIR); $(RM) $(MANS5); ls -l $(MANS5)
+	@echo ----------------------------- Ready.
+
+clean: new
+	-for a in $(SUBDIRS); do cd $$a; $(MAKE) $@; cd ..; done; exit 0
+	$(RM) $(MANS) $(BINS) install.man install.bin suid.sh _Makefile core
+
+realclean: clean _init
+	-rmdir new; exit 0
+	$(RM) config.check
+	-for a in $(SUBDIRS); do mv $$a/Makefile.init $$a/Makefile; done; \
+	 exit 0
+
+veryclean: realclean
+
+_init:
+	sed -e '/^# Makefile.1 - mark/,$$ d' <Makefile >_Makefile
+	cat Makefile.0 >>_Makefile
+	mv _Makefile Makefile
+	$(RM) Makefile.0
+
+man/Makefile: man/Makefile.0
+
+src/Makefile: src/Makefile.0
+
+man/Makefile src/Makefile: Makefile
+	$(MAKE) _init; $(HIDEMAKE) init
+
+Makefile: Makefile.1
+
+init makefiles Makefiles makefile: man/Makefile src/Makefile

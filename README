@@ -1,0 +1,101 @@
+For installation instructions see the INSTALL file.
+----------------------
+Procmail & formail mail processing package.
+Copyright (c) 1990-1992, S.R. van den Berg, The Netherlands.
+
+Some legal stuff:
+
+Use this software package at your own risk.  The programmer cannot
+be held liable for any incurred damages, directly or indirectly due to
+the use or inability to use this software.
+
+You are encouraged to distribute this package freely.  This package is
+however not to be sold (minor transfer costs excepted) or included in
+any commercially sold software package (if you want to do this anyway,
+contact me (address below), and we'll work something out).
+
+If you distribute it, please leave the package intact.	You are allowed to
+take parts from this distribution and distribute these separately as long
+as you retain the copyright messages.  If you redistribute any part of this
+package in a modified form, be sure to mark the parts you changed.
+If you have some important changes that might be useful to the rest of the
+world, contact me instead.
+
+-------------------------- SYSTEM REQUIREMENTS -------------------------------
+
+Any *NIX-alike system.
+
+Sendmail, smail, MMDF or compatible mailers (in effect any mailer that can
+process RFC-822 compliant mails).
+
+The most important system calls that need to be supported (among others):
+dup(),wait(),getpwnam(),fork(),pipe()
+
+For a more complete list of all library references see "includes.h"
+
+------------------------------ DESCRIPTION -----------------------------------
+
+The procmail mail processing program. (v2.71 1992/07/01)
+
+Can be used to create mail-servers, mailing lists, sort your incoming mail
+into separate folders/files (real convenient when subscribing to one or more
+mailing lists or for prioritising your mail), preprocess your mail, start
+any programs upon mail arrival (e.g. to generate different chimes on your
+workstation for different types of mail) or selectively forward certain
+incoming mail automatically to someone.
+
+The accompanying formail program enables you to generate autoreplies, split up
+digests/mailboxes into the original messages, do some very simple
+header-munging/extraction, or force mail into mail-format (with leading From
+line).
+
+----------------------
+
+I made the utmost effort to make procmail as robust as any program can be
+(every conceivable system error is caught *and* handled).
+
+Procmail was designed to deliver the mail under the worst conditions
+(file system full, out of swap space, process table full, file table full,
+missing support files, unavailable executables; it all doesn't matter).
+Should (in the unlikely event) procmail be unable to deliver your mail
+somewhere, the mail will bounce back to the sender or reenter the mailqueue
+(your choice).
+
+For a more extensive list of features see the FEATURES file.
+
+----------------------
+
+However, as with any program, bugs cannot be completely ruled out.
+I tested the program extensively, and believe it should be relatively
+bug free (no known bug at the time).  Should, however, anyone find any
+bugs (highly unlikely :-), I would be pleased (well, sort of :-) to hear
+about it.  Please send me the patches or bug report.
+I'll look at them and will try to fix it in a future release.
+(BTW, if you should find any spelling or grammar errors in these files,
+don't hesitate to point them out to me; I like correct English just as much
+as you do).
+
+Please note that this program essentially is supposed to be static, that
+means no extra features (honouring the VNIX spirit) are supposed to be
+added (though any useful suggestions will be appreciated and evaluated if
+time permits).
+
+Cheers,
+       Stephen R. van den Berg	at RWTH-Aachen, Germany.
+
+Internet E-mail:		berg@pool.informatik.rwth-aachen.de
+				berg@physik.tu-muenchen.de
+
+Snail-Mail:	P.O.Box 21074
+		6369 ZG Simpelveld
+		The Netherlands
+
+----------------------
+A recent version can be picked up at various comp.sources.misc archives.
+The latest version can be obtained directly from the ftp-archive at:
+
+	ftp.informatik.rwth-aachen.de (137.226.144.33)
+
+	as compressed tar file:		pub/unix/procmail.tar.Z		<128KB
+	or in compressed shar format:	pub/unix/procmail.0?.Z
+----------------------

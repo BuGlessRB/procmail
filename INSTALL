@@ -1,0 +1,142 @@
+Discusses:
+		1. Getting the lot to compile
+		2. DEBUGGING AID
+		3. Setting up the environment
+		4. Extra options if you are a system administrator
+
+				---
+
+1. Getting the lot to compile
+   --------------------------
+
+To install procmail, lockfile and formail: edit Makefile & config.h accordingly
+and type 'make install'.
+Intended configurable options in Makefile are:
+	the install-destinations
+Intended configurable options in config.h are:
+	MMDF support, standard environment presettings, trusted user ids.
+
+'make install' will:
+      - implicitly do a 'make init', which will check your basic utilities for
+	POSIX compliance, and generates correcting Makefiles accordingly
+      - execute autoconf (a shell script that repeatedly calls the C compiler
+	to determine if certain features/symbols are supported), which will
+	create a file named autoconf.h
+      - create three stripped binaries, a shell script and five man pages in
+	the new/ subdirectory (all that is needed to install):
+	procmail, lockfile, formail, mailstat, procmail.1, lockfile.1,
+	formail.1, procmailrc.5, procmailex.5
+      - copy these binaries and mailstat to $(BINDIR)
+      - copy the man pages to $(MAN1DIR) and $(MAN5DIR)
+
+'make deinstall' will:
+      - remove the just installed files in $(BINDIR)
+      - remove the just installed files in $(MAN1DIR) and $(MAN5DIR)
+
+
+Minimal requirements (for regular uses):
+
+procmail must be installed.
+
+Optional files (depending on your requirements):
+
+lockfile needs only to be installed if you plan to read several mailboxes
+	with one of the standard mailers that don't support lockfiles.
+formail needs only to be installed if mail sometimes arrives in nonstandard
+	mailbox format (or if you want to generate auto replies, split up
+	mailboxes/digests etc., see the man page of formail for more info).
+mailstat is an "example" shell script that can be used as is to produce
+	summaries of the procmail generated logfiles; it is not needed by
+	procmail itself in any way.
+
+procmail, lockfile, formail and mailstat are all *standalone* programs, i.e.
+they do *not* use any compiled-in paths or files, they all can be used and
+installed independently without the need to install the others.
+
+If things don't compile automagically, I suggest you take a look at:
+src/autoconf, autoconf.h, config.h, src/includes.h
+
+For autoconf to work as intended, your compiler should either be fully ANSI
+compliant, or you should NOT turn off all warnings; enabling all warnings
+shouldn't hurt.	 In most cases the default options in the Makefile will do.
+
+The sources are supposed to be fully ANSI, K&R and POSIX compliant.
+
+N.B. If you encounter any difficulty at all in installing procmail (e.g. if you
+     had to change Makefile or config.h in unpredicted ways, or a simple
+     "make install" doesn't work), I'd very much like to hear about it; who
+     knows, next time you might be able to simply "make install" as well.
+
+				---
+
+2. DEBUGGING AID
+   -------------
+
+Since procmail is intended to run completely independent of any terminals, it
+doesn't use the stderr output to display error messages.  It is recommended,
+especially during debugging, to specify a LOGFILE (see man page) in the
+rcfile or on the command line.	Procmail will log all serious problems it
+encounters.  Of course, instead of a regular file, one could also specify a
+terminal as the default logfile.
+
+Also, procmail can be persuaded to be a lot more verbose by inserting the
+following assignment at the top of your rcfile:
+
+	VERBOSE=on
+
+Therefore a suggested command line for your first trial run (no rcfiles
+needed) would be:
+
+	procmail VERBOSE=on LOGFILE=/dev/tty
+
+(now type in a pseudo mail-message)
+
+If all else fails, you can try uncommenting the "#define console" entry
+in the config.h file.  This will provide you with the most verbose procmail
+you can make.  It is of course a good idea to comment out this line again
+after your troubles have been solved.
+
+If you run procmail by hand and pipe in some sample mail, then make
+sure that if you kill procmail, you use "kill pid" and NOT "kill -9 pid".
+Should procmail seem to hang, check if the $LOCKFILE is still present.
+If you kill procmail with "kill pid" it will clean up the $LOCKFILE
+itself.
+
+				---
+
+3. Setting up the environment
+   --------------------------
+
+Every user that wants to use procmail should have a .forward and a
+.procmailrc file in his HOME directory.	 For starters, you can look
+at the supplied example files in "examples".
+(BTW, be sure to make .forward *world* readable).
+MMDF users should note that they need a .maildelivery file *instead* of the
+.forward file (see the procmail(1) man page for more information).
+
+				---
+
+4. Extra options if you are a system administrator
+   -----------------------------------------------
+
+If you are a system administrator you can decide to install procmail
+globally (i.e. as a more robust drop-in replacement for the local-
+maildelivery-capabilities of /bin/mail), this has the advantage that users do
+not need to have a .forward file anymore that calls up procmail.  Simply
+having a .procmailrc file in the HOME directory will suffice.  Operation is
+transparent in this case (i.e. if no .procmailrc file is present in the HOME
+directory, mail will be delivered as usual and procmail behaves like a more
+reliable /bin/mail substitute).
+
+For direct examples on how to do this, look at the examples/advanced file.
+
+*******************************************************************************
+HIGHLY RECOMMENDED: install "procmail" suid root (and/or sgid maildaemon)
+		    install "lockfile" sgid maildaemon
+
+To obtain specific instructions on the best installation, type "make recommend"
+*******************************************************************************
+
+				---
+
+For more info about the program, see the man page or the FAQ list.

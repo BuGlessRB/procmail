@@ -1,0 +1,181 @@
+.Id $Id: lockfile.man,v 1.1 1992/09/28 14:27:55 berg Exp $
+.TH LOCKFILE 1 \*(Dt BuGless
+.SH NAME
+.na
+lockfile \- conditional semaphore-file creator
+.SH SYNOPSIS
+.B lockfile
+.I "\fB\-\fPsleeptime"
+|
+.I "\fB\-r \fPretries"
+|
+.if n .ti +0.5i
+.I "\fB\-l \fPlocktimeout"
+|
+.I "\fB\-s \fPsuspend"
+|
+.B "\-!"
+|
+.B "\-ml"
+|
+.B "\-mu"
+|
+.I filename
+\&.\|.\|.
+.ad
+.Sh DESCRIPTION
+.B lockfile
+can be used to create one or more
+.I semaphore
+.IR files .
+If lockfile can't create all the specified files (in the specified order),
+it waits
+.I sleeptime
+(defaults to +DEFlocksleep+) seconds and retries the last file that didn't
+succeed.  You can specify the number of
+.I retries
+to do until failure is returned.
+If the number of
+.I retries
+is -1 (default, i.e.
+.BR \-r\-1 ) lockfile will retry forever.
+.PP
+If the number of
+.I retries
+expires before all files have been created, lockfile returns failure and
+removes all the files it created up till that point.
+.PP
+The return value of lockfile can be easily inverted by specifying
+.B \-!
+as an argument (comes in handy in shell scripts).
+.PP
+All flags can be specified anywhere on the command line, they will be
+processed when encountered.  The command line is simply parsed from
+left to right.
+.PP
+All files created by lockfile will have access permission 0, and therefore
+will have to be removed with
+.B rm
+.BR \-f .
+.PP
+If you specify a
+.I locktimeout
+then a lockfile will be removed by force after locktimeout seconds have
+passed since the lockfile was last modified/created (most probably by some
+other program that unexpectedly died a long time ago, and hence could not clean
+up any leftover lockfiles).  Lockfile is clock skew immune.  After a lockfile
+has been removed by force, a suspension of
+.I suspend
+seconds (defaults to +DEFsuspend+) is taken into account, in order to prevent
+the inadvertent immediate removal of any newly created lockfile by another
+program (compare
+.BR SUSPEND
+in
+.BR procmail (1)).
+.Ss "Mailbox locks"
+If the permissions on the system mail spool directory allow it, or if lockfile
+is suitably setgid, it will be able to lock and unlock your system mailbox by
+using the options
+.B "\-ml"
+and
+.B "\-mu"
+respectively.
+.Sh EXAMPLES
+Suppose you want to make sure that access to the file "important" is
+serialised, i.e. no more than one program or shell script should be allowed
+to access it.  For simplicity's sake, let's suppose that it is a shell
+script.  In this case you could solve it like this:
+.Rs
+\&.\|.\|.
+lockfile important.lock
+\&.\|.\|.
+access_"important"_to_your_hearts_content
+\&.\|.\|.
+rm -f important.lock
+\&.\|.\|.
+.Re
+Now if all the scripts that access "important" follow this guideline, you
+will be assured that at most one script will be executing between the
+`lockfile' and the `rm' commands.
+.Sh ENVIRONMENT
+.Tp 2.3i
+.B USER
+used as a hint to determine the invoker's loginname
+.Sh FILES
+.Tp 2.3i
+.B /etc/passwd
+to verify and/or correct the invoker's loginname (and to find out his HOME
+directory, if needed)
+.B +SYSTEM_MBOX++DEFlockext+
+lockfile for the system mailbox, the environment variables present in here
+will not be taken from the environment, but will be determined by looking
+in /etc/passwd
+.Sh "SEE ALSO"
+.na
+.BR rm (1),
+.BR mail (1),
+.BR binmail (1),
+.BR sendmail (8),
+.BR procmail (1)
+.ad
+.Sh DIAGNOSTICS
+.Tp 2.3i
+Filename too long, .\|.\|.
+Use shorter filenames.
+.Tp
+Forced unlock denied on "x"
+No write permission in the directory where lockfile "x" resides, or more than
+one lockfile trying to force a lock at exactly the same time.
+.Tp
+Forcing lock on "x"
+Lockfile "x" is going to be removed by force because of a timeout
+(compare
+.BR LOCKTIMEOUT
+in
+.BR procmail (1)).
+.Tp
+Out of memory, .\|.\|.
+The system is out of swap space.
+.Tp
+Signal received, .\|.\|.
+Lockfile will remove anything it created till now and terminate.
+.Tp
+Sorry, .\|.\|.
+The
+.I retries
+limit has been reached.
+.Tp
+Truncating "x" and retrying lock
+"x" does not seem to be a valid filename.
+.Tp
+Try praying, .\|.\|.
+Missing subdirectories or insufficient privileges.
+.Sh BUGS
+Definitely less than one.
+.Sh MISCELLANEOUS
+Lockfile is NFS-resistent and eight-bit clean.
+.Sh NOTES
+Calling up lockfile with the \-+HELPOPT1+ or \-+HELPOPT2+ options will cause
+it to display a command-line help page.
+.PP
+Multiple
+.B \-!
+flags will toggle the return status.
+.PP
+Since flags can occur anywhere on the command line, any filename starting
+with a '-' has to be preceded by './'.
+.PP
+The number of
+.I retries
+will not be reset when any following file is being created (i.e. they are
+simply used up).  It can, however, be reset by specifying
+.RI \-r newretries
+after every file on the command line.
+.PP
+Although files with any name can be used as lockfiles, it is common practice
+to use the extension `.lock' to lock mailfolders (it is appended to the
+mailfolder name).  In case one does not want to have to worry about too long
+filenames and does not have to conform to any other lockfilename convention,
+then an excellent way to generate a lockfilename corresponding to some already
+existing file is by taking the prefix `lock.' and appending the i-node number
+of the file which is to be locked.

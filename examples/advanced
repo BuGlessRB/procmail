@@ -1,0 +1,298 @@
+Discusses:
+		1. One home directory, several machine architectures
+		2. Procmail as an integrated local mail delivery agent
+		2a.Special directions for sites with sendmail
+		2b.Special directions for sites with smail
+		3. Security considerations (when installing procmail suid root)
+		4. How to generate autoreplies
+		4a.`Vacation' functionality
+		5. Some exorbitant examples of rcfile formats
+		6. Some advanced examples of the use of the 'A' flag
+
+				---
+
+1. One home directory, several machine architectures
+   -------------------------------------------------
+
+For users that have the very same home directory on machines with differing
+architectures (i.e. you need different executables), and they
+have to explicitly use (i.e. the system administrator did not arrange,
+for example, /usr/local/bin/procmail to have exactly the right contents
+depending on from which machine it is called) two executables of procmail,
+I have the following suggestion to use as a .forward file (examples are for
+sparc and sun3 architectures):
+
+"|IFS=' ';if /usr/bin/sparc;then exec /home/berg/bin.sun4/procmail;else exec /home/berg/bin.sun3/procmail;fi #YOUR_LOGIN_NAME"
+
+or alternatively:
+
+"|IFS=' ';exec /home/berg/bin.`/usr/bin/arch`/procmail #YOUR_LOGIN_NAME"
+
+Please note, in the .forward file there can NOT be any newlines between
+the doublequotes, i.e. the former example *has* to be typed in as one long
+line.
+
+If, on the other hand, you have to log in to every machine to read mail
+arrived for you on that machine, a different solution might be more
+appropriate; in that case put something like the following two lines in your
+.forward file:
+
+YOUR_LOGIN_NAME@your.favourite.machine
+"|IFS=' ';if test .`/bin/uname -n` = .your.favourite.machine; then /exec /home/berg/bin/procmail; else exit 0; fi #YOUR_LOGIN_NAME"
+
+The leading dots are important.	 Check what `/bin/uname -n` returns on
+your.favourite.machine, and substitute that for your.favourite.machine in the
+sample .forward file.  If your system does not have /bin/uname, /bin/hostname
+will do too.
+
+				---
+
+2. Procmail as an integrated local mail delivery agent
+   ---------------------------------------------------
+
+Completely integrating procmail in the mail delivery means that mail is
+delivered as normal, unless a .procmailrc file is present in the home
+directory of the recipient.  This will be completely independent of the
+fact if a .forward file is present.  This will not break anything, it
+just makes the use of procmail easier because people are not required to
+start up procmail from within their .forward files.  Creation of a .procmailrc
+file will suffice.
+
+The generic way to accomplish this (works with sendmail, smail and any other
+mail system that uses a local mail delivery program that takes the mail-
+to-be-delivered on stdin and the recipient(s) on the command line, with or
+without the "-d" option) is this:
+
+Move your current local mail delivery agent (e.g. /bin/mail, /bin/lmail,
+/usr/lib/mail/mail.local, etc.) out of the way, and create a (symbolic or hard)
+link from there to procmail, as in "ln /usr/local/bin/procmail /bin/lmail".
+
+Beware, however, that if you are using this method, /bin/mail can *only* be
+used to deliver mail.  On many systems /bin/mail has several uses (also to
+read mail or check for mail).  So, it would definitely be preferred if you
+could edit the invocation of /bin/mail from within your mail transport agent
+to invoke procmail instead (with appropriate flags, if needed).	 Special
+directions detailing this process for some of the more popular MTAs are
+included in sections (2a) and (2b) below.
+
+In addition to needing root privileges upon startup, on some systems procmail
+needs to be sgid to daemon or mail.  One way to check is by looking at the
+current mail delivery agent (usually /bin/mail) and to mimic its permissions,
+owner and group.  If you're not quite sure, just type "make recommend" and some
+suitable recommendations will be made for your particular environment.
+
+The same might apply to the "lockfile" program, in order for it to be able to
+create and unlink lockfiles in the mail spool directory it might need to be
+sgid to daemon or mail, not to worry however, "lockfile" will not enable users
+to abuse the sgid/suid-ness.
+
+				---
+
+2a.Special directions for sites with sendmail
+   ------------------------------------------
+
+Here you have two options:
+ i. Procmail *not* being suid root
+ ii.Procmail suid root (actually preferred and recommended)
+
+)Ad i.
+The following line should take the place of the standard
+Mlocal rule in your sendmail.cf (this way sendmail will start up procmail with
+root priv, procmail will immediately setuid itself to the recipient's uid):
+
+Mlocal, P=/usr/local/bin/procmail, F=lsSDFMuhP, S=10, R=20, A=procmail -d $u
+
+)Ad ii.
+If your sendmail does not allow starting programs with root privs (the
+'S' flag), you can instead make procmail suid root (this is actually the
+preferred way to go, it closes a security hole which actually sendmail should
+have closed).  This will not create a security hole, procmail will normally
+setuid immediately to the real uid (effectively losing root privs), or will
+immediately setuid to the recipient's uid (and be completely loyal to the
+recipient's absent or present .procmailrc file).  Actually installing procmail
+suid root is a slightly more flexible approach (not at all more dangerous).
+
+If using the suid root version of procmail, you only need to insert the
+following line in your sendmail.cf:
+
+Mlocal, P=/usr/local/bin/procmail, F=lsDFMuhP, S=10, R=20, A=procmail -d $u
+
+So, to summarise, if you install procmail not-suid-root you should use the
+first rule (with the 'S' flag), and if you install it suid-root you should
+use the second rule (without the 'S' flag).  If you install procmail
+not-suid-root you cannot use the second rule, since procmail will not be
+able to change uid to the recipient, and therefore it cannot read/write
+the recipient's files (including any .procmailrc).  The alternative would
+be that procmail already has the recipient's uid upon startup, this is not
+possible in sendmail without changing some configuration options.
+
+As for the remaining flags "S=10, R=20", if your system uses others or
+none on the current Mlocal rule, use those instead of "S=10, R=20".
+
+				---
+
+2b.Special directions for sites with smail
+   ---------------------------------------
+
+For smail 2.x users there are two options:
+ i. Move the current local-mail-delivery program (probably /bin/lmail) out of
+    the way, make a symbolic or hard link from procmail to the name of that
+    program (e.g. "ln /usr/local/bin/procmail /bin/lmail")
+ ii.Make sure the following macro is defined in src/defs.h:
+    #define LMAIL(frm,sys) "/usr/local/bin/procmail -d"
+
+For smail 3.x users there are also two options:
+ i. The same solution as for smail 2.x (however, method ii is preferred)
+ ii.Replace any existing "local"-entry in the /usr/lib/smail/transports file
+    (create one, if need be) with the following two lines:
+
+local: return_path, local, from, driver=pipe;
+	cmd="/usr/local/bin/procmail -d $($user$)"
+
+For any ideas on suid/sgid modes which *might* be needed, see the previous
+section (2).
+
+				---
+
+3. Security considerations (when installing procmail suid root)
+   -------------------------------------------------------------
+
+If in EXPLICIT DELIVERY mode (typically when called from within sendmail)
+procmail will ALWAYS change UID and gid to the RECIPIENT's defaults as soon as
+it starts reading the recipient's $HOME/.procmailrc file.
+
+If NOT in explicit delivery mode (typically when called from within the
+recipient's $HOME/.forward file) procmail will ALWAYS change UID and gid to
+the real uid and gid of the INVOKER (effectively losing any suid or sgid
+privileges).
+
+These two precautions should effectively eliminate any security holes because
+procmail will always have the uid of the person whose commands it is executing.
+
+To summarise, procmail will only behave better if made suid/sgid something, in
+fact, making procmail suid/sgid something will *improve* security on systems
+which have dynamically linked libraries.
+
+				---
+
+4. How to generate autoreplies
+   ---------------------------
+
+Using a recipe like the following, you can generate autoreplies to mail
+received by you:
+
+: 2 h c
+!^From +[^ ]*(postmaster|Mailer)
+!^From +YOUR_LOGIN_NAME
+| (formail -r ; echo "Mail received.") | $SENDMAIL -t
+
+As you can see, I made sure that neither bouncing mail (from postmaster or the
+mailer-daemon), nor mail coming from yourself will be autoreplied.  If this
+precaution would not be taken, disaster could result ("ringing" mail).
+The abovementioned recipe should be inserted before all other recipes in
+your rcfile, however, it is advisable to put it *after* any recipes that
+process mailinglist subscriptions;  it generally is not a good idea to
+generate autoreplies to mailinglists.
+
+				---
+
+4a.`Vacation' functionality
+   ------------------------
+
+SHELL=/bin/sh			# for other shells, this might need adjustment
+ALREADYSENT=$MAILDIR/vacation			# the vacation database
+
+: 2 hWc:				# the lockfile is important
+!^From +[^ ]*(postmaster|Mailer)
+!^From +YOUR_LOGIN_NAME
+| FROM="`formail -rx To:`" ;\
+  if fgrep -e "$FROM" <$ALREADYSENT ;\
+  then exit 1 ;\
+  else echo "$FROM" >>$ALREADYSENT ;\
+  fi
+
+	:ahc
+	| (formail -r ; echo "Mail received.") | $SENDMAIL -t
+
+This example is based on the same principles as before (sort out bounced mail
+and mail coming from oneself).	In addition to that however, it maintains a
+vacation database by extracting the name of the sender and appending it
+to $ALREADYSENT if the name is *not* already in there.	If the name was new,
+an autoreply will be sent (using the "a" flag functionality, see the man
+page of procmail for more info).  To reliably extract the name of the sender,
+I let formail generate an autoreply header (thereby making it figure out the
+most appropriate sender address), and then telling it to extract the value
+of the "To:" field.
+
+				---
+
+5. Some exorbitant examples of rcfile formats
+   ------------------------------------------
+
+# Now follows an example of what you can do in a procmailrc file
+HELLO=oneword
+HELLO="two words"
+HELLO='two words'	HELLO  =	one\
+word
+HELLO=two\ words
+HELLO=two\ `echo words`
+HELLO=			# empty
+HELLO			# This will wipe "HELLO" from the environment
+HELLO	 =    "three words"\ yes
+HELLO	=	"$HELLO `cat somefile`	"	# Trailing blanks
+HELLO = "wheeee`date`${HELLO} this works too"	 HELLO = 'But so does this!'
+
+# As you can see, every trick in the book of /bin/sh programming can be used
+# (and more).
+
+LOCALLOCKFILE = llf
+
+  ::$LOCALLOCKFILE
+grep for this
+ |$HELLO		# calls up a program named "But" with 3 arguments
+
+:: "test ing"		# lockfilename with a space in it
+grep for this
+  |$HELLO
+
+:
+or for this
+|"$HELLO"		# tries to call up a program named "But so does this!"
+
+:
+and this
+|$HELLO \
+there		# action lines can be continued
+
+				---
+
+6. Some advanced examples of the use of the 'A' flag
+   -------------------------------------------------
+
+:c		# Specify the 'c' otherwise we never arrive at the next recipe
+^From Myfriend
+every_message_from_my_friend		# Mailbox for everything he/she writes
+
+:Ac			# Note the 'c' again
+! my_other_friend      # Forward everything Myfriend writes to my_other_friend
+
+:1Ac
+^Subject:.*jokes
+! my_third_friend	# Forward everything Myfriend writes about jokes
+			# to my_third_friend
+
+:2A
+^Subject:.*parties
+!beach
+! my_fourth_friend	# Forward everything Myfriend writes about parties,
+			# except beach parties, to my_fourth_friend
+
+:A			# Provide a mail sink, in order to fake procmail into
+/dev/null		# believing that the mail was absorbed/delivered,
+			# even if the mail was about beach parties :-).
+		# This is not the best solution though, better would be to
+		# rearrange these last five recipes so that the current
+		# number one or two is last, the current number five can be
+		# omitted then.
+
+				---

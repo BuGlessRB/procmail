@@ -1,0 +1,11 @@
+Please note that the *.man files in this directory still need to be converted
+into their *.1 and *.5 counterparts.  You can do this by typing "make" in
+this directory, or by typing "make" in the directory below.
+
+The man pages *.1 and *.5 can now either be converted to readable plain text
+by typing something like:
+
+	nroff -man procmail.1
+
+Or, they can be moved to man directories that are present in your MANPATH
+so that the manpages can be viewed using the normal man command.

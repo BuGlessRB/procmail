@@ -1,0 +1,229 @@
+.Id $Id: formail.man,v 1.1 1992/09/28 14:27:55 berg Exp $
+.TH FORMAIL 1 \*(Dt BuGless
+.SH NAME
+.na
+formail \- mail (re)formatter
+.SH SYNOPSIS
+.B formail
+.RI [ "\fB\+FM_SKIP+\fPskip" ]
+.RI [ "\fB\+FM_TOTAL+\fPtotal" ]
+.RB [ \-+FM_BOGUS++FM_CONCATENATE++FM_FORCE++FM_REPLY++FM_KEEPB++FM_TRUST++FM_NOWAIT++FM_EVERY++FM_DIGEST++FM_QUIET+ ]
+.RB [ \-+FM_MINFIELDS+
+.IR "min fields" ]
+.if n .ti +0.5i
+.RB [ \-+FM_EXTRACT+
+.IR "header field" ]
+.RB [ \-+FM_ADD_IFNOT+
+.IR "header field" ]
+.if n .ti +0.5i
+.RB [ \-+FM_ADD_ALWAYS+
+.IR "header field" ]
+.RB [ \-+FM_REN_INSERT+
+.IR "header field" ]
+.if n .ti +0.5i
+.RB [ \-+FM_DEL_INSERT+
+.IR "header field" ]
+.RB [ \-+FM_ReNAME+
+.I "oldfield"
+.IR "newfield" ]
+.if n .ti +0.5i
+.RB [ \-+FM_SPLIT+
+.I command
+.I arg
+\&.\|.\|.\|]
+.ad
+.Sh DESCRIPTION
+.B formail
+is a filter that can be used to force mail into mailbox format, perform
+`+FROM+' escaping, generate auto-replying headers, do simple
+header munging/extracting or split up a
+mailbox/digest/articles file.  The mail/mailbox/article contents will be
+expected on stdin.
+.PP
+If formail is supposed to determine the sender of the mail, but is unable
+to find any, it will substitute `+UNKNOWN+'.
+.PP
+If formail is started without any command line options, it will force any
+mail coming from stdin into mailbox format and will escape
+.B all
+bogus `+FROM+' lines with a `+ESCAP+'.
+.Sh OPTIONS
+.Tp 0.5i
+.B \-+FM_BOGUS+
+Don't escape any bogus mailbox headers (i.e. lines starting with `+FROM+').
+.Tp
+.B \-+FM_CONCATENATE+
+Concatenate continued fields in the header.  Might be convenient when
+postprocessing mail with standard (line oriented) text utilities.
+.Tp
+.B \-+FM_FORCE+
+Force formail to simply pass along any non-mailbox format (i.e. don't
+generate a `+FROM+' line as the first line).
+.Tp
+.B \-+FM_REPLY+
+Generate an auto-reply header.  This will normally throw away all the existing
+fields in the original message, fields you wish to preserve need to be named
+using the
+.B \-+FM_REN_INSERT+
+option.
+.Tp
+.B \-+FM_KEEPB+
+When generating the auto-reply header, keep the body as well.  If used
+together with the
+.B \-+FM_BOGUS+
+option then the body will not be escaped.
+.Tp
+.B \-+FM_TRUST+
+Trust the sender to have used a valid return address in his header.  This
+option will be most useful when generating auto-reply headers from news
+articles.  If this option is not turned on, formail tends to favour
+machine-generated addresses in the header.
+.Tp
+.B \-+FM_SPLIT+
+The input will be split up into separate mail messages, and piped into
+a program one by one (a new program is started for every part).
+.B \-+FM_SPLIT+
+has to be the last option specified, the first argument following it
+is expected to be the name of a program, any other arguments will be passed
+along to it.
+.Tp
+.B \-+FM_NOWAIT+
+Tell formail not to wait for every program to finish before starting the next.
+.Tp
+.B \-+FM_EVERY+
+Do not require empty lines preceding the header of a new message (i.e. the
+messages could start on every line).
+.Tp
+.B \-+FM_DIGEST+
+Tell formail that the messages it is supposed to split need not be in strict
+mailbox format (i.e. allows you to split digests/articles or non-standard
+mailbox formats).
+.Tp
+.I "\fB\-+FM_MINFIELDS+\fP min fields"
+Allows you to specify the number of consecutive fields formail needs to find
+before it decides it found the start of a new message, it defaults to
++DEFminfields+.
+.Tp
+.B \-+FM_QUIET+
+Tells formail to ignore any write errors on stdout.
+.Tp
+.I "\fB\-+FM_EXTRACT+\fP header field"
+Extract this
+.I header field
+from the header, display it as a single line.
+.Tp
+.I "\fB\-+FM_ADD_IFNOT+\fP header field"
+Append a custom
+.I header field
+onto the header; but only if a similar field does not exist yet.
+.Tp
+.I "\fB\-+FM_ADD_ALWAYS+\fP header field"
+Append a custom
+.I header field
+onto the header in any case.
+.Tp
+.I "\fB\-+FM_REN_INSERT+\fP header field"
+Same as
+.BR \-+FM_ADD_IFNOT+ ,
+except that any existing similar fields are renamed by prepending
+an ``+OLD_PREFIX+'' prefix.  If
+.I header field
+consists only of a field-name, it will not be appended.
+.Tp
+.I "\fB\-+FM_DEL_INSERT+\fP header field"
+Same as
+.BR \-+FM_REN_INSERT+ ,
+except that any existing similar fields are simply removed.
+.Tp
+.I "\fB\-+FM_ReNAME+\fP oldfield newfield"
+Renames all occurrences of the fieldname
+.I oldfield
+into
+.IR newfield .
+.Tp
+.I "\fB\+FM_SKIP+\fPskip"
+Skip the first
+.I skip
+messages while splitting.
+.Tp
+.I "\fB\+FM_TOTAL+\fPtotal"
+Output at most
+.I total
+messages while splitting.
+.Sh EXAMPLES
+To split up a digest one usually uses:
+.Rs
+formail +FM_SKIP+1 \-+FM_DIGEST++FM_SPLIT+ cat >>the_mailbox_of_your_choice
+.Re
+or
+.Rs
+formail +FM_SKIP+1 \-+FM_DIGEST++FM_SPLIT+ procmail
+.Re
+.PP
+To supersede the Reply-To: field in a header you could use:
+.Rs
+formail \-+FM_REN_INSERT+ "Reply-To: foo@bar"
+.Re
+.PP
+To convert a non-standard mailbox file into a standard mailbox file you can
+use:
+.Rs
+formail \-+FM_DIGEST++FM_SPLIT+ cat <old_mailbox >>new_mailbox
+.Re
+.PP
+Or, alternatively, if you have a very picky mailer:
+.Rs
+formail \-+FM_REN_INSERT+ Date: \-+FM_DIGEST++FM_SPLIT+ cat <old_mailbox >>new_mailbox
+.Re
+.Sh MISCELLANEOUS
+The regular expression that is used to find `real' postmarks is:
+.Rs
+"\\n\\n+FROM+[\\t ]*[^\\t\\n ]+[\\t ]+[^\\n\\t ]"
+.Re
+.Sh "SEE ALSO"
+.na
+.BR mail (1),
+.BR binmail (1),
+.BR sendmail (8),
+.BR procmail (1),
+.BR sh (1)
+.ad
+.Sh DIAGNOSTICS
+.Tp 2.3i
+Can't fork
+Too many processes on this machine.
+.Tp
+Couldn't write to stdout
+The program that formail was trying to pipe into didn't accept all the data
+formail sent to it; this diagnostic can be disabled by the
+.B \-+FM_QUIET+
+option.
+.Tp
+Failed to execute "x"
+Program not in path, or not executable.
+.Tp
+File table full
+Too many open files on this machine.
+.Tp
+Invalid field-name: "x"
+The specified field-name "x" does not contain a colon or contains control
+characters.
+.Sh WARNINGS
+You can save yourself and others a lot of mischief if you try to avoid using
+this autoreply feature on mails coming through mailinglists.  Depending
+on the format of the incoming mail (which in turn depends on both the
+original sender's mail agent and the mailinglist setup) formail could
+decide to generate an autoreply header that replies to the list (if
+the original sender was careful enough though, formail will be able to pick
+his/her address, instead of the list's).  Now if the list is not intelligent
+enough (most aren't) this autoreply will be widely distributed.
+.Sh BUGS
+None.  It's perfect :-).
+.Sh MISCELLANEOUS
+Formail is eight-bit clean.
+.PP
+When formail has to determine the sender's address, every RFC 822 conforming
+mail address is allowed.
+.Sh NOTES
+Calling up formail with the \-+HELPOPT1+ or \-+HELPOPT2+ options will cause
+it to display a command-line help page.

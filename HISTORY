@@ -1,0 +1,125 @@
+	Only the last entry is complete, the others might have been condensed.
+
+1990/12/07: v1.00
+1990/12/12: v1.01
+1991/02/04: v1.02
+1991/02/13: v1.10
+1991/02/21: v1.20
+1991/02/22: v1.21
+1991/03/01: v1.30
+1991/03/15: v1.35
+	    Started using RCS to manage the source
+1991/06/04: v1.99
+1991/06/10: v2.00
+1991/06/11: v2.01
+1991/06/12: v2.02
+1991/06/20: v2.03
+1991/07/04: v2.10
+1991/07/12: v2.11
+1991/10/02: v2.20 (never released)
+1991/10/18: v2.30
+	    Implemented a custom regular expression library (fully egrep
+	       compatible), should eliminate the annoyances with incompatible
+	       egreps
+	    Accomplished the doubtful milestone of having a source file
+	       (regexp.c) which provokes a compiler error on an old compiler
+	       (if using the optimiser)
+	    Ignoring leading spaces on condition lines now (means that
+	       everything can be indented in the rcfile)
+1991/10/22: v2.31
+1991/12/05: v2.40
+	    Made procmail capable of healing the recipient's mail spool file
+	    Tricked NFS into supplying an access_time<modification_time for the
+	       folders written
+1991/12/13: v2.50
+1992/01/22: v2.60
+1992/01/31: v2.61
+1992/04/30: v2.70
+	    Made procmail & lockfile clock skew independent (important during
+	       LOCKTIMEOUT)
+	    Made procmail accept multiple recipients (this was not as trivial
+	       as it sounds!), in order for complete compatibility with mailers
+	       like smail 2.x
+	    Expanded the mail-delivery-agent instructions in examples/advanced,
+	       this includes specific intstructions for smail 2.x
+	    Made special entries in config.h for semi-permanent environment-
+	       variable overrides
+	    Made formail more intelligent, it can now parse full-fledged
+	       RFC822 addresses (quoting et al)
+	    A complete rewrite of formail, the code got bigger, the runtime
+	       requirement got bigger, it got slower, but, it's more structured
+	       (so much for structured programming :-)
+	    Made procmail check the permissions of its invoker, generate
+	       an overriding From_ line if necessary, and consequently made it
+	       accept the -f option (fromwhom), and also the alternate obsolete
+	       -r option of course
+	    Wiped out the ./include tree, made autoconf check it instead (the
+	       compile line looks so terribly clean now :-)
+	    Procmail makes an additional security check on the rcfiles before
+	       accepting them (owner and permissions, see man page)
+1992/07/01: v2.71
+	    Sharpened the autoconf "const" check, to catch buggy AIX compilers
+	    Made the MAILBOX_SEPARATORS more orthogonal (i.e. you can define
+	       one or both now)
+	    Added the -A option to formail, the only option that was missing
+	       (to be able to boldly add header fields)
+	    Fixed some typos and extended the procmailex man page by a popular
+	       example
+	    Enhanced the MH directory delivery mode, procmail uses the MH
+	       method of finding the next number now (this requires procmail
+	       to read the directory)
+	    Fixed a typo in the WIFEXITED substitute macro (for non-POSIX
+	       systems), should fix all erroneous "program failed" messages
+	    Fixed a problem on byte-aligned machines with the 'i' flag
+	    Now throwing away all environment variables starting with LD_
+	       (not just LD_LIBRARY_PATH), but only on those machines that
+	       have the security hole (i.e. SunOS)
+	    Created logfile summariser (in shell-script form), by popular
+	       demand (examples/mailstat)
+	    Gave procmail, formail, lockfile and mailstat a more verbose
+	       command line help (called up by -h or -?)
+1992/08/17: v2.80
+	    Started using CVS to manage the source (god's gift to programmers)
+	    In procmail, lockfile and formail I built in a sanity check now,
+	       in case they would be called with argc==0
+	    Enhanced lockfile a lot:
+	       - the -r option really specifies *re*tries now
+	       - concatenated and/or seperate options are allowed now
+	       - fixed an inconsistency with removing lockfiles by force
+	       - lockfile is more intelligent about locks which are impossible
+		 to acquire (it sees it now and displays an appropriate error
+		 message)
+	       - related to this, lockfile now can return a whole range of
+		 standard exitcodes to describe the error
+	       - dropped the suid support for lockfile, sgid support however
+		 was consolidated (with more descriptive error messages)
+	    Changes to formail:
+	       - formail does *NOT* CONCATENATE continued header-fields by
+		 default now anymore, specify the -c option for this
+	       - fixed the sender-determination-code (in v2.71 one source-line
+		 mysteriously vanished :-), didn't cause any serious problems
+		 unless someone used an awkward mail address
+	       - taught formail about some more headers, previously formail
+		 would refuse to split some mail-articles because it didn't
+		 recognise the second field
+	       - reorganised the known header-fields into the header.h file
+		 (to allow convenient additions)
+	       - introduced the -l option, for generating procmail-alike
+		 summaries
+	       - introduced the -R option for renaming header-fields (to make
+		 the toolset complete)
+	    Changes to procmail:
+	       - procmail does *NOT* CONCATENATE continued header-fields
+		 anymore, filter through "formail -c" for this
+	       - procmail only escapes bogus From_ lines now when writing a
+		 regular mailfolder (otherwise it's unchanged)
+	       - changed the method for turning on extended diagnostics, the
+		 preceding colon is not supported anymore, use VERBOSE=on
+	       - worked over the mailbox-healing code, some changes were
+		 needed to ensure complete functionality when the system
+		 mailbox is in the user's home directory
+	       - taught procmail about $? (see sh(1))
+	       - added the INCLUDERC keyword, to permit unlimited nesting
+		 of included rcfiles
+	       -
+	       -

@@ -1,0 +1,109 @@
+------------------------------------------------------------------------------
+---------------------- Frequently Asked Questions ----------------------------
+------------------------------------------------------------------------------
+
+1. How do I go about setting up a mailinglist?
+
+	Look in the examples/mailinglist file, it describes it in detail.
+
+2. I installed procmail (i.e. typed 'make install'), but how am I supposed to
+   use it?  When I type procmail on the command line it simply does nothing.
+
+	You're not supposed to start procmail from the command line.
+	Be sure to have a .forward and a .procmailrc file in your home
+	directory (see the examples subdirectory or the man page).
+	MMDF users should note that they need a .maildelivery file *instead*
+	of a .forward file (see the man page for more detailed information).
+
+	If however, procmail has been integrated in the maildelivery system
+	(i.e. if your system administrator installed it that way, ask him/her),
+	then you no longer need the .forward files in your home directory,
+	having a .procmailrc file will suffice.
+
+	On some systems .forward files are not checked, in this case it might
+	be worth trying to put a line looking like this:
+		Pipe to /usr/local/bin/procmail
+	as the only line in your mail spool file (e.g. /usr/mail/$USER), as
+	well as doing a "chmod 04600 /usr/mail/$USER".	For more information
+	on such systems, do a "man mail".
+
+3. When I compile everything the compiler complains about invalid or illegal
+   pointer combinations, but it produces the executables anyway.
+   Should I be concerned?
+
+	Ignore these warnings, they simply indicate that either your compiler
+	or your system include files are not ANSI/POSIX compliant.
+	The compiler will produce correct code regardless of these warnings.
+
+4. The compiler seems to issue warnings about "loop not entered at top",
+   is that a problem?
+
+	No, no problem at all, it just means I wrote the code :-)
+	That's just about the only uncommon coding technique I use (don't
+	think I don't try to avoid those jumps in loops, it's just that
+	sometimes they are the best way to code it).  Use gcc if you want
+	to avoid these warnings.
+
+5. The compiler complains about unmodifiable lvalues or assignments to const
+   variables.  Now what?
+
+	Well, if the compiler produces the executables anyway everything
+	probably is all right.	If it doesn't, you might try inserting a
+	"#define const" in the autoconf.h file by hand.	 However in any case,
+	your compiler is broken; I would recommend submitting this as a
+	compiler bug to your vendor.  In any case, if this should occur, I'd
+	appreciate a mail from you (so I can try to fix the autoconf script
+	to recognise your compiler).
+
+6. The compiler refuses to compile regexp.c, what is the problem?
+
+	Try compiling that module with optimisation turned off.
+
+7. When I send myself a testmail, the mail bounces with the message: cannot
+   execute binary file.	 What am I doing wrong?
+
+	It is very well possible that mail is processed on a different
+	machine from that where you usually read your mail.  Therefore you
+	have to make sure that procmail has the right binary format to
+	execute on those machines on which mail could arrive.  In order to
+	get this right you might need to do some .forward file tweaking,
+	look at the examples/advanced file for some suggestions.
+
+8. Where do I look for examples about:
+	One home directory, several machine architectures?
+	Procmail as an integrated local mail delivery agent?
+	Security considerations (when installing procmail suid root)
+	How to generate autoreplies?
+	`Vacation' functionality
+	Exorbitant rcfile formats?
+	The 'A' flag?
+
+	Well, this probably is your lucky day :-), all these topics are covered
+	in the examples/advanced file.
+
+9. Why do I have to insert my login name after the '#' in the .forward or
+   .maildelivery file?
+
+	Some mailers 'optimise' maildelivery and take out duplicates from
+	Cc:, Bcc: and alias lists before delivery.  If two or more persons on
+	such a list would have identical .forward files, then the mailer will
+	eliminate all but one.	Adding a '#' with your login name following
+	it will make the .forward files unique, and will ensure that the mailer
+	does optimise away some addresses.
+
+10. How do I view the man pages?
+
+	If the man(1) program on your system understands the MANPATH
+	environment variable, make sure that the installation directory listed
+	in the Makefile for the manpages is included in your MANPATH.  If your
+	man program does not support MANPATH, make sure that the man pages
+	are installed in one of the standard man directories, like under
+	/usr/man.  If you do not want to install the man pages before viewing
+	them, you can view an individual man file by typing something like:
+	nroff -man procmail.1 | more
+
+11. None of the above topics cover my problem.	Should I panic?
+
+	Let me ask you a question :-), have you examined the CAVEATS, WARNINGS,
+	BUGS and NOTES sections of the manual pages *closely* ?
+	If you have, well, then panic.

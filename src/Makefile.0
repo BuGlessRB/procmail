@@ -1,0 +1,115 @@
+
+#$Id: Makefile.0,v 1.1 1992/09/28 14:28:04 berg Exp $
+
+PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
+ mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O)
+LF_OBJ=exopen.$(O) sublib.$(O)
+FM_OBJ=common.$(O) fields.$(O) formisc.$(O) sublib.$(O)
+
+all:	$(BINSS)
+
+procmail: procmail.$(O) $(PM_OBJ)
+	$(CC) $(CFLAGS) $@.$(O) $(PM_OBJ) -o $@ $(LDFLAGS)
+
+lockfile: lockfile.$(O) $(LF_OBJ)
+	$(CC) $(CFLAGS) $@.$(O) $(LF_OBJ) -o $@ $(LDFLAGS)
+
+formail: formail.$(O) $(FM_OBJ)
+	$(CC) $(CFLAGS) $@.$(O) $(FM_OBJ) -o $@ $(LDFLAGS)
+
+mailstat: ../examples/mailstat
+	cp ../examples/$@ .
+	chmod 0755 $@
+
+multigram: multrigram.$(O) sublib.$(O)
+	$(CC) $(CFLAGS) $@.$(O) sublib.$(O) -o $@ $(LDFLAGS)
+
+../new:
+	@-mkdir $@ 2>$(DEVNULL); exit 0
+
+_autotst: _autotst.$(O)
+	$(CC) $(CFLAGS) $@.$(O) -o $@ $(LDFLAGS)
+
+# to fully support "make -n"
+HIDEMAKE = $(MAKE)
+
+../autoconf.h: autoconf Makefile
+	$(SHELL) ./autoconf $(SHELL) "$(RM)" $(USRINCLUDE) $(DEVNULL) \
+	 "$(FGREP)" "$(HIDEMAKE)" $(O) $@
+
+autoconf.h: ../autoconf.h
+
+common.$(O): procmail.h robust.h shell.h common.h
+
+cstdio.$(O): procmail.h cstdio.h
+
+exopen.$(O): procmail.h exopen.h
+
+fields.$(O): includes.h formail.h sublib.h shell.h fields.h formisc.h
+
+formail.$(O): includes.h formail.h sublib.h common.h fields.h formisc.h
+formail.$(O): header.h shell.h
+
+formisc.$(O): includes.h formail.h sublib.h formisc.h shell.h
+
+goodies.$(O): procmail.h sublib.h robust.h shell.h misc.h pipes.h cstdio.h
+goodies.$(O): goodies.h
+
+lockfile.$(O): includes.h sublib.h exopen.h robust.h misc.h
+
+locking.$(O): procmail.h robust.h shell.h misc.h exopen.h locking.h
+
+mailfold.$(O): procmail.h sublib.h robust.h shell.h misc.h pipes.h common.h
+mailfold.$(O): locking.h mailfold.h network.h
+
+manconf.$(O): ../patchlevel.h procmail.h
+
+misc.$(O): procmail.h sublib.h robust.h shell.h misc.h pipes.h cstdio.h
+misc.$(O): exopen.h goodies.h locking.h mailfold.h
+
+pipes.$(O): procmail.h robust.h shell.h misc.h pipes.h goodies.h
+
+procmail.$(O): ../patchlevel.h procmail.h sublib.h robust.h shell.h misc.h
+procmail.$(O): pipes.h common.h cstdio.h exopen.h goodies.h
+
+regexp.$(O): procmail.h robust.h shell.h regexp.h
+
+robust.$(O): procmail.h robust.h shell.h misc.h mailfold.h shell.h
+
+sublib.$(O): includes.h sublib.h shell.h
+
+recommend.$(O): includes.h
+	@$(CC) -c $(CFLAGS) $*.c
+
+procmail.h: includes.h
+	touch $@
+
+includes.h: ../autoconf.h ../config.h
+	touch $@
+
+.c.$(O):
+	$(CC) -c $(CFLAGS) $<
+
+recommend: recommend.$(O) sublib.$(O)
+	@$(CC) $(CFLAGS) $@.$(O) sublib.$(O) -o $@ $(LDFLAGS)
+
+../man/man.sed: manconf.c procmail.h ../patchlevel.h
+	$(CC) $(CFLAGS) -o _autotst manconf.c $(LDFLAGS)
+	./_autotst >$@
+	$(RM) _autotst
+
+clean:
+	$(RM) procmail.$(O) $(PM_OBJ) lockfile.$(O) $(LF_OBJ) formail.$O \
+	 $(FM_OBJ) $(BINSS) ../autoconf.h _autotst* lookfor _locktst* \
+	 grepfor recommend recommend.$(O) manconf _Makefile core
+
+Makefile: ../Makefile Makefile.0
+	@echo "You have made changes to the master Makefile, in order for"
+	@echo "these changes to show through, you will have to do first:"
+	@echo "$(MAKE) makefiles"
+
+makefiles Makefiles makefile:
+	cd ..; $(MAKE) makefiles
+
+init:
+	cd ..; $(MAKE) $@

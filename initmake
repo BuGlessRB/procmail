@@ -1,0 +1,197 @@
+
+#$Id: initmake,v 1.1 1992/09/28 14:27:51 berg Exp $
+
+SHELL=/bin/sh || exec /bin/sh ./initmake $* # we're in a csh, feed myself to sh
+
+MSHELL=$1
+shift; RM="$1"
+shift; USRINCLUDE=$1
+shift; DEVNULL=$1
+shift; MAKE="$1"
+shift; O=$1
+shift; CC="$1"
+shift; CFLAGS1="$1"
+shift; LDFLAGS1="$1"
+shift; BINSS="$1"
+shift; MANS1S="$1"
+shift; MANS5S="$1"
+shift; SUBDIRS="$1"
+
+test 1 != $# &&
+ echo "Don't start this script directly, use \`make init'" && exit 1
+
+FGREP="fgrep"
+if echo hello | grep -F hello >$DEVNULL 2>&1	# POSIX, or not POSIX, that ...
+then FGREP="grep -F"				# and POSIX it is!
+fi
+
+if test ! -f $USRINCLUDE/stdio.h
+then echo 2>&1 "Panic!	   I can't find your system include-files."
+  echo 2>&1 "I already looked in \"$USRINCLUDE\".  Please edit the Makefile"
+  echo 2>&1 "and make sure that the definition of USRINCLUDE is correct,"
+  echo 2>&1 "before retrying another make."
+  exit 1
+fi
+
+cc=""
+cat >src/_autotst.c <<HERE
+main()
+{ return 0;
+}
+HERE
+$RM src/_autotst.$O src/_autotst.rrr
+for a in "$CC" cc gcc
+do
+  echo $a $CFLAGS1 -o src/autotst.$O src/_autotst.c >>src/_autotst.rrr
+  test -z "$cc" -a ! -z "$a" &&
+   ($a $CFLAGS1 -o src/_autotst.$O src/_autotst.c) 2>&1 >>src/_autotst.rrr &&
+   cc="$a"
+  echo "::::" >>src/_autotst.rrr
+done
+if test -z "$cc"
+then
+  echo 2>&1 "Whoeaaa!  There's something fishy going on here."
+  echo 2>&1 "You have a look and see if you detect anything uncanny:"
+  echo 2>&1 "-------------------------------------------------------"
+  cat 2>&1 src/_autotst.rrr
+  echo 2>&1 "-------------------------------------------------------"
+  echo 2>&1 "I suggest you take a look at the definition of CFLAGS* and CC"
+  echo 2>&1 "in the Makefile before you try make again."
+  exit 1
+fi
+$RM src/_autotst.c src/_autotst.$O src/_autotst.rrr
+
+for a in $SUBDIRS
+do
+  if test ! -f $a/Makefile.init
+  then
+     ln $a/Makefile $a/Makefile.init
+     $RM $a/Makefile
+     ln $a/Makefile.init $a/Makefile
+  fi
+done
+
+if test ! -f Makefile.0
+then
+  grep -e '^# Makefile - mark' <Makefile >Makefile.0
+  sed -e '1,/^# Makefile - mark/ d' <Makefile >>Makefile.0
+fi
+sed -e '/^# Makefile - mark/,$ d' <Makefile >_Makefile
+echo "# Makefile.1 - mark, don't (re)move this, a sed script needs it
+" >>_Makefile
+
+test -z "$MSHELL" && echo  "SHELL	= $SHELL"	>>_Makefile
+echo "FGREP	= $FGREP"				>>_Makefile
+test -z "$MAKE" && echo "MAKE	= make"			>>_Makefile
+test a"$cc" != a"$CC" && echo "CC	= $cc"		>>_Makefile
+
+CFLAGS=""
+if echo "$CFLAGS1" | $FGREP _POSIX_SOURCE >$DEVNULL
+then
+:
+else
+  cat >src/_autotst.c <<HERE
+#include <sys/stat.h>
+main()
+{ struct stat buf;return!&buf;
+}
+HERE
+  $RM src/_autotst.$O
+  if $cc $CFLAGS1 -o src/_autotst.$O src/_autotst.c >$DEVNULL 2>&1
+  then
+  :
+  else
+    $RM src/_autotst.$O
+    $cc $CFLAGS1 -D_POSIX_SOURCE -o src/_autotst.$O src/_autotst.c >$DEVNULL \
+     2>&1 && CFLAGS=" -D_POSIX_SOURCE"
+  fi
+  $RM src/_autotst.$O src/_autotst.c
+fi
+
+echo "CFLAGS	= \$(CFLAGS1)$CFLAGS"			>>_Makefile
+echo "LDFLAGS	= \$(LDFLAGS1)"				>>_Makefile
+echo							>>_Makefile
+
+MANSS=""
+MANS1=""
+MANS5=""
+MANS=""
+NMANS=""
+BINS=""
+NBINS=""
+for a in $MANS1S
+do
+  MANSS="$MANSS $a.1"
+  MANS1="$MANS1 $a.\$(MAN1SUFFIX)"
+done
+for a in $MANS5S
+do
+  MANSS="$MANSS $a.5"
+  MANS5="$MANS5 $a.\$(MAN5SUFFIX)"
+done
+for a in $MANSS
+do
+  MANS="$MANS new/$a"
+  NMANS="$NMANS ../new/$a"
+done
+for a in $BINSS
+do
+  BINS="$BINS new/$a"
+  NBINS="$NBINS ../new/$a"
+done
+
+echo "BINS=$BINS"					>>_Makefile
+echo "MANS=$MANS"					>>_Makefile
+echo "MANS1=$MANS1"					>>_Makefile
+echo "MANS5=$MANS5"					>>_Makefile
+echo "MANSS=$MANSS"					>>_Makefile
+echo "NBINS=$NBINS"					>>_Makefile
+echo "NMANS=$NMANS"					>>_Makefile
+echo							>>_Makefile
+
+for a in $SUBDIRS
+do
+  sed -e '1,/^# Makefile.0 - mark/ d' <_Makefile >$a/_Makefile
+  cat $a/Makefile.0 >>$a/_Makefile
+done
+
+cat Makefile.1 >>_Makefile
+
+for a in $BINSS
+do
+  echo							>>src/_Makefile
+  echo "../new/$a: $a ../new"				>>src/_Makefile
+  echo "	@\$(RM) \$@"				>>src/_Makefile
+  echo "	ln $a \$@"				>>src/_Makefile
+done
+
+for a in $MANSS
+do
+  echo							>>man/_Makefile
+  echo "../new/$a: $a ../new"				>>man/_Makefile
+  echo "	@\$(RM) \$@"				>>man/_Makefile
+  echo "	ln $a \$@"				>>man/_Makefile
+done
+
+for a in $MANS1S
+do
+  echo							>>man/_Makefile
+  echo "$a.1: $a.man man.sed mansed"			>>man/_Makefile
+  echo "	\$(SHELL) ./mansed $a.man \$@ \"\$(RM)\" \$(DEVNULL)" \
+   >>man/_Makefile
+done
+
+for a in $MANS5S
+do
+  echo							>>man/_Makefile
+  echo "$a.5: $a.man man.sed mansed"			>>man/_Makefile
+  echo "	\$(SHELL) ./mansed $a.man \$@ \"\$(RM)\" \$(DEVNULL)" \
+   >>man/_Makefile
+done
+
+mv _Makefile Makefile
+
+for a in $SUBDIRS
+do
+  mv $a/_Makefile $a/Makefile
+done
