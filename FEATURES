@@ -28,8 +28,8 @@ Feature summary for procmail:
 	+ Variable assignment and substitution is an extremely complete subset
 	  of the standard /bin/sh syntax
 	+ Provides a mail log file, which logs all mail arrival, shows
-	  in summary from whence it came, what it was about, where it went
-	  (what folder) and how long (in bytes) it was
+	  in summary whence it came, what it was about, where it went (what
+	  folder) and how long (in bytes) it was
 	+ Uses this log file to display a wide range of diagnostic and error
 	  messages (if something went wrong)
 	+ Does not impose *any* limits on line lengths, mail length (as long

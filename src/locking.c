@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.12 1993/02/10 17:07:57 berg Exp $";
+ "$Id: locking.c,v 1.13 1993/02/11 12:08:34 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -25,16 +25,12 @@ void lockit(name,lockp)char*name;char**const lockp;
   if(!*name)
      return;
   name=tstrdup(name); /* allocate now, so we won't hang on memory *and* lock */
+  if(!strcmp(name,defdeflock))	       /* is it the system mailbox lockfile? */
+     setgid(sgid);		       /* try and get some extra permissions */
   for(lcking|=lck_LOCKFILE;;)
-   { yell("Locking",name);
-     if(!strcmp(name,defdeflock))      /* is it the system mailbox lockfile? */
-	setgid(sgid);		    /* in order to cater for clock skew: get */
-     ;{ int lckd=!xcreat(name,LOCKperm,&t,(int*)0);  /* time from filesystem */
-	if(rc!=rc_INIT)				     /* we opened any rcfile */
-	   setgid(gid);		      /* we put back our regular permissions */
-	if(lckd)
-	 { *lockp=name;break;			   /* lock acquired, hurray! */
-	 }
+   { yell("Locking",name);	    /* in order to cater for clock skew: get */
+     if(!xcreat(name,LOCKperm,&t,(int*)0))     /* time t from the filesystem */
+      { *lockp=name;break;			   /* lock acquired, hurray! */
       }
      switch(errno)
       { case EEXIST:		   /* check if it's time for a lock override */
@@ -80,6 +76,8 @@ ce:  if(nextexit)
 term: { free(name);break;		     /* drop the preallocated buffer */
       }
    }
+  if(rc!=rc_INIT)				     /* we opened any rcfile */
+     setgid(gid);		      /* we put back our regular permissions */
   lcking&=~lck_LOCKFILE;
   if(nextexit)
    { elog(whilstwfor);elog("lockfile");logqnl(name);terminate();
@@ -99,8 +97,12 @@ void unlock(lockp)char**const lockp;
 { lcking|=lck_LOCKFILE;
   if(*lockp)
    { yell("Unlocking",*lockp);
+     if(!strcmp(*lockp,defdeflock))    /* is it the system mailbox lockfile? */
+	setgid(sgid);		       /* try and get some extra permissions */
      if(unlink(*lockp))
 	nlog("Couldn't unlock"),logqnl(*lockp);
+     if(rc!=rc_INIT)				     /* we opened any rcfile */
+	setgid(gid);		      /* we put back our regular permissions */
      if(!nextexit)			   /* if not inside a signal handler */
 	free(*lockp);
      *lockp=0;

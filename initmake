@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.23 1993/02/10 19:17:44 berg Exp $
+#$Id: initmake,v 1.24 1993/02/11 12:08:01 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -80,6 +80,7 @@ $RM _autotst.rrr _autotst.$O _autotst
 echo "$cc seems to work fine, using that as the C-compiler"
 
 cat >_autotst.c <<HERE
+#include <stdio.h>
 #include <sys/stat.h>
 main()
 { struct stat buf;return!&buf;
@@ -238,7 +239,7 @@ do
   echo							>>man/_Makefile
   echo "$a.1: $a.man man.sed mansed"			>>man/_Makefile
   echo \
-   "	\$(SHELL) ./mansed \$(SHELL) $a.man \$@ \"\$(RM)\" \$(DEVNULL)" \
+   "	@\$(SHELL) ./mansed \$(SHELL) $a.man \$@ \"\$(RM)\" \$(DEVNULL)" \
    >>man/_Makefile
 done
 
@@ -247,7 +248,7 @@ do
   echo							>>man/_Makefile
   echo "$a.5: $a.man man.sed mansed"			>>man/_Makefile
   echo \
-   "	\$(SHELL) ./mansed \$(SHELL) $a.man \$@ \"\$(RM)\" \$(DEVNULL)" \
+   "	@\$(SHELL) ./mansed \$(SHELL) $a.man \$@ \"\$(RM)\" \$(DEVNULL)" \
    >>man/_Makefile
 done
 

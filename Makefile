@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.17 1993/01/28 14:21:47 berg Exp $
+#$Id: Makefile,v 1.18 1993/02/11 12:07:55 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -87,5 +87,5 @@ init:
 makefiles makefile Makefiles Makefile: init
 
 bins mans install.bin install.man install recommend suid clean realclean \
-deinstall autoconf.h $(BINSS) multigram: init
+veryclean clobber deinstall autoconf.h $(BINSS) multigram: init
 	$(HIDEMAKE) make $@

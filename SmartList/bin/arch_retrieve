@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: arch_retrieve,v 1.6 1993/02/02 15:26:48 berg Exp $
+#$Id: arch_retrieve,v 1.7 1993/02/11 12:08:09 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -19,6 +19,16 @@ cd archive
 
 from=`$echo "arch_retrieve:" \`$cat $tmpfrom\` requested`
 $cat /dev/null >$tmpfrom
+
+wrongaddress=""
+
+case "`formail -xX-Envelope-To: <$tmprequest`" in
+  *$listreq*) wrongaddress="
+WARNING:
+	Please try to use the $listreq address
+	the next time when issuing archive server requests.
+" ;;
+esac
 
 $formail -k -xSubject: |
  $sed -e '/^--/,$ d' -e 's/^[	 ]*archive[	 ]//' \
@@ -40,6 +50,8 @@ $formail -k -xSubject: |
 		   ( $formail -rt -I"Subject: archive retrieval: $1" \
 		      -i"From: $listreq" -A"X-Loop: $listaddr" \
 		      -I"Precedence: bulk" <$tmprequest
+		     $test ! -z "$wrongaddress" && $echo "$wrongaddress" &&
+		      wrongaddress=""
 		     if $test -f "./$1"
 		     then
 			$echo "File: $1"
@@ -64,6 +76,8 @@ $formail -k -xSubject: |
 		   ( $formail -rt -I"Subject: archive retrieval: ls $1" \
 		      -i"From: $listreq" -A"X-Loop: $listaddr" \
 		      -I"Precedence: bulk" <$tmprequest
+		     $test ! -z "$wrongaddress" && $echo "$wrongaddress" &&
+		      wrongaddress=""
 		     if $test -r "./$1"
 		     then
 			$echo "ls -l $1"
@@ -85,6 +99,7 @@ $formail -k -xSubject: |
        ( $formail -rt -I"Subject: archive retrieval: ls $1" \
 	  -i"From: $listreq" -A"X-Loop: $listaddr" -I"Precedence: bulk" \
 	  <$tmprequest
+	 $test ! -z "$wrongaddress" && $echo "$wrongaddress" && wrongaddress=""
 	 $echo "This archive server knows the following commands:"
 	 $echo ""
 	 $echo "get filename ..."

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.26 1993/02/10 17:08:10 berg Exp $";
+ "$Id: procmail.c,v 1.27 1993/02/11 12:08:41 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -239,8 +239,9 @@ Setuser:
      for(kp=prestenv;*kp;)  /* preset or wipe selected environment variables */
 	strcpy((char*)(sgetcp=buf2),*kp++),readparse(buf,sgetc,2),sputenv(buf);
    }				 /* find out the name of our system lockfile */
-  sgetcp=DEFdeflock;readparse(buf,sgetc,2);defdeflock=tstrdup(buf);
-  strcpy(buf,chp=(char*)getenv(orgmail));buf[i=lastdirsep(chp)-chp]='\0';
+  sgetcp=DEFdeflock+STRLEN(lockfile)+1;readparse(buf,sgetc,2);
+  defdeflock=tstrdup(buf);strcpy(buf,chp=(char*)getenv(orgmail));
+  buf[i=lastdirsep(chp)-chp]='\0';
   ;{ struct stat stbuf;				   /* strip off the basename */
      sgid=gid;						/* presumed innocent */
     /*
@@ -621,8 +622,8 @@ noloclock:    inittmout(buf);
 nomore_rc:
   concon('\n');succeed=0;
   if(*(chp=(char*)tgetenv(fdefault)))			     /* DEFAULT set? */
-   { setuid(uid);firstchd();setdef(lockfile,DEFdeflock);       /* implicitly */
-     if(dump(deliver(chp),themail,filled))		     /* lock default */
+   { setuid(uid);firstchd();asenvcpy(DEFdeflock);	    /* implicit lock */
+     if(dump(deliver(chp),themail,filled))			  /* default */
 	writeerr(buf);
      else
 	succeed=1;

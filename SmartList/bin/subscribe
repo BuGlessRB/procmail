@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: subscribe,v 1.7 1993/02/02 16:54:12 berg Exp $
+#$Id: subscribe,v 1.8 1993/02/11 12:08:13 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -16,6 +16,16 @@ $test -z "$listaddr" &&
 tmprequest=tmp.request
 tmpfrom=tmp.from
 subscribetxt=subscribe.txt
+
+wrongaddress=""
+
+case "`formail -xX-Envelope-To: <$tmprequest`" in
+  *$listreq*) wrongaddress="
+WARNING:
+	Please try to use the $listreq address
+	the next time when issuing (un)subscribe requests.
+" ;;
+esac
 
 subscraddr=""
 
@@ -58,6 +68,8 @@ $multigram -a "$subscraddr$NOT_METOO" dist >/dev/null
 
 $formail -i"From: $listreq" -rtA"X-Loop: $listaddr" -I"Precedence: bulk" \
  <$tmprequest
+
+$test ! -z "$wrongaddress" && $echo "$wrongaddress" && wrongaddress=""
 
 $echo "You have added to the subscriber list of:"
 $echo

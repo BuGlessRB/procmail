@@ -6,14 +6,14 @@
 # shortly before writing out the new version of this file (remove the lockfile
 # afterwards of course)
 
-#$Id: rc.submit,v 1.10 1993/02/02 15:26:59 berg Exp $
+#$Id: rc.submit,v 1.11 1993/02/11 12:08:21 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
 
 #
 # The following recipe makes sure that:
-#	The mail was not sent to the request address.
+#	The mail has a sane size (i.e. it is not inordinately big)
 #	It does not look like an administrative request.
 #	It wasn't sent by this list itself.
 #	It wasn't sent by a daemon (misdirected bounce message perhaps).
@@ -21,12 +21,13 @@ INCLUDERC=$RC_CUSTOM
 # doing so, also check if this subscriber wants to receive copies.
 #
 
-:6Wh
+:5Wh
 	< $size_limit
 	$!^$X_COMMAND:
-	!^TO.*-request
-	!^Subject:( *(help|info) *$|.*( \
-    (add .* to|remove .* from|take .* off|put .* on) .* list|subscri(be|ption))
+	!^Subject:([	 ]*(archive([	 ]+((send|get)(me)?|gimme|retrieve|\
+	 mail|ls|dir(ectory)?|list|show|help|info)([	 ]|$)|[		]*$)|\
+	 (help|info)[	 ]*$)|[^:]*( (add .* to|remove .* from|take .* off|\
+	 put .* on) .* list|subscri(be|ption))
 	$!^X-Loop: $listaddr
 	$!$FROM_MAILER_DAEMON
 METOO=	| formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
