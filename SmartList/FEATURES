@@ -17,8 +17,7 @@ Summary of what the mailinglist scripts in here provide:
 	+ The fully automated subscription mechanism allows for a reject list
 	  of unwanted subscribers
 	+ Auto-digest-generation (configurable per list)
-	+ Joint management of several mailinglists possible (through hardlinked
-	  rcfiles)
+	+ Joint management of several mailinglists possible
 	+ Customisation per mailinglist or mailinglist group possible (simply
 	  remove or create the desired hardlinks)
 	+ A listmaintainer can be assigned per list;  miscellaneous requests
@@ -32,3 +31,5 @@ Summary of what the mailinglist scripts in here provide:
 	  possible problems
 	+ You can set up a mailinglist to function as a standalone mail
 	  archive server
+	+ Supports moderated mailinglists with multiple moderators
+	+ Automatically eliminates duplicate submissions

@@ -1,4 +1,4 @@
-$Id: Manual,v 1.11 1993/06/21 14:23:42 berg Exp $
+$Id: Manual,v 1.12 1993/07/16 14:51:09 berg Exp $
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
@@ -9,8 +9,10 @@ Contents:
 		2. Remote maintenance of mailinglists
 		3. Customisation
 		3a.Digest processing
-		3b.Moderated lists
-		3c.Schematic overview of what goes on behind the scenes
+		3b.Restricting subscriptions
+		3c.Restricting submissions
+		3d.Moderated lists
+		3e.Schematic overview of what goes on behind the scenes
 		4. The archive server
 		5. The format of the dist file
 		6. Multigram and the thresholds in rc.init/rc.custom
@@ -42,9 +44,23 @@ The fourth command removes all traces of the "testing" mailinglist again.
 
 There are two other convenience-utilitis that can be used:
 	delink
-		It will unlink a file from its hardlinked counterpart(s).
+		It will unlink a file from its hardlinked counterpart(s)
+		(without deleting it).
 	showlink
 		It will display what groups of files are linked together.
+
+If you are running several lists maintained by separate maintainers, you
+can give a maintainer complete and sole control over his or her own list
+without the need for them to have user list or group list rights.
+For this to work, you simply have to "chown -R the_maintainer his_list"
+the whole tree that contains his list to him (her).  Make sure that the
+group id of all files in the tree are still group-writeable by "list",
+because that's the access privilege the mailinglist will be running under.
+
+The maintainer has to be careful to use an umask of 007 while editing in
+his mailinglist directory.  This allows the mailinglist-programs to function
+while still limiting access to all mailinglist files to *one* person only
+(the maintainer).
 
 
 2. Remote maintenance of mailinglists
@@ -153,7 +169,7 @@ digest_flag in rc.init (if you want all lists to be digested) or rc.custom
 every so often depending on size and age of the accumulated messages.
 
 The conditions for sending out a digest are checked during the arrival
-of every submission.  If however traffic on the list sometimes is very low
+of every submission.  If, however, traffic on the list sometimes is very low
 (i.e. less often than the maximum age of a digest) a digest could be laying
 around for longer than the specified maximum period (3 days by default).
 
@@ -186,17 +202,51 @@ This is what you can do:
 	thelist.
 
 
-3b.Moderated lists
+3b.Restricting subscriptions
+   -------------------------
+
+There are two ways in which you can restrict who can subscribe to a list:
+- You can put the addresses of unwanted subscribers on the so-called reject-
+  list (the `reject'-file).
+- You can completely disable automatic subscription by uncommenting the
+  appropriate "auto_subscribe" line in rc.custom.
+
+
+3c.Restricting submissions
+   -----------------------
+
+You can restrict submissions to people on the accept-list (the `accept'-file).
+Mail from anyone else will be passed on to the maintainer instead of being
+submitted.  To enable this you have to uncomment the appropriate
+"foreign_submit" line in rc.custom.  By default the accept file is hardlinked
+to the dist file (i.e. if submissions are restricted, only subcsribers
+can do so).  If you want to allow only an even more select group, delink the
+accept file and edit it to taste.
+
+This feature is not the same as a moderated list, the two features can be
+used accumulatively.
+
+
+3d.Moderated lists
    ---------------
 
-The easiest way to set up a moderated list would be to rename the "thelist"
-alias into "thelist-approved", and to create a new "thelist" alias that
-points to the moderator.  This way the moderator receives all submissions,
-which he/she then can forward to thelist-approved to finally distribute it
-(after some editing of the message perhaps).
+First create a file named "moderators", it should contain the mail
+addresses of all the moderators for this list.	Then uncomment the appropriate
+"moderated_flag" line in rc.custom.
+
+From then on all mail that does not contain an
+"Approved: the_address_of_one_of_the_moderators" field is forwarded to
+all the moderators.
+
+One of the moderators should then resend the mail to the list after adding
+an "Approved: his_own_address" field to the header (and possible editing
+the contents of the mail).  It will be no problem if several moderators
+resubmit the same submission concurrently, since the mailinglist will
+filter out duplicates anyway (i.e. only the first one will go out and
+be archived).
 
 
-3c.Schematic overview of what goes on behind the scenes
+3e.Schematic overview of what goes on behind the scenes
    ----------------------------------------------------
 
 Suppose you have two entries in the aliases file, one for thelist@domain

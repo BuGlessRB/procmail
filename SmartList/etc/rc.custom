@@ -10,12 +10,16 @@ maintainer	=
 #VERBOSE=yes				# uncomment in case of real emergency
 
 #size_limit	=	524288		# sanity cutoff value for submissions
+
+#idcache_size	=	8192		# duplicate-msgid cache size in bytes
+
 #archive_hist	=	2		# number of messages left archived
 #archive_log	=	$LOGFILE	# log file for archive retrievals
+#subscribe_log	=	$LOGFILE	# log file for administrivia
+
 #maxhist	=	8		# bounce history limit
 #minbounce	=	3		# no. of bounces before removal
 #cutoff_bounce	=	256		# lines to keep in bounce processing
-#subscribe_log	=	$LOGFILE	# log file for administrivia
 
 #match_threshold=	30730		# for close matches to the list
 #medium_threshold=	28672		# for not so close matches to the list
@@ -30,10 +34,20 @@ maintainer	=
 ##foreign_submit			# uncomment this line if you
 					# want to restrict submitting to
 					# people on the accept list
+#auto_subscribe =	>0
+##auto_subscribe=	<0		# uncomment to disable automatic
+					# subscription handling
+#moderated_flag =	<0
+##moderated_flag=	>0		# uncomment this to make the list
+					# moderated (you must create a
+					# `moderators' file for this to work)
 #cc_requests
 ##cc_requests	=	c		# uncomment if you want subscribe
 					# and help requests to be Cc'd to
 					# the maintainer
+#reply_to
+##reply_to	= "Reply-To: $listaddr" # uncomment to force replies to go
+					# to the list (not recommended)
 #digest_flag	=	<0
 ##digest_flag	=	>0		# uncomment this if you want digests
 #digest_age	=	262144		# maximum age of a digest in seconds

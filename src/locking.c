@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.16 1993/06/21 14:24:30 berg Exp $";
+ "$Id: locking.c,v 1.17 1993/07/16 14:52:39 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -92,11 +92,12 @@ term: { free(name);break;		     /* drop the preallocated buffer */
 
 void lcllock P((void))				    /* lock a local lockfile */
 { char*lckfile;
-  if(!strcmp(lckfile=tolock?tolock:strcat(buf2,tgetenv(lockext)),
-   tgetenv(lockfile)))
-     nlog("Deadlock attempted on"),logqnl(lckfile);
-  else
-     lockit(lckfile,&loclock);
+  if(tolock||strcmp(buf2,devnull))	 /* locking /dev/null would be silly */
+     if(!strcmp(lckfile=tolock?tolock:strcat(buf2,tgetenv(lockext)),
+      tgetenv(lockfile)))
+	nlog("Deadlock attempted on"),logqnl(lckfile);
+     else
+	lockit(lckfile,&loclock);
 }
 
 void unlock(lockp)char**const lockp;
@@ -166,7 +167,7 @@ static off_t oldlockoffset;
 fdlock(fd)
 { int ret;
 #if REITfcntl+REITflock+REITlockf>1
-  for(;;nlog("Reiterating kernel-lock\n"),sleep((unsigned)locksleep))
+  for(;;verbose&&nlog("Reiterating kernel-lock\n"),sleep((unsigned)locksleep))
 #endif
    {
 #ifndef NOfcntl_lock

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.15 1993/05/05 15:15:55 berg Exp $
+#$Id: arch_retrieve,v 1.16 1993/07/16 14:51:20 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -13,10 +13,10 @@ formail=formail		# /usr/local/bin/formail
 $test -z "$listaddr" &&
  $echo "Don't start this script directly, it is used in rc.request" && exit 64
 
-tmprequest=../tmp.request
-tmpfrom=../tmp.from
+tmprequest=tmp.request
+tmpfrom=tmp.from
 
-cd archive
+archivedir=archive
 
 from=`$echo "arch_retrieve:" \`$cat $tmpfrom\` requested`
 $cat /dev/null >$tmpfrom
@@ -62,6 +62,7 @@ $wrongaddress"
 		      -I"Precedence: bulk" <$tmprequest
 		     $test ! -z "$wrongaddress" && $echo "$wrongaddress" &&
 		      wrongaddress=""
+		     cd $archivedir
 		     if $test -f "./$1"
 		     then
 			$echo "File: $1"
@@ -89,6 +90,7 @@ $wrongaddress"
 		      -I"Precedence: bulk" <$tmprequest
 		     $test ! -z "$wrongaddress" && $echo "$wrongaddress" &&
 		      wrongaddress=""
+		     cd $archivedir
 		     if $test -r "./$1"
 		     then
 			$echo "ls -l $1"

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.24 1993/06/23 12:56:01 berg Exp $";
+ "$Id: formail.c,v 1.25 1993/07/16 14:52:32 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/06/23 12:56:01 $";
+static /*const*/char rcsdate[]="$Date: 1993/07/16 14:52:32 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -183,7 +183,10 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		       tmemmove(fldp->fld_text+lnl,chp,i),copied=1;
 		    else if(!(chp=(char*)*++argv)||	 /* look at next arg */
 		     !(i=breakfield(chp,strlen(chp))))		/* no field? */
-invfield:	     { nlog("Invalid field-name:");logqnl(chp?chp:"");
+		     { if(chp&&!*chp)		    /* empty field, silently */
+			{ free(fldp);*afldp=0;break;		  /* drop it */
+			}
+invfield:	       nlog("Invalid field-name:");logqnl(chp?chp:"");
 		       goto usg;
 		     }
 		    *afldp=fldp=
@@ -243,7 +246,7 @@ startover:
 	while((sest[i].len!=j||strnIcmp(sest[i].head,chp,j))&&i--);
 	if(i>=0&&(i!=maxindex(sest)||fldp==rdheader))	  /* found anything? */
 	 { char*saddr;char*tmp;			     /* determine the weight */
-	   nowm=trust?sest[i].wtrepl:areply?i:sest[i].wrepl;chp+=j;
+	   nowm=trust?sest[i].wtrepl:areply?sest[i].wrepl:i;chp+=j;
 	   tmp=malloc(j=fldp->tot_len-j);tmemmove(tmp,chp,j);
 	   tmp[j-1]='\0';chp=pstrspn(tmp," \t\n");
 	   for(saddr=0;;chp=skipwords(chp))		/* skip RFC 822 wise */

@@ -1,5 +1,6 @@
 #! /bin/sh
-: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #########################################################################
 #	sendmails	Poor man's sendmail.				#
 #									#
@@ -8,7 +9,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: sendmails,v 1.2 1993/06/28 16:23:03 berg Exp $
+#$Id: sendmails,v 1.3 1993/07/16 14:51:41 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo

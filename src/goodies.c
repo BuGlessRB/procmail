@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.15 1993/06/21 14:24:17 berg Exp $";
+ "$Id: goodies.c,v 1.16 1993/07/16 14:52:36 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -34,7 +34,7 @@ const char*Tmnate,*All_args;
 
 /* sarg==0 : normal parsing, split up arguments like in /bin/sh
  * sarg==1 : environment assignment parsing, parse up till first whitespace
- * sarg==2 : normal parsing, split up arguments by single spaces
+ * sarg==2 : normal parsing, split up arguments by existing whitespace
  */
 void readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
  const int sarg;
@@ -76,7 +76,37 @@ noesc:	      *p++='\\';		/* nothing to escape, just echo both */
 	      goto nodelim;
 	   for(startb=p;;)			       /* mark your position */
 	    { switch(i=fgetc())			 /* copy till next backquote */
-	       { case '\\':
+	       { case '"':
+		    if(got!=DOUBLE_QUOTED)     /* missing closing backquote? */
+		       break;
+forcebquote:	 case EOF:case '`':
+		    if(skiprc)
+		       *(p=startb)='\0';
+		    else
+		     { int osh=sh;
+		       *p='\0';
+		       if(!(sh=!!strpbrk(startb,tgetenv(shellmetas))))
+			{ const char*save=sgetcp,*sall_args=All_args;
+			  sgetcp=p=tstrdup(startb);readparse(startb,sgetc,0);
+			  if(!All_args)	       /* only one can be remembered */
+			     All_args=sall_args;	    /* this is a bug */
+#ifndef GOT_bin_test
+			  if(!strcmp(test,startb))
+			     strcpy(startb,p),sh=1;    /* oops, `test' found */
+#endif
+			  free(p);sgetcp=save;		       /* chopped up */
+			}	    /* drop source buffer, read from program */
+		       startb=fromprog(
+			p=startb,startb,(size_t)(buf-startb+linebuf-3));
+		       sh=osh;				       /* restore sh */
+		     }
+		    if(got!=DOUBLE_QUOTED)
+		     { i=0;startb=p;goto simplsplit;	      /* split it up */
+		     }
+		    if(i=='"'||got<=SKIPPING_SPACE)   /* missing closing ` ? */
+		       got=NORMAL_TEXT;			     /* or sarg!=0 ? */
+		    p=startb;goto loop;
+		 case '\\':
 		    switch(i=fgetc())
 		     { case EOF:nlog(unexpeof);goto forcebquote;
 		       case '\n':continue;
@@ -85,35 +115,7 @@ noesc:	      *p++='\\';		/* nothing to escape, just echo both */
 			     break;
 		       case '\\':case '$':case '`':goto escaped;
 		     }
-		    *p++='\\';break;
-		 case '"':
-		    if(got!=DOUBLE_QUOTED)     /* missing closing backquote? */
-		       break;
-forcebquote:	 case EOF:case '`':
-		  { int osh=sh;
-		    *p='\0';
-		    if(!(sh=!!strpbrk(startb,tgetenv(shellmetas))))
-		     { const char*save=sgetcp,*sall_args=All_args;
-		       sgetcp=p=tstrdup(startb);readparse(startb,sgetc,0);
-		       if(!All_args)	       /* only one can be remembered */
-			  All_args=sall_args;		    /* this is a bug */
-#ifndef GOT_bin_test
-		       if(!strcmp(test,startb))
-			  strcpy(startb,p),sh=1;       /* oops, `test' found */
-#endif
-		       free(p);sgetcp=save;		       /* chopped up */
-		     }		    /* drop source buffer, read from program */
-		    startb=
-		     fromprog(p=startb,startb,(size_t)(buf-startb+linebuf-3));
-		    sh=osh;				       /* restore sh */
-		    if(got!=DOUBLE_QUOTED)
-		     { i=0;startb=p;goto simplsplit;	      /* split it up */
-		     }
-		    if(i=='"'||got<=SKIPPING_SPACE)   /* missing closing ` ? */
-		       got=NORMAL_TEXT;			     /* or sarg!=0 ? */
-		    p=startb;goto loop;
-		  }
-		 case '\n':i=';';	       /* newlines separate commands */
+		    *p++='\\';
 	       }
 escaped:      *p++=i;
 	    }
@@ -177,18 +179,21 @@ normchar:	 *p++='$';goto newchar;		       /* not a substitution */
 	       !j?(char*)argv0:j<=crestarg?(char*)restargv[j-1]:"";
 	    }
 	   if(got!=DOUBLE_QUOTED)
-simplsplit:   for(;;startb++)		  /* simply split it up in arguments */
+simplsplit: { if(sarg)
+		 goto copyit;
+	      for(;;startb++)		  /* simply split it up in arguments */
 	       { switch(*startb)
 		  { case ' ':case '\t':case '\n':
 		       if(got<=SKIPPING_SPACE)
 			  continue;
-		       *p++=sarg?' ':'\0';got=SKIPPING_SPACE;continue;
+		       *p++='\0';got=SKIPPING_SPACE;continue;
 		    case '\0':goto eeofstr;
 		  }
 		 *p++= *startb;got=NORMAL_TEXT;
 	       }
+	    }
 	   else
-	    { strcpy(p,startb);				   /* simply copy it */
+copyit:	    { strcpy(p,startb);				   /* simply copy it */
 eofstr:	      if(got<=SKIPPING_SPACE)		/* can only occur if sarg!=0 */
 		 got=NORMAL_TEXT;
 	      p=strchr(p,'\0');

@@ -18,69 +18,29 @@
 1991/07/12: v2.11
 1991/10/02: v2.20 (never released)
 1991/10/18: v2.30
-	    Implemented a custom regular expression library (fully egrep
-	       compatible), should eliminate the annoyances with incompatible
-	       egreps
 	    Reached the doubtful milestone of having a source file (regexp.c)
 	       which provokes a compiler error on an old compiler
 	       (if using the optimiser)
 1991/10/22: v2.31
 1991/12/05: v2.40
-	    Made procmail capable of healing the recipient's mail spool file
-	    Tricked NFS into supplying an access_time<modification_time for the
-	       folders written
 1991/12/13: v2.50
 1992/01/22: v2.60
 1992/01/31: v2.61
 1992/04/30: v2.70
-	    Made procmail & lockfile clock skew independent (important during
-	       LOCKTIMEOUT)
-	    Made special entries in config.h for semi-permanent environment-
-	       variable overrides
 1992/07/01: v2.71
-	    Now throwing away all environment variables starting with LD_
-	       (not just LD_LIBRARY_PATH), but only on those machines that
-	       have the security hole (i.e. SunOS)
 	    Gave procmail, formail, lockfile and mailstat a more verbose
 	       command line help (called up by -h or -?)
 1993/02/04: v2.80
 	    Started using CVS to manage the source (god's gift to programmers)
-	    Substantially changed the examples/advanced mailer integration
-	       instructions (especially for smail)
-	    Enhanced lockfile a lot:
-	       - the -r option really specifies *re*tries now
-	       - concatenated and/or seperate options are allowed now
-	       - fixed an inconsistency with removing lockfiles by force
-	       - lockfile is more intelligent about locks which are impossible
-		 to acquire (it sees it now and displays an appropriate error
-		 message)
-	       - related to this, lockfile now can return a whole range of
-		 standard exitcodes to describe the error
-	       - dropped the suid support for lockfile, sgid support however
-		 was consolidated (with more descriptive error messages)
 	    Changes to formail:
 	       - formail does *NOT* CONCATENATE continued header-fields by
 		 default now anymore, specify the -c option for this
 	       - fixed the sender-determination-code, v2.71 didn't comply
 		 with RFC-822 on some points
 	       - the sender-determination-code now minimises the mailaddress
-	       - taught formail about some more headers, previously formail
-		 would refuse to split some mail-articles because it didn't
-		 recognise the second field
 	       - made it strip the <> on generated mail addresses
 	       - reorganised the known header-fields into the header.h file
 		 (to allow convenient additions)
-	       - introduced the -l option, for generating procmail-alike
-		 summaries
-	       - introduced the -R option for renaming header-fields
-	       - taught it about the Resent- fields when looking for a reply
-		 address
-	       - made sure that it does not generate an extra empty line at
-		 the end of a mail with no body
-	       - fixed the '-nnn' option, somehow this got broken
-	       - added the -X option for extracting complete fields (to make
-		 the toolset complete)
-	       - defined away one const, for buggy Convex "ANSI" C compilers
 	    Changes to procmail:
 	       - procmail does *NOT* CONCATENATE continued header-fields
 		 anymore, filter through "formail -c" for this
@@ -88,66 +48,24 @@
 		 regular mailfolder (otherwise it's unchanged)
 	       - changed the method for turning on extended diagnostics, the
 		 preceding colon is not supported anymore, use VERBOSE=on
-	       - worked over the mailbox-healing code, some changes were
-		 needed to ensure complete functionality when the system
-		 mailbox is in the user's home directory
-	       - taught procmail about $? (see sh(1))
-	       - added the INCLUDERC keyword, to permit unlimited nesting
-		 of included rcfiles
-	       - any program started in backquotes by procmail now has the
-		 complete mail on its stdin
-	       - all diagnostics logged by procmail will now be preceded by
-		 a "procmail: " for easy identification
-	       - as long as no LOGFILE has been specified, all diagnostics
-		 will be mailed back to the sender (instead of /dev/null)
-	       - when a program is specified on an action line, you can
-		 precede the line by an environment variable name and an
-		 equal sign;  this will read in the (unlimited length) text
-		 from stdout into this variable
-	       - backslash-newline pairs on continued program-action lines
-		 will be simply passed on now;	unless the backslash-newline
-		 pair is on an otherwise empty line, in which case only the
-		 newline remains
 	       - comsat/biff is fully supported now
-	       - added the TRAP keyword, to allow for temporary file cleanup
-	       - in explicit delivery mode, unknown users are now rejected
 	       - system mailboxes with their suid or sgid bits set will not
 		 be delivered to anymore, they are presumed to contain SysV
 		 autoforwarding information
-	       - a condition line of a recipe can now start with '?' in order
-		 to use the exitcode of a program as true or false
-	       - the ^TO and ^FROM_DAEMON special keywords can now be used
-		 anywhere in the regular expression (^TO has been extended
-		 as well)
 	       - taught the ^^ special token to the internal egrep
-	       - more than doubled the speed of the builtin regexp library
-		 (which was already fast :-)
-	       - procmail uses and defines LOGNAME instead of USER
 	    Changes to the installation scripts:
-	       - preset values for $(MAKE), $(CC) and $(SHELL) are respected
-		 in Makefiles now
-	       - a POSIX conforming grep is recognised and used
-	       - the need for any -D_POSIX_SOURCE is recognised automatically
-	       - to make sure that all this is possible, the Makefiles are
-		 created in a two step-process now (make init)
 	       - missing libraries for network/socket and opendir support
 		 are searched for (you won't believe what names people picked
 		 for network support libraries, not in your wildest dreams :-)
 	       - the autoconf script now performs a reliability test on kernel
 		 locking support
-	       - also, network support for comsat tries to build up a compile
-		 time cache for trivial get*byname() calls
 	       - reached the doubtful milestone of consistently crashing the
 		 kernel on a Convex by running the locktst program
 1993/02/19: v2.81
-	    Fixed a major inconvenience when generating the Makefiles in
-	       initmake
 	    Loosened the formats accepted for (un)subscription requests (some
 	       got rejected, but were valid)
 	    Redirected archive requests away from the regular list address
 	    Sharpened the FROM_MAIL_DAEMON detection
-	    Flist, idhash and multigram now use the correct name on error
-	       reports
 	    Sped up multigram on duplicate names (also eliminates duplicates
 	       in the best-matches list)
 	    The locking tests in the autoconf scripts seemed to hang on
@@ -155,8 +73,6 @@
 	    Procmail now uses saved-gids if available (allows for system-
 	       mailbox locking from within an rcfile on systems that did not
 	       have world-writeable /usr/mail directories)
-	    Procmail ignores locallockfiles if the file that has to be locked
-	       turns out to be /dev/null
 	    Added a paragraph to the mailinglist/Manual (explaining multigram
 	       and threshold values)
 1993/06/02: v2.82 (never really released, was only available as prerelease 4)
@@ -219,8 +135,8 @@
 	       that didn't have memmove(3) and were too fast (make got confused
 	       about the modification time of an object file)
 	    Corrected the SHELL=/bin/shell assignment in mailinglist/install.sh
-	    Made the mailinglist/install.sh script independent of procmail
-	       compiled with or without "#define console"
+	    Made the mailinglist/install.sh script check if procmail was
+	       compiled without "#define console"
 	    Fixed a typo in the regex library (introduced in v2.82pre4),
 	       caused some valid matches not to be found if the regular
 	       expression starts with an epsilon transition
@@ -229,3 +145,26 @@
 	    Forgot to redirect output of a test in autoconf to /dev/null
 	    Stripping off leading "From " lines now before passing mails
 	       through the mailinglist
+	    Reached the doubtful milestone to sometimes crash an Ultrix
+	       machine (due to the lockingtests, not procmail itself)
+1993/07/16: v2.92
+	    Fixed a formail sender-determination-weight problem, it mixed up
+	       the weights when autoreplying and when regenerating the From_
+	       line (and thus didn't always pick the optimal field)
+	    Detecting and dodging buggy zshs everywhere
+	    Procmail was still occasionally trying to lock /dev/null, which
+	       is of course silly, fixed that
+	    Taught procmail about `nesting recipes'; they allow parts of
+	       an rcfile to be grouped hierarchically
+	    Made the x_command script list the nearest match when adding
+	       or removing people from a list
+	    Allow the archive directory in the mailinglists to be a
+	       symbolic link
+	    Fixed a discrepancy between /bin/sh backquote expansion in
+	       environment assignments and procmail (preserving all spaces)
+	    Slightly adjusted autoconf for the new non-standard 386BSD and
+	       NeXTStep 3.1 environments
+	    Cleaned up install.sh* for the mailinglists: starting su with
+	       commands on stdin now, checking some permissions now in the
+	       filesystem to prevent silly mistakes during the installation
+	    Fixed a few typos that slipped into procbounce and flush_digest

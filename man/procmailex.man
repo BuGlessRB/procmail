@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.16 1993/06/21 14:24:06 berg Exp $
+.Id $Id: procmailex.man,v 1.17 1993/07/16 14:52:12 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -25,6 +25,19 @@ scubafile
 .Ex
 Forward all mail from peter about compilers to william (and keep a copy
 of it here in petcompil).
+.Sx 10
+:0
+* ^From.*peter
+* ^Subject:.*compilers
+{
+   :0 @CONTINUE@
+   ! william@somewhere.edu
+
+   :0
+   petcompil
+}
+.Ex
+An equivalent solution that accomplishes the same:
 .Sx 7
 :0 @CONTINUE@
 * ^From.*peter
@@ -116,7 +129,7 @@ ALREADYSENT=$HOME/vacation     # the vacation database
 :0 @PASS_HEAD@@WAIT_EXIT_QUIET@@CONTINUE@:                       # the lockfile is important
 * !^FROM_DAEMON
 * !^From +YOUR_LOGIN_NAME
-| FROM="`formail \-@FM_REPLY@@FM_EXTRACT@ To:`" ;\e
+| FROM=`formail \-@FM_REPLY@@FM_EXTRACT@ To:` ;\e
   if fgrep \-e "$FROM" <$ALREADYSENT ;\e
   then exit 1 ;\e
   else echo "$FROM" >>$ALREADYSENT ;\e

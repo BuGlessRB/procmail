@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.37 1993/07/01 11:58:36 berg Exp $";
+ "$Id: procmail.c,v 1.38 1993/07/16 14:52:47 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -41,7 +41,7 @@ const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
  maildir[]="MAILDIR",*defdeflock,*argv0="";
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EX_OK,sh,pwait,lcking,rc=rc_INIT,
- ignwerr,lexitcode=EX_OK,asgnlastf,accspooldir,crestarg;
+ ignwerr,lexitcode=EX_OK,asgnlastf,accspooldir,crestarg,skiprc;
 size_t linebuf=mx(DEFlinebuf+XTRAlinebuf,STRLEN(systm_mbox)<<1);
 volatile int nextexit;			       /* if termination is imminent */
 pid_t thepid;
@@ -364,7 +364,8 @@ fishy:	    { nlog("Couldn't create");logqnl(chp);sputenv(orgmail);
 	 }
       }
    }
-  ;{ int succeed,lastcond;
+  ;{ int succeed,lastcond;struct dyna_long ifstack;
+     ifstack.filled=ifstack.tspace=0;ifstack.offs=0;
      do					     /* main rcfile interpreter loop */
       { alarm((unsigned)(alrmtime=0));			    /* reset timeout */
 	if(rc<0)					 /* open new rc file */
@@ -381,7 +382,8 @@ fishy:	    { nlog("Couldn't create");logqnl(chp);sputenv(orgmail);
 	    { if(suppmunreadable)	  /* should we supress this message? */
 fake_rc:	 readerr(buf);
 	      if(!nextrcfile())		      /* not available? try the next */
-		 goto nomore_rc;
+	       { skiprc=0;goto nomore_rc;
+	       }
 	      suppmunreadable=0;
 findrc:	      i=0;		    /* should we keep the current directory? */
 	      if(strchr(dirsep,*rcfile)||		   /* absolute path? */
@@ -460,10 +462,13 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 		 else
 		  { startchar=thebody;tobesent=filled-tobesent;goto noconcat;
 		  }
-	      concon(' ');
+	      if(!skiprc)
+		 concon(' ');
 noconcat:     i=flags[ALSO_NEXT_RECIPE]?lastcond:1;	  /* init test value */
 	      if(flags[ALSO_N_IF_SUCC])
 		 i=lastcond&&succeed;	/* only if the last recipe succeeded */
+	      if(skiprc)
+		 i=0;
 	      while(skipspace(),nrcond--,testb('*')||nrcond>=0)
 	       { skipspace();getlline(buf2);	    /* any conditions (left) */
 		 for(chp=strchr(buf2,'\0');--chp>=buf2;)
@@ -564,9 +569,12 @@ jinregs:			   regsp=regs;	/* start over and look again */
 	   if(i)
 	      concon('\n');
 progrm:	   if(testb('!'))				 /* forward the mail */
-	    { readparse(chp+1,getb,0);
+	    { if(!i)
+		 skiprc++;
+	      readparse(chp+1,getb,0);
 	      if(i)
 		 goto forward;
+	      skiprc--;
 	    }
 	   else if(testb('|'))				    /* pipe the mail */
 	    { getlline(buf2);			 /* get the command to start */
@@ -591,14 +599,12 @@ forward:	 if(locknext)
 			{ nlog("Couldn't determine implicit lockfile from");
 			  logqnl(buf);
 			}
-		       else if(!strcmp(buf2,devnull))	/* locking /dev/null */
-			  goto noloclock;		   /* would be silly */
 		     }
 		    lcllock();
 		    if(!pwait)		/* try and protect the user from his */
 		       pwait=2;			   /* blissful ignorance :-) */
 		  }
-noloclock:	 inittmout(buf);asgnlastf=1;
+		 inittmout(buf);asgnlastf=1;
 		 if(flags[FILTER])
 		  { if(startchar==themail&&tobesent!=filled)  /* if only 'h' */
 		     { if(!pipthrough(buf,startchar,tobesent))
@@ -613,12 +619,13 @@ noloclock:	 inittmout(buf);asgnlastf=1;
 		  }
 		 else if(!pipin(buf,startchar,tobesent)&& /* regular program */
 		  (succeed=1,!flags[CONTINUE]))
-		    goto mailed;
+		    goto frmailed;
 	       }
 	    }
 	   else		   /* dump the mail into a mailbox file or directory */
-	    { if(flags[FILTER])
-		 flags[FILTER]=0,nlog("Extraneous filter-flag ignored\n");
+	    { static const char extrns[]="Extraneous ",ignrd[]=" ignored\n";
+	      if(flags[FILTER])
+		 flags[FILTER]=0,nlog(extrns),elog("filter-flag"),elog(ignrd);
 	      if(chp=gobenv(buf))	   /* can it be an environment name? */
 	       { if(skipspace())
 		    chp++;		   /* keep pace with argument breaks */
@@ -635,21 +642,46 @@ noloclock:	 inittmout(buf);asgnlastf=1;
 			  goto progrm;
 		     }
 		  }
+	       }		 /* find the end, start of a nesting recipe? */
+	      else if((chp=strchr(buf,'\0'))==buf&&testb('{')&&
+	       (*chp++='{',*chp='\0',testb(' ')||testb('\t')||testb('\n')))
+	       { if(flags[CONTINUE])
+		    nlog(extrns),elog("continue-flag"),elog(ignrd);
+		 if(locknext)
+		    nlog(extrns),elog("locallockfile"),elog(ignrd);
+		 app_val(&ifstack,(off_t)lastcond);	    /* push lastcond */
+		 if(!i)						/* no match? */
+		    skiprc++;		      /* increase the skipping level */
 	       }
 	      else
-		 chp=strchr(buf,'\0');			     /* find the end */
-	      readparse(chp,getb,0);
-	      if(i)
-	       { strcpy(buf2,buf);
-		 if(locknext)
-		    lcllock();		     /* write to a file or directory */
-		 if(dump(deliver(buf,strchr(buf,'\0')+1),startchar,tobesent)&&
-		  !ignwerr)
-		    writeerr(buf);
-		 else if(succeed=1,!flags[CONTINUE])
-		    goto mailed;
+	       { if(!i)						/* no match? */
+		    skiprc++;		  /* temporarily disable subprograms */
+		 readparse(chp,getb,0);
+		 if(i)
+		  { strcpy(buf2,buf);
+		    if(locknext)
+		       lcllock();	     /* write to a file or directory */
+		    if(dump(deliver(buf,strchr(buf,'\0')+1),startchar,tobesent)
+		     &&!ignwerr)
+		       writeerr(buf);
+		    else if(succeed=1,!flags[CONTINUE])
+frmailed:	     { if(ifstack.offs)
+			  free(ifstack.offs);
+		       goto mailed;
+		     }
+		  }
+		 else
+		    skiprc--;			     /* reenable subprograms */
 	       }
 	    }
+	 }
+	else if(testb('}'))
+	 { if(skiprc)
+	      skiprc--;
+	   if(ifstack.filled)
+	      lastcond=ifstack.offs[--ifstack.filled];
+	   else
+	      nlog("Closing brace unexpected\n");
 	 }
 	else if(testb('#'))				   /* no comment :-) */
 	   getbl(buf);
@@ -664,12 +696,15 @@ noloclock:	 inittmout(buf);asgnlastf=1;
 	      *chp='=',readparse(++chp,getb,1);
 	   else
 	      *++chp='\0';		     /* throw in a second terminator */
-	   sputenv(buf);chp[-1]='\0';asenv(chp);
+	   if(!skiprc)
+	      sputenv(buf),chp[-1]='\0',asenv(chp);
 	 }
       }
      while(rc<0||!testb(EOF)||poprc());		    /* main interpreter loop */
-   }
 nomore_rc:
+     if(ifstack.offs)
+	free(ifstack.offs);
+   }
   ;{ int succeed;
      concon('\n');succeed=0;
      if(*(chp=(char*)tgetenv(fdefault)))		     /* DEFAULT set? */

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: procbounce,v 1.12 1993/06/04 13:49:06 berg Exp $
+#$Id: procbounce,v 1.13 1993/07/16 14:51:35 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -33,7 +33,7 @@ then
   serial=`$formail +1 -1 -m4 -dexMessage-Id: -s $idhash <$tmprequest`
   test -z "$serial" && serial=`$date +%y-%m-%d`
   $echo "$addr" >>$bounces/$serial
-  $rm -f `$ls -t $bounces/* | $sed -e '1,'$maxhist' d' `
+  $rm -f _dummy_ `$ls -t $bounces/* | $sed -e '1,'$maxhist' d' `
 
   bounced=0
   for a in $bounces/*
@@ -46,18 +46,18 @@ then
   addfield="X-Diagnostic: Mail to $addr bounced $bounced times"
   if $expr $bounced \>= $minbounce >/dev/null
   then
-     fieldcontent="`
-     if echo \"$addr\" | $multigram -b1 -l$auto_off_threshold -d $dist
-     then
-     :
-     else
-	$echo 'Not confident enough to autoremove the offending address'
-	$echo \"$addr\" | $multigram -b2 -l0 -d$dist
-     fi | $sed -e '/^Removed:/ d' \
-      -e '1 s/^ *[0-9]* \([^ ]* *[0-9]*\).*$/Removed: \1/' \
-      -e '/^ *[0-9]/	/'`"
+     fieldcontent=`
+	if echo "$addr" | $multigram -b1 -l$auto_off_threshold -d $dist
+	then
+	:
+	else
+	   $echo 'Not confident enough to autoremove the offending address'
+	   $echo "$addr" | $multigram -b2 -l0 -d$dist
+	fi | $sed -e '/^Removed:/ d' \
+	 -e '1 s/^ *[0-9]* \([^ ]* *[0-9]*\).*$/Removed: \1/' \
+	  -e 's/^ *[0-9]/	/'`
      $test ! -z "$subscribe_log" &&
-      $expr "X$fieldcontent" 'XRemoved:' >/dev/null &&
+      $expr "X$fieldcontent" : 'XRemoved:' >/dev/null &&
       $echo "procbounce: $fieldcontent" >>$subscribe_log
      addfield="$addfield
 X-Diagnostic: Bounces exceed threshold of $minbounce

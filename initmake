@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.37 1993/06/23 14:35:06 berg Exp $
+#$Id: initmake,v 1.38 1993/07/16 14:50:55 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -30,6 +30,20 @@ case "$SHELL" in
   *sh*)
      case "$SHELL" in
 	*csh*) echo "Warning: really perverted make detected"; SHELL="";;
+	*zsh*) cat >src/autotst <<\HERE
+	    cd src
+	    RMA="$1"
+	    shift; DEVNULL=$1
+	    exec 2>$2
+	    echo test >autotst.c
+	    $RMA
+HERE
+	   $SHELL src/autotst "$RM autotst.c" $DEVNULL
+	   if test -f src/autotst.c
+	   then
+	      echo "Warning: your $SHELL is broken, avoiding it"; SHELL=""
+	   fi
+	   $RM src/autotst src/autotst.c;;
      esac;;
   *) echo "Warning: perverted make detected"; SHELL="";;
 esac

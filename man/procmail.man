@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.23 1993/06/30 16:01:33 berg Exp $
+.Id $Id: procmail.man,v 1.24 1993/07/16 14:52:08 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -235,6 +235,9 @@ EX_NOUSER assuming that this mailbox must not be delivered to.
 Bad substitution of "x"
 Not a valid environment variable name specified.
 .Tp
+Closing brace unexpected
+There was no corresponding opening brace (nesting block).
+.Tp
 Conflicting options
 Not all option combinations are useful
 .Tp
@@ -263,9 +266,8 @@ Excessive output quenched from "x"
 The program or filter "x" tried to produce too much output for the current
 LINEBUF, discarded the rest.
 .Tp
-Extraneous filter-flag ignored
-You specified the `@FILTER@'-flag on a recipe with a filename as the
-destination, or where stdout is captured.
+Extraneous x ignored
+The action line of this recipe makes x meaningless.
 .Tp
 Failed forking "x"
 Process table is full (and NORESRETRY has been exhausted).
@@ -302,19 +304,22 @@ or if the
 could not be created because of insufficient permissions or nonexistent
 subdirectories.
 .Tp
+Missing closing brace
+A nesting block was started, but never finished.
+.Tp
 Missing name
-The \-@FROMWHOPT@ option needs an extra argument
+The \-@FROMWHOPT@ option needs an extra argument.
 .Tp
 Missing argument
-You specified the \-@ARGUMENTOPT@ option but forgot the argument
+You specified the \-@ARGUMENTOPT@ option but forgot the argument.
 .Tp
 Missing rcfile
 You specified the \-@MAILFILTOPT@ option, procmail expects the name of an
-rcfile as argument
+rcfile as argument.
 .Tp
 Missing recipient
 You specified the \-@DELIVEROPT@ option or called procmail under a different
-name, it expects one or more recipients as arguments
+name, it expects one or more recipients as arguments.
 .Tp
 Out of memory
 The system is out of swap space (and NORESRETRY has been exhausted).
@@ -341,10 +346,6 @@ Timeout has occurred on program/filter "x".
 .Tp
 Truncating "x" and retrying lock
 "x" does not seem to be a valid filename or the file is not empty.
-.Tp
-Reiterating kernel-lock
-While attempting several locking methods, one of these failed.  Procmail will
-reiterate until they all succeed in rapid succession.
 .Tp
 Rescue of unfiltered data succeeded/failed
 A filter returned unsuccessfully, procmail tried to get back the original text.
@@ -392,6 +393,10 @@ Opening file "x" for appending.
 .Tp
 Rcfile: "x"
 Rcfile changed to "x".
+.Tp
+Reiterating kernel-lock
+While attempting several locking methods, one of these failed.  Procmail will
+reiterate until they all succeed in rapid succession.
 .Tp
 Unlocking "x"
 Removing lockfile "x" again.

@@ -1,5 +1,6 @@
 #! /bin/sh
-: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #################################################################
 #	mailstat	shows mail-arrival statistics		#
 #								#
@@ -16,7 +17,7 @@
 #	Created by S.R. van den Berg, The Netherlands		#
 #	This file can be freely copied for any use.		#
 #################################################################
-#$Id: mailstat,v 1.17 1993/06/02 15:30:38 berg Exp $
+#$Id: mailstat,v 1.18 1993/07/16 14:51:03 berg Exp $
 
 #	This shell script expects the following programs to be in the
 #	PATH (paths given here are the standard locations, your mileage
@@ -60,7 +61,7 @@ do
   else
      flags=-h				# force help page
   fi
-  while flags="`$expr \"X$flags\" : \"X.\(.*\)\"`"; $test ."$flags" != .
+  while flags=`$expr "X$flags" : 'X.\(.*\)'`; $test ."$flags" != .
   do
      case "$flags" in
 	 k*) MSkeeplogfile=1;;
@@ -102,11 +103,12 @@ then
   then
      if $test .$MSsilent = .
      then
-	if $test -f "$LOGFILE"
-	then
+	if $test -f "$LOGFILE"	# split up the following nested backquote
+	then			# expression, some shells (NET2) choked on it
+	   info=`LANG= LC_TIME= $ls -l "$OLDLOGFILE"`
 	   $echo No mail arrived since \
-	    `$expr "X\`LANG= LC_TIME= $ls -l \"$OLDLOGFILE\"\`" : \
-	     '.*[0-9] \([A-Z][a-z][a-z] .[^ ] .....\) [^ ]'`
+	    `$expr "X$info" : \
+	     '.*[0-9] \(... .[^ ] .....\) [^ ]'`
 	else
 	   $echo "Can't find your LOGFILE=$LOGFILE"
 	fi

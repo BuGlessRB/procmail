@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.58 1993/07/02 16:31:45 berg Exp $
+#$Id: autoconf,v 1.59 1993/07/16 14:52:23 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -105,7 +105,9 @@ fi
 nocore=yes
 test -f core && nocore=no
 
-cat 2>&1 <<HERE
+test ! -z "$LOCKINGTEST" && exec 9>&1 1>$DEVNULL	# make it shut up
+
+cat <<HERE
 ==============================================================================
 In order for the kernel-locking tests to work as intended I have to be able to
 test-lock files on as many semantically different filesystems as possible (for
@@ -124,7 +126,7 @@ testdirs="/tmp ."
 b=dummy
 while test ! -z "$b"
 do
-  echo 2>&1 ""
+  echo ""
   b=""
   OLDTESTDIRS="$TESTDIRS"
   TESTDIRS=""
@@ -140,15 +142,15 @@ do
   done
   OLDTESTDIRS="$TESTDIRS"
   testdirs="$b"
-  echo 2>&1 ""
-  echo 2>&1 "I will temporarily use a testdirectory named _locktest"
-  echo 2>&1 "in the following directories:"
-  echo 2>&1 ""
-  echo 2>&1 $testdirs
-  echo 2>&1 ""
-  echo 2>&1 "If you would like to add any, please specify them below,"
-  echo 2>&1 "press return to continue:"
-  echo 2>&1 ""
+  echo ""
+  echo "I will temporarily use a testdirectory named _locktest"
+  echo "in the following directories:"
+  echo ""
+  echo $testdirs
+  echo ""
+  echo "If you would like to add any, please specify them below,"
+  echo "press return to continue:"
+  echo ""
   if test -z "$LOCKINGTEST"
   then
      read b
@@ -161,6 +163,13 @@ do
   fi
   testdirs="$testdirs $b"
 done
+
+if test dummy = "$LOCKINGTEST"
+then
+   exec 1>&9 9>&-					# you can speak again
+   echo "Using the following directories for the LOCKINGTESTs:"
+   echo " $testdirs"
+fi
 
 cat >grepfor <<HERE
 $FGREP -e "\$1" _autotst.rrr >$DEVNULL && echo "\$2" >>$ACONF
@@ -695,6 +704,9 @@ main(){int i;
 #ifndef NO_COMSAT
  {struct hostent host;i=!(host.h_addr_list=0);}
 #endif
+#ifndef NOuname
+ {struct utsname vutsname;i= *vutsname.nodename=1;}
+#endif
  return !i;}
 HERE
 
@@ -709,6 +721,9 @@ grepfor uid_t 'typedef int uid_t;'
 grepfor gid_t 'typedef int gid_t;'
 grepfor h_addr_list '#define h_0addr_list h_addr' ||
  grepfor struct '#define h_0addr_list h_addr'
+grepfor utsname "\
+#define NOuname		 \
+/* <sys/utsname.h> is there, but empty */"
 
 cat >_autotst.c <<HERE
 #include "includes.h"
@@ -781,7 +796,7 @@ grepfor mkdir '#define NOmkdir'
 grepfor strchr '#define strchr(s,c) index(s,c)'
 grepfor uname "\
 #define NOuname		 \
-/* the include files define it, the libraries don't */"
+/* <sys/utsname.h> defines it, the libraries don't */"
 grepfor initgroups '#define initgroups(n,g)'
 grepfor endpwent '#define endpwent()'
 grepfor endgrent '#define endgrent()'
@@ -932,7 +947,7 @@ fi
 
 cat >lookfor <<HERE
 for a in /usr/lib /lib /usr/etc /etc /usr/bin /bin /usr/local/bin /usr/lbin \
- /usr/local/lib /usr/local /usr/.lib /local/bin
+ /usr/local/lib /usr/local /usr/.lib /local/bin /usr/sbin /sbin
 do
  if test -f "\$a/\$1"
  then
@@ -944,7 +959,7 @@ exit 1
 HERE
 chmod 0755 lookfor
 
-if lookfor sendmail || lookfor smail || lookfor rmail || lookfor mail
+if lookfor sendmail || lookfor smail || lookfor mail #|| lookfor rmail
 then
 :
 elif _autotst 2 3 >>$ACONF

@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.27 1993/07/01 11:58:23 berg Exp $*/
+/*$Id: config.h,v 1.28 1993/07/16 14:50:52 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -106,14 +106,14 @@
 #define FROMDkey	"^FROM_DAEMON"
 #define FROMDsubstitute "^(Precedence:.*(junk|bulk|list)|\
 (((Resent-)?(From|Sender)|X-Envelope-From):|From )(.*[^.%@a-z0-9])?(\
-Post(ma?(st(e?r)?|n)|office)|Mailer|daemon|mmdf|root|uucp|LISTSERV|owner|\
+Post(ma?(st(e?r)?|n)|office)|Mail(er)?|daemon|mmdf|root|uucp|LISTSERV|owner|\
 request|bounce|serv(ices?|er))([^.!:a-z0-9]|$))"     /* matches most daemons */
 #define FROMMkey	"^FROM_MAILER"
 #define FROMMsubstitute "^(((Resent-)?(From|Sender)|X-Envelope-From):|From )\
 (.*[^.%@a-z0-9])?(\
-Post(ma(st(er)?|n)|office)|Mailer|daemon|mmdf|root|uucp|serv(ices?|er))\
+Post(ma(st(er)?|n)|office)|Mail(er)?|daemon|mmdf|root|uucp|serv(ices?|er))\
 ([^.!:a-z0-9]|$)"			      /* matches most mailer-daemons */
-#define DEFshellmetas	"&|<>~;?*[]"		    /* never put '$' in here */
+#define DEFshellmetas	"&|<>~;\n?*["		    /* never put '$' in here */
 #define DEFmaildir	"$HOME"
 #define DEFdefault	"$ORGMAIL"
 #define DEFdefaultlock	"LOCKFILE=$DEFAULT$LOCKEXT"

@@ -1,6 +1,7 @@
 #! /bin/sh
-: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.25 1993/07/02 16:31:40 berg Exp $
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
+#$Id: install.sh,v 1.26 1993/07/16 14:51:12 berg Exp $
 
 SHELL=/bin/sh
 export SHELL
@@ -14,10 +15,10 @@ bindir="$2"
 test -z "$bindir" && bindir=.bin
 
 test ! -d "$target" && echo "Please create the target directory first" &&
- exit 2
+ echo "Make sure it has the right owner" && exit 2
 
-if binmail="`procmail /dev/null DEFAULT=/dev/null LOG=\\\$SENDMAIL \
-  </dev/null 2>&1`"
+if binmail=`procmail /dev/null DEFAULT=/dev/null 'LOG=$SENDMAIL' \
+  </dev/null 2>&1`
 then
   test -z "$binmail" &&
    echo "Please make sure that the new version of procmail has been installed"\
@@ -86,12 +87,21 @@ if test $AM_ROOT = yes
 then
   case $installerid in
      [0-9]*) . ./install.sh2;;
-     *) su $installerid ./install.sh2;;
+     *) su $installerid <install.sh2;;
   esac
-  su $listid ./install.sh3
+  su $listid <install.sh3
   echo "Making $target/$bindir/flist suid root..."
-  chown root "$target/$bindir/flist"
-  chmod 04755 "$target/$bindir/flist"
+  if chown root "$target/$bindir/flist" && chmod 04755 "$target/$bindir/flist"
+  then
+  :
+  else
+     echo "You either have to symlink the $target/$bindir"
+     echo "directory to a partition where root has root permissions;"
+     echo "or make sure that root can use its rights on the existing"
+     echo "partition (that contains $target/$bindir)."
+     echo "Then run this script again."
+     exit 64
+  fi
 else
   . ./install.sh2
   . ./install.sh3

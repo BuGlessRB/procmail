@@ -33,7 +33,7 @@
 # rc.request	rcfile used when processing requests
 # rc.custom	rcfile that contains all the customisations per list
 
-#$Id: rc.init,v 1.17 1993/06/29 15:36:14 berg Exp $
+#$Id: rc.init,v 1.18 1993/07/16 14:51:56 berg Exp $
 
 PATH=.:$PATH:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises
@@ -63,8 +63,8 @@ domain=INSERT.YOUR.MAIL.DOMAIN.HERE	# the common domain for all the lists
 listmaster=
 
 #UMASK=077				# group can not touch the files
- UMASK=027				# group can read
-#UMASK=007				# group can write as well
+#UMASK=027				# group can read
+ UMASK=007				# group can write as well
 
 defaults=.etc				# the name of the defaults directory
 LOGFILE=log
@@ -83,7 +83,7 @@ listaddr=$list@$domain
 listreq=$list-request@$domain
 listdist=$list-dist@$domain
 
-sendmailOPT="-oem -odb -oi -f$listreq"
+sendmailOPT="-oem -odb -oi -om -f$listreq"
 sendmailOPTp=-oep
 ########################
 # sendmail options used:
@@ -106,12 +106,16 @@ sendmailOPTp=-oep
 ########################
 
 size_limit	=	524288		# sanity cutoff value for submissions
+
+idcache_size	=	8192		# duplicate-msgid cache size in bytes
+
 archive_hist	=	2		# number of messages left archived
 archive_log	=	$LOGFILE	# log file for archive retrievals
+subscribe_log	=	$LOGFILE	# log file for administrivia
+
 maxhist		=	8		# bounce history limit
 minbounce	=	3		# no. of bounces before removal
 cutoff_bounce	=	256		# lines to keep in bounce processing
-subscribe_log	=	$LOGFILE	# log file for administrivia
 
 match_threshold =	30730		# for close matches to the list
 medium_threshold=	28672		# for not so close matches to the list
@@ -126,10 +130,20 @@ foreign_submit	=	yes
 #foreign_submit				# uncomment this line if you
 					# want to restrict submitting to
 					# people on the accept list
+auto_subscribe	=	>0
+#auto_subscribe =	<0		# uncomment to disable automatic
+					# subscription handling
+moderated_flag	=	<0
+#moderated_flag =	>0		# uncomment this to make the list
+					# moderated (you must create a
+					# `moderators' file for this to work)
 cc_requests
 #cc_requests	=	c		# uncomment if you want subscribe
 					# and help requests to be Cc'd to
 					# the maintainer
+reply_to
+#reply_to	= "Reply-To: $listaddr" # uncomment to force replies to go
+					# to the list (not recommended)
 digest_flag	=	<0
 #digest_flag	=	>0		# uncomment this if you want digests
 digest_age	=	262144		# maximum age of a digest in seconds

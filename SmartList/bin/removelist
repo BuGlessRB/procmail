@@ -1,11 +1,12 @@
 #!/bin/sh
-: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #########################################################################
 #	removelist	To remove mailinglists				#
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: removelist,v 1.4 1993/03/02 14:40:46 berg Exp $
+#$Id: removelist,v 1.5 1993/07/16 14:51:38 berg Exp $
 
 defaults=.etc
 

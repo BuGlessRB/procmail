@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: x_command,v 1.8 1993/06/07 12:37:03 berg Exp $
+#$Id: x_command,v 1.9 1993/07/16 14:51:49 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -27,7 +27,7 @@ while $test $# != 0
 do
   case "_$1" in
      _subscribe)
-	 $echo="X-Diagnostic: `$echo $2 | $multigram -b1 -l-32767 dist`"
+	 $echo "X-Diagnostic: `$echo $2 | $multigram -b1 -l-32767 dist`"
 	 $echo "From $2 " >$tmprequest
 	 $echo "From: $listreq" >>$tmprequest
 	 $echo "Reply-To: $2" >>$tmprequest
@@ -39,7 +39,7 @@ do
 	 $subscribe <$tmprequest | $SENDMAIL $sendmailOPT -t
 	 shift ;;
      _unsubscribe)
-	 $echo="X-Diagnostic: `$echo $2 | $multigram -b1 -l-32767 dist`"
+	 $echo "X-Diagnostic: `$echo $2 | $multigram -b1 -l-32767 dist`"
 	 $echo "From $2 " >$tmprequest
 	 $echo "From: $listreq" >>$tmprequest
 	 $echo "Reply-To: $2" >>$tmprequest

@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.24 1993/07/02 13:23:28 berg Exp $
+.Id $Id: procmailrc.man,v 1.25 1993/07/16 14:52:15 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -105,10 +105,10 @@ Tell the internal egrep to distinguish between upper and lower case (defaults
 to ignoring case).
 .Tp
 .B @ALSO_NEXT_RECIPE@
-This recipe will depend on the last preceding recipe without the
-`@ALSO_NEXT_RECIPE@' or `@ALSO_N_IF_SUCC@' flag.  This allows you to chain
-actions that depend on a common condition.  The number of conditions that
-are expected to follow default to none.
+This recipe will depend on the last preceding recipe (on the current
+block-nesting level) without the `@ALSO_NEXT_RECIPE@' or `@ALSO_N_IF_SUCC@'
+flag.  This allows you to chain actions that depend on a common condition.
+The number of conditions that are expected to follow default to none.
 .Tp
 .B @ALSO_N_IF_SUCC@
 Has the same meaning as the `@ALSO_NEXT_RECIPE@' flag, but will depend on the
@@ -167,7 +167,8 @@ Analogous to '<'.
 To quote any of the above at the start of the line.
 .Ss "Local lockfile"
 .PP
-If you put a second ':' on the first recipe line, then procmail will use a
+If you put a second (trailing) ':' on the first recipe line, then procmail
+will use a
 .I locallockfile
 (for this recipe only).  You can optionally specify the locallockfile
 to use; if you don't however, procmail will use the destination filename
@@ -186,6 +187,11 @@ pipe symbol with
 .IR variable= ,
 which will cause stdout of the program to be captured in the environment
 .IR variable .
+.Tp
+.B {
+Followed by at least one space, tab or newline will mark the start of a
+nesting block.  Everything up till the next closing brace will depend on
+the conditions specified for this recipe.  Unlimited nesting is permitted.
 .PP
 Anything else will be taken as a mailbox name (either a filename or a
 directory, absolute or relative to the current directory (see MAILDIR)).

@@ -1,11 +1,12 @@
 #!/bin/sh
-: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #########################################################################
 #	createlist	To create mailinglists				#
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.16 1993/06/29 15:36:06 berg Exp $
+#$Id: createlist,v 1.17 1993/07/16 14:51:26 berg Exp $
 
 defaults=.etc
 
@@ -116,7 +117,7 @@ umask `$sed -n -e 's/^[^#]*UMASK=[^0-9]*\([0-9]*\).*$/\1/p' $defaults/rc.init`
 
 if $mkdir "$list" 2>$DEVNULL
 then
-:
+  $chmod g+s "$list" 2>/dev/null	# to ensure the gid is inherited
 else $echo "createlist: \"$list\" already exists" 1>&2; exit $EX_USAGE
 fi
 cd "$list"

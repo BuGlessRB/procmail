@@ -1,5 +1,6 @@
-#!/bin/sh
-: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+#! /bin/sh
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #########################################################################
 #	flush_digests	To send off digests when needed			#
 #									#
@@ -8,7 +9,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: flush_digests,v 1.6 1993/06/04 13:49:04 berg Exp $
+#$Id: flush_digests,v 1.7 1993/07/16 14:51:33 berg Exp $
 
 test=test		# /bin/test
 mkdir=mkdir		# /bin/mkdir
@@ -64,11 +65,12 @@ then
 ----------------------------------------------------------------------
 
 HERE
-     $cat $digestbody $digesttrailer >>$Issue
+     $cat $digestbody $digesttrailer >>$Issue 2>/dev/null
      $rm -f $digesttrailer $digestbody $digestadmin $digestadmin2
      $SENDMAIL <$Issue
      cd archive
-     $rm -f `$ls -t volume*/* | $sed -e '1,'$archive_hist' d' -e '/[^0-9]/ d' `
+     $rm -f _dummy_ \
+      `$ls -t volume*/* | $sed -e '1,'$archive_hist' d' -e '/[^0-9]/ d' `
   fi
 
 else
@@ -79,21 +81,24 @@ else
   else
      $echo "Can't chdir to $a" 1>&2 ; exit 66
   fi
-  for a in */.digest.params dummy
+  for a in dummy */.digest.params
   do
-     if $test dummy != "$a"
+     if $test "$a" != dummy -a -f "$a"
      then
 	list=`$dirname $a`
-	export list
-	cd $list
-	$lockfile -l3600 tmp.lock
-	trap "$rm -f tmp.lock; exit 1" 1 2 3 15
-	$cat /dev/null >$tmprequest 2>$tmpfrom
-	$test -f $digestbody && $touch $digestbody
-	PATH=.:../SedBinDir:../.bin:$PATH ../SedBinDir/flush_digests -c
-	trap "" 1 2 3 15
-	$rm -f tmp.lock
-	cd ..
+	if $test -f $list/$digestbody
+	then
+	   cd $list
+	   export list
+	   $lockfile -l3600 tmp.lock
+	   trap "$rm -f tmp.lock; exit 1" 1 2 3 15
+	   $cat /dev/null >$tmprequest 2>$tmpfrom
+	   $touch $digestbody
+	   PATH=.:../SedBinDir:../.bin:$PATH ../SedBinDir/flush_digests -c
+	   trap "" 1 2 3 15
+	   $rm -f tmp.lock
+	   cd ..
+	fi
      fi
   done
 fi

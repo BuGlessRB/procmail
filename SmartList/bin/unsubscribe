@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: unsubscribe,v 1.16 1993/06/25 11:09:26 berg Exp $
+#$Id: unsubscribe,v 1.17 1993/07/16 14:51:46 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -30,7 +30,7 @@ $formail -i"From: $listreq" -rtA"X-Loop: $listaddr" -I"Precedence: junk" \
 
 $test ! -z "$wrongaddress" && $echo "$wrongaddress" && wrongaddress=""
 
-fromaddr="`$cat $tmpfrom`"
+fromaddr=`$cat $tmpfrom`
 
 remtext=`
  if $multigram -b1 -l$off_threshold -x$listreq -x$listaddr -d $dist 2>/dev/null

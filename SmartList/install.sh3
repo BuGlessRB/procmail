@@ -1,11 +1,11 @@
 #! /bin/sh
-: &&O= || exec /bin/sh install.sh3 # we're in a csh, feed myself to sh
-#$Id: install.sh3,v 1.10 1993/06/29 15:36:02 berg Exp $
+: &&O='cd .' || exec /bin/sh install.sh3  # we're in a csh, feed myself to sh
+$O || exec /bin/sh install.sh3		  # we're in a buggy zsh
+#$Id: install.sh3,v 1.11 1993/07/16 14:51:16 berg Exp $
 
 test -z "$bindir" && echo "Call install.sh instead" && exit 64
 
-test ! -d "$target" && echo "Please create the target directory first" &&
- echo "Make sure that the target directory has the right owner" && exit 2
+chmod go+x "$target"			# the aliases won't work otherwise
 
 FRAGILE="rc.init "
 DIRS="etc"
@@ -61,7 +61,7 @@ cp ../src/multigram "$target/$bindir"
 sed -e "s:/home/list/.bin:$target/$bindir:g" <Manual >"$target/.etc/Manual"
 mv -f "$target/$bindir/procmail" "$target/$bindir/.procmail" 2>/dev/null
 chmod 0755 $target/$bindir/* 2>/dev/null
-for a in flist senddigest idhash
+for a in flist senddigest idhash idcheck
 do
   rm -f "$target/$bindir/$a"
   ln "$target/$bindir/multigram" "$target/$bindir/$a"

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.4 1993/06/02 15:30:44 berg Exp $
+#$Id: digest,v 1.5 1993/07/16 14:51:30 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -32,26 +32,26 @@ $SENDMAIL $sendmailOPT $listdist" >.digest.params
 
 $awk '
 BEGIN					{ lines=0;mode=0; }
-					{ match=0; }
-/^$/					{ match=1; }
-/^[	 ][	 ]*$/			{ match=2; }
-/^------------------------------$/	{ match=3; }
+					{ mtch=0; }
+/^$/					{ mtch=1; }
+/^[	 ][	 ]*$/			{ mtch=2; }
+/^------------------------------$/	{ mtch=3; }
 { if(mode==0)
    { print($0) >"'$tmpfrom'";
-     if(match==1)
+     if(mtch==1)
 	mode=1;
      next;
    }
-  if(mode==1 && match)
+  if(mode==1 && mtch)
      next;
   mode=2;
-  if(match==1)
+  if(mtch==1)
    { ++lines;next;
    }
   while(lines)
    { print("");--lines;
    }
-  if(match==3)
+  if(mtch==3)
      print(" -----------------------------");
   else
      print($0);
@@ -59,11 +59,11 @@ BEGIN					{ lines=0;mode=0; }
 END { print("");print("------------------------------");print(""); }
 ' >$tmprequest
 
-flush_digests -c
+$test -f $digestbody && flush_digests -c
 
 for a in Date From To Cc Subject Message-ID Keywords Summary
 do
-  b="`$formail -X $a: <$tmpfrom`"
+  b=`$formail -X $a: <$tmpfrom`
   if $test ! -z "$b"
   then
      $echo "$b" >>$digestbody

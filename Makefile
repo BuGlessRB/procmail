@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.33 1993/07/02 16:31:37 berg Exp $
+#$Id: Makefile,v 1.34 1993/07/16 14:50:49 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -71,7 +71,7 @@ LDFLAGS1= $(LDFLAGS0) #-lcposix
 O	= o
 RM	= /bin/rm -f
 MV	= mv -f
-LN	= ln -f
+LN	= ln
 BSHELL	= /bin/sh
 INSTALL = cp
 DEVNULL = /dev/null

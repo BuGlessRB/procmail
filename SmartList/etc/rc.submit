@@ -1,11 +1,11 @@
 # BEFORE editing this file, you should make sure that it is not linked to
-# the master version (../.etc/rc.submit) anymore (i.e. "delink rc.request"
+# the master version (../.etc/rc.submit) anymore (i.e. "delink rc.submit"
 # if you do not want your changes to affect all archive servers).
 #
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.23 1993/07/02 13:23:23 berg Exp $
+#$Id: rc.submit,v 1.24 1993/07/16 14:52:03 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -33,6 +33,21 @@ METOO=	| formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 	    -xResent-Reply-To: -xResent-Sender: | \
 	   multigram -b1 -m -l$submit_threshold accept
 
+	:0 A
+	* $$moderated_flag
+	* !Approved:
+	* !? formail -xApproved: | \
+	      multigram -b1 -m -l$reject_threshold moderators
+	| formail -R"From X-Envelope-From:" -IReturn-Receipt-To: \
+	  | $SENDMAIL $sendmailOPT `cat moderators`
+
+#
+# Eliminate duplicate submissions by checking the Message-ID: field.
+#
+
+	:0 A Wh:msgid.lock
+	| formail -xMessage-ID: | idcheck $idcache_size msgid.cache
+
 #
 # Check if this is a digested mailinglist.  If yes, processing stops here
 # and the mail will be added to the digest.
@@ -42,23 +57,30 @@ METOO=	| formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 	* $$digest_flag
 	| digest
 
+	ARCHIVE				# Wipe ARCHIVE from the environment
+
 #
 # Check if we are the first mailinglist to distribute this message, if so
 # archive the message.
 #
 
-	:0 A c
+	:0 A
 	* !^X-Mailing-List:
-	archive/latest/.
+	{
+		:0 c
+		archive/latest/.
 
-#
-# Truncate the archive to the correct number of files (and possibly other
-# housekeeping chores to keep the archive current).
-#
+		ARCHIVE=$LASTFOLDER	# Remember where it was archived
 
-	:0 Ai c
-	* !^X-Mailing-List:
-	ARCHIVE=| arch_trunc "$-"
+		#
+		# Truncate the archive to the correct number of files (and
+		# possibly other housekeeping chores to keep the archive
+		# current).
+		#
+
+		:0 c hi
+		| arch_trunc
+	}
 
 #
 # Main header munger for submissions passing through this list.
@@ -69,7 +91,7 @@ METOO=	| formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 	   -iReturn-Path: -iX-Envelope-To: -iX-Envelope-From: \
 	   -I"Precedence: list" -I"Resent-Sender: $listreq" \
 	   -a"Resent-From: $listaddr" -A"X-Loop: $listaddr" \
-	   -a"Subject: Unidentified subject!" \
+	   -a"Subject: Unidentified subject!" -a "$reply_to" \
 	   -a"X-Mailing-List: <$listaddr> $ARCHIVE"
 
 #
@@ -77,7 +99,7 @@ METOO=	| formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 #
 
 	:0 A w: dist.lock
-	* !?test -z "$foreign_submit$METOO"
+	* !? test -z "$foreign_submit$METOO"
 	! $sendmailOPT $METOO $listdist
 
        #! $sendmailOPT $METOO `sed -e '/^(.*)$/ d' dist` ;
@@ -90,7 +112,7 @@ result=$?
 	| formail -A "X-Diagnostic: $SENDMAIL $listdist failed"
 
 	:0 A wfh
-	* ?test -z "$foreign_submit$METOO"
+	* ? test -z "$foreign_submit$METOO"
 	| formail -A "X-Diagnostic: Not on the subscriber list"
 
 HOST=continue_with_rc.request
