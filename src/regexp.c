@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.11 1992/12/09 14:08:31 berg Exp $";
+ "$Id: regexp.c,v 1.12 1992/12/09 16:26:07 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -283,14 +283,12 @@ static fillout(stack)struct eps**const stack;
 struct eps*bregcomp(a,ign_case)const char*a;
 { struct eps*st;size_t i;      /* first a trial run, determine memory needed */
   p=(uchar*)a;ignore_case=ign_case;r=Ceps&aleps;cachea=0;por(Ceps 0);
-  r=st=malloc((i=(char*)r-(char*)&aleps)+ioffsetof(struct eps,stack)+sizeof r);
-  p=(uchar*)a;por(Ceps((char*)st+i));r->opc=OPC_FIN;r->stack=0;	  /* compile */
+  st=r=
+   malloc((i=(char*)r-(char*)&aleps)+ioffsetof(struct eps,stack)+sizeof r);
+  p=(uchar*)a;por(epso(st,i));r->opc=OPC_FIN;r->stack=0;	  /* compile */
   for(r=st;;)				 /* simplify the compiled code (i.e. */
      switch(st->opc)		      /* take out cyclic epsilon references) */
-      { case OPC_FIN:
-	   if(++r!=st&&r->opc!=OPC_EPS)
-	      r->spawn=r->next=r;
-	   return r;						 /* finished */
+      { case OPC_FIN:return r;					 /* finished */
 	case OPC_CLASS:st=epso(st,SZ(chclass));break;		     /* skip */
 	case OPC_EPS:p=(uchar*)st;fillout(&st);		       /* check tree */
 	default:st++;						 /* skip too */
@@ -307,8 +305,8 @@ char*bregexec(code,text,len,ign_case)struct eps*code;const uchar*const text;
   const uchar*str;struct eps*initstack,*initcode;
   initstack=0;
   if((initcode=code)->opc==OPC_EPS)
-     initcode=(initstack=code)->next;
-  (thiss=code)->stack=0;th1=ioffsetof(struct eps,spawn);
+     initcode=(initstack=code)->next,code->stack=0;
+  thiss= --code;th1=ioffsetof(struct eps,spawn);
   ot1=ioffsetof(struct eps,stack);str=text-1;len++;i='\n';goto setups;
   do			      /* make sure any beginning-of-line-hooks catch */
    { i= *++str;				 /* get the next real-text character */
