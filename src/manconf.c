@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.12 1992/12/10 12:16:12 berg Exp $*/
+/*$Id: manconf.c,v 1.13 1993/01/28 14:22:14 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -10,7 +10,18 @@
 static char pm_version[]=VERSION;
 const char dirsep[]=DIRSEP;
 static const char*const keepenv[]=KEEPENV,*const prestenv[]=PRESTENV,
- *const trusted_ids[]=TRUSTED_IDS;
+ *const trusted_ids[]=TRUSTED_IDS,
+ *const krnllocks[]={
+#ifndef NOfcntl_lock
+  "fcntl(2)",
+#endif
+#ifdef USElockf
+  "lockf(3)",
+#endif
+#ifdef USEflock
+  "flock(2)",
+#endif
+  0};
 
 static char*skltmark(nl,current)char**current;
 { char*from= *current,*p;
@@ -100,8 +111,12 @@ yourself.");
   plist("PRESTENV","\1.PP\1Other preset environment variables are "
    ,prestenv,".",""," and ");
   plist("KEEPENV",", except for the values of ",keepenv,"",""," and ");
-  plist("TRUSTED_IDS",", and procmail is invoked with one of the following\
- user or group ids: ",trusted_ids,",",""," or ");
+  plist("TRUSTED_IDS",
+   ", and procmail is invoked with one of the following user or group ids: ",
+   trusted_ids,",",""," or ");
+  plist("KERNEL_LOCKING",
+   "consistenly uses the following kernel locking strategies:",krnllocks,"",
+   "doesn't use any additional kernel locking strategies"," and ");
 #ifdef LD_ENV_FIX
   ps("LD_ENV_FIX","\1.PP\1For security reasons, procmail will wipe out all\
  environment variables starting with LD_ upon startup.");

@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.12 1993/01/22 13:42:14 berg Exp $
+.Id $Id: procmail.man,v 1.13 1993/01/28 14:22:05 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -409,6 +409,9 @@ final delivery was not to a file):
 .Rs
 $LOGNAME@offset_of_message_in_mailbox+COMSATxtrsep+absolute_path_to_mailbox
 .Re
+.PP
+Whenever procmail itself opens a file to deliver to, it
++KERNEL_LOCKING+.
 .PP
 Procmail is NFS-resistant and eight-bit clean.
 .br

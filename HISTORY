@@ -88,6 +88,7 @@
 	    Extended the man pages (including more examples)
 	    Substantially changed the examples/advanced mailer integration
 	       instructions (especially for smail)
+	    Provided for brain damaged compilers that misparse #include lines
 	    Enhanced lockfile a lot:
 	       - the -r option really specifies *re*tries now
 	       - concatenated and/or seperate options are allowed now

@@ -1,4 +1,4 @@
-$Id: INTRO,v 1.4 1993/01/15 14:40:32 berg Exp $
+$Id: INTRO,v 1.5 1993/01/28 14:21:56 berg Exp $
 
 			How to set up mailing lists
 			---------------------------
@@ -22,7 +22,7 @@ Contents:
 1. Intro
    -----
 
-The simplest and most direct way to setup a mailinglis is by inserting a line
+The simplest and most direct way to setup a mailinglist is by inserting a line
 in the /usr/lib/aliases file looking like:
 
 mylist: fred,john, wilma, barney@bedrock, pebbles
@@ -193,14 +193,6 @@ particular syntax procmail would have had to do the same.
 As it happens, the accompanying formail program is able to cater to most
 (if not all) of your needs regarding mail munging.
 
-If, on the other hand, you want to do more complex things like moderated
-mailing lists with several moderators, etc., if would suggest you take
-a look at the more complex/specialised mail-server packages like:
-listserv available on cs.bu.edu, author: tasos@cs.bu.edu
-Of course, most of what these packages can do, can be done with procmail as
-well; it is just that you might be forced to write some additional shell
-scripts/programs to accomplish the same.
-
 
 6. How do I use procmail to filter the mailinglist mail?
    -----------------------------------------------------
@@ -212,7 +204,7 @@ any number of mailinglists in a comfortable and simple way.
 See the FEATURES file in this directory for more information on what
 these mailinglist scripts will do for you.
 
-If the scripts do not exactly do what you would have like, you are invited to
+If the scripts do not exactly do what you would have liked, you are invited to
 edit them to taste.  Perhaps you could send your changes to the procmail
 mailinglist if you feel that they could be useful to others.
 

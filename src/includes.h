@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.15 1993/01/27 20:33:10 berg Exp $*/
+/*$Id: includes.h,v 1.16 1993/01/28 14:22:09 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -224,6 +224,22 @@ extern errno;
 #define STDIN	STDIN_FILENO
 #define STDOUT	STDOUT_FILENO
 #define STDERR	STDERR_FILENO
+#endif
+
+#ifdef NO_fcntl_LOCK
+#ifndef NOfcntl_lock
+#define NOfcntl_lock
+#endif
+#endif
+#ifdef NO_lockf_LOCK
+#ifdef USElockf
+#undef USElockf
+#endif
+#endif
+#ifdef NO_flock_LOCK
+#ifdef USEflock
+#undef USEflock
+#endif
 #endif
 
 #ifdef NOrename

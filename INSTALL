@@ -40,9 +40,9 @@ procmail must be installed.
 
 Optional files (depending on your requirements):
 
-lockfile needs only to be installed if you plan to read several mailboxes
+lockfile only needs to be installed if you plan to read several mailboxes
 	with one of the standard mailers that don't support lockfiles.
-formail needs only to be installed if mail sometimes arrives in nonstandard
+formail only needs to be installed if mail sometimes arrives in nonstandard
 	mailbox format (or if you want to generate auto replies, split up
 	mailboxes/digests etc., see the man page of formail for more info).
 mailstat is an "example" shell script that can be used as is to produce

@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.9 1993/01/20 19:46:05 berg Exp $
+#$Id: install.sh,v 1.10 1993/01/28 14:21:59 berg Exp $
 
 test $# != 1 && echo "Usage: install.sh target-directory" && exit 1
 
@@ -28,7 +28,7 @@ do
   cp $a/* "$target/.$a"
 done
 
-chmod 640 "$target/.etc/rc.custom" "$target/.etc/rc.init"
+chmod 0640 "$target/.etc/rc.custom" "$target/.etc/rc.init"
 
 for a in $FRAGILE
 do
@@ -41,7 +41,7 @@ done
 
 cp Manual "$target/.etc"
 mv -f "$target/.bin/procmail" "$target/.bin/.procmail" 2>/dev/null
-chmod 755 $target/.bin/*
+chmod 0755 $target/.bin/*
 mv -f "$target/.bin/.procmail" "$target/.bin/procmail" 2>/dev/null
 
 for a in $DIRS
@@ -56,7 +56,7 @@ cd ../mailinglist
 
 ln -f "$target/.bin/multigram" "$target/.bin/idhash" 2>/dev/null
 ln -f "$target/.bin/multigram" "$target/.bin/flist" 2>/dev/null
-chmod 4755 "$target/.bin/flist"
+chmod 04755 "$target/.bin/flist"
 ls -l "$target/.bin/multigram" "$target/.bin/idhash" "$target/.bin/flist"
 
 echo Creating link from .etc/rc.main to .procmailrc

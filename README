@@ -1,7 +1,7 @@
 For installation instructions see the INSTALL file.
 ----------------------
 Procmail & formail mail processing package.
-Copyright (c) 1990-1992, S.R. van den Berg, The Netherlands.
+Copyright (c) 1990-1993, S.R. van den Berg, The Netherlands.
 
 Some legal stuff:
 
@@ -25,17 +25,17 @@ world, contact me instead.
 
 Any *NIX-alike system.
 
-Sendmail, smail, MMDF or compatible mailers (in effect any mailer that can
-process RFC-822 compliant mails).
+Sendmail, smail, MMDF, mailsurr or compatible mailers (in effect any mailer
+that can process RFC-822 compliant mails).
 
 The most important system calls that need to be supported (among others):
 dup(),wait(),getpwnam(),fork(),pipe()
 
-For a more complete list of all library references see "includes.h"
+For a more complete list of all library references see "src/includes.h"
 
 ------------------------------ DESCRIPTION -----------------------------------
 
-The procmail mail processing program. (v2.80pre7 1993/01/19)
+The procmail mail processing program. (v2.80pre8 1993/01/28)
 
 Can be used to create mail-servers, mailing lists, sort your incoming mail
 into separate folders/files (real convenient when subscribing to one or more
@@ -111,6 +111,7 @@ The latest version can be obtained directly from the ftp-archive at:
 
 	ftp.informatik.rwth-aachen.de (137.226.112.172)
 
-	as compressed tar file:		pub/unix/procmail.tar.Z		<192KB
-	or in compressed shar format:	pub/unix/procmail.0?.Z
+	as zipped tar file:		pub/unix/procmail.tar.zip	~128KB
+	as compressed tar file:		pub/unix/procmail.tar.Z		~192KB
+	in compressed shar format:	pub/unix/procmail.0?.Z
 ----------------------
