@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.64 1999/12/12 08:50:54 guenther Exp $*/
+/*$Id: includes.h,v 1.65 1999/12/15 08:52:44 guenther Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -89,7 +89,7 @@
 #include <sysexits.h>		/* EX_USAGE EX_DATAERR EX_NOINPUT EX_NOUSER
 				   EX_UNAVAILABLE EX_OSERR EX_OSFILE
 				   EX_CANTCREAT EX_IOERR EX_TEMPFAIL
-				   EX_NOPERM */
+				   EX_NOPERM EX__BASE */
 #endif
 
 #ifdef STDLIB_H_MISSING
@@ -144,6 +144,7 @@ double pow();
 #undef SYSEXITS_H_MISSING
 		/* Standard exitcodes, original list maintained
 		   by Eric Allman (eric@Sendmail.COM) */
+#define EX__BASE	64
 #define EX_USAGE	64
 #define EX_DATAERR	65
 #define EX_NOINPUT	66

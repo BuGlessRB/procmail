@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.46 1999/12/12 08:50:48 guenther Exp $";
+ "$Id: cstdio.c,v 1.47 1999/12/15 08:52:43 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -126,34 +126,6 @@ int bopen(name)const char*const name;				 /* my fopen */
   return rc;
 }
 
-static int origfd= -1;
-
-void restartbuf(fd)int fd;
-{ origfd=rc;rc=fd;
-  rcbufend=rcbufp;
-}
-
-int getB P((void))
-{ int c=getb();
-  if(c==EOF)
-     if(origfd>=0)
-      { int retcode;
-	rclose(rc);
-	if((retcode=waitfor(childserverpid))!=EXIT_SUCCESS)
-	 { syslog(LOG_WARNING,"LMTP child failed: exit code %d",retcode);
-	   exit(EX_SOFTWARE);	      /* give up, give up, whereever you are */
-	 }
-	rc=origfd,origfd=0,rcbufend=rcbufp,c=getb();
-      }
-     else
-      exit(EX_NOINPUT);
-  return c;
-}
-
-int endoread P((void))
-{ return rcbufp==rcbufend;
-}
-
 int getbl(p,end)char*p,*end;					  /* my gets */
 { int i,overflow=0;char*q;
   for(q=p,end--;;)
@@ -227,3 +199,35 @@ int getlline(target,end)char*target,*end;
 	   return overflow;
       }
 }
+
+#ifdef LMTP
+static int origfd= -1;
+
+void restartbuf(fd)int fd;
+{ origfd=rc;rc=fd;
+  rcbufend=rcbufp;
+}
+
+int getB P((void))
+{ int c;
+  for(;;rclose(rc),rc=origfd,origfd=0,rcbufend=rcbufp)
+   { if(rcbufp==rcbufend)
+	refill(0);
+     c=rcbufp<rcbufend?(int)*rcbufp++:EOF;
+     if(c!=EOF)
+	return c;
+     if(0>origfd)
+	exit(EX_NOINPUT);
+     ;{ int retcode;
+	if((retcode=waitfor(childserverpid))!=EXIT_SUCCESS)
+	 { syslog(LOG_WARNING,"LMTP child failed: exit code %d",retcode);
+	   exit(EX_SOFTWARE);	    /* give up, give up, wherever you are */
+	 }
+      }
+   }
+}
+
+int endoread P((void))
+{ return rcbufp==rcbufend;
+}
+#endif

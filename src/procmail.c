@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.155 1999/12/13 19:37:51 guenther Exp $";
+ "$Id: procmail.c,v 1.156 1999/12/15 08:52:46 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -37,7 +37,7 @@ static /*const*/char rcsid[]=
 static const char*const nullp,From_[]=FROM,exflags[]=RECFLAGS,
  drcfile[]="Rcfile:",pmusage[]=PM_USAGE,*etcrc=ETCRC,
  misrecpt[]="Missing recipient\n",extrns[]="Extraneous ",ignrd[]=" ignored\n",
- pardir[]=chPARDIR,curdir[]={chCURDIR,'\0'},
+ pardir[]=chPARDIR,curdir[]={chCURDIR,'\0'},twospaces[]="  ",
  insufprivs[]="Insufficient privileges\n",
  Fakefield[]=FAKE_FIELD,
  attemptst[]="Attempt to fake stamp by";
@@ -302,8 +302,9 @@ nodevnull:
 		    private(1);
 		 while(currcpt<lastrcpt)
 		    auth_freeid(*currcpt++);
-		 free(rcpts);free(overread);
-		 newid();gargv=&nullp;
+		 if(overread)
+		    free(overread);
+		 free(rcpts);newid();gargv=&nullp;
 		 goto dorcpt;
 	       }
 	      if(forkerr(pidchild,procmailn))
@@ -311,7 +312,7 @@ nodevnull:
 	      else
 		 waitfor(pidchild);
 	      lmtpresponse(lexitcode);
-	      pidchild=0;		/* ??? */
+	      pidchild=0;
 	      auth_freeid(*currcpt++);
 	    }
 	   free(rcpts);
@@ -346,7 +347,7 @@ nodevnull:
 	   if(Deliverymode||fromwhom)  /* need to peek for a leading From_ ? */
 	    { char*rstart;int r;
 	      ;{ time_t t;				 /* the current time */
-		 t=time((time_t*)0);strcat(strcpy(buf2,"  "),ctime(&t));
+		 t=time((time_t*)0);strcat(strcpy(buf2,twospaces),ctime(&t));
 	       }
 	      lfr+=STRLEN(From_)+(r=strlen(buf2));
 	      if(tstamp)
@@ -1039,7 +1040,8 @@ int eqFrom_(a)const char*const a;
 
 #ifdef LMTP
 void lmtpFrom(from,invoker,privs)char*from,*invoker;int privs;
-{ static const char*mdaemon=MAILERDAEMON;const char*fwhom;size_t lfr,linv,lts;
+{ static const char mdaemon[]=MAILERDAEMON;const char*fwhom;
+  size_t lfr,linv,lts;
   fwhom=invoker;linv=strlen(invoker);
   if(!(privs&1)&&!strncmp(from,fwhom,linv+1))
      privs|=1;	  /* if mail from: user is the same as the invoker, allow it */
@@ -1051,7 +1053,7 @@ void lmtpFrom(from,invoker,privs)char*from,*invoker;int privs;
      fwhom=mdaemon;
   lfr=strlen(fwhom);
   ;{ time_t t;						 /* the current time */
-     t=time((time_t*)0);strcat(strcpy(buf2,"  "),ctime(&t));
+     t=time((time_t*)0);strcat(strcpy(buf2,twospaces),ctime(&t));
    }
   lfr+=STRLEN(From_)+(lts=strlen(buf2));
   if((privs&1)||!from)				 /* privileged user? no -f ? */
