@@ -248,3 +248,9 @@
 	    No real changes, just to synchronise versions with procmail
 	    Most notably, procmail v3.12 broke $$=^0 conditions
 	    The 3.12 HISTORY entry was incomplete
+1999/10/18: v3.14pre
+	    If no Message-ID could be recovered from a bounced message,
+	       procbounce always picked the same hashkey (this time I mean it)
+	    Strip List-* headers from incoming messages
+	    Add List-Subscriber: and List-Unsubscribe: headers with mailto:
+	       URLs for the request address
