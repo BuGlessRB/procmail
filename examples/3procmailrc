@@ -46,7 +46,7 @@ MAILDIR=$HOME/News	# This will change the current directory
 ^Subject:.*rubbish
 |sort >>dustbin
 
-			# The next recipe will use the play directory as a MH
+			# The next recipe will use the games directory as a MH
 			# folder (of course you need MH to read the mail then)
 :
 ^Subject:.*games

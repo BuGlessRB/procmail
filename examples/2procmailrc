@@ -1,7 +1,7 @@
 # Please check if all the paths in PATH are reachable, remove the ones that
 # are not.
 
-PATH=$HOME/bin:/usr/bin:/usr/ucb:/bin:/usr/local/bin:
+PATH=$HOME/bin:/usr/bin:/usr/ucb:/bin:/usr/local/bin:.
 MAILDIR=$HOME/Mail	# You'd better make sure it exists
 DEFAULT=$MAILDIR/mbox
 			# We don't use a global lockfile here now.
