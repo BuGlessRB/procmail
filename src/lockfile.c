@@ -13,19 +13,15 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.40 1999/04/22 05:07:07 guenther Exp $";
+ "$Id: lockfile.c,v 1.41 1999/10/20 04:42:46 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/04/22 05:07:07 $";
+static /*const*/char rcsdate[]="$Date: 1999/10/20 04:42:46 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
 #include "mcommon.h"
 #include "authenticate.h"
 #include "../patchlevel.h"
-
-#ifndef SYSTEM_MBOX
-#define SYSTEM_MBOX	SYSTEM_MAILBOX
-#endif
 
 static volatile int exitflag;
 pid_t thepid;
@@ -61,7 +57,7 @@ void nlog(a)const char*const a;
 
 static PROGID;
 
-int main(argc,argv)const char*const argv[];
+int main(argc,argv)int argc;const char*const argv[];
 { const char*const*p;char*cp;uid_t uid;
   int sleepsec,retries,invert,force,suspend,retval=EXIT_SUCCESS,virgin=1;
   static const char usage[]="Usage: lockfile -v | -nnn | -r nnn | -l nnn \

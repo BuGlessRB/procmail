@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: common.c,v 1.24 1997/04/28 00:27:45 srb Exp $";
+ "$Id: common.c,v 1.25 1999/10/20 04:42:48 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -57,7 +57,7 @@ int strcspn(whole,sub)const char*const whole,*const sub;
 }
 #endif
 
-void ultstr(minwidth,val,dest)unsigned long val;char*dest;
+void ultstr(minwidth,val,dest)int minwidth;unsigned long val;char*dest;
 { int i;unsigned long j;
   j=val;i=0;					   /* a beauty, isn't it :-) */
   do i++;					   /* determine needed width */
