@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.97 2000/10/27 22:07:24 guenther Exp $";
+ "$Id: mailfold.c,v 1.98 2000/11/18 02:43:19 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -85,7 +85,10 @@ long dump(s,type,source,len)const int s,type;const char*source;
    { if(ft_lock(type)&&(lseek(s,(off_t)0,SEEK_END),fdlock(s)))
 	nlog("Kernel-lock failed\n");
      lastdump=len;doesc=0;
-     part=ft_delim(type)&&!rawnonl?getchunk(s,source,len):len;
+     if(ft_delim(type)&&!rawnonl)
+	part=getchunk(s,source,len);			/* must escape From_ */
+     else
+	part=len;
      lasttell=lseek(s,(off_t)0,SEEK_END);
      if(!rawnonl)
       { smboxseparator(s);			       /* optional separator */

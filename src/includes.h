@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.68 2000/10/27 22:07:23 guenther Exp $*/
+/*$Id: includes.h,v 1.69 2000/11/18 02:42:59 guenther Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -529,3 +529,9 @@ typedef unsigned char uschar;	     /* sometimes uchar is already typedef'd */
 #undef uchar
 #endif
 #define uchar uschar
+
+#if defined(__OpenBSD__) && defined(DEBUGGING)
+#define setuid(x) 0			 /* Under OpenBSD, you can't trace a */
+#define setgid(x) 0		      /* program after it calls any of these */
+#define setegid(x) 0
+#endif
