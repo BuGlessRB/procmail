@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.48 1998/11/06 05:35:34 guenther Exp $";
+ "$Id: locking.c,v 1.49 1999/01/23 07:02:58 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -231,6 +231,7 @@ ufcntl:
      oldfdlock=fd;lcking&=~lck_KERNEL;
      return ret;
    }
+  return 1;							/* timed out */
 }
 
 int fdunlock P((void))
