@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.48 1996/12/21 03:28:18 srb Exp $
+.Id $Id: procmailex.man,v 1.49 1999/02/02 06:11:45 guenther Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -267,13 +267,19 @@ It is up to you to periodically empty the folder of course.
 :0 @ALSO_N_IF_SUCC@:
 duplicates
 .Ex
-Procmail can deliver to MH folders directly, but, it does not update the
-unseen sequences the real MH manages.  If you want procmail to update
-those as well, use a recipe like the following which will file
-everything that contains the word spam in the body of the mail into
-an MH folder called spamfold.  Note the local lockfile, which is needed
-because rcvstore steps on its own toes (unlike procmail, when delivering
-to MH folders directly).
+Procmail can deliver to MH folders directly, but, it does not update
+the unseen sequences the real MH manages.  If you want procmail to
+update those as well, use a recipe like the following which will file
+everything that contains the word spam in the body of the mail into an
+MH folder called spamfold.  Note the local lockfile, which is needed
+because MH programs do not lock the sequences file.  Asynchronous
+invocations of MH programs that change the sequences file may therefore
+corrupt it or silently lose changes.  Unfortunately, the lockfile
+doesn't completely solve the problem as rcvstore could be invoked while
+`show' or `mark' or some other MH program is running.  This problem is
+expected to be fixed in some future version of MH, but until then,
+you'll have to balance the risk of lost or corrupt sequences against
+the benefits of the unseen sequence.
 .Sx 3
 :0 :spamfold/$LOCKEXT
 * @BODY_GREP@ ?? spam
