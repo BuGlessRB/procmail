@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.62 1994/09/28 19:58:45 berg Exp $";
+ "$Id: misc.c,v 1.63 1994/09/29 18:43:49 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -696,8 +696,8 @@ fishy:
   return 1;
 }
 			     /* lifted out of main() to reduce main()'s size */
-int conditions(flags,prevcond,lastsucc,lastcond,nrcond)
- const int prevcond,lastsucc,lastcond;int nrcond;const char flags[];
+int conditions(flags,prevcond,lastsucc,lastcond,nrcond)const char flags[];
+ const int prevcond,lastsucc,lastcond;int nrcond;
 { char*chp,*chp2,*startchar;double score;int scored,i;long tobesent;
   static const char suppressed[]=" suppressed\n";
   score=scored=0;

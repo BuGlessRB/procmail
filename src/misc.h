@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.31 1994/09/28 19:58:48 berg Exp $*/
+/*$Id: misc.h,v 1.32 1994/09/29 18:43:52 berg Exp $*/
 
 struct dyna_long{size_t filled,tspace;off_t*offs;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -47,8 +47,8 @@ int
   const gid_t egid,const uid_t uid,const gid_t gid)),
  screenmailbox Q((char*chp,char*const chp2,const gid_t egid,
   const Deliverymode)),
- conditions P((const prevcond,const lastsucc,const lastcond,int nrcond,
-  const char flags[]));
+ conditions P((const char flags[],const prevcond,const lastsucc,const lastcond,
+  int nrcond));
 char
  *cat P((const char*const a,const char*const b)),
  *tstrdup P((const char*const a)),

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.67 1994/09/28 19:58:39 berg Exp $";
+ "$Id: formail.c,v 1.68 1994/09/29 18:43:41 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/09/28 19:58:39 $";
+static /*const*/char rcsdate[]="$Date: 1994/09/29 18:43:41 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -191,6 +191,98 @@ static int artheadr P((void))	     /* could it be the start of an article? */
      return 1;
    }
   return 0;
+}
+			     /* lifted out of main() to reduce main()'s size */
+static char*getsender(namep,fldp,trust,areply)char*namep;struct field*fldp;
+ const int trust,areply;
+{ char*chp;int i,nowm;size_t j;static int lastm;
+  chp=fldp->fld_text;j=fldp->id_len;i=maxindex(sest);
+  while((sest[i].len!=j||strnIcmp(sest[i].head,chp,j))&&i--);
+  if(i>=0&&(i!=maxindex(sest)||fldp==rdheader))		  /* found anything? */
+   { char*saddr;char*tmp;			     /* determine the weight */
+     nowm=trust?sest[i].wtrepl:areply?sest[i].wrepl:i;chp+=j;
+     tmp=malloc(j=fldp->tot_len-j);tmemmove(tmp,chp,j);(chp=tmp)[j-1]='\0';
+     if(sest[i].head==From_)
+      { char*pastad;
+	if(trust||!(saddr=strchr(chp,'\n')))	     /* skip the first line? */
+	   saddr=chp;						  /* no need */
+	if(*saddr=='\n'&&(pastad=strchr(saddr,' ')))
+	   saddr=pastad+1;			/* reposition at the address */
+	chp=saddr;
+	while((pastad=strchr(chp,'\n'))&&(pastad=strchr(pastad,' ')))
+	   chp=pastad+1;		      /* skip to the last uucp >From */
+	if(pastad=strchr(chp,' '))			/* found an address? */
+	 { char*savetmp;				      /* lift it out */
+	   savetmp=malloc((j=pastad-chp)+1);tmemmove(savetmp,chp,j);
+	   savetmp[j]='\0';
+	   if(strchr(savetmp,'@'))			 /* domain attached? */
+	      chp=savetmp,savetmp=tmp,tmp=chp;			/* ok, ready */
+	   else					/* no domain, bang away! :-) */
+	    { static const char remf[]=" remote from ",fwdb[]=" forwarded by ";
+	      char*p1,*p2;
+	      chp=tmp;
+	      for(;;)
+	       { int c;
+		 p1=strstr(saddr,remf);
+		 if(!(p2=strstr(saddr,fwdb))&&!p1)
+		    break;				     /* no more info */
+		 if(!p1||p2&&p2<p1)		      /* pick the first bang */
+		    p1=p2+STRLEN(fwdb);
+		 else
+		    p1+=STRLEN(remf);
+		 for(;;)				     /* copy it over */
+		  { switch(c= *p1++)
+		     { default:*chp++=c;
+			  continue;
+		       case '\0':case '\n':*chp++='!';	     /* for the buck */
+		     }
+		    break;
+		  }
+		 saddr=p1;				/* continue the hunt */
+	       }
+	      strcpy(chp,savetmp);chp=tmp;	     /* attach the user part */
+	    }
+	   free(savetmp);	  /* (temporary buffers might have switched) */
+	 }
+      }
+     while(*(chp=skpspace(chp))=='\n')
+	chp++;
+     for(saddr=0;;chp=skipwords(chp))			/* skip RFC 822 wise */
+      { switch(*chp)
+	 { default:
+	      if(!saddr)		   /* if we haven't got anything yet */
+		 saddr=chp;			/* this might be the address */
+	      continue;
+	   case '<':skipwords(saddr=chp);	  /* hurray, machine useable */
+	   case '\0':;
+	 }
+	break;
+      }
+     if(saddr)				    /* any useful mailaddress found? */
+      { if(*saddr)				  /* did it have any length? */
+	 { if(!strpbrk(saddr,"@!/"))
+	      nowm-=(maxindex(sest)+2)*4;		/* depreciate "user" */
+	   else if(strstr(saddr,".UUCP"))
+	      nowm-=(maxindex(sest)+2)*3;	 /* depreciate .UUCP address */
+	   else if(strchr(saddr,'@')&&!strchr(saddr,'.'))
+	      nowm-=(maxindex(sest)+2)*2;	     /* depreciate user@host */
+	   else if(strchr(saddr,'!'))
+	      nowm-=(maxindex(sest)+2)*1;	     /* depreciate bangpaths */
+	   if(!namep||nowm>lastm)		/* better than previous ones */
+	    { saddr=strcpy(malloc(strlen(saddr)+1),saddr);lastm=nowm;
+	      goto pnewname;
+	    }
+	 }
+	else if(sest[i].head==returnpath)		/* nill Return-Path: */
+	 { saddr=0;lastm=maxindex(sest)+2;			 /* override */
+pnewname:  if(namep)
+	      free(namep);
+	   namep=saddr;
+	 }
+      }
+     free(tmp);
+   }					   /* save headers for later perusal */
+  return namep;
 }
 
 static PROGID;
@@ -420,8 +512,7 @@ startover:
      clear_uhead(uheader);clear_uhead(Uheader);
      wasafrom_=!force&&rdheader&&eqFrom_(rdheader->fld_text);procfields();
      for(fldp= *(afldp= &rdheader);fldp;)
-      { int nowm;	      /* go through the linked list of header-fields */
-	if(zap)
+      { if(zap)		      /* go through the linked list of header-fields */
 	 { chp=fldp->fld_text+(j=fldp->id_len);
 	   if(chp[-1]==HEAD_DELIMITER)
 	      if(*chp!=' '&&fldp->tot_len>j+1)
@@ -435,96 +526,9 @@ startover:
 	       }
 	 }
 	if(conctenate)
-	   concatenate(fldp);			 /* look for `sender' fields */
-	chp=fldp->fld_text;j=fldp->id_len;i=maxindex(sest);
-	while((sest[i].len!=j||strnIcmp(sest[i].head,chp,j))&&i--);
-	if(i>=0&&(i!=maxindex(sest)||fldp==rdheader))	  /* found anything? */
-	 { char*saddr;char*tmp;			     /* determine the weight */
-	   nowm=trust?sest[i].wtrepl:areply?sest[i].wrepl:i;chp+=j;
-	   tmp=malloc(j=fldp->tot_len-j);tmemmove(tmp,chp,j);
-	   (chp=tmp)[j-1]='\0';
-	   if(sest[i].head==From_)
-	    { char*pastad;
-	      if(trust||!(saddr=strchr(chp,'\n')))   /* skip the first line? */
-		 saddr=chp;					  /* no need */
-	      if(*saddr=='\n'&&(pastad=strchr(saddr,' ')))
-		 saddr=pastad+1;		/* reposition at the address */
-	      chp=saddr;
-	      while((pastad=strchr(chp,'\n'))&&(pastad=strchr(pastad,' ')))
-		 chp=pastad+1;		      /* skip to the last uucp >From */
-	      if(pastad=strchr(chp,' '))		/* found an address? */
-	       { char*savetmp;				      /* lift it out */
-		 savetmp=malloc((j=pastad-chp)+1);tmemmove(savetmp,chp,j);
-		 savetmp[j]='\0';
-		 if(strchr(savetmp,'@'))		 /* domain attached? */
-		    chp=savetmp,savetmp=tmp,tmp=chp;		/* ok, ready */
-		 else				/* no domain, bang away! :-) */
-		  { static const char remf[]=" remote from ",
-		     fwdb[]=" forwarded by ";
-		    char*p1,*p2;
-		    chp=tmp;
-		    for(;;)
-		     { int c;
-		       p1=strstr(saddr,remf);
-		       if(!(p2=strstr(saddr,fwdb))&&!p1)
-			  break;			     /* no more info */
-		       if(!p1||p2&&p2<p1)	      /* pick the first bang */
-			  p1=p2+STRLEN(fwdb);
-		       else
-			  p1+=STRLEN(remf);
-		       for(;;)				     /* copy it over */
-			{ switch(c= *p1++)
-			   { default:*chp++=c;
-				continue;
-			     case '\0':case '\n':*chp++='!'; /* for the buck */
-			   }
-			  break;
-			}
-		       saddr=p1;			/* continue the hunt */
-		     }
-		    strcpy(chp,savetmp);chp=tmp;     /* attach the user part */
-		  }
-		 free(savetmp);	  /* (temporary buffers might have switched) */
-	       }
-	    }
-	   while(*(chp=skpspace(chp))=='\n')
-	      chp++;
-	   for(saddr=0;;chp=skipwords(chp))		/* skip RFC 822 wise */
-	    { switch(*chp)
-	       { default:
-		    if(!saddr)		   /* if we haven't got anything yet */
-		       saddr=chp;		/* this might be the address */
-		    continue;
-		 case '<':skipwords(saddr=chp);	  /* hurray, machine useable */
-		 case '\0':;
-	       }
-	      break;
-	    }
-	   if(saddr)			    /* any useful mailaddress found? */
-	    { if(*saddr)			  /* did it have any length? */
-	       { if(!strpbrk(saddr,"@!/"))
-		    nowm-=(maxindex(sest)+2)*4;		/* depreciate "user" */
-		 else if(strstr(saddr,".UUCP"))
-		    nowm-=(maxindex(sest)+2)*3;	 /* depreciate .UUCP address */
-		 else if(strchr(saddr,'@')&&!strchr(saddr,'.'))
-		    nowm-=(maxindex(sest)+2)*2;	     /* depreciate user@host */
-		 else if(strchr(saddr,'!'))
-		    nowm-=(maxindex(sest)+2)*1;	     /* depreciate bangpaths */
-		 if(!namep||nowm>lastm)		/* better than previous ones */
-		  { saddr=strcpy(malloc(strlen(saddr)+1),saddr);lastm=nowm;
-		    goto pnewname;
-		  }
-	       }
-	      else if(sest[i].head==returnpath)		/* nill Return-Path: */
-	       { saddr=0;lastm=maxindex(sest)+2;		 /* override */
-pnewname:	 if(namep)
-		    free(namep);
-		 namep=saddr;
-	       }
-	    }
-	   free(tmp);
-	 }				   /* save headers for later perusal */
-	i=maxindex(rex);chp=fldp->fld_text;j=fldp->id_len;    /* e.g. areply */
+	   concatenate(fldp);		    /* save fields for later perusal */
+	namep=getsender(namep,fldp,trust,areply);i=maxindex(rex);
+	chp=fldp->fld_text;j=fldp->id_len;
 	while((rex[i].lenr!=j||strnIcmp(rex[i].headr,chp,j))&&i--);
 	chp+=j;
 	if(i>=0&&(j=fldp->tot_len-j)>1)			  /* found anything? */

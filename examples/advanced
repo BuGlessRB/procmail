@@ -60,7 +60,7 @@ With some sendmails, the last suggestion causes you to get a superfluous
 copy in the system mailfolder.	If that is the case, you'll have to change
 your .forward to something like:
 
-"|IFS=' ';if test .`/bin/uname -n` == .your.favourite.machine ; then exec /usr/local/bin/procmail; else exec /usr/lib/sendmail -oi YOUR_LOGIN_NAME@your.favourite.machine; fi"
+"|IFS=' ';if test .`/bin/uname -n` = .your.favourite.machine ; then exec /usr/local/bin/procmail; else exec /usr/lib/sendmail -oi YOUR_LOGIN_NAME@your.favourite.machine; fi"
 
 				---
 

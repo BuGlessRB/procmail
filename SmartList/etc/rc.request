@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.67 1994/09/20 19:33:24 berg Exp $
+#$Id: rc.request,v 1.68 1994/09/29 18:43:25 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -207,7 +207,7 @@ LOGABSTRACT=yes
 * $!^(Subject:(.*[^a-z])?Re:|\
      X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND:)
 * ^FROM_DAEMON
-| sed -e $cutoff_bounce' q' >tmp.request
+| sed -e '/^[1-4][0-9][0-9] /d' -e $cutoff_bounce' q' >tmp.request
 
   #
   # Sink all messages we can recognise to be queue warnings

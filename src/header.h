@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.35 1994/06/09 14:18:46 berg Exp $*/
+/*$Id: header.h,v 1.36 1994/09/29 18:43:46 berg Exp $*/
 
 X(returnpath,		"Return-Path:")				  /* RFC 822 */
 X(received,		"Received:")				/* ditto ... */
@@ -115,7 +115,7 @@ X(lastmodified,		"Last-Modified:")
 X(uri,			"URI:")
 X(vversion,		"Version:")
 X(derivedfrom,		"Derived-From:")
-X(cntlanguage,		"Content-Language:")	     /* or is it Language: ? */
+X(cntlanguage,		"Content-Language:")
 X(cost,			"Cost:")
 X(wwwlink,		"WWW-Link:")			 /* or is it Link: ? */
 X(acknowledgeto,	"Acknowledge-To:")		   /* MMDF extension */

@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.100 1994/09/27 15:03:49 berg Exp $
+#$Id: autoconf,v 1.101 1994/09/29 18:43:37 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -429,6 +429,15 @@ main(argc,argv)char*argv[];
 	   case '0':goodlock<<=1;
 	      continue;
 	   case '\0':
+#ifndef F_SETLKW			/* sanity check, for the less gifted */
+	      goodlock&=~MSK_fcntl;
+#endif
+#ifndef F_LOCK
+	      goodlock&=~MSK_lockf;
+#endif
+#ifndef LOCK_EX
+	      goodlock&=~MSK_flock;
+#endif
 	      goto skip_tests;
 	 }
 	break;						 /* oops, no hotwire */

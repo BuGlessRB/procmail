@@ -154,7 +154,7 @@
 	       on the accept list
 	    Improved fuzzy search for explicit mail addresses in the
 	       subscription request
-1994/09/28: v3.10pre5
+1994/09/29: v3.10pre5
 	    Changes to rc.submit:
 	       - Moved the accept.txt in front of the body of the mail
 	    Make use of the -z option of formail, get rid of the leading
@@ -173,3 +173,6 @@
 	       newlines appended at the end, fixed
 	    Multigram can take optional multiple filenames now
 	    An optional second accept file "accept2"
+	    Procbounce ignores lines starting with [1-4][0-9][0-9] (transient
+	       failures)
+	    Choplist supports kernels that don't support the #! hack

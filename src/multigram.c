@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.66 1994/09/28 19:58:51 berg Exp $";
+ "$Id: multigram.c,v 1.67 1994/09/29 18:43:55 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/09/28 19:58:51 $";
+static /*const*/char rcsdate[]="$Date: 1994/09/29 18:43:55 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -529,8 +529,8 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 		     }
 	      revstr(left);*ip++=j;
 	    }
-	   revstr(*nam);*ip=0;nam=malloc(++argc*sizeof*argv);
-	   tmemmove(nam,nargv,argc*sizeof*argv);nargv=nam;
+	   revstr(*nam);*ip=0;nam=malloc(1+ ++argc*sizeof*argv);
+	   tmemmove(nam+1,nargv,argc*sizeof*argv);*(nargv=nam)=BinSh;
 	   ;{ unsigned long cnames,cnsize,cconcur,maxnsize;
 	      char**first,**best;
 	      ;{ unsigned long maxnsize;
@@ -552,7 +552,7 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 		       maxensize>=(cnsize+=strlen(*++nam)+1+sizeof*nam)&&
 		       maxnames>cnames);
 		 nam=(nargv=realloc(nargv,
-		  ((bestval=best-first+1)+argc)*sizeof*argv))+argc-1;
+		  (1+(bestval=best-first+1)+argc)*sizeof*argv))+argc;
 		 if(maxconcur&&maxconcur<++cconcur)
 		    wait((int*)0);
 		 tmemmove(nam,first,bestval*sizeof*argv);nam[bestval]=0;
@@ -567,7 +567,8 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 			     sleep(DEFsuspend);
 			  continue;
 		       case 0:
-			  execve(nargv[0],nargv,environ);
+			  execve(nargv[1],nargv+1,environ);
+			  execve(nargv[0],nargv,environ);  /* maybe a script */
 			  kill(getppid(),SIGTERM);nlog("Couldn't exec");
 			  logqnl(nargv[0]);
 			  return EX_UNAVAILABLE;
