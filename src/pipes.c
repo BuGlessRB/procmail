@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: pipes.c,v 1.1 1992/09/28 14:28:06 berg Exp $";
+static char rcsid[]="$Id: pipes.c,v 1.2 1992/09/30 16:24:32 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -40,9 +40,9 @@ static void stermchild()
   if(!Stdout)
    { nlog("Rescue of unfiltered data ");
      if(dump(PWRB,backblock,backlen))	  /* pump data back via the backpipe */
-	log("failed\n");
+	elog("failed\n");
      else
-	log("succeeded\n");
+	elog("succeeded\n");
    }
   exit(lexitcode);
 }
@@ -66,19 +66,19 @@ static void callnewprog(newname)const char*const newname;
  {register const char*p;int argc;const char**newargv;
   argc=1;p=newname;	     /* If no shell, chop up the arguments ourselves */
   if(verbose)
-   { nlog(executing);log(oquote);goto no_1st_comma;
+   { nlog(executing);elog(oquote);goto no_1st_comma;
    }
   do					     /* show chopped up command line */
    { if(verbose)
-      { log(",");
+      { elog(",");
 no_1st_comma:
-	log(p);
+	elog(p);
       }
      while(*p++);
    }
   while(argc++,*p!=TMNATE);
   if(verbose)
-     log(cquote);
+     elog(cquote);
   newargv=malloc(argc*sizeof*newargv);p=newname;argc=0;	 /* alloc argv array */
   do
    { newargv[argc++]=p;

@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.2 1992/09/29 17:37:41 berg Exp $*/
+/*$Id: includes.h,v 1.3 1992/09/30 16:24:10 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -216,21 +216,13 @@ extern errno;
 #endif
 
 #ifndef NOuname
-#ifdef P		  /* SINIX V5.23 has the wrong prototype for uname() */
+#ifndef P		  /* SINIX V5.23 has the wrong prototype for uname() */
 extern int uname();					 /* so we fix it :-) */
 #define Uname(name)		((int(*)(struct utsname*))uname)(name)
 #else
 #define Uname(name)		uname(name)		    /* no fix needed */
 #endif /* P */
 #endif /* NOuname */
-
-#ifdef P		/* and SGI IRIX has the wrong prototype for execvp() */
-extern int execvp();						     /* sigh */
-#define Execvp(file,argv)	\
- ((int(*)(const char*,char*const[]))execvp)(file,argv)
-#else
-#define Execvp(file,argv)	execvp(file,argv)
-#endif /* P */
 
 #ifndef P
 #define P(args)		args

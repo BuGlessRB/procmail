@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: robust.c,v 1.1 1992/09/28 14:28:04 berg Exp $";
+static char rcsid[]="$Id: robust.c,v 1.2 1992/09/30 16:24:38 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -18,8 +18,8 @@ static char rcsid[]="$Id: robust.c,v 1.1 1992/09/28 14:28:04 berg Exp $";
 static void nomemerr()	  /* set nextexit to prevent log from using malloc() */
 { nextexit=2;nlog("Out of memory\n");
   if(buf2)
-   { buf[linebuf-1]=buf2[linebuf-1]='\0';log("buffer 0:");logqnl(buf);
-     log("buffer 1:");logqnl(buf2);
+   { buf[linebuf-1]=buf2[linebuf-1]='\0';elog("buffer 0:");logqnl(buf);
+     elog("buffer 1:");logqnl(buf2);
    }
   if(retval!=EX_TEMPFAIL)
      retval=EX_OSERR;
@@ -68,7 +68,7 @@ void tfree(p)void*const p;
 
 pid_t sfork()				/* this fork can survive a temporary */
 { pid_t i;int r;			   /* "process table full" condition */
-  log("");r=noforkretry;			  /* flush log, just in case */
+  elog("");r=noforkretry;			  /* flush log, just in case */
   while((i=fork())==-1)
    { lcking|=lck_FORK;
      if(!(r<0||r--))

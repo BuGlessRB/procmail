@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: fields.c,v 1.1 1992/09/28 14:28:04 berg Exp $";
+static char rcsid[]="$Id: fields.c,v 1.2 1992/09/30 16:23:58 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -17,7 +17,7 @@ static char rcsid[]="$Id: fields.c,v 1.1 1992/09/28 14:28:04 berg Exp $";
 struct field*findf(p,hdr)const struct field*const p,*hdr;
 { size_t i;char*chp;		/* find a field in the linked list of fields */
   for(i=p->id_len,chp=(char*)p->fld_text;hdr;hdr=hdr->fld_next)
-     if(i==hdr->id_len&&!strnicmp(chp,hdr->fld_text,i))	 /* case insensitive */
+     if(i==hdr->id_len&&!strnIcmp(chp,hdr->fld_text,i))	 /* case insensitive */
 	return(struct field*)hdr;
   return(struct field*)0;
 }

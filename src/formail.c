@@ -7,9 +7,9 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: formail.c,v 1.1 1992/09/28 14:28:09 berg Exp $";
+static char rcsid[]="$Id: formail.c,v 1.2 1992/09/30 16:24:01 berg Exp $";
 #endif
-static char rcsdate[]="$Date: 1992/09/28 14:28:09 $";
+static char rcsdate[]="$Date: 1992/09/30 16:24:01 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -87,9 +87,9 @@ static digheadr()
 { char*chp;int i,j;struct field*fp;
   for(fp=rdheader;fp->fld_next;fp=fp->fld_next);	 /* skip to the last */
   i=maxindex(cdigest);chp=fp->fld_text;j=fp->id_len;
-  while((cdigest[i].lnr!=j||strnicmp(cdigest[i].hedr,chp,j))&&i--);
-  return i>=0||j>STRLEN(old_)&&!strnicmp(old_,chp,STRLEN(old_))||
-   j>STRLEN(x_)&&!strnicmp(x_,chp,STRLEN(x_));
+  while((cdigest[i].lnr!=j||strnIcmp(cdigest[i].hedr,chp,j))&&i--);
+  return i>=0||j>STRLEN(old_)&&!strnIcmp(old_,chp,STRLEN(old_))||
+   j>STRLEN(x_)&&!strnIcmp(x_,chp,STRLEN(x_));
 }
 
 static artheadr()		     /* could it be the start of an article? */
@@ -129,7 +129,8 @@ main(lastm,argv)const char*const argv[];
 		 if(!*chp&&*++argv)
 		    goto parsedoptions;
 		 goto usg;
-	      case HELPOPT1:case HELPOPT2:log(fmusage);log(FM_HELP);goto xusg;
+	      case HELPOPT1:case HELPOPT2:elog(fmusage);elog(FM_HELP);
+		 goto xusg;
 	      case FM_MINFIELDS:Qnext_arg();
 number:	      default:
 		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
@@ -188,7 +189,7 @@ parsedoptions:
      goto usg;				  /* valid in combination with split */
   if(!areply&&keepb||xheader&&logsummary)	     /* options sanity check */
 usg:							   /* impossible mix */
-   { log(fmusage);
+   { elog(fmusage);
 xusg:
      return EX_USAGE;
    }
@@ -226,7 +227,7 @@ startover:
      if(conctenate)
 	concatenate(fldp);
      i=maxindex(sest);				  /* look for other "sender" */
-     while((sest[i].len!=j||strnicmp(sest[i].head,chp,j))&&i--);   /* fields */
+     while((sest[i].len!=j||strnIcmp(sest[i].head,chp,j))&&i--);   /* fields */
      if(i>=0)						  /* found anything? */
       { const char*saddr,*end;
 	nowm=areply?trust&&sest[i].head==replyto?    /* determine the weight */
@@ -250,7 +251,7 @@ foundfrom:
 	 }
       }					   /* save headers for later perusal */
      i=maxindex(rex);chp=fldp->fld_text;j=fldp->id_len;	  /* e.g. for areply */
-     while((rex[i].lenr!=j||strnicmp(rex[i].headr,chp,j))&&i--);
+     while((rex[i].lenr!=j||strnIcmp(rex[i].headr,chp,j))&&i--);
      chp+=j;
      if(i>=0&&(j=fldp->tot_len-j)>1)			  /* found anything? */
 	tmemmove(rex[i].rexp=realloc(rex[i].rexp,rex[i].rexl=j),chp,j);
@@ -271,7 +272,7 @@ foundfrom:
      loadchar('\n');addbuf();			       /* add it to rdheader */
      if(subj->rexl)				      /* any Subject: found? */
       { loadbuf(subject,STRLEN(subject));	  /* sure, check for leading */
-	if(strnicmp(pstrspn(chp=subj->rexp," \t"),Re,STRLEN(Re)))     /* Re: */
+	if(strnIcmp(pstrspn(chp=subj->rexp," \t"),Re,STRLEN(Re)))     /* Re: */
 	   loadbuf(re,STRLEN(re));	       /* no Re: , add one ourselves */
 	loadsaved(subj);addbuf();
       }
@@ -310,7 +311,7 @@ foundfrom:
   while(fldp)
    { lnl=fldp->id_len;chp=fldp->fld_text;
      if(logsummary)
-      { if(lnl==STRLEN(subject)&&!strnicmp(chp,subject,lnl))
+      { if(lnl==STRLEN(subject)&&!strnIcmp(chp,subject,lnl))
 	 { concatenate(fldp);chp[i=fldp->tot_len-1]='\0';detab(chp);putcs(' ');
 	   putssn(chp,i>=MAXSUBJECTSHOW?MAXSUBJECTSHOW:i);putcs('\n');
 	 }
@@ -365,7 +366,7 @@ splitit:    { if(!lnl)	    /* did the previous mail end with an empty line? */
 		 lputcs('\n');			      /* but now it does :-) */
 	      logfolder();
 	      if((fclose(mystdout)==EOF||errout==EOF)&&!quiet)
-		 nlog(couldntw),log(", continuing...\n"),split= -1;
+		 nlog(couldntw),elog(", continuing...\n"),split= -1;
 	      if(!nowait)
 		 waitforit();		 /* wait till the child has finished */
 	      startprog(argv);goto startover;	    /* and there we go again */

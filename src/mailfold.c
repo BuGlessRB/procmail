@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: mailfold.c,v 1.1 1992/09/28 14:28:09 berg Exp $";
+static char rcsid[]="$Id: mailfold.c,v 1.2 1992/09/30 16:24:19 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -91,21 +91,21 @@ void logabstract()
 	   *chp++='\0';
 	else
 	   chp=thebody;
-	log(themail);log(newline);   /* preserve mailbox format (any length) */
+	elog(themail);elog(newline); /* preserve mailbox format (any length) */
       }
      if(!(lcking&lck_ALLOCLIB)&&		/* don't reenter malloc/free */
       (chp=egrepin(NSUBJECT,chp,(long)(thebody-chp),0)))
       { for(chp2= --chp;*--chp2!='\n'&&*chp2;);
 	if(chp-++chp2>MAXSUBJECTSHOW)		    /* keep it within bounds */
 	   chp2[MAXSUBJECTSHOW]='\0';
-	*chp='\0';detab(chp2);log(" ");log(chp2);log(newline);
+	*chp='\0';detab(chp2);elog(" ");elog(chp2);elog(newline);
       }
    }
-  log(sfolder);i=strlen(strncpy(buf,lastfolder,MAXfoldlen))+STRLEN(sfolder);
-  buf[MAXfoldlen]='\0';detab(buf);log(buf);i-=i%TABWIDTH;	/* last dump */
-  do log(TABCHAR);
+  elog(sfolder);i=strlen(strncpy(buf,lastfolder,MAXfoldlen))+STRLEN(sfolder);
+  buf[MAXfoldlen]='\0';detab(buf);elog(buf);i-=i%TABWIDTH;	/* last dump */
+  do elog(TABCHAR);
   while((i+=TABWIDTH)<LENoffset);
-  ultstr(7,lastdump,buf);log(buf);log(newline);
+  ultstr(7,lastdump,buf);elog(buf);elog(newline);
  }
 #ifndef NO_COMSAT
  {int s;struct sockaddr_in addr;char*chp,*chad;

@@ -1,5 +1,5 @@
 
-#$Id: autoconf,v 1.1 1992/09/28 14:28:08 berg Exp $
+#$Id: autoconf,v 1.2 1992/09/30 16:23:41 berg Exp $
 
 SHELL=/bin/sh || exec /bin/sh ./autoconf $* # we're in a csh, feed myself to sh
 
@@ -376,10 +376,15 @@ test -f $USRINC/sys/socket.h -a -f $USRINC/netdb.h -a -f $USRINC/netinet/in.h||
  echo "#define NO_COMSAT" >>$ACONF
 
 cat >_autotst.c <<HERE
+#include "$ACONF"
+#ifndef UNISTD_H_MISSING
+#include <unistd.h>		/* execvp() */
+#endif
 main()
-{ char*const*p;char*q;static struct{const int a;int b;}c[2];
+{ char*const*p;char*q="";static struct{const int a;int b;}c[2];
   --(c+1)->b;				 /* AIX 3.1.5 machines can't do this */
-  p= &q;return 0;
+  p= &q;
+  execvp(q,p);		/* IRIX system-include files are wrong on this point */
 }
 HERE
 
@@ -496,9 +501,9 @@ $RM _autotst _autotst.$O
 grepfor strcspn '#define NOstrcspn'
 grepfor strpbrk '#define NOstrpbrk'
 grepfor opendir "
-#define NOopendir	/* the readdir library does not seem to be available */
-			/* this will slightly affect the way a filenumber is */
-			/* selected in MH-folders by procmail */
+#define NOopendir	/* the readdir library does not seem to be available
+			   this will slightly affect the way a filenumber is
+			   selected in MH-folders by procmail */
 "
 grepfor rename '#define NOrename'
 grepfor strchr '#define strchr(s,c) index(s,c)'

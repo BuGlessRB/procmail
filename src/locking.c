@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: locking.c,v 1.1 1992/09/28 14:28:05 berg Exp $";
+static char rcsid[]="$Id: locking.c,v 1.2 1992/09/30 16:24:16 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -54,7 +54,7 @@ void lockit(name,lockp)char*name;char**const lockp;
 #ifdef ENAMETOOLONG
 	case ENAMETOOLONG:     /* maybe filename too long, shorten and retry */
 	   if(0<(i=strlen(name)-1)&&!strchr(dirsep,name[i-1]))
-	    { nlog("Truncating");logqnl(name);log(" and retrying lock\n");
+	    { nlog("Truncating");logqnl(name);elog(" and retrying lock\n");
 	      name[i]='\0';permanent=nfsTRY;goto ce;
 	    }
 #endif
@@ -73,7 +73,7 @@ term: { free(name);break;		     /* drop the preallocated buffer */
    }
   lcking&=~lck_LOCKFILE;
   if(nextexit)
-   { nlog(whilstwfor);log("lockfile");logqnl(name);terminate();
+   { nlog(whilstwfor);elog("lockfile");logqnl(name);terminate();
    }
 }
 
@@ -98,7 +98,7 @@ void unlock(lockp)char**const lockp;
    }
   lcking&=~lck_LOCKFILE;
   if(nextexit==1)	    /* make sure we are not inside terminate already */
-     log(newline),terminate();
+     elog(newline),terminate();
 }
 					/* an NFS secure exclusive file open */
 xcreat(name,mode,tim,chowned)const char*const name;const mode_t mode;

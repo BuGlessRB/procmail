@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: cstdio.c,v 1.1 1992/09/28 14:28:03 berg Exp $";
+static char rcsid[]="$Id: cstdio.c,v 1.2 1992/09/30 16:23:52 berg Exp $";
 #endif
 #include "procmail.h"
 #include "cstdio.h"
@@ -18,7 +18,7 @@ void pushrc(name)const char*const name;		      /* open include rcfile */
 { app_val(&inced,rcbufp?(long)(rcbufp-rcbuf):0L);app_val(&inced,blasttell);
   app_val(&inced,(long)rc);			 /* save old position and fd */
   if(bopen(name)<0)			      /* and try to open the new one */
-   { nlog(couldnread);logqnl(name);poprc();	/* we couldn't, so restore rc */
+   { nlog(couldnread);logqnl(name);poprc();    /* we couldn't, so restore rc */
    }
 }
 

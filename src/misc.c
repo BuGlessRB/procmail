@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: misc.c,v 1.1 1992/09/28 14:28:06 berg Exp $";
+static char rcsid[]="$Id: misc.c,v 1.2 1992/09/30 16:24:26 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -23,7 +23,7 @@ struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
  {"NORESRETRY",DEFnoresretry},{"TIMEOUT",DEFtimeout},{"VERBOSE",DEFverbose}};
 int didchd;
 		       /* line buffered to keep concurrent entries untangled */
-void log(newt)const char*const newt;
+void elog(newt)const char*const newt;
 { int lnew,i;static lold;static char*old;char*p;
 #ifndef O_CREAT
   lseek(STDERR,0L,SEEK_END);		  /* locking should be done actually */
@@ -76,11 +76,11 @@ void yell(a,b)const char*const a,*const b;		/* log if VERBOSE=on */
 }
 
 void nlog(a)const char*const a;
-{ log(procmailn);log(": ");log(a);
+{ elog(procmailn);elog(": ");elog(a);
 }
 
 void logqnl(a)const char*const a;
-{ log(oquote);log(a);log(cquote);
+{ elog(oquote);elog(a);elog(cquote);
 }
 
 void skipped(x)const char*const x;
@@ -110,11 +110,11 @@ void sterminate()
      if(!(lcking&lck_LOCKFILE))
       { register unsigned i,j;
 	if(i=(lcking&~(lck_ALLOCLIB|lck_LOCKFILE))>>1)
-	 { log(whilstwfor);
+	 { elog(whilstwfor);
 	   for(j=0;!((i>>=1)&1);++j);
-	   log(msg[j]);
+	   elog(msg[j]);
 	 }
-	log(newline);terminate();
+	elog(newline);terminate();
       }
    }
 }
@@ -272,7 +272,7 @@ void asenv(chp)char*chp;
   else if(!strcmp(buf,logfile))
      openlog(chp);
   else if(!strcmp(buf,Log))
-     log(chp);
+     elog(chp);
   else if(!strcmp(buf,sdelivered))			    /* fake delivery */
    { if(renvint(0L,chp))				    /* is it really? */
       { lcking|=lck_LOCKFILE;		    /* just to prevent interruptions */
@@ -283,7 +283,7 @@ void asenv(chp)char*chp;
 	   fakedelivery=1;
 	thepid=getpid();lcking&=~lck_LOCKFILE;
 	if(nextexit)				 /* signals occurred so far? */
-	   log(newline),terminate();
+	   elog(newline),terminate();
       }
    }
   else if(!strcmp(buf,lockfile))
@@ -322,11 +322,11 @@ long renvint(i,env)const long i;const char*const env;
 	break;
       }
      t=i;
-     if(!strnicmp(p,"on",(size_t)2)||!strnicmp(p,"y",(size_t)1)||
-      !strnicmp(p,"t",(size_t)1))
+     if(!strnIcmp(p,"on",(size_t)2)||!strnIcmp(p,"y",(size_t)1)||
+      !strnIcmp(p,"t",(size_t)1))
 	t=1;
-     else if(!strnicmp(p,"off",(size_t)3)||!strnicmp(p,"n",(size_t)1)||
-      !strnicmp(p,"f",(size_t)1))
+     else if(!strnIcmp(p,"off",(size_t)3)||!strnIcmp(p,"n",(size_t)1)||
+      !strnIcmp(p,"f",(size_t)1))
 	t=0;
    }
   return t;

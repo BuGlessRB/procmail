@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.1 1992/09/28 14:27:57 berg Exp $
+.Id $Id: procmailrc.man,v 1.2 1992/09/30 16:23:33 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .SH NAME
 .na
@@ -385,7 +385,7 @@ Look in the
 .BR procmailex (5)
 man page.
 .Sh CAVEATS
-Continued lines in a recipe that are to be executed always have to end
+Continued lines in an action line that specifies a program always have to end
 in a backslash, even if the underlying shell would not need or want the
 backslash to indicate continuation.  This is due to the two pass parsing
 process needed (first procmail, then the shell (or not, depending on
@@ -408,6 +408,11 @@ override the ones that were already defined.  If you really want to
 override the defaults, you either have to put them in the
 .B rcfile
 or on the command line as arguments.
+.PP
+If you specify only a `+PASS_HEAD+' or a `+PASS_BODY+' flag on a recipe,
+and the recipe matches, then, unless a `+FILTER+' or `+CONTINUE+' flag is
+present as well, the body respectively the header of the mail will be silently
+lost.
 .Sh "SEE ALSO"
 .na
 .BR procmail (1),
@@ -449,17 +454,25 @@ use
 paths to specify global lockfiles).
 .Sh MISCELLANEOUS
 If the regular expression starts with `\fB+TOkey+\fP' it will be substituted by
-`\fB+TOsubstitute+\fP', which should catch all destination specifications.
+.na
+`\fB+TOsubstitute+\fP',
+which should catch all destination specifications.
+.ad
 .PP
-If the regular expression starts with `\fB+FROMDkey+\fP' it will be substituted
-by
+If the regular expression starts with `\fB+FROMDkey+\fP' it will be
+substituted by
+.na
 `\fB+FROMDsubstitute+\fP',
 which should catch mails coming from most daemons.
+.ad
 .PP
 When assigning boolean values to variables like VERBOSE, DELIVERY or COMSAT,
 procmail accepts as true every string starting with: a non-zero value, `on',
 `y' or `t'.  False is every string starting with: a zero value, `off', `n' or
 `f'.
+.Sh MISCELLANEOUS
+If the action line of a recipe specifies a program, a sole backslash-newline
+pair in it on an otherwise empty line will be converted into a newline.
 .Sh NOTES
 Since whitespace generally is ignored in the rcfile you can indent everything
 to taste.

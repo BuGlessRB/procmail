@@ -1,5 +1,5 @@
 /************************************************************************
- *	lockfile - The conditional semaphore-file creator			*
+ *	lockfile - The conditional semaphore-file creator		*
  *									*
  *	It has been designed to be able to be run sgid mail or		*
  *	any gid you see fit (in case your mail spool area is *not*	*
@@ -12,9 +12,9 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: lockfile.c,v 1.1 1992/09/28 14:28:07 berg Exp $";
+static char rcsid[]="$Id: lockfile.c,v 1.2 1992/09/30 16:24:12 berg Exp $";
 #endif
-static char rcsdate[]="$Date: 1992/09/28 14:28:07 $";
+static char rcsdate[]="$Date: 1992/09/30 16:24:12 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -45,12 +45,12 @@ static xcreat(name,tim)const char*const name;time_t*const tim;
   free(p);return j;
 }
 
-void log(a)const char*const a;
+void elog(a)const char*const a;
 { write(STDERR,a,strlen(a));
 }
 
 void nlog(a)const char*const a;
-{ log(nameprefix);log(a);    /* decent error messages should start with this */
+{ elog(nameprefix);elog(a);  /* decent error messages should start with this */
 }
 
 static size_t parsecopy(dest,org,pass)char*const dest;const char*org;
@@ -118,8 +118,8 @@ again:
 			  goto eusg;
 		       suspend=i;goto checkrdec;
 		  }
-	      case HELPOPT1:case HELPOPT2:log(usage);
-		 log(
+	      case HELPOPT1:case HELPOPT2:elog(usage);
+		 elog(
  "\t-nnn\twait nnn seconds between locking attempts\
 \n\t-r nnn\tmake at most nnn retries before giving up on a lock\
 \n\t-l nnn\tset locktimeout to nnn seconds\
@@ -128,11 +128,11 @@ again:
 \n\t-ml\tlock your system mail-spool file\
 \n\t-mu\tunlock your system mail-spool file\n");goto xusg;
 	      default:
-		 if(sleepsec>=0)	/* is this still the first pass? */
+		 if(sleepsec>=0)	    /* is this still the first pass? */
 		  { if((sleepsec=strtol(cp,&cp,10))<0)
 		       goto eusg;
 checkrdec:	    if(cp2==cp)
-eusg:		     { log(usage);		    /* regular usage message */
+eusg:		     { elog(usage);		    /* regular usage message */
 xusg:		       retval=EX_USAGE;goto nfailure;
 		     }
 		  }
@@ -164,10 +164,10 @@ xusg:		       retval=EX_USAGE;goto nfailure;
 			}
 		    case 'u':			       /* unlock the mailbox */
 		       if(unlink(ma));
-			{ nlog("Can't unlock \"");log(ma);log("\"");
+			{ nlog("Can't unlock \"");elog(ma);elog("\"");
 			  if(*cp=='l')	 /* they messed up, give them a hint */
-			     log(" again,\n already dropped my privileges");
-			  log("\n");
+			     elog(" again,\n already dropped my privileges");
+			  elog("\n");
 			}
 		  }
 	       }
@@ -194,7 +194,7 @@ outofmem:	 retval=EX_OSERR,nlog("Out of memory");
 		 if(force&&!lstat(cp,&stbuf)&&force<t-stbuf.st_mtime)
 		  { nlog(unlink(cp)?"Forced unlock denied on \"":
 		     "Forcing lock on \"");
-		    log(cp);log("\"\n");sleep(suspend); /* important */
+		    elog(cp);elog("\"\n");sleep(suspend);	/* important */
 		  }
 		 else					   /* no forcing now */
 	      case ENOSPC:
@@ -219,12 +219,12 @@ outofmem:	 retval=EX_OSERR,nlog("Out of memory");
 	      case ENAMETOOLONG:
 		 if(0<(permanent=strlen(cp)-1)&&      /* can we truncate it? */
 		  !strchr(dirsep,cp[permanent-1]))
-		  { nlog("Truncating \"");log(cp);	      /* then try it */
-		    log("\" and retrying lock\n");cp[permanent]='\0';break;
+		  { nlog("Truncating \"");elog(cp);	      /* then try it */
+		    elog("\" and retrying lock\n");cp[permanent]='\0';break;
 		  }				     /* otherwise, forget it */
 		 nlog("Filename too long");retval=EX_UNAVAILABLE;
 #endif
-lfailure:	 log(", giving up on \"");log(cp);log("\"\n");
+lfailure:	 elog(", giving up on \"");elog(cp);elog("\"\n");
 nfailure:	 sleepsec= -1;argc=p-argv;goto again;	/* mark sleepsec for */
 	    }  /* the second pass, and adjust argc to the no. of args parsed */
 	   permanent=nfsTRY;	       /* refresh the NFS-error-ignore count */
@@ -232,7 +232,7 @@ nfailure:	 sleepsec= -1;argc=p-argv;goto again;	/* mark sleepsec for */
       }
   if(retval==EX_OK&&virgin)		 /* any errors?	 did we do anything? */
 usg:
-   { log(usage);return EX_USAGE;
+   { elog(usage);return EX_USAGE;
    }
   if(invert)
      switch(retval)			 /* we only invert the regular cases */

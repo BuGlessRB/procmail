@@ -1,24 +1,78 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.1 1992/09/28 14:28:05 berg Exp $*/
+/*$Id: manconf.c,v 1.2 1992/09/30 16:24:23 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
 
 #define pn(name,val)	pnr(name,(long)(val))
 
-char pm_version[]=VERSION;
-const char devnull[]=DevNull,dirsep[]=DIRSEP;
-const char*const keepenv[]=KEEPENV,*const prestenv[]=PRESTENV,
+static char pm_version[]=VERSION;
+static const char devnull[]=DevNull,dirsep[]=DIRSEP;
+static const char*const keepenv[]=KEEPENV,*const prestenv[]=PRESTENV,
  *const trusted_ids[]=TRUSTED_IDS;
 
-char*skltmark(nl,current)char**current;
+static char*skltmark(nl,current)char**current;
 { char*from= *current,*p;
   while(nl--)					 /* skip some newlines first */
      from=strchr(from,'\n')+1;
   while(*from=='\t')
      ++from;
   *(p=strchr(from,'\n'))='\0';*current=p+1;return from;
+}
+
+static void putcesc(i)
+{ switch(i)
+   { case '|':printf("\\\\h'-\\\\w' 'u' ");break;
+     case '\1':i='\n';goto singesc;
+     case '\t':i='t';goto fin;
+     case '\n':i='n';
+fin:	putchar('\\');
+     case '\\':putchar('\\');putchar('\\');
+singesc:
+     case '&':case '/':putchar('\\');
+   }
+  putchar(i);
+}
+
+static void putsesc(a)const char*a;
+{ while(*a)
+     putcesc(*a++);
+}
+
+static void pname(name)const char*const name;
+{ putchar('s');putchar('/');putchar('\\');putchar('+');putsesc(name);
+  putchar('\\');putchar('+');putchar('/');
+}
+
+static void pnr(name,value)const char*const name;const long value;
+{ pname(name);printf("%ld/g\n",value);
+}
+
+static void plist(name,preamble,list,postamble,ifno,andor)
+ const char*const name,*const preamble,*const postamble,*const ifno,
+ *const andor;const char*const*list;
+{ pname(name);
+  if(!*list)
+     putsesc(ifno);
+  else
+   { putsesc(preamble);goto jin;
+     do
+      { putsesc(list[1]?", ":andor);
+jin:	putsesc(*list);
+      }
+     while(*++list);
+     putsesc(postamble);
+   }
+  puts("/g");
+}
+
+static void ps(name,value)const char*const name,*const value;
+{ pname(name);putsesc(value);puts("/g");
+}
+
+static void pc(name,value)const char*const name;const int value;
+{ pname(name);putcesc(value);puts("/g");
 }
 
 main()
@@ -147,57 +201,4 @@ is case sensitive, and some users have login names with uppercase letters in\
   ps("PM_MAILINGLIST",skltmark(2,&p));
   ps("PM_MAILINGLISTR",skltmark(2,&p));
   return EX_OK;
-}
-
-pname(name)const char*const name;
-{ putchar('s');putchar('/');putchar('\\');putchar('+');putsesc(name);
-  putchar('\\');putchar('+');putchar('/');
-}
-
-pnr(name,value)const char*const name;const long value;
-{ pname(name);printf("%ld/g\n",value);
-}
-
-plist(name,preamble,list,postamble,ifno,andor)const char*const name,
- *const preamble,*const postamble,*const ifno,*const andor;
- const char*const*list;
-{ pname(name);
-  if(!*list)
-     putsesc(ifno);
-  else
-   { putsesc(preamble);goto jin;
-     do
-      { putsesc(list[1]?", ":andor);
-jin:	putsesc(*list);
-      }
-     while(*++list);
-     putsesc(postamble);
-   }
-  puts("/g");
-}
-
-ps(name,value)const char*const name,*const value;
-{ pname(name);putsesc(value);puts("/g");
-}
-
-pc(name,value)const char*const name;const int value;
-{ pname(name);putcesc(value);puts("/g");
-}
-
-putcesc(i)
-{ switch(i)
-   { case '\1':i='\n';goto singesc;
-     case '\t':i='t';goto fin;
-     case '\n':i='n';
-fin:	putchar('\\');
-     case '\\':putchar('\\');putchar('\\');
-singesc:
-     case '&':case '/':putchar('\\');
-   }
-  putchar(i);
-}
-
-putsesc(a)const char*a;
-{ while(*a)
-     putcesc(*a++);
 }

@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: goodies.c,v 1.1 1992/09/28 14:28:06 berg Exp $";
+static char rcsid[]="$Id: goodies.c,v 1.2 1992/09/30 16:24:07 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -18,10 +18,10 @@ static char rcsid[]="$Id: goodies.c,v 1.1 1992/09/28 14:28:06 berg Exp $";
 
 long Stdfilled;
 
-#define NOTHING_YET	(-1)	/* readparse understands a very complete    */
-#define SKIPPING_SPACE	0	/* subset of the standard /bin/sh syntax    */
-#define NORMAL_TEXT	1	/* that includes single-, double- and back- */
-#define DOUBLE_QUOTED	2	/* quotes, backslashes and $subtitutions    */
+#define NOTHING_YET	(-1)	 /* readparse understands a very complete    */
+#define SKIPPING_SPACE	0	 /* subset of the standard /bin/sh syntax    */
+#define NORMAL_TEXT	1	 /* that includes single-, double- and back- */
+#define DOUBLE_QUOTED	2	 /* quotes, backslashes and $subtitutions    */
 #define SINGLE_QUOTED	3
 
 #define fgetc() (*fpgetc)()	   /* some compilers previously choked on it */
@@ -37,13 +37,13 @@ void readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
 loop:
    { i=fgetc();
      if(buf+linebuf-3<p)	    /* doesn't catch everything, just a hint */
-      { log("Exceeded LINEBUF\n");p=buf+linebuf-3;goto ready;
+      { elog("Exceeded LINEBUF\n");p=buf+linebuf-3;goto ready;
       }
 newchar:
      switch(i)
       { case EOF:	/* check sarg too to prevent warnings in the recipe- */
 	   if(sarg!=2&&got>NORMAL_TEXT)		 /* condition expansion code */
-early_eof:    log(unexpeof);
+early_eof:    elog(unexpeof);
 ready:	   if(got!=SKIPPING_SPACE||sarg)  /* not terminated yet or sarg==2 ? */
 	      *p++='\0';
 	   *p=TMNATE;return;
@@ -71,7 +71,7 @@ noesc:	      *p++='\\';		/* nothing to escape, just echo both */
 	    { switch(i=fgetc())			 /* copy till next backquote */
 	       { case '\\':
 		    switch(i=fgetc())
-		     { case EOF:log(unexpeof);goto forcebquote;
+		     { case EOF:elog(unexpeof);goto forcebquote;
 		       case '\n':continue;
 		       case '"':
 			  if(got!=DOUBLE_QUOTED)
@@ -80,7 +80,7 @@ noesc:	      *p++='\\';		/* nothing to escape, just echo both */
 		     }
 		    *p++='\\';break;
 		 case '"':
-		    if(got!=DOUBLE_QUOTED)	/* missing closing backquote? */
+		    if(got!=DOUBLE_QUOTED)     /* missing closing backquote? */
 		       break;
 forcebquote:	 case EOF:case '`':
 		  { int osh=sh;
@@ -132,7 +132,7 @@ escaped:      *p++=i;
 		 *startb++=i;
 	      *startb='\0';
 	      if(i!='}')
-	       { log("Bad substitution of");logqnl(buf2);continue;
+	       { elog("Bad substitution of");logqnl(buf2);continue;
 	       }
 	      i='\0';
 	    }
@@ -186,7 +186,7 @@ eeofstr:   if(i)			     /* already read next character? */
 		 if(sarg==1)
 		    goto ready;		/* already fetched a single argument */
 		 got=SKIPPING_SPACE;*p++=sarg?' ':'\0';	 /* space or \0 sep. */
-	      case NOTHING_YET:case SKIPPING_SPACE:continue;	/* skip space */
+	      case NOTHING_YET:case SKIPPING_SPACE:continue;   /* skip space */
 	    }
 	case '\n':
 	   if(got<=NORMAL_TEXT)
@@ -208,6 +208,7 @@ waitfor(pid)const pid_t pid;		      /* wait for a specific process */
 }
 
 static struct lienv{struct lienv*next;char name[255];}*myenv;
+static char**lastenv;
 			      /* smart putenv, the way it was supposed to be */
 void sputenv(a)const char*const a;
 { static alloced;int i,remove;char*split,**preenv;struct lienv*curr,**last;
@@ -218,14 +219,14 @@ void sputenv(a)const char*const a;
   for(curr= *(last= &myenv);curr;curr= *(last= &curr->next))	/* is it one */
      if(!strncmp(a,curr->name,i)&&curr->name[i]=='=')  /* I created earlier? */
       { split=curr->name;*last=curr->next;free(curr);
-	for(preenv=environ;*preenv!=split;preenv++);
+	for(preenv=environ;*preenv!=split;++preenv);
 	goto wipenv;
       }
-  for(preenv=environ;*preenv;preenv++)		    /* is it in the standard */
+  for(preenv=environ;*preenv;++preenv)		    /* is it in the standard */
      if(!strncmp(a,*preenv,i)&&(*preenv)[i]=='=')	     /* environment? */
 wipenv:
       { while(*preenv=preenv[1])   /* wipe this entry out of the environment */
-	   preenv++;
+	   ++preenv;
 	break;
       }
   i=(preenv-environ+2)*sizeof*environ;
@@ -234,18 +235,22 @@ wipenv:
   else
      alloced=1,environ=tmemmove(malloc(i),environ,i-sizeof*environ);
   if(!remove)		  /* if not remove, then add it to both environments */
-   { for(preenv=environ;*preenv;preenv++);
+   { for(preenv=environ;*preenv;++preenv);
      curr=malloc(ioffsetof(struct lienv,name[0])+(i=strlen(a)+1));
-     tmemmove(*preenv=curr->name,a,i);preenv[1]=0;curr->next=myenv;
+     tmemmove(*(lastenv=preenv)=curr->name,a,i);preenv[1]=0;curr->next=myenv;
      myenv=curr;
    }
 }
 			    /* between calling primeStdout() and retStdout() */
 void primeStdout()		    /* *no* environment changes are allowed! */
-{ sputenv(buf);Stdout=(char*)myenv;
+{ char*p;
+  if((p=strchr(buf,'\0'))[-1]!='=')		   /* does it end in an '='? */
+     *p='=',p[1]='\0';					/* make sure it does */
+  sputenv(buf);Stdout=(char*)myenv;
   Stdfilled=ioffsetof(struct lienv,name[0])+strlen(myenv->name);
 }
 
 void retStdout(newmyenv)char*const newmyenv;	/* see note on primeStdout() */
-{ newmyenv[Stdfilled]='\0';myenv=(struct lienv*)newmyenv;Stdout=0;
+{ newmyenv[Stdfilled]='\0';*lastenv=(myenv=(struct lienv*)newmyenv)->name;
+  Stdout=0;
 }

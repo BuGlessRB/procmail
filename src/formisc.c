@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: formisc.c,v 1.1 1992/09/28 14:28:00 berg Exp $";
+static char rcsid[]="$Id: formisc.c,v 1.2 1992/09/30 16:24:04 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -100,7 +100,7 @@ getline()				   /* read a newline-terminated line */
   return buflast=getchar();			/* look ahead, one character */
 }
 
-void log(a)const char*const a;				     /* error output */
+void elog(a)const char*const a;				     /* error output */
 { fputs(a,stderr);
 }
 
@@ -159,16 +159,16 @@ void waitforit()
 }
 
 void nlog(a)const char*const a;
-{ log(NAMEPREFIX);log(a);
+{ elog(NAMEPREFIX);elog(a);
 }
 
 void logqnl(a)const char*const a;
-{ log(" \"");log(a);log("\"\n");
+{ elog(" \"");elog(a);elog("\"\n");
 }
 
 void closemine()
 { if((fclose(mystdout)==EOF||errout==EOF)&&!quiet)
-     nlog(couldntw),log("\n"),exit(EX_IOERR);
+     nlog(couldntw),elog("\n"),exit(EX_IOERR);
 }
 
 void opensink()
@@ -179,7 +179,7 @@ void opensink()
 mystrstr(whole,part,end)const char*whole,*const part,*end;
 { size_t i;
   for(end-=(i=strlen(part))+1;--end>=whole;)
-     if(!strncmp(end,part,i))
+     if(!strnIcmp(end,part,i))
 	return 1;
   return 0;
 }

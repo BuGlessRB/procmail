@@ -1,4 +1,4 @@
-.Id $Id: lockfile.man,v 1.1 1992/09/28 14:27:55 berg Exp $
+.Id $Id: lockfile.man,v 1.2 1992/09/30 16:23:22 berg Exp $
 .TH LOCKFILE 1 \*(Dt BuGless
 .SH NAME
 .na
@@ -153,7 +153,7 @@ Missing subdirectories or insufficient privileges.
 .Sh BUGS
 Definitely less than one.
 .Sh MISCELLANEOUS
-Lockfile is NFS-resistent and eight-bit clean.
+Lockfile is NFS-resistant and eight-bit clean.
 .Sh NOTES
 Calling up lockfile with the \-+HELPOPT1+ or \-+HELPOPT2+ options will cause
 it to display a command-line help page.

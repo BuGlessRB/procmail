@@ -63,7 +63,7 @@ main(minweight,argv)const char*argv[];
   unsigned best_matches,maxgram,maxweight,charoffs=0,remov=0,renam=0;
   static const char usage[]=
    "Usage: addresses [-cdr] [-b nnn] [-l nnn] [-w nnn] filename\n";
-  if(minweight)		      /* sanity check, any arguments at all? */
+  if(minweight)			      /* sanity check, any arguments at all? */
    { const char*chp;
      minweight=SCALE_WEIGHT;best_matches=maxgram=0;
      while((chp= *++argv)&&*chp=='-')

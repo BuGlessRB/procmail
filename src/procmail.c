@@ -11,7 +11,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: procmail.c,v 1.1 1992/09/28 14:28:01 berg Exp $";
+static char rcsid[]="$Id: procmail.c,v 1.2 1992/09/30 16:24:35 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -62,9 +62,9 @@ main(argc,argv)const char*const argv[];
      for(Presenviron=argc=0;(chp=(char*)argv[++argc])&&*chp=='-';)
 	for(;;)					       /* processing options */
 	 { switch(*++chp)
-	    { case VERSIONOPT:log(VERSION);return EX_OK;
-	      case HELPOPT1:case HELPOPT2:log(pmusage);log(PM_HELP);
-		 log(PM_QREFERENCE);return EX_USAGE;
+	    { case VERSIONOPT:elog(VERSION);return EX_OK;
+	      case HELPOPT1:case HELPOPT2:elog(pmusage);elog(PM_HELP);
+		 elog(PM_QREFERENCE);return EX_USAGE;
 	      case PRESERVOPT:Presenviron=1;continue;
 	      case TEMPFAILOPT:retval=EX_TEMPFAIL;continue;
 	      case FROMWHOPT:case ALTFROMWHOPT:
@@ -77,7 +77,7 @@ main(argc,argv)const char*const argv[];
 		 break;
 	      case DELIVEROPT:Deliverymode=1;++chp;goto last_option;
 	      default:nlog("Unrecognised options:");logqnl(chp);
-		 log(pmusage);log("Processing continued\n");
+		 elog(pmusage);elog("Processing continued\n");
 	      case '\0':;
 	    }
 	   break;
@@ -405,7 +405,7 @@ noconcat:
 	      strcat(buf,"!"),++chp;
 	   if(!strncmp(chp,tokey,STRLEN(tokey)))	     /* magic TOkey? */
 	      chp2=TOsubstitute,chp+=STRLEN(tokey);
-	   else if(!strncmp(chp,fromdaemon,STRLEN(fromdaemon))) /* Fdaemon? */
+	   else if(!strncmp(chp,fromdaemon,STRLEN(fromdaemon)))	 /* Fdaemon? */
 	      chp2=FROMDsubstitute,chp+=STRLEN(fromdaemon),or_nocase=1;
 	   strcat(strcat(buf,chp2),chp);
 	   if(i)				 /* check out all conditions */
@@ -423,7 +423,7 @@ substituted:  strcpy((char*)(sgetcp=buf2),buf);
 		    skipped(skpspace(chp));		    /* any lefovers? */
 	       }
 	      if(verbose)
-		 nlog(i?"M":"No m"),log("atch on"),logqnl(buf);
+		 nlog(i?"M":"No m"),elog("atch on"),logqnl(buf);
 	    }
 	 }
 	if(!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC])

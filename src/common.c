@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: common.c,v 1.2 1992/09/29 17:37:34 berg Exp $";
+static char rcsid[]="$Id: common.c,v 1.3 1992/09/30 16:23:45 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -20,7 +20,7 @@ void shexec(argv)char*const*argv;
 #ifdef SIGLOST
   signal(SIGLOST,SIG_DFL);
 #endif
-  signal(SIGPIPE,SIG_DFL);Execvp(*argv,argv);	/* or is it a shell script ? */
+  signal(SIGPIPE,SIG_DFL);execvp(*argv,argv);	/* or is it a shell script ? */
   for(p=(const char**)argv,i=1;i++,*p++;);	      /* count the arguments */
   newargv=malloc(i*sizeof*p);
   for(*(p=(const char**)newargv)=binsh;*++p= *argv++;);
@@ -61,7 +61,7 @@ void ultstr(minwidth,val,dest)unsigned long val;char*dest;
   while(val/=10);
 }
 
-strnicmp(a,b,l)register const char*a,*b;register unsigned l;
+strnIcmp(a,b,l)register const char*a,*b;register unsigned l;
 { unsigned i,j;
   if(l)						 /* case insensitive strncmp */
      do

@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.1 1992/09/28 14:27:56 berg Exp $
+.Id $Id: procmail.man,v 1.2 1992/09/30 16:23:29 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .SH NAME
 .na
@@ -337,7 +337,7 @@ When appending to regular mailfolders any lines in the body of the message that
 look like postmarks are prepended with `+ESCAP+' (disarms bogus mailheaders).
 The regular expression that is used to search for these postmarks is:
 .Rs
-"+FROM_EXPR+"
+`+FROM_EXPR+'
 .Re
 .PP
 If the destination name used in explicit delivery mode is not in /etc/passwd,
@@ -393,7 +393,7 @@ final delivery was not to a file):
 $USER@offset_of_message_in_mailbox+COMSATxtrsep+absolute_path_to_mailbox
 .Re
 .PP
-Procmail is NFS-resistent and eight-bit clean.
+Procmail is NFS-resistant and eight-bit clean.
 .br
 .ne 11
 .Sh NOTES
