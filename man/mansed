@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.27 1998/11/06 05:35:26 guenther Exp $
+#$Id: mansed,v 1.28 1998/11/18 10:10:21 srb Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -81,9 +81,9 @@ expr "X$DEST" : '.*[18]$' >$DEVNULL && cat <<HERE
 .Sh SOURCE
 This program is part of the
 .I procmail mail-processing-package
-(@PM_VERSION@) available at your nearest USENET comp.sources.misc archive, or
-at ftp.informatik.rwth-aachen.de as
-.BR pub/packages/procmail/procmail.tar.gz .
+(@PM_VERSION@) available at http://www.procmail.org/ or
+ftp.procmail.org in
+.BR pub/procmail/ .
 .Sh MAILINGLIST
 There exists a mailinglist for questions relating to any program in the
 procmail package:
@@ -101,7 +101,7 @@ for subscription requests.
 If you would like to stay informed about new versions and official patches send
 a subscription request to
 .RS
-procmail-announce-request@informatik.rwth-aachen.de
+procmail-announce-request@procmail.org
 .RE
 (this is a readonly list).
 HERE

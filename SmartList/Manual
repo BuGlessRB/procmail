@@ -1,7 +1,7 @@
 		SmartList mailinglist management
 		--------------------------------
 
-	Copyright (c) 1993-1996, Stephen R. van den Berg, The Netherlands.
+	Copyright (c) 1993-1998, Stephen R. van den Berg, The Netherlands.
 				 <srb@cuci.nl>
 
 NOTE: Run "flist -v" to find out more about your installed version of
@@ -32,7 +32,7 @@ Contents:
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.51 1996/12/21 03:28:09 srb Exp $
+$Id: Manual,v 1.52 1998/11/18 10:10:20 srb Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -724,27 +724,25 @@ a -dist alias anymore.
 8. FTP addresses & the SmartList mailinglist
    -----------------------------------------
 
-A recent version can be picked up at various comp.sources.misc archives.
-The latest version can be obtained directly from the ftp-archive at:
+The latest version can be obtained directly from:
 
-	ftp.informatik.rwth-aachen.de
-
-as (g)zipped tar file:	   /pub/packages/procmail/SmartList.tar.gz
-as compressed tar file:	   /pub/packages/procmail/SmartList.tar.Z
+	http://www.procmail.org/
+or	ftp://ftp.procmail.org/pub/
 
 There exists a dedicated mailinglist for SmartList users, send your
 subscription requests to:
 
-		SmartList-request@informatik.rwth-aachen.de
+		SmartList-users-request@procmail.org
 
 For procmail related questions not specific to the SmartList package
 you can also write to the procmail mailinglist, send your subscription
 requests to:
 
-		procmail-request@informatik.rwth-aachen.de
+		procmail-users-request@procmail.org
 
 There is a readonly announcement list to stay informed about new versions
 and official patches of both procmail & SmartList, send your subscription
 requests to:
 
-		procmail-announce-request@informatik.rwth-aachen.de
+		procmail-announce-request@procmail.org
+		SmartList-announce-request@procmail.org
