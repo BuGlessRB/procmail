@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh install.sh3 # we're in a csh, feed myself to sh
-#$Id: install.sh3,v 1.4 1993/04/21 15:02:09 berg Exp $
+#$Id: install.sh3,v 1.5 1993/04/21 16:38:11 berg Exp $
 
 test -z "$bindir" && echo "Call install.sh instead" && exit 64
 
@@ -49,12 +49,12 @@ cp ../src/multigram "$target/$bindir"
 
 cp Manual "$target/.etc"
 mv -f "$target/$bindir/procmail" "$target/$bindir/.procmail" 2>/dev/null
-chmod 0755 $target/$bindir/*
+chmod 0755 $target/$bindir/* 2>/dev/null
 for a in flist senddigest idhash
 do
   ln -f "$target/$bindir/multigram" "$target/$bindir/$a" 2>/dev/null
 done
-chmod 04755 "$target/$bindir/flist"
+chmod 04755 "$target/$bindir/flist" 2>/dev/null
 mv -f "$target/$bindir/.procmail" "$target/$bindir/procmail" 2>/dev/null
 
 ls -ld "$target/$bindir" $target/$bindir/*

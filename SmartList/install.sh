@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.17 1993/04/21 15:02:07 berg Exp $
+#$Id: install.sh,v 1.18 1993/04/21 16:38:09 berg Exp $
 
 test $# != 1 -a $# != 2 && echo "Usage: install.sh target-directory [.bin]" &&
  exit 64
@@ -38,7 +38,7 @@ if ls -l $TMPF | grep '^[^ ]*  *[0-9][0-9]*  *root ' >/dev/null
 then
   /bin/rm -f $TMPF
   AM_ROOT=yes
-  installerid=`ls -l install.sh |
+  installerid=`ls -l ../Makefile |
    sed -e 's/^[^ ]* *[0-9][0-9]*[^0-9] *\([^ ]*\) .*$/\1/'`
   listid=`ls -ld $target/. |
    sed -e 's/^[^ ]* *[0-9][0-9]*[^0-9] *\([^ ]*\) .*$/\1/'`

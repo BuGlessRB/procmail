@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.24 1993/04/21 15:02:35 berg Exp $";
+ "$Id: mailfold.c,v 1.25 1993/04/21 16:38:22 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -121,7 +121,7 @@ ret:
   return -1;
 }
 
-static ismhdir(chp)const char*const chp;
+static ismhdir(chp)char*const chp;
 { if(chp-1>=buf&&chp[-1]==*MCDIRSEP_&&*chp==chCURDIR)
    { chp[-1]='\0';return 1;
    }

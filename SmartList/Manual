@@ -1,4 +1,4 @@
-$Id: Manual,v 1.8 1993/04/21 15:02:04 berg Exp $
+$Id: Manual,v 1.9 1993/04/21 16:38:07 berg Exp $
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
@@ -144,7 +144,8 @@ You should remove the rc.lock files again after finishing your editing.
 
 You can configure a list to send out digests of accumulated submissions.
 In order to do so, simply uncomment the appropriate assignment to
-digest_flag in rc.init or rc.custom.  Digests are then sent out
+digest_flag in rc.init (if you want all lists to be digested) or rc.custom
+(if you only want this list to be digested).  Digests are then sent out
 every so often depending on size and age of the accumulated messages.
 
 The conditions for sending out a digest are checked during the arrival

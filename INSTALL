@@ -13,7 +13,7 @@ Discusses:
 To install procmail, lockfile and formail: edit Makefile & config.h accordingly
 and type 'make install'.
 Intended configurable options in Makefile are:
-	the install-destinations
+	the install-destinations and the LOCKINGTEST directories.
 Intended configurable options in config.h are:
 	MMDF support, standard environment presettings, trusted userids.
 
@@ -79,22 +79,29 @@ all the available locking methods (fcntl(), lockf() and flock()) on some
 sample files extensively.
 
 These tests produce results which depend on the filesystem which is being
-used to perform the tests.  Autoconf uses the filesystem which the procmail
-sources are on.	 If you have a local file system and a remote filesystem it
-would be advisable to copy the whole procmail distribution over to the
-remote filesystem in order to compile it from there.  This makes sure
-that the locking tests will properly reflect the locking capabilities on
-all filesystems (including the remote ones).
+used to perform the tests.  If you haven't defined LOCKINGTEST in the Makefile
+(you can include as many directories as you want) autoconf will prompt you
+to enter any additional directories (preferably on distinct filesystems)
+you want it to run the tests on.
 
-If however you have a very heterogenous environment (like several OS versions
+When specifying directories to test it would probably be advisable to
+pick exactly those directories which belong to a unique fileserver-fileclient
+pair.  I.e. one local file system will suffice.	 Only if you have remote
+filesystems you might have to specify several.
+This makes sure that the locking tests will properly reflect the (lowest common
+denominator) locking capabilities on all filesystems available.
+
+If you have a very heterogenous environment (like several OS versions
 on machines (perhaps even from different vendors) that have NFS mounted file
 systems all over each other), then it could happen that some tests which
 are reliable with one remote filesystem, turn out to be unreliable across
 another (it all depends on the OS versions of clients and servers).
-For those instances there are three defines in the config.h file
-(NO_fcntl_LOCK, NO_lockf_LOCK and NO_flock_LOCK).  These can be uncommented
-by hand if you know for sure that you don't want/have a particular locking
-method (or if it is known to be unreliable).
+
+If do not want to perform the locking tests on all those filesystems, but
+if you know what locking methods are unreliable anyway, then you can edit
+some defines in the config.h file (NO_fcntl_LOCK, NO_lockf_LOCK and
+NO_flock_LOCK).	 These can be uncommented by hand to prevent procmail
+from using them.
 
 The most typical case would be if you happen to be using NFS.  Autoconf
 normally is very well capable of finding out if your lockd is reliable enough.
