@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.147 1999/08/13 14:26:26 guenther Exp $";
+ "$Id: procmail.c,v 1.148 1999/10/20 04:53:22 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -33,7 +33,7 @@ static /*const*/char rcsid[]=
 #include "lastdirsep.h"
 #include "authenticate.h"
 
-static const char*const nullp,From_[]=FROM,exflags[]=RECFLAGS,
+static const char*const nullp=0,From_[]=FROM,exflags[]=RECFLAGS,
  drcfile[]="Rcfile:",pmusage[]=PM_USAGE,*etcrc=ETCRC,
  misrecpt[]="Missing recipient\n",extrns[]="Extraneous ",ignrd[]=" ignored\n",
  pardir[]=chPARDIR,curdir[]={chCURDIR,'\0'},
@@ -240,7 +240,7 @@ privileged:				       /* move stdout out of the way */
 	 { rclose(savstdout);
 	   if(0>(savstdout=opena(devnull)))
 	      goto nodevnull;
-	   syslog(LOG_EMERG,"Descriptor %d was not open\n",savstdout);
+	   syslog(LOG_ALERT,"Descriptor %d was not open\n",savstdout);
 	 }
 	fclose(stdout);rclose(STDOUT);			/* just to make sure */
 	if(0>opena(devnull))
@@ -500,10 +500,9 @@ Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
 	fdefault="";
 	goto nix_sysmbox;
       }
-     fdefault=tstrdup(buf);
-     strcpy(chp2=strchr(strcpy(buf,chp=(char*)getenv(orgmail)),'\0'),lockext);
-     defdeflock=tstrdup(buf);sgid=egid;accspooldir=3;	/* presumed innocent */
-     if(mailfilter||!screenmailbox(chp,chp2,egid,Deliverymode))
+     fdefault=tstrdup(buf);sgid=egid;accspooldir=3;	/* presumed innocent */
+     chp=(char*)getenv(orgmail);
+     if(mailfilter||!screenmailbox(chp,egid,Deliverymode))
 nix_sysmbox:
       { rcst_nosgid();sputenv(orgmail);	 /* nix delivering to system mailbox */
 	if(!strcmp(chp,fdefault))			/* DEFAULT the same? */
@@ -712,24 +711,23 @@ commint:   do skipspace();				  /* skip whitespace */
 	   if(i)
 	      zombiecollect(),concon('\n');
 progrm:	   if(testB('!'))				 /* forward the mail */
-	    { if(!i)
-		 skiprc++;
-	      chp=strchr(strcpy(buf,sendmail),'\0');
-	      if(*flagsendmail)
-		 chp=strchr(strcpy(chp+1,flagsendmail),'\0');
-	      if(readparse(chp+1,getb,0))
-		 goto fail;
+	    { chp=buf2;
 	      if(i)
-	       { if(startchar==themail)
+	       { *chp='$';chp=strchr(strcpy(chp+1,SendMail),'\0');
+		 if(*flagsendmail)
+		  { *chp++=' ';
+		    *chp++='$';chp=strchr(strcpy(chp,FlagSendMail),'\0');
+		  }
+		 if(startchar==themail)
 		  { startchar[filled]='\0';		     /* just in case */
 		    startchar=(char*)skipFrom_(startchar,&tobesent);
 		  }   /* leave off leading From_ -- it confuses some mailers */
-		 goto forward;
 	       }
-	      skiprc--;
+	      goto forward;
 	    }
 	   else if(testB('|'))				    /* pipe the mail */
-	    { if(getlline(buf2))		 /* get the command to start */
+	    { chp=buf2;
+forward:      if(getlline(chp,buf2+linebuf))	 /* get the command to start */
 		 goto commint;
 	      if(i)
 	       { metaparse(buf2);
@@ -737,7 +735,7 @@ progrm:	   if(testB('!'))				 /* forward the mail */
 		  { *buf='|';*(char*)(Tmnate++)='\0';		  /* fake it */
 		    goto tostdout;
 		  }
-forward:	 if(locknext)
+		 if(locknext)
 		  { if(!tolock)	   /* an explicit lockfile specified already */
 		     { *buf2='\0';  /* find the implicit lockfile ('>>name') */
 		       for(chp=buf;i= *chp++;)
@@ -795,7 +793,7 @@ nolock:			{ nlog("Couldn't determine implicit lockfile from");
 		 flags[FILTER]=0,nlog(extrns),elog("filter-flag"),elog(ignrd);
 	      if(chp=gobenv(buf,end))	   /* can it be an environment name? */
 	       { if(chp==end)
-		  { getlline(buf);
+		  { getlline(buf,buf+linebuf);
 		    goto fail;
 		  }
 		 if(skipspace())
@@ -877,7 +875,7 @@ tostdout:	 rawnonl=flags[RAW_NONL];
 		  }
 		 inittmout(buf);	  /* to break messed-up kernel locks */
 		 if(writefolder(buf,strchr(buf,'\0')+1,startchar,tobesent,
-		     ignwerr)&&
+		     ignwerr,0)&&
 		    (succeed=1,!flags[CONTINUE]))
 frmailed:	  { if(ifstack.offs)
 		       free(ifstack.offs);
@@ -942,19 +940,12 @@ nomore_rc:
 	len=strlen(chp);		   /* make sure we have enough space */
 	if(linebuf<(tlen=len+strlen(lockext)+XTRAlinebuf+UNIQnamelen))
 	   mallocbuffers(linebuf=tlen,1);  /* to perform the lock & delivery */
-	if(strcmp(chp,devnull)&&strcmp(chp,"|")&& /* neither /dev/null nor | */
-	 (tofile=foldertype(strcpy(buf,chp)+len,&mode,0,1),
-	  to_dotlock(tofile)))				   /* but yet a file */
-	 { cat(chp,lockext);
-	   if(!globlock||strcmp(buf,globlock))		  /* already locked? */
-	      lockit(tstrdup(buf),&loclock);		    /* implicit lock */
-	 }
-	if(writefolder(chp,(char*)0,themail,filled,0))		  /* default */
+	if(writefolder(chp,(char*)0,themail,filled,0,1))	  /* default */
 	   succeed=1;
       }						       /* if all else failed */
      if(!succeed&&*(chp2=(char*)tgetenv(orgmail))&&strcmp(chp2,chp))
       { rawnonl=0;
-	if(writefolder(chp2,(char*)0,themail,filled,0))	      /* don't panic */
+	if(writefolder(chp2,(char*)0,themail,filled,0,0))     /* don't panic */
 	   succeed=1;				      /* try the last resort */
       }
      if(succeed)				     /* should we panic now? */

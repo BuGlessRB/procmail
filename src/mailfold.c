@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.87 1999/06/09 07:44:22 guenther Exp $";
+ "$Id: mailfold.c,v 1.88 1999/10/20 04:53:17 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -19,6 +19,7 @@ static /*const*/char rcsid[]=
 #include "exopen.h"
 #include "goodies.h"
 #include "locking.h"
+#include "lastdirsep.h"
 #include "mailfold.h"
 
 int logopened,tofile,rawnonl;
@@ -90,12 +91,14 @@ jin:	while(part&&(i=rwrite(s,source,BLKSIZ<part?BLKSIZ:(int)part)))
 	emboxseparator(s);	 /* newline and an optional custom separator */
       }
 writefin:
-     ;{ int serrno=errno;		       /* save any error information */
-	if(to_lock(tofile)&&fdunlock())
+     i=fsync(s);
+     if(to_lock(tofile))
+      { int serrno=errno;		       /* save any error information */
+	if(fdunlock())
 	   nlog("Kernel-unlock failed\n");
 	SETerrno(serrno);
       }
-     i=fsync(s)||rclose(s);
+     i=rclose(s)||i;
    }			   /* return an error even if nothing was to be sent */
   tofile=0;
   return i&&!len?-1:len;
@@ -174,65 +177,104 @@ ret:
   return -1;
 }
 
-	       /* a shorthand to hide the fact that sometimes links are okay */
-#define dostat(dir,stp) (allowlinks?stat(dir,stp):lstat(dir,stp))
-
-/* return the named object's mode, making it a directory if it doesn't exist */
-static mode_t trymkdir(dir,allowlinks)const char*const dir;const int allowlinks;
-{ mode_t mode;struct stat stbuf;
-  mode=0;
-  if(!dostat(dir,&stbuf))				/* if we can stat it */
-     mode=stbuf.st_mode;	     /* we're done here, for better or worse */
-  else if(errno==ENOENT)			 /* else if it doesn't exist */
-   { if(!mkdir(dir,NORMdirperm))			  /* can we make it? */
-	mode=S_IFDIR|NORMdirperm&~cumask;			   /* bingo! */
-     else if(!dostat(dir,&stbuf))  /* maybe someone else slipped in a mkdir? */
-	mode=stbuf.st_mode;
+int rnmbogus(name,stbuf,i,dolog)const char*const name;	      /* move a file */
+ const struct stat*const stbuf;const int i,dolog;	   /* out of the way */
+{ static const char renbogus[]="Renamed bogus \"%s\" into \"%s\"",
+   renfbogus[]="Couldn't rename bogus \"%s\" into \"%s\"",
+   bogusprefix[]=BOGUSprefix;char*p;
+  p=strchr(strcpy(strcpy(buf2+i,bogusprefix)+STRLEN(bogusprefix),
+   getenv(lgname)),'\0');
+  *p++='.';ultoan((unsigned long)stbuf->st_ino,p);	  /* i-node numbered */
+  if(dolog)
+   { nlog("Renaming bogus mailbox \"");elog(name);elog("\" info");
+     logqnl(buf2);
    }
-  return mode;
+  if(rename(name,buf2))			   /* try and move it out of the way */
+   { syslog(LOG_ALERT,renfbogus,name,buf2);		 /* danger!  danger! */
+     return 1;
+   }
+  syslog(LOG_CRIT,renbogus,name,buf2);
+  return 0;
 }
 
-static int mkmaildir(chp)char*chp;
-{ mode_t mode;
-  return (strcpy(chp,maildirnew),mode=trymkdir(buf,0),S_ISDIR(mode))&&
-   (strcpy(chp,maildircur),mode=trymkdir(buf,0),S_ISDIR(mode))&&
-   (strcpy(chp,maildirtmp),mode=trymkdir(buf,0),S_ISDIR(mode));
-}							 /* leave tmp in buf */
+/* return the named object's mode, making it a directory if it doesn't exist
+ * and renaming it out of the way if it's not _just_right_ and we're being
+ * paranoid */
+static mode_t trymkdir(dir,paranoid,i)const char*const dir;const int paranoid,i;
+{ int(*dostat)P((const char*,struct stat*));struct stat stbuf;int tries;
+  dostat=paranoid?&lstat:&stat;tries=3-1;    /* minus one for post-decrement */
+  do
+   { if(!dostat(dir,&stbuf))		      /* does it exist?	 Is it okay? */
+      { if(!paranoid||				  /* if we're trusting it is */
+	   (S_ISDIR(stbuf.st_mode)&&	      /* else it must be a directory */
+	    (stbuf.st_uid==uid||	       /* and have the correct owner */
+	     !stbuf.st_uid&&!chown(dir,uid,sgid))))  /* or be safely fixable */
+	   return stbuf.st_mode;				   /* bingo! */
+	else if(rnmbogus(dir,&stbuf,i,1))  /* try and move it out of the way */
+	   break;						/* couldn't! */
+      }
+     else if(errno!=ENOENT)	    /* something more fundamental went wrong */
+	break;
+     else if(!mkdir(dir,NORMdirperm))	  /* it's not there, can we make it? */
+      { if(!paranoid)	      /* do we need to double check the permissions? */
+	   return S_IFDIR|NORMdirperm&~cumask;			     /* nope */
+	tries++;		/* the mkdir succeeded, so take another shot */
+      }
+   }while(tries-->0);
+  return 0;
+}
 
-int foldertype(chp,modep,forcedir,allowlinks)char*chp;mode_t*const modep;
- int forcedir,allowlinks;
-{ struct stat stbuf;mode_t mode;int type,extra;
-  extra=0;
+static int mkmaildir(chp,paranoid)char*chp;const int paranoid;
+{ mode_t mode;int i;
+  if(paranoid)
+     strncpy(buf2,buf,i=chp-buf+1),buf2[i-1]=*MCDIRSEP_,buf2[i]='\0';
+  return
+   (strcpy(chp,maildirnew),mode=trymkdir(buf,paranoid,i),S_ISDIR(mode))&&
+   (strcpy(chp,maildircur),mode=trymkdir(buf,paranoid,i),S_ISDIR(mode))&&
+   (strcpy(chp,maildirtmp),mode=trymkdir(buf,paranoid,i),S_ISDIR(mode));
+}					      /* leave tmp in buf on success */
+
+int foldertype(chp,modep,forcedir,paranoid)char*chp;mode_t*const modep;
+ int forcedir;struct stat*const paranoid;
+{ struct stat stbuf;mode_t mode;int type,i;
+  int(*dostat)(const char*,struct stat*);
+  i=0;dostat=paranoid?&lstat:&stat;
   if(chp>=buf+1&&chp[-1]==*MCDIRSEP_&&*chp==chCURDIR)
    { *--chp='\0';type=to_MH;
    }
   else if(*chp==*MCDIRSEP_&&chp>buf)
    { *chp='\0';type=to_MAILDIR;
-     extra=MAILDIRLEN;
+     i=MAILDIRLEN;
    }
   else
    { chp++;					    /* resolve the ambiguity */
      if(!forcedir)
       { if(dostat(buf,&stbuf))
+	 { if(paranoid)
+	    { type=to_NOTYET;
+	      goto ret;
+	    }
 	   goto newfile;
+	 }
 	else if(mode=stbuf.st_mode,!S_ISDIR(mode))
 	   goto file;
       }
      type=to_DIR;
    }
-  if((chp-buf)+UNIQnamelen+1+extra>linebuf)
+  if((chp-buf)+UNIQnamelen+1+i>linebuf)
    { type=to_TOOLONG;
      goto ret;
    }
   if(type==to_DIR&&!forcedir)		  /* we've already checked this case */
      goto done;
-  mode=trymkdir(buf,allowlinks);
-  if(!S_ISDIR(mode)||(type==to_MAILDIR&&(forcedir=1,!mkmaildir(chp))))
+  if(paranoid)
+     strncpy(buf2,buf,i=lastdirsep(buf)-buf),buf2[i]='\0';
+  mode=trymkdir(buf,paranoid!=0,i);
+  if(!S_ISDIR(mode)||(type==to_MAILDIR&&
+   (forcedir=1,!mkmaildir(chp,paranoid!=0))))
    { nlog("Unable to treat as directory");logqnl(buf);	 /* we can't make it */
      if(forcedir)				     /* fallback or give up? */
-      { *chp='\0';
-	skipped(buf);
-	type=to_CANTCREATE;
+      { *chp='\0';skipped(buf);type=to_CANTCREATE;
 	goto ret;
       }
      if(!mode)
@@ -240,13 +282,16 @@ newfile:mode=S_IFREG|NORMperm&~cumask;
 file:type=to_FILE;
    }
 done:
-  *modep=mode;
+  if(paranoid)
+     *paranoid=stbuf;
+  else
+     *modep=mode;
 ret:
   return type;
 }
 
-int writefolder(boxname,linkfolder,source,len,ignwerr)char*boxname,*linkfolder;
- const char*source;long len;const int ignwerr;
+int writefolder(boxname,linkfolder,source,len,ignwerr,dolock)
+ char*boxname,*linkfolder;const char*source;long len;const int ignwerr,dolock;
 { char*chp,*chp2;mode_t mode;int fd;
   asgnlastf=1;
   if(*boxname=='|'&&(!linkfolder||linkfolder==Tmnate))
@@ -265,8 +310,8 @@ int writefolder(boxname,linkfolder,source,len,ignwerr)char*boxname,*linkfolder;
      else
 	linkfolder=0;
    }
-/*tofile=foldertype(chp,&mode,linkfolder?1:0,1)			perhaps? XXX */
-  switch(tofile=foldertype(chp,&mode,0,1))	     /* the envelope please! */
+/*tofile=foldertype(chp,&mode,linkfolder!=0,0)			perhaps? XXX */
+  switch(tofile=foldertype(chp,&mode,0,0))	     /* the envelope please! */
    { case to_FILE:
 	if(linkfolder)	  /* any leftovers?  Now is the time to display them */
 	   concatenate(linkfolder),skipped(linkfolder),free(linkfolder);
@@ -274,6 +319,12 @@ int writefolder(boxname,linkfolder,source,len,ignwerr)char*boxname,*linkfolder;
 	   tofile=0,rawnonl=1;		     /* save the effort on /dev/null */
 	else if(!(UPDATE_MASK&(mode|cumask)))
 	   chmod(boxname,mode|UPDATE_MASK);
+	if(dolock&&tofile)
+	 { strcpy(chp=strchr(buf,'\0'),lockext);
+	   if(!globlock||strcmp(buf,globlock))
+	      lockit(tstrdup(buf),&loclock);
+	   *chp='\0';
+	 }
 	fd=opena(boxname);
 dump:	if(dump(fd,source,len)&&!ignwerr)
 dumpf:	 { switch(errno)
@@ -348,7 +399,7 @@ failed:	   unlink(buf);lasttell= -1;
       { strcpy(buf,boxname);
 	if(*(chp=buf))
 	   chp=strchr(buf,'\0')-1;
-	switch(tofile=foldertype(chp,&mode,1,1))
+	switch(tofile=foldertype(chp,&mode,1,0))
 	 { case to_TOOLONG:goto exlb;
 	   case to_CANTCREATE:				     /* just skip it */
 	      continue;
@@ -488,7 +539,7 @@ char*findtstamp(start,end)const char*start,*end;
   start=skpspace(start);start+=strcspn(start," \t\n");	/* jump over address */
   if(skpspace(start)>=end)			       /* enough space left? */
      return (char*)start;	 /* no, too small for a timestamp, stop here */
-  while(!(end[13]==':'&&end[15]==':')&&--end>start);	  /* search for :..: */
+  while(!(end[13]==':'&&end[16]==':')&&--end>start);	  /* search for :..: */
   ;{ int spc=0;						 /* found it perhaps */
      while(end-->start)		      /* now skip over the space to the left */
       { switch(*end)

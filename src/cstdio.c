@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.40 1999/08/27 18:30:26 guenther Exp $";
+ "$Id: cstdio.c,v 1.41 1999/10/20 04:53:15 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -88,7 +88,7 @@ int poprc P((void))
      return 0;	      /* restore rc, seekpos, prime rcbuf and restore rcbufp */
   rc=inced.offs[--inced.filled];
   blasttell=lseek(rc,inced.offs[--inced.filled],SEEK_SET);
-  refill(inced.offs[--inced.filled]);
+  refill((int)inced.offs[--inced.filled]);
   return 1;
 }
 
@@ -168,9 +168,9 @@ void skipline P((void))
       }
 }
 
-int getlline(target)char*target;
-{ char*chp2,*end;int overflow;
-  for(end=target+linebuf,overflow=0;;*target++='\n')
+int getlline(target,end)char*target,*end;
+{ char*chp2;int overflow;
+  for(overflow=0;;*target++='\n')
      switch(getbl(chp2=target,end))			   /* read line-wise */
       { case -1:overflow=1;
 	case 1:

@@ -1,11 +1,14 @@
-/*$Id: mailfold.h,v 1.19 1999/06/09 07:44:24 guenther Exp $*/
+/*$Id: mailfold.h,v 1.20 1999/10/20 04:53:18 guenther Exp $*/
 
 long
  dump P((const int s,const char*source,long len));
 int
- foldertype P((char*chp,mode_t*const modep,int forcedir,int allowlinks)),
+ rnmbogus P((const char*const name,const struct stat*const stbuf,const int i,
+  const int dolog)),
+ foldertype P((char*chp,mode_t*const modep,int forcedir,
+  struct stat*const paranoid)),
  writefolder P((char*boxname,char*linkfolder,const char*source,const long len,
-  const int ignwerr));
+  const int ignwerr,const int dolock));
 void
  logabstract P((const char*const lstfolder)),
  concon P((const int ch)),
@@ -16,9 +19,10 @@ char
 extern int logopened,tofile,rawnonl;
 extern off_t lasttell;
 
+#define to_NOTYET	(-3)		     /* spool file doesn't exist yet */
 #define to_CANTCREATE	(-2)	/* wrong file type and can't change our mind */
 #define to_TOOLONG	(-1)		    /* path + UNIQnamelen > linebuf? */
-/*#define to_PIPE	0				/* program or stdout */
+/*#define to_PIPE	0		    /* program, stdout, or /dev/null */
 #define to_MAILDIR	1				   /* maildir folder */
 #define to_FILE		2					/* real file */
 #define to_DIR		3			     /* msg.inode# directory */
@@ -28,6 +32,7 @@ extern off_t lasttell;
 #define to_atime(to)	   ((to)==to_FILE)	      /* force atime < mtime */
 #define to_dotlock(to)	   ((to)==to_FILE)
 #define to_delim(to)	   ((to)==to_FILE)
+#define to_checkcloser(to) (((to)|1)==3)
 
 
 #ifdef sMAILBOX_SEPARATOR

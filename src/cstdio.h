@@ -1,4 +1,4 @@
-/*$Id: cstdio.h,v 1.12 1999/04/19 06:42:12 guenther Exp $*/
+/*$Id: cstdio.h,v 1.13 1999/10/20 04:53:16 guenther Exp $*/
 
 void
  pushrc P((const char*const name)),
@@ -15,6 +15,6 @@ int
  testB P((const int x)),
  sgetc P((void)),
  skipspace P((void)),
- getlline P((char*target));
+ getlline P((char*target,char*end));
 
 extern struct dynstring*incnamed;

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.94 1999/04/19 06:42:21 guenther Exp $";
+ "$Id: misc.c,v 1.95 1999/10/20 04:53:19 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -620,20 +620,19 @@ void rcst_nosgid P((void))
      rcstate=rc_NOSGID;
 }
 
-static void inodename(stbuf,i)const struct stat*const stbuf;const size_t i;
-{ static const char bogusprefix[]=BOGUSprefix;char*p;
-  p=strchr(strcpy(strcpy(buf+i,bogusprefix)+STRLEN(bogusprefix),
-   getenv(lgname)),'\0');
-  *p++='.';ultoan((unsigned long)stbuf->st_ino,p);	  /* i-node numbered */
-}
 			     /* lifted out of main() to reduce main()'s size */
-int screenmailbox(chp,chp2,egid,Deliverymode)
- char*chp;char*const chp2;const gid_t egid;const int Deliverymode;
-{ int i;struct stat stbuf;			   /* strip off the basename */
+int screenmailbox(chp,egid,Deliverymode)
+ char*chp;const gid_t egid;const int Deliverymode;
+{ char ch;struct stat stbuf;
  /*
   *	  do we need sgidness to access the mail-spool directory/files?
   */
-  *chp2='\0';buf[i=lastdirsep(chp)-chp]='\0';sgid=gid;
+  chp=lastdirsep(strcpy(buf,chp));		   /* strip off the basename */
+  if(chp<buf+3)
+     chp=buf+1;
+  else if(!chp[0]||(chp[0]==chCURDIR&&!chp[1]))		/* take into account */
+     for(chp-=2;chp>buf+1&&!strchr(dirsep,*chp--););/* folder type indicator */
+  ch=*chp;*chp='\0';sgid=gid;
   if(!stat(buf,&stbuf))
    { unsigned wwsdir;
      if(accspooldir=(wwsdir=			/* world writable spool dir? */
@@ -657,110 +656,114 @@ keepgid:			   /* keep the gid from the parent directory */
 	   setgid(sgid);     /* we were started nosgid, but we might need it */
    }
   else				/* panic, mail-spool directory not available */
-   { int c;				     /* try creating the last member */
-     setids();c=buf[i-1];buf[i-1]='\0';mkdir(buf,NORMdirperm);buf[i-1]=c;
+   { setids();mkdir(buf,NORMdirperm);	     /* try creating the last member */
    }
+  *chp=ch;
  /*
   *	  check if the default-mailbox-lockfile is owned by the
   *	  recipient, if not, mark it for further investigation, it
   *	  might need to be removed
   */
+  if(*(chp=buf))
+     chp=strchr(buf,'\0')-1;
   for(;;)
-   { ;{ int mboxstat;
-	static const char renbogus[]="Renamed bogus \"%s\" into \"%s\"",
-	 renfbogus[]="Couldn't rename bogus \"%s\" into \"%s\"";
-	;{ int goodlock;
-	   if(!(goodlock=lstat(defdeflock,&stbuf)||stbuf.st_uid==uid))
-	      inodename(&stbuf,i);
-	  /*
-	   *	  check if the original/default mailbox of the recipient
-	   *	  exists, if it does, perform some security checks on it
-	   *	  (check if it's a regular file, check if it's owned by
-	   *	  the recipient), if something is wrong try and move the
-	   *	  bogus mailbox out of the way, create the
-	   *	  original/default mailbox file, and chown it to
-	   *	  the recipient
-	   */
-	   if(lstat(chp,&stbuf))			 /* stat the mailbox */
-	    { mboxstat= -(errno==EACCES);
-	      goto boglock;
-	    }					/* lockfile unrightful owner */
-	   else
-	    { mboxstat=1;
-	      if(!(stbuf.st_mode&S_IWGRP))
-boglock:	 if(!goodlock)		      /* try & rename bogus lockfile */
-		    if(rename(defdeflock,buf))		   /* out of the way */
-		       syslog(LOG_EMERG,renfbogus,defdeflock,buf);
-		    else
-		       syslog(LOG_ALERT,renbogus,defdeflock,buf);
-	    }
+   { ;{ int defaulttype=foldertype(chp,0,0,&stbuf);   /* what type of folder */
+	if(defaulttype==to_NOTYET)				 /* is this? */
+	 { if(errno!=EACCES||(setids(),lstat(buf,&stbuf)))
+	      goto nobox;
 	 }
-	if(mboxstat>0||mboxstat<0&&(setids(),!lstat(chp,&stbuf)))
-	 { int checkiter=1;
-	   for(;;)
-	    { if(stbuf.st_uid!=uid||		      /* recipient not owner */
-		 !(stbuf.st_mode&S_IWUSR)||	     /* recipient can write? */
-		 S_ISLNK(stbuf.st_mode)||		/* no symbolic links */
-		 (S_ISDIR(stbuf.st_mode)?     /* directories, yes, hardlinks */
-		   !(stbuf.st_mode&S_IXUSR):stbuf.st_nlink!=1))	       /* no */
-		/*
-		 *	If another procmail is about to create the new
-		 *	mailbox, and has just made the link, st_nlink==2
-		 */
-		 if(checkiter--)	    /* maybe it was a race condition */
-		    suspend();		 /* close eyes, and hope it improves */
-		 else			/* can't deliver to this contraption */
-		  { inodename(&stbuf,i);nlog("Renaming bogus mailbox \"");
-		    elog(chp);elog("\" into");logqnl(buf);
-		    if(rename(chp,buf))	   /* try and move it out of the way */
-		     { syslog(LOG_EMERG,renfbogus,chp,buf);
-		       goto fishy;  /* rename failed, something's fishy here */
-		     }
-		    else
-		       syslog(LOG_ALERT,renbogus,chp,buf);
-		    goto nobox;
-		  }
-	      else
-		 break;
-	      if(lstat(chp,&stbuf))
+	else if(!to_checkcloser(defaulttype))
+	 { setids();
+	   defdeflock="";
+	   if(defaulttype<0)
+	      goto fishy;
+	   return 1;
+	 }
+      }
+    /*
+     *	  check if the original/default mailbox of the recipient
+     *	  exists, if it does, perform some security checks on it
+     *	  (check if it's a regular file, check if it's owned by
+     *	  the recipient), if something is wrong try and move the
+     *	  bogus mailbox out of the way, create the
+     *	  original/default mailbox file, and chown it to
+     *	  the recipient
+     */
+     ;{ int checkiter=1;
+	for(;;)
+	 { if(stbuf.st_uid!=uid||		      /* recipient not owner */
+	      !(stbuf.st_mode&S_IWUSR)||	     /* recipient can write? */
+	      S_ISLNK(stbuf.st_mode)||			/* no symbolic links */
+	      (S_ISDIR(stbuf.st_mode)?	      /* directories, yes, hardlinks */
+		!(stbuf.st_mode&S_IXUSR):stbuf.st_nlink!=1))	       /* no */
+	     /*
+	      * If another procmail is about to create the new
+	      * mailbox, and has just made the link, st_nlink==2
+	      */
+	      if(checkiter--)		    /* maybe it was a race condition */
+		 suspend();		 /* close eyes, and hope it improves */
+	      else			/* can't deliver to this contraption */
+	       { int i=lastdirsep(buf)-buf;
+		 strncpy(buf2,buf,i);buf2[i]='\0';
+		 if(rnmbogus(buf,&stbuf,i,1))
+		    goto fishy;
 		 goto nobox;
-	    }					/* SysV type autoforwarding? */
-	   if(Deliverymode&&stbuf.st_mode&(S_ISGID|S_ISUID))
-	    { nlog("Autoforwarding mailbox found\n");
-	      exit(EX_NOUSER);
-	    }
-	   else
-	    { if(!(stbuf.st_mode&OVERRIDE_MASK)&&
-		 stbuf.st_mode&cumask&
-		  (accspooldir?~(mode_t)0:~(S_IRGRP|S_IWGRP)))	/* hold back */
-	       { static const char enfperm[]=
-		  "Enforcing stricter permissions on";
-		 nlog(enfperm);logqnl(chp);
-		 syslog(LOG_NOTICE,slogstr,enfperm,chp);setids();
-		 chmod(chp,stbuf.st_mode&=~cumask);
 	       }
-	      break;				  /* everything is just fine */
+	   else
+	      break;
+	   if(lstat(buf,&stbuf))
+	      goto nobox;
+	 }					/* SysV type autoforwarding? */
+	if(Deliverymode&&(stbuf.st_mode&S_ISUID||
+	 !S_ISDIR(stbuf.st_mode)&&stbuf.st_mode&S_ISGID))
+	 { nlog("Autoforwarding mailbox found\n");
+	   exit(EX_NOUSER);
+	 }
+	else
+	 { if(!(stbuf.st_mode&OVERRIDE_MASK)&&
+	      stbuf.st_mode&cumask&
+	       (accspooldir?~(mode_t)0:~(S_IRGRP|S_IWGRP)))	/* hold back */
+	    { static const char enfperm[]=
+	       "Enforcing stricter permissions on";
+	      nlog(enfperm);logqnl(buf);
+	      syslog(LOG_NOTICE,slogstr,enfperm,buf);setids();
+	      chmod(buf,stbuf.st_mode&=~cumask);
 	    }
+	   break;				  /* everything is just fine */
 	 }
       }
 nobox:
      if(!(accspooldir&1))	     /* recipient does not own the spool dir */
-      { if(!xcreat(chp,NORMperm,(time_t*)0,doCHOWN|doCHECK))	   /* create */
+      { if(!xcreat(buf,NORMperm,(time_t*)0,doCHOWN|doCHECK))	   /* create */
 	   break;		   /* mailbox... yes we could, fine, proceed */
-	if(!lstat(chp,&stbuf))			     /* anything in the way? */
+	if(!lstat(buf,&stbuf))			     /* anything in the way? */
 	   continue;			       /* check if it could be valid */
       }
      setids();						   /* try some magic */
-     if(!xcreat(chp,NORMperm,(time_t*)0,doCHECK))		/* try again */
+     if(!xcreat(buf,NORMperm,(time_t*)0,doCHECK))		/* try again */
 	break;
-     if(lstat(chp,&stbuf))			      /* nothing in the way? */
+     if(lstat(buf,&stbuf))			      /* nothing in the way? */
 fishy:
-      { nlog("Couldn't create");logqnl(chp);
+      { nlog("Couldn't create");logqnl(buf);
 	return 0;
       }
    }
+  if(!S_ISDIR(stbuf.st_mode))
+   { int isgrpwrite=stbuf.st_mode&S_IWGRP;
+     strcpy(chp=strchr(buf,'\0'),lockext);
+     defdeflock=tstrdup(buf);
+     if(!isgrpwrite&&!lstat(defdeflock,&stbuf)&&stbuf.st_uid!=uid)
+      { int i=lastdirsep(buf)-buf;
+	strncpy(buf2,buf,i);buf2[i]='\0';     /* try & rename bogus lockfile */
+	rnmbogus(defdeflock,&stbuf,i,0);		   /* out of the way */
+      }
+     *chp='\0';
+   }
+  else
+     defdeflock="";					   /* no lock needed */
   return 1;
 }
+
 			     /* lifted out of main() to reduce main()'s size */
 int conditions(flags,prevcond,lastsucc,lastcond,nrcond)const char flags[];
  const int prevcond,lastsucc,lastcond;int nrcond;
@@ -814,7 +817,7 @@ noconcat:
 	    break;		     /* no more conditions, time for action! */
 	  }
       skipspace();
-      if(getlline(buf2))
+      if(getlline(buf2,buf2+linebuf))
 	 i=0;				       /* assume failure on overflow */
       if(i)					 /* check out all conditions */
        { int negate,scoreany;double weight,xponent,lscore;
