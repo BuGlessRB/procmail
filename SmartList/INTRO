@@ -1,0 +1,222 @@
+$Id: INTRO,v 1.1 1992/11/11 19:34:29 berg Exp $
+
+			How to set up mailing lists
+			---------------------------
+
+		Written by Stephen R. van den Berg.
+					berg@pool.informatik.rwth-aachen.de
+					berg@physik.tu-muenchen.de
+
+This document mainly describes a sendmail environment, much of it applies
+to non-sendmail mail agents as well.
+
+
+Contents:
+---------	1. Intro
+		2. Bouncing mail
+		3. The disadvantages
+		4. How to circumvent these disadvantages
+		5. Why use procmail to filter the mailinglist mail?
+		6. How do I use procmail to filter the mailinglist mail?
+
+1. Intro
+   -----
+
+The simplest and most direct way to setup a mailinglis is by inserting a line
+in the /usr/lib/aliases file looking like:
+
+mylist: fred,john, wilma, barney@bedrock, pebbles
+
+Now all the mail arriving at your machine for "mylist" (either local or
+mylist@your.domain) will be automatically forwarded to all the mentioned
+addresses (fred, john, etc.).
+
+The address mylist@your.domain is intended for submissions to the list that
+are supposed to be forwarded to all the subscribers.  For the administrative
+tasks like removals from the list, new subscriptions to the list, or address
+changes of subscribers, it is common practice to create a second entry in the
+/usr/lib/aliases file:
+
+mylist-request: your_login_name@your.domain
+
+
+2. Bouncing mail
+   -------------
+
+In order to deal with bouncing mail gracefully, an extra precaution should
+be taken.  If for example mail to wilma bounces (user non-existent, mail
+filesystem full, etc.), it will bounce back to the original sender.
+Now, the only person that should be concerned with distribution failures
+should be the mylist-request holder.  Therefore you should be using a
+sendmail special alias like:
+
+owner-mylist: mylist-request@your.domain
+
+This way local mail will bounce back to mylist-request@your.domain.
+
+
+3. The disadvantages
+   -----------------
+
+If you are using the above methods, some obvious disadvantages come to mind
+however:
+
+a. The subscriber list cannot exceed 1000 bytes (on many sendmails).
+b. The subscriber list cannot be changed on-the-fly (/usr/lib/aliases needs
+   to be edited, and newaliases has to be run).
+c. People cannot be prevented from submitting messages like "Please remove
+   me from this mailinglist" to mylist (and thereby annoying all subscribers).
+d. People cannot be guarded from themselves in case they insert
+   "Return-Receipt-To:" fields in their headers (if they are particularly
+   unlucky, they will receive an acknowledge mail from *every* subscriber's
+   sendmail).
+e. People including "Errors-To:" or "Sender:" fields can cause the bounce
+   messages to bypass owner-mylist anyway.
+f. There is no way of limiting the number of submitters, i.e. every person
+   who knows the name of the mailing list and who can send mail to your.domain
+   is able to submit messages to the list.  This means, for example, that you
+   cannot limit a mailing list to local users (i.e. only local users can
+   submit).
+g. You are unable to insert a "Reply-To: mylist@your.domain" in case you
+   would want to (this makes replying to the list easier, too easy as some
+   people say).
+
+
+4. How to circumvent these disadvantages
+   -------------------------------------
+
+a. Can be circumvented by using nested aliases like:
+	mylist: mylist1, mylist2
+	mylist1: fred,john
+	mylist2: wilma,barney@bedrock,pebbles
+   This can however, become extremely messy to maintain.
+
+b. This can be avoided if you use aliases like:
+	mylist: :include:/path/to/the/memberfile
+   The memberfile should contain:
+	fred,john,wilma,barney@bedrock,pebbles
+   This will also take care of the upper limit on aliases expansions and
+   newaliases need not be run again every time you change the file.
+
+c. Can only be taken care of by using a mailfilter like procmail.
+
+d. Can only be taken care of by using a mailfilter like procmail.
+
+e. Can only be taken care of by using a mailfilter like procmail.
+
+f. Can only be taken care of by using a mailfilter like procmail.
+
+h. Can only be taken care of by using a mailfilter like procmail.
+
+
+5. Why use procmail to filter the mailinglist mail?
+   ------------------------------------------------
+
+Instead of using a mailfilter you could also take care of most of the problems
+three till seven by editing the sendmail.cf file.  I would strongly recommend
+against this approach however, since this will be too much of a customising
+operation and surely will not be a trivial task (in all cases).	 As a general
+rule: don't mess with a sendmail.cf file once it works :-).
+
+Now, you could, instead of procmail, simply use immediate VNIX commands
+like grep, sed or awk to do the mail filtering.	 Again, there are some obvious
+disadvantages with this approach:
+
+A. In case any system resources go out (no more file descriptors, no more
+   swap space, process table full, file system full (for temporary files))
+   your awk or shell script will fail generously (i.e. several bad things
+   could happen: mail munged, truncated, lost, hanging awk or sh programs,
+   etc., you get the picture).
+
+B. All mail headers (including From: and Reply-To:) could very well be
+   multi-line headers; it will be very difficult to make it understandable
+   to awk that somehow the header line could continue on the next line
+   (in case you want to remove a header, or do some complicated substitution).
+
+C. Another hairy problem will be determining the end of the header, of course
+   that is solvable, but you have to make some extra precautions in your
+   awk script to ensure that any substitutions/changes will not occur in
+   the body of the message (further degrading performance and increasing the
+   load on your machine).
+
+D. Starting programs directly from within aliases or .forward files can get
+   extremely messy, since the environment the program starts in is
+   potentially hostile.
+
+Procmail does not *directly* allow you to change any headers, but that
+feature is not really necessary since you can tell procmail to send ONLY the
+header through some filter of your choice.
+
+To comment on the previously mentioned three disadvantages:
+
+A. Procmail takes care of that.	 Should the filter have problems anyway,
+   procmail will graciously notice that the filter was in some kind of
+   trouble, and will try something else with the original unmunged mail
+   (you can specify what it should do of course, obvious choices: try
+   the same filter again, drop the mail in a file and send you a notice,
+   forward the mail to you instead (unfiltered), etc.)
+
+B. In order to make consistent scanning of the header possible using the
+   egrep regular expressions built in to procmail, procmail will internally
+   concatenate any headers that were continued according to the RCF 822
+   recommendations, in order for external filters to benefit from this, you
+   would use the formail program to pre-filter the mail.
+
+C. Procmail can be told to send the header, the body or both through the
+   filter, hence your filter need not watch out to avoid doing any
+   substitutions in the body, and the filter can therefore be a lot simpler.
+
+D. Procmail makes no assumptions about the environment it is started in, it
+   assumes that everything is hostile and fights its way back to the
+   civilised world by initialising *everything* to sane and expected default
+   values.  Thereby providing a warm bed for any program started from within
+   procmail.
+
+Procmail has some additional advantages too:
+
+ -- It will probably all go a bit faster, since only the header of the mail
+    is being piped through the filter.	Also, procmail reads in the mail in
+    16KB chunks, not line by line as sed does.
+
+ -- You could use procmail to filter out any messages to the normal mailing
+    list that should have gone to the mylist-request and remail them to
+    mylist-request.
+
+Well, anyway, as you see, procmail does not give you everything you would want,
+but this was intentional in accordance to the true VNIX spirit (modularity).
+What procmail does provide is a *very* reliable hook (you might say it
+provides an anchor :-) for any mail processing you might do.  For the more
+complex things you still have to use shell scripts or call other programs
+from within procmail, but then again, that saves you from learning any
+particular syntax procmail would have had to do the same.
+
+As it happens, the accompanying formail program is able to cater to most
+(if not all) of your needs regarding mail munging.
+
+If, on the other hand, you want to do more complex things like moderated
+mailing lists with several moderators, etc., if would suggest you take
+a look at the more complex/specialised mail-server packages like:
+listserv available on cs.bu.edu, author: tasos@cs.bu.edu
+Of course, most of what these packages can do, can be done with procmail as
+well; it is just that you might be forced to write some additional shell
+scripts/programs to accomplish the same.
+
+
+6. How do I use procmail to filter the mailinglist mail?
+   -----------------------------------------------------
+
+In order to cater for most wishes regarding mailinglist setup, I took the
+liberty to write some rcfiles for procmail that can readily be used to create
+any number of mailinglists in a comfortable and simple way.
+
+See the FEATURES file in this directory for more information on what
+these mailinglist scripts will do for you.
+
+If the scripts do not exactly do what you would have like, you are invited to
+edit them to taste.  Perhaps you could send your changes to the procmail
+mailinglist if you feel that they could be useful to others.
+
+To get started I suggest you read the INSTALL file in this directory.
+
+
+P.S. Any suggestions/corrections/improvements on this document are welcome.

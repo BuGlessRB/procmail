@@ -1,0 +1,91 @@
+#!/bin/sh
+#########################################################################
+#	removelist	To remove mailinglists				#
+#									#
+#	Created by S.R. van den Berg, The Netherlands			#
+#########################################################################
+#$Id: removelist,v 1.1 1992/11/11 19:34:37 berg Exp $
+
+defaults=.listadmin
+
+test=test		# /bin/test
+sed=sed			# /bin/sed
+rm=rm			# /bin/rm
+mv=mv			# /bin/mv
+ls=ls			# /bin/ls
+pwd=pwd			# /bin/pwd
+sleep=sleep		# /bin/sleep
+lockfile=lockfile	# /usr/local/bin/lockfile
+
+EX_USAGE=64
+
+if $test ! -d $defaults
+then
+  if $test -d list
+  then cd ./list
+  else cd ..
+     $test -d $defaults || cd ..
+  fi
+fi
+if $test ! -d $defaults
+then
+  echo "removelist: You should be near the main list directory to do this" 1>&2
+  exit $EX_USAGE
+fi
+
+if $test $# != 1
+then echo "Usage: removelist listname" 1>&2; exit $EX_USAGE
+fi
+
+list="$1"
+
+case "$list" in
+  ../*|*/..|*/../*|*/*) echo "removelist: Suspicious listname specified" 1>&2
+     exit $EX_USAGE;;
+  *[@!]*) echo "removelist: Specify listname without domain name appended" \
+     1>&2; exit $EX_USAGE;;
+esac
+
+if test ! -d "$list"
+then echo "removelist: \"$list\" doesn't exist" 1>&2
+  echo 1>&2
+  echo "Existing mailinglists:" 1>&2
+  echo 1>&2
+  $ls 1>&2
+  echo 1>&2
+  exit $EX_USAGE
+fi
+
+echo "Expunging `$pwd`/$list, countdown initiated:" 1>&2
+$sleep 1
+echo "						     3"
+$sleep 1
+echo "						       2"
+$sleep 1
+echo "							 1"
+$sleep 1
+echo "							   zero"
+
+cd $defaults
+
+TMPF=remlist.$$
+
+$lockfile the_lists.lock
+trap "$rm -f $TMPF the_lists.lock; exit 1" 1 2 3 15
+$sed -e "/^[	 ]*list=[	 ]*$list\$/,/^####/ d" \
+    -e "/^[	 ]*list=[	 ]*$list[	 ]/,/^####/ d" the_lists >$TMPF
+$mv $TMPF the_lists
+trap "" 1 2 3 15
+$rm -f the_lists.lock
+trap 1 2 3 15
+
+cd ..
+$rm -rf $list
+
+echo "Don't forget to remove the corresponding entries from" 1>&2
+echo "the /usr/lib/aliases file:" 1>&2
+echo \#########################################################################
+echo "$list:"
+echo "$list-request:"
+echo "$list-dist:"
+echo \#########################################################################

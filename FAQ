@@ -4,7 +4,8 @@
 
 1. How do I go about setting up a mailinglist?
 
-	Look in the examples/mailinglist file, it describes it in detail.
+	Look in the mailinglist directory, start reading the INTRO file,
+	it describes it in detail and should get you started.
 
 2. I installed procmail (i.e. typed 'make install'), but how am I supposed to
    use it?  When I type procmail on the command line it simply does nothing.

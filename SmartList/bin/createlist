@@ -1,0 +1,106 @@
+#!/bin/sh
+#########################################################################
+#	createlist	To create mailinglists				#
+#									#
+#	Created by S.R. van den Berg, The Netherlands			#
+#########################################################################
+#$Id: createlist,v 1.1 1992/11/11 19:34:35 berg Exp $
+
+defaults=.listadmin
+
+test=test		# /bin/test
+ln=ln			# /bin/ln
+touch=touch		# /bin/touch
+mkdir=mkdir		# /bin/mkdir
+sed=sed			# /bin/sed
+pwd=pwd			# /bin/pwd
+cat=cat			# /bin/cat
+rm=rm			# /bin/rm
+ls=ls			# /bin/ls
+lockfile=lockfile	# /usr/local/bin/lockfile
+
+DEVNULL=/dev/null
+EX_USAGE=64
+EX_UNAVAILABLE=69
+
+( lockfile ) 2>$DEVNULL
+if test $? != 64
+then
+  echo "Where is \"lockfile\"?	It should be installed in your PATH" 1>&2
+  exit $EX_UNAVAILABLE
+fi
+
+if $test ! -d $defaults
+then
+  if $test -d list
+  then cd ./list
+  else cd ..
+     $test -d $defaults || cd ..
+  fi
+fi
+if $test ! -d $defaults
+then
+  echo "createlist: You should be near the main list directory to do this" 1>&2
+  exit $EX_USAGE
+fi
+
+if $test $# != 1 -a $# != 2
+then echo "Usage: createlist listname [maintainer]" 1>&2; exit $EX_USAGE
+fi
+
+list="$1"
+maintainer="$2"
+
+case "$list" in
+  ../*|*/..|*/../*|*/*) echo "createlist: Suspicious listname specified" 1>&2
+     exit $EX_USAGE;;
+  *[@!]*) echo "createlist: Specify listname without domain name appended" \
+     1>&2; exit $EX_USAGE;;
+esac
+
+umask `$sed -n -e 's/^[^#]*UMASK=[^0-9]*\([0-9]*\).*$/\1/p' \
+ $defaults/listrc.sub`
+
+if $mkdir "$list" 2>$DEVNULL
+then
+:
+else echo "createlist: \"$list\" already exists" 1>&2; exit $EX_USAGE
+fi
+cd "$list"
+for a in listrc.sub help.txt subscribe.txt reject
+do
+  $cat $DEVNULL >>../$defaults/$a		# to make sure it exists
+  $ln ../$defaults/$a $a
+done
+$touch dist
+cd ..
+
+trap "$rm -f the_lists.lock" 1 2 3 15
+$lockfile the_lists.lock
+$cat >>$defaults/the_lists <<HERE
+list=$list
+maintainer=$maintainer
+	:c
+	\$^TO[^a-z]\$list(-request)?([^-.a-z0-9]|\\\$)
+	| procmail -p ./../\$list/listrc.sub PATH=\$PATH SHELL=\$SHELL
+#########################################################################
+HERE
+trap "" 1 2 3 15
+$rm -f the_lists.lock
+trap 1 2 3 15
+
+echo 1>&2
+echo "Installed the following files (mostly hardlinked):" 1>&2
+echo 1>&2
+$ls -l "$list"/* 1>&2
+echo 1>&2
+
+listuser=`$ls -ld $defaults | ( read a b user d; echo $user )`
+listdir=`$pwd`
+
+echo "Now make the following entries in your /usr/lib/aliases file:" 1>&2
+echo \#########################################################################
+echo "$list:		$listuser"
+echo "$list-request:	$listuser"
+echo "$list-dist:		:include:$listdir/$list/dist"
+echo \#########################################################################

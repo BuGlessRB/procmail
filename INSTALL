@@ -14,7 +14,7 @@ and type 'make install'.
 Intended configurable options in Makefile are:
 	the install-destinations
 Intended configurable options in config.h are:
-	MMDF support, standard environment presettings, trusted user ids.
+	MMDF support, standard environment presettings, trusted userids.
 
 'make install' will:
       - implicitly do a 'make init', which will check your basic utilities for
