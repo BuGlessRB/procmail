@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.81 1994/04/05 15:34:10 berg Exp $
+#$Id: autoconf,v 1.82 1994/04/08 15:22:15 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -499,7 +499,15 @@ main(argc,argv)char*argv[];
 skip_tests:
   printf("/* Hotwire LOCKINGTEST=%c%c%c */\n",goodlock&0x4?'1':'0',
    goodlock&0x2?'1':'0',goodlock&0x1?'1':'0');
-  if(!(goodlock&MSK_fcntl))			      /* report our findings */
+  printf("/* Procmail will lock via: dotlocking");    /* report our findings */
+  if(goodlock&MSK_fcntl)
+     printf(", fcntl()");
+  if(goodlock&MSK_lockf)
+     printf(", lockf()");
+  if(goodlock&MSK_flock)
+     printf(", flock()");
+  puts(" */");
+  if(!(goodlock&MSK_fcntl))		   /* and in machine readable format */
      puts("#define NOfcntl_lock");
   if(goodlock&MSK_lockf)
      puts("#define USElockf");

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.47 1994/04/05 15:35:06 berg Exp $";
+ "$Id: misc.c,v 1.48 1994/04/08 15:22:31 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -37,6 +37,7 @@ struct varstr strenstr[]={{"SHELLMETAS",DEFshellmetas},{"LOCKEXT",DEFlockext},
 const char lastfolder[]="LASTFOLDER";
 int didchd;
 char*globlock;
+static time_t oldtime;
 static fakedelivery;
 		       /* line buffered to keep concurrent entries untangled */
 void elog(newt)const char*const newt;
@@ -80,6 +81,9 @@ void setids P((void))
    { if(setrgid(gid))	/* due to these !@#$%^&*() POSIX semantics, setgid() */
 	setgid(gid);	   /* sets the saved gid as well; we can't use that! */
      setruid(uid);setuid(uid);setegid(gid);rcstate=rc_NORMAL;
+#if !DEFverbose
+     verbose=0;
+#endif
    }
 }
 
@@ -130,8 +134,12 @@ void yell(a,b)const char*const a,*const b;		/* log if VERBOSE=on */
      nlog(a),logqnl(b);
 }
 
+void newid P((void))
+{ thepid=getpid();oldtime=0;
+}
+
 void nlog(a)const char*const a;
-{ static time_t oldtime;time_t newtime;
+{ time_t newtime;
   static const char colnsp[]=": ";
   elog(procmailn);elog(colnsp);
   if(verbose&&oldtime!=(newtime=time((time_t*)0)))
@@ -161,6 +169,16 @@ nextrcfile P((void))		/* next rcfile specified on the command line */
      retval=1;			       /* not the first argument encountered */
    }
   return 0;
+}
+
+void guardon P((void))
+{ lcking|=lck_LOCKFILE;
+}
+
+void guardoff P((void))
+{ lcking&=~lck_LOCKFILE;
+  if(nextexit==1)	  /* make sure we are not inside Terminate() already */
+     elog(newline),Terminate();
 }
 
 void sterminate P((void))
@@ -378,15 +396,12 @@ void asenv(chp)const char*const chp;
    }
   else if(!strcmp(buf,sdelivered))			    /* fake delivery */
    { if(renvint(0L,chp))				    /* is it really? */
-      { lcking|=lck_LOCKFILE;		    /* just to prevent interruptions */
-	if((thepid=sfork())>0)
-	 { nextexit=2;lcking&=~lck_LOCKFILE;exit(retvl2);
-	 }					/* signals may cause trouble */
+      { guardon();
+	if((thepid=sfork())>0)			/* signals may cause trouble */
+	   nextexit=2,lcking&=~lck_LOCKFILE,exit(retvl2);
 	if(!forkerr(thepid,procmailn))
 	   fakedelivery=1;
-	thepid=getpid();lcking&=~lck_LOCKFILE;
-	if(nextexit)				 /* signals occurred so far? */
-	   elog(newline),Terminate();
+	newid();guardoff();
       }
    }
   else if(!strcmp(buf,lockfile))
@@ -401,7 +416,7 @@ void asenv(chp)const char*const chp;
       { yell("HOST mismatched",name);
 	if(rc<0||!nextrcfile())			  /* if no rcfile opened yet */
 	   retval=EX_OK,Terminate();		  /* exit gracefully as well */
-	closerc();rc= -1;
+	closerc();
       }
    }
   else
@@ -496,4 +511,12 @@ void initdefenv P((void))
      if(*strenstr[i].sval)
 	setdef(strenstr[i].sname,strenstr[i].sval);
   while(i--);
+}
+
+struct dynstring*newdynstring(adrp,chp)const struct dynstring**const adrp;
+ const char*const chp;
+{ struct dynstring*curr;size_t len;
+  curr=malloc(ioffsetof(struct dynstring,ename[0])+(len=strlen(chp)+1));
+  tmemmove(curr->ename,chp,len);curr->enext= *adrp;*adrp=curr;
+  return curr->ename;
 }

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.19 1994/04/05 15:34:16 berg Exp $";
+ "$Id: cstdio.c,v 1.20 1994/04/08 15:22:18 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -16,6 +16,7 @@ static /*const*/char rcsid[]=
 static uchar rcbuf[STDBUF],*rcbufp,*rcbufend;	  /* buffer for custom stdio */
 static off_t blasttell;
 static struct dyna_long inced;				  /* includerc stack */
+static struct dynstring*incnamed;
 
 void pushrc(name)const char*const name;		      /* open include rcfile */
 { struct stat stbuf;					   /* only if size>0 */
@@ -27,8 +28,30 @@ void pushrc(name)const char*const name;		      /* open include rcfile */
    }
 }
 
+void duprcs P((void))
+{ size_t i;struct dynstring*dp;
+  dp=incnamed;rclose(rc);
+  if(0>(rc=ropen(dp->ename,O_RDONLY,0)))
+     goto dupfailed;
+  lseek(rc,blasttell+STDBUF,SEEK_SET);
+  for(i=inced.filled;dp=dp->enext,i;i-=2)
+   { int fd;
+     rclose(inced.offs[--i]);
+     if(0>(fd=ropen(dp->ename,O_RDONLY,0)))
+dupfailed:
+	nlog("Lost"),logqnl(dp->ename),exit(EX_NOINPUT);
+     inced.offs[i]=fd;
+   }
+}
+
+static void closeonerc P((void))
+{ struct dynstring*last;
+  if(rc>=0)
+     rclose(rc),rc= -1,last=incnamed,incnamed=last->enext,free(last);
+}
+
 poprc P((void))
-{ rclose(rc);					     /* close it in any case */
+{ closeonerc();					     /* close it in any case */
   if(skiprc)
      skiprc=0,nlog("Missing closing brace\n");
   if(!inced.filled)				  /* include stack is empty? */
@@ -38,12 +61,15 @@ poprc P((void))
 }
 
 void closerc P((void))					/* {while(poprc());} */
-{ while(rclose(rc),inced.filled)
+{ while(closeonerc(),inced.filled)
      rc=inced.offs[inced.filled-1],inced.filled-=3;
 }
 
 bopen(name)const char*const name;				 /* my fopen */
-{ rcbufp=rcbufend=0;return rc=ropen(name,O_RDONLY,0);
+{ rcbufp=rcbufend=0;rc=ropen(name,O_RDONLY,0);
+  if(rc>=0)
+     newdynstring(&incnamed,name);
+  return rc;
 }
 
 getbl(p)char*p;							  /* my gets */

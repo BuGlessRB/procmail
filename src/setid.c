@@ -1,8 +1,9 @@
 /************************************************************************
  *	setid		executes commands under a different		*
  *			uid/gid (can only be executed by root)		*
+ *	This program is used by the SmartList installation script only. *
  ************************************************************************/
-/*$Id: setid.c,v 1.2 1994/04/05 15:35:33 berg Exp $*/
+/*$Id: setid.c,v 1.3 1994/04/08 15:22:43 berg Exp $*/
 #include "includes.h"				       /* also for fprintf() */
 
 main(argc,argv)const int argc;const char*const argv[];

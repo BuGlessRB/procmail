@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.32 1994/04/05 15:34:51 berg Exp $";
+ "$Id: locking.c,v 1.33 1994/04/08 15:22:28 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -87,8 +87,7 @@ term: { free(name);break;		     /* drop the preallocated buffer */
      setegid(gid);		      /* we put back our regular permissions */
   lcking&=~lck_LOCKFILE;
   if(nextexit)
-   { elog(whilstwfor);elog("lockfile");logqnl(name);Terminate();
-   }
+     elog(whilstwfor),elog("lockfile"),logqnl(name),Terminate();
 }
 
 void lcllock P((void))				    /* lock a local lockfile */
@@ -116,9 +115,7 @@ void unlock(lockp)char**const lockp;
 	free(*lockp);
      *lockp=0;
    }
-  lcking&=~lck_LOCKFILE;
-  if(nextexit==1)	    /* make sure we are not inside terminate already */
-     elog(newline),Terminate();
+  guardoff();
 }
 					/* an NFS secure exclusive file open */
 xcreat(name,mode,tim,chownit)const char*const name;const mode_t mode;

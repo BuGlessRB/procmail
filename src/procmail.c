@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.71 1994/04/05 15:35:22 berg Exp $";
+ "$Id: procmail.c,v 1.72 1994/04/08 15:22:40 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -60,9 +60,10 @@ main(argc,argv)const char*const argv[];
 #if 0				/* enable this if you want to trace procmail */
   kill(getpid(),SIGSTOP);/*raise(SIGSTOP);*/
 #endif
+  newid();
   ;{ int presenviron,Deliverymode,override;char*fromwhom=0;
      const char*idhint=0;gid_t egid=getegid();
-     Deliverymode=mailfilter=override=0;thepid=getpid();
+     Deliverymode=mailfilter=override=0;
      if(argc)			       /* sanity check, any argument at all? */
       { Deliverymode=strncmp(lastdirsep(argv0=argv[0]),procmailn,
 	 STRLEN(procmailn));
@@ -292,7 +293,7 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 		    pidchild=0;		      /* loop for the next recipient */
 		  }
 		 else
-		  { thepid=getpid();
+		  { newid();
 		    while(argv[++argc]);    /* skip till end of command line */
 		  }
 	    }
@@ -459,13 +460,13 @@ bogusbox:	  { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
 		    break;			  /* everything is just fine */
 	    }
 	   if(!(accspooldir&1))	     /* recipient does not own the spool dir */
-	    { if(!xcreat(chp,NORMperm,(time_t*)0,1))  /* create the mailbox? */
+	    { if(!xcreat(chp,NORMperm,(time_t*)0,doCHOWN)) /* create mailbox */
 		 break;			      /* yes we could, fine, proceed */
 	      if(!lstat(chp,&stbuf))		     /* anything in the way? */
 		 continue;		       /* check if it could be valid */
 	    }
 	   setids();					   /* try some magic */
-	   if(!xcreat(chp,NORMperm,(time_t*)0,0))		/* try again */
+	   if(!xcreat(chp,NORMperm,(time_t*)0,noCHOWN))		/* try again */
 	      break;
 	   if(lstat(chp,&stbuf))		      /* nothing in the way? */
 fishy:	    { nlog("Couldn't create");logqnl(chp);sputenv(orgmail);
@@ -549,7 +550,7 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 		  (*chp='\0',stat(buf,&stbuf)||
 		   (stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)&&
 		    !(stbuf.st_mode&S_ISVTX))))
-	       { *chp=i;rclose(rc);nlog("Suspicious rcfile\n");goto fake_rc;
+	       { *chp=i;closerc();nlog("Suspicious rcfile\n");goto fake_rc;
 	       }
 	      *chp=i;
 	    }
@@ -893,7 +894,7 @@ forward:	 if(locknext)
 	       }
 	    }
 	   else if(testb(EOF))
-	      nlog("Incomplete recipe");
+	      nlog("Incomplete recipe\n");
 	   else		   /* dump the mail into a mailbox file or directory */
 	    { if(flags[FILTER])
 		 flags[FILTER]=0,nlog(extrns),elog("filter-flag"),elog(ignrd);
@@ -933,25 +934,28 @@ forward:	 if(locknext)
 		     }
 		    inittmout(procmailn);
 		    if(flags[CONTINUE])
-		     { yell("Forking",procmailn);
+		     { yell("Forking",procmailn);guardon();
 		       if(!(pidchild=sfork()))		   /* clone yourself */
 			{ if(loclock)	      /* lockfiles are not inherited */
 			     free(loclock),loclock=0;
 			  if(globlock)
-			     free(globlock),globlock=0;
-			  thepid=getpid();	 /* clear up identity crisis */
+			     free(globlock),globlock=0;	     /* clear up the */
+			  newid();guardoff();duprcs();	  /* identity crisis */
 			}
-		       else if(forkerr(pidchild,procmailn))
-			  succeed=0;	       /* Tsk, tsk, no cloning today */
 		       else
-			{ int excode;
-			  succeed=1;   /* shall we wait for our better half? */
-			  if(pwait&&(excode=waitfor(pidchild))!=EX_OK)
-			   { if(!(pwait&2)||verbose)	 /* do we report it? */
-				progerr(procmailn,excode);
-			     succeed=0;
+			{ guardoff();
+			  if(forkerr(pidchild,procmailn))
+			     succeed=0;	       /* Tsk, tsk, no cloning today */
+			  else
+			   { int excode;
+			     succeed=1;	  /* wait for our significant other? */
+			     if(pwait&&(excode=waitfor(pidchild))!=EX_OK)
+			      { if(!(pwait&2)||verbose)	 /* do we report it? */
+				   progerr(procmailn,excode);
+				succeed=0;
+			      }
+			     pidchild=0;skiprc++;    /* skip over the braces */
 			   }
-			  pidchild=0;skiprc++;	     /* skip over the braces */
 			}
 		     }
 		  }
@@ -1003,7 +1007,7 @@ frmailed:	  { if(ifstack.offs)
 	      chp2=(char*)sputenv(buf),chp[-1]='\0',asenv(chp2);
 	 }
       }						    /* main interpreter loop */
-     while(rc<0||!testb(EOF)||poprc()||etcrc&&(etcrc=0,rclose(rc),rc= -1));
+     while(rc<0||!testb(EOF)||poprc()||etcrc&&(etcrc=0,closerc(),1));
 nomore_rc:
      if(ifstack.offs)
 	free(ifstack.offs);

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.27 1994/04/05 15:34:37 berg Exp $";
+ "$Id: goodies.c,v 1.28 1994/04/08 15:22:26 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -304,12 +304,12 @@ double stod(str,ptr)const char*str;const char**const ptr;
   return sign?-acc:acc;
 }
 
-static struct lienv{struct lienv*enext;char ename[255];}*myenv;
+static struct dynstring*myenv;
 static char**lastenv;
 			      /* smart putenv, the way it was supposed to be */
 const char*sputenv(a)const char*const a;
 { static alloced;size_t eq,i;int remove;char*split,**preenv;
-  struct lienv*curr,**last;
+  struct dynstring*curr,**last;
   yell("Assigning",a);remove=0;
   if(!(split=strchr(a,'=')))			   /* assignment or removal? */
      remove=1,split=strchr(a,'\0');
@@ -334,9 +334,8 @@ wipenv:
      alloced=1,environ=tmemmove(malloc(i),environ,i-sizeof*environ);
   if(!remove)		  /* if not remove, then add it to both environments */
    { for(preenv=environ;*preenv;preenv++);
-     curr=malloc(ioffsetof(struct lienv,ename[0])+(i=strlen(a)+1));
-     tmemmove(*(lastenv=preenv)=curr->ename,a,i);preenv[1]=0;curr->enext=myenv;
-     return(const char*)((myenv=curr)->ename)+eq+1;
+     preenv[1]=0;*(lastenv=preenv)=split=newdynstring(&myenv,a);
+     return split+eq+1;
    }
   return "";
 }
@@ -346,13 +345,13 @@ void primeStdout P((void))	    /* *no* environment changes are allowed! */
   if((p=strchr(buf,'\0'))[-1]!='=')		   /* does it end in an '='? */
      *p='=',p[1]='\0';					/* make sure it does */
   sputenv(buf);Stdout=(char*)myenv;
-  Stdfilled=ioffsetof(struct lienv,ename[0])+strlen(myenv->ename);
+  Stdfilled=ioffsetof(struct dynstring,ename[0])+strlen(myenv->ename);
 }
 
 void retStdout(newmyenv)char*const newmyenv;	/* see note on primeStdout() */
 { if(newmyenv[Stdfilled-1]=='\n')	       /* strip one trailing newline */
      Stdfilled--;
-  newmyenv[Stdfilled]='\0';*lastenv=(myenv=(struct lienv*)newmyenv)->ename;
+  newmyenv[Stdfilled]='\0';*lastenv=(myenv=(struct dynstring*)newmyenv)->ename;
   Stdout=0;
 }
 

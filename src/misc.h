@@ -1,6 +1,7 @@
-/*$Id: misc.h,v 1.23 1994/04/05 15:35:09 berg Exp $*/
+/*$Id: misc.h,v 1.24 1994/04/08 15:22:33 berg Exp $*/
 
 struct dyna_long{size_t filled,tspace;off_t*offs;};
+struct dynstring{struct dynstring*enext;char ename[255];};
 
 void
  elog P((const char*const newt)),
@@ -17,6 +18,8 @@ void
  nlog P((const char*const a)),
  logqnl P((const char*const a)),
  skipped P((const char*const x)),
+ guardon P((void)),
+ guardoff P((void)),
  sterminate P((void)),
  Terminate P((void)),
  suspend P((void)),
@@ -53,6 +56,8 @@ long
  renvint P((const long i,const char*const env));
 const struct passwd
  *savepass Q((struct passwd*const spass,const uid_t uid));
+struct dynstring
+ *newdynstring P((const struct dynstring**const adrp,const char*const chp));
 
 extern const char lastfolder[];
 extern didchd;

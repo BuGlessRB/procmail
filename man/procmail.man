@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.42 1994/04/05 15:33:47 berg Exp $
+.Id $Id: procmail.man,v 1.43 1994/04/08 15:22:08 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -352,6 +352,11 @@ or if the
 .B lockfile
 could not be created because of insufficient permissions or nonexistent
 subdirectories.
+.TP
+Lost "x"
+Procmail tried to clone itself but could not find back rcfile "x" (it either
+got removed or it was a relative path and you changed directory since
+procmail opened it last time).
 .TP
 Missing closing brace
 A nesting block was started, but never finished.

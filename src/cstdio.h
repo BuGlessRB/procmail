@@ -1,7 +1,8 @@
-/*$Id: cstdio.h,v 1.5 1992/11/24 15:59:58 berg Exp $*/
+/*$Id: cstdio.h,v 1.6 1994/04/08 15:22:20 berg Exp $*/
 
 void
  pushrc P((const char*const name)),
+ duprcs P((void)),
  closerc P((void)),
  ungetb P((const x)),
  getlline P((char*target));

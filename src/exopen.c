@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.15 1994/04/05 15:34:20 berg Exp $";
+ "$Id: exopen.c,v 1.16 1994/04/08 15:22:22 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -19,7 +19,7 @@ unique(full,p,mode,verbos,chownit)const char*const full;char*p;
  const mode_t mode;const int verbos,chownit;
 { unsigned long retry=mrotbSERIAL;int i;struct stat filebuf;
   int nicediff,didnice=0;
-  if(chownit)			  /* semi-critical, try raising the priority */
+  if(chownit==doCHOWN)		  /* semi-critical, try raising the priority */
    { nicediff=nice(0);errno=0;nicediff-=nice(-NICE_RANGE);
      if(errno!=EPERM)
 	didnice=1;
@@ -31,7 +31,7 @@ unique(full,p,mode,verbos,chownit)const char*const full;char*p;
 #ifndef O_CREAT
 #define ropen(path,type,mode)	creat(path,mode)
 #endif
-  while((chownit&&!lstat(full,&filebuf))||
+  while(!lstat(full,&filebuf)||
 	(0>(i=ropen(full,O_WRONLY|O_CREAT|O_EXCL,mode))&&errno==EEXIST)&&
 	retry);	    /* casually check if it already exists (highly unlikely) */
   if(didnice)
@@ -41,18 +41,20 @@ unique(full,p,mode,verbos,chownit)const char*const full;char*p;
 	writeerr(full);					 /* for casual users */
      goto ret0;
    }
-  if(chownit)
 #ifdef NOfstat
+  if(chownit==doCHOWN)
    { rclose(i);
      if(
 #else
+  if(chownit)
    { struct stat fdbuf;
      fstat(i,&fdbuf);rclose(i);		/* match between the file descriptor */
 #define NEQ(what)	(fdbuf.what!=filebuf.what)	    /* and the file? */
      if(lstat(full,&filebuf)||fdbuf.st_nlink!=1||filebuf.st_nlink!=1||
 	NEQ(st_ino)||NEQ(st_mode)||NEQ(st_uid)||NEQ(st_gid)||
+	 chownit==doCHOWN&&
 #endif
-	chown(full,uid,sgid))
+	 chown(full,uid,sgid))
       { unlink(full);				 /* forget it, no permission */
 ret0:	return 0;
       }

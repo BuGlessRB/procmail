@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.46 1994/04/05 15:35:12 berg Exp $";
+ "$Id: multigram.c,v 1.47 1994/04/08 15:22:36 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/04/05 15:35:12 $";
+static /*const*/char rcsdate[]="$Date: 1994/04/08 15:22:36 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -376,23 +376,25 @@ statd:		    if((size+=stbuf.st_size)>maxsize)	  /* digest too big? */
       }
      hardstr.text=malloc(hardstr.buflen=BUFSTEP);
      if(ISPROGRAM(chp,choplist))
-      { unsigned long minnames,maxnames,maxsplits,maxsize,maxconcur;
+      { unsigned long minnames,mindiffnames,maxnames,maxsplits,maxsize,
+	 maxconcur;
 	char*distfile,**nargv,**revarr;int mailfd;size_t revfilled;
 	static const char tmpmailfile[]=TMPMAILFILE;
 	char lmailfile[STRLEN(TMPMAILFILE)+8*sizeof(pid_t)*4/10+1+1];
 	progname=choplist;
-	if(argc<8)
+	if(argc<9)
 	 { elog(
-	    "Usage: choplist minnames maxnames maxsplits maxsize maxconcur\n\
+"Usage: choplist minnames mindiffnames maxnames maxsplits maxsize maxconcur\n\
 \tdistfile sendmail [flags ...]\n");
 	   return EX_USAGE;
 	 }
 	minnames=strtol(argv[1],(char**)0,10);
-	maxnames=strtol(argv[2],(char**)0,10);
-	maxsplits=strtol(argv[3],(char**)0,10);
-	maxsize=strtol(argv[4],(char**)0,10);
-	maxconcur=strtol(argv[5],(char**)0,10);distfile=argv[6];
-	nargv=argv+7;argc-=7;setbuf(stdin,(char*)0);setbuf(stdout,(char*)0);
+	mindiffnames=strtol(argv[2],(char**)0,10);
+	maxnames=strtol(argv[3],(char**)0,10);
+	maxsplits=strtol(argv[4],(char**)0,10);
+	maxsize=strtol(argv[5],(char**)0,10);
+	maxconcur=strtol(argv[6],(char**)0,10);distfile=argv[7];
+	nargv=argv+8;argc-=8;setbuf(stdin,(char*)0);setbuf(stdout,(char*)0);
 	sprintf((char*)(mailfile=lmailfile),tmpmailfile,(long)getpid());
 	qsignal(SIGTERM,sterminate);qsignal(SIGINT,sterminate);
 	qsignal(SIGHUP,sterminate);qsignal(SIGQUIT,sterminate);
@@ -434,8 +436,18 @@ jin:	      while(0>(i=read(STDIN,buf,(size_t)COPYBUF))&&errno==EINTR);
 	;{ size_t revlen;
 	   revarr=malloc((revlen=ADDR_INCR)*sizeof*revarr);revfilled=0;
 	   while(readstr(hardfile,&hardstr,1))
-	    { if(*hardstr.text=='(')
-		 continue;				     /* comment line */
+	    { i=strchr((chp=strchr(hardstr.text,'\0'))+1,'\0')[-1];
+	      if(*hardstr.text!='(')
+		 switch(i)
+		  { default:goto invaddr;
+		    case ')':case '\0':;
+		  }
+	      else					     /* comment line */
+		 switch(i)
+invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
+		       logqnl(hardstr.text);
+		    case ')':case '\0':continue;
+		  }
 	      if(revfilled==revlen)			  /* watch our space */
 		 revarr=realloc(revarr,(revlen+=ADDR_INCR)*sizeof*revarr);
 	      revstr(hardstr.text);revarr[revfilled++]=tstrdup(hardstr.text);
@@ -453,7 +465,7 @@ jin:	      while(0>(i=read(STDIN,buf,(size_t)COPYBUF))&&errno==EINTR);
 	   if(!minnames||minnames<maxsplits)
 	    { minnames=maxsplits;
 	      if(maxnames&&maxnames<minnames)
-		 maxnames=minnames;
+		 maxnames=minnames+mindiffnames;
 	    }
 	 }
 	if(!maxnames||(maxnames+argc>MAX_argc))
