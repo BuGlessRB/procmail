@@ -244,3 +244,7 @@
 	    Changes to multigram:
 	       - Correctly locate '@' in addresses to look for `close' domains
 	       - choplist wasn't counting addresses correctly
+1999/03/31: v3.13
+	    No real changes, just to synchronise versions with procmail
+	    Most notably, procmail v3.12 broke $$=^0 conditions
+	    The 3.12 HISTORY entry was incomplete
