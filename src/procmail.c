@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.151 1999/11/04 23:26:24 guenther Exp $";
+ "$Id: procmail.c,v 1.152 1999/11/16 06:35:07 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -33,7 +33,7 @@ static /*const*/char rcsid[]=
 #include "lastdirsep.h"
 #include "authenticate.h"
 
-static const char*const nullp=0,From_[]=FROM,exflags[]=RECFLAGS,
+static const char*const nullp,From_[]=FROM,exflags[]=RECFLAGS,
  drcfile[]="Rcfile:",pmusage[]=PM_USAGE,*etcrc=ETCRC,
  misrecpt[]="Missing recipient\n",extrns[]="Extraneous ",ignrd[]=" ignored\n",
  pardir[]=chPARDIR,curdir[]={chCURDIR,'\0'},
@@ -51,7 +51,8 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rcstate,rc= -1,
  ignwerr,lexitcode=EXIT_SUCCESS,asgnlastf,accspooldir,crestarg,skiprc,
- savstdout,berkeley,mailfilter,erestrict;
+ savstdout,berkeley,mailfilter,erestrict,ifdepth;      /* depth of outermost */
+struct dyna_long ifstack;	      /* brace in this rcfile, and the stack */
 size_t linebuf=mx(DEFlinebuf+XTRAlinebuf,1024/*STRLEN(systm_mbox)<<1*/);
 volatile int nextexit;			       /* if termination is imminent */
 pid_t thepid;
@@ -519,8 +520,7 @@ nix_sysmbox:
 	resettmout();
       }
    }
-  ;{ int lastsucc,lastcond,prevcond;struct dyna_long ifstack;
-     ifstack.filled=ifstack.tspace=0;ifstack.vals=0;
+  ;{ int lastsucc,lastcond,prevcond;
      if(etcrc)		  /* do we start with an /etc/procmailrc file first? */
       { if(0<=bopen(etcrc))
 	 { yell(drcfile,etcrc);
@@ -902,7 +902,7 @@ jsetlsucc:	 lastsucc=succeed;lasttell= -1;		       /* for comsat */
 	else if(testB('}'))					/* end block */
 	 { if(skiprc>1)					    /* just skipping */
 	      skiprc-=2;				   /* decrease level */
-	   else if(ifstack.filled)	      /* restore lastcond from stack */
+	   else if(ifstack.filled>ifdepth)    /* restore lastcond from stack */
 	    { lastcond=acc_vali(ifstack,--ifstack.filled);
 	      prevcond=acc_vali(ifstack,--ifstack.filled);	 /* prevcond */
 	    }							  /* as well */
@@ -937,18 +937,17 @@ nextrc:	      if(poprc()||wipetcrc())
 	 }
       }						    /* main interpreter loop */
      while(rc<0||!testB(EOF)||poprc()||wipetcrc());
-nomore_rc:
-     if(ifstack.vals)
-	free(ifstack.vals);
    }
+nomore_rc:
+  if(ifstack.vals)
+     free(ifstack.vals);
   ;{ int succeed;
      concon('\n');succeed=0;
      if(*(chp=(char*)fdefault))				     /* DEFAULT set? */
-      { int len,tlen;mode_t mode;
-	setuid(uid);
-	len=strlen(chp);		   /* make sure we have enough space */
-	if(linebuf<(tlen=len+strlen(lockext)+XTRAlinebuf+UNIQnamelen))
-	   mallocbuffers(linebuf=tlen,1);  /* to perform the lock & delivery */
+      { int len;
+	setuid(uid);			   /* make sure we have enough space */
+	if(linebuf<(len=strlen(chp)+strlen(lockext)+XTRAlinebuf+UNIQnamelen))
+	   mallocbuffers(linebuf=len,1);   /* to perform the lock & delivery */
 	if(writefolder(chp,(char*)0,themail,filled,0,1))	  /* default */
 	   succeed=1;
       }						       /* if all else failed */

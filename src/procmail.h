@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.43 1999/11/04 23:11:44 guenther Exp $*/
+/*$Id: procmail.h,v 1.44 1999/11/16 06:35:08 guenther Exp $*/
 
 #include "includes.h"
 
@@ -88,7 +88,9 @@ extern const char shell[],lockfile[],newline[],binsh[],unexpeof[],*const*gargv,
  errwwriting[];
 extern long filled,lastscore;
 extern int sh,pwait,retval,retvl2,lcking,rcstate,rc,ignwerr,lexitcode,
- asgnlastf,accspooldir,crestarg,skiprc,savstdout,berkeley,mailfilter,erestrict;
+ asgnlastf,accspooldir,crestarg,skiprc,savstdout,berkeley,mailfilter,erestrict,
+ ifdepth;
+extern struct dyna_long ifstack;
 extern size_t linebuf;
 extern volatile int nextexit;
 extern pid_t thepid;

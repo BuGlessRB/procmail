@@ -1,6 +1,6 @@
-/*$Id: misc.h,v 1.43 1999/11/04 23:26:21 guenther Exp $*/
+/*$Id: misc.h,v 1.44 1999/11/16 06:35:06 guenther Exp $*/
 
-struct dyna_long{size_t filled,tspace;union{off_t o;long l;int i;}*vals;};
+struct dyna_long{int filled,tspace;union{int i;off_t o;long l;}*vals;};
 struct dynstring{struct dynstring*enext;char ename[255];};
 
 #define app_valo(sp,val)	(*(off_t*)app_val_(&sp)=(val))

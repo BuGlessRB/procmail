@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.42 1999/11/04 23:26:16 guenther Exp $";
+ "$Id: cstdio.c,v 1.43 1999/11/16 06:35:05 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -25,7 +25,8 @@ void pushrc(name)const char*const name;		      /* open include rcfile */
 	goto rerr;
      if(stbuf.st_size)					   /* only if size>0 */
       { app_vali(inced,rcbufp?rcbufp-rcbuf:0);			 /* save old */
-	app_valo(inced,blasttell);app_vali(inced,rc);	    /* position & fd */
+	app_valo(inced,blasttell);app_vali(inced,ifdepth);/* position, brace */
+	app_vali(inced,rc);				       /* depth & fd */
 	if(bopen(name)<0)			  /* try to open the new one */
 	 { poprc();			       /* we couldn't, so restore rc */
 rerr:	   readerr(name);
@@ -45,11 +46,13 @@ void changerc(name)const char*const name;		    /* change rcfile */
 rerr:	   readerr(name);
 	 }
 	else
-	   rclose(orc);
+	 { rclose(orc);
+	   ifstack.filled=ifdepth;    /* act like all the braces were closed */
+	 }
 	goto ret;
       }
    }
-  skiprc=0;						  /* bye bye braces! */
+  ifstack.filled=ifdepth;					/* see above */
   poprc();		 /* drop the current rcfile and restore the previous */
 ret:;
 }
@@ -60,7 +63,7 @@ void duprcs P((void))		/* `duplicate' all the fds of opened rcfiles */
   if(0>(rc=ropen(dp->ename,O_RDONLY,0)))     /* first reopen the current one */
      goto dupfailed;
   lseek(rc,blasttell+STDBUF,SEEK_SET);	 /* you'll never know the difference */
-  for(i=inced.filled;dp=dp->enext,i;i-=2)
+  for(i=inced.filled;dp=dp->enext,i;i-=3)
    { int fd;
      rclose(acc_vali(inced,--i));
      if(0>(fd=ropen(dp->ename,O_RDONLY,0)))    /* reopen all (nested) others */
@@ -82,11 +85,13 @@ static void refill(offset)const int offset;
 
 int poprc P((void))
 { closeonerc();					     /* close it in any case */
-  if(skiprc)
-     skiprc=0,nlog("Missing closing brace\n");
+  if(ifstack.filled>ifdepth)		     /* force the matching of braces */
+     ifstack.filled=ifdepth,nlog("Missing closing brace\n");
+  skiprc=0;
   if(!inced.filled)				  /* include stack is empty? */
      return 0;	      /* restore rc, seekpos, prime rcbuf and restore rcbufp */
   rc=acc_vali(inced,--inced.filled);
+  ifdepth=acc_vali(inced,--inced.filled);
   blasttell=lseek(rc,acc_valo(inced,--inced.filled),SEEK_SET);
   refill(acc_vali(inced,--inced.filled));
   return 1;
@@ -94,7 +99,8 @@ int poprc P((void))
 
 void closerc P((void))					/* {while(poprc());} */
 { while(closeonerc(),inced.filled)
-     rc=acc_vali(inced,inced.filled-1),inced.filled-=3;
+     rc=acc_vali(inced,inced.filled-1),inced.filled-=4;
+  ifstack.filled=ifdepth=0;
 }
 							    /* destroys buf2 */
 int bopen(name)const char*const name;				 /* my fopen */
