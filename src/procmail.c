@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.154 1999/12/12 08:59:49 guenther Exp $";
+ "$Id: procmail.c,v 1.155 1999/12/13 19:37:51 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -188,8 +188,7 @@ setarg:		       *argv1=chp2;restargv=argv1;crestarg=1;
 last_option:
      switch(Deliverymode)
       { case 0:
-	   if(!Deliverymode)
-	      idhint=getenv(lgname);
+	   idhint=getenv(lgname);
 	   if(mailfilter&&crestarg)
 	    { crestarg=0;			     /* -m will supersede -a */
 conflopt:     nlog(conflicting);elog("options\n");elog(pmusage);
@@ -198,7 +197,7 @@ conflopt:     nlog(conflicting);elog("options\n");elog(pmusage);
 #ifdef LMTP
 	case 2:
 	   if(fromwhom)
-	    { fromwhom=0;				  /* -z disabled -f, */
+	    { fromwhom=0;				  /* -z disables -f, */
 	      goto confldopt;					/* -p and -m */
 	    }
 #endif
