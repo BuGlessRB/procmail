@@ -467,3 +467,4 @@
 	    Stop using `implicit int'
 	    Cache gethostname() or uname() output
 	    Change the form of tempfile names to make them `more' unique
+	    Update list of mirrors in the README
