@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.68 1999/02/24 07:30:03 guenther Exp $
+.Id $Id: procmailrc.man,v 1.69 1999/02/26 01:00:42 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -519,8 +519,8 @@ when acting as a generic mailfilter.
 .B INCLUDERC
 Names an rcfile (relative to the current directory) which will be included
 here as if it were part of the current rcfile.  Unlimited nesting is
-permitted.  No checking is done on the permissions or ownership of the
-rcfile, so users of
+permitted.  As no checking is done on the permissions or ownership of the
+rcfile, users of
 .B INCLUDERC
 should make sure that only trusted users have write access to the included
 rcfile or the directory it is in.

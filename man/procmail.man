@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.74 1999/02/18 17:42:10 guenther Exp $
+.Id $Id: procmail.man,v 1.75 1999/02/26 01:00:41 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -424,8 +424,11 @@ Skipped: "x"
 Couldn't do anything with "x" in the rcfile (syntax error), ignoring it.
 .TP
 Suspicious rcfile "x"
-The owner of the rcfile was not the recipient or root, or the directory that
-contained it was world writable (the rcfile was not used).
+The owner of the rcfile was not the recipient or root, the file was
+world writable, or the directory that contained it was world writable,
+or this was the default rcfile (@PROCMAILRC@) and either it was group
+writable or the directory that contained it was group writable (the
+rcfile was not used).
 .TP
 Terminating prematurely whilst waiting for .\|.\|.
 Procmail received a signal while it was waiting for .\|.\|.
@@ -587,9 +590,11 @@ When in explicit delivery mode, procmail will generate a leading `@FROM@'
 line if none is present.  If one is already present procmail will leave it
 intact.@TRUSTED_IDS@
 .PP
-For security reasons procmail will only use an absolute or $HOME-relative
-rcfile if it is either owned by the recipient or root and not world writable,
-or if the directory it is contained in is not world writable.@RESTRICT_EXEC@
+For security reasons procmail will only use an absolute or
+$HOME-relative rcfile if it is owned by the recipient or root, not
+world writable, and the directory it is contained in is not world
+writable.  The @PROCMAILRC@ file has the additional constraint of not
+being group-writable or in a group-writable directory.@RESTRICT_EXEC@
 .PP
 If @MAILSPOOLDIR@$LOGNAME is a bogus mailbox (i.e. does not belong to the
 recipient, is unwritable, is a symbolic link or is a hard link), procmail will
