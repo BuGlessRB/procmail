@@ -36,3 +36,19 @@ Lost value on failed chdir()
     If the user assigns a value to MAILDIR and the chdir() fails,
     the previous value of the variable (but not the process's cwd)
     is lost and replaced with "."
+
+Control-M isn't whitespace
+    Every so often someone copies an rcfile from a Windows box and
+    it ends up with CRs on the end of every line.  They should be
+    treated just like spaces and tabs are.  As if, the results are
+    really confusing.
+
+Shell Expansion
+    Shell expansion of conditions via the '$' special treats
+    double-quotes weirdly.  They should not be considered special
+    at all there.
+
+Backslash-newline inconsistencies
+    Backslash-newline removal is almost completely inconsistent and
+    should be straightened out some how, but without breaking
+    anything that's in use.

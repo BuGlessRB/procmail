@@ -551,6 +551,8 @@
 	       - Use mmap() for `large' messages
 	       - SWITCHRC=zero-length-file didn't always abort the current
 		 rcfile
+	       - A race to create the mailspool would bounce one of the
+		 messages due to an internal error
 	       - LC_ in KEEPENV would preserve only the first LC_foo variable
 	       - Strip runtime linker variables (LD_*) from environment on
 		 all platforms
@@ -564,11 +566,10 @@
 		 variable initialization)
 	       - When delivering to a maildir, don't force the message to end
 		 with an empty line
-	       - A race to create the mailspool would bounce one of the
-		 messages due to an internal error
 	       - Be more paranoid about leaking information between recipients
 	       - Unset LOCKFILE if we can't actually lock it
 	       - Set MAILDIR to '.' if the chdir fails
+	       - LASTFOLDER was sometimes set by '?' conditions
 	    Changes to autoconf:
 	       - Check for enum support
 	       - Warn people that non-ISO/ANSI C compilers might not be
@@ -582,9 +583,10 @@
 	       of the From_ line and warned of problems caused by non-RFC822
 	       field names like 'Old-From '
 	    Clarified procmail's treatment of $@ and $#
-	    Fixed manpage formatting problem
+	    Fixed a man page formatting problem
 	    Use long, not off_t, with fseek()/ftell()
 	    The default MAILDIR is now configurable separately from the
 	       default rcfile location
-	    Include an RPM spec file in the examples directory for automated		       builds
+	    Include an RPM spec file in the examples directory for automated
+	       builds
 	    Called nice() when shouldn't have (this time for sure!)
