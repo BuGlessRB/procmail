@@ -148,6 +148,7 @@
 	       - Changed the permissions on the lockfile, writing zero in it
 	       - Check the permissions on the existing system mailbox, correct
 		 them if necessary
+	       - Clean up zombies more often
 	    Changes to formail:
 	       - Fixed a sender-determination-weight problem, it mixed up
 		 the weights when autoreplying and when regenerating the From_
@@ -176,6 +177,9 @@
 		 new ones
 	       - Keep the X-Loop: field when generating autoreplies
 	       - Lowered the negative weight for .UUCP reply addresses
+	       - Honour Content-Length: fields, also speeds up processing of
+		 lengthy messages
+	       - Clean up zombies more often
 	    Miscellaneous changes:
 	       - Detecting and dodging buggy zshs everywhere
 	       - Slightly adjusted autoconf for the new non-standard 386BSD
