@@ -21,7 +21,8 @@ Contents:
 		3h.Positively discriminate certain daemons
 		3i.Default help text replies
 		3j.Unsubscribe assistance
-		3k.Schematic overview of what goes on behind the scenes
+		3k.Exploding other (non-SmartList) lists
+		3l.Schematic overview of what goes on behind the scenes
 		4. The archive server
 		4a.Sending files to the archive server
 		5. The format of the dist file
@@ -29,7 +30,7 @@ Contents:
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.41 1994/09/22 17:13:01 berg Exp $
+$Id: Manual,v 1.42 1994/10/18 14:38:41 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -422,7 +423,28 @@ in mind:
   considerable inconvenience.
 
 
-3k.Schematic overview of what goes on behind the scenes
+3k.Exploding other (non-SmartList) lists
+   -------------------------------------
+
+A SmartList list can easily be used to function as a local exploder for
+a larger mailinglist.  The advantages over using a regular alias are
+threefold:
+- (Un)subscription is handled automatically.
+- Bounce messages go to the local exploder list (instead of the larger
+  mailinglist which really is not interested in your mail problems with
+  some local aliases).
+- Misdirected administrative requests are filtered out of the regular
+  submission channel.
+
+If you larger mailinglist you are exploding locally is a SmartList list
+as well, then there are no special precautions to take at all.
+If the larger mailinglist is not managed by SmartList, misdirected
+administrative requests will be caught *and* handled by the local list,
+this "handling" might become somewhat of a problem and can be turned off
+by uncommenting the appropriate "pass_diverts" variable in rc.custom.
+
+
+3l.Schematic overview of what goes on behind the scenes
    ----------------------------------------------------
 
 Suppose you have two entries in the aliases file, one for thelist@domain
