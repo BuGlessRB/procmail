@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.17 2001/06/27 06:41:30 guenther Exp $";
+ "$Id: variables.c,v 1.18 2001/08/04 07:07:44 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -91,7 +91,7 @@ void primeStdout(varname)const char*const varname;   /* changes are allowed! */
 }
 
 void retStdout(newmyenv,fail,unset)		/* see note on primeStdout() */
- char*const newmyenv;int fail,unset;
+ char*const newmyenv;const int fail,unset;
 { char*var,*p;
   if(fail&&unset)				     /* on second thought... */
    { myenv=((struct dynstring*)newmyenv)->enext;	 /* pull it back out */
@@ -301,7 +301,7 @@ int asenvcpy(src)char*src;
      *	really change the uid now, since it would not be safe to
      *	evaluate the extra command line arguments otherwise
      */
-   { erestrict=1;setids();chp++;strncpy(buf,src,chp-src);
+   { erestrict=1;setids();chp++;memcpy(buf,src,chp-src);
      src=buf+(chp-src);
      if(chp=eputenv(chp,src))
       { src[-1]='\0';

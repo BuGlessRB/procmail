@@ -10,9 +10,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.101 2001/02/20 10:14:06 guenther Exp $";
+ "$Id: formail.c,v 1.102 2001/08/04 07:07:43 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 2001/02/20 10:14:06 $";
+static /*const*/char rcsdate[]="$Date: 2001/08/04 07:07:43 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -712,7 +712,7 @@ startover:
 	      h1=time((time_t*)0);h2=thepid;h3=rhash;
 	      p=chp=malloc(fldp->id_len+2+((sizeof h1*8+5)/6+1)*4+
 	       strlen(name=hostname())+2);     /* allocate worst case length */
-	      strncpy(p,fldp->fld_text,fldp->id_len);*(p+=fldp->id_len)=' ';
+	      memcpy(p,fldp->fld_text,fldp->id_len);*(p+=fldp->id_len)=' ';
 	      *++p='<';*(p=ultoan(h3,p+1))='.';*(p=ultoan(h4,p+1))='.';
 	      *(p=ultoan(h2,p+1))='.';*(p=ultoan(h1,p+1))='@';strcpy(p+1,name);
 	      *(p=strchr(p,'\0'))='>';*++p='\n';addfield(&nheader,chp,p-chp+1);
