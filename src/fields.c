@@ -1,12 +1,12 @@
 /************************************************************************
  *	Routines to deal with the header-field objects in formail	*
  *									*
- *	Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: fields.c,v 1.27 1999/06/17 06:04:08 guenther Exp $";
+ "$Id: fields.c,v 1.28 1999/11/02 03:50:58 guenther Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
