@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.51 1993/11/05 12:40:46 berg Exp $";
+ "$Id: procmail.c,v 1.52 1993/11/09 16:03:40 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -433,12 +433,14 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 	  /*
 	   *	OK, so now we have opened an rcfile, but for security reasons
 	   *	we only accept it if it is owned by the recipient or if the
-	   *	the directory it is in, is not world writeable
+	   *	the directory it is in, is not world writeable or does not
+	   *	have the sticky bit set
 	   */
-	   i= *(chp=lastdirsep(buf));
-	   if(lstat(buf,&stbuf)||
-	    (stbuf.st_uid!=uid&&(*chp='\0',stat(buf,&stbuf)||
-	    (stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH))))
+	   i= *(chp=lastdirsep(buf));	      /* /dev/null is a special case */
+	   if(lstat(buf,&stbuf)||(stbuf.st_uid!=uid&&strcmp(devnull,buf)&&
+	    (*chp='\0',stat(buf,&stbuf)||
+	    (stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)&&
+	    !(stbuf.st_mode&S_ISVTX))))
 	    { *chp=i;rclose(rc);nlog("Suspicious rcfile\n");goto fake_rc;
 	    }
 	  /*
@@ -621,8 +623,8 @@ progrm:	   if(testb('!'))				 /* forward the mail */
 	      if(i)
 	       { metaparse(buf2);
 		 if(!sh&&buf+1==Tmnate)		      /* just a pipe symbol? */
-		  { *buf='|';*Tmnate++='\0';goto tostdout;	  /* fake it */
-		  }
+		  { *buf='|';*(char*)(Tmnate++)='\0';goto tostdout;
+		  }						  /* fake it */
 forward:	 if(locknext)
 		  { if(!tolock)	   /* an explicit lockfile specified already */
 		     { *buf2='\0';  /* find the implicit lockfile ('>>name') */

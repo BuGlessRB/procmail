@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.29 1993/09/09 11:02:27 berg Exp $
+#$Id: install.sh,v 1.30 1993/11/09 16:03:19 berg Exp $
 
 SHELL=/bin/sh
 export SHELL
@@ -21,9 +21,11 @@ test ! -d "$target" && echo "Please create the target directory first" &&
 if binmail=`procmail /dev/null DEFAULT=/dev/null 'LOG=$SENDMAIL' \
   </dev/null 2>&1`
 then
-  test -z "$binmail" &&
-   echo "Please make sure that the new version of procmail has been installed"\
-   && exit 64
+  case "$binmail" in
+     ""|*procmail:*)
+	 echo \
+	"Please make sure that the new version of procmail has been installed"\
+	 exit 64
 else
   echo "Please make sure that procmail is on our PATH"
   exit 64
@@ -115,7 +117,9 @@ then
      exit 64
   fi
 else
+  exec 4>&0
   . ./install.sh2
+  exec 4>&-
   . ./install.sh3
 fi
 

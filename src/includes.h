@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.27 1993/09/16 14:43:12 berg Exp $*/
+/*$Id: includes.h,v 1.28 1993/11/09 16:03:28 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -217,6 +217,9 @@ char*strpbrk();
 #ifndef S_ISGID
 #define S_ISUID 04000
 #define S_ISGID 02000
+#endif
+#ifndef S_ISVTX
+#define S_ISVTX 01000
 #endif
 
 #ifdef WMACROS_NON_POSIX

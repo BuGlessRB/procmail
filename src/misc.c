@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.34 1993/10/29 16:42:40 berg Exp $";
+ "$Id: misc.c,v 1.35 1993/11/09 16:03:31 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -62,7 +62,7 @@ void ignoreterm P((void))
   signal(SIGQUIT,SIG_IGN);
 }
 
-void closedesc P((void))
+void shutdesc P((void))
 { rclose(savstdout);closerc();
 }
 
@@ -180,7 +180,7 @@ void terminate P((void))
       }
      else
 	logabstract(tgetenv(lastfolder));
-     closedesc();
+     shutdesc();
      if(!(lcking&lck_ALLOCLIB))			/* don't reenter malloc/free */
 	exectrap(tgetenv("TRAP"));
      nextexit=2;unlock(&loclock);unlock(&globlock);fdunlock();

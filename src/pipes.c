@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.22 1993/10/29 16:42:42 berg Exp $";
+ "$Id: pipes.c,v 1.23 1993/11/09 16:03:37 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -60,7 +60,7 @@ static void stermchild P((void))
 static void childsetup P((void))
 { lexitcode=EX_UNAVAILABLE;qsignal(SIGTERM,stermchild);
   qsignal(SIGINT,stermchild);qsignal(SIGHUP,stermchild);
-  qsignal(SIGQUIT,stermchild);closedesc();
+  qsignal(SIGQUIT,stermchild);shutdesc();
 }
 
 static void getstdin(pip)const int pip;
@@ -165,7 +165,7 @@ long pipin(line,source,len)char*const line;char*source;long len;
 { int poutfd[2];
   rpipe(poutfd);
   if(!(pidchild=sfork()))				    /* spawn program */
-     rclose(PWRO),closedesc(),getstdin(PRDO),callnewprog(line);
+     rclose(PWRO),shutdesc(),getstdin(PRDO),callnewprog(line);
   rclose(PRDO);
   if(forkerr(pidchild,line))
      return 1;					    /* dump mail in the pipe */
