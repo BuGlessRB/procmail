@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.42 1993/07/21 18:59:46 berg Exp $";
+ "$Id: procmail.c,v 1.43 1993/07/22 14:29:23 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -367,7 +367,8 @@ fishy:	    { nlog("Couldn't create");logqnl(chp);sputenv(orgmail);
   ;{ int succeed,lastcond;struct dyna_long ifstack;
      ifstack.filled=ifstack.tspace=0;ifstack.offs=0;
      do					     /* main rcfile interpreter loop */
-      { alarm((unsigned)(alrmtime=0));			    /* reset timeout */
+      { if(alrmtime)			       /* any need to reset timeout? */
+	   alarm((unsigned)(alrmtime=0));		    /* reset timeout */
 	if(rc<0)					 /* open new rc file */
 	 { struct stat stbuf;
 	  /*
