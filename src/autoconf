@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.17 1992/11/24 15:59:53 berg Exp $
+#$Id: autoconf,v 1.18 1992/12/02 17:26:50 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -36,7 +36,7 @@
 #	#define NOuname
 #	#define NOstrtol
 #	#define strchr(s,c) index(s,c)
-#Ok	#define initgroups(n,g)
+#	#define initgroups(n,g)
 #Ok	#define endpwent()
 #Ok	#define endgrent()
 #Ok	#define endhostent()
@@ -134,6 +134,8 @@ test -f $USRINC/string.h || echo "#define STRING_H_MISSING" >>$ACONF
 test -f $USRINC/sysexits.h || echo "#define SYSEXITS_H_MISSING" >>$ACONF
 
 echo >_locktst.h
+test -f $USRINC/sys/locking.h ||
+ echo "#define SYS_LOCKING_H_MISSING" >>_locktst.h
 test -f $USRINC/sys/file.h || echo "#define SYS_FILE_H_MISSING" >>_locktst.h
 $FGREP setsid $USRINC/sys/unistd.h >$DEVNULL 2>&1 ||
  echo "#define setsid()" >>_locktst.h

@@ -1,4 +1,4 @@
-$Id: INTRO,v 1.2 1992/11/24 15:58:06 berg Exp $
+$Id: INTRO,v 1.3 1992/12/02 17:26:09 berg Exp $
 
 			How to set up mailing lists
 			---------------------------
@@ -172,7 +172,7 @@ D. Procmail makes no assumptions about the environment it is started in, it
    values.  Thereby providing a warm bed for any program started from within
    procmail.
 
-Procmail has some additional advantages too:
+But procmail has some additional advantages as well:
 
  -- It will probably all go a bit faster, since only the header of the mail
     is being piped through the filter.	Also, procmail reads in the mail in

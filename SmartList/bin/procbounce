@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: procbounce,v 1.1 1992/12/01 15:31:48 berg Exp $
+#$Id: procbounce,v 1.2 1992/12/02 17:26:18 berg Exp $
 
 maxhist=$1
 minbounce=$2
@@ -34,27 +34,28 @@ if test ! -z "$addr"
 then
   $echo "$addr" \
    >>$bounces/`$formail +1 -1 -dexMessage-Id: -s $multigram -H <$tmprequest`
-  $rm -f `$ls -t $bounces/* | $sed -e $maxhist'+1,\$ d' `
+  $rm -f `$ls -t $bounces/* | $sed -e '1,'$maxhist' d' `
 
-  bounced=1
+  bounced=0
   for a in $bounces/*
   do
-    $echo "$addr" | $multigram -b1 -l$match_threshold $a >/dev/null &&
+    $test -f "$a" &&
+     $echo "$addr" | $multigram -b1 -l$match_threshold $a >/dev/null &&
      bounced=`$expr $bounced + 1`
   done
 
   addfield="X-Diagnostic: Mail to $addr bounced $bounced times"
-  if expr $bounced \> $minbounce
+  if expr $bounced \>= $minbounce >/dev/null
   then
      addfield="$addfield
 X-Diagnostic: Bounces exceed threshold of $minbounce
 X-Diagnostic: `
-     if $multigram -b1 -l$off_threshold -d $dist 2>/dev/null
+     if echo "$addr" | $multigram -b1 -l$off_threshold -d $dist 2>/dev/null
      then
      :
      else
 	$echo 'Could not find the offending address'
-     fi | $sed -e '1 s/^ *[0-9]* [^ ]* \(.*\)\$/Removed: \1/' -e '2 d' `"
+     fi | $sed -e '1 s/^ *[0-9]* \([^ ]* *[0-9]*\).*\$/Removed: \1/' -e '2 d'`"
   fi
 fi
 

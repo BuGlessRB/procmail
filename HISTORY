@@ -114,6 +114,7 @@
 		 address
 	       - made sure that it does not generate an extra empty line at
 		 the end of a mail with no body
+	       - fixed the '-nnn' option, somehow this got broken
 	    Changes to procmail:
 	       - procmail does *NOT* CONCATENATE continued header-fields
 		 anymore, filter through "formail -c" for this

@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.10 1992/12/01 15:31:28 berg Exp $*/
+/*$Id: config.h,v 1.11 1992/12/02 17:25:54 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -43,7 +43,7 @@
 
 /*#define NO_fcntl_LOCK		/* uncomment any of these three if you	     */
 /*#define NO_lockf_LOCK		/* definitely do not want procmail to make   */
-/*#define NO_flock_LOCK		/* make use of those kernel-locking methods  */
+/*#define NO_flock_LOCK		/* use of those kernel-locking methods	     */
 
 /*#define NO_NFS_ATIME_HACK	/* uncomment if you're definitely not using
 				   NFS mounted filesystems and can't afford
@@ -98,7 +98,7 @@
 #define FROMDkey	"^FROM_DAEMON"
 #define FROMDsubstitute "\
 ^(Precedence:.*(bulk|junk)|((Resent-)?(From|Sender):|From )(.*[^.a-z])?(\
-postma(st(er)?|n)|Mailer|daemon|mmdf|root|uucp|LISTSERV|owner|request|bounce|\
+Postma(st(er)?|n)|Mailer|daemon|mmdf|root|uucp|LISTSERV|owner|request|bounce|\
 services?)([^.a-z]|$))"		       /* should match most kinds of daemons */
 #define DEFshellmetas	"&|<>~;?*[]"		    /* never put '$' in here */
 #define DEFmaildir	"$HOME"
@@ -107,8 +107,8 @@ services?)([^.a-z]|$))"		       /* should match most kinds of daemons */
 #define DEFmsgprefix	"msg."
 #define DEFlockext	".lock"
 #define DEFshellflags	"-c"
-#define DEFlocktimeout	3600			     /* defaults to one hour */
-#define DEFtimeout	(DEFlocktimeout-240)	  /* 240 seconds to clean up */
+#define DEFlocktimeout	1024		     /* defaults to about 17 minutes */
+#define DEFtimeout	(DEFlocktimeout-64)	   /* 64 seconds to clean up */
 #define DEFnoresretry	4      /* default nr of retries if no resources left */
 #define nfsTRY		2     /* nr of times-1 to ignore spurious NFS errors */
 #define COMSAThost	"localhost"    /* where the biff/comsat daemon lives */

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.11 1992/12/01 15:46:22 berg Exp $";
+ "$Id: formail.c,v 1.12 1992/12/02 17:26:54 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1992/12/01 15:46:22 $";
+static /*const*/char rcsdate[]="$Date: 1992/12/02 17:26:54 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -135,15 +135,15 @@ main(lastm,argv)const char*const argv[];
 		 goto usg;
 	      case HELPOPT1:case HELPOPT2:elog(fmusage);elog(FM_HELP);
 		 goto xusg;
-	      case FM_MINFIELDS:Qnext_arg();
-number:	      default:
-		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
+	      case FM_MINFIELDS:Qnext_arg();chp++;
+	      default:chp--;
+number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		    goto usg;
 		 i=strtol(chp,&chp,10);
 		 switch(lastm)			/* where does the number go? */
 		  { case FM_SKIP:nrskip=i;break;
-		    case FM_TOTAL:nrtotal=i;break;
-		    default:minfields=i;
+		    case FM_MINFIELDS:minfields=i;break;
+		    default:nrtotal=i;
 		  }
 		 continue;
 	      case FM_BOGUS:bogus=0;continue;
@@ -252,6 +252,8 @@ foundfrom:
 	if((chp=skipwords(saddr,end),*saddr=='<')&&chp[-1]=='>'&&
 	 chp-1==strpbrk(saddr,"([\">,; \t\n"))	      /* strip '<' and '>' ? */
 	   saddr++,chp--;      /* check length of the address and extract it */
+	if((chp<=saddr&&sest[i].head==returnpath)	/* nill Return-Path: */
+	   chp=(saddr="<>")+2,nowm=maxindex(sest)+2;		 /* override */
 	if((i=chp-saddr)>0&&(!namel||nowm>lastm))
 	 { tmemmove(namep=realloc(namep,i+1),saddr,namel=i);
 	   lastm=mystrstr(namep,".UUCP",end)?nowm-maxindex(sest)-3:nowm;

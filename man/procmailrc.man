@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.12 1992/12/01 15:46:11 berg Exp $
+.Id $Id: procmailrc.man,v 1.13 1992/12/02 17:26:41 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .SH NAME
 .na
@@ -360,8 +360,8 @@ idea behind this is, that if e.g. the
 has been exhausted or the
 .I process
 .I table
-is full, usually several other programs will either detect this too
-and abort or crash 8-), and thereby freeing valuable
+is full, usually several other programs will either detect this as well
+and abort or crash 8-), thereby freeing valuable
 .I resources
 for procmail.
 .Tp

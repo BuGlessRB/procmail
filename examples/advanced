@@ -42,8 +42,8 @@ YOUR_LOGIN_NAME@your.favourite.machine
 
 The leading dots are important.	 Check what `/bin/uname -n` returns on
 your.favourite.machine, and substitute that for your.favourite.machine in the
-sample .forward file.  If your system does not have /bin/uname, /bin/hostname
-will do too.
+sample .forward file.  If your system does not have /bin/uname, check if there
+is a /bin/hostname.
 
 				---
 
