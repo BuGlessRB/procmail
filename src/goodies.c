@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.34 1994/06/28 16:56:17 berg Exp $";
+ "$Id: goodies.c,v 1.35 1994/09/13 19:12:50 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -368,20 +368,18 @@ wipenv:
    }
   return "";
 }
-			    /* between calling primeStdout() and retStdout() */
-void primeStdout P((void))	    /* *no* environment changes are allowed! */
-{ char*p;
-  if((p=strchr(buf,'\0'))[-1]!='=')		   /* does it end in an '='? */
-     *p='=',p[1]='\0';					/* make sure it does */
-  sputenv(buf);Stdout=(char*)myenv;
-  Stdfilled=ioffsetof(struct dynstring,ename[0])+strlen(myenv->ename);
+	   /* between calling primeStdout() and retStdout() *no* environment */
+void primeStdout(varname)const char*const varname;   /* changes are allowed! */
+{ if(!Stdout)
+     sputenv(varname);
+  Stdout=(char*)myenv;
+  Stdfilled=ioffsetof(struct dynstring,ename[0])+strlen(varname);
 }
 
 void retStdout(newmyenv)char*const newmyenv;	/* see note on primeStdout() */
 { if(newmyenv[Stdfilled-1]=='\n')	       /* strip one trailing newline */
      Stdfilled--;
   newmyenv[Stdfilled]='\0';*lastenv=(myenv=(struct dynstring*)newmyenv)->ename;
-  Stdout=0;
 }
 
 void postStdout P((void))		 /* throw it into the keyword parser */

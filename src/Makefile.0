@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.38 1994/09/12 16:10:25 berg Exp $
+#$Id: Makefile.0,v 1.39 1994/09/13 19:12:44 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O) \
@@ -26,7 +26,7 @@ formail: formail.$(O) $(FM_OBJ)
 	$(CC) $(CFLAGS) $@.$(O) $(FM_OBJ) -o $@ $(LDFLAGS)
 
 mailstat: ../examples/mailstat
-	$(LN) ../examples/$@ $@
+	cp ../examples/$@ $@
 	@chmod 0755 $@
 
 multigram: multigram.$(O) $(MG_OBJ) setid
@@ -109,7 +109,7 @@ procmail.$(O): cstdio.h exopen.h regexp.h mcommon.h goodies.h locking.h
 procmail.$(O): mailfold.h lastdirsep.h
 
 regexp.$(O): ../autoconf.h ../config.h includes.h procmail.h robust.h shell.h
-regexp.$(O): misc.h regexp.h
+regexp.$(O): misc.h regexp.h goodies.h
 
 robust.$(O): ../autoconf.h ../config.h includes.h procmail.h robust.h shell.h
 robust.$(O): misc.h pipes.h common.h mailfold.h shell.h

@@ -8,13 +8,14 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.44 1994/09/08 16:12:12 berg Exp $";
+ "$Id: regexp.c,v 1.45 1994/09/13 19:12:59 berg Exp $";
 #endif
-#include "includes.h"
+#include "procmail.h"
 #include "robust.h"
 #include "shell.h"
 #include "misc.h"
 #include "regexp.h"
+#include "goodies.h"
 
 #define R_BEG_GROUP	'('
 #define R_OR		'|'
@@ -34,6 +35,7 @@ static /*const*/char rcsid[]=
 #define R_BEG_WORD	'<'
 #define R_END_WORD	'>'
 #define NO_WORD_CLASS	"[^a-zA-Z0-9_]"
+#define R_SPLIT_EXPR	'/'
 
 #define BITS_P_CHAR		8
 #define OPB			(1<<BITS_P_CHAR)
@@ -51,7 +53,8 @@ static /*const*/char rcsid[]=
 #define OPC_JUMP		(OPB+6)
 #define OPC_CLASS		(OPB+7)
 #define OPC_FIN			(OPB+8)
-#define OPC_FILL		(OPB+9)	      /* filler opcode, not executed */
+#define OPC_BOM			(OPB+9)
+#define OPC_FILL		(OPB+10)      /* filler opcode, not executed */
 		  /* Don't change any opcode above without checking skplen[] */
 #define bit_type		unsigned
 #define bit_bits		(sizeof(bit_type)*8)
@@ -83,10 +86,10 @@ struct chclass {unsigned opc_;struct eps*next_,*pos1,*pos2;
  bit_field(c,OPB);};
 					  /* length array, used by skiplen() */
 static /*const*/char skplen[]=		   /* it SHOULD have been const, but */
- {SZ(eps),SZ(jump),SZ(chclass),0,0};   /* some !@#$%^&*() compilers disagree */
-						       /* epsilon transition */
+ {SZ(eps),SZ(jump),SZ(chclass),0,sizeof(union seps),0};
+				       /* some !@#$%^&*() compilers disagree */
 static void puteps(spot,to)struct eps*const spot;const struct eps*const to;
-{ spot->opc=OPC_EPS;spot->next=Ceps to;spot->spawn=0;
+{ spot->opc=OPC_EPS;spot->next=Ceps to;spot->spawn=0;  /* epsilon transition */
 }
 
 #define Cc(p,memb)	(((struct chclass*)(p))->memb)
@@ -183,7 +186,12 @@ static void psimp(e)const struct eps*const e;
 	goto fine2;
      case R_ESCAPE:					  /* quote something */
 	switch(*++p)
-	 { case R_BEG_WORD:case R_END_WORD:
+	 { case R_SPLIT_EXPR:
+	      if(e)
+		 r->opc=OPC_BOM;
+	      r=epso(r,sizeof(union seps));
+	      goto fine3;
+	   case R_BEG_WORD:case R_END_WORD:
 	    { uchar*pold=p;
 	      p=(uchar*)NO_WORD_CLASS;psimp(e);p=pold+1;
 	      if(e)
@@ -199,16 +207,31 @@ fine:
      r->next=Ceps e;Cc(r,pos1)=Cc(r,pos2)=0;
    }
 fine2:
-  p++;r=epso(r,SZ(mchar));
+  r=epso(r,SZ(mchar));
+fine3:
+  p++;
 }
 
 #define EOS(x)	(jj?Ceps e:(x))
+
+static int endgroup(p)register const char*const p;
+{ switch(*p)
+   { case R_OR:case R_END_GROUP:case '\0':
+	return 1;
+   }
+  return 0;
+}
 
 static void pnorm(e)const struct eps*const e;
 { void*pold;struct eps*rold;
   for(;;)
    { pold=p;rold=r;psimp(Ceps 0);ii= *p;		    /* skip it first */
-     jj=p[1]==R_OR||p[1]==R_END_GROUP||!p[1];
+     if(endgroup(p))
+      { if(e)
+	   p=pold,r=rold,psimp(e);
+	return;
+      }
+     jj=endgroup(p+1);
      if(e)
 	p=pold,pold=r;
      switch(ii)			   /* check for any of the postfix operators */
@@ -224,21 +247,15 @@ static void pnorm(e)const struct eps*const e;
 	      r=rold;psimp(Ceps pold);
 	    }
 	   r++;
-	   if(p[1]==R_OR||p[1]==R_END_GROUP||!p[1])
+	   if(endgroup(p+1))
 	      r=epso(r,SZ(jump));
 	   goto incagoon;
 	case R_0_OR_1:r++;
 	   if(e)			  /* first an epsilon, then the rest */
 	      puteps(rold,r=EOS(r)),pold=r,r=rold+1,psimp(Ceps pold);
-incagoon:  switch(*++p)			/* at the end of this group already? */
-	    { case R_OR:case R_END_GROUP:case '\0':
-		 return;
-	    }
+incagoon:  if(endgroup(++p))		/* at the end of this group already? */
+	      return;
 	   continue;				 /* regular end of the group */
-	case R_OR:case R_END_GROUP:case '\0':
-	   if(e)
-	      r=rold,psimp(e);
-	   return;
       }
      if(e)			/* no fancy postfix operators, plain vanilla */
 	r=rold,psimp(Ceps pold);
@@ -258,7 +275,8 @@ static int por(e)const struct eps*const e;
    { uchar*pold;struct eps*rold;
      for(pold=p,rold=r;;)
       { switch(*p)
-	 { default:pnorm(Ceps 0);r=rold;	      /* still in this group */
+	 { default:
+	      pnorm(Ceps 0);r=rold;		      /* still in this group */
 	      continue;
 	   case '\0':case R_END_GROUP:	       /* found the end of the group */
 	      if(p==pold)				 /* empty 'or' group */
@@ -338,12 +356,11 @@ ret0:
 }
 
 struct eps*bregcomp(a,ign_case)const char*const a;const unsigned ign_case;
-{ struct eps*st;size_t i;      /* first a trial run, determine memory needed */
+{ struct eps*st;size_t i;
   skplen[OPC_FILL-OPC_EPS]=SZ(eps)-ioffsetof(struct eps,sp);  /* a constant! */
-  errorno=0;p=(uchar*)a;case_ignore=ign_case;r=Ceps&aleps;cachea=0;por(Ceps 0);
-  st=r=
-   malloc((i=(char*)r-(char*)&aleps)+sizeof r->opc);
-  p=(uchar*)a;
+  errorno=0;p=(uchar*)a;case_ignore=ign_case;r=Ceps&aleps;cachea=0;
+  por(Ceps 0);st=r=malloc((i=(char*)r-(char*)&aleps)+sizeof r->opc);
+  p=(uchar*)a;		       /* first a trial run, determine memory needed */
   if(!por(opcfin=epso(st,i)))				   /* really compile */
      errorno=1;
   r->opc=OPC_FIN;			     /* by now r should be == opcfin */
@@ -367,7 +384,7 @@ struct eps*bregcomp(a,ign_case)const char*const a;const unsigned ign_case;
 			   }
 			}	       /* spare the used nodes in this group */
 		       case OPC_EPS|DONE_NODE:case OPC_JUMP|DONE_NODE:
-		       case OPC_FILL:
+		       case OPC_FILL:case OPC_BOM:
 			  continue;
 		       case OPC_FIN:;
 		     }
@@ -407,10 +424,12 @@ static void cleantail(thiss,th1)register struct eps*thiss;const unsigned th1;
 char*bregexec(code,text,str,len,ign_case)struct eps*code;
  const uchar*const text;const uchar*str;size_t len;unsigned ign_case;
 { register struct eps*reg,*stack,*other,*thiss;unsigned i,th1,ot1;
-  struct eps*initcode;
+  struct eps*initcode;const char*bom,*eom;
   static struct mchar tswitch={OPC_TSWITCH,Ceps&tswitch};
   static struct eps sempty={OPC_SEMPTY,&sempty};
-  sempty.spawn=stack= &sempty;ign_case=!!ign_case;		/* normalise */
+  static union seps nop;
+  nop.sopc=OPC_FILL;sempty.spawn= &sempty;	      /* static initialisers */
+  bom=eom=0;stack= &sempty;ign_case=!!ign_case;			/* normalise */
   if((initcode=code)->opc==OPC_EPS)
      initcode=(stack=code)+1,code->spawn= &sempty;
   th1=ioffsetof(struct chclass,pos1);ot1=ioffsetof(struct chclass,pos2);
@@ -442,14 +461,31 @@ setups:
 		    continue;
 		 case OPC_JUMP-OPB:reg=reg->next;
 		    continue;
+		 case OPC_BOM-OPB:
+#if 0
+		    cleantail(thiss,th1);cleantail(other,ot1);
+		    thiss=other=Ceps&tswitch;
+#endif
+		    reg=epso(reg,sizeof(union seps));initcode=Ceps&nop;
+		    if(!bom)
+		       bom=str;
+		    continue;
+		 case OPC_FILL-OPB:				      /* nop */
+		    if(thiss==Ceps&tswitch)
+		       goto setmatch;
+		    break;
 		 case OPC_SEMPTY-OPB:
 		    goto empty_stack;
 		 case OPC_TSWITCH-OPB:
 		    goto pcstack_switch;
 		 case OPC_EOTEXT-OPB:
 		    if(ign_case==2)		     /* only at the very end */
-		 case OPC_FIN-OPB:		      /* reset the automaton */
-		     { cleantail(thiss,th1);cleantail(other,ot1);
+		 case OPC_FIN-OPB:
+		     { if(bom)
+			{ eom=str;initcode=Ceps&nop;
+			  break;
+			}			      /* reset the automaton */
+		       cleantail(thiss,th1);cleantail(other,ot1);
 		       return (char*)str;	       /* one past the match */
 		     }
 		 case OPC_BOTEXT-OPB:
@@ -478,5 +514,15 @@ pcstack_switch:;				   /* this pc-stack is empty */
 	other=Ceps&tswitch;
 	goto empty_stack;			 /* check if we just matched */
    }
-  return 0;							 /* no match */
+#define MATCHVAR	"MATCH="
+setmatch:
+  if(eom)
+   { const static char match[]=MATCHVAR;char*p;size_t oldf;
+     if(*bom=='\n')
+	bom++;					/* strip one leading newline */
+     primeStdout(match);oldf=Stdfilled;
+     p=realloc(Stdout,(Stdfilled+=eom-bom)+1);tmemmove(p+oldf,bom,eom-bom);
+     retStdout(p);
+   }
+  return bom;							 /* no match */
 }

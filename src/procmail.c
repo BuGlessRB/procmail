@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.101 1994/09/12 16:10:28 berg Exp $";
+ "$Id: procmail.c,v 1.102 1994/09/13 19:12:55 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -751,6 +751,7 @@ noconcat:     i=!skiprc;				  /* init test value */
 		 i&=lastcond&&lastsucc;
 	      if(flags[ALSO_NEXT_RECIPE])
 		 i=i&&lastcond;
+	      Stdout=0;
 	      while(skipspace(),nrcond--,testb('*')||nrcond>=0)
 	       { skipspace();getlline(buf2);	    /* any conditions (left) */
 		 if(i)				 /* check out all conditions */
@@ -980,9 +981,9 @@ skiptrue:;	  }
 	    }
 	   else if(flags[PASS_BODY])
 	      tobesent-=(startchar=thebody)-themail;
-	   chp=strchr(strcpy(buf,sendmail),'\0');succeed=sh=0;
+	   Stdout=0;chp=strchr(strcpy(buf,sendmail),'\0');succeed=sh=0;
 	   pwait=flags[WAIT_EXIT]|flags[WAIT_EXIT_QUIET]<<1;
-	   ignwerr=flags[IGNORE_WRITERR];Stdout=0;skipspace();
+	   ignwerr=flags[IGNORE_WRITERR];skipspace();
 	   if(i)
 	      zombiecollect(),concon('\n');
 progrm:	   if(testb('!'))				 /* forward the mail */
@@ -1070,7 +1071,7 @@ forward:	 if(locknext)
 		    switch(c)
 		     { case '!':case '|':		  /* ok, it's a pipe */
 			  if(i)
-			     primeStdout();
+			     primeStdout(buf);
 			  goto progrm;
 		     }
 		  }
