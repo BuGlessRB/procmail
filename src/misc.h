@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.29 1994/08/12 17:34:14 berg Exp $*/
+/*$Id: misc.h,v 1.30 1994/08/18 13:45:09 berg Exp $*/
 
 struct dyna_long{size_t filled,tspace;off_t*offs;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -46,7 +46,6 @@ int
  enoughprivs Q((const struct passwd*const passinvk,const uid_t euid,
   const gid_t egid,const uid_t uid,const gid_t gid));
 char
- *lastdirsep P((const char*filename)),
  *cat P((const char*const a,const char*const b)),
  *tstrdup P((const char*const a)),
  *pmrc2buf P((void)),

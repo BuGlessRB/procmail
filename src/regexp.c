@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.41 1994/08/12 17:34:29 berg Exp $";
+ "$Id: regexp.c,v 1.42 1994/08/18 13:45:22 berg Exp $";
 #endif
 #include "includes.h"
 #include "robust.h"
@@ -473,8 +473,8 @@ pcstack_switch:;				   /* this pc-stack is empty */
    }
   while(--len);					     /* still text to search */
   switch(ign_case)
-   { case 0:case 1:ign_case=1;str++;i='\n';		   /* just finished? */
-     case 2:ign_case++;len=1;
+   { case 0:case 1:ign_case=1;i='\n';			   /* just finished? */
+     case 2:ign_case++;str++;len=1;
 	goto lastrun;				 /* check if we just matched */
    }
   return 0;							 /* no match */

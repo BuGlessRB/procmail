@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.40 1994/06/28 16:56:23 berg Exp $";
+ "$Id: locking.c,v 1.41 1994/08/18 13:44:59 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -15,6 +15,7 @@ static /*const*/char rcsid[]=
 #include "pipes.h"
 #include "exopen.h"
 #include "locking.h"
+#include "lastdirsep.h"
 
 void lockit(name,lockp)char*name;char**const lockp;
 { int permanent=nfsTRY,triedforce=0,locktype=doLOCK;struct stat stbuf;time_t t;

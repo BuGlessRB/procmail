@@ -134,8 +134,19 @@
 	make sure that your sendmail always forwards to a mailserver first or
 	upgrade to sendmail 6.x or later.
 
-14. My mailtool sometimes reports that it is confused about the state of
-    the mailbox, or I get "Couldn't unlock" errors from procmail now and then.
+14. When sending mail to someone with procmail in his/her .forward I sometimes
+    get back an error saying:
+    "User doesn't have a valid shell for mailing to programs."
+
+	This indicates that the mail arrives on a mailserver which most likely
+	has a different user database (/etc/passwd) where the login shell
+	specified for the recipient is not present in /etc/shells.
+	Contact your administrator to put the name of that shell in
+	/etc/shells.
+
+15. My mailtool sometimes reports that it is confused about the state of
+    the mailbox, or I get "Couldn't unlock" errors from procmail now and then,
+    or sometimes it simply seems to hang just when new mail arrives.
 
 	This is a known bug in the OpenLook mailtool.  It holds on to the
 	kernel lock on the mail-spoolfile most of the time, and releases
@@ -144,7 +155,7 @@
 	the compilation of procmail both the fcntl() and lockf() locking
 	methods are disabled (see config.h).
 
-15. I sometimes get these `Lock failure on "/usr/mail/$LOGNAME.lock"' errors
+16. I sometimes get these `Lock failure on "/usr/mail/$LOGNAME.lock"' errors
     from procmail.  What do I do about it?
 
 	The problem here is that as long as procmail has not read a
@@ -195,7 +206,7 @@
 	  and procmail use an overlapping kernel locking method.
 
 
-16. None of the above topics cover my problem.	Should I panic?
+17. None of the above topics cover my problem.	Should I panic?
 
 	Let me ask you a question :-), have you examined the CAVEATS, WARNINGS,
 	BUGS and NOTES sections of the manual pages *closely* ?

@@ -1,9 +1,10 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.45 1994/08/12 17:34:09 berg Exp $*/
+/*$Id: manconf.c,v 1.46 1994/08/18 13:45:02 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
+#include "lastdirsep.h"
 
 #define pn(name,val)	pnr(name,(long)(val))
 
@@ -23,13 +24,6 @@ static const char*const keepenv[]=KEEPENV,*const prestenv[]=PRESTENV,
   "\1.BR flock (2)",
 #endif
   0};
-				     /* following routine lifted from misc.c */
-char*lastdirsep(filename)const char*filename;	 /* finds the next character */
-{ const char*p;					/* following the last DIRSEP */
-  while(p=strpbrk(filename,dirsep))
-     filename=p+1;
-  return (char*)filename;
-}
 
 static char*skltmark(nl,current)char**current;
 { char*from= *current,*p;

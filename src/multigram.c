@@ -17,15 +17,16 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.59 1994/08/12 17:34:16 berg Exp $";
+ "$Id: multigram.c,v 1.60 1994/08/18 13:45:12 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/08/12 17:34:16 $";
+static /*const*/char rcsdate[]="$Date: 1994/08/18 13:45:12 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
 #include "shell.h"
 #include "ecommon.h"
 #include "mcommon.h"
+#include "lastdirsep.h"
 
 #include "targetdir.h"	    /* see ../SmartList/install.sh2 for more details */
 
@@ -176,13 +177,6 @@ void nlog(a)const char*const a;		    /* log error with identification */
 
 void logqnl(a)const char*const a;
 { fprintf(stderr," \"%s\"\n",a);
-}
-						 /* finds the next character */
-static char*lastdirsep(filename)const char*filename;
-{ const char*p;					/* following the last DIRSEP */
-  while(p=strpbrk(filename,dirsep))
-     filename=p+1;
-  return (char*)filename;
 }
 						   /* check rc.lock file age */
 static int rclock(file,stbuf)const char*const file;struct stat*const stbuf;

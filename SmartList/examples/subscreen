@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: subscreen,v 1.1 1993/11/24 19:45:57 berg Exp $
+#$Id: subscreen,v 1.2 1994/08/18 13:44:37 berg Exp $
 
 # $1 contains the mail address of the prospective subscriber
 # We return zero if subscription is allowed, and one if not.
@@ -11,3 +11,11 @@ case "$1" in
 esac
 
 exit 1		# reject everything else
+
+# Instead of ending with 'exit 1', you could also use something
+# like:
+
+echo "From $1" | multigram -l24576 -b1 allowsub >/dev/null
+
+# This will reject any mail address is not remotely like any of the
+# addresses mentioned in 'allowsub'

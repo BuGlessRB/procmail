@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.30 1994/08/04 17:05:03 berg Exp $
+.Id $Id: formail.man,v 1.31 1994/08/18 13:44:40 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -334,6 +334,10 @@ expected by most mail readers.
 If formail is instructed to delete or rename the leading `@FROM@' line, it
 will not automatically regenerate it as usual.  To force formail to regenerate
 it in this case, include \fB\-@FM_ADD_IFNOT@ '@FROM@'\fP.
+.PP
+If formail is not called as the first program in a pipe and it is told to
+split up the input in several messages, then formail will not terminate until
+the program it receives the input from terminates itself.
 .SH MISCELLANEOUS
 Formail is eight-bit clean.
 .PP

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.61 1994/08/12 17:33:59 berg Exp $";
+ "$Id: formail.c,v 1.62 1994/08/18 13:44:52 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/08/12 17:33:59 $";
+static /*const*/char rcsdate[]="$Date: 1994/08/18 13:44:52 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -789,7 +789,9 @@ flbuf:	lputssn(buf,buffilled),buffilled=0;
   logfolder();
 onlyhead:
   closemine();
-  ;{ int excode;					/* wait for everyone */
+  if(split)						/* wait for everyone */
+   { int excode;
+     close(STDIN);	       /* close stdin now, we're not reading anymore */
      while((excode=waitfor((pid_t)0))!=NO_PROCESS)
 	if(retval==EXIT_SUCCESS&&excode!=EXIT_SUCCESS)
 	   retval=excode;

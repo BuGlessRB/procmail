@@ -146,3 +146,4 @@
 	       (and better) done in mimencap itself
 	    Multigram truncates the dist file after unsubscribing someone
 	       (if the OS supports it, that is)
+	    Some new example files in the example directory

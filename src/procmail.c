@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.92 1994/08/12 17:58:04 berg Exp $";
+ "$Id: procmail.c,v 1.93 1994/08/18 13:45:16 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -30,6 +30,7 @@ static /*const*/char rcsid[]=
 #include "goodies.h"
 #include "locking.h"
 #include "mailfold.h"
+#include "lastdirsep.h"
 
 static const char orgmail[]="ORGMAIL",*const nullp,From_[]=FROM,
  exflags[]=RECFLAGS,drcfile[]="Rcfile:",systm_mbox[]=SYSTEM_MBOX,
@@ -235,8 +236,7 @@ privileged:				       /* move stdout out of the way */
 	qsignal(SIGINT,sbounce);qsignal(SIGHUP,sbounce);
 	qsignal(SIGQUIT,slose);signal(SIGALRM,(void(*)())ftimeout);
 	ultstr(0,(unsigned long)uid,buf);
-	chp2=!passinvk||!*passinvk->pw_name?buf:passinvk->pw_name;
-	filled=0;
+	chp2=!passinvk||!*passinvk->pw_name?buf:passinvk->pw_name;filled=0;
 	;{ const char*fwhom;size_t lfr,linv;int tstamp;
 	   tstamp=fromwhom&&*fromwhom==REFRESH_TIME&&!fromwhom[1];fwhom=chp2;
 	   if(fromwhom&&!tstamp)
@@ -808,6 +808,7 @@ jinregs:			   regsp=regs;	/* start over and look again */
 				      while(weight!=0&&
 					    MIN32<score&&
 					    score<MAX32&&
+					    rest>=0&&
 					    (chp2=
 				       bregexec(re,(const uchar*)startchar,
 					(const uchar*)chp,(size_t)rest,

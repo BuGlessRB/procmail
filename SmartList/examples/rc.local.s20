@@ -1,0 +1,51 @@
+#$Id: rc.local.s20,v 1.1 1994/08/18 13:44:34 berg Exp $
+#
+# This file contains several examples of how you can customise SmartList
+# through the RC_LOCAL_SUBMIT_20 hook.
+#
+
+#
+# Appending a disclaimer to every outgoing mail:
+#
+
+	:0 fbw
+	| cat - disclaimer.txt
+
+#
+# Adding a disclaimer in front of every mail:
+#
+
+	:0 fhw
+	| cat disclaimer.txt
+
+#
+# Adding some custom headers (although it will work, this is not
+# needed for Reply-To related headers, see the reply_to variable in
+# rc.custom):
+#
+
+	:0 fhw
+	| formail -i "X-Subliminal-Message: SmartList is great" \
+	   -I "X-Mailer: procmail, which is great too :-)"
+
+#
+# Some sendmails get very jumpy if they don't find a Resent-To: field,
+# use this to give them one:
+#
+
+	:0 fhw
+	| formail -a "Resent-To: multiple recipients of <$listaddr>"
+
+#
+# To get rid of some fields:
+#
+
+	:0 fhw
+	| formail -I X-Mailing-List: -I X-Mailer:
+
+#
+# To get rid of all X- fields:
+#
+
+	:0 fhw
+	| formail -I X-

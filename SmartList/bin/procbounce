@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands
-#$Id: procbounce,v 1.26 1994/06/01 17:21:53 berg Exp $
+#$Id: procbounce,v 1.27 1994/08/18 13:44:28 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -27,7 +27,7 @@ $test -d $bounces || $mkdir $bounces
 
 addr=`$formail -1 -kdem4 -xSubject: <$tmprequest -s \
  $sed -e '/^[	 *]*Message-[Ii][Dd]:/ d' -e '/^[	 *]*To:/ d' \
-  -e 's/^\([^	 ]*\) @ /\1@/' |
+  -e '/ent successfully/,/^[	 ]*$/ d' -e 's/^\([^	 ]*\) @ /\1@/' |
  $multigram -b1 -l$off_threshold -x$listaddr -x$listreq $dist `
 
 test -z "$addr" &&

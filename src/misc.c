@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.58 1994/08/12 17:34:11 berg Exp $";
+ "$Id: misc.c,v 1.59 1994/08/18 13:45:06 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -301,13 +301,6 @@ void concatenate(p)register char*p;
      p[-1]=' ';
    }
   *p=p[-1]='\0';
-}
-
-char*lastdirsep(filename)const char*filename;	 /* finds the next character */
-{ const char*p;					/* following the last DIRSEP */
-  while(p=strpbrk(filename,dirsep))
-     filename=p+1;
-  return (char*)filename;
 }
 
 char*cat(a,b)const char*const a,*const b;

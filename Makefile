@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.58 1994/08/12 17:57:56 berg Exp $
+#$Id: Makefile,v 1.59 1994/08/18 13:44:20 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -16,9 +16,14 @@ MAN5SUFFIX= 5
 MAN1DIR	  = $(MANDIR)/man$(MAN1SUFFIX)
 MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 
-##############################
+# Uncomment to install compressed man pages (possibly add extra suffix
+# to the definitions of MAN?DIR by hand)
+#MANCOMPRESS = compress
+
+############################*#
 # Things that can be made are:
 #
+# help (or targets)	Displays this list you are looking at
 # init (or makefiles)	Performs some preliminary sanity checks on your system
 #			and generates Makefiles accordingly
 # bins			Preinstalls only the binaries to ./new
@@ -39,7 +44,7 @@ MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 # lockfile		Preinstalls just all lockfile related stuff to ./new
 # setid			Creates the setid binary needed by the SmartList
 #			installation
-########################
+######################*#
 
 # Makefile.0 - mark, don't (re)move this, a sed script needs it
 
@@ -78,9 +83,11 @@ GCC_WARNINGS = -O2 -pedantic -Wimplicit -Wreturn-type -Wunused -Wformat \
 # The place to put your favourite extra cc flag
 CFLAGS0 = -O #$(GCC_WARNINGS)
 LDFLAGS0= -s
+# Read my libs :-)
+LIBS=
 
 CFLAGS1 = $(CFLAGS0) #-posix -Xp
-LDFLAGS1= $(LDFLAGS0) #-lcposix
+LDFLAGS1= $(LDFLAGS0) $(LIBS) #-lcposix
 
 ####CC	= cc # gcc
 # object file extension
@@ -121,6 +128,7 @@ init:
 makefiles makefile Makefiles Makefile: init
 	@$(BSHELL) -c "exit 0"
 
+help target targets \
 bins mans install.bin install.man install recommend install-suid clean setid \
 realclean veryclean clobber deinstall autoconf.h $(BINSS) multigram: init
 	$(HIDEMAKE) make $@

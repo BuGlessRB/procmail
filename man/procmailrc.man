@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.44 1994/08/12 17:33:46 berg Exp $
+.Id $Id: procmailrc.man,v 1.45 1994/08/18 13:44:44 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -580,6 +580,9 @@ lockfile will not be removed if procmail exits at that point (remedy:
 use
 .I absolute
 paths to specify global lockfiles).
+.PP
+A locallockfile on the recipe that marks the start of a nested block
+does not work as expected.
 .PP
 When capturing stdout from a recipe into an environment variable, exactly
 one trailing newline will be stripped.

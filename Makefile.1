@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.36 1994/06/06 17:33:15 berg Exp $
+#$Id: Makefile.1,v 1.37 1994/08/18 13:44:23 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -8,6 +8,9 @@ make:
 	@$(SHELL) -c "exit 0"
 
 .PRECIOUS: Makefile
+
+help target targets:
+	sed "/^##*\*#$$/,/^##*\*#$$/ !d" <Makefile
 
 bins: config.check src/Makefile
 	cd src; $(MAKE) $(NBINS)
@@ -85,9 +88,15 @@ install.man: $(MANS) $(BASENAME)
 	@-mkdir $(MAN5DIR) 2>$(DEVNULL); exit 0
 	@chmod 0644 $(MANS)
 	@for a in $(MANS1S); \
-	  do $(INSTALL) new/$$a.1 $(MAN1DIR)/$$a.$(MAN1SUFFIX); done
+	  do $(INSTALL) new/$$a.1 $(MAN1DIR)/$$a.$(MAN1SUFFIX); \
+	     test "X$(MANCOMPRESS)" != "X" && \
+	      $(MANCOMPRESS) <new/$$a.1 >$(MAN1DIR)/$$a.$(MAN1SUFFIX); \
+	  done
 	@for a in $(MANS5S); \
-	  do $(INSTALL) new/$$a.5 $(MAN5DIR)/$$a.$(MAN5SUFFIX); done
+	  do $(INSTALL) new/$$a.5 $(MAN5DIR)/$$a.$(MAN5SUFFIX); \
+	     test "X$(MANCOMPRESS)" != "X" && \
+	      $(MANCOMPRESS) <new/$$a.5 >$(MAN5DIR)/$$a.$(MAN5SUFFIX); \
+	  done
 	echo Housekeeping file >install.man
 
 install.bin: $(BINS) $(BASENAME)

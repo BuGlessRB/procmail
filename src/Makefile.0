@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.32 1994/08/12 17:33:51 berg Exp $
+#$Id: Makefile.0,v 1.33 1994/08/18 13:44:49 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O) \
@@ -81,10 +81,12 @@ goodies.$(O): shell.h misc.h pipes.h common.h cstdio.h goodies.h
 
 hsort.$(O): ../autoconf.h ../config.h includes.h hsort.h
 
+lastdirsep.$(O): ../autoconf.h ../config.h includes.h lastdirsep.h
+
 lockfile.$(O): ../autoconf.h ../config.h includes.h sublib.h exopen.h mcommon.h
 
 locking.$(O): ../autoconf.h ../config.h includes.h procmail.h robust.h shell.h
-locking.$(O): misc.h pipes.h exopen.h locking.h
+locking.$(O): misc.h pipes.h exopen.h locking.h lastdirsep.h
 
 mailfold.$(O): ../autoconf.h ../config.h includes.h procmail.h acommon.h
 mailfold.$(O): sublib.h robust.h shell.h misc.h pipes.h common.h exopen.h
@@ -97,7 +99,7 @@ misc.$(O): robust.h shell.h misc.h pipes.h common.h cstdio.h exopen.h regexp.h
 misc.$(O): mcommon.h goodies.h locking.h mailfold.h
 
 multigram.$(O): ../autoconf.h ../config.h includes.h sublib.h hsort.h shell.h
-multigram.$(O): ecommon.h mcommon.h targetdir.h
+multigram.$(O): ecommon.h mcommon.h lastdirsep.h targetdir.h
 
 pipes.$(O): ../autoconf.h ../config.h includes.h procmail.h robust.h shell.h
 pipes.$(O): misc.h pipes.h common.h cstdio.h exopen.h mcommon.h goodies.h
@@ -106,7 +108,7 @@ pipes.$(O): mailfold.h
 procmail.$(O): ../patchlevel.h ../autoconf.h ../config.h includes.h procmail.h
 procmail.$(O): acommon.h sublib.h robust.h shell.h misc.h pipes.h common.h
 procmail.$(O): cstdio.h exopen.h regexp.h mcommon.h goodies.h locking.h
-procmail.$(O): mailfold.h
+procmail.$(O): mailfold.h lastdirsep.h
 
 regexp.$(O): ../autoconf.h ../config.h includes.h procmail.h robust.h shell.h
 regexp.$(O): misc.h regexp.h
@@ -117,6 +119,7 @@ robust.$(O): misc.h pipes.h common.h mailfold.h shell.h
 sublib.$(O): ../autoconf.h ../config.h includes.h sublib.h shell.h
 
 gethome.$(O) setid.$(O) recommend.$(O): ../autoconf.h ../config.h includes.h
+recommend.$(O): lastdirsep.h
 
 gethome.$(O): gethome.c
 	@$(CC) -c $(CFLAGS) $*.c
@@ -140,7 +143,7 @@ recommend: recommend.$(O) sublib.$(O)
 	@$(CC) $(CFLAGS) $@.$(O) sublib.$(O) -o $@ $(LDFLAGS)
 
 ../man/man.sed: manconf.c ../autoconf.h ../config.h includes.h procmail.h
-../man/man.sed: ../patchlevel.h
+../man/man.sed: ../patchlevel.h lastdirsep.h
 	@$(CC) $(CFLAGS) "-DBINDIR=\"$(BINDIR)\"" -o _autotst manconf.c \
 	 $(LDFLAGS)
 	@./_autotst $@ $@.0 $@.1

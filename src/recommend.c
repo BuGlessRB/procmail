@@ -2,8 +2,9 @@
  *	recommend	Analyses the installation, and makes		*
  *			recommendations about suid/sgid modes		*
  ************************************************************************/
-/*$Id: recommend.c,v 1.11 1994/08/12 17:34:27 berg Exp $*/
+/*$Id: recommend.c,v 1.12 1994/08/18 13:45:20 berg Exp $*/
 #include "includes.h"
+#include "lastdirsep.h"
 
 #ifndef SYSTEM_MBOX
 #define SYSTEM_MBOX	SYSTEM_MAILBOX
@@ -15,13 +16,6 @@ char systm_mbox[]=SYSTEM_MBOX;
 const char dirsep[]=DIRSEP,
  *const checkf[]={"/bin/mail","/bin/lmail","/usr/lib/sendmail",
  "/usr/lib/smail",0};
-				     /* following routine lifted from misc.c */
-char*lastdirsep(filename)const char*filename;	 /* finds the next character */
-{ const char*p;					/* following the last DIRSEP */
-  while(p=strpbrk(filename,dirsep))
-     filename=p+1;
-  return (char*)filename;
-}
 
 main(argc,argv)const int argc;const char*const argv[];
 { struct group*grp;struct stat stbuf;gid_t gid=(gid_t)-1;
