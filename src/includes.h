@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.1 1992/09/28 14:28:05 berg Exp $*/
+/*$Id: includes.h,v 1.2 1992/09/29 17:37:41 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -215,19 +215,27 @@ extern errno;
 #define memmove(to,from,count) smemmove(to,from,count)
 #endif
 
+#ifndef NOuname
+#ifdef P		  /* SINIX V5.23 has the wrong prototype for uname() */
+extern int uname();					 /* so we fix it :-) */
+#define Uname(name)		((int(*)(struct utsname*))uname)(name)
+#else
+#define Uname(name)		uname(name)		    /* no fix needed */
+#endif /* P */
+#endif /* NOuname */
+
+#ifdef P		/* and SGI IRIX has the wrong prototype for execvp() */
+extern int execvp();						     /* sigh */
+#define Execvp(file,argv)	\
+ ((int(*)(const char*,char*const[]))execvp)(file,argv)
+#else
+#define Execvp(file,argv)	execvp(file,argv)
+#endif /* P */
+
 #ifndef P
 #define P(args)		args
 #endif
 #define Q(args)		() /* needed until function definitions are ANSI too */
-
-#ifndef NOuname
-#ifndef const		    /* SINIX V5.23 has the wrong prototype for uname */
-extern int uname();					 /* so we fix it :-) */
-#define uname_(name)	((int(*)P((struct utsname*)))uname)(name)
-#else
-#define uname_(name)	uname(name)			    /* no fix needed */
-#endif /* const */
-#endif /* NOuname */
 
 #ifdef oBRAIN_DAMAGE
 #undef offsetof

@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: exopen.c,v 1.1 1992/09/28 14:28:02 berg Exp $";
+static char rcsid[]="$Id: exopen.c,v 1.2 1992/09/29 17:37:37 berg Exp $";
 #endif
 #include "procmail.h"
 #include "exopen.h"
@@ -16,7 +16,7 @@ const char*hostname()
   gethostname(name,HOSTNAMElen+1);
 #else
   struct utsname names;
-  uname_(&names);strncpy(name,names.nodename,HOSTNAMElen);
+  Uname(&names);strncpy(name,names.nodename,HOSTNAMElen);
 #endif
   name[HOSTNAMElen]='\0';return name;
 }
