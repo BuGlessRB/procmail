@@ -549,5 +549,7 @@
 	    Changes to procmail:
 	       - Support LMTP
 	       - Use mmap() for large messages
+	       - SWITCHRC=zero-length-file didn't always abort the current
+		 rcfile
 	    Changes to lockfile:
 	       - Include the system mailbox lockfile path in the -v output

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.48 2000/09/28 01:23:15 guenther Exp $";
+ "$Id: cstdio.c,v 1.49 2000/10/23 01:54:27 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -21,7 +21,15 @@ static struct dyna_long inced;				  /* includerc stack */
 struct dynstring*incnamed;
 
 static void refill(offset)const int offset;		/* refill the buffer */
-{ rcbufp=rcbuf+(rcbuf>=(rcbufend=rcbuf+rread(rc,rcbuf,STDBUF))?1:offset);
+{ int ret=rread(rc,rcbuf,STDBUF);
+  if(ret>0)
+   { rcbufend=rcbuf+ret;
+     rcbufp=rcbuf+offset;				 /* restore position */
+   }
+  else
+   { rcbufend=rcbuf;
+     rcbufp=rcbuf+1;					   /* looks like EOF */
+   }
 }
 
 void pushrc(name)const char*const name;		      /* open include rcfile */
@@ -45,7 +53,7 @@ rerr:	   readerr(name);
 void changerc(name)const char*const name;		    /* change rcfile */
 { if(!*name||!strcmp(name,devnull))
 pr:{ ifstack.filled=ifdepth;	   /* lose all the braces to avoid a warning */
-     poprc();		 /* drop the current rcfile and restore the previous */
+     rclose(rc);rcbufp=rcbufend+1;		    /* make it look like EOF */
      return;
    }
   if(!strcmp(name,incnamed->ename))		    /* just restart this one */
