@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.34 1993/09/16 14:43:14 berg Exp $";
+ "$Id: mailfold.c,v 1.36 1993/10/29 16:42:36 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -131,8 +131,11 @@ static ismhdir(chp)char*const chp;
 				       /* open file or new file in directory */
 deliver(boxname,linkfolder)char*boxname,*linkfolder;
 { struct stat stbuf;char*chp;int mhdir;mode_t cumask;
-  umask(cumask=umask(0));cumask=UPDATE_MASK&~cumask;tofile=to_FILE;
   asgnlastf=1;
+  if(*boxname=='|'&&(!linkfolder||linkfolder==Tmnate))
+   { setlastfolder(boxname);return rdup(savstdout);
+   }
+  umask(cumask=umask(0));cumask=UPDATE_MASK&~cumask;tofile=to_FILE;
   if(boxname!=buf)
      strcpy(buf,boxname);		 /* boxname can be found back in buf */
   if(*(chp=buf))				  /* not null length target? */

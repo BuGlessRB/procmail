@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.7 1993/09/16 16:17:56 berg Exp $
+#$Id: digest,v 1.9 1993/10/29 16:42:06 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -82,6 +82,8 @@ $cat $tmprequest >>$digestbody
 if $test ! -f $digesttrailer
 then
 
+  LANG=""
+  export LANG
   Year=`$date +%y`
   Issue=0
 

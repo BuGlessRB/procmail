@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.28 1993/07/16 14:50:52 berg Exp $*/
+/*$Id: config.h,v 1.30 1993/10/29 16:41:52 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -37,7 +37,7 @@
    TRUSTED_IDS should be defined as a comma-separated null-terminated
    list of strings */
 
-#define TRUSTED_IDS	{"root","daemon","uucp","mail","x400",\
+#define TRUSTED_IDS	{"root","daemon","uucp","mail","x400","network",\
 			 "list","lists",0}
 
 /*#define NO_USER_TO_LOWERCASE_HACK	/* uncomment if your getpwnam() is
@@ -62,6 +62,10 @@
 /*#define DEFsendmail	"/bin/mail"	/* uncomment and/or change if the
 					   preset default SENDMAIL is not
 	suitable */
+
+#define ETCRC	"/etc/procmailrc"	/* optional global procmailrc startup
+	file (will only be read if procmail is started with no rcfile
+	on the command line). */
 
 /*#define console	"/dev/console"	/* uncomment if you want procmail to
 					   use the console (or any other
@@ -102,17 +106,17 @@
 #define DEFlocksleep	8
 #define TOkey		"^TO"
 #define TOsubstitute	\
- "^((Resent-)?(To|Cc|Bcc)|(X-Envelope|Apparently)-To):(.*[^a-zA-Z])?"
+ "(^((Resent-)?(To|Cc|Bcc)|(X-Envelope|Apparently)-To):(.*[^a-zA-Z])?)"
 #define FROMDkey	"^FROM_DAEMON"
-#define FROMDsubstitute "^(Precedence:.*(junk|bulk|list)|\
+#define FROMDsubstitute "(^(Precedence:.*(junk|bulk|list)|\
 (((Resent-)?(From|Sender)|X-Envelope-From):|From )(.*[^.%@a-z0-9])?(\
 Post(ma?(st(e?r)?|n)|office)|Mail(er)?|daemon|mmdf|root|uucp|LISTSERV|owner|\
-request|bounce|serv(ices?|er))([^.!:a-z0-9]|$))"     /* matches most daemons */
+request|bounce|serv(ices?|er))([^.!:a-z0-9]|$)))"    /* matches most daemons */
 #define FROMMkey	"^FROM_MAILER"
-#define FROMMsubstitute "^(((Resent-)?(From|Sender)|X-Envelope-From):|From )\
+#define FROMMsubstitute "(^(((Resent-)?(From|Sender)|X-Envelope-From):|From )\
 (.*[^.%@a-z0-9])?(\
 Post(ma(st(er)?|n)|office)|Mail(er)?|daemon|mmdf|root|uucp|serv(ices?|er))\
-([^.!:a-z0-9]|$)"			      /* matches most mailer-daemons */
+([^.!:a-z0-9]|$))"			      /* matches most mailer-daemons */
 #define DEFshellmetas	"&|<>~;\n?*["		    /* never put '$' in here */
 #define DEFmaildir	"$HOME"
 #define DEFdefault	"$ORGMAIL"

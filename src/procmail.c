@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.48 1993/09/01 15:54:02 berg Exp $";
+ "$Id: procmail.c,v 1.50 1993/10/29 16:42:46 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -29,9 +29,10 @@ static /*const*/char rcsid[]=
 #include "mailfold.h"
 
 static const char fdefault[]="DEFAULT",orgmail[]="ORGMAIL",*const nullp,
- sendmail[]="SENDMAIL",From_[]=FROM,exflags[]=RECFLAGS,
- systm_mbox[]=SYSTEM_MBOX,pmusage[]=PM_USAGE,DEFdeflock[]=DEFdefaultlock;
-char*buf,*buf2,*globlock,*loclock,*tolock;
+ sendmail[]="SENDMAIL",From_[]=FROM,exflags[]=RECFLAGS,drcfile[]="Rcfile:",
+ systm_mbox[]=SYSTEM_MBOX,pmusage[]=PM_USAGE,DEFdeflock[]=DEFdefaultlock,
+ *etcrc=ETCRC;
+char*buf,*buf2,*loclock,*tolock;
 const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
  shellmetas[]="SHELLMETAS",lockext[]="LOCKEXT",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*const*restargv= &nullp,*sgetcp,
@@ -40,8 +41,8 @@ const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
  procmailn[]="procmail",whilstwfor[]=" whilst waiting for ",home[]="HOME",
  maildir[]="MAILDIR",*defdeflock,*argv0="";
 char*Stdout;
-int retval=EX_CANTCREAT,retvl2=EX_OK,sh,pwait,lcking,rc=rc_INIT,
- ignwerr,lexitcode=EX_OK,asgnlastf,accspooldir,crestarg,skiprc;
+int retval=EX_CANTCREAT,retvl2=EX_OK,sh,pwait,lcking,rcstate,rc= -1,ignwerr,
+ lexitcode=EX_OK,asgnlastf,accspooldir,crestarg,skiprc,savstdout;
 size_t linebuf=mx(DEFlinebuf+XTRAlinebuf,STRLEN(systm_mbox)<<1);
 volatile int nextexit;			       /* if termination is imminent */
 pid_t thepid;
@@ -158,8 +159,9 @@ conflopt:  nlog("Conflicting options\n"),elog(pmusage);
 		fromwhom=0;
 	    }
 	 }
-privileged:
-	endgrent();endpwent();umask(INIT_UMASK);fclose(stdout);rclose(STDOUT);
+privileged:				       /* move stdout out of the way */
+	endgrent();endpwent();umask(INIT_UMASK);savstdout=rdup(STDOUT);
+	fclose(stdout);rclose(STDOUT);			/* just to make sure */
 	if(0>opena(devnull))
 	 { writeerr(devnull);return EX_OSFILE;	     /* couldn't open stdout */
 	 }
@@ -262,7 +264,7 @@ Setuser: { gid=pass->pw_gid;uid=pass->pw_uid;
 	   *	to prevent security holes, drop any privileges now
 	   */
 	 { setdef(lgname,buf);setdef(home,RootDir);setdef(shell,binsh);
-	   setids(uid,gid);
+	   setids();
 	 }
 	if(passinvk)
 	 { free(spassinvk.pw_name);free(spassinvk.pw_dir);
@@ -289,8 +291,9 @@ Setuser: { gid=pass->pw_gid;uid=pass->pw_uid;
 	*	do we need sgidness to access the mail-spool directory/files?
 	*/
 	if(!stat(buf,&stbuf))
-	 { accspooldir=stbuf.st_mode&(S_IWGRP|S_IWOTH);
-	   if((uid!=stbuf.st_uid&&stbuf.st_gid==getegid()||(rc=rc_NOSGID,0))&&
+	 { accspooldir=stbuf.st_mode&(S_IWGRP|S_IWOTH)||uid==stbuf.st_uid;
+	   if((uid!=stbuf.st_uid&&stbuf.st_gid==getegid()||
+	    (rcstate=rc_NOSGID,0))&&
 	    (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH))==(S_IWGRP|S_IXGRP))
 	    { umask(INIT_UMASK&~S_IRWXG);goto keepgid;	  /* group-writeable */
 	    }
@@ -325,7 +328,7 @@ keepgid:      sgid=stbuf.st_gid;   /* keep the gid from the parent directory */
 boglock:	    if(!goodlock)	      /* try & rename bogus lockfile */
 		       rename(defdeflock,buf);		   /* out of the way */
 	       }
-	      if(mboxstat>0||mboxstat<0&&(setids(uid,gid),!lstat(chp,&stbuf)))
+	      if(mboxstat>0||mboxstat<0&&(setids(),!lstat(chp,&stbuf)))
 		 if(!(stbuf.st_mode&S_IWUSR)||S_ISLNK(stbuf.st_mode)||
 		  (S_ISDIR(stbuf.st_mode)?
 		  !(stbuf.st_mode&S_IXUSR):stbuf.st_nlink!=1))
@@ -346,7 +349,7 @@ bogusbox:	  { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
 	      break;			      /* yes we could, fine, proceed */
 	   if(!lstat(chp,&stbuf))		     /* anything in the way? */
 	      continue;			       /* check if it could be valid */
-	   setids(uid,gid);				   /* try some magic */
+	   setids();					   /* try some magic */
 	   if(!xcreat(chp,NORMperm,(time_t*)0,0))		/* try again */
 	      break;
 	   if(lstat(chp,&stbuf))		      /* nothing in the way? */
@@ -358,17 +361,19 @@ fishy:	    { nlog("Couldn't create");logqnl(chp);sputenv(orgmail);
       }
      suppmunreadable=verbose;
      if(!Deliverymode)			       /* not explicit delivery mode */
-       /*
-	*	really change the uid now, since we are not in explicit
-	*	delivery mode
-	*/
-      { setids(uid,gid);rc=rc_NOFILE;
+      { if(*gargv)
+	  /*
+	   *	really change the uid now, since we are not in explicit
+	   *	delivery mode and there are some extra command line arguments
+	   */
+	   setids();
 	if(suppmunreadable=nextrcfile())  /* any rcfile on the command-line? */
+	 { etcrc=0;				/* yes, so do not read etcrc */
 #ifndef NO_COMSAT
 	   if(!getenv(scomsat))
-	      setdef(scomsat,DEFcomsat)	       /* turn off comsat by default */
+	      setdef(scomsat,DEFcomsat);       /* turn off comsat by default */
 #endif
-	    ;
+	 }
 	else if(mailfilter)
 	 { nlog("Missing rcfile\n");return EX_NOINPUT;
 	 }
@@ -379,14 +384,21 @@ fishy:	    { nlog("Couldn't create");logqnl(chp);sputenv(orgmail);
 	      for(restargv=argv+argc;restargv[crestarg];crestarg++);
 	      break;
 	    }
+	   resettmout();
 	 }
       }
    }
   ;{ int succeed,lastcond;struct dyna_long ifstack;
      ifstack.filled=ifstack.tspace=0;ifstack.offs=0;
+     if(etcrc)
+      { if(0>bopen(etcrc))
+	 { yell(drcfile,etcrc);goto startrc;
+	 }
+	else
+	   etcrc=0;
+      }
      do					     /* main rcfile interpreter loop */
-      { if(alrmtime)			       /* any need to reset timeout? */
-	   alarm((unsigned)(alrmtime=0));		    /* reset timeout */
+      { resettmout();
 	if(rc<0)					 /* open new rc file */
 	 { struct stat stbuf;
 	  /*
@@ -411,8 +423,8 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 	      else
 		 cat(tgetenv(home),MCDIRSEP);	  /* prepend $HOME directory */
 	      if(stat(strcat(buf,rcfile),&stbuf)?	      /* accessible? */
-	       rc==rc_NOSGID:stbuf.st_mode&S_IRUSR)   /* and owner-readable? */
-		 setids(uid,gid);			/* then transmogrify */
+	       rcstate==rc_NOSGID:stbuf.st_mode&S_IRUSR)  /* owner-readable? */
+		 setids();				/* then transmogrify */
 	    }
 	   while(0>bopen(buf));			   /* try opening the rcfile */
 	   if(i&&!didchd)	  /* opened rcfile in the current directory? */
@@ -435,8 +447,8 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 	   *	have opened his/her .procmailrc (don't remove these, since
 	   *	the rcfile might have been created after the first stat)
 	   */
-	   *chp=i;yell("Rcfile:",buf);succeed=lastcond=0;setids(uid,gid);
-	   firstchd();
+	   *chp=i;yell(drcfile,buf);setids();firstchd();
+startrc:   succeed=lastcond=0;
 	 }
 	unlock(&loclock);goto commint;		/* unlock any local lockfile */
 	do
@@ -609,6 +621,9 @@ progrm:	   if(testb('!'))				 /* forward the mail */
 	    { getlline(buf2);			 /* get the command to start */
 	      if(i)
 	       { metaparse(buf2);
+		 if(!sh&&buf+1==Tmnate)		      /* just a pipe symbol? */
+		  { *buf='|';*Tmnate++='\0';goto tostdout;	  /* fake it */
+		  }
 forward:	 if(locknext)
 		  { if(!tolock)	   /* an explicit lockfile specified already */
 		     { *buf2='\0';  /* find the implicit lockfile ('>>name') */
@@ -687,7 +702,7 @@ forward:	 if(locknext)
 		 skiprc++;		  /* temporarily disable subprograms */
 	      readparse(chp,getb,0);
 	      if(i)
-	       { strcpy(buf2,buf);
+tostdout:      { strcpy(buf2,buf);
 		 if(locknext)
 		    lcllock();		     /* write to a file or directory */
 		 inittmout(buf);	  /* to break messed-up kernel locks */
@@ -704,13 +719,13 @@ frmailed:	  { if(ifstack.offs)
 		 skiprc--;			     /* reenable subprograms */
 	    }
 	 }
-	else if(testb('}'))
-	 { if(skiprc)
-	      skiprc--;
-	   if(ifstack.filled)
+	else if(testb('}'))					/* end block */
+	 { if(skiprc)					    /* just skipping */
+	      skiprc--;					   /* decrease level */
+	   if(ifstack.filled)		      /* restore lastcond from stack */
 	      lastcond=ifstack.offs[--ifstack.filled];
 	   else
-	      nlog("Closing brace unexpected\n");
+	      nlog("Closing brace unexpected\n");	      /* stack empty */
 	 }
 	else				    /* then it must be an assignment */
 	 { if(!(chp=gobenv(buf)))
@@ -726,8 +741,8 @@ frmailed:	  { if(ifstack.offs)
 	   if(!skiprc)
 	      sputenv(buf),chp[-1]='\0',asenv(chp);
 	 }
-      }
-     while(rc<0||!testb(EOF)||poprc());		    /* main interpreter loop */
+      }						    /* main interpreter loop */
+     while(rc<0||!testb(EOF)||poprc()||etcrc&&(etcrc=0,rclose(rc),rc= -1));
 nomore_rc:
      if(ifstack.offs)
 	free(ifstack.offs);

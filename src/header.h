@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.22 1993/06/28 16:23:21 berg Exp $*/
+/*$Id: header.h,v 1.24 1993/10/29 16:42:30 berg Exp $*/
 
 static const char
  returnpath[]=		"Return-Path:",				  /* RFC 822 */
@@ -87,6 +87,7 @@ static const char
  autoforwardedfrom[]=	"Auto-Forwarded-From:",
  autofcount[]=		"Auto-Forward-Count:",
  endofheader[]=		"End-of-Header:",
+ orgafrom[]=		"Original-From:",
  orgaforwfrom[]=	"Original-Auto-Forwarded-From:",
  orgdate[]=		"Original-Date:",
  notdeliveredto[]=	"Not-Delivered-To:",
@@ -110,7 +111,7 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
   bsl(cntmd5),bsl(mimeversion),bsl(cnttransferenc),bsl(cntid),
   bsl(cntdescription),bsl(cntdisposition),bsl(transportoptions),
   bsl(defltoptions),bsl(cntlength),bsl(rference),bsl(msgtype),
-  bsl(autoforwardedfrom),bsl(autofcount),bsl(endofheader),bsl(orgaforwfrom),
-  bsl(orgdate),bsl(notdeliveredto),bsl(reportversion),bsl(status),
-  bsl(readreceiptto)
+  bsl(autoforwardedfrom),bsl(autofcount),bsl(endofheader),bsl(orgafrom),
+  bsl(orgaforwfrom),bsl(orgdate),bsl(notdeliveredto),bsl(reportversion),
+  bsl(status),bsl(readreceiptto)
 };

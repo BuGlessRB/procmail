@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.18 1993/07/19 15:43:07 berg Exp $
+#$Id: arch_retrieve,v 1.20 1993/10/29 16:42:01 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -16,6 +16,11 @@ $test -z "$listaddr" &&
  $echo "Don't start this script directly, it is used in rc.request" && exit 64
 
 breakoff_search=64		# the maximum number of matches returned
+breakoff_ls=512			# the maximum number of files listed with ls
+maxfiles=16			# the maximum number of files returned (per
+				# command), this can be overridden with
+				# the "maxfiles nnn" command.  Setting it
+				# to zero will disable checking.
 
 tmprequest=tmp.request
 tmpfrom=tmp.from
@@ -45,101 +50,111 @@ $wrongaddress"
    ILLEGAL=""
    while read line
    do
-      set `cd $archivedir; echo dummy $line`
+      set `cd $archivedir; $echo dummy $line`
       shift
       case "$1" in
 	 archive|ARCHIVE) shift
 	    $test ! -z "$wrongaddress" && wrongaddress="$oldwrongaddress";;
       esac
       case "$1" in
+	 maxfiles|MAXFILES)
+	    maxfiles=$2 ;;
 	 send|sendme|get|getme|gimme|retrieve|mail|\
 	 SEND|SENDME|GET|GETME|GIMME|RETRIEVE|MAIL)
-	    while shift; $test $# != 0
-	    do
-	       $echo $from "$1" >>$tmpfrom
-	       case "$1" in
-		  */../*|../*|*/..|..|[-/]*)
-		     $test -z "$ILLEGAL" && ILLEGAL="$1";;
-		  *)
-		   ( $formail -rt -I"Subject: archive retrieval: $1" \
+	    shift
+	    if $expr $maxfiles = 0 \| $maxfiles \>= $# >/dev/null
+	    then
+	       while $test $# != 0
+	       do
+		  $echo $from "$1" >>$tmpfrom
+		  case "$1" in
+		     */../*|../*|*/..|..|[-/]*)
+			$test -z "$ILLEGAL" && ILLEGAL="$1";;
+		     *)
+		      ( $formail -rt -I"Subject: archive retrieval: $1" \
+			 -i"From: $listreq" -A"X-Loop: $listaddr" \
+			 -I"Precedence: bulk" <$tmprequest
+			$test ! -z "$wrongaddress" && $echo "$wrongaddress"
+			cd $archivedir
+			if $test -f "./$1"
+			then
+			   $echo "File: $1"
+			   $echo "BEGIN--------------cut here-----------------"
+			   $cat "./$1"
+			   $echo "END----------------cut here-----------------"
+			else
+			   $echo "File $1 is not available."
+			fi
+		      ) | $SENDMAIL $sendmailOPT -t ;;
+		  esac
+		  shift
+	       done
+	    else
+	       ( $formail -rt -I"Subject: archive retrieval: $line" \
 		      -i"From: $listreq" -A"X-Loop: $listaddr" \
 		      -I"Precedence: bulk" <$tmprequest
-		     $test ! -z "$wrongaddress" && $echo "$wrongaddress" &&
-		      wrongaddress=""
-		     cd $archivedir
-		     if $test -f "./$1"
-		     then
-			$echo "File: $1"
-			$echo "BEGIN---------------cut here------------------"
-			$cat "./$1"
-			$echo "END-----------------cut here------------------"
-		     else
-			$echo "File $1 is not available."
-		     fi
-		   ) | $SENDMAIL $sendmailOPT -t ;;
-	       esac
-	    done ;;
+		 $test ! -z "$wrongaddress" && $echo "$wrongaddress"
+		 $echo "Your request expanded to more than $maxfiles files."
+		 $echo "If you want to receive all of them, use the"
+		 $echo "'archive maxfiles nnn' command first to raise the"
+		 $echo "limit."
+	       ) | $SENDMAIL $sendmailOPT -t
+	    fi ;;
 	 ls|dir|directory|list|show|\
 	 LS|DIR|DIRECTORY|LIST|SHOW)
-	    $test $# = 1 && set dummy .
-	    while shift; $test $# != 0
-	    do
-	       $echo $from ls "$1" >>$tmpfrom
-	       case "$1" in
-		  */../*|../*|*/..|..|[-/]*)
-		     $test -z "$ILLEGAL" && ILLEGAL="$1";;
-		  *)
+	    shift
+	    case "$*" in
+	       *[/ ]../*|../*|*/..|..|[-/]*|* /*)
+		  $test -z "$ILLEGAL" && ILLEGAL="$line";;
+	       *)
+		  $echo $from ls "$line" >>$tmpfrom
 		   ( $formail -rt -I"Subject: archive retrieval: ls $1" \
 		      -i"From: $listreq" -A"X-Loop: $listaddr" \
 		      -I"Precedence: bulk" <$tmprequest
-		     $test ! -z "$wrongaddress" && $echo "$wrongaddress" &&
-		      wrongaddress=""
+		     $test ! -z "$wrongaddress" && $echo "$wrongaddress"
 		     cd $archivedir
-		     if $test -r "./$1"
-		     then
-			$echo "ls -l $1"
-			$echo "BEGIN---------------cut here------------------"
-			$ls -lL "./$1" 2>/dev/null || $ls -l "./$1"
-			$echo "END-----------------cut here------------------"
-		     else
-			$echo "File or directory $1 is not available."
-		     fi
+		     $echo "ls -l $line"
+		     $echo "BEGIN---------------cut here------------------"
+		     $ls -lL "$@" 2>&1 | $sed -e $breakoff_ls'a\
+Truncating after '$breakoff_ls' names...' -e ${breakoff_ls}q
+		     $echo "END-----------------cut here------------------"
 		   ) | $SENDMAIL $sendmailOPT -t ;;
-	       esac
-	    done ;;
+	    esac ;;
 	 search|grep|egrep|fgrep|find|\
 	 SEARCH|GREP|EGREP|FGREP|FIND)
 	    $echo $from "$line" >>$tmpfrom
 	    shift; regxp="$1"; shift
 	    case "$*" in
-	       */../*|../*|*/..|..|[-/]*)
+	       *[/ ]../*|../*|*/..|..|[-/]*|* /*)
 		  $test -z "$ILLEGAL" && ILLEGAL="$line";;
 	       *)
 		( $formail -rt -I"Subject: archive retrieval: $line" \
 		   -i"From: $listreq" -A"X-Loop: $listaddr" \
 		   -I"Precedence: bulk" <$tmprequest
-		  $test ! -z "$wrongaddress" && $echo "$wrongaddress" &&
-		   wrongaddress=""
+		  $test ! -z "$wrongaddress" && $echo "$wrongaddress"
 		  cd $archivedir
 		  $echo "$line"
 		  $echo "BEGIN---------------cut here------------------"
-		  $nice $egrep -n -i -e $regxp $* 2>&1 |
+		  $nice $egrep -n -i -e $regxp $* </dev/null 2>&1 |
 		   $sed -e $breakoff_search'a\
 Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 		  $echo "END-----------------cut here------------------"
 		) | $SENDMAIL $sendmailOPT -t ;;
 	    esac ;;
-	 "") ;;
+	 ""|#*) ;;
 	 *) $test -z "$sendhelp" && sendhelp="$1" ;;
       esac
    done
    if $test ! -z "$sendhelp" -o ! -z "$ILLEGAL"
    then
-       ( $formail -rt -I"Subject: archive retrieval error" \
+       ( $formail -rt -I"Subject: archive retrieval info" \
 	  -i"From: $listreq" -A"X-Loop: $listaddr" -I"Precedence: bulk" \
 	  <$tmprequest
-	 $test ! -z "$wrongaddress" && $echo "$wrongaddress" && wrongaddress=""
-	 $test ! -z "$sendhelp" && $echo "Unknown command $sendhelp."
+	 $test ! -z "$wrongaddress" && $echo "$wrongaddress"
+	 case "X$sendhelp" in
+	    X[Hh][Ee][Ll][Pp]|X[Ii][Nn][Ff][Oo]|X) ;;
+	    *) $echo "Unknown command $sendhelp." ;;
+	 esac
 	 $test ! -z "$ILLEGAL" && $echo "Illegal filename $ILLEGAL requested."
 	 $echo ""
 	 $echo "This archive server knows the following commands:"
@@ -147,10 +162,14 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 	 $echo "get filename ..."
 	 $echo "ls directory ..."
 	 $echo "egrep case_insensitive_regular_expression filename ..."
+	 $echo "maxfiles nnn"
 	 $echo ""
 	 $echo "Aliases for 'get': send, sendme, getme, gimme, retrieve, mail"
 	 $echo "Aliases for 'ls': dir, directory, list, show"
 	 $echo "Aliases for 'egrep': search, grep, fgrep, find"
+	 $echo ""
+	 $echo "Lines starting with a '#' are ignored."
+	 $echo "Setting maxfiles to zero will remove the limit."
 	 $echo ""
 	 $echo "Examples:"
 	 $echo "ls latest"

@@ -65,7 +65,7 @@
 	your compiler is broken; I would recommend submitting this as a
 	compiler bug to your vendor.  In any case, if this should occur, I'd
 	appreciate a mail from you (so I can try to fix the autoconf script
-	to recognise your compiler).
+	to recognise your compiler correctly as well).
 
 6. The compiler refuses to compile regexp.c, what is the problem?
 
@@ -124,9 +124,19 @@
 12. The leading From_ line on all my arriving mail shows the wrong time.
     Before putting procmail in the .forward file everything was OK.
 
-	This is a known bug in sendmail-5.65c+IDA.
+	This is a known bug in sendmail-5.65c+IDA.  The real fix would be
+	to upgrade to sendmail 6.x or later.  For a quick fix, see the
+	procmailex man page.
 
-13. I sometimes get these `Lock failure on "/usr/mail/$LOGNAME.lock"' errors
+13. When sending mail to someone with procmail in his/her .forward I sometimes
+    get back an error saying: "Cannot mail directly to programs."
+
+	This is a known bug in some older sendmails that mistakenly drop
+	their root privileges when they are given the -t flag.	Either
+	make sure that your sendmail always forwards to a mailserver first or
+	upgrade to sendmail 6.x or later.
+
+14. I sometimes get these `Lock failure on "/usr/mail/$LOGNAME.lock"' errors
     from procmail.  What do I do about it?
 
 	The problem here is that as long as procmail has not read a
@@ -137,7 +147,7 @@
 
 	If, however, it finds a $HOME/.procmailrc file, procmail has to let go
 	of the sgid mail permission because otherwise any ordinary user could
-	misuse that.
+	abuse that.
 
 	There are several solutions to this problem:
 	- Some systems support the sticky bit on directories (when set only
@@ -174,7 +184,7 @@
 	  system mailbox will be using the same lockfile of course.
 
 
-14. None of the above topics cover my problem.	Should I panic?
+15. None of the above topics cover my problem.	Should I panic?
 
 	Let me ask you a question :-), have you examined the CAVEATS, WARNINGS,
 	BUGS and NOTES sections of the manual pages *closely* ?

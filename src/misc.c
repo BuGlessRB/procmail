@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.32 1993/09/01 15:53:59 berg Exp $";
+ "$Id: misc.c,v 1.34 1993/10/29 16:42:40 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -28,6 +28,7 @@ struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
  {"LOGABSTRACT",DEFlogabstract}};
 int didchd;
 static fakedelivery;
+static char*globlock;
 		       /* line buffered to keep concurrent entries untangled */
 void elog(newt)const char*const newt;
 { int lnew,i;static lold;static char*old;char*p;
@@ -61,10 +62,16 @@ void ignoreterm P((void))
   signal(SIGQUIT,SIG_IGN);
 }
 
-void setids(uid,gid)const uid_t uid;const gid_t gid;
-{ if(setrgid(gid))	/* due to these !@#$%^&*() POSIX semantics, setgid() */
-     setgid(gid);	   /* sets the saved gid as well; we can't use that! */
-  setuid(uid);setgid(gid);
+void closedesc P((void))
+{ rclose(savstdout);closerc();
+}
+
+void setids P((void))
+{ if(rcstate!=rc_NORMAL)
+   { if(setrgid(gid))	/* due to these !@#$%^&*() POSIX semantics, setgid() */
+	setgid(gid);	   /* sets the saved gid as well; we can't use that! */
+     setuid(uid);setgid(gid);rcstate=rc_NORMAL;
+   }
 }
 
 void writeerr(line)const char*const line;
@@ -173,7 +180,7 @@ void terminate P((void))
       }
      else
 	logabstract(tgetenv(lastfolder));
-     closerc();
+     closedesc();
      if(!(lcking&lck_ALLOCLIB))			/* don't reenter malloc/free */
 	exectrap(tgetenv("TRAP"));
      nextexit=2;unlock(&loclock);unlock(&globlock);fdunlock();
@@ -332,7 +339,7 @@ asenvcpy(src)char*src;
 void asenv(chp)const char*const chp;
 { static const char slinebuf[]="LINEBUF",logfile[]="LOGFILE",Log[]="LOG",
    sdelivered[]="DELIVERED",includerc[]="INCLUDERC",eumask[]="UMASK",
-   host[]="HOST";
+   host[]="HOST",dropprivs[]="DROPPRIVS";
   if(!strcmp(buf,slinebuf))
    { if((linebuf=renvint(0L,chp)+XTRAlinebuf)<MINlinebuf+XTRAlinebuf)
 	linebuf=MINlinebuf+XTRAlinebuf;		       /* check minimum size */
@@ -347,6 +354,10 @@ void asenv(chp)const char*const chp;
      opnlog(chp);
   else if(!strcmp(buf,Log))
      elog(chp);
+  else if(!strcmp(buf,dropprivs))			  /* drop privileges */
+   { if(renvint(0L,chp))
+	setids();
+   }
   else if(!strcmp(buf,sdelivered))			    /* fake delivery */
    { if(renvint(0L,chp))				    /* is it really? */
       { lcking|=lck_LOCKFILE;		    /* just to prevent interruptions */
@@ -372,7 +383,7 @@ void asenv(chp)const char*const chp;
       { yell("HOST mismatched",name);
 	if(rc<0||!nextrcfile())			  /* if no rcfile opened yet */
 	   retval=EX_OK,terminate();		  /* exit gracefully as well */
-	closerc();rc=rc_NOFILE;
+	closerc();rc= -1;
       }
    }
   else

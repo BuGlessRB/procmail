@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.29 1993/08/20 11:22:40 berg Exp $";
+ "$Id: formail.c,v 1.31 1993/10/29 16:42:28 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/08/20 11:22:40 $";
+static /*const*/char rcsdate[]="$Date: 1993/10/29 16:42:28 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -32,20 +32,20 @@ static const char unknown[]=UNKNOWN,re[]=" Re:",fmusage[]=FM_USAGE,
 #include "header.h"
 /*
  *	sender determination fields in order of importance/reliability
- *	reply-address determination fields (wrepl specifies the weight for
+ *	reply-address determination fields (wrepl specifies the weight
  *	for regular replies, wtrepl specifies the weight for trusted users)
  *
  *	I bet this is the first time you see a bar graph in C-source-code :-)
  */
 static const struct {const char*head;int len,wrepl,wtrepl;}sest[]=
 { sslbar(replyto	,"******"	,"********"	),
-  sslbar(Fromm		,"*"		,"****"		),
-  sslbar(retreceiptto	,"********"	,"*******"	),
+  sslbar(Fromm		,"*"		,"*******"	),
+  sslbar(retreceiptto	,"********"	,"*****"	),
   sslbar(sender		,"*****"	,"******"	),
   sslbar(res_replyto	,"***********"	,"***********"	),
-  sslbar(res_from	,"***foo***"	,"***bar***"	),
-  sslbar(res_sender	,"**********"	,"**********"	),
-  sslbar(errorsto	,"*******"	,"*****"	),
+  sslbar(res_from	,"***foo***"	,"***bar****"	),
+  sslbar(res_sender	,"**********"	,"*********"	),
+  sslbar(errorsto	,"*******"	,"****"		),
   sslbar(path		,"**"		,"*"		),
   sslbar(returnpath	,"***"		,"***"		),
   sslbar(From_		,"****"		,"**"		)

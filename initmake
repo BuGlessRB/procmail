@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.40 1993/09/16 14:42:48 berg Exp $
+#$Id: initmake,v 1.42 1993/10/29 16:41:56 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -39,9 +39,22 @@ HERE
 	   if test ! -f src/_autotst
 	   then
 	      echo "Warning: your $SHELL is broken, avoiding it"; SHELL=""
-	   fi
-	   $RM src/_autotst;;
-     esac;;
+	   fi ;;
+     esac
+     if test ! -z "$SHELL"
+     then
+	$SHELL <<HERE
+	exec 2>$DEVNULL
+	echo test >src/_autotst
+	echo test >src/_autotst
+HERE
+	if test $? = 1
+	then
+	   echo "Warning: your $SHELL has noclobber turned on, avoiding it"
+	   SHELL=""
+	fi
+     fi
+     $RM src/_autotst;;
   *) echo "Warning: perverted make detected"; SHELL="";;
 esac
 test -z "$SHELL" && SHELL=$BSHELL

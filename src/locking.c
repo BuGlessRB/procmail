@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.20 1993/08/09 14:26:31 berg Exp $";
+ "$Id: locking.c,v 1.22 1993/10/29 16:42:33 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -83,7 +83,7 @@ ce:  if(nextexit)
 term: { free(name);break;		     /* drop the preallocated buffer */
       }
    }
-  if(rc!=rc_INIT)				     /* we opened any rcfile */
+  if(rcstate==rc_NORMAL)			   /* we already set our ids */
      setgid(gid);		      /* we put back our regular permissions */
   lcking&=~lck_LOCKFILE;
   if(nextexit)
@@ -105,20 +105,16 @@ void unlock(lockp)char**const lockp;
 { lcking|=lck_LOCKFILE;
   if(*lockp)
    { if(!strcmp(*lockp,defdeflock))    /* is it the system mailbox lockfile? */
-	if(!accspooldir)
-	   goto no_lock;
-	else
-	   setgid(sgid);	       /* try and get some extra permissions */
+	setgid(sgid);		       /* try and get some extra permissions */
      yell("Unlocking",*lockp);
      if(unlink(*lockp))
 	nlog("Couldn't unlock"),logqnl(*lockp);
-     if(rc!=rc_INIT)				     /* we opened any rcfile */
+     if(rcstate==rc_NORMAL)			   /* we already set our ids */
 	setgid(gid);		      /* we put back our regular permissions */
      if(!nextexit)			   /* if not inside a signal handler */
 	free(*lockp);
      *lockp=0;
    }
-no_lock:
   lcking&=~lck_LOCKFILE;
   if(nextexit==1)	    /* make sure we are not inside terminate already */
      elog(newline),terminate();

@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.20 1993/09/16 14:42:57 berg Exp $
+#$Id: createlist,v 1.22 1993/10/29 16:42:04 berg Exp $
 
 defaults=.etc
 
@@ -54,14 +54,14 @@ then
   exit $EX_USAGE
 fi
 
-if $test ! -x $bin_procmail
+if $test ! -f $bin_procmail
 then
   OIFS="$IFS"
   IFS=:"$IFS"
   procmail=""
 
   for a in $PATH
-  do $test -z "$procmail" -a -x "$a"/procmail && procmail=$a/procmail
+  do $test -z "$procmail" -a -f "$a"/procmail && procmail=$a/procmail
   done
 
   IFS="$OIFS"

@@ -33,7 +33,7 @@
 # rc.request	rcfile used when processing requests
 # rc.custom	rcfile that contains all the customisations per list
 
-#$Id: rc.init,v 1.20 1993/08/25 14:10:05 berg Exp $
+#$Id: rc.init,v 1.22 1993/10/29 16:42:11 berg Exp $
 
 PATH=.:$PATH:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises

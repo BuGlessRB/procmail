@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.16 1993/08/09 14:11:08 berg Exp $*/
+/*$Id: procmail.h,v 1.18 1993/10/29 16:42:49 berg Exp $*/
 
 #include "includes.h"
 
@@ -22,11 +22,14 @@ typedef unsigned char uschar;	     /* sometimes uchar is already typedef'd */
 #define SYSTEM_MBOX	SYSTEM_MAILBOX
 #endif
 
+#ifndef ETCRC
+#define ETCRC	0
+#endif
+
 #define XTRAlinebuf	2	     /* surplus of LINEBUF (see readparse()) */
 
-#define rc_NOFILE	(-1)
-#define rc_NOSGID	(-2)		      /* you can forget any sgidness */
-#define rc_INIT		(-3)
+#define rc_NOSGID	1		      /* you can forget any sgidness */
+#define rc_NORMAL	2
 
 #define MCDIRSEP	(dirsep+STRLEN(dirsep)-1)      /* most common DIRSEP */
 #define MCDIRSEP_	(dirsep+STRLEN(DIRSEP)-1)
@@ -52,14 +55,14 @@ struct dyna_long{size_t filled,tspace;off_t*offs;};
 int
  eqFrom_ P((const char*const a));
 
-extern char*buf,*buf2,*globlock,*loclock,*tolock,*Stdout,*themail,*thebody;
+extern char*buf,*buf2,*loclock,*tolock,*Stdout,*themail,*thebody;
 extern const char shellflags[],shell[],lockfile[],lockext[],newline[],binsh[],
  unexpeof[],shellmetas[],*const*gargv,*const*restargv,*sgetcp,*rcfile,
  dirsep[],msgprefix[],devnull[],lgname[],executing[],oquote[],cquote[],
  whilstwfor[],procmailn[],Mail[],home[],maildir[],*defdeflock,*argv0;
 extern long filled;
-extern sh,pwait,retval,retvl2,lcking,rc,ignwerr,lexitcode,asgnlastf,
- accspooldir,crestarg,skiprc;
+extern sh,pwait,retval,retvl2,lcking,rcstate,rc,ignwerr,lexitcode,asgnlastf,
+ accspooldir,crestarg,skiprc,savstdout;
 extern size_t linebuf;
 extern volatile nextexit;
 extern pid_t thepid;

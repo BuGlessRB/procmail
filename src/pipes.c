@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.20 1993/09/02 15:55:06 berg Exp $";
+ "$Id: pipes.c,v 1.22 1993/10/29 16:42:42 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -39,6 +39,11 @@ void ftimeout P((void))
   logqnl(lastexec);signal(SIGALRM,(void(*)())ftimeout);
 }
 
+void resettmout P((void))
+{ if(alrmtime)				       /* any need to reset timeout? */
+     alarm((unsigned)(alrmtime=0));			    /* reset timeout */
+}
+
 static void stermchild P((void))
 { if(pidfilt>0)		    /* don't kill what is not ours, we might be root */
      kill(pidfilt,SIGTERM);
@@ -55,7 +60,7 @@ static void stermchild P((void))
 static void childsetup P((void))
 { lexitcode=EX_UNAVAILABLE;qsignal(SIGTERM,stermchild);
   qsignal(SIGINT,stermchild);qsignal(SIGHUP,stermchild);
-  qsignal(SIGQUIT,stermchild);closerc();
+  qsignal(SIGQUIT,stermchild);closedesc();
 }
 
 static void getstdin(pip)const int pip;
@@ -160,7 +165,7 @@ long pipin(line,source,len)char*const line;char*source;long len;
 { int poutfd[2];
   rpipe(poutfd);
   if(!(pidchild=sfork()))				    /* spawn program */
-     rclose(PWRO),closerc(),getstdin(PRDO),callnewprog(line);
+     rclose(PWRO),closedesc(),getstdin(PRDO),callnewprog(line);
   rclose(PRDO);
   if(forkerr(pidchild,line))
      return 1;					    /* dump mail in the pipe */

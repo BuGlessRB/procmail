@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.25 1993/10/22 16:42:48 berg Exp $
+#$Id: rc.request,v 1.27 1993/10/29 16:42:16 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -62,7 +62,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
   * ^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
      ((archive([	 ]|$))|(archive[	 ]+)?\
      ((send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|list|show|\
-      search|[fe]?grep|find)([	 ]|$))
+      search|[fe]?grep|find|maxfiles)([	 ]|$))
   | arch_retrieve
 
 #
@@ -70,15 +70,15 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 #
 
   :0 HB w:dist.lock
-  * ^^(.+$)*Subject:[	 ]*(($(.+$)*(^[  ]*)+)?\
+  * ^^(.+$)*Subject:[	 ]*(($(.+$)*(^[ ]*)+)?\
      (signoff|delete|remove|unsub)|\
      ($(.*$)*)?(.*[^a-z])?(unsubscri|\
      ((delete|remove) .* from|take .* off) .* [a-z-]*list([^a-z]|$)))
   | unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from`
 
 #
-# Is it a subscription request?  Yes, well, then check if the person
-# subscribing isn't on the reject list.  If not, then let's see if he might
+# Is it a subscription request?	 Yes, well, then check if the person
+# subscribing isn't on the reject list.	 If not, then let's see if he might
 # already be on the mailinglist.  If not, add him.
 #
 
@@ -166,7 +166,7 @@ LOCKFILE				# we don't need the lockfile anymore
      -A "X-Diagnostic: `multigram -b1 -l$reject_threshold reject`"
 
   :0 HB wfh
-  * ^((Subject:)?[a-z,.  ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
+  * ^((Subject:)?[a-z,. ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
 			      (add .* to|put .* on) .* list)([^a-z]|$))
   * ?multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
   | formail -A "X-Diagnostic: Already on the subscriber list" \
