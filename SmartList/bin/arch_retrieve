@@ -1,6 +1,6 @@
 #! /bin/sh
-: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: arch_retrieve,v 1.9 1993/02/11 14:00:08 berg Exp $
+:
+#$Id: arch_retrieve,v 1.10 1993/03/02 14:40:35 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo

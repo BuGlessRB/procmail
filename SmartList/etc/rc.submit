@@ -1,12 +1,11 @@
 # BEFORE editing this file, you should make sure that it is not linked to
-# the master version (../.listadmin/listrc.sub) anymore (i.e. make a copy).
-# If the mailinglist is not in active use yet, or if you want to take the
-# chance, you can write out this file without locking.	To do it properly
-# you should create the ../.listadmin/the_lists.lock file with lockfile(1)
-# shortly before writing out the new version of this file (remove the lockfile
-# afterwards of course)
+# the master version (../.etc/rc.submit) anymore (i.e. "delink rc.request"
+# if you do not want your changes to affect all archive servers).
+#
+# New mails can be temporarily stalled by creating the file rc.lock (either in
+# ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.11 1993/02/11 12:08:21 berg Exp $
+#$Id: rc.submit,v 1.12 1993/03/02 14:41:02 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM

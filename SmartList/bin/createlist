@@ -5,7 +5,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.13 1993/02/19 15:04:25 berg Exp $
+#$Id: createlist,v 1.14 1993/03/02 14:40:39 berg Exp $
 
 defaults=.etc
 
@@ -13,6 +13,7 @@ test=test		# /bin/test
 ln=ln			# /bin/ln
 touch=touch		# /bin/touch
 mkdir=mkdir		# /bin/mkdir
+rmdir=rmdir		# /bin/rmdir
 sed=sed			# /bin/sed
 pwd=pwd			# /bin/pwd
 cat=cat			# /bin/cat
@@ -31,7 +32,7 @@ EX_UNAVAILABLE=69
 ( lockfile ) 2>$DEVNULL
 if $test $? != 64
 then
-  echo "Where is \"lockfile\"? It should be installed in your PATH" 1>&2
+  $echo "Where is \"lockfile\"? It should be installed in your PATH" 1>&2
   exit $EX_UNAVAILABLE
 fi
 
@@ -45,7 +46,8 @@ then
 fi
 if $test ! -d $defaults
 then
-  echo "createlist: You should be near the main list directory to do this" 1>&2
+  $echo "createlist: You should be near the main list directory to do this" \
+   1>&2
   exit $EX_USAGE
 fi
 
@@ -62,8 +64,8 @@ then
   IFS="$OIFS"
   if $test -z "$procmail"
   then
-     echo "Where is \"procmail\"?" 1>&2
-     echo "The symbolic link .bin/procmail must point to it" 1>&2
+     $echo "Where is \"procmail\"?" 1>&2
+     $echo "The symbolic link .bin/procmail must point to it" 1>&2
      exit $EX_UNAVAILABLE
   fi
   $rm -f .bin/procmail
@@ -83,32 +85,37 @@ domain=`$sed -n -e 's/^[^#]*domain= *\([^	 ]*\).*$/\1/p' \
 
 if $test .$domain = .INSERT.YOUR.MAIL.DOMAIN.HERE
 then
-  echo "I refuse to do anything useful until you have edited the" 1>&2
-  echo "rc.init file.  \`domain' must be set to some sane value." 1>&2
+  $echo "I refuse to do anything useful until you have edited the" 1>&2
+  $echo "rc.init file.	\`domain' must be set to some sane value." 1>&2
   exit $EX_USAGE
 fi
 
-if $test $# != 1 -a $# != 2
-then echo "Usage: createlist listname [maintainer]" 1>&2; exit $EX_USAGE
+archiveserver=no
+$test .-a = ".$1" && shift && archiveserver=yes
+
+if $test $# != 1 -a $# != 2 -o ".$1" = .-h
+then
+  $echo "Usage: createlist [-a] listname [maintainer]" 1>&2
+  $echo "	-a	create an archive server instead of a list" 1>&2
+  exit $EX_USAGE
 fi
 
 list="$1"
 maintainer="$2"
 
 case "$list" in
-  "*[/	 ]*") echo "createlist: Suspicious listname specified" 1>&2
+  "*[/	 ]*") $echo "createlist: Suspicious listname specified" 1>&2
      exit $EX_USAGE;;
-  *[@!]*) echo "createlist: Specify listname without domain name appended" \
+  *[@!]*) $echo "createlist: Specify listname without domain name appended" \
      1>&2; exit $EX_USAGE;;
 esac
 
-umask `$sed -n -e 's/^[^#]*UMASK=[^0-9]*\([0-9]*\).*$/\1/p' \
- $defaults/rc.init`
+umask `$sed -n -e 's/^[^#]*UMASK=[^0-9]*\([0-9]*\).*$/\1/p' $defaults/rc.init`
 
 if $mkdir "$list" 2>$DEVNULL
 then
 :
-else echo "createlist: \"$list\" already exists" 1>&2; exit $EX_USAGE
+else $echo "createlist: \"$list\" already exists" 1>&2; exit $EX_USAGE
 fi
 cd "$list"
 for a in rc.submit rc.init rc.request help.txt subscribe.txt reject
@@ -122,19 +129,30 @@ $mkdir archive/latest
 
 $sed -e "/^maintainer/ s/=/=	$maintainer/" <../$defaults/rc.custom \
  >rc.custom
-echo "(Only addresses below this line can be automatically removed)" >>dist
+$echo "(Only addresses below this line can be automatically removed)" >>dist
 
 $chmod ugo+x .
 $chmod ugo+r dist
+
+if $test $archiveserver = yes
+then
+  $rmdir archive/latest
+  $rm -f dist subscribe.txt help.txt rc.submit rc.request
+  $cat >rc.submit <<HERE
+HOST=continue_with_rc.request
+HERE
+  $ln ../$defaults/rc.archive rc.request
+fi
+
 cd ..
 
-echo 1>&2
-echo "Installed the following files (mostly hardlinked):" 1>&2
-echo 1>&2
-$ls -ld $list $list/* $list/*/* 1>&2
-echo 1>&2
+$echo 1>&2
+$echo "Installed the following files (many hardlinked):" 1>&2
+$echo 1>&2
+$ls -ld $list $list/* $list/*/* 1>&2 2>$DEVNULL
+$echo 1>&2
 
-listuser=`$ls -ld $defaults | ( read a b user d; echo $user )`
+listuser=`$ls -ld $defaults | ( read a b user d; $echo $user )`
 
 TMPF=.uniq.$$
 
@@ -150,9 +168,9 @@ trap 1 2 3 15
 
 flist=$listdir/.bin/flist
 
-echo "Now make the following entries in your /usr/lib/aliases file:" 1>&2
-echo \#########################################################################
-echo "$list: |\"IFS=' ';exec $flist $list\""
-echo "$list-request: |\"IFS=' ';exec $flist $list-request\""
-echo "$list-dist: :include:$listdir/$list/dist"
-echo \#########################################################################
+$echo "Now make the following entries in your /usr/lib/aliases file:" 1>&2
+$echo \########################################################################
+$echo "$list: |\"IFS=' ';exec $flist $list\""
+$echo "$list-request: |\"IFS=' ';exec $flist $list-request\""
+$test $archiveserver = no && $echo "$list-dist: :include:$listdir/$list/dist"
+$echo \########################################################################

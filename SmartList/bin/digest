@@ -1,0 +1,73 @@
+#! /bin/sh
+:
+#$Id: digest,v 1.1 1993/03/02 14:40:41 berg Exp $
+
+test=test		# /bin/test
+echo=echo		# /bin/echo
+ls=ls			# /bin/ls
+awk=awk			# /bin/awk
+cat=cat			# /bin/cat
+rm=rm			# /bin/rm
+formail=formail		# /usr/local/bin/formail
+lockfile=lockfile	# /usr/local/bin/lockfile
+
+$test -z "$listaddr" &&
+ $echo "Don't start this script directly, it is used in rc.request" && exit 64
+
+tmprequest=tmp.request
+tmpfrom=tmp.from
+
+$awk \
+'BEGIN					{ lines=0;mode=0; }
+					{ match=0; }
+/^$/					{ match=1; }
+/^[	 ][	 ]*$/			{ match=2; }
+/^------------------------------$/	{ match=3; }
+{ if(mode==0)
+   { print($0) >'$tmpfrom';
+     if(match==1)
+	mode=1;
+     next;
+   }
+  if(mode==1 && match)
+     next;
+  mode=2;
+  if(match==1)
+   { ++lines;next;
+   }
+  while(lines)
+   { print("");--lines;
+   }
+  if(match==3)
+     print(" -----------------------------");
+  else
+     print($0);
+}
+END { print("");print("------------------------------");print(""); }
+' >$tmprequest
+
+Date="`		$formail -X Date:	<$tmpfrom`"
+From="`		$formail -X From:	<$tmpfrom`"
+To="`		$formail -X To:		<$tmpfrom`"
+Cc="`		$formail -X Cc:		<$tmpfrom`"
+Subject="`	$formail -x Subject:	<$tmpfrom`"
+MessageID="`	$formail -X Message-ID: <$tmpfrom`"
+Keywords="`	$formail -X Keywords:	<$tmpfrom`"
+Summary="`	$formail -X Summary:	<$tmpfrom`"
+
+for a in Date From To Cc Subject MessageID Keywords Summary
+do
+  b="`$echo \$$a`"
+  if $test ! -z "$b"
+  then
+     if $test $a = Subject
+     then
+	$echo "Subject:$b" >>digest.body
+     else
+	$echo "$b" >>digest.body
+     fi
+  fi
+done
+
+$echo "" >>$digest.body
+$cat $tmprequest >>$digest.body

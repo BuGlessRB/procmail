@@ -4,7 +4,10 @@
 
 # BEFORE editing this file or any rc.* file in the .etc directory
 # you should create the .etc/rc.lock file.  As long as this file
-# exists, mail delivery to any list will stall (fmail checks this file).
+# exists, mail delivery to any list will stall (flist checks this file).
+#
+# Delivery can be temporarily stalled on a per list basis by creating
+# the file rc.lock in the respective list's subdirectory.
 
 # ENVIRONMENT:
 # list		contains the submitting address of the list (sans domain)
@@ -30,7 +33,7 @@
 # rc.request	rcfile used when processing requests
 # rc.custom	rcfile that contains all the customisations per list
 
-#$Id: rc.init,v 1.7 1993/02/10 17:07:39 berg Exp $
+#$Id: rc.init,v 1.8 1993/03/02 14:40:58 berg Exp $
 
 PATH=.:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises
@@ -72,9 +75,9 @@ defaults=.etc				# the name of the defaults directory
 
 FROM_MAILER_DAEMON='^(Precedence:.*junk|'\
 '(((Resent-)?(From|Sender)|X-Envelope-From):|From )'\
-'(.*[^.@a-z0-9])?('\
+'(.*[^.%@a-z0-9])?('\
 'Post(ma(st(er)?|n)|office)|Mailer|daemon|mmdf|root|uucp|serv(ices?|er)'\
-')([^.a-z0-9]|$))'
+')([^.!:a-z0-9]|$))'
 
 RC_INIT					# clear this one from the environment
 					# so that we include this file only

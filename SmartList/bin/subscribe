@@ -1,6 +1,6 @@
 #! /bin/sh
-: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: subscribe,v 1.10 1993/02/11 14:00:14 berg Exp $
+:
+#$Id: subscribe,v 1.11 1993/03/02 14:40:48 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -29,14 +29,14 @@ esac
 subscraddr=""
 
 address=`$formail -k -xSubject: |
- $sed -n \
-  -e 's/^[	 ]*[aA][dD][dD][	 ]*'\
+ $sed -n -e 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/\
+  -e 's/^[	 ]*add[		]*'\
 '[^	 ]*[	 ]\([^		][^	 ]*[@!][^	 ][^	 ]*\)/\1/p' \
-  -e 's/^[	 ]*[aA][dD][dD][rR][eE][sS][sS][	 ]*'\
+  -e 's/^[	 ]*address[	 ]*'\
 '[^	 ]*[	 ]\([^		][^	 ]*[@!][^	 ][^	 ]*\)/\1/p' \
-  -e 's/^[	 ]*[sS][uU][bB][	 ]*'\
+  -e 's/^[	 ]*sub[		]*'\
 '[^	 ]*[	 ]\([^		][^	 ]*[@!][^	 ][^	 ]*\)/\1/p' \
-  -e 's/^[	 ]*[sS][uU][bB][sS][cC][rR][iI][bB][eE][	 ]*'\
+  -e 's/^[	 ]*subscribe[	 ]*'\
 '[^	 ]*[	 ]\([^		][^	 ]*[@!][^	 ][^	 ]*\)/\1/p' `
 
 for a in $address ""

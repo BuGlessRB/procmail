@@ -199,3 +199,8 @@
 	       turns out to be /dev/null
 	    Added a paragraph to the mailinglist/Manual (explaining multigram
 	       and threshold values)
+1993/03/02: v2.82
+	    Fixed sleeptime argument to lockfile
+	    Refined the FROM_DAEMON macro again
+	    Allowed for the archive server of the mailinglists to be installed
+	       standalone

@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.17 1993/02/04 12:44:52 berg Exp $*/
+/*$Id: includes.h,v 1.18 1993/03/02 14:41:10 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -259,10 +259,12 @@ extern int uname();					 /* so we fix it :-) */
 #ifndef strchr		   /* for very old K&R compatible include files with */
 #ifdef P						/* new K&R libraries */
 #ifdef const
+#ifdef void
 extern char*strchr();
 extern char*strpbrk();
 extern char*strstr();
 extern void*memmove();
+#endif
 #endif
 #endif
 #endif

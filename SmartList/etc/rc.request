@@ -1,12 +1,11 @@
 # BEFORE editing this file, you should make sure that it is not linked to
-# the master version (../.listadmin/listrc.sub) anymore (i.e. make a copy).
-# If the mailinglist is not in active use yet, or if you want to take the
-# chance, you can write out this file without locking.	To do it properly
-# you should create the ../.listadmin/the_lists.lock file with lockfile(1)
-# shortly before writing out the new version of this file (remove the lockfile
-# afterwards of course)
+# the master version (../.etc/rc.request) anymore (i.e. "delink rc.request"
+# if you do not want your changes to affect all lists).
+#
+# New mails can be temporarily stalled by creating the file rc.lock (either in
+# ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.8 1993/02/10 17:07:41 berg Exp $
+#$Id: rc.request,v 1.9 1993/03/02 14:41:00 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -40,18 +39,20 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 	| cat >tmp.request
 
 #
-# Is it an archival retrieval command?
+# Is it an archive retrieval command?
 #
 
-	:1A
-	^Subject:[	 ]*archive([^a-z-]|$)
+	:1HBA
+	^(Subject:[	 ]*archive([^a-z-]|$)|^[	]*\
+	 ((send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|list|show)\
+	 ([	 ]|$)
 	| arch_retrieve
 
 #
 # Is it an unsubscription request?
 #
 
-	:1BHA:dist.lock
+	:1HBA:dist.lock
 	^((Subject:)?[a-z,.	 ]*(remove|unsub)|(.*[^a-z])?(unsubscri.*|\
 			       (remove .* from|take .* off) .* list)([^a-z]|$))
 	| unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from`
@@ -62,15 +63,19 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 # already be on the mailinglist.  If not, add him.
 #
 
-	:3BHA:dist.lock
+	:3HBA:dist.lock
 	^((Subject:)?[a-z,.	 ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
 				      (add .* to|put .* on) .* list)([^a-z]|$))
 	!?multigram -b1 -l$reject_threshold reject
 	!?multigram -b1 -l$reject_threshold dist
 	| subscribe | $SENDMAIL $sendmailOPT -t
 
+#
+# Is it an info or help request?  Send back the help.txt file.
+#
+
 	:1A
-	^Subject:(.*[^a-z.])?(help|info((rm)?ation)?)([^a-z]|$)
+	^(Subject:)?[a-z,.	 ]*(help|info((rm)?ation)?)([^a-z]|$)
 	| (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
 	   cat help.txt) | $SENDMAIL $sendmailOPT -t
 

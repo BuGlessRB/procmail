@@ -1,11 +1,11 @@
-$Id: Manual,v 1.5 1993/02/18 16:31:08 berg Exp $
+$Id: Manual,v 1.6 1993/03/02 14:40:32 berg Exp $
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
 					berg@physik.tu-muenchen.de
 
 Contents:
----------	1. Creating and removing mailinglists
+---------	1. Creating and removing mailinglists or archive servers
 		2. Remote maintenance of mailinglists
 		3. Customisation
 		4. The archive server
@@ -13,14 +13,15 @@ Contents:
 		6. Multigram and the thresholds in rc.init/rc.custom
 
 
-1. Creating and removing mailinglists
-   ----------------------------------
+1. Creating and removing mailinglists or archive servers
+   -----------------------------------------------------
 
 Make sure that the .bin directory is in your PATH.  Now you can issue
 commands like:
 
 	createlist testing
 	createlist testing joe@somewhere.edu
+	createlist -a testing joe@somewhere.edu
 	removelist testing
 
 The first command creates a mailinglist with two useful addresses:
@@ -31,7 +32,10 @@ The first command creates a mailinglist with two useful addresses:
 The second command does the same, but it also specifies joe@somewhere.edu
 to be the responsible contact person for this list.
 
-The third command removes all traces of the "testing" mailinglist again.
+The third command does the same, except instead of creating a mailinglist,
+it creates an archive server.
+
+The fourth command removes all traces of the "testing" mailinglist again.
 
 There is one other convenience-utility that can be used: "delink"
 It will unlink a file from its hardlinked counterpart(s).

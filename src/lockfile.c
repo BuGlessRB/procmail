@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.13 1993/01/19 18:30:36 berg Exp $";
+ "$Id: lockfile.c,v 1.14 1993/03/02 14:41:12 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/19 18:30:36 $";
+static /*const*/char rcsdate[]="$Date: 1993/03/02 14:41:12 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -106,14 +106,14 @@ again:
   for(lastf=p=argv;--argc;)
      if(*(cp=(char*)*++p)=='-')
 	for(cp++;;)
-	 { char*cp2=cp+1;int i;
+	 { char*cp2=cp;int i;
 	   switch(*cp++)
 	    { case '!':invert^=1;continue;	      /* invert the exitcode */
 	      case 'r':case 'l':case 's':
 		 if(!*cp&&(cp=(char*)*++p,!--argc)) /* concatenated/seperate */
 		    goto eusg;
 		 i=strtol(cp,&cp,10);
-		 switch(cp2[-1])
+		 switch(*cp2)
 		  { case 'r':retries=i;goto checkrdec;
 		    case 'l':force=i;goto checkrdec;
 		    default:
@@ -132,7 +132,7 @@ again:
 \n\t-mu\tunlock your system mail-spool file\n");goto xusg;
 	      default:
 		 if(sleepsec>=0)	    /* is this still the first pass? */
-		  { if((sleepsec=strtol(cp,&cp,10))<0)
+		  { if((sleepsec=strtol(cp2,&cp,10))<0)
 		       goto eusg;
 checkrdec:	    if(cp2==cp)
 eusg:		     { elog(usage);		    /* regular usage message */
@@ -140,7 +140,7 @@ xusg:		       retval=EX_USAGE;goto nfailure;
 		     }
 		  }
 		 else		      /* no second pass, so leave sleepsec<0 */
-		    strtol(cp,&cp,10);		   /* and discard the number */
+		    strtol(cp2,&cp,10);		   /* and discard the number */
 		 continue;
 	      case 'm':		  /* take $LOGNAME as a hint, check if valid */
 	       { struct passwd*pass;static char*ma;size_t alen;
