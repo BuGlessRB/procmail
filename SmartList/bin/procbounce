@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: procbounce,v 1.4 1993/01/15 14:40:48 berg Exp $
+#$Id: procbounce,v 1.5 1993/02/02 16:54:09 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -57,6 +57,5 @@ X-Diagnostic: `
 	$echo 'Could not find the offending address'
      fi | $sed -e '1 s/^ *[0-9]* \([^ ]* *[0-9]*\).*\$/Removed: \1/' -e '2 d'`"
   fi
+  $formail -A "$addfield"
 fi
-
-$formail -A "$addfield"

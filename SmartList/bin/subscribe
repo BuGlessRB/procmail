@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: subscribe,v 1.6 1993/02/02 15:26:50 berg Exp $
+#$Id: subscribe,v 1.7 1993/02/02 16:54:12 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -69,9 +69,9 @@ $echo  "	$subscraddr"
 $echo
 if $test -z "$NOT_METOO"
 then
-  $echo "By default, copies of own submissions will be returned."
+  $echo "By default, copies of your own submissions will be returned."
 else
-  $echo "As requested, copies of own submissions will not be returned."
+  $echo "As requested, copies of your own submissions will not be returned."
 fi
 $echo
 
