@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: x_command,v 1.12 1993/12/13 15:57:31 berg Exp $
+#$Id: x_command,v 1.13 1994/01/14 15:53:54 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -25,8 +25,20 @@ export X_ENVELOPE_TO		# address
 
 $formail -R$X_COMMAND: X-Processed:
 
+set dummy `$formail -x$X_COMMAND: <tmp.request`
+shift; shift
+test "_$X_COMMAND_PASSWORD" = "_$1" && shift
+
 while $test $# != 0
 do
+  case "_$1" in
+     _subscribe|_unsubscribe|_checkdist)
+	 if $test $# = 1
+	 then
+	    $echo "X-Diagnostic: Missing argument for $1"
+	    set help
+	 fi;;
+  esac
   case "_$1" in
      _subscribe)
 	 $echo \
@@ -39,10 +51,8 @@ do
 	 $echo "$2" >$tmpfrom
 	 $test -z "$subscribe_log" ||
 	  $echo "x_command: subscribe" >>$subscribe_log
-	 $lockfile $dist.lock; trap "$rm -f $dist.lock;exit 1" 1 2 3 15
 	 $subscribe <$tmprequest ||
 	  $echo "X-Diagnostic: Unscreened, not subscribed"
-	 $rm -f $dist.lock; trap "" 1 2 3 15
 	 shift ;;
      _unsubscribe)
 	 $echo \
@@ -55,9 +65,7 @@ do
 	 $echo "$maintainer" "$2" >$tmpfrom
 	 $test -z "$subscribe_log" ||
 	  $echo "x_command: unsubscribe" >>$subscribe_log
-	 $lockfile $dist.lock; trap "$rm -f $dist.lock;exit 1" 1 2 3 15
 	 $unsubscribe <$tmprequest | $SENDMAIL $sendmailOPT `cat $tmpfrom`
-	 $rm -f $dist.lock; trap "" 1 2 3 15
 	 shift ;;
      _checkdist)
 	 $echo "Multigram checking the dist file for $2:"
@@ -83,7 +91,6 @@ do
 	 $echo "	wipelog"
 	 $echo "	help"
 	 $echo "	info" ;;
-     _$X_COMMAND_PASSWORD|_$maintainer) ;;
      *) $echo "X-Diagnostic: Unknown command $1" ; set dummy help ;;
   esac
   shift

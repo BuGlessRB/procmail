@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.25 1994/01/12 19:12:57 berg Exp $
+#$Id: Makefile.1,v 1.26 1994/01/14 15:53:43 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -42,8 +42,8 @@ config.check: config.h
 
 recommend: src/Makefile
 	@cd src; $(MAKE) $@ >$(DEVNULL)
-	@echo ----------------------------------------------------------------\
----------------
+	@echo ================================================================\
+===============
 	@if $(FGREP) CF_no_procmail_yet autoconf.h >$(DEVNULL); \
 	 then echo If you are a system administrator you should consider \
 integrating procmail; echo into the mail-delivery system -- for advanced \
@@ -62,8 +62,8 @@ changed.; echo I suggest you remove the '`u'"'"-flag 'like in:'; echo ; \
 	@echo
 	@src/$@ $(BINDIR)/procmail $(BINDIR)/lockfile >suid.sh
 	@src/$@ $(BINDIR)/procmail $(BINDIR)/lockfile
-	@echo ----------------------------------------------------------------\
----------------
+	@echo ================================================================\
+===============
 
 suid.sh: recommend
 
@@ -102,13 +102,13 @@ install: install.man install.bin
 	@$(MAKE) recommend
 
 deinstall:
-	@echo ----------------------------- Deinstalling the procmail package.
+	@echo ============================= Deinstalling the procmail package.
 	@$(RM) install.man install.bin
-	@echo ----------------------------- Checking if everything was removed:
+	@echo ============================= Checking if everything was removed:
 	@-cd $(BINDIR); $(RM) $(BINSS); ls -l $(BINSS); exit 0
 	@-cd $(MAN1DIR); $(RM) $(MANS1); ls -l $(MANS1); exit 0
 	@-cd $(MAN5DIR); $(RM) $(MANS5); ls -l $(MANS5); exit 0
-	@echo ----------------------------- Ready.
+	@echo ============================= Ready.
 
 clean: config.check
 	-for a in $(SUBDIRS); do cd $$a; $(MAKE) $@; cd ..; done; exit 0
@@ -136,5 +136,10 @@ src/Makefile: src/Makefile.0 Makefile
 
 man/Makefile src/Makefile Makefile: Makefile.1 initmake
 	$(MAKE) _init; $(HIDEMAKE) init
+	@echo "***************************************************"
+	@echo "* 'make init' was successful.			  *"
+	@echo "* Ignore the following 'error', and restart make. *"
+	@echo "***************************************************"
+	@exit 1
 
 init makefiles Makefiles makefile: man/Makefile src/Makefile

@@ -8,7 +8,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Customise to taste.						#
 #########################################################################
-#$Id: doxcommand,v 1.2 1993/12/23 13:01:35 berg Exp $
+#$Id: doxcommand,v 1.3 1994/01/14 15:54:07 berg Exp $
 
 
 listrequest=yourlist-request@some.where
@@ -19,15 +19,16 @@ test=test			# /bin/test
 echo=echo			# /bin/echo
 sendmail=/usr/lib/sendmail	# /usr/lib/sendmail
 
-$test $# = 0 && $echo "Usage: doxcommand command [argument] ..." 1>&2
+$test $# = 0 && $echo "Usage: doxcommand command [argument] ..." 1>&2 &&
+ exit 64
 
 command="$1"
 shift
 
 # Allow for abbreviations or misspellings (people are lazy by nature :-)
 
-case "$1" in
-  s*) command=subscribe ;;
+case "$command" in
+  su*) command=subscribe ;;
   u*) command=unsubscribe ;;
   c*) command=checkdist ;;
   showd*|sd*|shd*) command=showdist ;;

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: procbounce,v 1.19 1994/01/13 13:39:37 berg Exp $
+#$Id: procbounce,v 1.20 1994/01/14 15:53:51 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -25,23 +25,22 @@ bounces=bounces
 $test -d $bounces || $mkdir $bounces
 
 addr=`$formail -1 -kdem4 -xSubject: <$tmprequest -s \
- $sed -e '/^[	 *]*Message-[Ii][Dd]:/ d' -e '/^[	 *]*To:/ d' |
- $multigram -b1 -l$off_threshold -x$listaddr -x$listreq $dist |
- $sed -e 's/^.* \([^ ]*\)$/\1/' `
+ $sed -e '/^[	 *]*Message-[Ii][Dd]:/ d' -e '/^[	 *]*To:/ d' \
+  -e 's/^\([^	 ]*\) @ /\1@/' |
+ $multigram -b1 -l$off_threshold -x$listaddr -x$listreq $dist `
 
 test -z "$addr" &&
  addr=`$formail -1 -kdem4 -xSubject: <$tmprequest -s \
   $sed -e '/^[	 *]*Message-[Ii][Dd]:/ d' -e '/^[	 *]*To:/ d' |
-  $multigram -i -b1 -l16384 -x$domain $dist |
-  $sed -e 's/^.* \([^ ]*\)$/\1/' `
+  $multigram -i -b1 -l16384 -x$domain $dist `
 
 test -z "$addr" &&
  addr=`$formail -1 +1 -cqdem4 -xReceived: -s sed -e 1q <$tmprequest |
-  $multigram -i -b1 -l16384 -x$domain $dist |
-  $sed -e 's/^.* \([^ ]*\)$/\1/' `
+  $multigram -i -b1 -l16384 -x$domain $dist `
 
 if test ! -z "$addr"
 then
+  addr=`$expr "X$addr" : 'X.* \([^ ]*\)$' `
   serial=`$formail +1 -1 -m4 -dexMessage-Id: -s $idhash <$tmprequest`
   test -z "$serial" && serial=`$date +%y-%m-%d`
   $echo "$addr" >>$bounces/$serial
@@ -65,7 +64,7 @@ then
 	:
 	else
 	   $echo 'Not confident enough to autoremove the offending address'
-	   $echo "$addr" | $multigram -b2 -l0 $dist
+	   $echo "From $addr" | $multigram -b2 -l0 $dist
 	fi | $sed -e '/^Removed:/ d' \
 	 -e '1 s/^ *[0-9]* \([^ ]* *[0-9]*\).*$/Removed: \1/' \
 	  -e 's/^ *[0-9]/	/'`

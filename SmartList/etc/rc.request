@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.31 1993/11/26 16:24:44 berg Exp $
+#$Id: rc.request,v 1.32 1994/01/14 15:54:00 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -27,8 +27,8 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 :0 wh
 * < 8192
 * $!^((X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND:)|\
-Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)([^a-z]|$)))|\
-^FROM_DAEMON
+     Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)([^a-z]|$)))|\
+    ^FROM_DAEMON
 {
   :0 whc
   | formail -rt -xTo: >tmp.from
@@ -121,7 +121,7 @@ Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)([^a-z]|$)))|\
 
 :0 wic
 * $!^(Subject:(.*[^a-z])?Re:|\
-X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND:)
+     X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND:)
 * ^FROM_DAEMON
 | sed -e $cutoff_bounce' q' >tmp.request
 
@@ -133,9 +133,9 @@ X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND:)
 #
 
 :0 wf:dist.lock
-* $^$X_COMMAND:.*$maintainer.*$X_COMMAND_PASSWORD
+* $^$X_COMMAND:.*$maintainer[	 ]*$X_COMMAND_PASSWORD
 * $!^X-Loop: $listaddr
-| x_command `formail -x$X_COMMAND:`
+| x_command
 
 LOCKFILE				# we don't need the lockfile anymore
 
