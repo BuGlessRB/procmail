@@ -46,6 +46,8 @@ Feature summary for procmail:
 	  names start with a 'U' or end in an 'X' :-) (i.e. extremely portable
 	  code; POSIX, ANSI C and K&R conforming)
 	+ Is clock skew immune (e.g. in the case of NFS mounted mailboxes)
+	+ Can be used as a general mailfilter for whole groups of messages
+	  (e.g. when called from within sendmail.cf rules).
 	+ Works with (among others?) sendmail, smail, MMDF and mailsurr
 
 Feature summary for formail:

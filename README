@@ -44,6 +44,13 @@ any programs upon mail arrival (e.g. to generate different chimes on your
 workstation for different types of mail) or selectively forward certain
 incoming mail automatically to someone.
 
+Procmail can be used:
+	- and installed by an unprivileged user (for himself only).
+	- as a drop in replacement for the local delivery agent /bin/mail
+	  (with biff/comsat support).
+	- as a general mailfilter for whole groups of messages (e.g. when
+	  called from within sendmail.cf rules).
+
 The accompanying formail program enables you to generate autoreplies, split up
 digests/mailboxes into the original messages, do some very simple
 header-munging/extraction, or force mail into mail-format (with leading From
@@ -55,6 +62,10 @@ Also included is a comprehensive mailinglist/archive management system.
 
 I made the utmost effort to make procmail as robust as any program can be
 (every conceivable system error is caught *and* handled).
+
+Since procmail is written entirely in C, it poses a very low impact
+on your system's resources (under normal conditions, when you don't
+start other programs/scripts from within it).
 
 Procmail was designed to deliver the mail under the worst conditions
 (file system full, out of swap space, process table full, file table full,

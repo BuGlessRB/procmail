@@ -1,8 +1,8 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.23 1993/06/28 17:02:37 berg Exp $
+#$Id: install.sh,v 1.24 1993/07/02 13:23:17 berg Exp $
 
-SHELL=/bin/shell
+SHELL=/bin/sh
 export SHELL
 
 test $# != 1 -a $# != 2 && echo "Usage: install.sh target-directory [.bin]" &&
@@ -16,10 +16,12 @@ test -z "$bindir" && bindir=.bin
 test ! -d "$target" && echo "Please create the target directory first" &&
  exit 2
 
-if binmail=`procmail /dev/null DEFAULT=/dev/null LOG=\\\$SENDMAIL \
-  </dev/null 2>&1`
+if binmail=`procmail /dev/null DEFAULT=/dev/null LOG=XX\\\$SENDMAILXX \
+  </dev/null 2>&1 | sed -n -e 's/^XX\(.*\)XX.*/\1/p' `
 then
-:
+  test -z "$binmail" &&
+   echo "Please make sure that the new version of procmail has been installed"\
+   && exit 64
 else
   echo "Please make sure that procmail is on our PATH"
   exit 64

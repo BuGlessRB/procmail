@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.23 1993/06/21 14:24:10 berg Exp $
+.Id $Id: procmailrc.man,v 1.24 1993/07/02 13:23:28 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -494,9 +494,9 @@ environment variable.
 The only substitutions of environment variables that can be handled by
 procmail itself are of the type $name, ${name}, $#, $n, $$, $? and $\-;
 whereas $\- will be substituted by $LASTFOLDER.  When the
-.B \-$ARGUMENTOPT@
+.B \-@ARGUMENTOPT@
 or
-.B \-$MAILFILTOPT@
+.B \-@MAILFILTOPT@
 options are used, "$@" will expand to respectively the specified argument
 or the sender and recipient list; but only when passed as in the
 argument list to a program.@UPPERCASE_USERNAMES@

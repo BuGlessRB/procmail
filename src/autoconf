@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.56 1993/06/23 14:35:13 berg Exp $
+#$Id: autoconf,v 1.57 1993/07/02 13:23:37 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -838,7 +838,7 @@ HERE
    echo 'Sorry, incompetent bcopy'
    echo '#define NObcopy' >>$ACONF
  fi
- $RM _autotst
+ $RM _autotst.$O _autotst
 fi
 
 $FGREP -e LD_ /bin/ld >/dev/null 2>&1 && echo "#define LD_ENV_FIX" >>$ACONF

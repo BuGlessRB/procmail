@@ -215,3 +215,11 @@
 	    Made sure the logfile was flushed before procmail exits
 	    When procmail gobbles up the leading From_ line, it reads in 2KB
 	       blocks now (instead of character wise; saves a few system calls)
+1993/07/02: v2.91
+	    Fixed a race condition in autoconf that caused problems on machines
+	       that didn't have memmove(3) and were too fast (make got confused
+	       about the modification time of an object file)
+	    Corrected the SHELL=/bin/shell assignment in mailinglist/install.sh
+	    Made the mailinglist/install.sh script independent of procmail
+	       compiled with or without "#define console"
+	    Fixed a few typos in the man pages
