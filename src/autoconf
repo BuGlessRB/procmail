@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.38 1993/04/13 15:44:02 berg Exp $
+#$Id: autoconf,v 1.39 1993/04/13 16:43:27 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -73,7 +73,6 @@ SHELL=$1
 PATH=.:$PATH
 shift; RM="$1"
 shift; MV="$1"
-shift; USRINC=$1
 shift; DEVNULL=$1
 shift; FGREP="$1"
 shift; MAKE="$1"
@@ -537,9 +536,6 @@ echo 2>&1 ""
 _locktst $testdirs >_locktst.rrr 2>lock.log	# will finish in the background
 echo 'Proceeding with kernel-locking-support tests in the background'
 
-test -f $USRINC/sys/socket.h -a -f $USRINC/netdb.h -a -f $USRINC/netinet/in.h||
- echo "#define NO_COMSAT" >>$ACONF
-
 cat >_autotst.c <<HERE
 #include "$ACONF"
 #ifndef UNISTD_H_MISSING
@@ -602,7 +598,6 @@ cat >_autotst.c <<HERE
 int a;
 HERE
 
-
 i0="";i1="";i2="";i3="";i4="";i5="";i6="";i7="";i8="";i9="";i10="";
 oldi=""
 
@@ -640,6 +635,24 @@ do
   echo \
    "	...missing `expr length $oldi` include files, doublechecking..."
 done
+
+$RM _autotst.$O
+
+cat >_autotst.c <<HERE
+#include "includes.h"
+#include "network.h"
+int a;
+HERE
+
+echo 'Checking for network/comsat/biff support'
+
+if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr &&
+ test -f _autotst.$O
+then
+:
+else
+  echo "#define NO_COMSAT" >>$ACONF
+fi
 
 $RM _autotst.$O
 
@@ -727,26 +740,9 @@ else
   echo 2>&1 "*******************************************************"
   cat 2>&1 _autotst.rrr
   echo 2>&1 "*******************************************************"
-  if $FGREP NO_COMSAT $ACONF >$DEVNULL
-  then
-     echo 2>&1 "Your include files seem to be beyond repair <sigh>."
-     echo 2>&1 "I give up."
-     kill -15 $$
-  else
-     echo 2>&1 "Maybe your network-support include files are messed up."
-     echo 2>&1 "Continuing the compilation, throwing out network"
-     echo 2>&1 "support..."
-     $RM _autotst.$O
-     echo "#define NO_COMSAT" >>$ACONF
-     if $MAKE _autotst.$O >$DEVNULL 2>&1
-     then
-	echo "It seems to be all right."
-     else
-	echo 2>&1 "Your include files seem to be beyond repair <sigh>."
-	echo 2>&1 "I give up."
-	kill -15 $$
-     fi
-  fi
+  echo 2>&1 "Your include files seem to be beyond repair <sigh>."
+  echo 2>&1 "I give up."
+  kill -15 $$
 fi
 $MAKE _autotst 2>&1 | $FGREP -v include/ >_autotst.rrr
 $RM _autotst _autotst.$O
