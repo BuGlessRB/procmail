@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: sublib.c,v 1.21 2000/09/28 01:23:40 guenther Exp $";
+ "$Id: sublib.c,v 1.22 2001/02/20 09:35:25 guenther Exp $";
 #endif
 #include "includes.h"
 #include "sublib.h"
@@ -125,6 +125,14 @@ ret0:
   return 0;
 }
 #endif
+
+#ifdef NEEDbzero
+void bzero(void *s,int n)
+{ register char*p=s;
+  while(n-->0)
+     *p++='\0';
+}
+#endif
 			    /* strtol replacement which lacks range checking */
 #ifdef NOstrtol
 long strtol(start,ptr,base)const char*start,**const ptr;int base;
@@ -173,10 +181,12 @@ fault:
   return sign?-result:result;
 }
 #else /* NOstrtol */
+#ifndef NEEDbzero
 #ifndef SLOWstrstr
 #ifndef NOstrpbrk
 #ifndef NOmemmove
 int sublib_dummy_var;		      /* to prevent insanity in some linkers */
+#endif
 #endif
 #endif
 #endif

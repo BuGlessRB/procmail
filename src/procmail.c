@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.168 2000/12/03 06:54:21 guenther Exp $";
+ "$Id: procmail.c,v 1.169 2001/02/20 09:35:24 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -253,8 +253,7 @@ nodevnull:
 		    private(1);				     /* the original */
 		 while(currcpt<lastrcpt)
 		    auth_freeid(*currcpt++);
-		 if(overread)
-		    free(overread);
+		 freeoverread();
 		 free(rcpts);newid();gargv=&nullp;
 		 goto dorcpt;
 	       }
@@ -283,11 +282,14 @@ nodevnull:
 		       waitfor(pidchild)!=EXIT_SUCCESS)
 		       retvl2=retval;
 		    pidchild=0;		      /* loop for the next recipient */
+		    bzero(argv[argc],strlen(argv[argc]));
 		  }
 		 else
 		  { newid();
 		    private(0);				    /* time to share */
-		    while(argv[++argc]);    /* skip till end of command line */
+		    while(argv[++argc])	    /* skip till end of command line */
+		       bzero(argv[argc],strlen(argv[argc]));
+		    break;
 		  }
 	    }
 	   while(chp=(char*)argv[argc]);
@@ -379,7 +381,7 @@ nospecial:	     { static const char densppr[]=
 	 }
 	if(pass)	      /* set preferred uid to the intended recipient */
 Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
-	   if(euid==ROOT_uid)
+	   if(euid==ROOT_uid&&(chp=auth_username(pass))&&*chp)
 	      initgroups(chp,gid);
 	   endgrent();
 	 }

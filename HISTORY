@@ -548,7 +548,7 @@
 2001/01/27: v3.20pre
 	    Changes to procmail:
 	       - Support LMTP for delivery mode
-	       - Use mmap() for large messages
+	       - Use mmap() for `large' messages
 	       - SWITCHRC=zero-length-file didn't always abort the current
 		 rcfile
 	       - LC_ in KEEPENV would preserve only the first LC_foo variable
@@ -566,6 +566,7 @@
 		 with an empty line
 	       - A race to create the mailspool would bounce one of the
 		 messages due to an internal error
+	       - Be more paranoid about leaking information between recipients
 	    Changes to autoconf:
 	       - Check for enum support
 	       - Warn people that non-ISO/ANSI C compilers might not be

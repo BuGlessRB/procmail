@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.129 2001/01/25 21:02:44 guenther Exp $
+#$Id: autoconf,v 1.130 2001/02/20 09:35:20 guenther Exp $
 
 # All possible entries in autoconf.h:
 
@@ -34,7 +34,7 @@
 #	typedef long off_t;
 #	typedef long time_t;
 #	#define NOmemmove
-#	#define NObcopy
+#Ok	#define NObcopy
 #	#define NOstrcspn
 #	#define NOstrpbrk
 #	#define NOopendir
@@ -53,6 +53,8 @@
 #	#define NOstrtol
 #	#define NOstrtod
 #Ok	#define NOstrncasecmp
+#Ok	#define NObzero
+#	#define NOmemset
 #	#define NOwaitpid
 #Ok	#define NOftruncate
 #	#define SLOWstrstr
@@ -66,6 +68,9 @@
 #Ok	#define endservent()
 #Ok	#define endprotoent()
 #	#define h_0addr_list h_addr
+#Ok	#define NOpw_passwd
+#Ok	#define NOpw_class
+#Ok	#define NOpw_gecos
 #Ok	#define NO_COMSAT
 #	#define _GUID_T
 #Ok	#define UDP_protocolno 17
@@ -1005,6 +1010,21 @@ fi
 $RM _autotst.$O _autotst.rrr
 
 cat >_autotst.c <<HERE
+#include <pwd.h>
+int main()
+{ struct passwd*pw=getpwuid(0);
+  return (pw->pw_passwd==0)+(pw->pw_class==0)+(pw->pw_gecos==0);
+}
+HERE
+
+echo 'Testing for various struct passwd members'
+$MAKE _autotst.$O >_autotst.rrr 2>&1
+grepfor pw_passwd '#define NOpw_passwd'
+grepfor pw_class  '#define NOpw_class'
+grepfor pw_gecos  '#define NOpw_gecos'
+$RM _autotst.$O _autotst.rrr
+
+cat >_autotst.c <<HERE
 #include "includes.h"
 #ifndef NO_COMSAT
 #include "network.h"
@@ -1015,7 +1035,7 @@ int main(){char a[2];
  setrgid(0);setegid(0);setregid(0,0);setresgid(0,0,0);opendir("0");
  initgroups("0",0);strstr("0","0");mkdir("0",0);pow(0.,0.);clock();
  waitpid((pid_t)-1,(int*)0,0);ftruncate(0,0);fsync(0);strtod("0.0",(char**)0);
- strncasecmp("foo","bar",3);
+ strncasecmp("foo","bar",3);bzero(a,2);memset(a,'\0',2);
 #ifdef S_ISLNK
  {struct stat stbuf;fstat(0,&stbuf);}
 #endif
