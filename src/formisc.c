@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.12 1993/01/19 11:55:12 berg Exp $";
+ "$Id: formisc.c,v 1.13 1993/01/22 13:42:29 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -15,40 +15,53 @@ static /*const*/char rcsid[]=
 #include "common.h"
 #include "ecommon.h"
 #include "formisc.h"
-						 /* skips an RFC 822 address */
-char*skipwords(start,end)const char*start,*const end;
-{ int delim='>',firstch;
-  if((firstch= *start)=='<')
-     goto machref;				 /* machine-usable reference */
-  do
-   { switch(*start)
-      { default:					      /* normal word */
-	   if(firstch!='(')	     /* if it did *not* start with a comment */
-	    { const char*p;
-notend:	      if(p=strpbrk(start,"([\"<,; \t\n"))	/* find next special */
-		 switch(*p)			     /* is it a big address? */
-		  { case '(':case '[':case '"':start=p;continue;
-		    default:return(char*)p;		/* address delimiter */
-		  }
-	      start=strchr(start,'\0')+1;goto notend; /* it can't be the end */
-	    }
-	   return(char*)start;	       /* just go passed the leading comment */
-	case '(':delim=')';break;				  /* comment */
-	case '[':delim=']';break;			   /* domain-literal */
-	case '"':delim='"';start++;
+
+static char*skipcomment(start)char*start;
+{ for(;;)
+     switch(*++start)
+      { case ')':return start;
+	case '\\':start++;continue;
+	case '(':start=skipcomment(start);
       }
-machref:
+}
+						 /* skips an RFC 822 address */
+char*skipwords(start)char*start;
+{ int delim,hitspc,machref;char*target,*oldstart;
+  hitspc=machref=0;target=oldstart=start;
+  if(*start=='<')
+     start++,machref=1;
+  for(;;)
+   { switch(*start)
+      { case '<':					/* machine reference */
+	   if(machref)					/* can not be nested */
+	    { target=oldstart;hitspc=0;goto inc;	    /* so start over */
+	    }
+	   goto ret;
+	case '(':start=skipcomment(start);			  /* comment */
+	case ' ':case '\t':case '\n':hitspc|=1;	       /* linear white space */
+inc:	   start++;continue;
+	default:
+	   if(hitspc==3&&target>oldstart)
+	case '\0':case '>':case ',':case ';':
+	    { *target='\0';
+ret:	      return start;
+	    }
+	   hitspc=2;goto normal;			      /* normal word */
+	case '@':case ':':case '.':hitspc=0;
+normal:	   *target++= *start++;continue;
+	case '[':delim=']';break;			   /* domain-literal */
+	case '"':*target++=delim='"';start++;
+      }
      ;{ int i;
 	do
-	   if((i= *start++)==delim)		 /* corresponding delimiter? */
+	   if((i= *target++= *start++)==delim)	 /* corresponding delimiter? */
 	      break;
 	   else if(i=='\\'&&*start)		    /* skip quoted character */
-	      start++;
-	while(start<end);					/* anything? */
+	      *target++= *start++;
+	while(*start);						/* anything? */
       }
+     hitspc=2;
    }
-  while(start<end);
-  return(char*)end;
 }
 
 void loadsaved(sp)const struct saved*const sp;	     /* load some saved text */

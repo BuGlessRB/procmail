@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.23 1993/01/19 18:30:40 berg Exp $";
+ "$Id: procmail.c,v 1.24 1993/01/22 13:42:50 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -456,7 +456,7 @@ noconcat:  i=flags[ALSO_NEXT_RECIPE]?lastcond:1;	  /* init test value */
 			   }
 			  or_nocase=0;goto jinregs;
 			  do		   /* find special keyword in regexp */
-			     if((chp2=pstrstr(chp,regsp->regkey))&&
+			     if((chp2=strstr(chp,regsp->regkey))&&
 			      (chp2==buf2||chp2[-1]!='\\'))  /* not escaped? */
 			      { size_t lregs,lregk;
 				lregk=strlen(regsp->regkey);  /* shove it in */

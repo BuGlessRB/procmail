@@ -3,6 +3,8 @@
  *									*
  *	It uses multigrams to intelligently filter out mail addresses	*
  *	from the garbage in any arbitrary mail.				*
+ *	Multigram is currently unable to pick out addresses that	*
+ *	contain embedded whitespace.					*
  *	This program also contains some swiss-army-knife mailinglist	*
  *	support features.						*
  *									*
@@ -13,9 +15,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.17 1993/01/20 14:25:10 berg Exp $";
+ "$Id: multigram.c,v 1.18 1993/01/22 13:42:45 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/20 14:25:10 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/22 13:42:45 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -291,9 +293,9 @@ usg:
 	    }
 	   break;
 	 }
-	while(--echp>chp);
-	if(lastfrom<=0&&!strchr(chp,'@')&&(!strchr(chp,'!')||strchr(chp,'|')||
-	 strchr(chp,',')||mystrstr(chp,"..",chp+strlen(chp))))
+	while(--echp>chp);    /* roughly check if it could be a mail address */
+	if(lastfrom<=0&&!strpbrk(chp,"@/")&&(!strchr(chp,'!')||
+	 strchr(chp,'|')||strchr(chp,',')||strstr(chp,"..")))
 	 { if(lastfrom<0)
 	      lastfrom=!strcmp(SHFROM,chp);
 	   continue;			  /* apparently not an email address */
@@ -343,7 +345,8 @@ shftleft:     tmemmove(chp,chp+1,strlen(chp));
 	      do
 	       { for(hrd=fzz+1;hrd=strchr(hrd,*fzz);)	 /* is it present in */
 		    if(!strncmp(++hrd,fzz+1,gramsize))	      /* own string? */
-		       goto double_gram; /* then skip it until it's the last */
+		     { minlen--;goto double_gram;    /* skip until it's last */
+		     }
 		 for(hrd=hardstr.itext;hrd=strchr(hrd,*fzz);)	/* otherwise */
 		    if(!strncmp(++hrd,fzz+1,gramsize))	 /* search it in the */
 		     { lmeter++;break;			       /* dist entry */

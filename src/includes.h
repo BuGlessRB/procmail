@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.12 1993/01/15 14:41:15 berg Exp $*/
+/*$Id: includes.h,v 1.13 1993/01/22 13:42:38 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -6,7 +6,9 @@
 	   available for all programs in this package; some have substitutes
 	   as well (see autoconf); this is just an informal list */
 
+#ifndef _HPUX_SOURCE
 #define _HPUX_SOURCE	      /* sad, but needed on HP-UX when compiling -Aa */
+#endif
 
 #include <sys/types.h>		/* pid_t mode_t uid_t gid_t */
 #ifndef UNISTD_H_MISSING

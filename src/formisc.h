@@ -1,4 +1,4 @@
-/*$Id: formisc.h,v 1.6 1993/01/19 12:41:11 berg Exp $*/
+/*$Id: formisc.h,v 1.7 1993/01/22 13:42:32 berg Exp $*/
 
 void
  loadsaved P((const struct saved*const sp)),
@@ -16,6 +16,6 @@ void
  closemine P((void)),
  opensink P((void));
 char*
- skipwords P((const char*start,const char*const end));
+ skipwords P((char*start));
 int
  getline P((void));

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.26 1993/01/19 18:30:33 berg Exp $
+#$Id: autoconf,v 1.27 1993/01/22 13:42:19 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -32,8 +32,9 @@
 #	#define NOstrcspn
 #	#define NOstrpbrk
 #	#define NOopendir
-#Ok	#define NOrename
+#	#define NOrename
 #	#define NOuname
+#	#define NOstrstr
 #	#define NOstrtol
 #	#define strchr(s,c) index(s,c)
 #	#define initgroups(n,g)
@@ -587,7 +588,7 @@ cat >_autotst.c <<HERE
 main(){char a[2];
  endpwent();endgrent();memmove(a,"0",1);bcopy("0",a,1);strcspn(a,"0");
  strtol("0",(char**)0,10);strchr("0",'0');strpbrk(a,"0");rename(a,"0");
- opendir("0");initgroups("0",0);
+ opendir("0");initgroups("0",0);strstr("0","0");
 #ifndef NOuname
  {struct utsname b;uname(&b);}
 #endif
@@ -597,7 +598,7 @@ main(){char a[2];
  return 0;}
 HERE
 
-echo 'Testing for memmove, strchr, strpbrk, strcspn, strtol & opendir'
+echo 'Testing for memmove, strchr, strpbrk, strcspn, strtol, strstr & opendir'
 $MAKE _autotst.$O >$DEVNULL 2>&1
 $MAKE _autotst 2>&1 | $FGREP -v /include/  >_autotst.rrr
 $RM _autotst _autotst.$O
@@ -626,6 +627,7 @@ else
   grepfor endprotoent '#define endprotoent()'
 fi
 grepfor strtol '#define NOstrtol'
+grepfor strstr '#define NOstrstr'
 grepfor memmove '#define NOmemmove' &&
 if $FGREP -e bcopy _autotst.rrr >$DEVNULL
 then

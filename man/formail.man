@@ -1,4 +1,4 @@
-.Id $Id: formail.man,v 1.7 1993/01/13 15:20:26 berg Exp $
+.Id $Id: formail.man,v 1.8 1993/01/22 13:42:11 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -178,9 +178,9 @@ use:
 formail \-+FM_DIGEST++FM_SPLIT+ cat <old_mailbox >>new_mailbox
 .Re
 .PP
-Or, alternatively, if you have a very picky mailer:
+Or, alternatively, if you have a very tolerant mailer:
 .Rs
-formail \-+FM_REN_INSERT+ Date: \-+FM_DIGEST++FM_SPLIT+ cat <old_mailbox >>new_mailbox
+formail \-+FM_ADD_IFNOT+ Date: \-+FM_DIGEST++FM_SPLIT+ cat <old_mailbox >>new_mailbox
 .Re
 .Sh MISCELLANEOUS
 The regular expression that is used to find `real' postmarks is:
@@ -227,12 +227,17 @@ the original sender was careful enough though, formail will be able to pick
 his/her address, instead of the list's).  Now if the list is not intelligent
 enough (most aren't) this autoreply will be widely distributed.
 .Sh BUGS
-None.  It's perfect :-).
+When formail has to generate a leading `+FROM+' line it normally will contain
+the current date.  If formail is given the option `\-+FM_ADD_IFNOT+ Date:',
+it will use the date from the `Date:' field in the header (if present).
+However, since formail copies it verbatim, the format will differ from that
+expected by most mail readers.
 .Sh MISCELLANEOUS
 Formail is eight-bit clean.
 .PP
 When formail has to determine the sender's address, every RFC 822 conforming
-mail address is allowed.
+mail address is allowed.  Formail will always strip down the address to
+its minimal form (deleting excessive comments and whitespace).
 .Sh NOTES
 Calling up formail with the \-+HELPOPT1+ or \-+HELPOPT2+ options will cause
 it to display a command-line help page.

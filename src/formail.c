@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.18 1993/01/19 12:47:57 berg Exp $";
+ "$Id: formail.c,v 1.19 1993/01/22 13:42:26 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/19 12:47:57 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/22 13:42:26 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -198,8 +198,7 @@ usg:						     /* options sanity check */
 xusg:
      return EX_USAGE;
    }
-  namep=malloc(1);buf=malloc(buflen=BSIZE);	       /* prime some buffers */
-  totallen=0;i=maxindex(rex);
+  buf=malloc(buflen=BSIZE);totallen=0;i=maxindex(rex); /* prime some buffers */
   do rex[i].rexp=malloc(1);
   while(i--);
   fdate=0;addfield(&fdate,date,STRLEN(date)); /* fdate is only for searching */
@@ -217,10 +216,10 @@ xusg:
   else
 startover:
      while(readhead());				 /* read in the whole header */
-  ;{ size_t namel=0;size_t lenparkedbuf;void*parkedbuf;
+  ;{ size_t lenparkedbuf;void*parkedbuf;
      if(rdheader&&!strncmp(rdheader->fld_text,Article_,STRLEN(Article_)))
 	rdheader->fld_text[STRLEN(Article_)-1]=HEAD_DELIMITER;	   /* proper */
-     totallen=0;i=maxindex(rex);				    /* field */
+     namep=0;totallen=0;i=maxindex(rex);			    /* field */
      do rex[i].rexl=0;
      while(i--);				 /* all state has been reset */
      for(fldp=rdheader;fldp;fldp=fldp->fld_next)    /* go through the linked */
@@ -234,30 +233,44 @@ startover:
 	i=maxindex(sest);		   /* look for other "sender" fields */
 	while((sest[i].len!=j||strnIcmp(sest[i].head,chp,j))&&i--);
 	if(i>=0)					  /* found anything? */
-	 { const char*saddr,*end;
+	 { char*saddr;char*tmp;
 	   nowm=areply?trust&&sest[i].head==replyto? /* determine the weight */
 	    maxindex(sest)+1:sest[i].wrepl:trust&&sest[i].head==path?-1:i;
-foundfrom: saddr=end=chp+fldp->tot_len-1;chp+=j;
-	   for(;;chp=skipwords(chp,end))		/* skip RFC 822 wise */
-	    { switch(*(chp=pstrspn(chp,",; \t")))
+foundfrom: chp+=j;saddr=tmp=malloc(j=fldp->tot_len-j);tmemmove(tmp,chp,j);
+	   tmp[j-1]='\0';chp=pstrspn(tmp," \t\n");
+	   for(saddr=0;;chp=skipwords(chp))		/* skip RFC 822 wise */
+	    { switch(*chp)
 	       { default:
-		    if(saddr==end)	   /* if we haven't got anything yet */
+		    if(!saddr)		   /* if we haven't got anything yet */
 		       saddr=chp;		/* this might be the address */
-		 case '(':continue;		  /* a comment, don't bother */
-		 case '<':saddr=chp;		  /* hurray, machine useable */
-		 case '\n':;
+		    continue;
+		 case '<':skipwords(saddr=chp);	  /* hurray, machine useable */
+		 case '\0':;
 	       }
 	      break;
 	    }
-	   if((chp=skipwords(saddr,end),*saddr=='<')&&chp[-1]=='>'&&
-	    chp-1==strpbrk(saddr,"([\">,; \t\n"))     /* strip '<' and '>' ? */
-	      saddr++,chp--;   /* check length of the address and extract it */
-	   if(chp<=saddr&&sest[i].head==returnpath)	/* nill Return-Path: */
-	      chp=(char*)(saddr="<>")+2,nowm=maxindex(sest)+2;	 /* override */
-	   if((i=chp-saddr)>0&&(!namel||nowm>lastm))
-	    { tmemmove(namep=realloc(namep,i+1),saddr,namel=i);
-	      lastm=mystrstr(namep,".UUCP",end)?nowm-maxindex(sest)-3:nowm;
+	   if(saddr)			    /* any useful mailaddress found? */
+	    { if(*saddr)			  /* did it have any length? */
+	       { if(strstr(saddr,".UUCP"))
+		    nowm-=maxindex(sest)*3;    /* depreciate .UUCP addresses */
+		 else if(!strpbrk(saddr,"@!/"))
+		    nowm-=maxindex(sest)*2;		/* depreciate "user" */
+		 else if(strchr(saddr,'@')&&!strchr(saddr,'.'))
+		    nowm-=maxindex(sest);	     /* depreciate user@host */
+		 if(!namep||nowm>lastm)		/* better than previous ones */
+		    saddr=strcpy(malloc(strlen(saddr)+1),saddr),lastm=nowm;
+		 else
+		    goto nonamep;
+	       }
+	      else if(sest[i].head==returnpath)		/* nill Return-Path: */
+		 saddr=0,nowm=maxindex(sest)+2;			 /* override */
+	      else
+		 goto nonamep;
+	      if(namep)
+		 free(namep);
+	      namep=saddr;
 	    }
+nonamep:   free(tmp);
 	 }				   /* save headers for later perusal */
 	i=maxindex(rex);chp=fldp->fld_text;j=fldp->id_len;    /* e.g. areply */
 	while((rex[i].lenr!=j||strnIcmp(rex[i].headr,chp,j))&&i--);
@@ -274,8 +287,8 @@ foundfrom: saddr=end=chp+fldp->tot_len-1;chp+=j;
 	   else					/* except the ones mentioned */
 	      fldp= *(afldp= &fldp->fld_next);		       /* as -i ...: */
 	loadbuf(to,STRLEN(to));loadchar(' ');	   /* generate the To: field */
-	if(namel)	       /* did we find a valid return address at all? */
-	   loadbuf(namep,namel);		      /* then insert it here */
+	if(namep)	       /* did we find a valid return address at all? */
+	   loadbuf(namep,strlen(namep));	      /* then insert it here */
 	else
 	   loadbuf(unknown,STRLEN(unknown));	    /* or insert our default */
 	loadchar('\n');addbuf();		       /* add it to rdheader */
@@ -303,11 +316,11 @@ foundfrom: saddr=end=chp+fldp->tot_len-1;chp+=j;
       { struct field*old;time_t t;	     /* insert a From_ line up front */
 	t=time((time_t*)0);old=rdheader;rdheader=0;
 	loadbuf(From_,STRLEN(From_));
-	if(namel)			  /* we found a valid return address */
-	   loadbuf(namep,namel);
+	if(namep)			  /* we found a valid return address */
+	   loadbuf(namep,strlen(namep));
 	else
 	   loadbuf(unknown,STRLEN(unknown));			    /* Date: */
-	if(!hdate->rexl||findf(fdate,iheader)||findf(fdate,Iheader))
+	if(!hdate->rexl||!findf(fdate,aheader))
 	   loadchar(' '),chp=ctime(&t),loadbuf(chp,strlen(chp)); /* no Date: */
 	else					 /* we generate it ourselves */
 	   loadsaved(hdate);	      /* yes, found Date:, then copy from it */
@@ -348,6 +361,8 @@ foundfrom: saddr=end=chp+fldp->tot_len-1;chp+=j;
    { flushfield(&rdheader);flushfield(&nheader);dispfield(Aheader);
      dispfield(iheader);dispfield(Iheader);lputcs('\n');  /* make sure it is */
    }						/* followed by an empty line */
+  if(namep)
+     free(namep);
   if(!keepb&&(areply||xheader||Xheader))		    /* decision time */
    { logfolder();				   /* we throw away the rest */
      if(split)

@@ -1,4 +1,4 @@
-/*$Id: sublib.c,v 1.6 1992/11/13 12:58:37 berg Exp $*/
+/*$Id: sublib.c,v 1.7 1993/01/22 13:42:53 berg Exp $*/
 #include "includes.h"
 #include "sublib.h"
 
@@ -39,6 +39,16 @@ char*strpbrk(st,del)const char*const st,*del;
      if((t=strchr(st,*del++))&&(!f||t<f))
 	f=t;
   return(char*)f;
+}
+#endif
+
+#ifdef NOstrstr
+char*strstr(whole,part)const char*whole,*const part;
+{ size_t i;const char*end;
+  for(end=strchr(whole,'\0')-(i=strlen(part))+1;--end>=whole;)
+     if(!strncmp(end,part,i))
+	return(char*)end;
+  return 0;
 }
 #endif
 			    /* strtol replacement which lacks range checking */
@@ -88,9 +98,11 @@ fault:
   return sign?-result:result;
 }
 #else /* NOstrtol */
+#ifndef NOstrstr
 #ifndef NOstrpbrk
 #ifndef NOmemmove
 int sublib_dummy_var;		      /* to prevent insanity in some linkers */
+#endif
 #endif
 #endif
 #endif /* NOstrtol */
