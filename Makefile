@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.35 1993/07/30 13:52:37 berg Exp $
+#$Id: Makefile,v 1.36 1993/09/02 15:54:57 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -60,7 +60,12 @@ SEARCHLIBS = -ldir -lx -lsocket -lnet -linet -lnsl_s -lnsl_i -lnsl -lsun -lgen\
 LIBPATHS=/lib /usr/lib /usr/local/lib /usr/ucblib /usr/5lib /usr/ucb/lib \
  /lib/386
 
-CFLAGS0 = -O #-pedantic #-Wid-clash-6
+GCC_WARNINGS = -pedantic -Wimplicit -Wreturn-type -Wunused -Wformat \
+ -Wuninitialized -Wtraditional -Wshadow -Wid-clash-6 -Wpointer-arith \
+ -Wconversion -Waggregate-return
+
+# The place to put your favourite extra cc flag
+CFLAGS0 = -O #$(GCC_WARNINGS)
 LDFLAGS0= -s
 
 CFLAGS1 = $(CFLAGS0) #-posix -Xp
