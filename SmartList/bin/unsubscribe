@@ -1,26 +1,40 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: unsubscribe,v 1.2 1992/11/24 16:58:09 berg Exp $
+#$Id: unsubscribe,v 1.3 1992/12/01 15:31:55 berg Exp $
+
+test=test		# /bin/test
+echo=echo		# /bin/echo
+cat=cat			# /bin/cat
+sed=sed			# /bin/sed
+formail=formail		# /usr/local/bin/formail
+multigram=multigram	# ../.bin/multigram
+
+$test -z "$listaddr" &&
+ $echo "Don't start this script directly, it is used in listrc.sub" && exit 64
 
 tmprequest=tmp.request
 tmpfrom=tmp.from
 dist=dist
 
-formail -i"Sender: $listreq" -i"From: $listaddr" -rtA"X-Loop: $listaddr" \
+$formail -i"Sender: $listreq" -i"From: $listaddr" -rtA"X-Loop: $listaddr" \
  <$tmprequest
 
-if multigram -b1 -l$off_threshold -d $dist
+fromaddr="`$cat $tmpfrom`"
+
+if $multigram -b1 -l$off_threshold -d $dist 2>/dev/null
 then
-  echo
-  echo "You have been removed from the list."
+  $echo
+  $echo "You have been removed from the list."
 else
-  echo "You have not been removed, I couldn't find your name on the list."
+  $echo "You have not been removed, I couldn't find your name on the list."
 fi |
- sed -e '1 s/^ *[0-9]* [^ ]* \(.*\)$/\1/' \
-  -e '2 s/^Removed: \(.*\)$/\1/w'$tmpfrom
+ $sed -e '1 s/^ *[0-9]* [^ ]* \(.*\)$/\1/' \
+  -e '2 s/^Removed: \(.*\)$/\1/w '$tmpfrom
 
-echo
-echo "Transcript of unsubsription request follows:"
-echo
+$echo "$fromaddr" >>$tmpfrom
 
-sed -e 's/^\(.\)/>\1/' $tmprequest
+$echo
+$echo "Transcript of unsubscription request follows:"
+$echo
+
+$sed -e 's/^\(.\)/>\1/' $tmprequest

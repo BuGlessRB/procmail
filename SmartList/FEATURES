@@ -10,7 +10,7 @@ Summary of what the mailinglist scripts in here provide:
 	+ No hardwired format for (un)subscribe requests (i.e. new subscribers
 	  need not be educated, unsubscribing users do not need to remember
 	  any particular syntax)
-	+ Only subscribers to a list can submit messages (the other go to the
+	+ Only subscribers to a list can submit messages (the others go to the
 	  maintainer of the list, who can then decide)
 	+ The fully automated subscription mechanism allows for a reject list
 	  of unwanted subscribers
@@ -21,4 +21,8 @@ Summary of what the mailinglist scripts in here provide:
 	+ A listmaintainer can be assigned per list;  miscellaneous requests
 	  that couldn't be handled by the list automatically are then
 	  forwarded to his mail address (instead of being accumulated in
-	  a file).
+	  a file)
+	+ Integrated diagnostic aid to give hints to the maintainer about
+	  possible problems
+	+ *Intelligent* autoremoval of addresses from the list that cause
+	  too many bounces

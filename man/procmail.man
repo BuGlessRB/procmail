@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.9 1992/11/11 13:58:25 berg Exp $
+.Id $Id: procmail.man,v 1.10 1992/12/01 15:32:11 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .SH NAME
 .na
@@ -285,34 +285,40 @@ The specified recipient does not have a corresponding uid.
 .Sh "EXTENDED DIAGNOSTICS"
 .Tp 2.3i
 Assigning "x"
-Environment variable assignment
+Environment variable assignment.
 .Tp
 Executing "x"
-Starting program "x"
+Starting program "x".  If it is started by procmail directly (without an
+intermediate shell), procmail will show where it separated the arguments
+by inserting commas.
 .Tp
 HOST mismatched "x"
-This host was called "x", HOST contained something else
+This host was called "x", HOST contained something else.
 .Tp
 Locking "x"
-Creating lockfile "x"
+Creating lockfile "x".
 .Tp
 Match on "x"
-Condition matched
+Condition matched.
 .Tp
 No match on "x"
-Condition didn't match, recipe skipped
+Condition didn't match, recipe skipped.
+.Tp
+Notified comsat: "$USER@offset:file"
+Sent comsat/biff a notice that mail arrived for user $USER at `offset'
+in `file'.
 .Tp
 Opening "x"
-Opening file "x" for appending
+Opening file "x" for appending.
 .Tp
 Opening directory "x"
-Opening a directory for finding the highest file number
+Opening a directory for finding the highest file number.
 .Tp
 Rcfile: "x"
-Rcfile changed to "x"
+Rcfile changed to "x".
 .Tp
 Unlocking "x"
-Removing lockfile "x" again
+Removing lockfile "x" again.
 .Sh WARNINGS
 You should create a shell script that uses
 .BR lockfile (1)

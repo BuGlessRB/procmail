@@ -5,7 +5,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.4 1992/11/24 16:58:03 berg Exp $
+#$Id: createlist,v 1.5 1992/12/01 15:31:44 berg Exp $
 
 defaults=.listadmin
 
@@ -84,7 +84,7 @@ do
   $cat $DEVNULL >>../$defaults/$a		# to make sure it exists
   $ln ../$defaults/$a $a
 done
-$touch dist
+echo "(Only addresses below this line can be automatically removed)" >>dist
 cd ..
 
 trap "$rm -f the_lists.lock" 1 2 3 15

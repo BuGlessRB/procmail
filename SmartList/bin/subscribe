@@ -1,6 +1,17 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: subscribe,v 1.2 1992/11/24 16:58:07 berg Exp $
+#$Id: subscribe,v 1.3 1992/12/01 15:31:51 berg Exp $
+
+test=test		# /bin/test
+echo=echo		# /bin/echo
+cat=cat			# /bin/cat
+sed=sed			# /bin/sed
+grep=grep		# /bin/grep
+formail=formail		# /usr/local/bin/formail
+multigram=multigram	# ../.bin/multigram
+
+$test -z "$listaddr" &&
+ $echo "Don't start this script directly, it is used in listrc.sub" && exit 64
 
 tmprequest=tmp.request
 tmpfrom=tmp.from
@@ -8,50 +19,62 @@ subscribetxt=subscribe.txt
 
 subscraddr=""
 
-address=`formail -k -xSubject: |
- sed -n \
-  -e 's/^[	 ]*[aA][dD][dD][	 ][	 ]*'\
-'[^	 ]*[	 ]*\([^		][^	 ]*[@!][^	 ][^	 ]*\)/\1/' \
-  -e 's/^[	 ]*[aA][dD][dD][rR][eE][sS][sS][	 ][	 ]*'\
-'[^	 ]*[	 ]*\([^		][^	 ]*[@!][^	 ][^	 ]*\)/\1/' \
-  -e 's/^[	 ]*[sS][uU][bB][	 ][	 ]*'\
-'[^	 ]*[	 ]*\([^		][^	 ]*[@!][^	 ][^	 ]*\)/\1/' \
-  -e 's/^[	 ]*[sS][uU][bB][sS][cC][rR][iI][bB][eE][	 ][	 ]*'\
-'[^	 ]*[	 ]*\([^		][^	 ]*[@!][^	 ][^	 ]*\)/\1/'
+address=`$formail -k -xSubject: |
+ $sed -n \
+  -e 's/^[	 ]*[aA][dD][dD][	 ]*'\
+'[^	 ]*[	 ]\([^		][^	 ]*[@!][^	 ][^	 ]*\)/\1/p' \
+  -e 's/^[	 ]*[aA][dD][dD][rR][eE][sS][sS][	 ]*'\
+'[^	 ]*[	 ]\([^		][^	 ]*[@!][^	 ][^	 ]*\)/\1/p' \
+  -e 's/^[	 ]*[sS][uU][bB][	 ]*'\
+'[^	 ]*[	 ]\([^		][^	 ]*[@!][^	 ][^	 ]*\)/\1/p' \
+  -e 's/^[	 ]*[sS][uU][bB][sS][cC][rR][iI][bB][eE][	 ]*'\
+'[^	 ]*[	 ]\([^		][^	 ]*[@!][^	 ][^	 ]*\)/\1/p' `
 
 for a in $address ""
 do
-  test -z "$subscraddr" && subscraddr=$a
+  $test -z "$subscraddr" && subscraddr=$a
 done
 
-if test -z "$subscraddr"
+if $test -z "$subscraddr"
 then
-  address=`formail -k -xSubject: <$tmprequest |
-   multigram -b1 -l$off_threshold $tmpfrom |
-   sed -e 's/^ *[^ ]* *[^ ]* *[^ ]* *\([^ ]*\)/\1/' `
+  address=`$formail -k -xSubject: <$tmprequest |
+   $multigram -b1 -l$off_threshold $tmpfrom |
+   $sed -e 's/^ *[^ ]* *[^ ]* *[^ ]* *\([^ ]*\)/\1/' `
 
   for a in $address ""
   do
-     test -z "$subscraddr" && subscraddr=$a
+     $test -z "$subscraddr" && subscraddr=$a
   done
 
-  test -z "$subscraddr" && subscraddr=`cat $tmpfrom`
+  $test -z "$subscraddr" && subscraddr=`$cat $tmpfrom`
 fi
 
-multigram -a $subscraddr dist >/dev/null
+NOT_METOO=""
 
-formail -i"Sender: $listreq" -i"From: $listaddr" -rtA"X-Loop: $listaddr" \
+$formail -k -xSubject: <$tmprequest |
+ $grep 'no.*[^a-z]cop.*[^a-z]please' >/dev/null && NOT_METOO=" (-n)"
+
+$multigram -a "$subscraddr$NOT_METOO" dist >/dev/null
+
+$formail -i"Sender: $listreq" -i"From: $listaddr" -rtA"X-Loop: $listaddr" \
  <$tmprequest
 
-echo "You have added to the subscriber list of:"
-echo
-echo "	$listaddr"
-echo
-echo "the following mail address:"
-echo
-echo "	$subscraddr"
-echo
+$echo "You have added to the subscriber list of:"
+$echo
+$echo  "	$listaddr"
+$echo
+$echo "the following mail address:"
+$echo
+$echo  "	$subscraddr"
+$echo
+if $test -z "$NOT_METOO"
+then
+  $echo "By default, copies of own submissions will be returned."
+else
+  $echo "As requested, copies of own submissions will not be returned."
+fi
+$echo
 
-cat $subscribetxt
+$cat $subscribetxt
 
-sed -e 's/^\(.\)/>\1/' $tmprequest
+$sed -e 's/^\(.\)/>\1/' $tmprequest

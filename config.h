@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.9 1992/11/24 15:57:51 berg Exp $*/
+/*$Id: config.h,v 1.10 1992/12/01 15:31:28 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -98,8 +98,8 @@
 #define FROMDkey	"^FROM_DAEMON"
 #define FROMDsubstitute "\
 ^(Precedence:.*(bulk|junk)|((Resent-)?(From|Sender):|From )(.*[^.a-z])?(\
-postma(st(er)?|n)|Mailer|daemon|mmdf|root|uucp|LISTSERV|owner|request|bounce\
-)([^.a-z]|$))"			       /* should match most kinds of daemons */
+postma(st(er)?|n)|Mailer|daemon|mmdf|root|uucp|LISTSERV|owner|request|bounce|\
+services?)([^.a-z]|$))"		       /* should match most kinds of daemons */
 #define DEFshellmetas	"&|<>~;?*[]"		    /* never put '$' in here */
 #define DEFmaildir	"$HOME"
 #define DEFdefault	"$ORGMAIL"
@@ -163,6 +163,7 @@ postma(st(er)?|n)|Mailer|daemon|mmdf|root|uucp|LISTSERV|owner|request|bounce\
 #define MINlinebuf	128    /* minimal LINEBUF length (don't change this) */
 #define FROM_EXPR	"\nFrom "
 #define FROM		"From "
+#define SHFROM		"From"
 #define NSUBJECT	"^Subject:.*$"
 #define MAXSUBJECTSHOW	78
 #define FOLDER		"  Folder: "

@@ -1,0 +1,61 @@
+#! /bin/sh
+: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+#$Id: procbounce,v 1.1 1992/12/01 15:31:48 berg Exp $
+
+maxhist=$1
+minbounce=$2
+
+test=test		# /bin/test
+echo=echo		# /bin/echo
+cat=cat			# /bin/cat
+mkdir=mkdir		# /bin/mkdir
+sed=sed			# /bin/sed
+ls=ls			# /bin/ls
+rm=rm			# /bin/rm
+find=find		# /bin/find
+expr=expr		# /bin/expr
+formail=formail		# /usr/local/bin/formail
+multigram=multigram	# ../.bin/multigram
+
+$test -z "$listaddr" &&
+ $echo "Don't start this script directly, it is used in listrc.sub" && exit 64
+
+tmprequest=tmp.request
+dist=dist
+bounces=bounces
+
+$test -d $bounces || $mkdir $bounces
+
+addr=`$formail -1 -kde -xSubject: -s \
+ $multigram -b1 -l$off_threshold $dist <$tmprequest |
+ $sed -e 's/^ *[0-9]* [^ ]* *[0-9]* *\([^ ]*\) *\$/\1/' `
+
+if test ! -z "$addr"
+then
+  $echo "$addr" \
+   >>$bounces/`$formail +1 -1 -dexMessage-Id: -s $multigram -H <$tmprequest`
+  $rm -f `$ls -t $bounces/* | $sed -e $maxhist'+1,\$ d' `
+
+  bounced=1
+  for a in $bounces/*
+  do
+    $echo "$addr" | $multigram -b1 -l$match_threshold $a >/dev/null &&
+     bounced=`$expr $bounced + 1`
+  done
+
+  addfield="X-Diagnostic: Mail to $addr bounced $bounced times"
+  if expr $bounced \> $minbounce
+  then
+     addfield="$addfield
+X-Diagnostic: Bounces exceed threshold of $minbounce
+X-Diagnostic: `
+     if $multigram -b1 -l$off_threshold -d $dist 2>/dev/null
+     then
+     :
+     else
+	$echo 'Could not find the offending address'
+     fi | $sed -e '1 s/^ *[0-9]* [^ ]* \(.*\)\$/Removed: \1/' -e '2 d' `"
+  fi
+fi
+
+$formail -A "$addfield"
