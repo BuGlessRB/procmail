@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.97 2001/06/23 08:18:35 guenther Exp $*/
+/*$Id: config.h,v 1.98 2001/06/26 08:42:32 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -227,7 +227,7 @@ MMGR)\
 #define MAILDIRcur	"/cur"
 #define MAILDIRnew	"/new"
 #define MAILDIRLEN	STRLEN(MAILDIRnew)
-#define MAILDIRretry	3	   /* retries on obtaining a unique filename */
+#define MAILDIRretries	3	   /* retries on obtaining a unique filename */
 
 #define EOFName		" \t\n#`'\");"
 

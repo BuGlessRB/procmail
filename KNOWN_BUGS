@@ -40,7 +40,7 @@ Lost value on failed chdir()
 Control-M isn't whitespace
     Every so often someone copies an rcfile from a Windows box and
     it ends up with CRs on the end of every line.  They should be
-    treated just like spaces and tabs are.  As if, the results are
+    treated just like spaces and tabs are.  As is, the results are
     really confusing.
 
 Shell Expansion
