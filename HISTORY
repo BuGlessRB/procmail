@@ -459,6 +459,12 @@
 	       - New variable SWITCHRC performs `tail call'
 	       - Refuse to open anything but regular files with INCLUDERC
 		 and SWITCHRC
+	    Changes to formail:
+	       - Readjusted the weights used when autoreplying to better
+		 match current mail standards
+	       - Make the -t option a no-op (it was never really clear when
+		 it should or should not be used)
+	       - New option: -E (used with -r to reply to the envelope sender)
 	    Changes to mailstat:
 	       - Work around the detab done on checkin to CVS
 	       - Recognize maildir mailboxes

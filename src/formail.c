@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.90 1999/04/19 06:42:13 guenther Exp $";
+ "$Id: formail.c,v 1.91 1999/05/28 07:12:54 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/04/19 06:42:13 $";
+static /*const*/char rcsdate[]="$Date: 1999/05/28 07:12:54 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -48,22 +48,19 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
 /*
  *	sender determination fields in order of importance/reliability
  *	reply-address determination fields (wrepl specifies the weight
- *	for regular replies, wtrepl specifies the weight for trusted users)
+ *	for regular replies, werepl specifies the weight for envelope replies)
  *
  *	I bet this is the first time you see a bar graph in C-source-code :-)
  */
-static const struct {const char*head;int len,wrepl,wtrepl;}sest[]=
-{ sslbar(replyto	,"******"	,"********"	),
-  sslbar(Fromm		,"*"		,"*******"	),
-  sslbar(retreceiptto	,"********"	,"*****"	),
-  sslbar(sender		,"*****"	,"******"	),
-  sslbar(res_replyto	,"***********"	,"***********"	),
-  sslbar(res_from	,"***foo***"	,"***bar****"	),
-  sslbar(res_sender	,"**********"	,"*********"	),
-  sslbar(errorsto	,"*******"	,"****"		),
-  sslbar(path		,"**"		,"*"		),
-  sslbar(returnpath	,"***"		,"***"		),
-  sslbar(From_		,"****"		,"**"		)
+static const struct {const char*head;int len,wrepl,werepl;}sest[]=
+{ sslbar(replyto	,"********"	,"***"		),
+  sslbar(Fromm		,"*******"	,"**"		),
+  sslbar(sender		,"******"	,"*"		),
+  sslbar(returnpath	,"*****"	,"********"	),
+  sslbar(From_		,"****"		,"*******"	)
+  sslbar(errorsto	,"***"		,"******"	),
+  sslbar(retreceiptto	,"**"		,"*****"	),
+  sslbar(path		,"*"		,"****"		),
 };
 
 static struct saved rex[]=
@@ -202,18 +199,20 @@ static int artheadr P((void))	     /* could it be the start of an article? */
   return 0;
 }
 			     /* lifted out of main() to reduce main()'s size */
-static char*getsender(namep,fldp,trust)char*namep;struct field*fldp;
- const int trust;
+static char*getsender(namep,fldp,envelope)char*namep;struct field*fldp;
+ const int envelope;
 { char*chp;int i,nowm;size_t j;static int lastm;
   chp=fldp->fld_text;j=fldp->id_len;i=maxindex(sest);
   while((sest[i].len!=j||strnIcmp(sest[i].head,chp,j))&&i--);
   if(i>=0&&(i!=maxindex(sest)||fldp==rdheader))		  /* found anything? */
    { char*saddr;char*tmp;			     /* determine the weight */
-     nowm=trust?sest[i].wtrepl:areply?sest[i].wrepl:i;chp+=j;
+     nowm=envelope?sest[i].werepl:areply?sest[i].wrepl:i;chp+=j;
      tmp=malloc(j=fldp->Tot_len-j);tmemmove(tmp,chp,j);(chp=tmp)[j-1]='\0';
      if(sest[i].head==From_)
       { char*pastad;
+#if 0			/* trust is always 1 now.  What does saddr mean? */
 	if(trust||!(saddr=strchr(chp,'\n')))	     /* skip the first line? */
+#endif
 	   saddr=chp;						  /* no need */
 	if(*saddr=='\n'&&(pastad=strchr(saddr,' ')))
 	   saddr=pastad+1;			/* reposition at the address */
@@ -354,7 +353,7 @@ dupfound:
 static PROGID;
 
 int main(lastm,argv)int lastm;const char*const argv[];
-{ int i,split=0,force=0,bogus=1,every=0,trust=0,digest=0,nowait=0,keepb=0,
+{ int i,split=0,force=0,bogus=1,every=0,envelope=0,digest=0,nowait=0,keepb=0,
    minfields=(char*)progid-(char*)progid,conctenate=0,babyl=0,babylstart,
    berkeley=0,forgetclen;
   off_t maxlen,ctlength;FILE*idcache=0;pid_t thepid;
@@ -369,8 +368,10 @@ int main(lastm,argv)int lastm;const char*const argv[];
 	   goto usg;
 	for(;;)
 	 { switch(lastm= *chp++)
-	    { case FM_TRUST:trust=1;
+	    { case FM_TRUST:			 /* we always trust them now */
 		 continue;
+	      case FM_ENVELOPE:envelope=1;
+		 continue
 	      case FM_REPLY:areply=1;
 		 continue;
 	      case FM_FORCE:force=1;
@@ -602,8 +603,8 @@ startover:
 	 }
 	if(conctenate)
 	   concatenate(fldp);		    /* save fields for later perusal */
-	namep=getsender(namep,fldp,trust);i=maxindex(rex);chp=fldp->fld_text;
-	j=fldp->id_len;
+	namep=getsender(namep,fldp,envelope);
+	i=maxindex(rex);chp=fldp->fld_text;j=fldp->id_len;
 	while((rex[i].lenr!=j||strnIcmp(rex[i].headr,chp,j))&&i--);
 	chp+=j;
 	if(i>=0&&(j=fldp->Tot_len-j)>1)			  /* found anything? */

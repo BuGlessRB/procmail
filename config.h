@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.84 1999/04/22 05:02:24 guenther Exp $*/
+/*$Id: config.h,v 1.85 1999/05/28 07:12:53 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -285,6 +285,7 @@ MMGR)\
 #define FM_REPLY	'r'		    /* generate an auto-reply header */
 #define FM_KEEPB	'k'		   /* keep the header, when replying */
 #define FM_TRUST	't'	/* trust the sender to supply a valid header */
+#define FM_ENVELOPE	'E'		     /* reply to the envelope sender */
 #define FM_LOGSUMMARY	'l'    /* generate a procmail-compatible log summary */
 #define FM_SPLIT	's'				      /* split it up */
 #define FM_NOWAIT	'n'		      /* don't wait for the programs */
@@ -306,9 +307,9 @@ MMGR)\
 #define FM_ReNAME	'R'				   /* rename a field */
 #define FM_VERSION	VERSIONOPT		/* option to display version */
 #define FM_USAGE	"\
-Usage: formail [-vbczfrktqY] [-D nnn idcache] [-p prefix] [-l folder]\n\
+Usage: formail [-vbczfrkEtqY] [-D nnn idcache] [-p prefix] [-l folder]\n\
 \t[-xXaAiIuU field] [-R ofield nfield]\n\
-   Or: formail [+nnn] [-nnn] [-bczfrktedqBY] [-D nnn idcache] [-p prefix]\n\
+   Or: formail [+nnn] [-nnn] [-bczfrkEtedqBY] [-D nnn idcache] [-p prefix]\n\
 \t[-n [nnn]] [-m nnn] [-l folder] [-xXaAiIuU field] [-R ofield nfield]\n\
 \t-s [prg [arg ...]]\n"	    /* split up FM_HELP, token too long for some ccs */
 #define FM_HELP		\
@@ -320,7 +321,8 @@ Usage: formail [-vbczfrktqY] [-D nnn idcache] [-p prefix] [-l folder]\n\
 \n -f\t\tforce formail to pass along any non-mailbox format\
 \n -r\t\tgenerate an auto-reply header, preserve fields with -i\
 \n -k\t\ton auto-reply keep the body, prevent escaping with -b\
-\n -t\t\ttrust the sender for his return address\
+\n -E\t\treply to the envelope sender\
+\n -t\t\tno-op (for backwards compatibility only)\
 \n -l folder\tgenerate a procmail-compatible log summary\
 \n -D nnn idcache\tdetect duplicates with an idcache of length nnn\
 \n -s prg arg\tsplit the mail, startup prg for every message\n"
