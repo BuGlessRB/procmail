@@ -1,4 +1,4 @@
-$Id: Manual,v 1.4 1993/01/29 13:32:44 berg Exp $
+$Id: Manual,v 1.5 1993/02/18 16:31:08 berg Exp $
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
@@ -10,6 +10,7 @@ Contents:
 		3. Customisation
 		4. The archive server
 		5. The format of the dist file
+		6. Multigram and the thresholds in rc.init/rc.custom
 
 
 1. Creating and removing mailinglists
@@ -216,3 +217,53 @@ Depreciated, but allowed:
 Not allowed by multigram (although sendmail doesn't mind):
 	(some comment) joe@some.where
 	some comment <joe@some.where>
+
+
+6. Multigram and the thresholds in rc.init/rc.custom
+   -------------------------------------------------
+
+The rc.init and rc.custom scripts define some threshold values:
+
+	match_threshold, off_threshold, reject_threshold, submit_threshold.
+
+These values are fed to multigram as a cut-off value with which to decide
+if a certain mail address is on a list.
+The higher the threshold, the better the match must be.	 The thresholds
+have a scale from -16383 to 32767.  This means that, for instance a threshold
+of 30730 can be used to find only mailaddresses that are almost verbatim
+on the list.  A value of 24476 on the other hand allows for some error
+(like mailaddresses munged by gateways etc.) in finding matches to the
+list.
+
+The values 30730 and 24476 are somewhat arbitrary values which seem
+to work well for the particular problems at hand.
+
+To get a feeling for the values computed by multigram you can do
+the following test:
+
+	Create a file with the same format as the distfile, fill it with
+	any number of addresses you like (e.g. you could take an existing
+	distfile).
+	Now make a copy of this `distfile' and alter some of the addresses
+	a bit (like omit one character, or add some gateway information,
+	switch two words, change it into an uucp address, etc.).
+	Next you should call up multigram with the following command line:
+
+		multigram -l-16000 -b300 pseudo_distfile <altered_distfile
+
+	Multigram will display up the 300 best matches it found after
+	crossreferencing altered_distfile and pseudo_distfile.
+	The output produced by multigram can be disected as follows:
+
+		lineno. name1 goodness name2
+
+	Lineno. and name1 refer to the line number in pseudo_distfile which
+	contains the mailaddress name1.	 Goodness is the metric that
+	corresponds to the aforementioned threshold values, and name2 is
+	the matching mailaddress from altered_distfile (which is usually
+	the incoming mail).
+
+	Once you get the hang of it you can play around a bit with the
+	entries in altered_distfile by mutilating them more and more in
+	order to see what multigram makes of it (try inserting some non-
+	existing addresses as well).
