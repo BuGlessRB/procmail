@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.36 1999/01/29 22:05:01 guenther Exp $*/
+/*$Id: procmail.h,v 1.37 1999/02/11 17:10:57 guenther Exp $*/
 
 #include "includes.h"
 
@@ -66,7 +66,7 @@ extern struct varstr{const char*const sname,*sval;}strenstr[];
 #define fdefault	(*(const char*volatile*)&strenstr[6].sval)
 #define sendmail	(strenstr[7].sval)
 #define flagsendmail	(strenstr[8].sval)
-#define version		(strenstr[9].sval)
+/* #define PM_version	(strenstr[9].sval) */
 
 int
  eqFrom_ P((const char*const a));
