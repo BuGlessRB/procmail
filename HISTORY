@@ -212,7 +212,7 @@
 	    Made formail quiet (by default) about Content-Length mismatches
 	    The version number in patchlevel.h for this version was incorrect
 	       and still displayed v3.01 (yes, silly, I know)
-1994/06/21: v3.03
+1994/06/30: v3.03
 	    Limit the no. of retries on lockfiles if the recipient is over
 	       quota (procmail & lockfile)
 	    Removed some superfluous "procmail:" prefixes in the middle of
@@ -222,3 +222,6 @@
 	       fatal but can't occur (like an unwritable /dev/null))
 	    Reconstruct and respect Content-Length: in procmail
 	    Reformatted the source code to match the changed conventions
+	    Procmail always defaulting the umask to 077 for deliverymode broke
+	       some systems, reverting back to the old method of allowing group
+	       access on the system mailbox if necessary

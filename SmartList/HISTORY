@@ -112,10 +112,11 @@
 	       - Strip leading or trailing unbalanced "'s from mailaddresses
 	    The installation makes the scripts in .examples executable
 	    This version of flist -v erroneously displayed v3.01
-1994/06/21: v3.03
+1994/06/30: v3.03
 	    Laid out the requirements for MIME support in the Manual
 	    Modifications to the archive server:
 	      - fix a typo in mimencap for the fallback Content-Type: field
+	      - change the dir= attribute to directory=
 	      - also support the planned Content-Disposition: field (for naming
 		files)
 	    Updated some misleading comments in rc.submit

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.84 1994/06/28 16:56:39 berg Exp $";
+ "$Id: procmail.c,v 1.85 1994/06/30 12:01:52 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -55,6 +55,18 @@ long filled,lastscore;	       /* the length of the mail, and the last score */
 char*themail,*thebody;			    /* the head and body of the mail */
 uid_t uid;
 gid_t gid,sgid;
+
+#if 0
+#define wipetcrc()	(etcrc&&(etcrc=0,closerc(),1))
+#else
+static int wipetcrc P((void))	  /* stupid function to avoid a compiler bug */
+{ if(etcrc)
+   { etcrc=0;closerc();
+     return 1;
+   }
+  return 0;
+}
+#endif
 
 main(argc,argv)const char*const argv[];
 { register char*chp,*chp2;register i;int suppmunreadable,mailfilter;
@@ -428,8 +440,7 @@ Setuser: { gid=pass->pw_gid;uid=pass->pw_uid;
 		stbuf.st_gid==egid||
 	       (rcstate=rc_NOSGID,0))&&
 	      (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH))==(S_IWGRP|S_IXGRP))
-	    { if(!Deliverymode)		     /* we aren't the only deliverer */
-		 doumask(INIT_UMASK&~S_IRWXG);	   /* make it group-writable */
+	    { doumask(INIT_UMASK&~S_IRWXG);	   /* make it group-writable */
 	      goto keepgid;
 	    }
 	   else if(stbuf.st_mode&S_ISGID)
@@ -495,8 +506,11 @@ bogusbox:	  { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
 		  }
 		 else
 		  { if(!(stbuf.st_mode&OVERRIDE_MASK)&&stbuf.st_mode&cumask)
-		     { nlog("Enforcing stricter permissions on");logqnl(chp);
-		       setids();chmod(chp,stbuf.st_mode&=~cumask);
+		     { static const char enfperm[]=
+			"Enforcing stricter permissions on";
+		       nlog(enfperm);logqnl(chp);
+		       syslog(LOG_NOTIFY,slogstr,enfperm,chp);setids();
+		       chmod(chp,stbuf.st_mode&=~cumask);
 		     }
 		    break;			  /* everything is just fine */
 		  }
@@ -1074,7 +1088,7 @@ frmailed:	  { if(ifstack.offs)
 	      chp2=(char*)sputenv(buf),chp[-1]='\0',asenv(chp2);
 	 }
       }						    /* main interpreter loop */
-     while(rc<0||!testb(EOF)||poprc()||etcrc&&(etcrc=0,closerc(),1));
+     while(rc<0||!testb(EOF)||poprc()||wipetcrc());
 nomore_rc:
      if(ifstack.offs)
 	free(ifstack.offs);
