@@ -487,6 +487,7 @@
 	       - Overflows at certain times would confuse procmail
 	       - dyna_long code now meets strict ANSI restrictions
 	       - 'W' flag changes "Program failure" to "Non-zero exitcode"
+	       - Nested blocks must open and close within the same rcfile
 	    Changes to formail:
 	       - Replies without the -t flag go to the envelope sender
 	       - Replies without "-a Resent-" and -t flag ignore the
@@ -501,8 +502,9 @@
 	    Changes to autoconf:
 	       - Don't assume realloc(0,size) works (doesn't under SunOS 4)
 	    Stopped using `implicit int' (for C9x)
-	    Cache gethostname() or uname() output
+	    Cache gethostname() and uname() output
 	    Changed the form of tempfile names to make them `more' unique
+	     and deal with filename length limits more gracefully
 	    Updated list of mirrors in the README
 	    Documented the exact behavior of lockfile's -! flag
 	    Documented the suggested usage of -r vs -rt
