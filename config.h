@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.94 2001/01/28 01:13:38 guenther Exp $*/
+/*$Id: config.h,v 1.95 2001/01/28 01:32:20 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -57,7 +57,8 @@
 	temporary file instead of just core for large messages.	 Messages
 	under MAXinMEM (defined below) bytes in size will still be kept
 	completely in memory.  MMAP_DIR specifies where the temp files
-	will be placed. */
+	will be placed.	 WARNING: this code has security problems right
+	now, so it has been disabled completely!  */
 
 /* This file previously allowed you to define SYSTEM_MBOX.  This has
    changed.  If you want mail delivery to custom mail-spool-files, edit the
@@ -156,6 +157,7 @@
 #define STDBUF		128
 #undef USE_MMAP				       /* don't bother on these guys */
 #endif /* SMALLHEAP */
+#undef USE_MMAP				/* UNTIL SECURITY PROBLEMS ARE FIXED */
 #ifdef USE_MMAP
 #ifndef INEFFICIENTrealloc
 #define INEFFICIENTrealloc			  /* don't pussy-foot around */
