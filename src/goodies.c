@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.29 1994/04/12 16:28:10 berg Exp $";
+ "$Id: goodies.c,v 1.30 1994/04/12 16:32:12 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -308,7 +308,7 @@ static struct dynstring*myenv;
 static char**lastenv;
 			      /* smart putenv, the way it was supposed to be */
 const char*sputenv(a)const char*const a;
-{ static alloced;size_t eq,i;int remove;const char*split,**preenv;
+{ static alloced;size_t eq,i;int remove;const char*split;char**preenv;
   struct dynstring*curr,**last;
   yell("Assigning",a);remove=0;
   if(!(split=strchr(a,'=')))			   /* assignment or removal? */
@@ -334,7 +334,7 @@ wipenv:
      alloced=1,environ=tmemmove(malloc(i),environ,i-sizeof*environ);
   if(!remove)		  /* if not remove, then add it to both environments */
    { for(preenv=environ;*preenv;preenv++);
-     preenv[1]=0;*(lastenv=preenv)=split=newdynstring(&myenv,a);
+     preenv[1]=0;*(lastenv=preenv)=(char*)(split=newdynstring(&myenv,a));
      return split+eq+1;
    }
   return "";
