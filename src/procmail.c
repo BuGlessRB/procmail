@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.121 1998/11/06 05:35:41 guenther Exp $";
+ "$Id: procmail.c,v 1.122 1998/11/10 06:42:43 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -722,9 +722,11 @@ forward:	 if(locknext)
 		  { if(!pipthrough(buf,startchar,tobesent))
 		       succeed=1,postStdout();	  /* only parse if no errors */
 		  }
-		 else if(!pipin(buf,startchar,tobesent)&& /* regular program */
-		  (succeed=1,!flags[CONTINUE]))
-		    goto frmailed;
+		 else if(!pipin(buf,startchar,tobesent))  /* regular program */
+		    if(succeed=1,flags[CONTINUE])
+		       goto logsetlsucc;
+		    else
+		       goto frmailed;
 		 goto setlsucc;
 	       }
 	    }
@@ -815,7 +817,7 @@ frmailed:	  { if(ifstack.offs)
 		       free(ifstack.offs);
 		    goto mailed;
 		  }
-		 if(succeed&&flags[CONTINUE]&&lgabstract==2)
+logsetlsucc:	 if(succeed&&flags[CONTINUE]&&lgabstract==2)
 		    logabstract(tgetenv(lastfolder));
 setlsucc:	 rawnonl=0;
 jsetlsucc:	 lastsucc=succeed;lasttell= -1;		       /* for comsat */
