@@ -33,7 +33,7 @@
 # rc.request	rcfile used when processing requests
 # rc.custom	rcfile that contains all the customisations per list
 
-#$Id: rc.init,v 1.16 1993/06/28 16:23:10 berg Exp $
+#$Id: rc.init,v 1.17 1993/06/29 15:36:14 berg Exp $
 
 PATH=.:$PATH:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises
@@ -124,8 +124,8 @@ submit_threshold=     $medium_threshold # for permitting submissions
 
 foreign_submit	=	yes
 #foreign_submit				# uncomment this line if you
-					# *don't* want to allow
-					# non-subscribers to submit
+					# want to restrict submitting to
+					# people on the accept list
 cc_requests
 #cc_requests	=	c		# uncomment if you want subscribe
 					# and help requests to be Cc'd to

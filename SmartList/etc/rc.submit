@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.21 1993/06/28 16:23:13 berg Exp $
+#$Id: rc.submit,v 1.22 1993/06/29 15:36:16 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -31,7 +31,7 @@ INCLUDERC=$RC_CUSTOM
 	* !^Precedence:.*junk|^FROM_MAILER
 METOO=	| formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 	    -xResent-Reply-To: -xResent-Sender: | \
-	   multigram -b1 -m -l$submit_threshold dist
+	   multigram -b1 -m -l$submit_threshold accept
 
 #
 # Check if this is a digested mailinglist.  If yes, processing stops here

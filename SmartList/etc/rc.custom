@@ -28,8 +28,8 @@ maintainer	=
 
 #foreign_submit =	yes
 ##foreign_submit			# uncomment this line if you
-					# *don't* want to allow
-					# non-subscribers to submit
+					# want to restrict submitting to
+					# people on the accept list
 #cc_requests
 ##cc_requests	=	c		# uncomment if you want subscribe
 					# and help requests to be Cc'd to

@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh install.sh3 # we're in a csh, feed myself to sh
-#$Id: install.sh3,v 1.9 1993/06/28 17:02:40 berg Exp $
+#$Id: install.sh3,v 1.10 1993/06/29 15:36:02 berg Exp $
 
 test -z "$bindir" && echo "Call install.sh instead" && exit 64
 
@@ -17,6 +17,15 @@ do
   test -f "$target/.etc/$a" &&
    mv -f "$target/.etc/$a" "$target/.etc/$a.old"
 done
+
+echo Fixing up incompatibilities with older versions...
+
+( cd "$target"
+  for a in *
+  do
+     ln "$a/dist" "$a/accept" 2>/dev/null
+  done
+)
 
 echo Installing...
 

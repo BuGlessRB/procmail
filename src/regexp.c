@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.24 1993/06/23 12:56:14 berg Exp $";
+ "$Id: regexp.c,v 1.25 1993/06/29 15:36:22 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -78,7 +78,7 @@ struct chclass {unsigned opc_;struct eps*next_,*pos1,*pos2;
  bit_field(c,OPB);};
 					  /* length array, used by skiplen() */
 static const char skplen[]=
- {SZ(eps),SZ(jump),SZ(chclass),0,SZ(eps)-ioffsetof(struct eps,sp)};
+ {SZ(eps),SZ(jump),SZ(chclass),0,0};
 						       /* epsilon transition */
 static void puteps(spot,to)struct eps*const spot;const struct eps*const to;
 { spot->opc=OPC_EPS;spot->next=Ceps to;spot->spawn=0;
@@ -313,6 +313,7 @@ ret0:
 
 struct eps*bregcomp(a,ign_case)const char*const a;
 { struct eps*st;size_t i;      /* first a trial run, determine memory needed */
+  skplen[OPC_FILL-OPC_EPS]=SZ(eps)-ioffsetof(struct eps,sp);  /* a constant! */
   errorno=0;p=(uchar*)a;case_ignore=ign_case;r=Ceps&aleps;cachea=0;por(Ceps 0);
   st=r=
    malloc((i=(char*)r-(char*)&aleps)+sizeof r->opc);

@@ -5,7 +5,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.15 1993/04/13 15:47:57 berg Exp $
+#$Id: createlist,v 1.16 1993/06/29 15:36:06 berg Exp $
 
 defaults=.etc
 
@@ -144,6 +144,8 @@ then
 HOST=continue_with_rc.request
 HERE
   $ln ../$defaults/rc.archive rc.request
+else
+  ln dist accept
 fi
 
 cd ..
