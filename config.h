@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.66 1995/03/31 17:30:27 berg Exp $*/
+/*$Id: config.h,v 1.67 1995/04/10 19:27:58 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -127,13 +127,13 @@
 Post(ma?(st(e?r)?|n)|office)|(send)?Mail(er)?|daemon|mmdf|n?uucp|\
 LIST(SERV|proc)|NETSERV|owner|r(e(quest|sponse)|oot)|bounce|echo|mirror|\
 s(erv(ices?|er)|mtp)|A(dmin(istrator|MMGR|utoanswer))?\
-)(([^).!:a-z0-9][-_a-z0-9]*)?[%@	 ][^<)]*(\(.*\).*)?)?$[^>]))"
+)(([^).!:a-z0-9][-_a-z0-9]*)?[%@	 ][^<)]*(\\(.*\\).*)?)?$[^>]))"
 #define FROMMkey	"^FROM_MAILER"	      /* matches most mailer-daemons */
 #define FROMMsubstitute "(^(((Resent-)?(From|Sender)|X-Envelope-From):|\
 >?From )([^>]*[^(.%@a-z0-9])?(\
 Post(ma(st(er)?|n)|office)|(send)?Mail(er)?|daemon|\
 mmdf|n?uucp|r(esponse|oot)|s(erv(ices?|er)|mtp)|A(dmin(istrator|MMGR))?\
-)(([^).!:a-z0-9][-_a-z0-9]*)?[%@	 ][^<)]*(\(.*\).*)?)?$[^>])"
+)(([^).!:a-z0-9][-_a-z0-9]*)?[%@	 ][^<)]*(\\(.*\\).*)?)?$[^>])"
 #define DEFshellmetas	"&|<>~;?*["		    /* never put '$' in here */
 #define DEFdefault	"$ORGMAIL"
 #define DEFmsgprefix	"msg."

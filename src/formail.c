@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.75 1995/03/20 15:30:11 berg Exp $";
+ "$Id: formail.c,v 1.76 1995/04/10 19:28:27 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1995/03/20 15:30:11 $";
+static /*const*/char rcsdate[]="$Date: 1995/04/10 19:28:27 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -291,7 +291,7 @@ pnewname:  lastm=nowm;saddr=strcpy(malloc(strlen(saddr)+1),saddr);
 static void elimdups(namep,idcache,maxlen,split)const char*const namep;
  FILE*idcache;const off_t maxlen;const int split;
 { int dupid=0;char*key;
-  key=namep;
+  key=(char*)namep;		  /* not to worry, no change will be noticed */
   if(!areply)
    { key=0;
      if(msid->rexl)					/* any Message-ID: ? */

@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1995, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.104 1995/03/20 15:29:55 berg Exp $
+#$Id: autoconf,v 1.105 1995/04/10 19:28:22 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -1031,7 +1031,7 @@ fi
 $FGREP -e LD_ /bin/ld >/dev/null 2>&1 && echo "#define LD_ENV_FIX" >>$ACONF
 test -f /bin/test && echo "#define GOT_bin_test" >>$ACONF
 
-cat >_autotst.c <<HERE
+cat >_autotst.c <<\HERE
 #define BENCHSIZE	16384
 #define GRANULARITY	64		    /* maximal benchmark granularity */
 #include "sublib.c"
@@ -1204,8 +1204,8 @@ main(argc,argv)int argc;const char*argv[];
 	sprintf(num,"%u",newdiff);nargv[argc+diff]=0;  /* pass on the target */
 	execv(argv[0],nargv);					/* jeronimo! */
       }
-printit:					   /* we proudly present the */
-     printf("#define MAX_argc %d%s\n",argc-2,einfo); /* results of the jury! */
+printit:				  /* we proudly present the findings */
+     printf("#define MAX_argc %d%s\n",argc-2,einfo);	     /* of the jury! */
    }
   return EXIT_SUCCESS;
 }
@@ -1224,7 +1224,7 @@ else
   echo 2>&1 "*******************************************************"
   cat 2>&1 _autotst.rrr
   echo 2>&1 "*******************************************************"
-  echo 2>&1 "I suggest you take a look at the definition of LDLAGS*"
+  echo 2>&1 "I suggest you take a look at the definition of LDFLAGS*"
   echo 2>&1 "in the Makefile before you try make again."
   kill -15 $$
 fi
@@ -1253,7 +1253,7 @@ for a in /usr/lib /lib /usr/etc /etc /usr/bin /bin /usr/local/bin /usr/lbin \
 do
  if test -f "\$a/\$1"
  then
-    echo "#define SENDMAIL \"\$a/\$1\"" >>$ACONF
+    echo '#define SENDMAIL "'"\$a/\$1"'"' >>$ACONF
     exit 0
  fi
 done
@@ -1293,10 +1293,10 @@ for newd in /usr/bin /usr/ucb /usr/5bin $BINDIR /local/bin /usr/local/bin \
 do
   if test -d $newd
   then
-     oldid=`cd $newd; ls -id . .. ../..`
+     oldid=`cd $newd; ls -id . .. ../.. 2>&1`
      for oldd in $bins
      do
-	test "X`cd $oldd; ls -id . .. ../..`" = "X$oldid" && oldid=found
+	test "X`cd $oldd; ls -id . .. ../.. 2>&1`" = "X$oldid" && oldid=found
      done
      test found != "$oldid" && bins="$bins $newd" && lpath="$lpath:$newd"
   fi

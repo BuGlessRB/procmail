@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.68 1995/03/20 15:30:38 berg Exp $";
+ "$Id: misc.c,v 1.69 1995/04/10 19:28:38 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -604,11 +604,11 @@ int screenmailbox(chp,chp2,egid,Deliverymode)
   *chp2='\0';buf[i=lastdirsep(chp)-chp]='\0';sgid=gid;
   if(!stat(buf,&stbuf))
    { unsigned wwsdir;
-     if(!(accspooldir=(wwsdir=			/* world writable spool dir? */
-	     (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH|S_IXOTH))==
-	     (S_IWGRP|S_IXGRP|S_IWOTH|S_IXOTH))
-	    <<1|					 /* note it in bit 1 */
-	   uid==stbuf.st_uid))	   /* we own the spool dir, note it in bit 0 */
+     if(accspooldir=(wwsdir=			/* world writable spool dir? */
+	   (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH|S_IXOTH))==
+	   (S_IWGRP|S_IXGRP|S_IWOTH|S_IXOTH))
+	  <<1|						 /* note it in bit 1 */
+	 uid==stbuf.st_uid)	   /* we own the spool dir, note it in bit 0 */
 	rcst_nosgid();			     /* we don't *need* setgid privs */
      if(uid!=stbuf.st_uid&&		 /* we don't own the spool directory */
 	stbuf.st_gid==egid&&			 /* but we have setgid privs */

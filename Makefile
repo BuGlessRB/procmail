@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.67 1995/03/20 15:33:21 berg Exp $
+#$Id: Makefile,v 1.68 1995/04/10 19:27:52 berg Exp $
 
 # BASENAME should point to where the whole lot will be installed
 # change BASENAME to your home directory if need be
@@ -127,7 +127,7 @@ init:
  "$(CC)" "$(CFLAGS1)" "$(LDFLAGS1)" "$(BINSS)" \
  "$(MANS1S)" \
  "$(MANS5S)" "$(SUBDIRS)" \
- "$(BINDIR)"
+ "$(VISIBLE_BINDIR)"
 
 makefiles makefile Makefiles Makefile: init
 	@$(BSHELL) -c "exit 0"

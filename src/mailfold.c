@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.63 1995/03/20 15:30:31 berg Exp $";
+ "$Id: mailfold.c,v 1.64 1995/04/10 19:28:35 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -25,7 +25,7 @@ int logopened,tofile,rawnonl;
 off_t lasttell;
 static long lastdump;
 static volatile mailread;	/* if the mail is completely read in already */
-static struct dyna_long escFrom_,confield;	  /* escapes, concatenations */
+static struct dyna_long confield;		  /* escapes, concatenations */
 static const char*realstart,*restbody;
 static const char from_expr[]=FROM_EXPR;
 
@@ -37,7 +37,7 @@ static const char*fifrom(fromw,lbound,ubound)
 }
 			       /* inserts escape characters on outgoing mail */
 static long getchunk(s,fromw,len)const int s;const char*fromw;const long len;
-{ static const char esc[]=ESCAP;static int doesc;const char*ffrom;char*endp;
+{ static const char esc[]=ESCAP,*ffrom,*endp;static int doesc;
   if(doesc)		       /* still something to escape since last time? */
      doesc=0,rwrite(s,esc,STRLEN(esc)),lastdump++;		/* escape it */
   ffrom=0;					 /* start with a clean slate */
