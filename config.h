@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.98 2001/06/26 08:42:32 guenther Exp $*/
+/*$Id: config.h,v 1.99 2001/06/28 22:54:31 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -52,13 +52,11 @@
 	is group writable or contained in a group writable home directory
 	if the group involved is the user's default group. */
 
-/*#define USE_MMAP				/* uncomment this if procmail
-						   should use an mmap()ed
-	temporary file instead of just core for large messages.	 Messages
-	under MAXinMEM (defined below) bytes in size will still be kept
-	completely in memory.  MMAP_DIR specifies where the temp files
-	will be placed.	 WARNING: this code has security problems right
-	now, so it has been disabled completely!  */
+/*#define LMTP					/* uncomment this if you
+						   want to use procmail
+	as an LMTP (rfc2033) server, presumably for invocation by an MTA.
+	The file examples/local_procmail_lmtp.m4 contains info on how to
+	set this up with sendmail. */
 
 /* This file previously allowed you to define SYSTEM_MBOX.  This has
    changed.  If you want mail delivery to custom mail-spool-files, edit the
@@ -157,7 +155,7 @@
 #define STDBUF		128
 #undef USE_MMAP				       /* don't bother on these guys */
 #endif /* SMALLHEAP */
-#undef USE_MMAP				/* UNTIL SECURITY PROBLEMS ARE FIXED */
+#undef USE_MMAP					 /* UNTIL PROBLEMS ARE FIXED */
 #ifdef USE_MMAP
 #ifndef INEFFICIENTrealloc
 #define INEFFICIENTrealloc			  /* don't pussy-foot around */
