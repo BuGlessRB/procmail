@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: lockfile.man,v 1.16 1999/01/20 17:58:18 guenther Exp $
+.Id $Id: lockfile.man,v 1.17 1999/08/13 04:25:21 guenther Exp $
 .TH LOCKFILE 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -48,9 +48,12 @@ If the number of
 expires before all files have been created, lockfile returns failure and
 removes all the files it created up till that point.
 .PP
-The return value of lockfile can be easily inverted by specifying
+Using lockfile as the condition of a loop in a shell script can be done
+easily by using the
 .B \-!
-as an argument (comes in handy in shell scripts).
+flag to invert the exit status.  To prevent infinite loops, failures
+for any reason other than the lockfile already existing are not
+inverted to success but rather are still returned as failures.
 .PP
 All flags can be specified anywhere on the command line, they will be
 processed when encountered.  The command line is simply parsed from
@@ -158,6 +161,17 @@ Try praying, .\|.\|.
 Missing subdirectories or insufficient privileges.
 .SH BUGS
 Definitely less than one.
+.SH WARNINGS
+The behavior of the
+.B \-!
+flag, while useful, is not necessarily intuitive or consistent.  When
+testing lockfile's return value, shell script writers should consider
+carefully whether they want to use the
+.B \-!
+flag, simply reverse the test, or do a switch on the exact exitcode.
+In general, the
+.B \-!
+flag should only be used when lockfile is the conditional of a loop.
 .SH MISCELLANEOUS
 Lockfile is NFS-resistant and eight-bit clean.
 .SH NOTES
