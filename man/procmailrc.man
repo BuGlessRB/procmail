@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.50 1994/09/13 19:12:38 berg Exp $
+.Id $Id: procmailrc.man,v 1.51 1994/09/14 18:54:25 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -38,7 +38,7 @@ is found to match, processing of the rcfile will
 after the action line of this recipe has been executed.
 .PP
 Delivering recipes are those that cause header and/or body of the mail to
-be: written into a file, absorbed by a program or forwarded to a mailaddress.
+be written into a file, absorbed by a program or forwarded to a mailaddress.
 .PP
 Non-delivering recipes are those that cause the output of a program or
 filter to be captured back by procmail or those that start a nesting block.
@@ -140,14 +140,14 @@ The number of conditions that are expected to follow default to none.
 Has the same meaning as the `@ALSO_NEXT_RECIPE@' flag, but will depend on the
 .I successful
 completion of the immediately preceding recipe as well.
-.Tp
+.TP
 .B @ELSE_DO@
 This recipe only executes if the immediately preceding recipe was not
 executed.  Execution of this recipe also disables any immediately
 following recipes with the '@ELSE_DO@' flag.  This allows you to specify
 `else if' actions.
 The number of conditions that are expected to follow default to none.
-.Tp
+.TP
 .B @ERROR_DO@
 This recipe only executes if the immediately preceding recipe
 .IR failed .
@@ -314,7 +314,8 @@ Default
 .B mailbox
 file (if not told otherwise, procmail will dump mail in this mailbox).
 Procmail will automatically use $DEFAULT$LOCKEXT as lockfile prior to writing
-to this mailbox.
+to this mailbox.  You do not need to set this variable, since it already
+points to the standard system mailbox.
 .TP
 .B LOGFILE
 This file will also contain any error or diagnostic messages from procmail
@@ -473,7 +474,7 @@ of temporary files, logging customised abstracts, etc.  See also
 .B EXITCODE
 and
 .BR LOGABSTRACT .
-.Tp
+.TP
 .B EXITCODE
 When procmail terminates and this variable has been set to a positive numeric
 value, procmail will use this as the exitcode.  If this variable is set but
@@ -489,7 +490,12 @@ program.
 This variable is assigned to by procmail whenever it is delivering
 to a folder or program.  It always contains the name of the last folder
 (or program) procmail delivered to.
-.Tp
+.TP
+.B MATCH
+This variable is assigned to by procmail whenever it is told to extract
+text from a matching regular expression.  It will contain all text
+matching the regular expression past the `\fB\e/\fP' token.
+.TP
 .B SHIFT
 Assigning a positive value to this variable has the same effect as
 the `shift' command in
@@ -626,6 +632,14 @@ When the regular expression starts with `^^' it will anchor the match
 at the very start of the text.
 When the regular expression ends with `^^' it will anchor the match
 at the very end of the text.
+.PP
+If the regular expression contains the `\e/' token, the success and location
+of the expression depends solely on the expression part that preceeds the `\e/'
+token.  If the part after the `\e/' matches some text, this text will
+be assigned to the
+.B MATCH
+variable; contrary to other procmail regular expressions this will be the
+longest match possible.
 .PP
 The start and end of a word can be matched by `\e<' and `\e>'.  They
 are merely a shorthand for `[^a-zA-Z0-9_]', but can also match newlines.

@@ -154,8 +154,13 @@
 	       on the accept list
 	    Improved fuzzy search for explicit mail addresses in the
 	       subscription request
-1994/09/13: v3.10pre1
+1994/09/14: v3.10pre2
 	    Changes to rc.submit:
 	       - Moved the accept.txt in front of the body of the mail
 	    Make use of the -z option of formail, get rid of the leading
 	       blank in the dist file for new subscriptions
+	    Arch_retrieve log format changed, included timestamps
+	    Standalone archive servers sometimes choked when receiving
+	       many requests simultaneously, fixed
+	    X-Command mails can unsubscribe anyone from a dist file,
+	       even if the address is above the `magic' line

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.45 1994/09/13 19:12:59 berg Exp $";
+ "$Id: regexp.c,v 1.46 1994/09/14 18:54:38 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -462,13 +462,11 @@ setups:
 		 case OPC_JUMP-OPB:reg=reg->next;
 		    continue;
 		 case OPC_BOM-OPB:
-#if 0
 		    cleantail(thiss,th1);cleantail(other,ot1);
-		    thiss=other=Ceps&tswitch;
-#endif
-		    reg=epso(reg,sizeof(union seps));initcode=Ceps&nop;
-		    if(!bom)
-		       bom=str;
+		    if(eom)
+		       goto set2match;
+		    thiss=other=Ceps&tswitch;reg=epso(reg,sizeof(union seps));
+		    initcode=Ceps&nop;bom=(const char*)str;
 		    continue;
 		 case OPC_FILL-OPB:				      /* nop */
 		    if(thiss==Ceps&tswitch)
@@ -482,7 +480,7 @@ setups:
 		    if(ign_case==2)		     /* only at the very end */
 		 case OPC_FIN-OPB:
 		     { if(bom)
-			{ eom=str;initcode=Ceps&nop;
+			{ eom=(const char*)str;initcode=Ceps&nop;
 			  break;
 			}			      /* reset the automaton */
 		       cleantail(thiss,th1);cleantail(other,ot1);
@@ -518,6 +516,7 @@ pcstack_switch:;				   /* this pc-stack is empty */
 setmatch:
   if(eom)
    { const static char match[]=MATCHVAR;char*p;size_t oldf;
+set2match:
      if(*bom=='\n')
 	bom++;					/* strip one leading newline */
      primeStdout(match);oldf=Stdfilled;

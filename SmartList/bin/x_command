@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: x_command,v 1.19 1994/06/28 14:49:19 berg Exp $
+#$Id: x_command,v 1.20 1994/09/14 18:54:20 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -72,7 +72,7 @@ do
 	 $echo "$maintainer" "$2" >$tmpfrom
 	 $test -z "$subscribe_log" ||
 	  $echo "x_command: unsubscribe" >>$subscribe_log
-	 $unsubscribe <$tmprequest | $SENDMAIL $sendmailOPT `cat $tmpfrom`
+	 $unsubscribe -D <$tmprequest | $SENDMAIL $sendmailOPT `cat $tmpfrom`
 	 shift ;;
      _checkdist)
 	 $echo "Multigram checking the dist file for matches with"

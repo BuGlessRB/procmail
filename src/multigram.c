@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.61 1994/08/18 18:42:58 berg Exp $";
+ "$Id: multigram.c,v 1.62 1994/09/14 18:54:31 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/08/18 18:42:58 $";
+static /*const*/char rcsdate[]="$Date: 1994/09/14 18:54:31 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -262,7 +262,7 @@ main(argc,argv)int argc;char*argv[];
   const char*addit=0;
   struct match{char*fuzz,*hard;int metric;long lentry;off_t offs1,offs2;}
    **best,*curmatch=0;
-  unsigned best_matches,charoffs=0,remov=0,renam=0,incomplete=0,
+  unsigned best_matches,charoffs=0,fremov=0,remov=0,renam=0,incomplete=0,
    chkmetoo=(char*)progid-(char*)progid;
   int lastfrom,minweight;
   static const char cldntopen[]="Couldn't open";
@@ -574,6 +574,7 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 	   switch(c= *chp++)
 	    { case 'c':charoffs=1;
 		 continue;
+	      case 'D':fremov=1;
 	      case 'd':remov=1;
 		 continue;
 	      case 'i':incomplete=1;
@@ -616,7 +617,8 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
  "\t-a address\tadd this address to the list\
 \n\t-b nnn\t\tmaximum no. of best matches shown\
 \n\t-c\t\tdisplay offsets in characters\
-\n\t-d\t\tdelete address from list\
+\n\t-d\t\tgently delete address from list\
+\n\t-D\t\tforce delete address from list\
 \n\t-i\t\tcheck for incomplete addresses too\
 \n\t-m\t\tcheck for metoo\
 \n\t-l nnn\t\tlower bound metric\
@@ -761,7 +763,7 @@ usg:
 	   continue;				   /* unsuitable for matches */
 	lowcase(&hardstr);meter=matchgram(&fuzzstr,&hardstr);
 	free(hardstr.itext);			 /* check if we had any luck */
-	if(meter>maxmetric&&(remov_delim||!renam&&!remov))
+	if(meter>maxmetric&&(fremov||remov_delim||!renam&&!remov))
 	 { size_t hardlen;
 	   curmatch->metric=maxmetric=meter;curmatch->lentry=linentry;
 	   free(curmatch->hard);hardlen=hardstr.textlen+1;

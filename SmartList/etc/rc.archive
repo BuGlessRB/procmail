@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.archive,v 1.13 1994/09/09 11:12:56 berg Exp $
+#$Id: rc.archive,v 1.14 1994/09/14 18:54:22 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -57,7 +57,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 # Feed it to the archive server.
 #
 
-	:0 A
+	:0 Aw
 	| arch_retrieve standalone
 
 LOCKFILE				# we don't need the lockfile anymore

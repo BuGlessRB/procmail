@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.102 1994/09/13 19:12:55 berg Exp $";
+ "$Id: procmail.c,v 1.103 1994/09/14 18:54:34 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -392,7 +392,7 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 		    if(presenviron||			  /* -p is dangerous */
 		       suppmunreadable!=2||   /* so are variable assignments */
 #ifdef CAN_chown		  /* anyone can chown in this filesystem so: */
-		       stat(buf2)||		     /* the /etc/procmailrcs */
+		       stat(buf2,&stbuf)||	     /* the /etc/procmailrcs */
 		       !S_ISDIR(stbuf.st_mode)||	/* directory must be */
 		       stbuf.st_uid!=ROOT_uid&&		    /* owned by root */
 			chown(buf2,ROOT_uid,stbuf.st_gid)||
@@ -470,7 +470,8 @@ Setuser: { gid=pass->pw_gid;uid=pass->pw_uid;
 	   if((uid!=stbuf.st_uid&&
 		stbuf.st_gid==egid||
 	       (rcstate=rc_NOSGID,0))&&
-	      (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH))==(S_IWGRP|S_IXGRP))
+	      (stbuf.st_mode&S_ISGID||
+	       (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH))==(S_IWGRP|S_IXGRP)))
 	    { doumask(INIT_UMASK&~S_IRWXG);	   /* make it group-writable */
 	      goto keepgid;
 	    }
