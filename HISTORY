@@ -405,7 +405,7 @@
 	    Changes to procmail:
 	       - Use BOGUS.$LOGNAME.inode for bogus files to ease recovery
 	       - Define RESTRICT_EXEC to restrict execution of programs
-	       - Perform continuous checks on heap overflow, everywhere.
+	       - Perform continuous checks on heap overflow, everywhere
 		 If overflow is occurs then new variable PROCMAIL_OVERFLOW
 		 is set
 	       - Catch overly long rcfile names
@@ -456,9 +456,12 @@
 	       - Don't use a locallockfile on $DEFAULT if it's a directory
 	       - Set LINEBUF in the environment on startup
 	       - Avoid renaming over old messages in directory folders
-	       - New variable SWITCHRC performs 'tail call'
+	       - New variable SWITCHRC performs `tail call'
 	       - Refuse to open anything but regular files with INCLUDERC
 		 and SWITCHRC
 	    Changes to mailstat:
 	       - Work around the detab done on checkin to CVS
 	       - Recognize maildir mailboxes
+	    Stop using `implicit int'
+	    Cache gethostname() or uname() output
+	    Change the form of tempfile names to make them `more' unique
