@@ -1,0 +1,147 @@
+# procmail rcfile
+#########################################################################
+#	putfile		Small mailserver that stores files		#
+#									#
+#	Created by S.R. van den Berg, The Netherlands			#
+#########################################################################
+#$Id: putfile,v 1.1 1994/08/25 19:00:33 berg Exp $
+
+#
+# This script can either be:
+#	- run from the .procmailrc file.
+#	- saved as /etc/procmailrcs/putfile, chown it to the owner of the
+#	  archive tree, make sure that owner is either trusted or also
+#	  perform a "chmod 700 /etc/procmailrcs".  Make sure that
+#	  /etc/procmailrcs is owned by root.  And enter the following
+#	  entry in the alias file:
+# your_favourite_alias: "|exec /usr/local/bin/procmail -m /etc/procmailrcs/putfile"
+#
+
+#
+# Overall "security" check.  Uncomment and change if appropriate.
+# This forwards anything suspicious to postmaster.
+#
+
+#:0
+#* !^From +good.person@some.address
+#! -oi postmaster
+
+#
+# Actually we only need one MAILDIR setting, namely the one that changes
+# directory to the root of the archive tree we're serving.
+#
+
+MAILDIR=$HOME
+MAILDIR=/the/archive/directory/tree
+
+#
+# If you have a LOGFILE, it might not be a good idea to put it inside
+# the archive tree.  People could overwrite it if it is.
+#
+
+LOGFILE=../.log
+
+#
+# Create a directory named $MAILDIR/default, so that any files
+# without a name can be put there.
+#
+
+DEFAULT=default
+
+#
+# Canonicalise filename specification into:
+# Content-Disposition: attachment; filename=some/file/name
+#
+
+:0 fhw
+* ^Content-Disposition:.*;[	 ]*filename=
+| formail -cX Content-Disposition: -X Content-Transfer-Encoding: \
+    -R Content-Disposition: Content-Disposition: | \
+   sed -e "s/^Content-Disposition:.*;[	 ]*filename=[\"	 ]*\([^\"	 ;]*\)\
+.*$/Content-Disposition: attachment; filename=\1/"
+
+:0 Efhw
+* ^Content-Type:.*;[	 ]*name=
+| formail -cX Content-Type: -X Content-Transfer-Encoding: \
+    -R Content-Type: Content-Type: | \
+   sed -e "s/^Content-Type:.*;[	 ]*directory=[\"	 ]*\([^\"	 ;]*\)\
+.*;[	 ]*name=[\"	 ]*\([^\"	 ;]*\).*$/\
+Content-Disposition: attachment; filename=\1/\2/" \
+    -e "s/^.*;[	 ]*name=[\"	 ]*\([^\"	 ;]*\).*;\
+[	 ]*directory=[\"	 ]*\([^\"	 ;]*\).*$/\
+Content-Disposition: attachment; filename=\2/\1/" \
+    -e "s/^.*;[	 ]*name=[\"	 ]*\([^\"	 ;]*\).*$/\
+Content-Disposition: attachment; filename=\1/"
+
+:0 Efhw
+* ^Subject:[	 ]*[^	 "]
+| formail -cX Subject: -X Content-Transfer-Encoding: -R Subject: Subject: | \
+   sed -e "s/^Subject:.*[\"	 ]\([^\"	 ][^\"	 ]*\)[\"	 ]*$/\
+Content-Disposition: attachment; filename=\1/"
+
+:0 EB
+* ^^([	 ]*$)*begin [0-7][0-7][0-7]+ [^	 ]
+{
+       :0 bw
+  file=| sed -n -e 's/^begin [0-7]*  *\([^	 ][^	 ]*\)[	 ]*$/\1/p'
+
+  :0 fhw
+  | formail -I "Content-Disposition: attachment; filename=$file" ;
+}
+
+#
+# Security checks:
+#	No absolute paths
+#	No paths with references to the parent (..) directory in them
+#	No doublequotes in the filename
+#
+
+:0
+*  ^Content-Disposition: attachment; filename=
+* !^Content-Disposition: attachment; filename=(/|(.+/)?\.\.(/|$)|.*")
+{
+
+  #
+  # Filename seems to be secure
+  #
+
+       :0 hw
+  file=| sed -e 's/^.*filename=\(.*\)$/\1/'
+
+  #
+  # Decoding and saving the file.
+  #
+
+  :0 bw
+  * ^Content-Transfer-Encoding:[	 ]*base64
+  | mimencode -u -b >$file
+
+  :0 bw
+  * ^Content-Transfer-Encoding:[	 ]*quoted-printable
+  | mimencode -u -q >$file
+
+  :0 bw
+  * ^Content-Transfer-Encoding:[	 ]*(x-)?uuencode
+  | sed -e 's\"^begin [0-7]*[0-7]\([0-7]\)[0-7].*$\"begin 6\14 $file\"" | \
+     uudecode >$file
+
+  :0 Bbw
+  * ^^([	 ]$)*begin [0-7][0-7][0-7]+ [^	 ]
+  | sed -e '1,9 s\"^begin [0-7]*[0-7]\([0-7]\)[0-7].*$\"begin 6\14 $file\"" | \
+     uudecode >$file
+
+  #
+  # Anything else seems to be unencoded
+  #
+
+  :0 b
+  | cat >$file
+}
+
+#
+# Either no filename or an insecure path specified.
+# Delivering to the default directory.
+#
+
+:0
+$DEFAULT

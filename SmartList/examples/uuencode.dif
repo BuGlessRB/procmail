@@ -1,0 +1,30 @@
+The following patches can be applied to the .etc/mimencap script to
+make them generate uuencoded files instead of the usual MIME encodings.
+
+Patch 1 is needed if your recipient can't deal with base64 encodings.
+Patch 2 is only needed if your recipient can't deal with quoted printable
+encodings.
+
+--------------------------------patch 1
+diff -u mimencap
+--- 1.11	1994/06/30 15:48:57
++++ mimencap	1994/08/25 16:41:56
+@@ -29 +29 @@
+-      | $mimencode -b
++      | uuencode $name
+@@ -34 +34 @@
+-	 -I "Content-Transfer-Encoding: base64" | \
++	 -I "Content-Transfer-Encoding: x-uuencode" | \
+--------------------------------patch end
+
+--------------------------------patch 2
+diff -u mimencap
+--- 1.11	1994/06/30 15:48:57
++++ mimencap	1994/08/25 16:41:56
+@@ -43 +43 @@
+-    | $mimencode -q
++    | uuencode $name
+@@ -48 +48 @@
+-       -I "Content-Transfer-Encoding: quoted-printable" | \
++       -I "Content-Transfer-Encoding: x-uuencode" | \
+--------------------------------patch end
