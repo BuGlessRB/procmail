@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.11 1993/01/28 14:22:12 berg Exp $";
+ "$Id: locking.c,v 1.12 1993/02/10 17:07:57 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -16,7 +16,7 @@ static /*const*/char rcsid[]=
 #include "locking.h"
 
 void lockit(name,lockp)char*name;char**const lockp;
-{ int i,permanent=nfsTRY,triedforce=0;struct stat stbuf;time_t t;
+{ int permanent=nfsTRY,triedforce=0;struct stat stbuf;time_t t;
   if(*lockp)
    { if(!strcmp(name,*lockp))	/* compare the previous lockfile to this one */
 	return;			 /* they're equal, save yourself some effort */
@@ -26,9 +26,15 @@ void lockit(name,lockp)char*name;char**const lockp;
      return;
   name=tstrdup(name); /* allocate now, so we won't hang on memory *and* lock */
   for(lcking|=lck_LOCKFILE;;)
-   { yell("Locking",name);		/* in order to cater for clock skew: */
-     if(!xcreat(name,LOCKperm,&t,(int*)0))     /* get time t from filesystem */
-      { *lockp=name;break;			   /* lock acquired, hurray! */
+   { yell("Locking",name);
+     if(!strcmp(name,defdeflock))      /* is it the system mailbox lockfile? */
+	setgid(sgid);		    /* in order to cater for clock skew: get */
+     ;{ int lckd=!xcreat(name,LOCKperm,&t,(int*)0);  /* time from filesystem */
+	if(rc!=rc_INIT)				     /* we opened any rcfile */
+	   setgid(gid);		      /* we put back our regular permissions */
+	if(lckd)
+	 { *lockp=name;break;			   /* lock acquired, hurray! */
+	 }
       }
      switch(errno)
       { case EEXIST:		   /* check if it's time for a lock override */
@@ -54,10 +60,12 @@ void lockit(name,lockp)char*name;char**const lockp;
 	   goto faillock;
 #ifdef ENAMETOOLONG
 	case ENAMETOOLONG:     /* maybe filename too long, shorten and retry */
+	 { int i;
 	   if(0<(i=strlen(name)-1)&&!strchr(dirsep,name[i-1]))
 	    { nlog("Truncating");logqnl(name);elog(" and retrying lock\n");
 	      name[i]='\0';permanent=nfsTRY;goto ce;
 	    }
+	 }
 #endif
 	default:
 faillock:  nlog("Lock failure on");logqnl(name);goto term;

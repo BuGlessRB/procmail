@@ -30,7 +30,7 @@
 # rc.request	rcfile used when processing requests
 # rc.custom	rcfile that contains all the customisations per list
 
-#$Id: rc.init,v 1.6 1993/01/27 20:33:00 berg Exp $
+#$Id: rc.init,v 1.7 1993/02/10 17:07:39 berg Exp $
 
 PATH=.:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises
@@ -72,9 +72,9 @@ defaults=.etc				# the name of the defaults directory
 
 FROM_MAILER_DAEMON='^(Precedence:.*junk|'\
 '(((Resent-)?(From|Sender)|X-Envelope-From):|From )'\
-'(.*[^.a-z])?('\
+'(.*[^.@a-z0-9])?('\
 'Post(ma(st(er)?|n)|office)|Mailer|daemon|mmdf|root|uucp|serv(ices?|er)'\
-')([^.a-z]|$))'
+')([^.a-z0-9]|$))'
 
 RC_INIT					# clear this one from the environment
 					# so that we include this file only

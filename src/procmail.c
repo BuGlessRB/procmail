@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.25 1993/02/02 15:27:23 berg Exp $";
+ "$Id: procmail.c,v 1.26 1993/02/10 17:08:10 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -30,14 +30,15 @@ static /*const*/char rcsid[]=
 
 static const char fdefault[]="DEFAULT",orgmail[]="ORGMAIL",
  sendmail[]="SENDMAIL",From_[]=FROM,exflags[]=RECFLAGS,
- systm_mbox[]=SYSTEM_MBOX,pmusage[]=PM_USAGE;
+ systm_mbox[]=SYSTEM_MBOX,pmusage[]=PM_USAGE,DEFdeflock[]=DEFdefaultlock;
 char*buf,*buf2,*globlock,*loclock,*tolock,*lastfolder;
 const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
  shellmetas[]="SHELLMETAS",lockext[]="LOCKEXT",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*sgetcp,*rcfile=PROCMAILRC,
  dirsep[]=DIRSEP,msgprefix[]="MSGPREFIX",devnull[]=DevNull,lgname[]="LOGNAME",
  executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",procmailn[]="procmail",
- whilstwfor[]=" whilst waiting for ",home[]="HOME",maildir[]="MAILDIR";
+ whilstwfor[]=" whilst waiting for ",home[]="HOME",maildir[]="MAILDIR",
+ *defdeflock;
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EX_OK,sh,pwait,lcking,rc=rc_INIT,
  ignwerr,lexitcode=EX_OK,asgnlastf;
@@ -237,10 +238,10 @@ Setuser:
   ;{ const char*const*kp;
      for(kp=prestenv;*kp;)  /* preset or wipe selected environment variables */
 	strcpy((char*)(sgetcp=buf2),*kp++),readparse(buf,sgetc,2),sputenv(buf);
-   }
-  strcpy(buf2,strcpy(buf,chp=(char*)getenv(orgmail)));
-  buf[i=lastdirsep(chp)-chp]='\0';		   /* strip off the basename */
-  ;{ struct stat stbuf;
+   }				 /* find out the name of our system lockfile */
+  sgetcp=DEFdeflock;readparse(buf,sgetc,2);defdeflock=tstrdup(buf);
+  strcpy(buf,chp=(char*)getenv(orgmail));buf[i=lastdirsep(chp)-chp]='\0';
+  ;{ struct stat stbuf;				   /* strip off the basename */
      sgid=gid;						/* presumed innocent */
     /*
      *	do we need sgidness to access the mail-spool directory/files?
@@ -257,8 +258,7 @@ keepgid:   sgid=stbuf.st_gid;	   /* keep the gid from the parent directory */
      *	check if the default-mailbox-lockfile is owned by the recipient, if
      *	not, mark it for further investigation, it might need to be removed
      */
-     if(!(Privileged=lstat(strcat(buf2,getenv(lockext)),&stbuf)||
-      stbuf.st_uid==uid))			/* check for bogus lockfiles */
+     if(!(Privileged=lstat(defdeflock,&stbuf)||stbuf.st_uid==uid))
 	ultoan((unsigned long)stbuf.st_ino,		  /* i-node numbered */
 	 strchr(strcpy(buf+i,BOGUSprefix),'\0'));
     /*
@@ -275,7 +275,7 @@ keepgid:   sgid=stbuf.st_gid;	   /* keep the gid from the parent directory */
       { succeed=1;
 boglock:
 	if(!Privileged)	  /* try to rename the bogus lockfile out of the way */
-	   rename(buf2,buf);
+	   rename(defdeflock,buf);
       }
      else
 	succeed=1;				 /* mailbox a symbolic link? */
@@ -313,7 +313,7 @@ notfishy:
      *	really change the uid now, since we are not in explicit
      *	delivery mode
      */
-   { setgid(gid);setuid(uid);
+   { setgid(gid);setuid(uid);rc=rc_NOFILE;
      if(suppmunreadable=nextrcfile())	  /* any rcfile on the command-line? */
 #ifndef NO_COMSAT
 	if(!getenv(scomsat))
@@ -540,12 +540,14 @@ forward:      if(locknext)
 		     { nlog("Couldn't determine implicit lockfile from");
 		       logqnl(buf);
 		     }
+		    else if(!strcmp(buf2,devnull))	/* locking /dev/null */
+		       goto noloclock;			   /* would be silly */
 		  }
 		 lcllock();
 		 if(!pwait)		/* try and protect the user from his */
 		    pwait=2;			   /* blissful ignorance :-) */
 	       }
-	      inittmout(buf);
+noloclock:    inittmout(buf);
 	      if(flags[FILTER])
 	       { if(startchar==themail&&tobesent!=filled)     /* if only 'h' */
 		  { if(!pipthrough(buf,startchar,tobesent))
@@ -619,8 +621,8 @@ forward:      if(locknext)
 nomore_rc:
   concon('\n');succeed=0;
   if(*(chp=(char*)tgetenv(fdefault)))			     /* DEFAULT set? */
-   { setuid(uid);firstchd();asenvcpy(DEFdefaultlock);	    /* implicit lock */
-     if(dump(deliver(chp),themail,filled))			  /* default */
+   { setuid(uid);firstchd();setdef(lockfile,DEFdeflock);       /* implicitly */
+     if(dump(deliver(chp),themail,filled))		     /* lock default */
 	writeerr(buf);
      else
 	succeed=1;

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.18 1993/02/02 15:27:13 berg Exp $";
+ "$Id: misc.c,v 1.19 1993/02/10 17:08:03 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -356,10 +356,10 @@ long renvint(i,env)const long i;const char*const env;
       }
      t=i;
      if(!strnIcmp(p,"on",(size_t)2)||!strnIcmp(p,"y",(size_t)1)||
-      !strnIcmp(p,"t",(size_t)1))
+      !strnIcmp(p,"t",(size_t)1)||!strnIcmp(p,"e",(size_t)1))
 	t=1;
      else if(!strnIcmp(p,"off",(size_t)3)||!strnIcmp(p,"n",(size_t)1)||
-      !strnIcmp(p,"f",(size_t)1))
+      !strnIcmp(p,"f",(size_t)1)||!strnIcmp(p,"d",(size_t)1))
 	t=0;
    }
   return t;

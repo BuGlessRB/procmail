@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.21 1993/02/02 16:54:03 berg Exp $
+#$Id: initmake,v 1.22 1993/02/10 17:07:32 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -256,5 +256,6 @@ $MV _Makefile Makefile
 
 for a in $SUBDIRS
 do
+  echo "#" >>$a/_Makefile
   $MV $a/_Makefile $a/Makefile
 done

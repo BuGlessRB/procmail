@@ -6,7 +6,7 @@
 # shortly before writing out the new version of this file (remove the lockfile
 # afterwards of course)
 
-#$Id: rc.request,v 1.7 1993/02/02 15:26:57 berg Exp $
+#$Id: rc.request,v 1.8 1993/02/10 17:07:41 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -52,7 +52,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 #
 
 	:1BHA:dist.lock
-	^((Subject:)?[	 ]*(remove|unsub)|(.*[^a-z])?(unsubscri.*|\
+	^((Subject:)?[a-z,.	 ]*(remove|unsub)|(.*[^a-z])?(unsubscri.*|\
 			       (remove .* from|take .* off) .* list)([^a-z]|$))
 	| unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from`
 
@@ -63,7 +63,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 #
 
 	:3BHA:dist.lock
-	^((Subject:)?[	 ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
+	^((Subject:)?[a-z,.	 ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
 				      (add .* to|put .* on) .* list)([^a-z]|$))
 	!?multigram -b1 -l$reject_threshold reject
 	!?multigram -b1 -l$reject_threshold dist
@@ -134,7 +134,7 @@ $^X-Loop: $listaddr
 	   -A "X-Diagnostic: `multigram -b1 -l$reject_threshold reject`"
 
 	:2A BH wfh
-	^((Subject:)?[	 ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
+	^((Subject:)?[a-z,.	 ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
 				      (add .* to|put .* on) .* list)([^a-z]|$))
 	?multigram -b1 -l$reject_threshold dist
 	| formail -A "X-Diagnostic: Already on the subscriber list" \

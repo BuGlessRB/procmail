@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.14 1993/01/28 15:18:33 berg Exp $*/
+/*$Id: manconf.c,v 1.15 1993/02/10 17:08:00 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -155,7 +155,7 @@ is case sensitive, and some users have login names with uppercase letters in\
   ps("DEFshellmetas",DEFshellmetas);
   ps("DEFmaildir",DEFmaildir);
   ps("DEFdefault",DEFdefault);
-  ps("DEFdefaultlock",strchr(DEFdefaultlock,'=')+1);
+  ps("DEFdefaultlock",DEFdefaultlock);
   ps("DEFmsgprefix",DEFmsgprefix);
   ps("DEFsendmail",DEFsendmail);
   ps("DEFlockext",DEFlockext);

@@ -21,8 +21,8 @@
 	    Implemented a custom regular expression library (fully egrep
 	       compatible), should eliminate the annoyances with incompatible
 	       egreps
-	    Accomplished the doubtful milestone of having a source file
-	       (regexp.c) which provokes a compiler error on an old compiler
+	    Reached the doubtful milestone of having a source file (regexp.c)
+	       which provokes a compiler error on an old compiler
 	       (if using the optimiser)
 	    Ignoring leading spaces on condition lines now (means that
 	       everything can be indented in the rcfile)
@@ -44,8 +44,6 @@
 	       this includes specific intstructions for smail 2.x
 	    Made special entries in config.h for semi-permanent environment-
 	       variable overrides
-	    Made formail more intelligent, it can now parse full-fledged
-	       RFC822 addresses (quoting et al)
 	    A complete rewrite of formail, the code got bigger, the runtime
 	       requirement got bigger, it got slower, but, it's more structured
 	       (so much for structured programming :-)
@@ -179,3 +177,22 @@
 		 locking support
 	       - also, network support for comsat tries to build up a compile
 		 time cache for trivial get*byname() calls
+	       - reached the doubtful milestone of consistently crashing the
+		 kernel on a Convex by running the locktst program
+1993/02/10: v2.81
+	    Fixed a major inconvenience when generating the Makefiles in
+	       initmake
+	    Loosened the formats accepted for (un)subscription requests (some
+	       got rejected, but were valid)
+	    Sharpened the FROM_MAIL_DAEMON detection
+	    Flist, idhash and multigram now use the correct name on error
+	       reports
+	    Sped up multigram on duplicate names (also eliminates duplicates
+	       in the best-matches list)
+	    The locking tests in the autoconf scripts seemed to hang on
+	       certain machines, I think I fixed that now
+	    Procmail now uses saved-gids if available (allows for system-
+	       mailbox locking from within an rcfile on systems that did not
+	       have world-writeable /usr/mail directories)
+	    Procmail ignores locallockfiles if the file that has to be locked
+	       turns out to be /dev/null

@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.9 1993/01/26 14:49:37 berg Exp $
+#$Id: Makefile.1,v 1.10 1993/02/10 17:07:27 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -119,7 +119,7 @@ realclean: clean _init
 	-for a in $(SUBDIRS); do $(MV) $$a/Makefile.init $$a/Makefile; done; \
 	 exit 0
 
-veryclean: realclean
+veryclean clobber: realclean
 
 _init:
 	sed -e '/^# Makefile.1 - mark/,$$ d' <Makefile >_Makefile

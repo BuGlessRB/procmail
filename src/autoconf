@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.32 1993/02/04 12:44:45 berg Exp $
+#$Id: autoconf,v 1.33 1993/02/10 17:07:52 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -275,10 +275,10 @@ cat >_autotst.c <<HERE
 #define MSK_lockf	0x02	       /* change locking.c as well, fdlock() */
 #define MSK_flock	0x01
 
-int dolock,child[NR_of_forks],timeout;
+int dolock,child[NR_of_forks],timeout,fdcollect;
 
 void stimeout()
-{ timeout=1;killchildren();
+{ timeout=1;killchildren();close(fdcollect);
 }
 
 static unsigned long seed;
@@ -334,7 +334,7 @@ main()
 	int j,countlocks=MIN_locks;	       /* give all children a chance */
 	for(j=NR_of_lockfiles;lckdfil[--j]=0,j;);
 	close(pip[1]);timeout=0;sleep(1);kill(getppid(),SIGKILL);
-	signal(SIGALRM,(void(*)())stimeout);
+	fdcollect=pip[0];signal(SIGALRM,(void(*)())stimeout);
 	dtimet=(((unsigned)time((char*)0)-otimet)*GROW)+TIME_OUT_SEC;
 	do
 	 { unlink("_locktst.alive");alarm(dtimet+2);		 /* watchdog */
@@ -342,10 +342,10 @@ main()
 	    otimet*GROW:otimet+(dtimet-otimet)*DECAY+1;	   /* load dependent */
 	   otimet=time((char*)0);
 	 }
-	while(1==read(pip[0],&curflag,1)&&
+	while(1==read(fdcollect,&curflag,1)&&
 	 (j=lckdfil[i=(curflag&MASK_fileno)>>1],!timeout)&&
 	 ((j^(lckdfil[i]=curflag))==1||!(j&1)&&curflag&1)&&--countlocks);
-	alarm(0);killchildren();close(pip[0]);
+	alarm(0);killchildren();close(fdcollect);
 #ifdef FAIR_LOCK_CHECK
 	j=NR_of_lockfiles;
 	do

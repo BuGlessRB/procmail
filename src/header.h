@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.12 1993/01/26 14:49:52 berg Exp $*/
+/*$Id: header.h,v 1.13 1993/02/10 17:07:54 berg Exp $*/
 
 static const char
  returnpath[]=		"Return-Path:",				  /* RFC 822 */
@@ -61,7 +61,7 @@ static const char
  distribution[]=	"Distribution:",
  xref[]=		"Xref:",
  originator[]=		"Originator:",
- nntppostinghost[]=	"Nntp-Posting-Host:",
+ nntppostinghost[]=	"NNTP-Posting-Host:",
  title[]=		"Title:",	      /* antiquated USENET extension */
  aRticleid[]=		"Article-I.D.:",			/* ditto ... */
  posted[]=		"Posted:",

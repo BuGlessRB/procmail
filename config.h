@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.17 1993/02/02 15:26:42 berg Exp $*/
+/*$Id: config.h,v 1.18 1993/02/10 17:07:29 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -101,13 +101,13 @@
  "^((Resent-)?(To|Cc|Bcc)|(X-Envelope|Apparently)-To):(.*[^a-zA-Z])?"
 #define FROMDkey	"^FROM_DAEMON"
 #define FROMDsubstitute "^(Precedence:.*(junk|bulk|list)|\
-(((Resent-)?(From|Sender)|X-Envelope-From):|From )(.*[^.a-z])?(\
+(((Resent-)?(From|Sender)|X-Envelope-From):|From )(.*[^.@a-z0-9])?(\
 Post(ma(st(er)?|n)|office)|Mailer|daemon|mmdf|root|uucp|LISTSERV|owner|\
-request|bounce|serv(ices?|er))([^.a-z]|$))" /* matches most kinds of daemons */
+request|bounce|serv(ices?|er))([^.a-z0-9]|$))"	     /* matches most daemons */
 #define DEFshellmetas	"&|<>~;?*[]"		    /* never put '$' in here */
 #define DEFmaildir	"$HOME"
 #define DEFdefault	"$ORGMAIL"
-#define DEFdefaultlock	"LOCKFILE=$DEFAULT$LOCKEXT"
+#define DEFdefaultlock	"$DEFAULT$LOCKEXT"
 #define DEFmsgprefix	"msg."
 #define DEFlockext	".lock"
 #define DEFshellflags	"-c"

@@ -15,9 +15,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.21 1993/02/02 15:27:19 berg Exp $";
+ "$Id: multigram.c,v 1.22 1993/02/10 17:08:06 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/02/02 15:27:19 $";
+static /*const*/char rcsdate[]="$Date: 1993/02/10 17:08:06 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -150,7 +150,7 @@ main(minweight,argv)char*argv[];
    { char*chp;
      if(!strcmp(chp=lastdirsep(argv[0]),flist))		 /* suid flist prog? */
       { struct stat stbuf;
-	*chp='\0';			    /* security check, 3 hardlinks!? */
+	progname=flist;*chp='\0';	    /* security check, 3 hardlinks!? */
 	if(!chdir(argv[0])&&!lstat(flist,&stbuf)&&S_ISREG(stbuf.st_mode)&&
 	 stbuf.st_mode&S_ISUID&&stbuf.st_uid==geteuid()&&stbuf.st_nlink==3&&
 	 !chdir(chPARDIR))
@@ -184,6 +184,7 @@ main(minweight,argv)char*argv[];
      setgid(getgid());setuid(getuid());		  /* revoke suid permissions */
      if(!strcmp(chp,idhash))				  /* idhash program? */
       { unsigned long hash=0;int i;
+	progname=idhash;
 	if(minweight!=1)
 	 { elog("Usage: idhash\n");return EX_USAGE;
 	 }
@@ -314,10 +315,19 @@ shftleft:     tmemmove(chp,chp+1,strlen(chp));
 	else if(parens<0&&*echp==')')
 	   *echp='\0';
 	if(*(chp=fuzzstr.text)=='<'&&*(echp=strchr(chp,'\0')-1)=='>'
-	 &&echp==strpbrk(chp,"([\">,; \t\n"))	      /* strip '<' and '>' ? */
+	 &&!strchr(chp,','))			      /* strip '<' and '>' ? */
 	   *echp='\0',tmemmove(chp,chp+1,echp-chp);
 	if(!(fuzzlen=strlen(chp)))
-	   continue;;
+	   continue;
+	;{ int i=0;
+	   do
+	    { if(best[i]->metric==-SCALE_WEIGHT&&!strcmp(best[i]->fuzz,chp))
+		 break;
+	      if(!strcmp(best[i]->fuzz,chp))	/* already matched this one? */
+		 goto dupl_addr;
+	    }
+	   while(++i<=best_matches);
+	 }
 	if(!curmatch)
 	   curmatch=malloc(sizeof*curmatch);
 	curmatch->fuzz=tstrdup(chp);curmatch->hard=malloc(1);
@@ -378,9 +388,9 @@ dble_gram:;    }
 	   curmatch->offs1=offs1;curmatch->offs2=offs2;
 	 }
       }
-     free(fuzzstr.itext);
-     if(curmatch->metric>=0)	 /* maybe this match can be put in the array */
-      { struct match*mp,**mmp;			   /* of best matches so far */
+     free(fuzzstr.itext);	 /* maybe this match can be put in the array */
+     if(curmatch->metric>-SCALE_WEIGHT)		   /* of best matches so far */
+      { struct match*mp,**mmp;
 	free((mp= *(mmp=best+best_matches))->fuzz);free(mp->hard);free(mp);
 	while(--mmp>=best&&(mp= *mmp)->metric<curmatch->metric)
 	   mmp[1]=mp;					   /* keep it sorted */
@@ -388,6 +398,7 @@ dble_gram:;    }
       }
      else
 	free(curmatch->fuzz),free(curmatch->hard);
+dupl_addr:;
    }
   ;{ int i;struct match*mp;
      for(i=0;i<=best_matches&&(mp=best[i++])->metric>=minweight;)

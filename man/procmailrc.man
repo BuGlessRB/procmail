@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.14 1993/01/13 15:20:37 berg Exp $
+.Id $Id: procmailrc.man,v 1.15 1993/02/10 17:07:45 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -507,8 +507,8 @@ expression :-).
 .PP
 When assigning boolean values to variables like VERBOSE, DELIVERED or COMSAT,
 procmail accepts as true every string starting with: a non-zero value, `on',
-`y' or `t'.  False is every string starting with: a zero value, `off', `n' or
-`f'.
+`y', `t' or `e'.  False is every string starting with: a zero value, `off',
+`n', `f' or 'd'.
 .PP
 If the action line of a recipe specifies a program, a sole backslash-newline
 pair in it on an otherwise empty line will be converted into a newline.
