@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: subscribe,v 1.8 1993/02/11 12:08:13 berg Exp $
+#$Id: subscribe,v 1.9 1993/02/11 13:48:46 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -19,8 +19,8 @@ subscribetxt=subscribe.txt
 
 wrongaddress=""
 
-case "`formail -xX-Envelope-To: <$tmprequest`" in
-  *$listreq*) wrongaddress="
+case "$X_ENVELOPE_TO" in
+  *$list-request*) wrongaddress="
 WARNING:
 	Please try to use the $listreq address
 	the next time when issuing (un)subscribe requests.

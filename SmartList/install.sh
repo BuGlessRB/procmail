@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.11 1993/02/11 13:18:53 berg Exp $
+#$Id: install.sh,v 1.12 1993/02/11 13:48:36 berg Exp $
 
 test $# != 1 && echo "Usage: install.sh target-directory" && exit 1
 
@@ -39,6 +39,11 @@ do
   fi
 done
 
+cd ../src
+test -f multigram || make multigram
+cp multigram "$target/.bin"
+cd ../mailinglist
+
 cp Manual "$target/.etc"
 mv -f "$target/.bin/procmail" "$target/.bin/.procmail" 2>/dev/null
 chmod 0755 $target/.bin/*
@@ -51,11 +56,6 @@ for a in $DIRS
 do
   ls -ld "$target/.$a" $target/.$a/*
 done
-
-cd ../src
-test -f multigram || make multigram
-cp multigram "$target/.bin"
-cd ../mailinglist
 
 echo Creating link from .etc/rc.main to .procmailrc
 rm -f "$target/.procmailrc"

@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: arch_retrieve,v 1.7 1993/02/11 12:08:09 berg Exp $
+#$Id: arch_retrieve,v 1.8 1993/02/11 13:48:43 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -22,8 +22,8 @@ $cat /dev/null >$tmpfrom
 
 wrongaddress=""
 
-case "`formail -xX-Envelope-To: <$tmprequest`" in
-  *$listreq*) wrongaddress="
+case "$X_ENVELOPE_TO" in
+  *$list-request*) wrongaddress="
 WARNING:
 	Please try to use the $listreq address
 	the next time when issuing archive server requests.
