@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.176 2001/06/23 08:23:49 guenther Exp $";
+ "$Id: procmail.c,v 1.177 2001/06/27 21:03:56 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -157,10 +157,13 @@ setarg:		       app_valp(newargv,(const char*)chp2);
 		     { Deliverymode=1;
 		       goto last_option;
 		     }
-#ifdef LMTP
 		 case LMTPOPT:
+#ifdef LMTP
 		    Deliverymode=2;
 		    goto last_option;
+#else
+		    nlog("LMTP support not enabled in this binary\n");
+		    return EX_USAGE;
 #endif
 		 case '-':
 		    if(!*++chp2)
