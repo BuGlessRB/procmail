@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.46 2000/10/24 00:16:46 guenther Exp $*/
+/*$Id: misc.h,v 1.47 2000/10/25 08:13:22 guenther Exp $*/
 
 struct dyna_long{int filled,tspace;union{int i;off_t o;long l;}*vals;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -37,7 +37,6 @@ void
  srequeue P((void)),
  slose P((void)),
  sbounce P((void)),
- squeeze P((char*target)),
  rcst_nosgid P((void));
 int
  forkerr Q((const pid_t pid,const char*const a)),

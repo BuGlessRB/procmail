@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.95 2000/10/24 00:16:44 guenther Exp $";
+ "$Id: mailfold.c,v 1.96 2000/10/25 08:13:19 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -24,8 +24,9 @@ static /*const*/char rcsid[]=
 #include "locking.h"
 #include "lastdirsep.h"
 #include "foldinfo.h"
-#include "mailfold.h"
+#include "from.h"
 #include "shell.h"
+#include "mailfold.h"
 
 int logopened,rawnonl;
 off_t lasttell;
@@ -454,26 +455,4 @@ eofheader:
      chp=thebody+actcntlen;		  /* skip the actual no we specified */
    }
   restbody=chp;mailread=1;
-}
-			  /* tries to locate the timestamp on the From_ line */
-char*findtstamp(start,end)const char*start,*end;
-{ end-=25;
-  if(*start==' '&&(++start==end||*start==' '&&++start==end))
-     return (char*)start-1;
-  start=skpspace(start);start+=strcspn(start," \t\n");	/* jump over address */
-  if(skpspace(start)>=end)			       /* enough space left? */
-     return (char*)start;	 /* no, too small for a timestamp, stop here */
-  while(!(end[13]==':'&&end[16]==':')&&--end>start);	  /* search for :..: */
-  ;{ int spc=0;						 /* found it perhaps */
-     while(end-->start)		      /* now skip over the space to the left */
-      { switch(*end)
-	 { case ' ':case '\t':spc=1;
-	      continue;
-	 }
-	if(!spc)
-	   continue;
-	break;
-      }
-     return (char*)end+1;	   /* this should be right after the address */
-   }
 }

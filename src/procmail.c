@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.159 2000/10/24 00:16:49 guenther Exp $";
+ "$Id: procmail.c,v 1.160 2000/10/25 08:13:23 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -37,13 +37,12 @@ static /*const*/char rcsid[]=
 #include "lmtp.h"
 #include "foldinfo.h"
 #include "variables.h"
+#include "from.h"
 
-static const char*const nullp,From_[]=FROM,exflags[]=RECFLAGS,
- drcfile[]="Rcfile:",pmusage[]=PM_USAGE,*etcrc=ETCRC,
- misrecpt[]="Missing recipient\n",extrns[]="Extraneous ",ignrd[]=" ignored\n",
- pardir[]=chPARDIR,curdir[]={chCURDIR,'\0'},twospaces[]="  ",
- defspath[]=DEFSPATH,defpath[]=DEFPATH,Fakefield[]=FAKE_FIELD,
- attemptst[]="Attempt to fake stamp by";
+static const char*const nullp,exflags[]=RECFLAGS,drcfile[]="Rcfile:",
+ pmusage[]=PM_USAGE,*etcrc=ETCRC,misrecpt[]="Missing recipient\n",
+ extrns[]="Extraneous ",ignrd[]=" ignored\n",pardir[]=chPARDIR,
+ curdir[]={chCURDIR,'\0'},defspath[]=DEFSPATH,defpath[]=DEFPATH;
 char*buf,*buf2,*loclock,*tolock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*const*restargv= &nullp,*sgetcp,
@@ -232,10 +231,11 @@ confldopt:  { presenviron=mailfilter=0;		    /* -d disables -p and -m */
 	      privs=0;
 	    }
 	 }
-privileged:				       /* move stdout out of the way */
+privileged:
+	privs|=override<<1;
 	endgrent();doumask(INIT_UMASK);
 	while((savstdout=rdup(STDOUT))<=STDERR)
-	 { rclose(savstdout);
+	 { rclose(savstdout);		       /* move stdout out of the way */
 	   if(0>(savstdout=opena(devnull)))
 	      goto nodevnull;
 	   syslog(LOG_ALERT,"Descriptor %d was not open\n",savstdout);
@@ -272,7 +272,7 @@ nodevnull:
 #ifdef LMTP
 	if(Deliverymode==2)
 	 { auth_identity**rcpts,**lastrcpt,**currcpt;
-	   currcpt=rcpts=lmtp(&lastrcpt,chp2,privs|(override<<1));
+	   currcpt=rcpts=lmtp(&lastrcpt,chp2,privs);
 	   while(currcpt<lastrcpt)
 	    { if(!(pidchild=sfork()))
 	       { qsignal(SIGTERM,srequeue);qsignal(SIGINT,sbounce);
@@ -297,105 +297,14 @@ nodevnull:
 	      auth_freeid(*currcpt++);
 	    }
 	   free(rcpts);
-	   while(overlen)
-	    { i=rwrite(ctopfd,overread,overlen);
-	      overlen-=i;
-	      overread+=i;
-	    }
+	   flushoverread();		 /* pass upwards the extra LMTP data */
 	   exit(EXIT_SUCCESS);
 	 }
 #endif
 	qsignal(SIGTERM,srequeue);qsignal(SIGINT,sbounce);
 	qsignal(SIGHUP,sbounce);qsignal(SIGQUIT,slose);
 	signal(SIGALRM,(void(*)())ftimeout);
-	;{ const char*fwhom;size_t lfr,linv;int tstamp;
-	   tstamp=fromwhom&&*fromwhom==REFRESH_TIME&&!fromwhom[1];fwhom=chp2;
-	   if(fromwhom&&!tstamp)
-	    { if(!privs&&!strcmp(fromwhom,fwhom))
-		 privs=1; /* if -f user is the same as the invoker, allow it */
-	      if(!privs&&fromwhom&&override)
-	       { if(verbose)
-		    nlog(insufprivs);		      /* ignore the bogus -f */
-		 syslog(LOG_ERR,slogstr,attemptst,fwhom);fromwhom=0;
-	       }
-	      else
-		 fwhom=fromwhom;
-	    }
-	   makeblock(&themail,2*linebuf+(lfr=strlen(fwhom))
-					+(linv=strlen(chp2)));
-	   private(1);				    /* we're not yet sharing */
-	   thebody=themail.p;
-	   if(Deliverymode||fromwhom)  /* need to peek for a leading From_ ? */
-	    { char*rstart;int r;
-	      ;{ time_t t;				 /* the current time */
-		 t=time((time_t*)0);strcat(strcpy(buf2,twospaces),ctime(&t));
-	       }
-	      lfr+=STRLEN(From_)+(r=strlen(buf2));
-	      if(tstamp)
-		 tstamp=r;			   /* save time stamp length */
-	      if(privs)					 /* privileged user? */
-		 linv=0;		 /* yes, so no need to insert >From_ */
-	      else
-		 linv+=STRLEN(Fakefield)+r;
-	      while(1==(r=rread(STDIN,themail.p,1))&&themail.p[0]=='\n');
-	      i=0;rstart=themail.p;			     /* skip garbage */
-	      if(r>0&&STRLEN(From_)<=(i=rread(	      /* is it a From_ line? */
-	       STDIN,rstart+1,(int)(linebuf-2-1))+1)&&eqFrom_(themail.p))
-	       { rstart[i]='\0';
-		 if(!(rstart=strchr(rstart,'\n')))
-		  { do				     /* drop long From_ line */
-		     { if((i=rread(STDIN,themail.p,(int)(linebuf-2)))<=0)
-			  break;
-		       themail.p[i]='\0';	  /* terminate it for strchr */
-		     }
-		    while(!(rstart=strchr(themail.p,'\n')));
-		    i=rstart?i-(++rstart-themail.p):0;
-		    goto no_from;
-		  }
-		 ;{ size_t tfrl;
-		    i-=tfrl= ++rstart-themail.p;     /* demarcate From_ line */
-		    if(Deliverymode&&override&&!privs)
-		     { if(verbose)		  /* discard the bogus From_ */
-			  nlog(insufprivs);
-		       syslog(LOG_ERR,slogstr,attemptst,fwhom);
-		       goto no_from;
-		     }
-		    if(tstamp)
-		       lfr=findtstamp(themail.p+STRLEN(From_),rstart)
-			-themail.p+tstamp;
-		    else if(!fromwhom)	       /* leave the From_ line alone */
-		       if(linv)				      /* fake alert? */
-			  lfr=tfrl;  /* yes, so separate From_ from the rest */
-		       else
-			  lfr=0,i+=tfrl;	/* no, tack it onto the rest */
-		  }
-	       }
-	      else
-no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
-		 if(!fromwhom)					  /* no -f ? */
-		    linv=0;			  /* then it can't be a fake */
-	       }
-	      filled=lfr+linv+i;		    /* From_ + >From_ + rest */
-	      if(lfr||linv)	     /* move read text beyond our From_ line */
-	       { r= *rstart;tmemmove(themail.p+lfr+linv,rstart,i);
-		 rstart=themail.p+lfr;	      /* skip the From_ line, if any */
-		 if(!linv)				    /* no fake alert */
-		  { rstart[-tstamp]='\0';	       /* where do we append */
-		    if(!tstamp)		 /* no timestamp, so generate it all */
-		       strcat(strcpy(themail.p,From_),fwhom);	/* From user */
-		  }
-		 else
-		  { if(lfr)			/* did we skip a From_ line? */
-		       if(tstamp)	 /* copy the timestamp over the tail */
-			  strcpy(rstart-tstamp,buf2);
-		       else if(fromwhom)		 /* whole new From_? */
-			  strcat(strcat(strcpy(themail.p,From_),fwhom),buf2);
-		    strcat(strcpy(rstart,Fakefield),chp2);     /* fake alert */
-		  }			  /* overwrite the trailing \0 again */
-		 strcat(themail.p,buf2);themail.p[lfr+linv]=r;
-	       }
-	    }
-	 }
+	makeFrom(fromwhom,chp2,privs);
 	readmail(0,0L);			      /* read in the mail completely */
 	if(Deliverymode)
 	   do			  /* chp should point to the first recipient */
@@ -998,49 +907,4 @@ nomore_rc:
 mailed: rawnonl=0,retval=EXIT_SUCCESS;	  /* we're home free, mail delivered */
    }
   unlock(&loclock);Terminate();
-}
-
-int eqFrom_(a)const char*const a;
-{ return !strncmp(a,From_,STRLEN(From_));
-}
-
-#ifdef LMTP
-void lmtpFrom(from,invoker,privs)char*from,*invoker;int privs;
-{ static const char mdaemon[]=MAILERDAEMON;const char*fwhom;
-  size_t lfr,linv,lts;
-  fwhom=invoker;linv=strlen(invoker);
-  if(!(privs&1)&&!strncmp(from,fwhom,linv+1))
-     privs|=1;	  /* if mail from: user is the same as the invoker, allow it */
-  if(privs==2)
-     syslog(LOG_ERR,slogstr,attemptst,fwhom);
-  else if(*from)
-     fwhom=from;
-  else
-     fwhom=mdaemon;
-  lfr=strlen(fwhom);
-  ;{ time_t t;						 /* the current time */
-     t=time((time_t*)0);strcat(strcpy(buf2,twospaces),ctime(&t));
-   }
-  lfr+=STRLEN(From_)+(lts=strlen(buf2));
-  if((privs&1)||!from)				 /* privileged user? no -f ? */
-     linv=0;				 /* yes, so no need to insert >From_ */
-  else
-     linv+=STRLEN(Fakefield)+lts;
-  makeblock(&themail,filled=lfr+linv);thebody=themail.p;   /* From_ + >From_ */
-  strcat(strcat(strcpy(themail.p,From_),fwhom),buf2);
-  if(linv)						       /* fake alert */
-     strcat(strcat(strcpy(themail.p,Fakefield),invoker),buf2);
-}
-#endif
-
-const char*skipFrom_(startchar,tobesentp)const char*startchar;long*tobesentp;
-{ if(eqFrom_(startchar))
-   { long tobesent;char c;
-     tobesent= *tobesentp;
-     do
-	while(c= *startchar++,--tobesent&&c!='\n');
-     while(*startchar=='>');
-     *tobesentp=tobesent;
-   }
-  return startchar;
 }

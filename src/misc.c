@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.103 2000/10/24 00:16:45 guenther Exp $";
+ "$Id: misc.c,v 1.104 2000/10/25 08:13:21 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -190,6 +190,28 @@ int nextrcfile P((void))	/* next rcfile specified on the command line */
   return 0;
 }
 
+static void catlim(src)register const char*src;
+{ register char*dest=buf;register size_t lim=linebuf;
+  while(lim&&*dest)
+     dest++,lim--;
+  if(lim)
+   { while(--lim&&(*dest++= *src++));
+     *dest='\0';
+   }
+}
+
+char*tstrdup(a)const char*const a;
+{ int i;
+  i=strlen(a)+1;
+  return tmemmove(malloc(i),a,i);
+}
+
+char*cstr(a,b)char*const a;const char*const b;	/* dynamic buffer management */
+{ if(a)
+     free(a);
+  return tstrdup(b);
+}
+
 void onguard P((void))
 { lcking|=lck_LOCKFILE;
 }
@@ -217,16 +239,6 @@ void sterminate P((void))
 	 }
 	elog(newline);Terminate();
       }
-   }
-}
-
-static void catlim(src)register const char*src;
-{ register char*dest=buf;register size_t lim=linebuf;
-  while(lim&&*dest)
-     dest++,lim--;
-  if(lim)
-   { while(--lim&&(*dest++= *src++));
-     *dest='\0';
    }
 }
 
@@ -313,26 +325,6 @@ void suspend P((void))
 { ssleep((unsigned)suspendv);
 }
 
-void*app_val_(sp)struct dyna_long*const sp;
-{ if(sp->filled==sp->tspace)			    /* growth limit reached? */
-   { size_t len=(sp->tspace+=4)*sizeof*sp->vals;
-     sp->vals=sp->vals?realloc(sp->vals,len):malloc(len);	   /* expand */
-   }
-  return &sp->vals[sp->filled++];			     /* append to it */
-}
-
-char*tstrdup(a)const char*const a;
-{ int i;
-  i=strlen(a)+1;
-  return tmemmove(malloc(i),a,i);
-}
-
-char*cstr(a,b)char*const a;const char*const b;	/* dynamic buffer management */
-{ if(a)
-     free(a);
-  return tstrdup(b);
-}
-
 void srequeue P((void))
 { retval=EX_TEMPFAIL;sterminate();
 }
@@ -345,7 +337,7 @@ void sbounce P((void))
 { retval=EX_CANTCREAT;sterminate();
 }
 
-void squeeze(target)char*target;
+static void squeeze(target)char*target;
 { int state;char*src;
   for(state=0,src=target;;target++,src++)
    { switch(*target= *src)
@@ -387,6 +379,11 @@ int enoughprivs(passinvk,euid,egid,uid,gid)const auth_identity*const passinvk;
    euid==uid&&egid==gid;
 }
 
+void rcst_nosgid P((void))
+{ if(!rcstate)
+     rcstate=rc_NOSGID;
+}
+
 const char*newdynstring(adrp,chp)struct dynstring**const adrp;
  const char*const chp;
 { struct dynstring*curr;size_t len;
@@ -395,9 +392,12 @@ const char*newdynstring(adrp,chp)struct dynstring**const adrp;
   return curr->ename;
 }
 
-void rcst_nosgid P((void))
-{ if(!rcstate)
-     rcstate=rc_NOSGID;
+void*app_val_(sp)struct dyna_long*const sp;
+{ if(sp->filled==sp->tspace)			    /* growth limit reached? */
+   { size_t len=(sp->tspace+=4)*sizeof*sp->vals;
+     sp->vals=sp->vals?realloc(sp->vals,len):malloc(len);	   /* expand */
+   }
+  return &sp->vals[sp->filled++];			     /* append to it */
 }
 
 			     /* lifted out of main() to reduce main()'s size */

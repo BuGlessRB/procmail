@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.46 2000/09/28 01:23:37 guenther Exp $*/
+/*$Id: procmail.h,v 1.47 2000/10/25 08:13:24 guenther Exp $*/
 
 #include "includes.h"
 
@@ -86,12 +86,6 @@ extern struct varstr{const char*const sname,*sval;}strenstr[];
 #define flagsendmail	(strenstr[8].sval)
 /* #define PM_version	(strenstr[9].sval) */
 
-int
- eqFrom_ P((const char*const a));
-const char
- *skipFrom_ P((const char*startchar,long*tobesentp));
-void
- lmtpFrom P((char*from,char*invoker,int privs));
 
 extern char*buf,*buf2,*loclock,*tolock,*Stdout,*thebody;
 extern const char shell[],lockfile[],newline[],binsh[],unexpeof[],*const*gargv,

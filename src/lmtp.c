@@ -9,7 +9,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lmtp.c,v 1.4 2000/09/28 01:23:24 guenther Exp $"
+ "$Id: lmtp.c,v 1.5 2000/10/25 08:13:17 guenther Exp $"
 #endif
 #include "procmail.h"
 #ifdef LMTP
@@ -21,6 +21,7 @@ static /*const*/char rcsid[]=
 #include "cstdio.h"
 #include "mailfold.h"
 #include "memblk.h"
+#include "from.h"
 #include "lmtp.h"
 
 /*
@@ -50,9 +51,11 @@ rset		=> if in child, die.
 
 static int lreaddyn P((void));
 
-int ctopfd,childserverpid;
-char*overread;
-size_t overlen;
+int childserverpid;
+
+static ctopfd;
+static char*overread;
+static size_t overlen;
 
 static int nliseol;			 /* is a plain \n the EOL delimiter? */
 static char*bufcur;
@@ -577,6 +580,16 @@ message:
       }
      bufwrite(msg,strlen(msg),flush||endoread());
      flush=0;
+   }
+}
+
+void flushoverread P(())		 /* pass upwards the extra LMTP data */
+{ int i;
+  while(overlen)
+   { if(0>(i=rwrite(ctopfd,overread,overlen)))
+	return;				       /* there's nothing to be done */
+     overlen-=i;
+     overread+=i;
    }
 }
 
