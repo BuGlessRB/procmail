@@ -78,12 +78,13 @@
 	       demand (examples/mailstat)
 	    Gave procmail, formail, lockfile and mailstat a more verbose
 	       command line help (called up by -h or -?)
-1993/01/18: v2.80
+1993/01/19: v2.80
 	    Started using CVS to manage the source (god's gift to programmers)
 	    In procmail, lockfile and formail I built in a sanity check now,
 	       in case they would be called with argc==0
 	    Provided an *extensive* generic mailinglist example (well, it's
 	       more than an example really :-)
+	    Created the mailinglist swiss-army-knife utility "multigram"
 	    Extended the man pages (including more examples)
 	    Substantially changed the examples/advanced mailer integration
 	       instructions (especially for smail)
@@ -163,7 +164,6 @@
 	       - more than doubled the speed of the builtin regexp library
 		 (which was already fast :-)
 	       - procmail uses and defines LOGNAME instead of USER
-	       - the placement of the -d option is arbitrary
 	    Changes to the installation scripts:
 	       - preset values for $(MAKE), $(CC) and $(SHELL) are respected
 		 in Makefiles now

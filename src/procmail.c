@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.21 1993/01/19 11:55:23 berg Exp $";
+ "$Id: procmail.c,v 1.22 1993/01/19 12:37:28 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -79,10 +79,11 @@ main(argc,argv)const char*const argv[];
 		 break;
 	      case DELIVEROPT:
 		 if(!*(chp= ++chp2)&&!(chp=(char*)argv[++argc]))
-		    nlog("Missing recipient\n");
+		  { nlog("Missing recipient\n");break;
+		  }
 		 else
-		    Deliverymode=1;
-		 break;
+		  { Deliverymode=1;goto last_option;
+		  }
 	      case '-':
 		 if(!*chp2)
 		  { argc++;goto last_option;
