@@ -188,7 +188,7 @@
 	       to noise ratio for typical mail addresses
 	    Mails that did not have a Return-Path: or Reply-To: field were
 	       not replied to correctly (regression bug since v3.06), fixed
-1997/04/28: v3.11pre7
+1995/05/17: v3.11pre3
 	    Cc_unsubrequests and cc_requests had some undesirable side-effects
 	    Procbounce reported spurious errors if badly formatted bounces
 	       were received
@@ -210,8 +210,6 @@
 	    Changes to multigram:
 	       - Eliminated lots of system calls during fuzzy matching
 		 (basically a speedup)
-	       - Account for compilers with sizeof(off_t)>sizeof(long)
-	       - Work around a DomainOS compiler bug
 	    The Solaris 2.3 grep doesn't accept -e options, caused a minor
 	       glitch in createlist
 	    Provide examples/rc.local.r00 sample for X-Command fields in the
@@ -224,11 +222,22 @@
 	       subscriber
 	    If someone (accidentally) removes the dist file, the subscribe
 	       script will recreate an empty one (and log a warning)
+1995/10/29: v3.11pre4
+	    Changes to multigram:
+	       - Account for compilers with sizeof(off_t)>sizeof(long)
 	    Get rid of X-Confirm-Reading-To: fields on submissions
 	    Deal more gracefully with those superverbose smail error mails
 	    Forced subscriptions on moderated lists didn't work too well
 	    Include author name in digest topic summaries
 	    Use the -odi option to sendmail to improve control of the load
+1997/04/28: v3.11pre7
+	    Changes to multigram:
+	       - Work around a DomainOS compiler bug
 	    Createlist didn't work well if $HOME was set wrong
 	    Spurious "attempt" unsubscribe notices that were more than just
 	       attempts
+1999/03/02: v3.12
+	    donatelist now does the chmod g+s after the chown
+	    Recognize more queue warning messages
+	    Obtain the SmartList version number directly from patchlevel.h
+	    Concatenate the header and body in a more efficient manner
