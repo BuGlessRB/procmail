@@ -138,7 +138,7 @@ For smail 3.x users there are also two options:
  ii.Replace any existing "local"-entry in the /usr/lib/smail/transports file
     (create one, if need be) with the following two lines:
 
-local: return_path, local, from, driver=pipe; user=root,
+local: return_path, local, from, driver=pipe; user=root, -ignore_status,
 	cmd="/usr/local/bin/procmail -d $($user$)"
 
 				---

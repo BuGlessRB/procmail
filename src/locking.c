@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.28 1994/02/09 19:11:23 berg Exp $";
+ "$Id: locking.c,v 1.30 1994/03/01 15:47:29 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -32,7 +32,7 @@ void lockit(name,lockp)char*name;char**const lockp;
       }
      else
 #endif
-	setegid(sgid);		       /* try and get some extra permissions */
+	setgid(sgid);		       /* try and get some extra permissions */
   name=tstrdup(name); /* allocate now, so we won't hang on memory *and* lock */
   for(lcking|=lck_LOCKFILE;;)
    { yell("Locking",name);	    /* in order to cater for clock skew: get */
@@ -41,7 +41,7 @@ void lockit(name,lockp)char*name;char**const lockp;
       }
      switch(errno)
       { case EEXIST:		   /* check if it's time for a lock override */
-	   if(!lstat(name,&stbuf)&&stbuf.st_size<=MAX_LOCK_SIZE&&locktimeout
+	   if(!lstat(name,&stbuf)&&stbuf.st_size<=MAX_locksize&&locktimeout
 	    &&!lstat(name,&stbuf)&&locktimeout<t-stbuf.st_mtime)
 	     /*
 	      * stat() till unlink() should be atomic, but can't guarantee that
@@ -84,7 +84,7 @@ term: { free(name);break;		     /* drop the preallocated buffer */
       }
    }
   if(rcstate==rc_NORMAL)			   /* we already set our ids */
-     setegid(gid);		      /* we put back our regular permissions */
+     setgid(gid);		      /* we put back our regular permissions */
   lcking&=~lck_LOCKFILE;
   if(nextexit)
    { elog(whilstwfor);elog("lockfile");logqnl(name);terminate();
@@ -105,12 +105,12 @@ void unlock(lockp)char**const lockp;
 { lcking|=lck_LOCKFILE;
   if(*lockp)
    { if(!strcmp(*lockp,defdeflock))    /* is it the system mailbox lockfile? */
-	setegid(sgid);		       /* try and get some extra permissions */
+	setgid(sgid);		       /* try and get some extra permissions */
      yell("Unlocking",*lockp);
      if(unlink(*lockp))
 	nlog("Couldn't unlock"),logqnl(*lockp);
      if(rcstate==rc_NORMAL)			   /* we already set our ids */
-	setegid(gid);		      /* we put back our regular permissions */
+	setgid(gid);		      /* we put back our regular permissions */
      if(!nextexit)			   /* if not inside a signal handler */
 	free(*lockp);
      *lockp=0;
