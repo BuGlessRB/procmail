@@ -1,6 +1,5 @@
 divert(-1)
 #	Copyright 2001, Philip Guenther, The United States of America
-#	Based on the
 #
 #	This file should be copied to the cf/feature directory of the
 #	sendmail distribution.	The following blurb is roughly what would
@@ -31,7 +30,7 @@ divert(-1)
 #	local_lmtp or local_procmail features that are currently distributed,
 #	but the following is known to work with Sendmail 8.11
 divert(0)
-VERSIONID(`$Id: local_procmail_lmtp.m4,v 1.2 2001/06/28 22:02:24 guenther Exp $')
+VERSIONID(`$Id: local_procmail_lmtp.m4,v 1.3 2001/09/11 04:45:48 guenther Exp $')
 divert(-1)
 
 define(`LOCAL_MAILER_PATH',
