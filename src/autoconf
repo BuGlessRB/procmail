@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1995, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.105 1995/04/10 19:28:22 berg Exp $
+#$Id: autoconf,v 1.106 1995/04/27 19:36:40 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -42,6 +42,8 @@
 #	#define NOsetegid
 #	#define NOsetregid
 #	#define NOsetresgid
+#	#define setrgid_BRAIN_DAMAGE
+#	#define setrgid_RUNTIME_CHECK
 #	#define NOpow
 #	#define NOmkdir
 #	#define NOfstat
@@ -52,7 +54,7 @@
 #	#define SLOWstrstr
 #Ok	#define CAN_chown
 #	#define strchr(s,c) index(s,c)
-#	#define initgroups(n,g)
+#	#define NOinitgroups
 #Ok	#define endpwent()
 #Ok	#define endgrent()
 #Ok	#define endhostent()
@@ -966,7 +968,7 @@ grepfor strchr '#define strchr(s,c) index(s,c)'
 grepfor uname "\
 #define NOuname		  \
 /* <sys/utsname.h> defines it, the libraries don't */"
-grepfor initgroups '#define initgroups(n,g)'
+grepfor initgroups '#define NOinitgroups'
 grepfor endpwent '#define endpwent()'
 grepfor endgrent '#define endgrent()'
 if grepfor gethostbyname '#define NO_COMSAT'
@@ -1133,9 +1135,30 @@ main(argc,argv)int argc;const char*argv[];
      ;{ struct passwd*p;
 	if(sizeof(int)>sizeof(uid_t)&&(p=getpwnam("root"))&&(*p->pw_dir!='/'||
 	 (*p->pw_shell&&!(p->pw_shell)[1])))
-	   puts("#define _GUID_T\ntypedef int uid_t;\ntypedef int gid_t;");
+	 { puts("#define _GUID_T\ntypedef int uid_t;\ntypedef int gid_t;");
+	   goto skipsetrgid;
+	 }
       }
 #endif
+#ifndef NOinitgroups
+     if(geteuid()==ROOT_uid)
+      { setgid(2);
+	if(!setrgid(3)&&(getgid()!=3||getegid()!=2))
+	   puts("#define setrgid_BRAIN_DAMAGE");
+      }
+     else
+      { gid_t groups[3];unsigned i;
+	for(i=getgroups(3,groups);i--&&groups[i]==getgid(););
+	if(i<3)
+	 { setegid(groups[i]);
+	   if(!setrgid(groups[i])&&getgid()!=groups[i])
+	      puts("#define setrgid_BRAIN_DAMAGE");
+	 }
+	else
+	   puts("#define setrgid_RUNTIME_CHECK");
+      }
+#endif
+skipsetrgid:;
    }
 #ifdef SYSTEM_MBOX
   if(argc==2)

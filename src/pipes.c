@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.39 1995/03/20 15:30:44 berg Exp $";
+ "$Id: pipes.c,v 1.40 1995/04/27 19:36:53 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -206,7 +206,9 @@ long pipin(line,source,len)char*const line;char*source;long len;
      rclose(PWRO),shutdesc(),getstdin(PRDO),callnewprog(line);
   rclose(PRDO);
   if(forkerr(pidchild,line))
+   { rclose(PWRO);
      return -1;					    /* dump mail in the pipe */
+   }
   if((len=dump(PWRO,source,len))&&(!ignwerr||(len=0)))
      writeerr(line);		       /* pipe was shut in our face, get mad */
   ;{ int excode;			    /* optionally check the exitcode */
@@ -299,7 +301,7 @@ void exectrap(tp)const char*const tp;
    { int poutfd[2];
      metaparse(tp);concon('\n');rpipe(poutfd);inittmout(buf);
      if(!(pidchild=sfork()))	     /* connect stdout to stderr before exec */
-      { rclose(PWRO);shutdesc();getstdin(PRDO);rclose(STDOUT);rdup(STDERR);
+      { rclose(PWRO);getstdin(PRDO);rclose(STDOUT);rdup(STDERR);
 	callnewprog(buf);			      /* trap your heart out */
       }
      rclose(PRDO);					     /* neat & clean */
@@ -310,5 +312,7 @@ void exectrap(tp)const char*const tp;
 	   retval=newret;		       /* supersede the return value */
 	pidchild=0;
       }
+     else
+	rclose(PWRO);
    }
 }

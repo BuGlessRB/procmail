@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.51 1995/03/31 17:30:53 berg Exp $*/
+/*$Id: includes.h,v 1.52 1995/04/27 19:36:45 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -396,6 +396,32 @@ extern void*memmove();
 #endif
 #ifdef NOsetresgid
 #undef NOsetresgid
+#endif
+
+#ifdef setrgid_BRAIN_DAMAGE
+#undef setrgid_BRAIN_DAMAGE
+#ifdef setrgid
+#undef setrgid
+#endif
+#ifdef setruid
+#undef setruid
+#endif
+#define setrgid(gid)	(-1)		   /* and you think POSIX is broken? */
+#define setruid(uid)	(-1)			   /* BSD 4.4 just topped it */
+#endif
+
+#ifdef setrgid_RUNTIME_CHECK
+#undef setrgid_RUNTIME_CHECK
+#define setRgid(gid)	(setrgid(gid)||getgid(gid)!=(gid))
+#define setRuid(gid)	(setruid(uid)||getuid(uid)!=(uid))
+#else
+#define setRgid(gid)	setrgid(gid)
+#define setRuid(gid)	setruid(uid)
+#endif
+
+#ifdef NOinitgroups
+#undef NOinitgroups
+#define initgroups(n,g)
 #endif
 
 #ifdef NOpow

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.69 1995/04/10 19:28:38 berg Exp $";
+ "$Id: misc.c,v 1.70 1995/04/27 19:36:50 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -82,7 +82,7 @@ void shutdesc P((void))
 
 void setids P((void))
 { if(rcstate!=rc_NORMAL)
-   { if(setrgid(gid))	/* due to these !@#$%^&*() POSIX semantics, setgid() */
+   { if(setRgid(gid))	/* due to these !@#$%^&*() POSIX semantics, setgid() */
 	setgid(gid);	   /* sets the saved gid as well; we can't use that! */
      setruid(uid);setuid(uid);setegid(gid);rcstate=rc_NORMAL;
 #if !DEFverbose

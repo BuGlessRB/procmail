@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.53 1995/03/20 14:52:00 berg Exp $*/
+/*$Id: manconf.c,v 1.54 1995/04/27 19:36:47 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -328,7 +328,7 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
 #else
   pc("POW",'x');
 #endif
-  ps("SETRUID",setruid(getuid())?"":	/* is setruid() a valid system call? */
+  ps("SETRUID",setRuid(getuid())?"":	/* is setruid() a valid system call? */
    " (or if procmail is already running with the recipient's euid and egid)");
   return EXIT_SUCCESS;
 }

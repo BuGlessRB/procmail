@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.67 1995/04/10 19:27:58 berg Exp $*/
+/*$Id: config.h,v 1.68 1995/04/27 19:36:17 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -30,7 +30,7 @@
  * any side effects (like setting the umask after an assignment to UMASK) will
  * *not* take place
  */
-#define PRESTENV	{"IFS","ENV","PWD",DEFPATH,"USER=$LOGNAME",0}
+#define PRESTENV	{"IFS","ENV","PWD",DEFPATH,0}
 
 /************************************************************************
  * Only edit below this line if you have viewed/edited this file before *
@@ -123,6 +123,7 @@
 (X-Envelope|Apparently(-Resent)?)-To):(.*[^a-zA-Z])?)"
 #define FROMDkey	"^FROM_DAEMON"		     /* matches most daemons */
 #define FROMDsubstitute "(^(Precedence:.*(junk|bulk|list)|\
+To: Multiple recipients of |\
 (((Resent-)?(From|Sender)|X-Envelope-From):|>?From )([^>]*[^(.%@a-z0-9])?(\
 Post(ma?(st(e?r)?|n)|office)|(send)?Mail(er)?|daemon|mmdf|n?uucp|\
 LIST(SERV|proc)|NETSERV|owner|r(e(quest|sponse)|oot)|bounce|echo|mirror|\

@@ -31,7 +31,7 @@ Contents:
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.47 1995/03/20 15:29:29 berg Exp $
+$Id: Manual,v 1.48 1995/04/27 19:36:26 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -58,7 +58,7 @@ it creates an archive server.
 
 The fourth command removes all traces of the "testing" mailinglist again.
 
-There are four other convenience-utilitis that can be used:
+There are four other convenience-utilities that can be used:
 	led	A wrapper around your editor, should be used when instead
 		of calling up your editor directly whenever editing a
 		SmartList managed file.	 It automatically takes care
@@ -134,7 +134,7 @@ possible, you can keep the password secret.  Also, the exact mailaddress
 of the maintainer might not be publicly known.	You can simply change
 the X-Command field into something else like X-MyCommand.  Above all, since
 faking mail is a well known possibility it would be ridiculous to take
-more precautions than these.  Besides, if someone indeed manages to sneek in
+more precautions than these.  Besides, if someone indeed manages to sneak in
 a bogus X-Command:, it will never go unnoticed since the mailing list
 maintainer (and only the maintainer) will always receive the X-Processed:
 mail.

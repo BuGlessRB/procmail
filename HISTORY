@@ -298,7 +298,7 @@
 	    Fixed bug in lockfile, the exitcode was not correct if
 	       you used -! (I hope this finally fixes this -! problem)
 	    Using execv() instead of execve()
-1995/04/11: v3.11pre1
+1995/04/27: v3.11pre2
 	    Changes to procmail:
 	       - varname ?? < nnn conditions didn't have the expected effect
 	       - Regression bug since v3.06, procmail -m /etc/procmailrcs
@@ -352,6 +352,7 @@
 		 managed to break it)
 	       - Worked around a HERE document quoting bug in some shells
 	       - Fixed the empty argument "shift" problem
+	       - Detect & work around BSD 4.4 brain damaged setrgid()
 	    Fixed potential memory corruption bug for machines that have
 	       sizeof(off_t)>sizeof(off_t*) (has been around for ages)
 	    The man pages were remade upon every make, fixed

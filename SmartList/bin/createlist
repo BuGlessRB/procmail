@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.32 1995/03/20 15:12:27 berg Exp $
+#$Id: createlist,v 1.33 1995/04/27 19:36:30 berg Exp $
 
 defaults=.etc
 
@@ -179,7 +179,7 @@ $echo 1>&2
 $ls -ld $list $list/* $list/*/* 1>&2 2>$DEVNULL
 $echo 1>&2
 
-set `./$flist -v | $sed -n -e 's/^User: //p' -e 's/^Directory: //p'`
+set `./$flist -v 2>&1 | $sed -n -e 's/^User: //p' -e 's/^Directory: //p'`
 
 listuser=$1			# The SmartList user
 listdir=$2			# The SmartList directory

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.45 1995/03/31 17:30:42 berg Exp $
+.Id $Id: procmailex.man,v 1.46 1995/04/27 19:36:34 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -138,7 +138,10 @@ recipes in your rcfile.  However, it is advisable to put it
 any recipes that process the mails from subscribed mailinglists; it generally
 is not a good idea to generate autoreplies to mailinglists (yes, the
 !^FROM_DAEMON regexp should already catch those, but if the mailinglist
-doesn't follow accepted conventions, this might not be enough).
+doesn't follow accepted conventions, this might
+.I not
+be
+.IR enough ).
 .Sx 6
 :0 @PASS_HEAD@ @CONTINUE@
 * !^FROM_DAEMON
@@ -157,11 +160,22 @@ file if the name was new (the vacation.cache file is maintained by formail
 which will make sure that it always contains the most recent names, the size
 of the file is limited to a maximum of aproximately 8192 bytes).  If the name
 was new, an autoreply will be sent.
-.Sx 15
+.PP
+As you can see, the following recipe has comments
+.B between
+the conditions.
+This is allowed.  Do
+.B not
+put comments on the same line as a condition though.
+.Sx 18
 SHELL=/bin/sh    # for other shells, this might need adjustment
 
 :0 @WAIT_EXIT_QUIET@@PASS_HEAD@@CONTINUE@: vacation.lock
+ # Perform a quick check to see if the mail was addressed to us
+* $^To:.*\e<$\eLOGNAME\e>
+ # Don't reply to daemons and mailinglists
 * !^FROM_DAEMON
+ # Mail loops are evil
 * !^X-Loop: your@own.mail.address
 | formail \-@FM_REPLY@@FM_DUPLICATE@ 8192 vacation.cache
 

@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.37 1995/03/20 14:51:49 berg Exp $*/
+/*$Id: header.h,v 1.38 1995/04/27 19:36:43 berg Exp $*/
 
 X(returnpath,		"Return-Path:")				  /* RFC 822 */
 X(received,		"Received:")				/* ditto ... */
@@ -142,4 +142,11 @@ X(reportversion,	"Report-Version:")
 X(orgreceived,		"Original-Received:")				/* ? */
 X(status,		"Status:")			 /* mailer extension */
 X(mailfrom,		"Mail-from:")		    /* emacs BABYL extension */
+X(reqremailingto,	"Request-Remailing-To:")       /* remailer extension */
+X(anonsendto,		"Anon-Send-To:")
+X(latenttime,		"Latent-Time:")
+X(cutmarks,		"Cutmarks:")
+X(postto,		"Post-To:")
+X(anonpostto,		"Anon-Post-To:")
+X(encrkey,		"Encrypt-Key:")
 X(readreceiptto,	"Read-Receipt-To:")	  /* miscellaneous extension */

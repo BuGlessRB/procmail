@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.68 1995/04/10 19:27:52 berg Exp $
+#$Id: Makefile,v 1.69 1995/04/27 19:36:10 berg Exp $
 
 # BASENAME should point to where the whole lot will be installed
 # change BASENAME to your home directory if need be
@@ -81,9 +81,9 @@ SEARCHLIBS = -lm -ldir -lx -lsocket -lnet -linet -lnsl_s -lnsl_i -lnsl -lsun \
 # Informal list of directories where we look for the libraries in SEARCHLIBS
 LIBPATHS=/lib /usr/lib /usr/local/lib
 
-GCC_WARNINGS = -O2 -pedantic -Wimplicit -Wreturn-type -Wunused -Wformat \
- -Wtraditional -Wshadow -Wid-clash-6 -Wpointer-arith -Wconversion \
- -Waggregate-return #-Wuninitialized
+GCC_WARNINGS = -O2 -pedantic -Wreturn-type -Wunused -Wformat -Wtraditional \
+ -Wpointer-arith -Wconversion -Waggregate-return \
+ #-Wimplicit -Wshadow -Wid-clash-6 #-Wuninitialized
 
 # The place to put your favourite extra cc flag
 CFLAGS0 = -O #$(GCC_WARNINGS)
