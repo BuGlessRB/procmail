@@ -250,6 +250,6 @@
 	       a chain of pipes and fed with more text than it needed, fixed
 	    Updated the FAQ
 	    Updated the man pages
-	    Sharpened the autoconf const check, AIX 3.2 managed to slip past it
-	       again
+	    Sharpened the autoconf const check, AIX 3.2.3 managed to slip past
+	       it again
 	    Made sure that "make -n" with any make works as expected
