@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.8 1992/12/07 17:43:14 berg Exp $";
+ "$Id: regexp.c,v 1.9 1992/12/08 14:11:13 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -59,7 +59,7 @@ static /*const*/char rcsid[]=
 static struct eps*r;
 static struct{unsigned topc;struct eps*tnext;}aleps;
 static uchar*p,*cachea,*cachep;
-static struct eps*cacher;
+static size_t cacher;
 static ignore_case;
 
 struct chclass {unsigned opc_;struct eps*stack_,*spawn_,*next_;
@@ -201,9 +201,12 @@ incagoon:  switch(*++p)			/* at the end of this group already? */
 }
 
 static void por(e)const struct eps*const e;
-{ uchar*pvold;
-  if(!e&&cachea==(pvold=p))
-   { p=cachep;r=cacher;return;
+{ uchar*pvold;struct eps*rvold;
+  if(!e)
+   { rvold=r;
+     if(cachea==(pvold=p))
+      { p=cachep;r=epso(rvold,cacher);return;
+      }
    }
   for(;;)
    { uchar*pold;struct eps*rold;
@@ -221,7 +224,7 @@ static void por(e)const struct eps*const e;
 	      if(*p)
 		 p++;
 	      if(!e)
-		 cachea=pvold,cachep=p,cacher=r;
+		 cachea=pvold,cachep=p,cacher=(char*)r-(char*)rvold;
 	      return;
 	   case R_OR:r++;
 	      if(p==pold)				 /* empty 'or' group */
@@ -285,7 +288,10 @@ struct eps*bregcomp(a,ign_case)const char*a;
   r->opc=OPC_FIN;r->stack=0;				  /* tack on the end */
   for(r=st;;)				 /* simplify the compiled code (i.e. */
      switch(st->opc)		      /* take out cyclic epsilon references) */
-      { case OPC_FIN:return r;					 /* finished */
+      { case OPC_FIN:
+	   if(++r!=st&&r->opc!=OPC_EPS)
+	      r->spawn=r->next=r;
+	   return r;						 /* finished */
 	case OPC_CLASS:st=epso(st,SZ(chclass));break;		     /* skip */
 	case OPC_EPS:p=(uchar*)st;fillout(&st);		       /* check tree */
 	default:st++;						 /* skip too */
@@ -299,26 +305,26 @@ struct eps*bregcomp(a,ign_case)const char*a;
 char*bregexec(code,text,len,ign_case)struct eps*code;const uchar*const text;
  size_t len;
 { register struct eps*reg,*t,*stack,*other,*thiss;unsigned i,th1,ot1;
-  const uchar*str;
+  const uchar*str;struct eps*initstack,*initcode;
+  initstack=0;
   if(code[1].opc==OPC_EPS)
-     code++;		   /* two epsilons at the start would be superfluous */
-  (thiss=code)->stack=0;th1=ioffsetof(struct eps,spawn);
-  ot1=ioffsetof(struct eps,stack);str=text-1;len++;
-  i='\n';goto setups;	      /* make sure any beginning-of-line-hooks catch */
-  do
+     initstack= ++code;	   /* two epsilons at the start would be superfluous */
+  initcode=code->next;(thiss=code)->stack=0;th1=ioffsetof(struct eps,spawn);
+  ot1=ioffsetof(struct eps,stack);str=text-1;len++;i='\n';goto setups;
+  do			      /* make sure any beginning-of-line-hooks catch */
    { i= *++str;				 /* get the next real-text character */
+     if(ign_case&&i-'A'<'Z'-'A')
+	i+='a'-'A';			     /* transmogrify it to lowercase */
 lastrun:				     /* switch this & other pc-stack */
      th1^=XOR1;ot1^=XOR1;thiss=other;
 setups:
-     reg=(other=stack=code)->next;goto nostack;
+     other=code;stack=initstack;reg=initcode;goto nostack;
      do					 /* pop next entry off this pc-stack */
       { reg=(t=thiss)->next;thiss=PC(t,th1);PC(t,th1)=0;goto nostack;
 	do				/* pop next entry off the work-stack */
 	 { for(stack=(t=stack)->stack,t->stack=0,reg=t->spawn;;)
 nostack:    { switch(reg->opc-OPB)  /* push spawned branch on the work-stack */
 	       { default:
-		    if(ign_case&&i-'A'<'Z'-'A')
-		       i+='a'-'A';	     /* transmogrify it to lowercase */
 		    if(i==reg->opc)		  /* regular character match */
 		       goto yep;
 		    break;
