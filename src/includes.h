@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.61 1999/02/14 23:53:27 srb Exp $*/
+/*$Id: includes.h,v 1.62 1999/04/13 04:26:49 guenther Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -453,6 +453,10 @@ extern void*memmove();
 #undef NOftruncate
 #define ftruncate(fildes,length)	(-1)
 #define truncate(file,length)		(-1)
+#endif
+
+#ifdef NOfsync
+#define fsync(fd)	0
 #endif
 
 #ifdef NOfstat

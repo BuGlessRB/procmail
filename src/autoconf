@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.120 1999/01/20 17:58:20 guenther Exp $
+#$Id: autoconf,v 1.121 1999/04/13 04:26:48 guenther Exp $
 
 # All possible entries in autoconf.h:
 
@@ -56,6 +56,7 @@
 #Ok	#define CAN_chown
 #	#define strchr(s,c) index(s,c)
 #	#define NOinitgroups
+#	#define NOfsync
 #Ok	#define endpwent()
 #Ok	#define endgrent()
 #Ok	#define endhostent()
@@ -974,7 +975,7 @@ main(){char a[2];
  strtol("0",(char**)0,10);strchr("0",'0');strpbrk(a,"0");rename(a,"0");
  setrgid(0);setegid(0);setregid(0,0);setresgid(0,0,0);opendir("0");
  initgroups("0",0);strstr("0","0");mkdir("0",0);pow(0.,0.);clock();
- waitpid((pid_t)-1,(int*)0,0);ftruncate(0,0);
+ waitpid((pid_t)-1,(int*)0,0);ftruncate(0,0);fsync(0);
 #ifdef S_ISLNK
  {struct stat stbuf;fstat(0,&stbuf);}
 #endif
@@ -1045,6 +1046,7 @@ grepfor strstr '#define SLOWstrstr' ||
  grepfor clock '#define SLOWstrstr'
 grepfor waitpid '#define NOwaitpid'
 grepfor ftruncate '#define NOftruncate'
+grepfor fsync '#define NOfsync'
 grepfor memmove '#define NOmemmove' &&
 if $FGREP -e bcopy _autotst.rrr >$DEVNULL
 then

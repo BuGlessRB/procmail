@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.81 1999/04/10 18:03:15 guenther Exp $";
+ "$Id: mailfold.c,v 1.82 1999/04/13 04:26:50 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -95,7 +95,7 @@ writefin:
 	   nlog("Kernel-unlock failed\n");
 	SETerrno(serrno);
       }
-     i=rclose(s);
+     i=fsync(s)||rclose(s);
    }			   /* return an error even if nothing was to be sent */
   tofile=0;
   return i&&!len?-1:len;
@@ -264,10 +264,6 @@ ret0:	return 0;
      else
 	linkfolder=0;
    }
-/* this isn't right either: if delivery to the first mailbox fails we should
-   continue trying on the others.  Wrap the loop to all the way back here XXX
-   with a flag (fd>=0?) to mark whether we've succeeded in delivering yet.
-   Also, don't forget to add new error messages to procmail manpage */
   switch(tofile)
    { case to_MAILDIR:
 	if(mkmaildir(chp))			    /* had to save buf first */
