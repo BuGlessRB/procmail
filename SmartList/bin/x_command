@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: x_command,v 1.11 1993/12/08 17:33:44 berg Exp $
+#$Id: x_command,v 1.12 1993/12/13 15:57:31 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -40,7 +40,8 @@ do
 	 $test -z "$subscribe_log" ||
 	  $echo "x_command: subscribe" >>$subscribe_log
 	 $lockfile $dist.lock; trap "$rm -f $dist.lock;exit 1" 1 2 3 15
-	 $subscribe <$tmprequest | $SENDMAIL $sendmailOPT -t
+	 $subscribe <$tmprequest ||
+	  $echo "X-Diagnostic: Unscreened, not subscribed"
 	 $rm -f $dist.lock; trap "" 1 2 3 15
 	 shift ;;
      _unsubscribe)
