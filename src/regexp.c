@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.22 1993/05/28 14:40:13 berg Exp $";
+ "$Id: regexp.c,v 1.23 1993/06/04 13:49:32 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -64,7 +64,6 @@ static /*const*/char rcsid[]=
 #define epso(to,add)	(Ceps((char*)(to)+(add)))
 #define ii		(aleps.topc)
 #define jj		(aleps.au.jju)
-#define jjp		(aleps.au.tnext)
 #define spawn		sp.awn
 
 static struct eps*r;
@@ -273,43 +272,43 @@ ret0:		 return 0;
       }
    }
 }
-
+		  /* go down recursively, mark loopbacks on the way up again */
 static struct eps*maxback(down)struct eps*down;
-{ jj=0;
+{ ii=0;				   /* didn't find a loop at this level (yet) */
   for(;;)
-   { switch(down->opc&LOOP_MASK)
-      { default:goto ret0;
-	case OPC_JUMP:down->opc=OPC_JUMP|DONE_NODE;
+   { switch(down->opc&LOOP_MASK)			/* chase JUMP chains */
+      { default:goto ret0;			 /* oops, not an EPS, return */
+	case OPC_JUMP:down->opc=OPC_JUMP|DONE_NODE;	/* mark them as used */
 	case OPC_JUMP|DONE_NODE:down=down->next;continue;
-	case OPC_EPS|DONE_NODE:jj=1;
+	case OPC_EPS|DONE_NODE:ii=1;   /* used EPS found, return loop number */
 	   return down->spawn==Ceps&aleps?down:down->spawn;
-	case OPC_EPS:break;
+	case OPC_EPS:;			/* unused EPS found, the work starts */
       }
      break;
    }
-  if(!down->spawn)
-   { struct eps*left;
-     down->opc=OPC_EPS|DONE_NODE;down->spawn=Ceps&aleps;
-     left=maxback(down->next);
-     if(jj)
-	down->opc|=LOOPL_NODE;
-     ;{ struct eps*right;
-	if((right=maxback(down+1))&&(char*)left>(char*)right)
+  if(!down->spawn)	 /* has it been visited (belongs to previous group?) */
+   { struct eps*left;					/* no, so process it */
+     down->opc=OPC_EPS|DONE_NODE;down->spawn=Ceps&aleps;     /* mark as used */
+     left=maxback(down->next);		   /* init loop no. and recurse left */
+     if(ii)				    /* loop found directly below us? */
+	down->opc|=LOOPL_NODE;				 /* mark a left-loop */
+     ;{ struct eps*right;		 /* recurse right, take the smallest */
+	if((right=maxback(down+1))&&(char*)left>(char*)right)	 /* loop no. */
 	   left=right;
       }
-     if(jj)
-      { down->opc|=LOOPR_NODE;
-	if(!(down->opc&LOOPL_NODE))
-	   jj=0;
+     if(ii)				       /* loop found directly below? */
+      { down->opc|=LOOPR_NODE;				/* mark a right-loop */
+	if(!(down->opc&LOOPL_NODE))	/* if we didn't also had a left-loop */
+	   ii=0;		/* we tell our predecessor we are not a loop */
       }
-     if(!left)
-      { down->spawn=down;goto ret0;
+     if(!left)					    /* found no loop at all? */
+      { down->spawn=down;goto ret0;  /* then give ourselves our own loop no. */
       }
-     if((down->spawn=left)!=down)
-	return left;
-   }
+     if((down->spawn=left)!=down)     /* save the loop no., check if it's us */
+	return left;			       /* if not, pass the number up */
+   }				     /* otherwise we are the end of the loop */
 ret0:
-  return 0;
+  return 0;					       /* no loop whatsoever */
 }
 
 struct eps*bregcomp(a,ign_case)const char*const a;
@@ -328,17 +327,17 @@ struct eps*bregcomp(a,ign_case)const char*const a;
       { case OPC_FIN:return r;					 /* finished */
 	case OPC_EPS:		     /* check for any closed epsilon circles */
 	   if(!st->spawn)			   /* they can't be executed */
-	    { maxback(st);
+	    { maxback(st);     /* if not visited yet, recurse and mark loops */
 	      ;{ register struct eps*i;
-		 for(i=r;;i=skiplen(i))
+		 for(i=r;;i=skiplen(i))		 /* search the whole program */
 		  { switch(i->opc&LOOP_MASK)
-		     { default:
-			{ register struct eps*f;
+		     { default:				/* renumber regulars */
+			{ register struct eps*f;		/* if needed */
 			  if(((f=i->next)->opc&DONE_MASK)==OPC_EPS&&f->spawn)
-			   { for(;f->spawn!=f;f=f->spawn);
-			     i->next=f;
+			   { for(;f->spawn!=f;f=f->spawn);   /* search start */
+			     i->next=f;				  /* of loop */
 			   }
-			}
+			}	       /* spare the used nodes in this group */
 		       case OPC_EPS|DONE_NODE:case OPC_JUMP|DONE_NODE:
 		       case OPC_FILL:continue;
 		       case OPC_FIN:;
@@ -347,8 +346,8 @@ struct eps*bregcomp(a,ign_case)const char*const a;
 		  }
 	       }
 	      ;{ register struct eps*i;
-		 for(i=r;;i=skiplen(i))
-		  { switch(i->opc)
+		 for(i=r;;i=skiplen(i))		 /* search the whole program */
+		  { switch(i->opc)	  /* unmark/transform the used nodes */
 		     { case OPC_EPS|DONE_NODE|LOOPL_NODE:i->next=i+1;
 		       case OPC_EPS|DONE_NODE|LOOPR_NODE:i->sp.sopc=OPC_FILL;
 		       case OPC_JUMP|DONE_NODE:i->opc=OPC_JUMP;continue;

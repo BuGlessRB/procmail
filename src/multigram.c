@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.28 1993/05/28 14:43:47 berg Exp $";
+ "$Id: multigram.c,v 1.29 1993/06/04 13:49:29 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/05/28 14:43:47 $";
+static /*const*/char rcsdate[]="$Date: 1993/06/04 13:49:29 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -31,6 +31,7 @@ static /*const*/char rcsdate[]="$Date: 1993/05/28 14:43:47 $";
 #define COPYBUF		16384
 /*#define SPEEDBUF	COPYBUF	       /* uncomment to get a speed increase? */
 #define SCALE_WEIGHT	0x7fff
+#define EXCL_THRESHOLD	30730
 
 #define DEFmaxgram	4
 #define DEFminweight	(SCALE_WEIGHT/4)	      /* sanity cutoff value */
@@ -54,9 +55,9 @@ static /*const*/char rcsdate[]="$Date: 1993/05/28 14:43:47 $";
 #define REMOV2_DELIM "addresses below this line can be automatically removed)"
 #define NOT_METOO	"(-n)"
 
-struct string{char*text,*itext;size_t buflen;};
+struct string{char*text,*itext;size_t textlen,buflen;};
 
-static remov_delim;
+static remov_delim,maxgram;
 
 strnIcmp(a,b,l)const char*a,*b;size_t l;			     /* stub */
 { return strncmp(a,b,l);
@@ -143,15 +144,58 @@ static char*argstr(first,last)const char*first,*last;		/* construct */
 
 static PROGID;
 
+static matchgram(fuzzstr,hardstr)
+const struct string*const fuzzstr;struct string*const hardstr;
+{ size_t minlen,maxlen;unsigned maxweight;int meter;
+  register size_t gramsize;
+  if((minlen=hardstr->textlen=strlen(hardstr->text))>(maxlen=fuzzstr->textlen))
+     minlen=fuzzstr->textlen,maxlen=hardstr->textlen;
+  if((gramsize=minlen-1)>maxgram)
+     gramsize=maxgram;
+  maxweight=SCALE_WEIGHT/(gramsize+1);
+  meter=(int)((unsigned long)SCALE_WEIGHT/2*minlen/maxlen)-SCALE_WEIGHT/2;
+  do				    /* reset local multigram counter */
+   { register lmeter=0;size_t cmaxlen=maxlen;
+     ;{ register const char*fzz,*hrd;
+	fzz=fuzzstr->itext;
+	do
+	 { for(hrd=fzz+1;hrd=strchr(hrd,*fzz);)		 /* is it present in */
+	      if(!strncmp(++hrd,fzz+1,gramsize))	      /* own string? */
+	       { if(cmaxlen>gramsize+1)
+		    cmaxlen--;
+		  goto dble_gram;		     /* skip until it's last */
+	       }
+	   for(hrd=hardstr->itext;hrd=strchr(hrd,*fzz);)	/* otherwise */
+	       if(!strncmp(++hrd,fzz+1,gramsize))	 /* search it in the */
+		{ lmeter++;break;			       /* dist entry */
+		}
+dble_gram:;
+	 }
+	while(*(++fzz+gramsize));				/* next gram */
+      }
+     if(lmeter)
+      { unsigned weight;
+	if(cmaxlen>minlen)
+	   cmaxlen=minlen;
+	meter+=lmeter*(weight=maxweight/(unsigned)(cmaxlen-gramsize));
+	meter-=weight*
+	 (unsigned long)((lmeter+=gramsize-cmaxlen)<0?-lmeter:lmeter)/cmaxlen;
+      }
+   }
+  while(gramsize--);			 /* search all gramsizes down to one */
+  return meter;
+}
+
 main(minweight,argv)char*argv[];
-{ struct string fuzzstr,hardstr;FILE*hardfile;const char*addit=0;
+{ struct string fuzzstr,hardstr,excstr,exc2str;FILE*hardfile;
+  const char*addit=0;
   struct match{char*fuzz,*hard;int metric;long lentry;off_t offs1,offs2;}
    **best,*curmatch=0;
-  unsigned best_matches,maxgram,maxweight,charoffs=0,remov=0,renam=0,
+  unsigned best_matches,charoffs=0,remov=0,renam=0,
    chkmetoo=(char*)progid-(char*)progid;
   int lastfrom;
   static const char usage[]=
- "Usage: multigram [-cdmr] [-b nnn] [-l nnn] [-w nnn] [-a address] filename\n";
+"Usage: multigram [-cdmr] [-b nnn] [-l nnn] [-w nnn] [-ax address] filename\n";
   if(minweight)			      /* sanity check, any arguments at all? */
    { char*chp;
      if(!strcmp(chp=lastdirsep(argv[0]),flist))		 /* suid flist prog? */
@@ -223,10 +267,10 @@ main(minweight,argv)char*argv[];
 	   return EX_USAGE;
 	 }
 	if(!stat(argv[3],&stbuf))
-	 { time_t newt;unsigned off_t size;
+	 { time_t newt;off_t size;
 	   newt=stbuf.st_mtime;size=stbuf.st_size;
 	   if(!stat(argv[minweight=4],&stbuf))
-	    { unsigned off_t maxsize;
+	    { off_t maxsize;
 	      if(stbuf.st_mtime+strtol(argv[1],(char**)0,10)<newt)
 		 return EX_OK;				   /* digest too old */
 	      maxsize=strtol(argv[2],(char**)0,10);goto statd;
@@ -240,7 +284,7 @@ statd:		    if((size+=stbuf.st_size)>maxsize)	  /* digest too big? */
 	 }
 	return 1;
       }
-     minweight=SCALE_WEIGHT;best_matches=maxgram=0;
+     minweight=SCALE_WEIGHT;best_matches=maxgram=0;exc2str.text=excstr.text=0;
      while((chp= *++argv)&&*chp=='-')
 	for(chp++;;)
 	 { int c;
@@ -253,6 +297,14 @@ statd:		    if((size+=stbuf.st_size)>maxsize)	  /* digest too big? */
 		 if(!*chp&&!(chp= *++argv))
 		    goto usg;
 		 addit=chp;break;
+	      case 'x':
+		 if(!*chp&&!(chp= *++argv))
+		    goto usg;
+		 if(excstr.text)
+		    exc2str.text=chp;
+		 else
+		    excstr.text=chp;
+		 break;
 	      case 'b':case 'l':case 'w':
 	       { int i;
 		 ;{ const char*ochp;
@@ -275,6 +327,7 @@ statd:		    if((size+=stbuf.st_size)>maxsize)	  /* digest too big? */
 \n\t-m\t\tcheck for metoo\
 \n\t-l nnn\t\tlower bound metric\
 \n\t-r\t\trename address on list\
+\n\t-x address\texclude this address from the search (max. 2)\
 \n\t-w nnn\t\twindow width used when matching\n");return EX_USAGE;
 	      case '-':
 		 if(!*chp)
@@ -288,6 +341,11 @@ statd:		    if((size+=stbuf.st_size)>maxsize)	  /* digest too big? */
 lastopt:
      if(!chp||*++argv||renam+remov+!!addit>1)
 	goto usg;
+     if(excstr.text)
+      { excstr.textlen=strlen(excstr.text),lowcase(excstr);
+	if(exc2str.text)
+	   exc2str.textlen=strlen(exc2str.text),lowcase(exc2str);
+      }
      if(!(hardfile=fopen(chp,remov||renam||addit?"r+":"r")))
       { nlog("Couldn't open \"");elog(chp);elog("\"\n");return EX_IOERR;
       }
@@ -333,7 +391,7 @@ usg:
      while(i--);
    }
   for(lastfrom= -1;readstr(stdin,&fuzzstr,0);)
-   { int meter,maxmetric;size_t fuzzlen;long linentry;off_t offs1,offs2;
+   { int meter,maxmetric;long linentry;off_t offs1,offs2;
      ;{ char*chp,*echp;int parens;
 	echp=strchr(chp=fuzzstr.text,'\0')-1;
 	do
@@ -365,7 +423,9 @@ shftleft:     tmemmove(chp,chp+1,strlen(chp));
 	if(*(chp=fuzzstr.text)=='<'&&*(echp=strchr(chp,'\0')-1)=='>'
 	 &&!strchr(chp,','))			      /* strip '<' and '>' ? */
 	   *echp='\0',tmemmove(chp,chp+1,echp-chp);
-	if(!(fuzzlen=strlen(chp)))
+	if(!(fuzzstr.textlen=strlen(chp))||
+	 excstr.text&&matchgram(&fuzzstr,&excstr)>=EXCL_THRESHOLD||
+	 exc2str.text&&matchgram(&fuzzstr,&exc2str)>=EXCL_THRESHOLD)
 	   continue;
 	;{ int i=0;
 	   do
@@ -385,51 +445,15 @@ shftleft:     tmemmove(chp,chp+1,strlen(chp));
      maxmetric=best[best_matches]->metric;
      for(remov_delim=offs2=linentry=0;
       offs1=offs2,readstr(hardfile,&hardstr,1);)
-      { size_t minlen,hardlen,maxlen;register size_t gramsize;
-	offs2=ftell(hardfile);linentry++;
+      { offs2=ftell(hardfile);linentry++;
 	if(*hardstr.text=='(')
 	   continue;				   /* unsuitable for matches */
-	lowcase(&hardstr);
-	if((minlen=hardlen=strlen(hardstr.text))>(maxlen=fuzzlen))
-	   minlen=fuzzlen,maxlen=hardlen;
-	if((gramsize=minlen-1)>maxgram)
-	   gramsize=maxgram;
-	maxweight=SCALE_WEIGHT/(gramsize+1);
-	meter=(int)((unsigned long)SCALE_WEIGHT/2*minlen/maxlen)-
-	 SCALE_WEIGHT/2;
-	do				    /* reset local multigram counter */
-	 { register lmeter=0;size_t cmaxlen=maxlen;
-	   ;{ register const char*fzz,*hrd;
-	      fzz=fuzzstr.itext;
-	      do
-	       { for(hrd=fzz+1;hrd=strchr(hrd,*fzz);)	 /* is it present in */
-		    if(!strncmp(++hrd,fzz+1,gramsize))	      /* own string? */
-		     { if(cmaxlen>gramsize+1)
-			  cmaxlen--;
-		       goto dble_gram;		     /* skip until it's last */
-		     }
-		 for(hrd=hardstr.itext;hrd=strchr(hrd,*fzz);)	/* otherwise */
-		    if(!strncmp(++hrd,fzz+1,gramsize))	 /* search it in the */
-		     { lmeter++;break;			       /* dist entry */
-		     }
-dble_gram:;    }
-	      while(*(++fzz+gramsize));				/* next gram */
-	    }
-	   if(lmeter)
-	    { unsigned weight;
-	      if(cmaxlen>minlen)
-		 cmaxlen=minlen;
-	      meter+=lmeter*(weight=maxweight/(unsigned)(cmaxlen-gramsize));
-	      meter-=weight*
-	       (unsigned long)((lmeter+=gramsize-cmaxlen)<0?-lmeter:lmeter)/
-	       cmaxlen;
-	    }
-	 }
-	while(gramsize--);		 /* search all gramsizes down to one */
+	lowcase(&hardstr);meter=matchgram(&fuzzstr,&hardstr);
 	free(hardstr.itext);			 /* check if we had any luck */
 	if(meter>maxmetric&&(remov_delim||!renam&&!remov))
-	 { curmatch->metric=maxmetric=meter;curmatch->lentry=linentry;
-	   free(curmatch->hard);hardlen++;
+	 { size_t hardlen;
+	   curmatch->metric=maxmetric=meter;curmatch->lentry=linentry;
+	   free(curmatch->hard);hardlen=hardstr.textlen+1;
 	   hardlen+=strlen(hardstr.text+hardlen)+1;
 	   curmatch->hard=malloc(hardlen+=strlen(hardstr.text+hardlen)+1);
 	   tmemmove(curmatch->hard,hardstr.text,hardlen);
@@ -459,8 +483,8 @@ dupl_addr:;
      if((mp= *best)->metric>=minweight)
       { struct match*worse;
 	if(renam)
-	 { long line;int i,w1;
-	   maxweight>>=1;
+	 { long line;int i,w1;unsigned maxweight;
+	   maxweight=SCALE_WEIGHT/(maxgram+1)>>1;;
 	   for(i=1,line=mp->lentry,w1=mp->metric,worse=0;
 	    i<=best_matches&&(mp=best[i++])->metric>=minweight;)
 	      if(mp->lentry==line&&mp->metric+maxweight<w1)

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.50 1993/06/02 15:31:09 berg Exp $
+#$Id: autoconf,v 1.51 1993/06/04 13:49:24 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -88,15 +88,17 @@ export SHELL PATH
 
 OLDTESTDIRS=""
 tailpid=""
+echo "" >_locktst.pid
 
 if test -f $ACONF
 then
-  trap "kill \`cat _locktst.pid\`;cp $ACONF $ACONF.tmp;$RM -r \$OLDTESTDIRS
-   test ! -z \"\$tailpid\" && kill \$tailpid
+  trap "kill \`cat _locktst.pid\` 2>$DEVNULL;cp $ACONF $ACONF.tmp
+   $RM -r \$OLDTESTDIRS;test ! -z \"\$tailpid\" && kill \$tailpid 2>$DEVNULL
    kill \`cat _locktst.pid\` 2>$DEVNULL; exit 1" 1 2 3 15
 else
-  trap "kill \`cat _locktst.pid\`;$RM -r \$OLDTESTDIRS $ACONF.tmp
-   mv $ACONF $ACONF.tmp 2>$DEVNULL;test ! -z \"\$tailpid\" && kill \$tailpid
+  trap "kill \`cat _locktst.pid\` 2>$DEVNULL;$RM -r \$OLDTESTDIRS $ACONF.tmp
+   mv $ACONF $ACONF.tmp 2>$DEVNULL
+   test ! -z \"\$tailpid\" && kill \$tailpid 2>$DEVNULL
    kill \`cat _locktst.pid\` 2>$DEVNULL; exit 1" 1 2 3 15
 fi
 
@@ -915,7 +917,7 @@ found=no
 for a in /usr/spool/mail /usr/mail /var/spool/mail /var/mail /spool/mail
 do
   test -d $a -a $found != yes &&
-   echo '#define SYSTEM_MAILBOX "'$a'/$LOGNAME"' >>$ACONF && found=yes
+   echo '#define SYSTEM_MAILBOX "$a/$LOGNAME"' >>$ACONF && found=yes
 done
 if test $found != yes && _autotst 2 >>$ACONF
 then
@@ -984,7 +986,7 @@ then
   $RM core
 fi
 
-$RM -r $OLDTESTDIRS
+$RM -r $OLDTESTDIRS 2>$DEVNULL
 $RM _autotst* _locktst* lookfor grepfor 2>$DEVNULL
 
 echo =============================autoconf.h===================================

@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.27 1993/04/22 10:21:50 berg Exp $
+#$Id: Makefile,v 1.28 1993/06/04 13:48:55 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -61,6 +61,8 @@ LIBPATHS=/lib /usr/lib /usr/local/lib /usr/ucblib /usr/5lib /usr/ucb/lib \
  /lib/386
 
 CFLAGS0 = -O #-ansi -pedantic #-Wid-clash-6
+CFLAGS0 = -O -ansi -pedantic -Wid-clash-6 -Wall
+CC=gcc
 LDFLAGS0= -s
 
 CFLAGS1 = $(CFLAGS0) #-posix -Xp

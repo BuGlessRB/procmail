@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: procbounce,v 1.11 1993/06/02 15:30:48 berg Exp $
+#$Id: procbounce,v 1.12 1993/06/04 13:49:06 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -47,12 +47,12 @@ then
   if $expr $bounced \>= $minbounce >/dev/null
   then
      fieldcontent="`
-     if echo '$addr' | $multigram -b1 -l$auto_off_threshold -d $dist
+     if echo \"$addr\" | $multigram -b1 -l$auto_off_threshold -d $dist
      then
      :
      else
 	$echo 'Not confident enough to autoremove the offending address'
-	$echo '$addr' | $multigram -b2 -l0 -d$dist
+	$echo \"$addr\" | $multigram -b2 -l0 -d$dist
      fi | $sed -e '/^Removed:/ d' \
       -e '1 s/^ *[0-9]* \([^ ]* *[0-9]*\).*$/Removed: \1/' \
       -e '/^ *[0-9]/	/'`"

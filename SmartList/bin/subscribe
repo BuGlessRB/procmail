@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: subscribe,v 1.15 1993/05/28 14:42:56 berg Exp $
+#$Id: subscribe,v 1.16 1993/06/04 13:49:09 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -46,7 +46,7 @@ done
 if $test -z "$subscraddr"
 then
   address=`$formail -k -xSubject: <$tmprequest |
-   $multigram -b1 -l$off_threshold $tmpfrom |
+   $multigram -b1 -x$listreq -x$listaddr -l$off_threshold $tmpfrom |
    $sed -e 's/^ *[^ ]* *[^ ]* *[^ ]* *\([^ ]*\)/\1/' `
 
   for a in $address ""
