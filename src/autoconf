@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.41 1993/04/19 14:43:00 berg Exp $
+#$Id: autoconf,v 1.42 1993/04/19 15:14:00 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -93,7 +93,7 @@ then
   trap "cp $ACONF $ACONF.tmp; $RM -r \$OLDTESTDIRS
    test ! -z \"\$tailpid\" && kill \$tailpid; exit 1" 1 2 3 15
 else
-  trap "$RM -r \$OLDTESTDIRS $ACONF.tmp;mv $ACONF $ACONF.tmp;
+  trap "$RM -r \$OLDTESTDIRS $ACONF.tmp;mv $ACONF $ACONF.tmp 2>$DEVNULL;
    test ! -z \"\$tailpid\" && kill \$tailpid; exit 1" 1 2 3 15
 fi
 

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.31 1993/04/19 14:42:51 berg Exp $
+#$Id: initmake,v 1.32 1993/04/19 15:13:51 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -288,6 +288,8 @@ done
 
 cat Makefile.1 >>_Makefile
 $MV _Makefile Makefile
+
+sleep 1			# Some machines are just too speedy, make gets confused
 
 for a in $SUBDIRS
 do

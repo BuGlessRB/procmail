@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.23 1993/04/19 14:42:48 berg Exp $
+#$Id: Makefile,v 1.24 1993/04/19 15:13:46 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -16,14 +16,9 @@ MAN5SUFFIX= 5
 MAN1DIR	  = $(MANDIR)/man$(MAN1SUFFIX)
 MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 
-#LOCKINGTEST=/tmp .	# Uncomment and add any directories you see fit.
-#			If LOCKINGTEST is undefined, autoconf will not
-#			prompt you to enter additional directories.
-#			See INSTALL for more information about the
-#			significance of the locking tests.
-
+##############################
 # Things that can be made are:
-
+#
 # init (or makefiles)	Performs some preliminary sanity checks on your system
 #			and generates Makefiles accordingly
 # bins			Preinstalls only the binaries to ./new
@@ -42,12 +37,19 @@ MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 # procmail		Preinstalls just all procmail related stuff to ./new
 # formail		Preinstalls just all formail related stuff to ./new
 # lockfile		Preinstalls just all lockfile related stuff to ./new
+########################
+
+# Makefile.0 - mark, don't (re)move this, a sed script needs it
+
+#LOCKINGTEST=/tmp .	# Uncomment and add any directories you see fit.
+#			If LOCKINGTEST is undefined, autoconf will not
+#			prompt you to enter additional directories.
+#			See INSTALL for more information about the
+#			significance of the locking tests.
 
 ########################################################################
 # Only edit below this line if you *think* you know what you are doing #
 ########################################################################
-
-# Makefile.0 - mark, don't (re)move this, a sed script needs it
 
 # Optional system libraries we search for
 SEARCHLIBS = -ldir -lx -lsocket -lnet -linet -lnsl_s -lnsl_i -lnsl -lgen\
