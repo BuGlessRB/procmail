@@ -1,4 +1,4 @@
-/*$Id: locking.h,v 1.5 1994/05/26 14:13:03 berg Exp $*/
+/*$Id: locking.h,v 1.6 2000/10/24 00:16:43 guenther Exp $*/
 
 void
  lockit P((char*name,char**const lockp)),
@@ -21,3 +21,5 @@ int
  fdlock P((int fd)),
  fdunlock P((void));
 #endif
+
+extern char*globlock;

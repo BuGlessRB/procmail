@@ -1,4 +1,4 @@
-#$Id: Makefile.0,v 1.59 2000/10/23 09:04:16 guenther Exp $
+#$Id: Makefile.0,v 1.60 2000/10/24 00:16:37 guenther Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) foldinfo.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) \
@@ -66,7 +66,7 @@ common.$(O): ../autoconf.h ../config.h includes.h procmail.h sublib.h robust.h
 common.$(O): shell.h misc.h common.h
 
 cstdio.$(O): ../autoconf.h ../config.h includes.h procmail.h robust.h cstdio.h
-cstdio.$(O):  misc.h shell.h
+cstdio.$(O):  misc.h shell.h variables.h
 
 ecommon.$(O): ../autoconf.h ../config.h includes.h ecommon.h common.h shell.h
 
@@ -87,7 +87,7 @@ formisc.$(O): ../autoconf.h ../config.h includes.h formail.h sublib.h shell.h
 formisc.$(O): common.h ecommon.h formisc.h
 
 goodies.$(O): ../autoconf.h ../config.h includes.h procmail.h sublib.h robust.h
-goodies.$(O): shell.h misc.h pipes.h common.h cstdio.h goodies.h
+goodies.$(O): shell.h misc.h pipes.h common.h cstdio.h variables.h goodies.h
 
 hsort.$(O): ../autoconf.h ../config.h includes.h hsort.h
 

@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.158 2000/10/23 09:04:24 guenther Exp $";
+ "$Id: procmail.c,v 1.159 2000/10/24 00:16:49 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -508,7 +508,7 @@ Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
 	 }
 	else					  /* user could not be found */
 	   setids();   /* to prevent security holes, drop any privileges now */
-	setupenv(pass,buf,!presenviron||!mailfilter);		 /* override */
+	initdefenv(pass,buf,!presenviron||!mailfilter);		 /* override */
 	endpwent();auth_freeid(spassinvk);	   /* environment by default */
       }
      /*

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.65 2000/10/23 09:04:23 guenther Exp $";
+ "$Id: pipes.c,v 1.66 2000/10/24 00:16:47 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -21,9 +21,7 @@ static /*const*/char rcsid[]=
 #include "goodies.h"
 #include "variables.h"
 
-const char exitcode[]="EXITCODE";
 static const char comma[]=",";
-int setxit;
 pid_t pidchild;
 volatile time_t alrmtime;
 volatile int toutflag;
@@ -318,16 +316,7 @@ char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
 
 void exectrap(tp)const char*const tp;
 { int forceret;
-  ;{ char*p;
-     if(setxit&&(p=getenv(exitcode)))		 /* user specified exitcode? */
-      { if((forceret=renvint(-2L,p))>=0)	     /* yes, is it positive? */
-	   retval=forceret;				 /* then override it */
-      }
-     else if(*tp)		 /* no EXITCODE set, TRAP found, provide one */
-      { strcpy(p=buf2,exitcode);*(p+=STRLEN(exitcode))='=';
-	ultstr(0,(unsigned long)retval,p+1);sputenv(buf2);forceret= -1;
-      }
-   }
+  forceret=setexitcode(*tp);		      /* whether TRAP is set matters */
   if(*tp)
    { int poutfd[2];
      metaparse(tp);concon('\n');rpipe(poutfd);inittmout(buf);

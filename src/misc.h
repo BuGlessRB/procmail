@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.45 2000/09/28 01:23:33 guenther Exp $*/
+/*$Id: misc.h,v 1.46 2000/10/24 00:16:46 guenther Exp $*/
 
 struct dyna_long{int filled,tspace;union{int i;off_t o;long l;}*vals;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -34,43 +34,23 @@ void
  Terminate P((void)),
  suspend P((void)),
  *app_val_ P((struct dyna_long*const sp)),
- setmaildir P((const char*const newdir)),
- setoverflow P((void)),
  srequeue P((void)),
  slose P((void)),
  sbounce P((void)),
- catlim P((const char*src)),
- setdef P((const char*const name,const char*const contents)),
- metaparse P((const char*p)),
- setlastfolder P((const char*const folder)),
- mallocbuffers Q((size_t lineb,int setenv)),
- asenv P((const char*const chp)),
- concatenate P((char*p)),
  squeeze P((char*target)),
- initdefenv P((void)),
  rcst_nosgid P((void));
 int
  forkerr Q((const pid_t pid,const char*const a)),
  nextrcfile P((void)),
- asenvcpy P((char*src)),
- alphanum P((const unsigned c)),
  enoughprivs Q((const auth_identity*const passinvk,const uid_t euid,
   const gid_t egid,const uid_t uid,const gid_t gid)),
  conditions P((char flags[],const int prevcond,const int lastsucc,
   const int lastcond,int nrcond));
 char
- *cat P((const char*const a,const char*const b)),
  *tstrdup P((const char*const a)),
- *pmrc2buf P((void)),
  *cstr P((char*const a,const char*const b)),
- *gobenv P((char*chp,char*end)),
  *egrepin P((char*expr,const char*source,const long len,int casesens));
 const char
- *tgetenv P((const char*const a)),
  *newdynstring P((struct dynstring**const adrp,const char*const chp));
-long
- renvint P((const long i,const char*const env));
 
-extern const char lastfolder[],maildir[];
-extern int didchd;
-extern char*globlock;
+extern int fakedelivery;

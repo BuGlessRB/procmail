@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.1 2000/10/23 09:04:26 guenther Exp $";
+ "$Id: variables.c,v 1.2 2000/10/24 00:16:51 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -18,10 +18,29 @@ static /*const*/char rcsid[]=
 #include "authenticate.h"
 #include "goodies.h"
 #include "misc.h"
-#include "pipes.h"		/* for exitcode */
+#include "locking.h"		/* for lockit() */
 #include "variables.h"
 
+struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
+ {"LOCKTIMEOUT",DEFlocktimeout},{"SUSPEND",DEFsuspend},
+ {"NORESRETRY",DEFnoresretry},{"TIMEOUT",DEFtimeout},{"VERBOSE",DEFverbose},
+ {"LOGABSTRACT",DEFlogabstract}};
+struct varstr strenstr[]={{"SHELLMETAS",DEFshellmetas},{"LOCKEXT",DEFlockext},
+ {"MSGPREFIX",DEFmsgprefix},{"COMSAT",empty},{"TRAP",empty},
+ {"SHELLFLAGS",DEFshellflags},{"DEFAULT",DEFdefault},{"SENDMAIL",DEFsendmail},
+ {"SENDMAILFLAGS",DEFflagsendmail},{"PROCMAIL_VERSION",PM_VERSION}};
+
+#define MAXvarvals	 maxindex(strenvvar)
+#define MAXvarstrs	 maxindex(strenstr)
+
+const char lastfolder[]="LASTFOLDER",maildir[]="MAILDIR";
+int didchd;
 long Stdfilled;
+
+static const char slinebuf[]="LINEBUF",pmoverflow[]="PROCMAIL_OVERFLOW=yes",
+ exitcode[]="EXITCODE";
+static int setxit;
+
 static struct dynstring*myenv;
 static char**lastenv;
 			      /* smart putenv, the way it was supposed to be */
@@ -92,6 +111,23 @@ const char*eputenv(src,dst)const char*const src;char*const dst;
   return readparse(dst,sgetc,2)?0:sputenv(buf);
 }
 
+void setdef(name,value)const char*const name,*const value;
+{ char*p;
+  strcpy(buf,name);				 /* insert the variable name */
+  p=strchr(buf,'\0');					   /* (find the end) */
+  *p++='=';						       /* then the = */
+  eputenv(value,p);			/* expand the value and call sputenv */
+}
+
+const char*tgetenv(a)const char*const a;
+{ const char*b;
+  return (b=getenv(a))?b:empty;
+}
+
+void setoverflow P((void))
+{ sputenv(tstrdup(pmoverflow));
+}
+
 void cleanupenv(preserve)int preserve;
 { static const char*const keepenv[]=KEEPENV,*const ld_[]=LDENV;
   const char**emax=(const char**)environ,**ep,*const*pp;
@@ -124,10 +160,9 @@ recheck:;
    }
 }
 
-void setupenv(pass,fallback,do_presets)auth_identity*pass;
+void initdefenv(pass,fallback,do_presets)auth_identity*pass;
  const char*fallback;int do_presets;
-{ static const char*const prestenv[]=PRESTENV;
-  const char*p,*const*pp;
+{ const char*p;
   if(pass)
    { p=auth_username(pass);
      if(!p||!*p)
@@ -144,12 +179,232 @@ void setupenv(pass,fallback,do_presets)auth_identity*pass;
      setdef(home,ROOT_DIR);setdef(orgmail,DEAD_LETTER);
    }
   if(do_presets)
-   { setdef(host,hostname());
+   { static const char*const prestenv[]=PRESTENV;
+     const char*const*pp;
+     int i=MAXvarstrs;
+     do	   /* initialise all non-empty string variables into the environment */
+	if(*strenstr[i].sval)
+	   setdef(strenstr[i].sname,strenstr[i].sval);
+     while(i--);
+     setdef(host,hostname());		       /* the other standard presets */
      sputenv(lastfolder);
      sputenv(exitcode);
-     initdefenv();
-     for(pp=prestenv;*pp;pp++)		/* preset some environment variables */
+     for(pp=prestenv;*pp;pp++)			     /* non-standard presets */
 	if(!eputenv(*pp,buf))
 	   setoverflow();
    }
+}
+
+int alphanum(c)const unsigned c;
+{ switch(c)
+   { case '0':case '1':case '2':case '3':case '4':
+     case '5':case '6':case '7':case '8':case '9':
+	return 2;
+     case 'A':case 'B':case 'C':case 'D':case 'E':case 'F':case 'G':case 'H':
+     case 'I':case 'J':case 'K':case 'L':case 'M':case 'N':case 'O':case 'P':
+     case 'Q':case 'R':case 'S':case 'T':case 'U':case 'V':case 'W':case 'X':
+     case 'Y':case 'Z':
+     case 'a':case 'b':case 'c':case 'd':case 'e':case 'f':case 'g':case 'h':
+     case 'i':case 'j':case 'k':case 'l':case 'm':case 'n':case 'o':case 'p':
+     case 'q':case 'r':case 's':case 't':case 'u':case 'v':case 'w':case 'x':
+     case 'y':case 'z':
+     case '_':
+	return 1;
+     default:
+	return 0;
+   }
+}
+
+char*pmrc2buf P((void))
+{ sgetcp=pmrc;
+  if(readparse(buf,sgetc,2))
+     buf[0]='\0';
+  return buf;
+}
+
+void setmaildir(newdir)const char*const newdir;		    /* destroys buf2 */
+{ char*chp;
+  didchd=1;*(chp=strcpy(buf2,maildir)+STRLEN(maildir))='=';
+  strcpy(++chp,newdir);sputenv(buf2);
+}
+
+void setlastfolder(folder)const char*const folder;
+{ if(asgnlastf)
+   { char*chp;
+     asgnlastf=0;
+     strcpy(chp=malloc(STRLEN(lastfolder)+1+strlen(folder)+1),lastfolder);
+     chp[STRLEN(lastfolder)]='=';strcpy(chp+STRLEN(lastfolder)+1,folder);
+     sputenv(chp);free(chp);
+   }
+}
+
+int setexitcode(trapisset)int trapisset;
+{ char*p;int forceret;
+  if(setxit&&(p=getenv(exitcode)))		 /* user specified exitcode? */
+   { if((forceret=renvint(-2L,p))>=0)		     /* yes, is it positive? */
+	retval=forceret;				 /* then override it */
+   }
+  else
+   { forceret= -1;
+     if(trapisset)		 /* no EXITCODE set, TRAP found, provide one */
+      { p=buf2+STRLEN(exitcode);
+	strcpy(buf2,exitcode);*p='=';
+	ultstr(0,(unsigned long)retval,p+1);sputenv(buf2);
+      }
+   }
+  return forceret;
+}
+
+char*gobenv(chp,end)char*chp,*end;
+{ int found,i;
+  found=0;end--;
+  if(alphanum(i=getb())&&!numeric(i))
+     for(found=1;*chp++=i,chp<end&&alphanum(i=getb()););
+  *chp='\0';ungetb(i);
+  if(chp==end)							 /* overflow */
+   { nlog(exceededlb);setoverflow();
+     return end+1;
+   }
+  switch(i)
+   { case ' ':case '\t':case '\n':case '=':
+	if(found)
+	   return chp;
+   }
+  return 0;
+}
+
+int asenvcpy(src)char*src;
+{ const char*chp;
+  if(chp=strchr(src,'='))			     /* is it an assignment? */
+    /*
+     *	really change the uid now, since it would not be safe to
+     *	evaluate the extra command line arguments otherwise
+     */
+   { erestrict=1;setids();chp++;strncpy(buf,src,chp-src);
+     src=buf+(chp-src);
+     if(chp=eputenv(chp,src))
+      { src[-1]='\0';
+	asenv(chp);
+      }
+     return 1;
+   }
+  return 0;
+}
+
+void mallocbuffers(lineb,setenv)size_t lineb;int setenv;
+{ if(buf)
+   { free(buf);
+     free(buf2);
+   }
+  buf=malloc(lineb+XTRAlinebuf);buf2=malloc(lineb+XTRAlinebuf);
+  if(setenv)
+   { char*chp;
+     *(chp=strcpy(buf,slinebuf)+STRLEN(slinebuf))='=';
+     ultstr(0,lineb,chp+1);
+     sputenv(buf);
+   }
+}
+
+void asenv(chp)const char*const chp;
+{ static const char logfile[]="LOGFILE",Log[]="LOG",sdelivered[]="DELIVERED",
+   includerc[]="INCLUDERC",eumask[]="UMASK",dropprivs[]="DROPPRIVS",
+   shift[]="SHIFT",switchrc[]="SWITCHRC";
+  if(!strcmp(buf,slinebuf))
+   { long lineb;			 /* signed to catch negative numbers */
+     if((lineb=renvint(0L,chp))<MINlinebuf)
+	lineb=MINlinebuf;			       /* check minimum size */
+     mallocbuffers(linebuf=lineb,0);
+   }
+  else if(!strcmp(buf,maildir))
+     if(chdir(chp))
+	chderr(chp);
+     else
+	didchd=1;
+  else if(!strcmp(buf,logfile))
+     opnlog(chp);
+  else if(!strcmp(buf,Log))
+     elog(chp);
+  else if(!strcmp(buf,exitcode))
+     setxit=1;
+  else if(!strcmp(buf,shift))
+   { int i;
+     if((i=renvint(0L,chp))>0)
+      { if(i>crestarg)
+	   i=crestarg;
+	crestarg-=i;restargv+=i;		     /* shift away arguments */
+      }
+   }
+  else if(!strcmp(buf,dropprivs))			  /* drop privileges */
+   { if(renvint(0L,chp))
+      { if(verbose)
+	   nlog("Assuming identity of the recipient, VERBOSE=off\n");
+	setids();
+      }
+   }
+  else if(!strcmp(buf,sdelivered))			    /* fake delivery */
+   { if(renvint(0L,chp))				    /* is it really? */
+      { onguard();
+	if((thepid=sfork())>0)			/* signals may cause trouble */
+	   nextexit=2,lcking&=~lck_LOCKFILE,exit(retvl2);
+	if(!forkerr(thepid,procmailn))
+	   fakedelivery=1;
+	newid();offguard();
+      }
+   }
+  else if(!strcmp(buf,lockfile))
+     lockit(tstrdup((char*)chp),&globlock);
+  else if(!strcmp(buf,eumask))
+     doumask((mode_t)strtol(chp,(char**)0,8));
+  else if(!strcmp(buf,includerc))
+     pushrc(chp);
+  else if(!strcmp(buf,switchrc))
+     changerc(chp);
+  else if(!strcmp(buf,host))
+   { const char*name;
+     if(strcmp(chp,name=hostname()))
+      { yell("HOST mismatched",name);
+	if(rc<0||!nextrcfile())			  /* if no rcfile opened yet */
+	   retval=EXIT_SUCCESS,Terminate();	  /* exit gracefully as well */
+	closerc();
+      }
+   }
+  else
+   { int i=MAXvarvals;
+     do					      /* several numeric assignments */
+	if(!strcmp(buf,strenvvar[i].name))
+	   strenvvar[i].val=renvint(strenvvar[i].val,chp);
+     while(i--);
+     i=MAXvarstrs;
+     do						 /* several text assignments */
+	if(!strcmp(buf,strenstr[i].sname))
+	   strenstr[i].sval=chp;
+     while(i--);
+   }
+}
+
+long renvint(i,env)const long i;const char*const env;
+{ const char*p;long t;
+  t=strtol(env,(char**)&p,10);			  /* parse like a decimal nr */
+  if(p==env)
+     for(;;p++)
+      { switch(*p)
+	 { case ' ':case '\t':case '\n':case '\v':case '\f':case '\r':
+	      continue;				  /* skip leading whitespace */
+	   case 'o':case 'O':
+	      if(!strnIcmp(p+1,"n",(size_t)1))
+	   case 'y':case 'Y':case 't':case 'T':case 'e':case 'E':
+		 t=1;
+	      else if(!strnIcmp(p+1,"ff",(size_t)2))
+	   case 'n':case 'N':case 'f':case 'F':case 'd':case 'D':
+		 t=0;
+	      else
+	   default:
+		 t=i;
+	      break;
+	   case 'a':case 'A':t=2;
+	      break;
+	 }
+	break;
+      }
+  return t;
 }

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.94 2000/10/23 09:04:21 guenther Exp $";
+ "$Id: mailfold.c,v 1.95 2000/10/24 00:16:44 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -190,7 +190,10 @@ didlnk:
      goto ret;
    }
   if(!rename(buf2,buf))		       /* rename it, we need the same i-node */
-opn: return opena(buf);
+opn:
+   { setlastfolder(buf);
+     return opena(buf);
+   }
 ret:
   return -1;
 }
@@ -230,6 +233,7 @@ int writefolder(boxname,linkfolder,source,len,ignwerr,dolock)
 	      lockit(tstrdup(buf),&loclock);
 	   *chp='\0';
 	 }
+	setlastfolder(boxname);
 	fd=opena(boxname);
 dumpc:	if(dump(fd,type,source,len)&&!ignwerr)
 dumpf:	 { switch(errno)

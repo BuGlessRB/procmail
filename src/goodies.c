@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.67 2000/10/23 09:04:18 guenther Exp $";
+ "$Id: goodies.c,v 1.68 2000/10/24 00:16:39 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -16,6 +16,7 @@ static /*const*/char rcsid[]=
 #include "pipes.h"
 #include "common.h"
 #include "cstdio.h"
+#include "variables.h"
 #include "goodies.h"
 
 const char test[]="test";
@@ -360,6 +361,30 @@ char*simplesplit(to,from,fencepost,gotp)char*to;const char*from,*fencepost;
 ret:
   *gotp=got;
   return to;
+}
+
+void concatenate(p)register char*p;
+{ while(p!=Tmnate)			  /* concatenate all other arguments */
+   { while(*p)
+	p++;
+     *p++=' ';
+   }
+  *p=p[-1]='\0';
+}
+
+void metaparse(p)const char*p;				    /* result in buf */
+{ if(sh=!!strpbrk(p,shellmetas))
+     strcpy(buf,p);			 /* copy literally, shell will parse */
+  else
+   { sgetcp=p=tstrdup(p);
+     if(readparse(buf,sgetc,0)				/* parse it yourself */
+#ifndef GOT_bin_test
+	||!strcmp(test,buf)
+#endif
+	)
+	strcpy(buf,p),sh=1;		   /* oops, overflow or `test' found */
+     free((char*)p);
+   }
 }
 
 void ltstr(minwidth,val,dest)const int minwidth;const long val;char*dest;
