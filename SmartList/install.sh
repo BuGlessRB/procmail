@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.4 1992/12/01 15:31:41 berg Exp $
+#$Id: install.sh,v 1.5 1992/12/04 13:31:55 berg Exp $
 
 test $# != 1 && echo "Usage: install.sh target-directory" && exit 1
 
@@ -16,7 +16,8 @@ echo "Preserving any old files: $FRAGILE"
 
 for a in $FRAGILE
 do
-  mv -f "$target/.listadmin/$a" "$target/.listadmin/$a.old"
+  test -f "$target/.listadmin/$a" &&
+   mv -f "$target/.listadmin/$a" "$target/.listadmin/$a.old"
 done
 
 echo Installing...
