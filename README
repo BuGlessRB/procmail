@@ -128,7 +128,7 @@ The latest version can be obtained directly from the ftp-archive at:
 
 	ftp.informatik.rwth-aachen.de (137.226.112.172)
 
-	as zipped tar file:		pub/unix/procmail.tar.zip	<152KB
+	as zipped tar file:		pub/unix/procmail.tar.zip	<160KB
 	as compressed tar file:		pub/unix/procmail.tar.Z		<216KB
 	in compressed shar format:	pub/unix/procmail.??.Z	      11 parts
 ----------------------

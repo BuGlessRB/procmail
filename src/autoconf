@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.62 1993/08/09 14:10:43 berg Exp $
+#$Id: autoconf,v 1.63 1993/09/06 16:19:46 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -84,7 +84,8 @@ shift; ACONF=$1
 test 1 != $# &&
  echo "Don't start this script directly, use \`make ../autoconf.h'" && exit 1
 
-export SHELL PATH
+LANG=""
+export SHELL PATH LANG
 
 OLDTESTDIRS=""
 tailpid=""
@@ -189,12 +190,10 @@ cat >_autotst.c <<HERE
 #include "$ACONF"
 #include <sys/types.h>
 #include <time.h>
-void*vvoid;
-main(){int i=0;char*p="t";
+main(){int i=0;
  {time_t vtime_t;i+=vtime_t=1;}
  {off_t voff_t;i+=voff_t=1;}
- vvoid=p;
- return !vvoid;}
+ return !i;}
 #include <unistd.h>
 struct {char a;char b;} setsid;
 HERE
@@ -204,7 +203,6 @@ if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
 then
   echo "#define setsid()" >>_locktst.h
 else
-  grepfor void '#define void char'
   grepfor time_t 'typedef long time_t;'
   grepfor off_t 'typedef long off_t;'
   if $FGREP setsid _autotst.rrr >$DEVNULL 2>&1
@@ -336,11 +334,11 @@ cat >_autotst.c <<HERE
 int dolock,child[NR_of_forks],timeout,fdcollect;
 char dirlocktest[]="_locktest";
 
-void stimeout()
+stimeout()
 { timeout=1;close(fdcollect);killchildren();
 }
 
-void terminate()
+terminate()
 { stimeout();exit(1);
 }
 
@@ -680,7 +678,7 @@ HERE
 
 echo 'Checking for network/comsat/biff support'
 
-if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
+if $MAKE _autotst.$O >$DEVNULL 2>&1
  test -f _autotst.$O
 then
 :
@@ -695,35 +693,62 @@ cat >_autotst.c <<HERE
 #ifndef NO_COMSAT
 #include "network.h"
 #endif
-main(){int i=0;
+void*vvoid;
+main(){int i=0;char*p="t";
+ vvoid=p;
  {size_t vsize_t;i+=vsize_t=1;}
  {pid_t vpid_t;i+=vpid_t=1;}
  {mode_t vmode_t;i+=vmode_t=1;}
  {uid_t vuid_t;i+=vuid_t=1;}
  {gid_t vgid_t;i+=vgid_t=1;}
 #ifndef NO_COMSAT
- {struct hostent host;i+=!(host.h_addr_list=0);}
+ {struct hostent vhostent;i+=!(vhostent.h_addr_list=0);}
 #endif
 #ifndef NOuname
  {struct utsname vutsname;i+=!(*vutsname.nodename='\0');}
 #endif
- return !i;}
+ return !vvoid;}
 HERE
 
 echo 'Testing for void*,size_t,off_t,pid_t,time_t,mode_t,uid_t,gid_t'
-$MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
-$RM _autotst.$O
 
-grepfor size_t 'typedef unsigned size_t;'
-grepfor pid_t 'typedef int pid_t;'
-grepfor mode_t 'typedef int mode_t;'
-grepfor uid_t 'typedef int uid_t;'
-grepfor gid_t 'typedef int gid_t;'
-grepfor h_addr_list '#define h_0addr_list h_addr' ||
- grepfor struct '#define h_0addr_list h_addr'
-grepfor utsname "\
+i0="";i1="";i2="";i3="";i4="";i5="";i6="";i7=""
+oldi=""
+
+while $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
+ test ! -f _autotst.$O
+do
+  test -z "$i0" && grepfor void '#define void char' && i7=I
+  test -z "$i1" && grepfor size_t 'typedef unsigned size_t;' && i0=I
+  test -z "$i2" && grepfor pid_t 'typedef int pid_t;' && i1=I
+  test -z "$i3" && grepfor mode_t 'typedef int mode_t;' && i2=I
+  test -z "$i4" && grepfor uid_t 'typedef int uid_t;' && i3=I
+  test -z "$i5" && grepfor gid_t 'typedef int gid_t;' && i4=I
+  test -z "$i6" && grepfor h_addr_list '#define h_0addr_list h_addr' && i5=I
+  test -z "$i6" && grepfor hostent '#define h_0addr_list h_addr' && i5=I
+  test -z "$i6" && grepfor member '#define h_0addr_list h_addr' && i5=I
+  test -z "$i7" && grepfor utsname "\
 #define NOuname		 \
-/* <sys/utsname.h> is there, but empty */"
+/* <sys/utsname.h> is there, but empty */" && i6=I
+  newi="$i0$i1$i2$i3$i4$i5$i6$i7"
+  if test a$oldi = a$newi
+  then
+     echo 2>&1 "Whoeaaa!  There's something fishy going on here."
+     echo 2>&1 "You have a look and see if you detect anything uncanny:"
+     echo 2>&1 "*******************************************************"
+     $MAKE _autotst.$O >_autotst.rrr 2>&1
+     cat 2>&1 _autotst.rrr
+     echo 2>&1 "*******************************************************"
+     echo 2>&1 "I suggest you take a look at the definition of CFLAGS*"
+     echo 2>&1 "in the Makefile before you try make again."
+     kill -15 $$
+  fi
+  oldi=$newi
+  echo \
+   "	...missing `expr $oldi : '.*'` types, doublechecking..."
+done
+
+$RM _autotst.$O
 
 cat >_autotst.c <<HERE
 #include "includes.h"
@@ -766,7 +791,7 @@ HERE
 
 echo 'Testing for memmove, strchr, strpbrk, strcspn, strtol, strstr,'
 echo '	rename, setrgid, opendir & mkdir'
-if $MAKE _autotst.$O >_autotst.rrr 2>&1
+if $MAKE _autotst.$O >$DEVNULL 2>&1
 then
 :
 else
@@ -779,7 +804,7 @@ else
   echo 2>&1 "I give up."
   kill -15 $$
 fi
-$MAKE _autotst 2>&1 | $FGREP -v include/ >_autotst.rrr
+$MAKE _autotst >_autotst.rrr 2>&1
 $RM _autotst _autotst.$O
 
 grepfor strcspn '#define NOstrcspn'

@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.25 1993/07/16 14:52:15 berg Exp $
+.Id $Id: procmailrc.man,v 1.26 1993/09/06 16:19:40 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -101,8 +101,8 @@ Egrep the header (default).
 Egrep the body.
 .Tp
 .B @DISTINGUISH_CASE@
-Tell the internal egrep to distinguish between upper and lower case (defaults
-to ignoring case).
+Tell the internal egrep to distinguish between upper and lower case (contrary
+to the default which is to ignore case).
 .Tp
 .B @ALSO_NEXT_RECIPE@
 This recipe will depend on the last preceding recipe (on the current
