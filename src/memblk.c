@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: memblk.c,v 1.6 2001/06/28 22:55:09 guenther Exp $"
+ "$Id: memblk.c,v 1.7 2001/09/18 21:59:08 guenther Exp $"
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -51,11 +51,11 @@ void lockblock(mb)memblk*const mb;
 {
 #ifdef USE_MMAP
   if(mb->fd>=0)
-   { long len=mb->len+1;
-     if(munmap(mb->p,len))
-	mmapfailed(len);		      /* don't want to continue here */
-     if((mb->p=mmap(0,len,PROT_READ,MAP_PRIVATE,mb->fd,(off_t)0))==MAP_FAILED)
-	mmapfailed(len);
+   { long mlen=mb->len+1;
+     if(munmap(mb->p,mlen))
+	mmapfailed(mlen);		      /* don't want to continue here */
+     if((mb->p=mmap(0,mlen,PROT_READ,MAP_PRIVATE,mb->fd,(off_t)0))==MAP_FAILED)
+	mmapfailed(mlen);
      close(mb->fd);
      mb->fd=ropen(devnull,O_RDWR,0);		/* XXX Perhaps -1 is better? */
    }
@@ -77,8 +77,8 @@ int resizeblock(mb,len,nonfatal)memblk*const mb;const long len;
      strcpy(filename,MMAP_DIR);
      if(unique(filename,strchr(filename,'\0'),MMAP_FILE_LEN,MMAP_PERM,0,0)&&
 	(mb->fd=ropen(filename,O_RDWR,MMAP_PERM),unlink(filename),mb->fd>=0))
-      { mb->filelen=len;
-	if(lseek(mb->fd,mb->filelen-1,SEEK_SET)<0||1!=rwrite(mb->fd,empty,1))
+      { mb->filelen=len+1;
+	if(lseek(mb->fd,len,SEEK_SET)<0||1!=rwrite(mb->fd,empty,1))
 dropf:	 { close(mb->fd);mb->fd= -1;
 	   if(verbose)nlog("Unable to extend or use tempfile");
 	 }
@@ -98,9 +98,9 @@ dropf:	 { close(mb->fd);mb->fd= -1;
       }
    }
   if(mb->fd>=0)
-   { if(len>mb->filelen)				  /* need to extend? */
-      { mb->filelen=len;
-	if(lseek(mb->fd,mb->filelen-1,SEEK_SET)<0||1!=rwrite(mb->fd,empty,1))
+   { if(len>=mb->filelen)				  /* need to extend? */
+      { mb->filelen=len+1;
+	if(lseek(mb->fd,len,SEEK_SET)<0||1!=rwrite(mb->fd,empty,1))
 	 { char*p=malloc(len+1);	   /* can't extend, switch to malloc */
 	   tmemmove(p,mb->p,mb->len);
 	   munmap(mb->p,mb->len+1);
@@ -124,9 +124,9 @@ mmap:	if((mb->p=mmap(0,len+1,P_RW,MAP_SHARED,mb->fd,(off_t)0))==MAP_FAILED)
    }
   else
      mb->p=realloc(mb->p,len+1);
-  mb->len=len+1;
-  mb->p[len]='\0';
+  mb->len=len;
 ret1:
+  mb->p[len]='\0';
   return 1;
 }
 

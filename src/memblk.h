@@ -1,6 +1,6 @@
 typedef struct memblk {
     char*p;						  /* where it starts */
-    long len;					 /* currently allocated size */
+    long len;			 /* current size, not including trailing NUL */
 #ifdef USE_MMAP
     off_t filelen;				     /* how long is the file */
     int fd;					   /* file which is mmap()ed */
