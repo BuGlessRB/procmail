@@ -1,10 +1,11 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.26 1993/07/16 14:51:12 berg Exp $
+#$Id: install.sh,v 1.27 1993/07/30 13:52:53 berg Exp $
 
 SHELL=/bin/sh
 export SHELL
+umask 022				# making sure that umask has sane value
 
 test $# != 1 -a $# != 2 && echo "Usage: install.sh target-directory [.bin]" &&
  exit 64
@@ -89,6 +90,17 @@ then
      [0-9]*) . ./install.sh2;;
      *) su $installerid <install.sh2;;
   esac
+  if echo ls | su $listid 2>&1 | fgrep install.sh2 >/dev/null
+  then
+  :
+  else
+     echo "It seems that the user \"$listid\" is not able to access"
+     echo "files in the current directory (procmail/mailinglist/.)."
+     echo "You have to make sure that at least while the install.sh"
+     echo "scripts are running, the procmail source tree is accessible"
+     echo "AND readable for that user."
+     exit 64
+  fi
   su $listid <install.sh3
   echo "Making $target/$bindir/flist suid root..."
   if chown root "$target/$bindir/flist" && chmod 04755 "$target/$bindir/flist"

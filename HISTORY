@@ -147,7 +147,7 @@
 	       through the mailinglist
 	    Reached the doubtful milestone to sometimes crash an Ultrix
 	       machine (due to the lockingtests, not procmail itself)
-1993/07/21: v2.92
+1993/07/30: v2.92
 	    Fixed a formail sender-determination-weight problem, it mixed up
 	       the weights when autoreplying and when regenerating the From_
 	       line (and thus didn't always pick the optimal field)
@@ -156,24 +156,29 @@
 	       is of course silly, fixed that
 	    Taught procmail about `nesting recipes'; they allow parts of
 	       an rcfile to be grouped hierarchically
-	    Made the x_command script list the nearest match when adding
-	       or removing people from a list
-	    Allow the archive directory in the mailinglists to be a
-	       symbolic link
 	    Fixed a discrepancy between /bin/sh backquote expansion in
 	       environment assignments and procmail (preserving all spaces)
 	    Slightly adjusted autoconf for the new non-standard 386BSD and
 	       NeXTStep 3.1 environments
-	    Cleaned up install.sh* for the mailinglists: starting su with
-	       commands on stdin now, checking some permissions now in the
-	       filesystem to prevent silly mistakes during the installation
-	    Fixed a few typos that slipped into procbounce and flush_digest
 	    Moved the "Reiterating kernel lock" diagnostic into the "extended"
 	       (i.e. VERBOSE=on) section
 	    Extended the procmailex man page (again)
-	    Taught the embedded archive server in the mailinglists to allow
-	       searching for regexps
-	    v2.91 archive server logged into the wrong file (../log), fixed
 	    Tightened the loop when skipping comments in rcfiles
 	    Updated the crontab script recommendation in the procmail man page
 	    Fixed the "procmail"-mailer definition in the procmail man page
+	    Worked around a bug in the `ANSI'-compiler of Domain/OS
+	    Changes to the mailinglist package:
+	       Cleaned up install.sh* for the mailinglists: starting su with
+		  commands on stdin now, checking some permissions now in the
+		  filesystem to prevent silly mistakes during the installation
+	       v2.91 archive server logged into the wrong file (../log), fixed
+	       Made the x_command script list the nearest match when adding
+		  or removing people from a list
+	       New convenience command: donatelist
+	       Allow the archive directory in the mailinglists to be a
+		  symbolic link
+	       Taught the embedded archive server in the mailinglists to allow
+		  searching for regexps
+	       Fixed a few typos that slipped into procbounce and flush_digest
+	       Explicit support for moderated lists
+	       Eliminating duplicate submissions

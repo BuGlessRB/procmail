@@ -151,13 +151,13 @@ There are many different reasons why more and more sites decide not to
 store mail in /usr/spool/mail or /usr/mail anymore.
 Some of the obvious advantages when storing mail in the recipient's home
 directory are:
-	- Mail is automatically subject to his quota limitations.
-	- Often there is more room on the home partitions than on that
+	- Mail is automatically subject to the user's quota limitations.
+	- Often there is more room on the home partition(s) than on that
 	  one /usr/mail partition.
 
 The quota limitations also apply to /usr/spool/mail or /usr/mail if procmail
-does the delivery.  This quota limitation often does not work with the
-regular /bin/mail since it often writes the mailbox with root permissions
+does the delivery.  These quota limitations often do not work with the
+regular /bin/mail since that usually writes the mailbox with root permissions
 (eluding the quota restrictions).
 
 However, if you are going to install procmail as the integrated local

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.38 1993/07/16 14:50:55 berg Exp $
+#$Id: initmake,v 1.39 1993/07/30 13:52:43 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -30,20 +30,17 @@ case "$SHELL" in
   *sh*)
      case "$SHELL" in
 	*csh*) echo "Warning: really perverted make detected"; SHELL="";;
-	*zsh*) cat >src/autotst <<\HERE
-	    cd src
-	    RMA="$1"
-	    shift; DEVNULL=$1
-	    exec 2>$2
-	    echo test >autotst.c
-	    $RMA
+	*zsh*) $RM src/_autotst
+	    $SHELL <<HERE
+	    O="echo test >src/_autotst"
+	    exec 2>$DEVNULL
+	    \$O
 HERE
-	   $SHELL src/autotst "$RM autotst.c" $DEVNULL
-	   if test -f src/autotst.c
+	   if test ! -f src/_autotst
 	   then
 	      echo "Warning: your $SHELL is broken, avoiding it"; SHELL=""
 	   fi
-	   $RM src/autotst src/autotst.c;;
+	   $RM src/_autotst;;
      esac;;
   *) echo "Warning: perverted make detected"; SHELL="";;
 esac
@@ -138,7 +135,8 @@ LDFLAGSC=""
 
 test -f _autotst.$O || $cc -c $CFLAGS1 $CFLAGS _autotst.c >$DEVNULL 2>&1
 $cc $CFLAGS1 $CFLAGS _autotst.$O -o _autotst $LDFLAGS1 -lc >_autotst.rrr 2>&1 \
- && if grep "[\"']c['\"]" _autotst.rrr >$DEVNULL
+ && if grep "[\"']c['\"]" _autotst.rrr >$DEVNULL ||
+   fgrep libc _autotst.rrr >$DEVNULL
   then
   :
   else

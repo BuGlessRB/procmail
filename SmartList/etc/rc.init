@@ -33,7 +33,7 @@
 # rc.request	rcfile used when processing requests
 # rc.custom	rcfile that contains all the customisations per list
 
-#$Id: rc.init,v 1.18 1993/07/16 14:51:56 berg Exp $
+#$Id: rc.init,v 1.19 1993/07/30 13:53:04 berg Exp $
 
 PATH=.:$PATH:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises
@@ -142,8 +142,9 @@ cc_requests
 					# and help requests to be Cc'd to
 					# the maintainer
 reply_to
-#reply_to	= "Reply-To: $listaddr" # uncomment to force replies to go
-					# to the list (not recommended)
+#reply_to	= "Resent-Reply-To: $listaddr" # uncomment (and perhaps change
+					# it to "Reply-To") to force replies
+					# to go to the list (discouraged)
 digest_flag	=	<0
 #digest_flag	=	>0		# uncomment this if you want digests
 digest_age	=	262144		# maximum age of a digest in seconds

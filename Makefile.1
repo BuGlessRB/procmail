@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.18 1993/06/23 12:55:29 berg Exp $
+#$Id: Makefile.1,v 1.19 1993/07/30 13:52:40 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -55,7 +55,8 @@ changed.; echo I suggest you remove the '`u'"'"-flag 'like in:'; echo ; \
 	 /etc/sendmail.cf; then echo /etc/sendmail.cf; else \
 	 echo /usr/lib/sendmail.cf; fi`; fi
 	@echo
-	@echo "Also, HIGHLY RECOMMENDED (type 'make suid' to execute it):"
+	@echo \
+	 "Also, HIGHLY RECOMMENDED (type 'make install-suid' to execute it):"
 	@echo
 	@src/$@ $(BINDIR)/procmail $(BINDIR)/lockfile >suid.sh
 	@src/$@ $(BINDIR)/procmail $(BINDIR)/lockfile
@@ -64,7 +65,7 @@ changed.; echo I suggest you remove the '`u'"'"-flag 'like in:'; echo ; \
 
 suid.sh: recommend
 
-suid: suid.sh install.bin
+install-suid: suid.sh install.bin
 	@cat $@.sh
 	@$(SHELL) ./$@.sh
 	@cd $(BINDIR); echo Installed in $(BINDIR); ls -l $(BINSS)

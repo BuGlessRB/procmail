@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.34 1993/07/16 14:50:49 berg Exp $
+#$Id: Makefile,v 1.35 1993/07/30 13:52:37 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -28,7 +28,7 @@ MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 # install.man		Installs the man pages from ./new to $(MAN[15]DIR)
 # install		Does both
 # recommend		Show some recommended suid/sgid modes
-# suid			Impose the modes shown by 'make recommend'
+# install-suid		Impose the modes shown by 'make recommend'
 # clean			Attempts to restore the package to pre-make state
 # realclean		Attempts to restore the package to pre-make-init state
 # deinstall		Removes any previously installed binaries and man
@@ -102,6 +102,6 @@ init:
 
 makefiles makefile Makefiles Makefile: init
 
-bins mans install.bin install.man install recommend suid clean realclean \
-veryclean clobber deinstall autoconf.h $(BINSS) multigram: init
+bins mans install.bin install.man install recommend install-suid clean \
+realclean veryclean clobber deinstall autoconf.h $(BINSS) multigram: init
 	$(HIDEMAKE) make $@

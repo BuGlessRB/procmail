@@ -1,7 +1,9 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh3  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh3		  # we're in a buggy zsh
-#$Id: install.sh3,v 1.12 1993/07/22 15:09:38 berg Exp $
+#$Id: install.sh3,v 1.13 1993/07/30 13:52:57 berg Exp $
+
+umask 022
 
 test -z "$bindir" && echo "Call install.sh instead" && exit 64
 

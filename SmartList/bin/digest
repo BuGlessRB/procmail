@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.5 1993/07/16 14:51:30 berg Exp $
+#$Id: digest,v 1.6 1993/07/30 13:52:59 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -29,6 +29,12 @@ digesttrailer=archive/latest/digest.trailer
 
 $echo "$digest_age $digest_size $archive_hist $UMASK
 $SENDMAIL $sendmailOPT $listdist" >.digest.params
+
+# Or, if your $SENDMAIL doesn't support file=including aliases, uncomment
+# the next two lines (don't forget to activate the alternate sendmail call
+# in .etc/rc.submit as well):
+#$echo "$digest_age $digest_size $archive_hist $UMASK
+#$SENDMAIL $sendmailOPT \`sed -e '/^(.*)$/ d' dist\`" >.digest.params
 
 $awk '
 BEGIN					{ lines=0;mode=0; }
