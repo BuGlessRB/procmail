@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.54 1994/10/07 15:24:27 berg Exp $
+.Id $Id: procmailrc.man,v 1.55 1994/10/28 15:03:32 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -89,24 +89,14 @@ commented.
 A line starting with ':' marks the beginning of a recipe.  It has the
 following format:
 .Sx 3
-: [\fInumber\fP] [\fIflags\fP] [ : [\fIlocallockfile\fP] ]
+:0 [\fIflags\fP] [ : [\fIlocallockfile\fP] ]
 <zero or more conditions (one per line)>
 <exactly one action line>
 .Ex
-The
-.I number
-is optional (defaults to 1) and specifies the number of conditions that
-follow the first line of the recipe.  Conditions are complete lines that are
-passed on to the internal egrep
+Conditions start with a leading `*', everything after that character
+is passed on to the internal egrep
 .BR literally ,
-except for leading and trailing whitespace.  If you start every condition
-line with an `*', you do not need to specify
-.IR number .
-Whitespace after the leading `*' are ignored.  The safest way would be
-to specify
-.I number
-to be zero in that case (to avoid problems when you have no conditions, but
-procmail expects one).
+except for leading and trailing whitespace.
 These regular expressions are
 .B completely
 compatible to the normal
@@ -114,10 +104,8 @@ compatible to the normal
 extended regular expressions.  See also
 .BR "Extended regular expressions" .
 .PP
-Conditions are anded; if
-.I number
-is zero, then the condition is always true and no conditions are expected
-next.
+Conditions are anded; if there are no conditions the result will be true
+be default.
 .PP
 .I Flags
 can be any of the following:
@@ -136,7 +124,6 @@ to the default which is to ignore case).
 This recipe will depend on the last preceding recipe (on the current
 block-nesting level) without the `@ALSO_NEXT_RECIPE@' or `@ALSO_N_IF_SUCC@'
 flag.  This allows you to chain actions that depend on a common condition.
-The number of conditions that are expected to follow default to none.
 .TP
 .B @ALSO_N_IF_SUCC@
 Has the same meaning as the `@ALSO_NEXT_RECIPE@' flag, but will depend on the
@@ -148,13 +135,11 @@ This recipe only executes if the immediately preceding recipe was not
 executed.  Execution of this recipe also disables any immediately
 following recipes with the '@ELSE_DO@' flag.  This allows you to specify
 `else if' actions.
-The number of conditions that are expected to follow default to none.
 .TP
 .B @ERROR_DO@
 This recipe only executes if the immediately preceding recipe
 .IR failed .
 This allows you to specify `error' actions.
-The number of conditions that are expected to follow default to none.
 .TP
 .B @PASS_HEAD@
 Feed the header to the pipe (default).

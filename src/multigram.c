@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.73 1994/10/18 17:36:18 berg Exp $";
+ "$Id: multigram.c,v 1.74 1994/10/28 15:03:38 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/10/18 17:36:18 $";
+static /*const*/char rcsdate[]="$Date: 1994/10/28 15:03:38 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -676,7 +676,7 @@ lastopt:
 	if(exc2str.text)
 	   exc2str.textlen=strlen(exc2str.text),lowcase(&exc2str);
       }
-     hfiles=malloc((argc-=nargv-argv)*sizeof*hfiles);
+     hfiles=malloc((argc+1-(nargv-argv))*sizeof*hfiles);
      ;{ const char*accstr=remov||renam||addit?"r+":"r";
 	unsigned i;
 	if(!(*hfiles=hardfile=fopen(chp,accstr)))
