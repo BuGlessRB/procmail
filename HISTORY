@@ -570,9 +570,11 @@
 	       - Check for enum support
 	       - Warn people that non-ISO/ANSI C compilers might not be
 		 supported in the future
+	       - IRIX compiler (7.3.1) failed the const check from warnings
 	    Changes to lockfile:
 	       - Include the system mailbox lockfile path in the -v output
 	    Documented formail's treatment of >From_ lines as continuations
 	       of the From_ line
+	    Fixed manpage formatting problem
 	    The default MAILDIR is now configurable separately from the
 	       default rcfile location
