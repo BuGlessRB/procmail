@@ -1,10 +1,3 @@
-non-MH mail directories depend on files not changing inode number
-    Messages are stored in non-MH mail directories with a name based
-    on the inode number of the file containing the message.  If such a
-    directory is copied to a different location or restored from tape,
-    inode number may change, introducing the possibility of messages
-    being overwritten.
-
 SENDMAILFLAGS variable is treated as a single argument to sendmail
     The assignment SENDMAILFLAGS="-oi -odd" doesn't work as expected
     as procmail will pass it to sendmail as one argument.

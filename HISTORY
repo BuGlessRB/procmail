@@ -455,6 +455,7 @@
 	       - Some zero-length extractions using \/ could core dump
 	       - Missed a couple possible overflows
 	       - Eliminated the conflict with the C9x restrict keyword
+	       - Avoid renaming over old messages in directory folders
 	    Changes to mailstat:
 	       - Work around the detab done on checkin to CVS
 	       - Recognize maildir mailboxes
