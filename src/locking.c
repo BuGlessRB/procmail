@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.62 2001/06/23 08:18:46 guenther Exp $";
+ "$Id: locking.c,v 1.63 2001/08/04 07:12:17 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -149,8 +149,9 @@ void unlock(lockp)char**const lockp;
 int xcreat(name,mode,tim,chownit)const char*const name;const mode_t mode;
  time_t*const tim;const int chownit;
 { char*p;int j= -2;size_t i;
-  i=lastdirsep(name)-name;strncpy(p=malloc(i+UNIQnamelen),name,i);
-  if(unique(p,p+i,0,mode,verbose,chownit)) /* try & rename a unique filename */
+  i=lastdirsep(name)-name;
+  memcpy(p=malloc(i+UNIQnamelen),name,i);		     /* try & rename */
+  if(unique(p,p+i,i+UNIQnamelen,mode,verbose,chownit))	/* a unique filename */
    { if(tim)
       { struct stat stbuf;	 /* return the filesystem time to the caller */
 	stat(p,&stbuf);*tim=stbuf.st_mtime;
