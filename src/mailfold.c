@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.29 1993/06/21 14:24:35 berg Exp $";
+ "$Id: mailfold.c,v 1.30 1993/06/23 12:56:05 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -62,8 +62,7 @@ long dump(s,source,len)const int s;const char*source;long len;
       { part=getchunk(s,source,len);
 jin:	while(part&&(i=rwrite(s,source,BLKSIZ<part?BLKSIZ:(int)part)))
 	 { if(i<0)
-	    { i=0;goto writefin;
-	    }
+	      goto writefin;
 	   part-=i;len-=i;source+=i;
 	 }
       }

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.54 1993/06/14 13:13:20 berg Exp $
+#$Id: autoconf,v 1.55 1993/06/23 12:55:56 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -567,11 +567,12 @@ cat >_autotst.c <<HERE
 #include <unistd.h>		/* execvp() */
 #endif
 main()
-{ char r[]="",*const*p;char*q="";static struct{const int a;int b;}c[2];
+{ char r[]="",*const*p;char*q="";const char*s="";
+  static struct{const int a;int b;}c[2];
   --(c+1)->b;				 /* AIX 3.1.5 machines can't do this */
   p= &q;
   execvp(q,p);	  /* IRIX 4.0.1 system-include files are wrong on this point */
-  return *r;
+  return s==r;
 }
 HERE
 
@@ -648,6 +649,7 @@ do
      echo 2>&1 "Whoeaaa!  There's something fishy going on here."
      echo 2>&1 "You have a look and see if you detect anything uncanny:"
      echo 2>&1 "*******************************************************"
+     $MAKE _autotst.$O >_autotst.rrr 2>&1
      cat 2>&1 _autotst.rrr
      echo 2>&1 "*******************************************************"
      echo 2>&1 "I suggest you take a look at the definition of CFLAGS*"

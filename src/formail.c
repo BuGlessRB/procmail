@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.23 1993/05/05 13:06:15 berg Exp $";
+ "$Id: formail.c,v 1.24 1993/06/23 12:56:01 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/05/05 13:06:15 $";
+static /*const*/char rcsdate[]="$Date: 1993/06/23 12:56:01 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -244,7 +244,7 @@ startover:
 	if(i>=0&&(i!=maxindex(sest)||fldp==rdheader))	  /* found anything? */
 	 { char*saddr;char*tmp;			     /* determine the weight */
 	   nowm=trust?sest[i].wtrepl:areply?i:sest[i].wrepl;chp+=j;
-	   saddr=tmp=malloc(j=fldp->tot_len-j);tmemmove(tmp,chp,j);
+	   tmp=malloc(j=fldp->tot_len-j);tmemmove(tmp,chp,j);
 	   tmp[j-1]='\0';chp=pstrspn(tmp," \t\n");
 	   for(saddr=0;;chp=skipwords(chp))		/* skip RFC 822 wise */
 	    { switch(*chp)
@@ -271,7 +271,7 @@ startover:
 		  }
 	       }
 	      else if(sest[i].head==returnpath)		/* nill Return-Path: */
-	       { saddr=0;nowm=maxindex(sest)+2;			 /* override */
+	       { saddr=0;lastm=maxindex(sest)+2;		 /* override */
 newnamep:	 if(namep)
 		    free(namep);
 		 namep=saddr;

@@ -1,0 +1,17 @@
+#! /bin/sh
+: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+#########################################################################
+#	dirname		A substitute, for the deprived			#
+#									#
+#	Created by S.R. van den Berg, The Netherlands			#
+#########################################################################
+#$Id: dirname,v 1.1 1993/06/23 12:55:40 berg Exp $
+
+t=`expr "$1" : "\(.*/\)[^/]*$"`
+
+if test -z "$t"
+then
+  echo .
+else
+  echo "$t"
+fi

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.34 1993/06/21 14:24:49 berg Exp $";
+ "$Id: procmail.c,v 1.35 1993/06/23 12:56:11 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -334,7 +334,7 @@ fishy:	 { nlog("Couldn't create");logqnl(chp);sputenv(orgmail);
       }						/* bad news, be conservative */
      umask(INIT_UMASK);
    }
-  suppmunreadable=!verbose;
+  suppmunreadable=verbose;
   if(!Deliverymode)			       /* not explicit delivery mode */
     /*
      *	really change the uid now, since we are not in explicit
@@ -376,7 +376,8 @@ fishy:	 { nlog("Couldn't create");logqnl(chp);sputenv(orgmail);
 fake_rc:      readerr(buf);
 	   if(!nextrcfile())		      /* not available? try the next */
 	      goto nomore_rc;
-findrc:	   suppmunreadable=i=0;	    /* should we keep the current directory? */
+	   suppmunreadable=0;
+findrc:	   i=0;			    /* should we keep the current directory? */
 	   if(strchr(dirsep,*rcfile)||			   /* absolute path? */
 	    *rcfile==chCURDIR&&strchr(dirsep,rcfile[1])&&(i=1)) /* ./ prefix */
 	      *buf='\0';		/* do not put anything in front then */

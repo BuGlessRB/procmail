@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.21 1993/06/21 14:24:03 berg Exp $
+.Id $Id: procmail.man,v 1.22 1993/06/23 12:55:47 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -163,7 +163,7 @@ an extra `procmail' mailer in your sendmail.cf file (in addition to the perhaps
 already present `local' mailer that starts up procmail).  To create such a
 `procmail' mailer I'd suggest something like:
 .Sx 2
-Mprocmail, P=/usr/local/bin/procmail, F=mSDFMhun, S=11, R=21,
+Mprocmail, P=@BINDIR@/procmail, F=mSDFMhun, S=11, R=21,
         A=procmail \-@MAILFILTOPT@ $h $u
 .Ex
 This enables you to use rules like the following (most likely in ruleset 0)
@@ -541,7 +541,7 @@ exit 0
 .Ss "A sample small @PROCMAILRC@:"
 .na
 .nf
-PATH=/bin:/usr/bin:/usr/local/bin
+PATH=/bin:/usr/bin:@BINDIR@
 MAILDIR=$HOME/Mail      #you'd better make sure it exists
 DEFAULT=$MAILDIR/mbox
 LOGFILE=$MAILDIR/from

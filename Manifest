@@ -34,6 +34,8 @@ examples/?rmail
 		Sample shell scripts that demonstrate how to use
 		lockfiles while reading the mail (to ensure mail integrity
 		as soon as you exit the mail program).
+examples/dirname
+		Substitute dirname program, for the deprived.
 examples/forward
 		A sample .forward file (MMDF users should disregard this file
 		and look in the man page).

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.35 1993/06/04 13:48:59 berg Exp $
+#$Id: initmake,v 1.36 1993/06/23 12:55:34 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -122,16 +122,23 @@ esac
 LDFLAGSC=""
 
 test -f _autotst.$O || $cc -c $CFLAGS1 $CFLAGS _autotst.c >$DEVNULL 2>&1
-$cc $CFLAGS1 $CFLAGS _autotst.$O -o _autotst $LDFLAGS1 -lc >$DEVNULL 2>&1 &&
- LDFLAGSC=" -lc"
-$RM _autotst
+$cc $CFLAGS1 $CFLAGS _autotst.$O -o _autotst $LDFLAGS1 -lc >_autotst.rrr 2>&1 \
+ && if grep "[\"']c['\"]" _autotst.rrr >$DEVNULL
+  then
+  :
+  else
+     LDFLAGSC=" -lc"
+  fi
 
 LDFLAGS="$SEARCHLIBS"
+firstrun=yes
 
-while $cc $CFLAGS1 $CFLAGS _autotst.$O -o _autotst $LDFLAGS1 $LDFLAGS \
- $LDFLAGSC >_autotst.rrr 2>&1
- test ! -f _autotst
+while $RM _autotst
+ $cc $CFLAGS1 $CFLAGS _autotst.$O -o _autotst $LDFLAGS1 $LDFLAGS \
+  $LDFLAGSC >_autotst.rrr 2>&1
+ test $firstrun = yes -o ! -f _autotst
 do
+  firstrun=no
   set dummy $LDFLAGS
   shift
   echo 2>&1 "	...scanning for $# libraries..."
@@ -143,7 +150,7 @@ do
 	lib=`expr $a : '-l\(.*\)'`
 	if $FGREP lib$lib _autotst.rrr >$DEVNULL ||
 	 $FGREP -e $a _autotst.rrr >$DEVNULL ||
-	 $FGREP "'$lib'" _autotst.rrr >$DEVNULL
+	 grep "[\"']$lib['\"]" _autotst.rrr >$DEVNULL
 	then
 	:
 	else

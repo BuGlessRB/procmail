@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.20 1993/06/14 13:13:06 berg Exp $
+#$Id: install.sh,v 1.21 1993/06/23 12:55:43 berg Exp $
 
 test $# != 1 -a $# != 2 && echo "Usage: install.sh target-directory [.bin]" &&
  exit 64
@@ -71,16 +71,16 @@ export listid
 if test $AM_ROOT = yes
 then
   case $installerid in
-     [0-9]*) . install.sh2;;
-     *) su $installerid install.sh2;;
+     [0-9]*) . ./install.sh2;;
+     *) su $installerid ./install.sh2;;
   esac
-  su $listid install.sh3
+  su $listid ./install.sh3
   echo "Making $target/$bindir/flist suid root..."
   chown root "$target/$bindir/flist"
   chmod 04755 "$target/$bindir/flist"
 else
-  . install.sh2
-  . install.sh3
+  . ./install.sh2
+  . ./install.sh3
 fi
 
 echo '**********************************************************************'
