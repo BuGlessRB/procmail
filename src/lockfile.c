@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.42 1999/11/04 23:11:43 guenther Exp $";
+ "$Id: lockfile.c,v 1.43 1999/11/16 06:32:56 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/11/04 23:11:43 $";
+static /*const*/char rcsdate[]="$Date: 1999/11/16 06:32:56 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -27,7 +27,8 @@ static volatile int exitflag;
 pid_t thepid;
 uid_t uid;
 gid_t sgid;
-static const char dirsep[]=DIRSEP,lockext[]=DEFlockext,
+const char dirsep[]=DIRSEP;
+static const char lockext[]=DEFlockext,
  nameprefix[]="lockfile: ",lgname[]="LOGNAME";
 
 static void failure P((void))				      /* signal trap */
