@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.29 2000/10/24 00:16:50 guenther Exp $";
+ "$Id: robust.c,v 1.30 2000/11/18 03:43:33 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -25,7 +25,7 @@ void nomemerr(len)const size_t len;
   nextexit=2;nlog(outofmem);elog("\n");
   syslog(LOG_NOTICE,"%s as I tried to allocate %ld bytes\n",outofmem,
    (long)len);
-  if(rcstate==rc_NORMAL&&buf2)
+  if(!privileged&&buf&&buf2)
    { buf[linebuf-1]=buf2[linebuf-1]='\0';elog("buffer 0:");logqnl(buf);
      elog("buffer 1:");logqnl(buf2);
    }

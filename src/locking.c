@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.56 2000/10/24 00:16:42 guenther Exp $";
+ "$Id: locking.c,v 1.57 2000/11/18 03:44:51 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -97,7 +97,7 @@ term: { free(name);			     /* drop the preallocated buffer */
 	break;
       }
    }
-  if(rcstate==rc_NORMAL)			   /* we already set our ids */
+  if(!privileged)				   /* we already set our ids */
      setegid(gid);		      /* we put back our regular permissions */
   lcking&=~lck_LOCKFILE;
   if(nextexit)
@@ -130,7 +130,7 @@ void unlock(lockp)char**const lockp;
      yell("Unlocking",*lockp);
      if(unlink(*lockp))
 	nlog("Couldn't unlock"),logqnl(*lockp);
-     if(rcstate==rc_NORMAL)			   /* we already set our ids */
+     if(!privileged)				   /* we already set our ids */
 	setegid(gid);		      /* we put back our regular permissions */
      if(!nextexit)			   /* if not inside a signal handler */
 	free(*lockp);

@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.48 2000/10/27 22:07:27 guenther Exp $*/
+/*$Id: misc.h,v 1.49 2000/11/18 03:43:35 guenther Exp $*/
 
 struct dyna_array{int filled,tspace;char*vals;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -39,10 +39,7 @@ void
  Terminate P((void)),
  suspend P((void)),
  *app_val_ P((struct dyna_array*const sp,int size)),
- srequeue P((void)),
- slose P((void)),
- sbounce P((void)),
- rcst_nosgid P((void));
+ setupsigs P((void));
 int
  forkerr Q((const pid_t pid,const char*const a)),
  nextrcfile P((void)),

@@ -7,7 +7,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: foldinfo.c,v 1.2 2000/09/28 02:58:23 guenther Exp $";
+ "$Id: foldinfo.c,v 1.3 2000/11/18 03:44:19 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "misc.h"
@@ -187,8 +187,8 @@ int screenmailbox(chp,egid,Deliverymode)
 	     (S_IWGRP|S_IXGRP|S_IWOTH|S_IXOTH)
 	  <<1|						 /* note it in bit 1 */
 	  uid==stbuf.st_uid);	   /* we own the spool dir, note it in bit 0 */
-     if(CAN_toggle_sgid||accspooldir)
-	rcst_nosgid();			     /* we don't *need* setgid privs */
+     if((CAN_toggle_sgid||accspooldir)&&privileged)
+	privileged=priv_DONTNEED;	     /* we don't need root to setgid */
      if(uid!=stbuf.st_uid&&		 /* we don't own the spool directory */
 	(stbuf.st_mode&S_ISGID||!wwsdir))	  /* it's not world writable */
       { if(stbuf.st_gid==egid)			 /* but we have setgid privs */

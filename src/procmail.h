@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.48 2000/10/27 22:07:29 guenther Exp $*/
+/*$Id: procmail.h,v 1.49 2000/11/18 03:43:32 guenther Exp $*/
 
 #include "includes.h"
 
@@ -52,8 +52,8 @@
 #endif
 #endif
 
-#define rc_NOSGID	1		      /* you can forget any sgidness */
-#define rc_NORMAL	2
+#define priv_DONTNEED	1			  /* don't need root to sgid */
+#define priv_START	2			       /* we might have root */
 
 #define MCDIRSEP	(dirsep+STRLEN(dirsep)-1)      /* most common DIRSEP */
 #define MCDIRSEP_	(dirsep+STRLEN(DIRSEP)-1)
@@ -94,8 +94,8 @@ extern const char shell[],lockfile[],newline[],binsh[],unexpeof[],*const*gargv,
  *defdeflock,*argv0,exceededlb[],slogstr[],conflicting[],orgmail[],
  insufprivs[],errwwriting[],Version[];
 extern long filled,lastscore;
-extern int sh,pwait,retval,retvl2,lcking,rcstate,rc,ignwerr,lexitcode,
- asgnlastf,accspooldir,crestarg,skiprc,savstdout,berkeley,mailfilter,erestrict,
+extern int sh,pwait,retval,retvl2,lcking,rc,asgnlastf,privileged,ignwerr,
+ lexitcode,accspooldir,crestarg,skiprc,savstdout,berkeley,mailfilter,erestrict,
  Deliverymode,ifdepth;
 extern struct dyna_array ifstack;
 extern size_t linebuf;

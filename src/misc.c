@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.106 2000/10/28 08:57:50 guenther Exp $";
+ "$Id: misc.c,v 1.107 2000/11/18 03:43:34 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -82,14 +82,15 @@ void checkroot(c,Xid)const int c;const unsigned long Xid;
 }
 
 void setids P((void))
-{ if(rcstate!=rc_NORMAL)
+{ if(privileged)
    { if(setRgid(gid)&&	/* due to these !@#$%^&*() POSIX semantics, setgid() */
       setgid(gid))	   /* sets the saved gid as well; we can't use that! */
 	checkroot('g',(unsigned long)gid);	 /* did setgid fail as root? */
      setruid(uid);
      if(setuid(uid))				     /* "This cannot happen" */
 	checkroot('u',(unsigned long)uid);			/* Whoops... */
-     setegid(gid);rcstate=rc_NORMAL;
+     setegid(gid);
+     privileged=0;
 #if !DEFverbose
      verbose=0;			/* to avoid peeking in rcfiles using SIGUSR1 */
 #endif
@@ -385,11 +386,6 @@ int enoughprivs(passinvk,euid,egid,uid,gid)const auth_identity*const passinvk;
    euid==uid&&egid==gid;
 }
 
-void rcst_nosgid P((void))
-{ if(!rcstate)
-     rcstate=rc_NOSGID;
-}
-
 const char*newdynstring(adrp,chp)struct dynstring**const adrp;
  const char*const chp;
 { struct dynstring*curr;size_t len;
@@ -479,10 +475,10 @@ copydone: { switch(*(sgetcp=buf2))
 	     { case '0':case '1':case '2':case '3':case '4':case '5':case '6':
 	       case '7':case '8':case '9':case '-':case '+':case '.':case ',':
 		{ char*chp3;double w;
-		  w=strtod(buf2,(const char**)&chp3);chp2=chp3;
+		  w=strtod(buf2,&chp3);chp2=chp3;
 		  if(chp2>buf2&&*(chp2=skpspace(chp2))=='^')
 		   { double x;
-		     x=strtod(chp2+1,(const char**)&chp3);
+		     x=strtod(chp2+1,&chp3);
 		     if(chp3>chp2+1)
 		      { if(score>=MAX32)
 			   goto skiptrue;
