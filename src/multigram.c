@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.76 1995/03/20 15:30:41 berg Exp $";
+ "$Id: multigram.c,v 1.77 1995/03/31 17:30:55 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1995/03/20 15:30:41 $";
+static /*const*/char rcsdate[]="$Date: 1995/03/31 17:30:55 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -92,7 +92,7 @@ static size_t readstr(file,p,linewise)FILE*const file;struct string*p;
  const int linewise;
 { size_t tccount,len;int i,firstspc;
   static const char rem1str[]=REMOV1_DELIM,rem2str[]=REMOV2_DELIM;
-  for(ctcount=len=firstspc=0;;)
+  for(tccount=len=firstspc=0;;)
    { tccount++;
      switch(i=getc(file))
       { case ' ':case '\t':case '\n':

@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.44 1995/03/20 14:49:25 berg Exp $
+#$Id: Makefile.1,v 1.45 1995/03/31 17:30:24 berg Exp $
 
 all: bins mans recommend
 	@echo If you would like to inspect the results before running make \
@@ -11,7 +11,7 @@ make:
 .PRECIOUS: Makefile
 
 help target targets:
-	sed "/^##*\*#$$/,/^##*\*#$$/ !d" <Makefile
+	@sed "/^##*\*#$$/,/^##*\*#$$/ !d" <Makefile
 
 bins: autoconf.h config.check src/Makefile
 	cd src; $(MAKE) $(NBINS)

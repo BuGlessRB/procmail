@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.41 1995/03/20 14:51:26 berg Exp $
+#$Id: Makefile.0,v 1.42 1995/03/31 17:30:48 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O) \
@@ -145,6 +145,7 @@ recommend: recommend.$(O) sublib.$(O) lastdirsep.$(O)
 	@$(CC) $(CFLAGS) "-DBINDIR=\"$(VISIBLE_BINDIR)\"" -o _autotst \
  manconf.c lastdirsep.$(O) $(LDFLAGS)
 	@./_autotst $@
+	@echo Housekeeping file >$@
 	@$(RM) _autotst
 
 clean:

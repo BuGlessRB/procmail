@@ -316,11 +316,16 @@
 	       - Finally fixed this mess with transparent backup to kernel
 		 locking methods when the spool directory is not writable
 	       - Avoid the one second NFS_ATIME_HACK under heavy load
-	       - The 'r' flag had some unwanted side effects at times
+	       - The 'r' flag had some undesirable side effects at times
 	       - Dotlocks which fail due to permissions are not retried anymore
-	       - Made the USER_TO_LOWERCASE_HACK run-time adaptable
+	       - Made the USER_TO_LOWERCASE_HACK run-time adapting
 	       - /usr/spool/mail perm 1777, procmail setgid mail, procmail
 		 could not read .procmailrc files in 700 $HOME dirs, fixed
+	       - If called with -d option and not running with enough
+		 privileges, procmail will bounce the mail (instead of
+		 delivering to the invoker, as it used to)
+	       - Severe tweaking on ^FROM_MAILER and ^FROM_DAEMON to reduce
+		 false matches
 	    Changes to formail:
 	       - Slightly extended the number of known header fields
 	       - Eliminated the conflict with the 4.4BSD daemon libidentifier
@@ -347,3 +352,4 @@
 		 managed to break it)
 	    Fixed potential memory corruption bug for machines that have
 	       sizeof(off_t)>sizeof(off_t*) (has been around for ages)
+	    The man pages were remade upon every make, fixed

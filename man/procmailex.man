@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.44 1994/10/31 20:11:52 berg Exp $
+.Id $Id: procmailex.man,v 1.45 1995/03/31 17:30:42 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -157,7 +157,7 @@ file if the name was new (the vacation.cache file is maintained by formail
 which will make sure that it always contains the most recent names, the size
 of the file is limited to a maximum of aproximately 8192 bytes).  If the name
 was new, an autoreply will be sent.
-.Sx 14
+.Sx 15
 SHELL=/bin/sh    # for other shells, this might need adjustment
 
 :0 @WAIT_EXIT_QUIET@@PASS_HEAD@@CONTINUE@: vacation.lock

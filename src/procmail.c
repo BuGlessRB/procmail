@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.111 1995/03/20 15:30:48 berg Exp $";
+ "$Id: procmail.c,v 1.112 1995/03/31 17:30:59 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -354,6 +354,8 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 	   if(enoughprivs(passinvk,euid,egid,pass->pw_uid,pass->pw_gid))
 	      goto Setuser;
 	   nlog(insufprivs);
+	   syslog(LOG_CRIT,"Insufficient privileges to deliver to \"%s\"\n",chp2);
+	   return EX_NOPERM;	      /* need more mana, decline the request */
 	 }
 	else
 	 { suppmunreadable=nextrcfile();

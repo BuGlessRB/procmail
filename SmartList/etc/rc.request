@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.73 1995/03/20 14:50:36 berg Exp $
+#$Id: rc.request,v 1.74 1995/03/31 17:30:33 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -29,7 +29,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 :0
 * B ?? < 4096
 * $$daemon_bias
-* $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND:)
+* $!^(X-(Loop: $\listaddr|Diagnostic:)|$X_COMMAND:)
 * -100^0 ^FROM_DAEMON
 *    1^0
 {
@@ -177,7 +177,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 
   :0 EHB
   *  3^0 ^^(.+$)*Subject:[	 ]*(([(<]none[>)])?$(.+$)*(^[	 ]*)+)?\
-     [a-z,.	 ]*(help|info(rm(ation)?)?)\>
+     [a-z,.	 ]*(help|info(rmation)?)\>
   *  1^0 ^^(.+$)*Subject:[	 ]*([(<]none[>)])?$
   * -2^0 ^^(.+$)*(^[	 ]*)+[a-z]
   *  3^0 ^^(.+$)*^([	 ]*$)*--
@@ -201,7 +201,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 
   :0 EB
   * auto_help ?? y
-  * $!X-Loop: $listaddr
+  * $!X-Loop: $\listaddr
   {
     :0 hw ${cc_requests:+c}
     | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
@@ -223,7 +223,7 @@ LOGABSTRACT=yes
 
 :0 wic
 * $!^(Subject:(.*[^a-z])?Re:|\
-     X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND:)
+     X-(Loop: $\listaddr|Diagnostic:)|$X_COMMAND:)
 * ^FROM_DAEMON
 | sed -e $cutoff_bounce' q' >tmp.request
 
@@ -245,7 +245,7 @@ LOGABSTRACT=yes
   /dev/null
 
   :0 AhBD
-  * $^(..?)?X-Loop: $listaddr \(bounce\)
+  * $^(..?)?X-Loop: $\listaddr \(bounce\)
   * ^(..?)?Subject: You have been removed from
   /dev/null
 
@@ -261,8 +261,8 @@ LOGABSTRACT=yes
 #
 
 :0 wf:dist.lock
-* $^$X_COMMAND:.*$maintainer[	 ]*$X_COMMAND_PASSWORD
-* $!^X-Loop: $listaddr
+* $^$X_COMMAND:.*$\maintainer[	 ]*$\X_COMMAND_PASSWORD
+* $!^X-Loop: $\listaddr
 | x_command
 
 LOCKFILE				# we don't need the lockfile anymore
@@ -283,7 +283,7 @@ LOCKFILE				# we don't need the lockfile anymore
 | formail -A "X-Diagnostic: Mail coming from a daemon, ignored"
 
 :0 HB wfh
-* $^X-Loop: $listaddr
+* $^X-Loop: $\listaddr
 | formail -A "X-Diagnostic: Possible loopback problem"
 
 :0

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.55 1995/03/20 15:30:54 berg Exp $";
+ "$Id: regexp.c,v 1.56 1995/03/31 17:31:03 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -443,15 +443,16 @@ char*bregexec(code,text,str,len,ign_case)struct eps*code;
   ign_case=ign_case?~(unsigned)0:0;eom=0;stack= &sempty;initcode=code;
   th1=ioffsetof(struct chclass,pos1);ot1=ioffsetof(struct chclass,pos2);
   other=Ceps&tswitch;pend=(const char*)str+len+1;	     /* two past end */
-  if(initcode->opc==OPC_BOTEXT)
-     PC(initcode,ot1)=other,PCp(other=initcode,ot1)=pend,initcode=Ceps&nop;
   if(str--==text||*str=='\n')
      goto begofline;	      /* make sure any beginning-of-line-hooks catch */
   if(!len)
    { str++;
 begofline:
      i='\n';len++;
-     goto setups;
+     if(initcode->opc!=OPC_BOTEXT)
+	goto setups;
+     reg=initcode;initcode=Ceps&nop;thiss=Ceps&tswitch;
+     goto dobotext;
    }
   do
    { i= *++str;				 /* get the next real-text character */
@@ -485,7 +486,7 @@ setups:					     /* switch this & other pc-stack */
 		 case OPC_FIN-OPB:
 		       goto nobom;
 		 case OPC_BOTEXT-OPB:
-		    if(str<text)	       /* only at the very beginning */
+dobotext:	    if(str<text)	       /* only at the very beginning */
 		       goto yep;
 		    break;
 		 case OPC_CLASS-OPB:

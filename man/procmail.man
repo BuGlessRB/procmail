@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.66 1995/03/20 15:29:44 berg Exp $
+.Id $Id: procmail.man,v 1.67 1995/03/31 17:30:39 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -348,8 +348,9 @@ The start of a recipe was found, but it stranded in an EOF.
 .TP
 Insufficient privileges
 Procmail either needs root privileges, or must have the
-right (e)uid and (e)gid to run in delivery mode.  Delivery will proceed
-to the invoker.
+right (e)uid
+.B and
+(e)gid to run in delivery mode.  The mail will bounce.
 .TP
 Invalid regexp "x"
 The regular expression "x" contains errors (most likely some missing or
