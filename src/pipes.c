@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.51 1998/11/19 04:47:58 guenther Exp $";
+ "$Id: pipes.c,v 1.52 1998/11/19 11:40:02 srb Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -241,12 +241,11 @@ char*readdyn(bf,filled)char*bf;long*const filled;
 #ifdef SMALLHEAP
      if((size_t)*filled>=(size_t)(*filled+blksiz))
 	lcking|=lck_MEMORY,nomemerr();
-#endif
-     ;{ char*new=0;		       /* dynamically adjust the buffer size */
-	 /* the parens get us the real realloc so that we can retry failures */
-	while(EXPBLKSIZ&&blksiz>BLKSIZ&&!(new=(realloc)(bf,*filled+blksiz)))
+#endif				       /* dynamically adjust the buffer size */
+     ;{ char*np=0;     /* use the real realloc so that we can retry failures */
+	while(EXPBLKSIZ&&blksiz>BLKSIZ&&!(np=(realloc)(bf,*filled+blksiz)))
 	   blksiz>>=1;				  /* try a smaller increment */
-	bf=new?new:realloc(bf,*filled+blksiz);			 /* last try */
+	bf=np?np:realloc(bf,*filled+blksiz);			 /* last try */
       }
 jumpback:;
      ;{ int got,left=blksiz;
