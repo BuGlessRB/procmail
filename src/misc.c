@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.26 1993/06/21 14:24:41 berg Exp $";
+ "$Id: misc.c,v 1.27 1993/07/02 16:31:48 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -155,8 +155,8 @@ void terminate P((void))
      if(!(lcking&lck_ALLOCLIB))			/* don't reenter malloc/free */
 	exectrap(tgetenv("TRAP"));
      nextexit=2;unlock(&loclock);unlock(&globlock);fdunlock();
-   }
-  exit(fakedelivery==2?EX_OK:retval);
+   }					/* flush the logfile & exit procmail */
+  elog("");exit(fakedelivery==2?EX_OK:retval);
 }
 
 void suspend P((void))

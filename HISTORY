@@ -212,7 +212,6 @@
 	    Fixed a race condition when the recipient mailbox did not exist
 	       and two procmails simultaneously tried to create it
 	    Cleaned up main() in procmail.c (localised variables)
-	    Made sure the logfile was flushed before procmail exits
 	    When procmail gobbles up the leading From_ line, it reads in 2KB
 	       blocks now (instead of character wise; saves a few system calls)
 1993/07/02: v2.91
@@ -226,3 +225,4 @@
 	       caused some valid matches not to be found if the regular
 	       expression starts with an epsilon transition
 	    Fixed a few typos in the man pages
+	    Made sure the logfile was flushed before procmail exits

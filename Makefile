@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.32 1993/06/25 13:38:38 berg Exp $
+#$Id: Makefile,v 1.33 1993/07/02 16:31:37 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -42,7 +42,7 @@ MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 # Makefile.0 - mark, don't (re)move this, a sed script needs it
 
 #LOCKINGTEST=/tmp .	# Uncomment and add any directories you see fit.
-#			If LOCKINGTEST is undefined, autoconf will not
+#			If LOCKINGTEST is undefined, autoconf will NOT
 #			prompt you to enter additional directories.
 #			See INSTALL for more information about the
 #			significance of the locking tests.

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.57 1993/07/02 13:23:37 berg Exp $
+#$Id: autoconf,v 1.58 1993/07/02 16:31:45 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -203,7 +203,7 @@ else
   :
   else
      echo "#define setsid()" >>_locktst.h
-     $MAKE _autotst.$O 2>&1 >$DEVNULL
+     $MAKE _autotst.$O >$DEVNULL 2>&1
      test -f _autotst.$O || echo "#define UNISTD_H_MISSING" >>$ACONF
   fi
 fi
