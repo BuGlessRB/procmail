@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.46 2000/10/22 07:45:15 guenther Exp $";
+ "$Id: lockfile.c,v 1.47 2001/01/27 23:16:15 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 2000/10/22 07:45:15 $";
+static /*const*/char rcsdate[]="$Date: 2001/01/27 23:16:15 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -67,10 +67,14 @@ int main(argc,argv)int argc;const char*const argv[];
      goto usg;
   sleepsec=DEFlocksleep;retries= -1;suspend=DEFsuspend;thepid=getpid();force=0;
   uid=getuid();signal(SIGPIPE,SIG_IGN);
+  if(setuid(uid)||geteuid()!=uid)		  /* resist setuid operation */
+sp:{ nlog("Unable to give up special permissions");
+     return EX_OSERR;
+   }
 again:
   invert=(char*)progid-(char*)progid;qsignal(SIGHUP,failure);
   qsignal(SIGINT,failure);qsignal(SIGQUIT,failure);qsignal(SIGTERM,failure);
-  for(p=argv;--argc;)
+  for(p=argv;--argc>0;)
      if(*(cp=(char*)*++p)=='-')
 	for(cp++;;)
 	 { char*cp2=cp;int i;
@@ -79,7 +83,9 @@ again:
 		 continue;
 	      case 'r':case 'l':case 's':
 		 if(!*cp&&(cp=(char*)*++p,!--argc)) /* concatenated/seperate */
+		  { p--;
 		    goto eusg;
+		  }
 		 i=strtol(cp,&cp,10);
 		 switch(*cp2)
 		  { case 'r':retries=i;
@@ -167,11 +173,9 @@ xusg:		       retval=EX_USAGE;
      else if(sleepsec<0)      /* second pass, release everything we acquired */
 	unlink(cp);
      else
-      { time_t t;int permanent;
-	if(setgid(getgid()))		      /* just to be on the safe side */
-	 { nlog("Unable to give up special permissions");
-	   return EX_OSERR;
-	 }
+      { time_t t;int permanent;gid_t gid=getgid();
+	if(setgid(gid)||getegid()!=gid)	      /* just to be on the safe side */
+	   goto sp;
 stilv:	virgin=0;permanent=nfsTRY;
 	while(0>xcreat(cp,&t))				     /* try and lock */
 	 { struct stat stbuf;
