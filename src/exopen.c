@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.33 1999/04/22 05:07:05 guenther Exp $";
+ "$Id: exopen.c,v 1.34 1999/05/28 06:26:56 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -17,9 +17,9 @@ static /*const*/char rcsid[]=
 
 int unique(full,p,len,mode,verbos,chownit)char*const full;char*p;
  const size_t len;const mode_t mode;const int verbos,chownit;
-{ static int serial;static time_t t;char*dot,*cutoff,*end=full+len;
-  struct stat filebuf;int nicediff,didnice=0,fd;int retry=RETRYunique;
-  const char s2c[]=".,+=";
+{ static int serial=4;static time_t t;static const char s2c[]=".,+=";
+  char*dot,*cutoff,*end=full+len;struct stat filebuf;
+  int nicediff,i,didnice=0,retry=RETRYunique;
   if(chownit&doCHOWN)		  /* semi-critical, try raising the priority */
    { nicediff=nice(0);SETerrno(0);nicediff-=nice(-NICE_RANGE);
      if(!errno)
@@ -32,27 +32,28 @@ int unique(full,p,len,mode,verbos,chownit)char*const full;char*p;
    { if(serial>3)				     /* roll over the count? */
       { time_t t2;
 	while(t==(t2=time((time_t*)0)))		/* make sure time has passed */
-	   ssleep(2);					   /* tap tap tap... */
+	   ssleep(1);					   /* tap tap tap... */
 	p=ultoan((long)(t=t2),dot+1);
 	*p++='.';
 	strncpy(p,hostname(),end-p);
 	serial=0;
       }
      *dot=s2c[serial++];
+     i=lstat(full,&filebuf);
+#ifdef ENAMETOOLONG
+     if(i&&errno==ENAMETOOLONG)
+	*cutoff='\0',i=lstat(full,&filebuf);
+#endif
+   }
 #ifndef O_CREAT
 #define ropen(path,type,mode)	creat(path,mode)
 #endif
-     if((fd=lstat(full,&filebuf))&&errno==ENAMETOOLONG)
-      { *cutoff='\0';
-	fd=lstat(full,&filebuf);
-      }
-   }
-  while((!fd||errno==ENOENT&&	      /* casually check if it already exists */
-	 (0>(fd=ropen(full,O_WRONLY|O_CREAT|O_EXCL,mode))&&errno==EEXIST))&&
-	(fd= -1,retry--));
+  while((!i||errno!=ENOENT||	      /* casually check if it already exists */
+	 (0>(i=ropen(full,O_WRONLY|O_CREAT|O_EXCL,mode))&&errno==EEXIST))&&
+	(i= -1,retry--));
   if(didnice)
      nice(nicediff);		   /* put back the priority to the old level */
-  if(fd<0)
+  if(i<0)
    { if(verbos)			      /* this error message can be confusing */
 	writeerr(full);					 /* for casual users */
      goto ret0;
@@ -63,22 +64,22 @@ int unique(full,p,len,mode,verbos,chownit)char*const full;char*p;
 #else
   if(chownit&doCHECK)
    { struct stat fdbuf;
-     fstat(fd,&fdbuf);			/* match between the file descriptor */
+     fstat(i,&fdbuf);			/* match between the file descriptor */
 #define NEQ(what)	(fdbuf.what!=filebuf.what)	    /* and the file? */
      if(lstat(full,&filebuf)||filebuf.st_nlink!=1||filebuf.st_size||
 	NEQ(st_dev)||NEQ(st_ino)||NEQ(st_uid)||NEQ(st_gid)||
 	 chownit&doCHOWN&&
 #endif
 	 chown(full,uid,sgid))
-      { rclose(fd);unlink(full);		 /* forget it, no permission */
+      { rclose(i);unlink(full);			 /* forget it, no permission */
 ret0:	return chownit&doFD?-1:0;
       }
    }
   if(chownit&doLOCK)
-     rwrite(fd,"0",1);			   /* pid 0, `works' across networks */
+     rwrite(i,"0",1);			   /* pid 0, `works' across networks */
   if(doFD)
-     return fd;
-  rclose(fd);
+     return i;
+  rclose(i);
   return 1;
 }
 				     /* rename MUST fail if already existent */
