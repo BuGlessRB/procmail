@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.57 1998/11/06 05:35:33 guenther Exp $*/
+/*$Id: includes.h,v 1.58 1998/11/10 00:34:31 srb Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -425,6 +425,13 @@ extern void*memmove();
 #ifdef NOinitgroups
 /*#undef NOinitgroups				 need this macro in autoconf */
 #define initgroups(n,g)
+#endif
+
+#ifdef INEFFICIENTrealloc
+#undef INEFFICIENTrealloc
+#define EXPBLKSIZ	4		    /* 4+3+2+1 = 10 bits total shift */
+#else
+#define EXPBLKSIZ	0
 #endif
 
 #ifdef NOpow
