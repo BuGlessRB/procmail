@@ -16,3 +16,8 @@ regexp matching bug
     Some regexps may return an incorrect value in the MATCH variable,
     in particular when 'redundant' * or + operators appear on the left-
     hand side of the \/ token.
+
+formail header parsing
+    formail doesn't accept all of the obsolete formats that it should.
+
+`formail -R "Resent-" ""' doesn't work

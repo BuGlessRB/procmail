@@ -459,6 +459,7 @@
 	       - New variable SWITCHRC performs `tail call'
 	       - Refuse to open anything but regular files with INCLUDERC
 		 and SWITCHRC
+	       - Indicate whether GROUP_PER_USER was defined in the -v output
 	    Changes to formail:
 	       - Readjusted the weights used when autoreplying to better
 		 match current mail standards
@@ -470,7 +471,7 @@
 	       - Recognize maildir mailboxes
 	    Changes to autoconf:
 	       - Don't assume realloc(0,size) works (doesn't on SunOS 4)
-	    Stop using `implicit int'
+	    Stoped using `implicit int' (for C9x)
 	    Cache gethostname() or uname() output
 	    Change the form of tempfile names to make them `more' unique
 	    Update list of mirrors in the README

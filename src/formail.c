@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.91 1999/05/28 07:12:54 guenther Exp $";
+ "$Id: formail.c,v 1.92 1999/06/01 21:46:04 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/05/28 07:12:54 $";
+static /*const*/char rcsdate[]="$Date: 1999/06/01 21:46:04 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -53,9 +53,9 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
  *	I bet this is the first time you see a bar graph in C-source-code :-)
  */
 static const struct {const char*head;int len,wrepl,werepl;}sest[]=
-{ sslbar(replyto	,"********"	,"***"		),
-  sslbar(Fromm		,"*******"	,"**"		),
-  sslbar(sender		,"******"	,"*"		),
+{ sslbar(replyto	,"********"	,"**"		),
+  sslbar(Fromm		,"*******"	,"*"		),
+  sslbar(sender		,"******"	,"***"		),
   sslbar(returnpath	,"*****"	,"********"	),
   sslbar(From_		,"****"		,"*******"	)
   sslbar(errorsto	,"***"		,"******"	),
