@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.46 1994/09/14 18:54:38 berg Exp $";
+ "$Id: regexp.c,v 1.47 1994/09/20 19:32:11 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -427,8 +427,8 @@ char*bregexec(code,text,str,len,ign_case)struct eps*code;
   struct eps*initcode;const char*bom,*eom;
   static struct mchar tswitch={OPC_TSWITCH,Ceps&tswitch};
   static struct eps sempty={OPC_SEMPTY,&sempty};
-  static union seps nop;
-  nop.sopc=OPC_FILL;sempty.spawn= &sempty;	      /* static initialisers */
+  static const struct jump nop={OPC_FILL};
+  sempty.spawn= &sempty;			      /* static initialisers */
   bom=eom=0;stack= &sempty;ign_case=!!ign_case;			/* normalise */
   if((initcode=code)->opc==OPC_EPS)
      initcode=(stack=code)+1,code->spawn= &sempty;
@@ -468,14 +468,13 @@ setups:
 		    thiss=other=Ceps&tswitch;reg=epso(reg,sizeof(union seps));
 		    initcode=Ceps&nop;bom=(const char*)str;
 		    continue;
-		 case OPC_FILL-OPB:				      /* nop */
-		    if(thiss==Ceps&tswitch)
-		       goto setmatch;
-		    break;
-		 case OPC_SEMPTY-OPB:
-		    goto empty_stack;
+		 case OPC_FILL-OPB:		/* nop, nothing points at it */
+		    if(thiss==Ceps&tswitch)  /* so the stack is always empty */
+		       goto setmatch;	   /* even empty pc-stack? terminate */
 		 case OPC_TSWITCH-OPB:
 		    goto pcstack_switch;
+		 case OPC_SEMPTY-OPB:
+		    goto empty_stack;
 		 case OPC_EOTEXT-OPB:
 		    if(ign_case==2)		     /* only at the very end */
 		 case OPC_FIN-OPB:
@@ -512,16 +511,22 @@ pcstack_switch:;				   /* this pc-stack is empty */
 	other=Ceps&tswitch;
 	goto empty_stack;			 /* check if we just matched */
    }
-#define MATCHVAR	"MATCH="
 setmatch:
   if(eom)
-   { const static char match[]=MATCHVAR;char*p;size_t oldf;
+   { static char match[]=MATCHVAR;size_t mlen;char*q;
 set2match:
-     if(*bom=='\n')
-	bom++;					/* strip one leading newline */
-     primeStdout(match);oldf=Stdfilled;
-     p=realloc(Stdout,(Stdfilled+=eom-bom)+1);tmemmove(p+oldf,bom,eom-bom);
-     retStdout(p);
+     mlen=eom-bom;match[STRLEN(match)-1]='\0';
+     if(getenv(match)==(const char*)text)	     /* anal retentive match */
+	tmemmove(q=(char*)text,bom,mlen),q[len]='\0',bom=q;
+     else
+      { char*p;
+	match[STRLEN(match)-1]='=';
+	if(*bom=='\n')
+	   bom++;				/* strip one leading newline */
+	primeStdout(match);p=realloc(Stdout,(Stdfilled+=mlen)+1);
+	tmemmove(q=p+Stdfilled-(int)mlen,bom,mlen);retStdout(p);
+      }
+     yell("Matched",q);
    }
-  return bom;							 /* no match */
+  return (char*)bom;						 /* no match */
 }

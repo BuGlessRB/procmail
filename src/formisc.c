@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.30 1994/08/12 17:34:02 berg Exp $";
+ "$Id: formisc.c,v 1.31 1994/09/20 19:31:56 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -105,8 +105,11 @@ void loadchar(c)const int c;		      /* append one character to buf */
 }
 
 int getline P((void))			   /* read a newline-terminated line */
-{ if(buflast!=EOF)			     /* do we still have a leftover? */
-     loadchar(buflast);				  /* load it into the buffer */
+{ if(buflast==EOF)			 /* at the end of our Latin already? */
+   { loadchar('\n');					  /* fake empty line */
+     return EOF;					  /* spread the word */
+   }
+  loadchar(buflast);			    /* load leftover into the buffer */
   if(buflast!='\n')
    { int ch;
      while((ch=getchar())!=EOF&&ch!='\n')

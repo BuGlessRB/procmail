@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.65 1994/09/09 17:32:56 berg Exp $";
+ "$Id: formail.c,v 1.66 1994/09/20 19:31:53 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/09/09 17:32:56 $";
+static /*const*/char rcsdate[]="$Date: 1994/09/20 19:31:53 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -691,7 +691,7 @@ dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
   if(babyl)
    { int c,lc;					/* ditch pseudo BABYL header */
      for(lc=0;c=getchar(),c!=EOF&&(c!='\n'||lc!='\n');lc=c);
-     babylstart=0;
+     buflast=c;babylstart=0;
    }
   if(ctlength>0)
    { if(buffilled)

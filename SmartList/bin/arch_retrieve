@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.44 1994/09/12 16:10:12 berg Exp $
+#$Id: arch_retrieve,v 1.45 1994/09/20 19:33:14 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -108,6 +108,7 @@ $wrongaddress}"
 	    maxfiles=$2 ;;
 	 send|sendme|get|getme|gimme|retrieve|mail|\
 	 SEND|SENDME|GET|GETME|GIMME|RETRIEVE|MAIL)
+	    $touch tmp.lock
 	    shift
 	    if $expr $maxfiles = 0 \| $maxfiles \>= $# >/dev/null
 	    then
@@ -176,6 +177,7 @@ $wrongaddress}"
 		  $echo "$from ILLEGAL ls $line" >>$tmpfrom
 		  $test -z "$ILLEGAL" && ILLEGAL="$line";;
 	       *)
+		  $touch tmp.lock
 		  $echo "$from ls $line" >>$tmpfrom
 		   ( $formail -rt -I"Subject: archive retrieval: ls $1" \
 		      -i"From: $listreq" -A"X-Loop: $listaddr" \
@@ -212,7 +214,8 @@ Truncating after '$breakoff_ls' names...' -e ${breakoff_ls}q
 	       *[/\ ]..[/\ ]*|..[/\ ]*|*[/\ ]..|..|[-/]*|*\ /*)
 		  $echo "$from ILLEGAL $line" >>$tmpfrom
 		  $test -z "$ILLEGAL" && ILLEGAL="$line";;
-	       *) $echo "$from $line" >>$tmpfrom
+	       *) $touch tmp.lock
+		  $echo "$from $line" >>$tmpfrom
 		( $formail -rt -I"Subject: archive retrieval: $line" \
 		   -i"From: $listreq" -A"X-Loop: $listaddr" \
  -i"Reply-To: Please.write.a.new.mail.instead.of.replying@FIRST.WORD.archive" \
@@ -229,6 +232,7 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 		  $sleep $waitsleep ;;
 	    esac ;;
 	 version|VERSION)
+	       $touch tmp.lock
 		( $formail -rt -I"Subject: archive retrieval: $line" \
 		   -i"From: $listreq" -A"X-Loop: $listaddr" \
  -i"Reply-To: Please.write.a.new.mail.instead.of.replying@FIRST.WORD.archive" \

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.103 1994/09/14 18:54:34 berg Exp $";
+ "$Id: procmail.c,v 1.104 1994/09/20 19:32:08 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -242,7 +242,13 @@ privileged:				       /* move stdout out of the way */
 	   if(fromwhom&&!tstamp)
 	    { if(!privs&&!strcmp(fromwhom,fwhom))
 		 privs=1; /* if -f user is the same as the invoker, allow it */
-	      fwhom=fromwhom;
+	      if(!privs&&fromwhom&&override)
+	       { if(verbose)
+		    nlog(insufprivs);
+		 fromwhom=0;			      /* ignore the bogus -f */
+	       }
+	      else
+		 fwhom=fromwhom;
 	    }
 	   thebody=themail=
 	    malloc(2*linebuf+(lfr=strlen(fwhom))+(linv=strlen(chp2)));
@@ -292,11 +298,6 @@ privileged:				       /* move stdout out of the way */
 	       }
 	      else
 no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
-		 if(fromwhom&&override&&!privs)
-		  { if(verbose)
-		       nlog(insufprivs);
-		    fromwhom=0;			      /* ignore the bogus -f */
-		  }
 		 if(!fromwhom)					  /* no -f ? */
 		    linv=0;			  /* then it can't be a fake */
 	       }
@@ -624,7 +625,7 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 		 (i=1))				     /* mailfilter or ./ pfx */
 		 *buf='\0';		/* do not put anything in front then */
 	      else		     /* prepend default procmailrc directory */
-		 lastdirsep(pmrc2buf())[1]='\0';
+		 *lastdirsep(pmrc2buf())='\0';
 	      strcat(buf,rcfile);			/* append the rcfile */
 	      if(mailfilter!=2&&			 /* nothing special? */
 		 (stat(buf,&stbuf)?			      /* accessible? */
@@ -983,6 +984,7 @@ skiptrue:;	  }
 	   else if(flags[PASS_BODY])
 	      tobesent-=(startchar=thebody)-themail;
 	   Stdout=0;chp=strchr(strcpy(buf,sendmail),'\0');succeed=sh=0;
+	   rawnonl=flags[RAW_NONL];
 	   pwait=flags[WAIT_EXIT]|flags[WAIT_EXIT_QUIET]<<1;
 	   ignwerr=flags[IGNORE_WRITERR];skipspace();
 	   if(i)
@@ -1142,9 +1144,9 @@ frmailed:	  { if(ifstack.offs)
 		       free(ifstack.offs);
 		    goto mailed;
 		  }
-setlsucc:	 if(succeed&&lgabstract==2)
+setlsucc:	 if(succeed&&flags[CONTINUE]&&lgabstract==2)
 		    logabstract(tgetenv(lastfolder));
-jsetlsucc:	 lastsucc=succeed;
+jsetlsucc:	 lastsucc=succeed;lasttell= -1;		       /* for comsat */
 	       }
 	      else
 		 skiprc--;			     /* reenable subprograms */

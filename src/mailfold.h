@@ -1,4 +1,4 @@
-/*$Id: mailfold.h,v 1.11 1994/05/26 14:13:06 berg Exp $*/
+/*$Id: mailfold.h,v 1.12 1994/09/20 19:32:00 berg Exp $*/
 
 long
  dump P((const s,const char*source,long len));
@@ -11,7 +11,7 @@ void
 char
  *findtstamp P((const char*start,const char*end));
 
-extern int logopened,tofile;
+extern int logopened,tofile,rawnonl;
 extern off_t lasttell;
 
 #define to_FILE		1		  /* when we are writing a real file */

@@ -52,7 +52,7 @@
 #		conjunction with the RC_LOCAL_* variables which can be set
 #		in rc.init or rc.custom files)
 
-#$Id: rc.init,v 1.38 1994/08/23 12:16:00 berg Exp $
+#$Id: rc.init,v 1.39 1994/09/20 19:33:22 berg Exp $
 
 DELIVERED=yes	# we're in control of the mail now, tell sendmail to go away
 
@@ -160,7 +160,7 @@ archive_hist	=	2		# number of messages left archived
 archive_log	=	$LOGFILE	# log file for archive retrievals
 subscribe_log	=	$LOGFILE	# log file for administrivia
 
-maxhist		=	16		# bounce history limit
+maxhist		=	32		# bounce history limit
 minbounce	=	4		# no. of bounces before removal
 cutoff_bounce	=	256		# lines to keep in bounce processing
 
@@ -187,6 +187,9 @@ force_subscribe
 #force_subscribe=	yes		# uncomment to cause people to
 					# be autosubscribed upon first
 					# submission to the list
+auto_unsubscribe=	yes
+#auto_unsubscribe			# uncomment to disable unattended
+					# unsubscription handling
 auto_subscribe	=	yes
 #auto_subscribe				# uncomment to disable unattended
 					# subscription handling

@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.66 1994/09/09 11:12:59 berg Exp $
+#$Id: rc.request,v 1.67 1994/09/20 19:33:24 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -80,9 +80,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 # Is it an unsubscription request?
 #
 
-  cc_unsubrequests="${cc_unsubrequests:+$maintainer}"
-
-  :0 EHB w:dist.lock
+  :0 EHB
   * ^^(.+$)*Subject:[	 ]*(\(none\))?(\
      ($(.+$)*(^[	 ]*)+((.+|$)+[,.:;]([	 ]+|$)+)?)?\
       (Could you )?(please )?\
@@ -90,16 +88,22 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
      ($(.+$)*$(.*$)*)?(.*[^a-z])?\
       (un(sub?)?s(cr|c|r)i|\
       (leave|(delete|remove) .* from|(sign|take) .* off) .* [a-z-]*list\>))
-  | unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from` ${cc_unsubrequests}
+   {
+     cc_unsubrequests="${cc_unsubrequests:+$maintainer}"
 
-  cc_unsubrequests
+     :0 w:dist.lock
+     * $!${auto_unsubscribe:+!}
+     | unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from` ${cc_unsubrequests}
+
+     cc_unsubrequests
+   }
+
 
 #
 # Is it a subscription request?
 #
 
   :0 EHB
-  * $!${auto_subscribe:+!}
   * ^^(.+$)*Subject:[	 ]*(\(none\))?(\
      ($(.+$)*(^[	 ]*)+((.+|$)+[,.:;]([	 ]+|$)+)?)?\
       (Could you )?(please )?\
@@ -134,6 +138,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
      #
 
      :0 E
+     * $!${auto_subscribe:+!}
       {
 	:0 W ${cc_requests:+c}:dist.lock
 	| subscribe
@@ -149,24 +154,23 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 #
 # Is it an info or help request?  Send back the help.txt and the
 # optional info.txt file.
-#
-
-  :0 EhHB w ${cc_requests:+c}
-  * ^^(.+$)*Subject:[	 ]*((\(none\))?$(.+$)*(^[	 ]*)+)?\
-     [a-z,.	 ]*(help|info(rm(ation)?)?)\>
-  | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
-     cat help.txt info.txt 2>/dev/null ) | $SENDMAIL $sendmailOPT -t
-
-#
 # We do the same on a complete empty mail (except for perhaps a signature).
 #
 
-  :0 EhHB w ${cc_requests:+c}
+  :0 EHB
+  *  3^0 ^^(.+$)*Subject:[	 ]*((\(none\))?$(.+$)*(^[	 ]*)+)?\
+     [a-z,.	 ]*(help|info(rm(ation)?)?)\>
   *  1^0 ^^(.+$)*Subject:[	 ]*(\(none\))?$
   * -2^0 ^^(.+$)*(^[	 ]*)+[a-z]
   *  3^0 ^^(.+$)*^([	 ]*$)*--
-  | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
-     cat help.txt info.txt 2>/dev/null ) | $SENDMAIL $sendmailOPT -t
+  {
+    :0 hw ${cc_requests:+c}
+    | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
+       cat help.txt info.txt 2>/dev/null ) | $SENDMAIL $sendmailOPT -t
+
+    :0 wfh
+    | formail -A "X-Diagnostic: help sent"
+  }
 
   INCLUDERC=$RC_LOCAL_REQUEST_20
 
@@ -180,8 +184,14 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
   :0 EhB w ${cc_requests:+c}
   * $!${auto_help:+!}
   * $!X-Loop: $listaddr
-  | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
-     cat help.txt info.txt 2>/dev/null ) | $SENDMAIL $sendmailOPT -t
+  {
+    :0 hw ${cc_requests:+c}
+    | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
+       cat help.txt info.txt 2>/dev/null ) | $SENDMAIL $sendmailOPT -t
+
+    :0 wfh
+    | formail -A "X-Diagnostic: undecipherable, help sent"
+  }
 
 }
 }
@@ -206,6 +216,7 @@ LOGABSTRACT=yes
   :0 Ah
   * ^Subject: \
      (WARNING: message delayed|\
+      Returned mail: warning: cannot send message for|\
       Undeliverable (RFC822 )?mail: temporarily unable to deliver|\
       \*\*\* WARNING - Undelivered mail in mailqueue)
   /dev/null

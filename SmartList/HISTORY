@@ -164,3 +164,8 @@
 	       many requests simultaneously, fixed
 	    X-Command mails can unsubscribe anyone from a dist file,
 	       even if the address is above the `magic' line
+	    New flag in rc.custom: auto_unsubscribe
+	    New shell script: "led", it should be used to edit any SmartList
+	       governed file (does locking and attribute checks automatically)
+	    If no Message-ID could be recovered from a bounced message,
+	       procbounce always picked the same hashkey, fixed

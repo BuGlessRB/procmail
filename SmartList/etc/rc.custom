@@ -17,7 +17,7 @@ maintainer	=
 #archive_log	=	$LOGFILE	# log file for archive retrievals
 #subscribe_log	=	$LOGFILE	# log file for administrivia
 
-#maxhist	=	8		# bounce history limit
+#maxhist	=	32		# bounce history limit
 #minbounce	=	4		# no. of bounces before removal
 #cutoff_bounce	=	256		# lines to keep in bounce processing
 
@@ -44,6 +44,9 @@ maintainer	=
 ##force_subscribe=	yes		# uncomment to cause people to
 					# be autosubscribed upon first
 					# submission to the list
+#auto_unsubscribe=	yes
+##auto_unsubscribe			# uncomment to disable unattended
+					# unsubscription handling
 #auto_subscribe =	yes
 ##auto_subscribe			# uncomment to disable unattended
 					# subscription handling

@@ -8,7 +8,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Customise to taste.						#
 #########################################################################
-#$Id: doxcommand,v 1.6 1994/06/13 16:12:20 berg Exp $
+#$Id: doxcommand,v 1.7 1994/09/20 19:33:27 berg Exp $
 
 #
 # Edit the following three definitions to suit your list
@@ -27,7 +27,7 @@ test=test			# /bin/test
 echo=echo			# /bin/echo
 sendmail=/usr/lib/sendmail	# /usr/lib/sendmail
 
-$test $# = 0 && $echo "Usage: doxcommand command [argument] ..." 1>&2 &&
+$test $# = 0 && $echo "Usage: $0 command [argument] ..." 1>&2 &&
  exit 64
 
 command="$1"
@@ -54,7 +54,7 @@ esac
 $sendmail $listrequest <<HERE
 To: $listrequest
 X-Command: $maintainer $password $command $*
-Subject: X-Processed: $command $*
+Subject: X-Processed: $command $* of <$listrequest>
 
 
 HERE

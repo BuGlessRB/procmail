@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.35 1994/08/12 17:34:19 berg Exp $";
+ "$Id: pipes.c,v 1.36 1994/09/20 19:32:05 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -54,6 +54,7 @@ static void stermchild P((void))
      kill(pidfilt,SIGTERM);
   if(!Stdout)
    { static const char rescdata[]="Rescue of unfiltered data ";
+     rawnonl=1;				       /* give back the raw contents */
      if(dump(PWRB,backblock,backlen))	  /* pump data back via the backpipe */
 	nlog(rescdata),elog("failed\n");
      else if(pwait!=4)			/* are we not looking the other way? */
@@ -243,10 +244,7 @@ jumpback:;
       { getstdin(PRDB);			       /* filter ready, get backpipe */
 	if(1==rread(STDIN,buf,1))		      /* backup pipe closed? */
 	 { bf=realloc(bf,(*filled=oldsize+1)+BLKSIZ);bf[oldsize]= *buf;
-	   pipw=NO_PROCESS;
-	   if(pwait)
-	      pipw=waitfor(pidchild);
-	   pidchild=0;
+	   Stdout=buf;pwait=2;		      /* break loop, definitely reap */
 	   goto jumpback;		       /* filter goofed, rescue data */
 	 }
       }
@@ -254,8 +252,6 @@ jumpback:;
 	pipw=waitfor(pidchild);		      /* reap your child in any case */
    }
   pidchild=0;					/* child must be gone by now */
-  if(!(pwait&2))
-     pipw=0;				    /* keep quiet about any failures */
   return realloc(bf,*filled+1);	     /* minimise+1 for housekeeping purposes */
 }
 

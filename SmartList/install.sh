@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.50 1994/09/09 16:58:12 berg Exp $
+#$Id: install.sh,v 1.51 1994/09/20 19:33:11 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -14,6 +14,19 @@ fi
 SHELL=/bin/sh				# make sure we get a decent shell
 export SHELL
 umask 022				# making sure that umask has sane value
+
+( exec 2>/dev/null
+  case `echo x x` in
+     *) exit 0 ;;
+  esac
+)
+if test $? != 0				# for BSDI /bin/sh shells
+then
+  echo "This shell is not sufficiently Bourne shell compatible."
+  echo "I recommend upgrading your /bin/sh first."
+  exit 69
+fi
+
 
 test $# != 1 -a $# != 2 && echo "Usage: install.sh target-directory [.bin]" &&
  exit 64
@@ -50,6 +63,8 @@ then
 	"Please make sure that the NEW version of procmail has been installed"
 	 echo \
        'If you already have, make sure that "console" is undefined in config.h'
+	 echo "This is what I'm seeing:"
+	 procmail -v | sed -e 1q
 	 exit 64 ;;
   esac
 else
@@ -96,10 +111,9 @@ then
   fi
 else
   /bin/rm -f $TMPF
-  if ( exec 2>/dev/null; echo Id test >targetdir.tmp )
-  then
-  :
-  else	# You can run install.sh WITHOUT root permissions as well!
+  ( exec 2>/dev/null; echo Id test >targetdir.tmp )
+  if test $? != 0
+  then	# You can run install.sh WITHOUT root permissions as well!
      echo "Please run install.sh with root permissions instead"
      exit 77
   fi

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.56 1994/09/08 16:12:02 berg Exp $";
+ "$Id: mailfold.c,v 1.57 1994/09/20 19:31:58 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -21,7 +21,7 @@ static /*const*/char rcsid[]=
 #include "locking.h"
 #include "mailfold.h"
 
-int logopened,tofile;
+int logopened,tofile,rawnonl;
 off_t lasttell;
 static long lastdump;
 static volatile mailread;	/* if the mail is completely read in already */
@@ -49,9 +49,11 @@ long dump(s,source,len)const int s;const char*source;long len;
   if(s>=0)
    { if(tofile&&(lseek(s,(off_t)0,SEEK_END),fdlock(s)))
 	nlog("Kernel-lock failed\n");
-     lastdump=len;part=tofile==to_FOLDER?getchunk(s,source,len):len;
-     lasttell=lseek(s,(off_t)0,SEEK_END);smboxseparator(s);	 /* optional */
-#ifndef NO_NFS_ATIME_HACK					/* separator */
+     lastdump=len;part=tofile==to_FOLDER&&!rawnonl?getchunk(s,source,len):len;
+     lasttell=lseek(s,(off_t)0,SEEK_END);
+     if(!rawnonl)
+	smboxseparator(s);			       /* optional separator */
+#ifndef NO_NFS_ATIME_HACK
      if(part&&tofile)		       /* if it is a file, trick NFS into an */
 	len--,part--,rwrite(s,source++,1),ssleep(1);	    /* a_time<m_time */
 #endif
@@ -65,10 +67,13 @@ jin:	while(part&&(i=rwrite(s,source,BLKSIZ<part?BLKSIZ:(int)part)))
 	 }
       }
      while(len);
-     if(!len&&(lastdump<2||!(source[-1]=='\n'&&source[-2]=='\n')))
-	lastdump++,rwrite(s,newline,1);	       /* message always ends with a */
-     emboxseparator(s);		 /* newline and an optional custom separator */
+     if(!rawnonl)
+      { if(!len&&(lastdump<2||!(source[-1]=='\n'&&source[-2]=='\n')))
+	   lastdump++,rwrite(s,newline,1);     /* message always ends with a */
+	emboxseparator(s);	 /* newline and an optional custom separator */
+      }
 writefin:
+     rawnonl=0;				     /* only do this once per recipe */
      if(tofile&&fdunlock())
 	nlog("Kernel-unlock failed\n");
      if(tofile==to_FOLDER&&len&&lasttell>=0&&!ftruncate(s,lasttell))

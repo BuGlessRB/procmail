@@ -10,7 +10,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: led,v 1.2 1994/09/20 17:05:18 berg Exp $
+#$Id: led,v 1.3 1994/09/20 19:33:16 berg Exp $
 
 test=test				# /bin/test
 touch=touch				# /bin/touch
@@ -78,6 +78,7 @@ if $test -z "$lockfiles" || $lockfile $lockfiles
 then
 :
 else
+  $rm -f $TMPF
   exit 1
 fi
 
@@ -120,7 +121,8 @@ $PS1"
 	$echo "I now see: '$newinfo', the way it was: '$info'." 1>&2
 	$echo 1>&2 \
 		"If you don't fix this, SmartList might not operate correctly!"
-	$echo 1>&2 "I'll give you the opportunity to do so now."
+	$echo 1>&2 \
+	    "I'll give you the opportunity to do so now (type exit when done)."
 	$echo 1>&2 ""
 	$SHELL 4>&-
 	$echo 1>&2 "Checking the rest of the files ..."

@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.50 1994/08/23 17:37:30 berg Exp $*/
+/*$Id: manconf.c,v 1.51 1994/09/20 19:32:02 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -8,7 +8,7 @@
 
 #define pn(name,val)	pnr(name,(long)(val))
 
-static char pm_version[]=VERSION,ffileno[]=DEFfileno;
+static char pm_version[]=VERSION,ffileno[]=DEFfileno,matchvar[]=MATCHVAR;
 const char dirsep[]=DIRSEP,pmrc[]=PROCMAILRC;
 char pmrc2[]=PROCMAILRC;			     /* need a writable copy */
 static const char*const keepenv[]=KEEPENV,*const prestenv[]=PRESTENV,
@@ -124,8 +124,9 @@ exit 75 \2fB#\2fP\2fIYOUR_USERNAME\2fP\"");
   ps("FW_content","* - | ? \"IFS=' '&&exec /usr/local/bin/procmail -f-||\
 exit 75 \2fB#\2fP\2fIYOUR_USERNAME\2fP\"");
 #endif
-  plist("PRESTENV","\1.PP\1Other preset environment variables are "
-   ,prestenv,".",""," and ");
+  plist("PRESTENV",
+   "\1.na\1.PP\1Other cleared or preset environment variables are ",
+   prestenv,".\1.ad",""," and ");
   plist("KEEPENV",", except for the values of ",keepenv,"",""," and ");
   plist("TRUSTED_IDS",
   "  If procmail is not invoked with one of the following user or group ids: ",
@@ -213,7 +214,8 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
   ps("FROMMkey",FROMMkey);
   ps("FROMMsubstitute",FROMMsubstitute);
   ps("DEFshellmetas",DEFshellmetas);
-  *lastdirsep(pmrc2)='\0';ps("DEFmaildir",pmrc2);
+  *lastdirsep(pmrc2)='\0';
+  ps("DEFmaildir",pmrc2);
   ps("DEFdefault",DEFdefault);
   ps("DEFmsgprefix",DEFmsgprefix);
   ps("DEFsendmail",DEFsendmail);
@@ -222,6 +224,8 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
   pn("DEFlocktimeout",DEFlocktimeout);
   pn("DEFtimeout",DEFtimeout);
   pn("DEFnoresretry",DEFnoresretry);
+  matchvar[STRLEN(matchvar)-1]='\0';
+  ps("MATCHVAR",matchvar);
   ps("COMSAThost",COMSAThost);
   ps("COMSATservice",COMSATservice);
   ps("COMSATprotocol",COMSATprotocol);
@@ -261,6 +265,7 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
   pc("WAIT_EXIT",RECFLAGS[WAIT_EXIT]);
   pc("WAIT_EXIT_QUIET",RECFLAGS[WAIT_EXIT_QUIET]);
   pc("IGNORE_WRITERR",RECFLAGS[IGNORE_WRITERR]);
+  pc("RAW_NONL",RECFLAGS[RAW_NONL]);
   ps("FROM_EXPR",FROM_EXPR);
   pc("UNIQ_PREFIX",UNIQ_PREFIX);
   ps("ESCAP",ESCAP);
