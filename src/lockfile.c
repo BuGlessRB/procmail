@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.45 2000/09/28 01:23:25 guenther Exp $";
+ "$Id: lockfile.c,v 1.46 2000/10/22 07:45:15 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 2000/09/28 01:23:25 $";
+static /*const*/char rcsdate[]="$Date: 2000/10/22 07:45:15 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -93,6 +93,9 @@ again:
 		       goto checkrdec;
 		  }
 	      case VERSIONOPT:elog("lockfile");elog(VERSION);
+		    elog("\nYour system mailbox's lockfile:\t");
+		    elog(auth_mailboxname(auth_finduid(getuid(),0)));
+		    elog(lockext);elog("\n");
 		  goto xusg;
 	      case HELPOPT1:case HELPOPT2:elog(usage);
 		 elog(
