@@ -33,7 +33,7 @@ see "src/includes.h".
 
 ------------------------------ DESCRIPTION -----------------------------------
 
-The procmail mail processing program. (v3.11pre4 1995/06/28)
+The procmail mail processing program. (v3.11pre4 1995/10/29)
 
 Can be used to create mail-servers, mailing lists, sort your incoming mail
 into separate folders/files (real convenient when subscribing to one or more
@@ -112,25 +112,31 @@ added (though any useful suggestions will be appreciated and evaluated if
 time permits).
 
 Cheers,
-       Stephen R. van den Berg	at RWTH-Aachen, Germany.
+       Stephen R. van den Berg	of Cubic Circle, The Netherlands.
 
-Internet E-mail:		berg@pool.informatik.rwth-aachen.de
+Internet E-mail:		<srb@cuci.nl>
+				<berg@pool.informatik.rwth-aachen.de>
 
 Snail-Mail:	P.O.Box 21074
 		6369 ZG Simpelveld
 		The Netherlands
 
-Procmail mailinglist:		procmail-request@informatik.rwth-aachen.de
-SmartList mailinglist:		SmartList-request@informatik.rwth-aachen.de
+Procmail mailinglist:		<procmail-request@informatik.rwth-aachen.de>
+SmartList mailinglist:		<SmartList-request@informatik.rwth-aachen.de>
 Procmail & SmartList updates and patches list (readonly):
-			procmail-announce-request@informatik.rwth-aachen.de
+			<procmail-announce-request@informatik.rwth-aachen.de>
 
 ----------------------
 A recent version can be picked up at various comp.sources.misc archives.
-The latest version can be obtained directly from the ftp-archive at:
+The latest version can be obtained from your friendly neighbour mirror site:
 
-	ftp.informatik.rwth-aachen.de (137.226.225.3)
+	ftp://ftp.aist-nara.ac.jp/pub/misc/mail/filters/procmail
+	ftp://ftp.net.ohio-state.edu/pub/networking/mail/procmail
+	ftp://ftp.psg.com/pub/unix/procmail
+	ftp://hub.ucsb.edu/pub/mail		(hand updated)
+	ftp://ftp.tamu.edu/pub/Unix/Mail	(hand updated)
 
-as (g)zipped tar file:	   /pub/packages/procmail/procmail.tar.gz	<160KB
-as compressed tar file:	   /pub/packages/procmail/procmail.tar.Z	<224KB
+Or directly as:
+
+ftp://ftp.informatik.rwth-aachen.de/pub/packages/procmail/procmail.tar.gz
 ----------------------

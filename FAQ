@@ -33,6 +33,10 @@ http://www.cis.ohio-state.edu/hypertext/faq/usenet/mail/filtering-faq/faq.html
 	***********************************************************************
 
 	You're not supposed to start procmail from the command line.
+	Procmail expects exactly one mail message to be presented to it
+	on its stdin.  Usually the mail system feeds it into procmail.
+	If you start it by hand, you have to type the mail.
+
 	Be sure to have a .forward and a .procmailrc file in your home
 	directory (see the examples subdirectory or the man page).
 	MMDF users should note that they need a .maildelivery file *instead*

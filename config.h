@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.70 1995/06/27 22:07:17 srb Exp $*/
+/*$Id: config.h,v 1.71 1995/10/30 02:09:07 srb Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -43,7 +43,7 @@
    >From_ field will be added in the header */
 
 #define TRUSTED_IDS	{"root","daemon","uucp","mail","x400","network",\
-			 "list","lists","news",0}
+			 "list","slist","lists","news",0}
 
 /*#define NO_fcntl_LOCK		/* uncomment any of these three if you	     */
 /*#define NO_lockf_LOCK		/* definitely do not want procmail to make   */
@@ -118,7 +118,10 @@
 #define BOGUSprefix	"BOGUS."	     /* prepended to bogus mailboxes */
 #define DEFsuspend	16		 /* multi-purpose 'idle loop' period */
 #define DEFlocksleep	8
-#define TOkey		"^TO"
+#define TO_key		"^TO_"				    /* for addresses */
+#define TO_substitute	"(^((Original-)?(Resent-)?(To|Cc|Bcc)|\
+(X-Envelope|Apparently(-Resent)?)-To):(.*[^-a-zA-Z0-9_.])?)"
+#define TOkey		"^TO"					/* for words */
 #define TOsubstitute	"(^((Original-)?(Resent-)?(To|Cc|Bcc)|\
 (X-Envelope|Apparently(-Resent)?)-To):(.*[^a-zA-Z])?)"
 #define FROMDkey	"^FROM_DAEMON"		     /* matches most daemons */
@@ -176,6 +179,7 @@ r(esponse|oot)|(bbs\\.)?smtp|serv(ices?|er)|A(dmin(istrator)?|MMGR)\
 #define ALTFROMWHOPT	'r'		/* alternate and obsolete form of -f */
 #define OVERRIDEOPT	'o'		     /* do not generate >From_ lines */
 #define BERKELEYOPT	'Y'    /* Berkeley format, disregard Content-Length: */
+#define ALTBERKELEYOPT	'y'			/* same effect as -Y, kludge */
 #define ARGUMENTOPT	'a'					   /* set $1 */
 #define DELIVEROPT	'd'		  /* deliver mail to named recipient */
 #define PM_USAGE	\

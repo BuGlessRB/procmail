@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1995, S.R. van den Berg, The Netherlands
-#$Id: unsubscribe,v 1.29 1995/03/20 15:29:40 berg Exp $
+#$Id: unsubscribe,v 1.30 1995/10/30 02:09:12 srb Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -9,8 +9,9 @@ cat=cat			# /bin/cat
 sed=sed			# /bin/sed
 expr=expr		# /bin/expr
 date=date		# /bin/date
+grep=grep		# /usr/bin/grep
 formail=formail		# /usr/local/bin/formail
-multigram=multigram	# ../SedBinDir/multigram
+multigram=multigram	# ../.bin/multigram
 
 $test -z "$listaddr" &&
  $echo "Don't start this script directly, it is used in rc.request" && exit 64
@@ -30,6 +31,12 @@ esac
 
 remov=-d
 $test "X$1" = "X-D" && remov=-D
+
+$grep '^Subject: Re:' <$tmprequest >/dev/null &&
+  wrongaddress="${wrongaddress}WARNING:
+	Send in a new mail, INSTEAD OF REPLYING
+	the next time when issuing (un)subscribe requests.
+"
 
 $formail -i"From: $listreq" -rtA"X-Loop: $listaddr" -I"Precedence: junk" \
  <$tmprequest

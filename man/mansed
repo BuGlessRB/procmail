@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.25 1995/03/20 14:51:13 berg Exp $
+#$Id: mansed,v 1.26 1995/10/30 02:09:14 srb Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -107,7 +107,7 @@ procmail-announce-request@informatik.rwth-aachen.de
 HERE
 cat <<HERE
 .SH AUTHOR
-Stephen R. van den Berg at RWTH-Aachen, Germany
+Stephen R. van den Berg
 .RS
 @MY_MAIL_ADDR@
 .\" @MY_ALT_MAIL_ADDR@

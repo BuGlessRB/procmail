@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.44 1995/05/16 19:56:32 berg Exp $";
+ "$Id: locking.c,v 1.45 1995/10/30 02:09:21 srb Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -152,7 +152,7 @@ int xcreat(name,mode,tim,chownit)const char*const name;const mode_t mode;
 #else
 #define REITflock	0
 #endif /* USEflock */
-static oldfdlock= -1;				    /* the fd we locked last */
+static int oldfdlock= -1;			    /* the fd we locked last */
 #ifndef NOfcntl_lock
 static struct flock flck;		/* why can't it be a local variable? */
 #define REITfcntl	1

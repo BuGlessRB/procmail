@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.69 1995/04/27 19:36:10 berg Exp $
+#$Id: Makefile,v 1.70 1995/10/30 02:09:05 srb Exp $
 
 # BASENAME should point to where the whole lot will be installed
 # change BASENAME to your home directory if need be
@@ -88,6 +88,8 @@ GCC_WARNINGS = -O2 -pedantic -Wreturn-type -Wunused -Wformat -Wtraditional \
 # The place to put your favourite extra cc flag
 CFLAGS0 = -O #$(GCC_WARNINGS)
 LDFLAGS0= -s
+CFLAGS0 = -O -g
+LDFLAGS0=
 # Read my libs :-)
 LIBS=
 

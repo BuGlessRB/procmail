@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.46 1995/04/27 19:36:34 berg Exp $
+.Id $Id: procmailex.man,v 1.47 1995/10/30 02:09:15 srb Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -253,6 +253,32 @@ no duplicate mail will get past it.
 :0 @WAIT_EXIT_QUIET@@PASS_HEAD@: msgid.lock
 | formail \-@FM_DUPLICATE@ 8192 msgid.cache
 .Ex
+.B Beware
+if you have delivery problems in recipes below this one and procmail tries
+to requeue the mail, then on the next queue run, this mail will be considered
+a duplicate and will be thrown away.  For those not quite so confident in
+their own scripting capabilities, you can use the following recipe instead.
+It puts duplicates in a separate folder instead of throwing them away.
+It is up to you to periodically empty the folder of course.
+.Sx 5
+:0 @WAIT_EXIT_QUIET@@PASS_HEAD@@CONTINUE@: msgid.lock
+| formail \-@FM_DUPLICATE@ 8192 msgid.cache
+
+:0 @ALSO_N_IF_SUCC@:
+duplicates
+.Ex
+Procmail can deliver to MH folders directly, but, it does not update the
+unseen sequences the real MH manages.  If you want procmail to update
+those as well, use a recipe like the following which will file
+everything that contains the word spam in the body of the mail into
+an MH folder called spamfold.  Note the local lockfile, which is needed
+because rcvstore steps on its own toes (unlike procmail, when delivering
+to MH folders directly).
+.Sx 3
+:0 :spamfold/$LOCKEXT
+* @BODY_GREP@ ?? spam
+| rcvstore +spamfold
+.Ex
 When delivering to emacs folders (i.e. mailfolders managed by any emacs
 mail package, e.g. RMAIL or VM) directly, you should use emacs-compatible
 lockfiles.  The emacs mailers are a bit braindamaged in that respect, they get
@@ -268,7 +294,8 @@ mailbox
 Alternatively, you can have procmail deliver into its own set of mailboxes,
 which you then periodically empty and copy over to your emacs files using
 .BR movemail .
-Movemail uses mailbox.lock local lockfiles per mailbox.
+Movemail uses mailbox.lock local lockfiles per mailbox.  This actually is
+the preferred mode of operation in conjunction with procmail.
 .PP
 To extract certain headers from a mail and put them into environment
 variables you can use any of the following constructs:
@@ -426,7 +453,7 @@ increase LINEBUF if necessary):
 .Sx 5
 URGMATCH=`cat $HOME/.urgent`
 
-:0 @BODY_GREP@:
+:0:
 * $^From.*${URGMATCH}
 urgent
 .Ex

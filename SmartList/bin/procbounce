@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1995, S.R. van den Berg, The Netherlands
-#$Id: procbounce,v 1.32 1995/03/20 15:29:35 berg Exp $
+#$Id: procbounce,v 1.33 1995/10/30 02:09:11 srb Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -27,12 +27,18 @@ bounces=bounces
 $test -d $bounces || $mkdir $bounces
 
 $formail -1 -kdem4 -xSubject: <$tmprequest -s |
- $sed -e '/^[0-4][0-9][0-9] /d' -e '/^[	 *]*Message-[Ii][Dd]:/ d' \
-  -e '/^[	 *]*To:/ d' -e '/will retry/,/^[	 ]*$/ d' \
-  -e '/ent successfully/,/^[	 ]*$/ d' \
+ $sed -e '/^[0-4][0-9][0-9] /d' -e '/^[	 *]*Message-[Ii][Dd]:/d' \
+  -e '/^[	 *]*To:/d' -e '/will retry/,/^[	 ]*$/d' \
+  -e '/^Xsucceed:/d' \
+  -e '/^The mail system at .* unable to deliver/,/^-* Message Log Follows -/d'\
+  -e '/ent successfully/,/^[	 ]*$/d' \
   -e 's/^\([^	 ]*\) @ /\1@/' >$tmpfrom
 
-addr=`$multigram -b1 -l$off_threshold -x$listaddr -x$listreq $dist <$tmpfrom`
+addr=`sed -n -e '/^5[0-9][0-9] /p' <$tmpfrom |
+      $multigram -b1 -l$off_threshold -x$listaddr -x$listreq $dist`
+
+test -z "$addr" &&
+ addr=`$multigram -b1 -l$off_threshold -x$listaddr -x$listreq $dist <$tmpfrom`
 
 test -z "$addr" &&
  addr=`$multigram -i -b1 -l16384 -x$domain $dist <$tmpfrom`

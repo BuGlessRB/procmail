@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.41 1995/04/10 19:28:32 berg Exp $";
+ "$Id: goodies.c,v 1.42 1995/10/30 02:09:20 srb Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -44,7 +44,7 @@ static const char*evalenv P((void))	/* expects the variable name in buf2 */
  */
 void readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
  const int sarg;
-{ static i,skipbracelev,bracegot;int got,bracelev,qbracelev;char*startb;
+{ static int i,skipbracelev,bracegot;int got,bracelev,qbracelev;char*startb;
   static char*skipback;static const char*oldstartb;
   bracelev=qbracelev=0;All_args=0;
   for(got=NOTHING_YET;;)		    /* buf2 is used as scratch space */
@@ -269,8 +269,9 @@ finsb:		    *startb='\0';
 		       goto newchar;
 		     }
 		    break;
+normchar:	    quoted=0;
 		  }
-normchar:	 *p++='$';
+		 *p++='$';
 		 if(quoted)
 		    goto Quoted;		 /* pretend nothing happened */
 		 goto newchar;			       /* not a substitution */
@@ -354,7 +355,7 @@ static struct dynstring*myenv;
 static char**lastenv;
 			      /* smart putenv, the way it was supposed to be */
 const char*sputenv(a)const char*const a;
-{ static alloced;size_t eq,i;int remove;const char*split;char**preenv;
+{ static intint	 alloced;size_t eq,i;int remove;const char*split;char**preenv;
   struct dynstring*curr,**last;
   yell("Assigning",a);remove=0;
   if(!(split=strchr(a,'=')))			   /* assignment or removal? */

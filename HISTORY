@@ -298,7 +298,7 @@
 	    Fixed bug in lockfile, the exitcode was not correct if
 	       you used -! (I hope this finally fixes this -! problem)
 	    Using execv() instead of execve()
-1995/06/28: v3.11pre4
+1995/10/29: v3.11pre4
 	    Changes to procmail:
 	       - varname ?? < nnn conditions didn't have the expected effect
 	       - Regression bug since v3.06, procmail -m /etc/procmailrcs
@@ -328,6 +328,13 @@
 		 false matches
 	       - Allow for broken From_ lines with a missing sender address
 	       - Avoid the NFS delay on directory and MH folders
+	       - KEEPENV didn't work reliably for more than one variable
+	       - New macro ^TO_, delimits addresses more accurately than ^TO
+	       - Don't try to fix the system mailbox permissions too soon,
+		 this should put a stop to the numerous confusion reports
+	       - SENDMAILFLAGS, new environment variable
+	       - Support -y as a substitute kludge for -Y
+	       - Fixed parsing of $@' when not doublequoted
 	    Changes to formail:
 	       - Slightly extended the number of known header fields
 	       - Eliminated the conflict with the 4.4BSD daemon libidentifier
@@ -341,6 +348,12 @@
 	       - Extracted another function from main() to make it smaller
 	       - Process address groups correctly
 	       - Process From_ lines with embedded commas correctly
+	       - Return failure if the autoreply could not find a proper
+		 return address
+	       - Multiple -U options sometimes had unfortunate side effects
+	       - When splitting and a maximum number of message was being
+		 specified, formail erroneously returned EX_IOERR
+	       - Avoid splitting empty messages
 	    Worked around old shells not supporting negated classes
 	    Extended the FAQ
 	    Updated examples/advanced docs for meta-argument setup in
@@ -355,6 +368,9 @@
 	       - Worked around a HERE document quoting bug in some shells
 	       - Fixed the empty argument "shift" problem
 	       - Detect & work around BSD 4.4 brain damaged setrgid()
+	       - If running on a system with good old BSD semantics for
+		 setrgid(), use the extra features offered
 	    Fixed potential memory corruption bug for machines that have
 	       sizeof(off_t)>sizeof(off_t*) (has been around for ages)
 	    The man pages were remade upon every make, fixed
+	    Changed the Mprocmail example, use $g instead of $f

@@ -188,7 +188,7 @@
 	       to noise ratio for typical mail addresses
 	    Mails that did not have a Return-Path: or Reply-To: field were
 	       not replied to correctly (regression bug since v3.06), fixed
-1995/06/28: v3.11pre4
+1995/10/29: v3.11pre4
 	    Cc_unsubrequests and cc_requests had some undesirable side-effects
 	    Procbounce reported spurious errors if badly formatted bounces
 	       were received
@@ -224,3 +224,7 @@
 	    If someone (accidentally) removes the dist file, the subscribe
 	       script will recreate an empty one (and log a warning)
 	    Get rid of X-Confirm-Reading-To: fields on submissions
+	    Deal more gracefully with those superverbose smail error mails
+	    Forced subscriptions on moderated lists didn't work too well
+	    Include author name in digest topic summaries
+	    Use the -odi option to sendmail to improve control of the load

@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.33 1995/04/27 19:36:30 berg Exp $
+#$Id: createlist,v 1.34 1995/10/30 02:09:11 srb Exp $
 
 defaults=.etc
 
@@ -201,6 +201,8 @@ $echo "Now make the following entries in your /usr/lib/aliases file:" 1>&2
 $echo \########################################################################
 $echo "$list: \"|exec $flist $list\""
 $echo "$list-request: \"|exec $flist $list-request\""
-$test $archiveserver = no && $echo "$list-dist: :include:$listdir/$list/dist"
+#
+#$test $archiveserver = no && $echo "$list-dist: :include:$listdir/$list/dist"
+#
 $echo \########################################################################
 $echo "And make sure to run newaliases afterwards." 1>&2

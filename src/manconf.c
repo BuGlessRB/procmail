@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.54 1995/04/27 19:36:47 berg Exp $*/
+/*$Id: manconf.c,v 1.55 1995/10/30 02:09:23 srb Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -217,6 +217,8 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
   pn("HOSTNAMElen",HOSTNAMElen);
   pn("DEFsuspend",DEFsuspend);
   pn("DEFlocksleep",DEFlocksleep);
+  ps("TO_key",TO_key);
+  ps("TO_substitute",TO_substitute);
   ps("TOkey",TOkey);
   ps("TOsubstitute",TOsubstitute);
   ps("FROMDkey",FROMDkey);
@@ -229,6 +231,7 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
   ps("DEFdefault",DEFdefault);
   ps("DEFmsgprefix",DEFmsgprefix);
   ps("DEFsendmail",DEFsendmail);
+  ps("DEFflagsendmail",DEFflagsendmail);
   ps("DEFlockext",DEFlockext);
   ps("DEFshellflags",DEFshellflags);
   pn("DEFlocktimeout",DEFlocktimeout);

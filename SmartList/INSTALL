@@ -15,11 +15,12 @@
 In order to make sure that SmartList works reliably for both remote and
 local mail, it has to be run under someone's account.
 The recommended procedure would be to create a new account and group named
-"list" that is only going to be used to manage SmartList mailinglists.
+"slist" that is only going to be used to manage SmartList mailinglists.
 
-You are of course free to choose any name you'd like instead of "list".
-Common names would be "list" or "lists".  Do not pick "smartlist" because that
-name is nine characters long.  The maximum for most systems is eight.
+You are of course free to choose any name you'd like instead of "slist".
+Common names would be "slist", "list" or "lists".  Do not pick "smartlist"
+because that name is nine characters long.  The maximum for most systems is
+eight.
 Also, DO NOT create an account name equal to the name of a mailinglist you'd
 like to create later on.
 
@@ -30,55 +31,54 @@ directory will still be able to receive regular mail.
 SmartList makes use of the -f option of sendmail.  This option makes sure
 that the sender address on the envelope (the From_ line) contains the
 proper list address.  In order for this option to work, the user using it
-(either "list" or the regular user the lists run under) must be on the
-trusted-user-list of sendmail.	To enter the user "list" on the
+(either "slist" or the regular user the lists run under) must be on the
+trusted-user-list of sendmail.	To enter the user "slist" on the
 trusted-user-list simply edit the sendmail.cf file and add a line reading:
 
-Tlist
+Tslist
 
 Restarting sendmail is not necessary.
 
-Sendmail 6.x and later don't need this anymore.	 And even if you have an
-older sendmail but can't put this in the sendmail.cf file, the mailinglist
-scripts will still work, albeit under less than ideal circumstances (i.e.
-automatic bounce handling is severely impaired).
+If can't put this in the sendmail.cf file, the mailinglist scripts will still
+work, albeit under less than ideal circumstances (i.e.	automatic bounce
+handling is severely impaired).
 
 				---
 
 2. Installing the scripts
    ----------------------
 
-Suppose you have created this pseudo user "list" with a specified home
-directory of /home/list
+Suppose you have created this pseudo user "slist" with a specified home
+directory of /home/slist
 
-Now create /home/list by hand and make sure that you chown it to "list".
-Also chgrp it to "list" now if you created a group for that.  If you
+Now create /home/slist by hand and make sure that you chown it to "slist".
+Also chgrp it to "slist" now if you created a group for that.  If you
 do not have a separate group for the list, you have to make sure that you
 change the setting of UMASK in the rc.init file.  By default the group
-to which the "list" user belongs can write in many of the files.
+to which the "slist" user belongs can write in many of the files.
 
 Next, execute the "install.sh" script present in this directory by typing
 something like:
 
-	sh install.sh /home/list
+	sh install.sh /home/slist
 
 If you are setting up SmartList under your own account, simply creating
 a separate directory and running the install.sh script should suffice.
 
 This script will then create two subdirectories (.bin and .etc) in
-/home/list.  These directories will be filled with the files contained
+/home/slist.  These directories will be filled with the files contained
 in the bin and etc subdirectories here.	 It will also make sure that
 the "multigram" program is compiled from the procmail*/src directory and
-copied into /home/list/.bin.
+copied into /home/slist/.bin.
 
 	The only program/binary that contains harcoded information is
 	the /home/.bin/flist program.  It contains both the name of the user
-	that owns the lists ("list" in this case) and the absolute path to
-	the mailinglist directory (/home/list in this case).  This is
+	that owns the lists ("slist" in this case) and the absolute path to
+	the mailinglist directory (/home/slist in this case).  This is
 	needed for security reasons.  If the mailinglist directory can
-	be found in the home directory tree of the "list" user, the stored
+	be found in the home directory tree of the "slist" user, the stored
 	path will not be absolute, but relative to the home directory
-	of the "list" user instead.
+	of the "slist" user instead.
 
 	This means that if either the name of the user or the name
 	of the directory changes, you'll have to reinstall the mailinglist
@@ -93,17 +93,17 @@ copied into /home/list/.bin.
 	their counterparts (except the flist binaries and anything linked
 	to them of course).
 
-Furthermore install.sh will link /home/list/.etc/rc.main to
-/home/list/.procmailrc.	 This is of course superfluous (but nondestructive) if
+Furthermore install.sh will link /home/slist/.etc/rc.main to
+/home/slist/.procmailrc.  This is of course superfluous (but nondestructive) if
 you are still using this account to receive regular mail.
 
 Depending on your mail configuration, if procmail has not been integrated
 in the maildelivery system (see procmail*/examples/advanced for more
 information on that topic) you should also create a .forward file with an
 appropriate content (see "man procmail", the NOTES section at the end).	 This,
-however, is only necessary if you created a seperate "list" account.
+however, is only necessary if you created a seperate "slist" account.
 
-	Next, edit the /home/list/.etc/rc.init file.	Make sure that
+	Next, edit the /home/slist/.etc/rc.init file.	Make sure that
 	"domain" is set to the right value, and you can optionally specify a
 	"listmaster";  also check if the PATH is correct and make sure
 	that procmail and formail are in the path.
@@ -115,7 +115,7 @@ to display the proper aliases to insert (so that you can cut and paste
 in the future).
 
 For further instructions, you should consult the "Manual" file, it has
-been copied to the /home/list/.etc directory as well, and can serve as a
+been copied to the /home/slist/.etc directory as well, and can serve as a
 quick reference.
 
 				---
@@ -126,7 +126,7 @@ quick reference.
 For people that want to run SmartList on a shared filesystem across different
 architectures there exists the possibility of using several .bin directories.
 Simply use something like:
-	sh install.sh /home/list .bin.sun4
+	sh install.sh /home/slist .bin.sun4
 to install to a different .bin directory.  Repeat the complete procmail and
 SmartList installation for every architecture, specifying a different .bin
 directory every time.
@@ -141,7 +141,7 @@ mailer like smail) to actually transport the mails.  If your system only
 supplies a /bin/rmail or /bin/mail to transport mails, then several of
 the options used when invoking sendmail will not work.
 
-For these cases you have to edit the /home/list/.etc/rc.init file.
+For these cases you have to edit the /home/slist/.etc/rc.init file.
 Look for a SENDMAIL assignment.	 Supplied with these scripts is a poor man's
 sendmail.  It was installed in the .bin directory belonging to the
 list.  Make sure that the SENDMAIL assignment points at the "sendmails" script.
@@ -221,7 +221,7 @@ d.If the home directory of the list user needs to be changed, do it now.
 e.Install SmartList from the distribution again, on top of newdir, i.e. simply
   regard it as an upgrade (you can skip this part if "flist -v" indicates that
   it is using the same path relative to the (changed) home directory of the
-  list user).
+  slist user).
 f.Update your /usr/lib/aliases (or equivalent) file, make sure the aliases run
   the new flist binary.
 g.Remove both the olddir/.etc/rc.lock and any newdir/.etc/rc.lock file.

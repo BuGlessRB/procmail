@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.46 1995/04/27 19:36:12 berg Exp $
+#$Id: Makefile.1,v 1.47 1995/10/30 02:09:06 srb Exp $
 
 all: bins mans recommend
 	@echo If you would like to inspect the results before running make \
@@ -37,7 +37,7 @@ setid multigram: autoconf.h config.check src/Makefile man/Makefile
 
 config.check: config.h
 	echo Housekeeping file >$@
-	@-mkdir new 2>$(DEVNULL); exit 0
+	mkdir new 2>$(DEVNULL); exit 0
 	@-if $(FGREP) -n -e '`' config.h $(DEVNULL) | $(FGREP) -v EOFName ; \
  then \
  echo;echo '   ^^^^^^^^^^^^^^^^^^^^ WARNING ^^^^^^^^^^^^^^^^^^^^^';\

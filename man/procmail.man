@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.67 1995/03/31 17:30:39 berg Exp $
+.Id $Id: procmail.man,v 1.68 1995/10/30 02:09:14 srb Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -208,7 +208,7 @@ already present `local' mailer that starts up procmail).  To create such a
 `procmail' mailer I'd suggest something like:
 .Sx 2
 Mprocmail, P=@BINDIR@/procmail, F=mSDFMhun, S=11, R=21,
-        A=procmail \-@MAILFILTOPT@ $h $f $u
+        A=procmail \-@MAILFILTOPT@ $h $g $u
 .Ex
 This enables you to use rules like the following (most likely in ruleset 0)
 to filter mail through the procmail mailer (please note the leading tab

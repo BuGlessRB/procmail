@@ -1,5 +1,4 @@
-
-#$Id: Makefile.0,v 1.43 1995/04/11 19:41:43 berg Exp $
+#$Id: Makefile.0,v 1.44 1995/10/30 02:09:18 srb Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O) \
@@ -133,6 +132,9 @@ recommend.$(O): recommend.c
 
 gethome: gethome.$(O) setid
 	@$(CC) $(CFLAGS) $@.$(O) -o $@ $(LDFLAGS)
+
+getparams:
+	@echo "ln=\"$(LN)\"" >../SmartList/targetdir.tmp
 
 setid: setid.$(O)
 	@$(CC) $(CFLAGS) $@.$(O) -o $@ $(LDFLAGS)

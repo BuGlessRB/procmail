@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.75 1995/06/27 22:07:18 srb Exp $
+#$Id: rc.request,v 1.76 1995/10/30 02:09:13 srb Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -75,14 +75,19 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 # Is it an archive retrieval command?
 #
 
-LOG="(no subject) <<-- also popular"
-LOG="no subject (file transmission) <<-- also popular"
-
   :0 HB w
-  * ^^(.+$)*Subject:[	 ]*(([(<]none[>)])?$(.+$)*(^[	 ]*)+)?\
-     (archives?:?([	 ]|$)|\
+  * 9876543210^0 \
+    ^^(.+$)*Subject:[	 ]*(([(<]no(ne| subject\
+      ( (\(file transmission|given))?)[>)])?\
+     $(.+$)*(^[	 ]*)+)?(archives?:?([	 ]|$)|\
      ((send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|list|show|\
       search|[fe]?grep|find|maxfiles|version)([	 ]+[^	 ]*)?$)
+  *  1^0 B ?? ^^([	 ]|$)*\
+	((archives?:?($|[	 ]+)|\
+	  ((send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|\
+	    list|show|search|[fe]?grep|find|maxfiles|version|help|info)\
+	   ([	 ].*)?$)([	 ]|$)*)+\
+	    ([^	 a-z].*$(.*$(.*$(.*$(.*$)?)?)?)?)?^^
   {
     :0 W
     * 9876543210^0 !restrict_archive ?? y
@@ -100,13 +105,17 @@ LOG="no subject (file transmission) <<-- also popular"
 #
 
   :0 EHB
-  * ^^(.+$)*Subject:[	 ]*([(<]none[>)])?(\
+  * 9876543210^0 \
+    ^^(.+$)*Subject:[	 ]*([(<]no(ne| subject\
+      ( (\(file transmission|given))?)[>)])?(\
      ($(.+$)*(^[	 ]*)+((.+|$)+[,.:;]([	 ]+|$)+)?)?\
       (Could you )?(please )?\
       (sign( [^ ]+ |-)?off|cancel|leave|delete|remove|(un|de)-?sub)\>|\
      ($(.+$)*$(.*$)*)?(.*[^a-z])?\
-      ((un|de)-?(sub?)?s(cr|c|r)i|\
-      (leave|(delete|remove) .* from|(sign|take) .* off) .* [a-z-]*list\>))
+      ((un-?|(un|de)-?(sub?))s(cr|c|r)i|\
+      (leave|(delete|remove) .* from|(sign|take|get) .* off) .* [a-z-]*list\>))
+  *  1^0 B ?? ^^([	 ]|$)*unsub(scribe)?([	 ].*)?([	 ]|$)*\
+	       [^	 a-z]?^^
    {
      :0 fw:dist.lock
      * auto_unsubscribe ?? y
@@ -125,12 +134,16 @@ LOG="no subject (file transmission) <<-- also popular"
 #
 
   :0 EHB
-  * ^^(.+$)*Subject:[	 ]*([(<]none[>)])?(\
+  * 9876543210^0 \
+    ^^(.+$)*Subject:[	 ]*([(<]no(ne| subject\
+      ( (\(file transmission|given))?)[>)])?(\
      ($(.+$)*(^[	 ]*)+((.+|$)+[,.:;]([	 ]+|$)+)?)?\
       (Could you )?(please )?\
       (sign( [^ ]+ |-)?on|add|join|sub)\>|\
      ($(.+$)*$(.*$)*)?(.*[^a-z])?\
       (sub?s(cr|c|r)i.*|(join|add .* to|(sign|put) .* on) .* [a-z-]*list\>))
+  *  1^0 B ?? ^^([	 ]|$)*sub(scribe)?([	 ].*)?([	 ]|$)*\
+	       [^	 a-z]?^^
    {
      #
      # Yes, well, then check if the person subscribing isn't on the reject
@@ -179,9 +192,11 @@ LOG="no subject (file transmission) <<-- also popular"
 #
 
   :0 EHB
-  *  3^0 ^^(.+$)*Subject:[	 ]*(([(<]none[>)])?$(.+$)*(^[	 ]*)+)?\
-     [a-z,.	 ]*(help|info(rmation)?)\>
-  *  1^0 ^^(.+$)*Subject:[	 ]*([(<]none[>)])?$
+  *  3^0 ^^(.+$)*Subject:[	 ]*\
+		 (([(<]no(ne| subject( (\(file transmission|given))?)[>)])?$\
+     (.+$)*(^[	 ]*)+)?[a-z,.	 ]*(help|info(rmation)?)\>
+  *  1^0 ^^(.+$)*Subject:[	 ]*\
+		  ([(<]no(ne| subject( (\(file transmission|given))?)[>)])?$
   * -2^0 ^^(.+$)*(^[	 ]*)+[a-z]
   *  3^0 ^^(.+$)*^([	 ]*$)*--
   {

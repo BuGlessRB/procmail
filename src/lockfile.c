@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.32 1995/03/20 15:30:25 berg Exp $";
+ "$Id: lockfile.c,v 1.33 1995/10/30 02:09:21 srb Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1995/03/20 15:30:25 $";
+static /*const*/char rcsdate[]="$Date: 1995/10/30 02:09:21 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -25,7 +25,7 @@ static /*const*/char rcsdate[]="$Date: 1995/03/20 15:30:25 $";
 #define SYSTEM_MBOX	SYSTEM_MAILBOX
 #endif
 
-static volatile exitflag;
+static volatile int exitflag;
 pid_t thepid;
 uid_t uid;
 gid_t sgid;

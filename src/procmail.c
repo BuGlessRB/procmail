@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.113 1995/05/16 19:56:42 berg Exp $";
+ "$Id: procmail.c,v 1.114 1995/10/30 02:09:25 srb Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -70,7 +70,7 @@ static int wipetcrc P((void))	  /* stupid function to avoid a compiler bug */
 #endif
 
 main(argc,argv)const char*const argv[];
-{ register char*chp,*chp2;register i;int suppmunreadable,mailfilter;
+{ register char*chp,*chp2;register int i;int suppmunreadable,mailfilter;
 #if 0				/* enable this if you want to trace procmail */
   kill(getpid(),SIGSTOP);/*raise(SIGSTOP);*/
 #endif
@@ -109,7 +109,7 @@ main(argc,argv)const char*const argv[];
 		    continue;
 		 case OVERRIDEOPT:override=1;
 		    continue;
-		 case BERKELEYOPT:berkeley=1;
+		 case BERKELEYOPT:case ALTBERKELEYOPT:berkeley=1;
 		    continue;
 		 case TEMPFAILOPT:retval=EX_TEMPFAIL;
 		    continue;
@@ -172,12 +172,12 @@ conflopt:  nlog(conflicting),elog("options\n"),elog(pmusage);
      if(!Deliverymode)
 	idhint=getenv(lgname);
      if(!presenviron)				     /* drop the environment */
-      { const char**emax=(const char**)environ,*const*ep,*const*kp;
+      { const char**emax=(const char**)environ,**ep,*const*kp;
 	static const char*const keepenv[]=KEEPENV;
 	for(kp=keepenv;*kp;kp++)		     /* preserve a happy few */
 	   for(i=strlen(*kp),ep=emax;chp2=(char*)*ep;ep++)
 	      if(!strncmp(*kp,chp2,(size_t)i)&&(chp2[i]=='='||chp2[i-1]=='_'))
-	       { *emax++=chp2;
+	       { *ep= *emax;*emax++=chp2;			 /* swap 'em */
 		 break;
 	       }
 	*emax=0;					    /* drop the rest */
@@ -354,7 +354,8 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 	   if(enoughprivs(passinvk,euid,egid,pass->pw_uid,pass->pw_gid))
 	      goto Setuser;
 	   nlog(insufprivs);
-	   syslog(LOG_CRIT,"Insufficient privileges to deliver to \"%s\"\n",chp2);
+	   syslog(LOG_CRIT,"Insufficient privileges to deliver to \"%s\"\n",
+	    chp2);
 	   return EX_NOPERM;	      /* need more mana, decline the request */
 	 }
 	else
@@ -623,7 +624,7 @@ commint:   do skipspace();				  /* skip whitespace */
 	    }
 	   else if(flags[PASS_BODY])
 	      tobesent-=(startchar=thebody)-themail;
-	   Stdout=0;chp=strchr(strcpy(buf,sendmail),'\0');succeed=sh=0;
+	   Stdout=0;succeed=sh=0;
 	   pwait=flags[WAIT_EXIT]|flags[WAIT_EXIT_QUIET]<<1;
 	   ignwerr=flags[IGNORE_WRITERR];skipspace();
 	   if(i)
@@ -631,6 +632,9 @@ commint:   do skipspace();				  /* skip whitespace */
 progrm:	   if(testB('!'))				 /* forward the mail */
 	    { if(!i)
 		 skiprc++;
+	      chp=strchr(strcpy(buf,sendmail),'\0');
+	      if(*flagsendmail)
+		 chp=strchr(strcpy(chp+1,flagsendmail),'\0');
 	      readparse(chp+1,getb,0);
 	      if(i)
 	       { if(startchar==themail)

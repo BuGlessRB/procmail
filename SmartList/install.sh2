@@ -1,14 +1,14 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh2  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh2		  # we're in a buggy zsh
-#$Id: install.sh2,v 1.11 1994/09/28 19:58:23 berg Exp $
-
-umask 022
+#$Id: install.sh2,v 1.12 1995/10/30 02:09:10 srb Exp $
 
 test -z "$bindir" && echo "Call install.sh instead" && exit 64
 
+/bin/rm -f targetdir.tmp
+
 cd ../src
-$MAKE gethome <&4 || exit 1
+$MAKE getparams gethome <&4 || exit 1
 cd ../SmartList
 
 ltarget=`../src/gethome "$listid" "$target"` || exit 1
@@ -20,8 +20,7 @@ case "X$ltarget" in
 esac
 echo "Hardwiring '$homedir' as the list directory owned by '$listid'."
 
-/bin/rm -f targetdir.tmp
-echo "homedir='$homedir'" >targetdir.tmp	# pass it on to install.sh3
+echo "homedir='$homedir'" >>targetdir.tmp	# pass it on to install.sh3
 
 hfile=targetdir.h
 

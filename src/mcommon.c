@@ -6,12 +6,12 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mcommon.c,v 1.2 1995/03/20 15:30:34 berg Exp $";
+ "$Id: mcommon.c,v 1.3 1995/10/30 02:09:24 srb Exp $";
 #endif
 #include "includes.h"
 #include "mcommon.h"
 
-static volatile gotsig;
+static volatile int gotsig;
 
 static void fakehandler P((void))
 { gotsig=1;

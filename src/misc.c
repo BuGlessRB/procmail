@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.70 1995/04/27 19:36:50 berg Exp $";
+ "$Id: misc.c,v 1.71 1995/10/30 02:09:24 srb Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -33,7 +33,8 @@ struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
  {"LOGABSTRACT",DEFlogabstract}};
 struct varstr strenstr[]={{"SHELLMETAS",DEFshellmetas},{"LOCKEXT",DEFlockext},
  {"MSGPREFIX",DEFmsgprefix},{"COMSAT",""},{"TRAP",""},
- {"SHELLFLAGS",DEFshellflags},{"DEFAULT",DEFdefault},{"SENDMAIL",DEFsendmail}};
+ {"SHELLFLAGS",DEFshellflags},{"DEFAULT",DEFdefault},{"SENDMAIL",DEFsendmail},
+ {"SENDMAILFLAGS",DEFflagsendmail}};
 
 #define MAXvarvals	 maxindex(strenvvar)
 #define MAXvarstrs	 maxindex(strenstr)
@@ -45,7 +46,7 @@ static time_t oldtime;
 static int fakedelivery;
 		       /* line buffered to keep concurrent entries untangled */
 void elog(newt)const char*const newt;
-{ int lnew;size_t i;static lold;static char*old;char*p;
+{ int lnew;size_t i;static int lold;static char*old;char*p;
 #ifndef O_CREAT
   lseek(STDERR,(off_t)0,SEEK_END);	  /* locking should be done actually */
 #endif
@@ -609,16 +610,20 @@ int screenmailbox(chp,chp2,egid,Deliverymode)
 	   (S_IWGRP|S_IXGRP|S_IWOTH|S_IXOTH))
 	  <<1|						 /* note it in bit 1 */
 	 uid==stbuf.st_uid)	   /* we own the spool dir, note it in bit 0 */
+#ifdef TOGGLE_SGID_OK
+	;
+#endif
 	rcst_nosgid();			     /* we don't *need* setgid privs */
      if(uid!=stbuf.st_uid&&		 /* we don't own the spool directory */
-	stbuf.st_gid==egid&&			 /* but we have setgid privs */
 	(stbuf.st_mode&S_ISGID||!wwsdir))	  /* it's not world writable */
-      { doumask(GROUPW_UMASK);			   /* make it group-writable */
+      { if(stbuf.st_gid==egid)			 /* but we have setgid privs */
+	   doumask(GROUPW_UMASK);		   /* make it group-writable */
 	goto keepgid;
       }
      else if(stbuf.st_mode&S_ISGID)
-keepgid:
-	sgid=stbuf.st_gid;	   /* keep the gid from the parent directory */
+keepgid:			   /* keep the gid from the parent directory */
+	if((sgid=stbuf.st_gid)!=egid)
+	   setgid(sgid);     /* we were started nosgid, but we might need it */
    }
   else				/* panic, mail-spool directory not available */
      setids(),mkdir(buf,NORMdirperm);	     /* try creating the last member */
@@ -681,7 +686,9 @@ bogusbox:   { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
 	      return EX_NOUSER;
 	    }
 	   else
-	    { if(!(stbuf.st_mode&OVERRIDE_MASK)&&stbuf.st_mode&cumask)
+	    { if(!(stbuf.st_mode&OVERRIDE_MASK)&&
+		 stbuf.st_mode&cumask&
+		  (accspooldir?~(mode_t)0:~(S_IRGRP|S_IWGRP)))	/* hold back */
 	       { static const char enfperm[]=
 		  "Enforcing stricter permissions on";
 		 nlog(enfperm);logqnl(chp);
@@ -819,6 +826,7 @@ normalregexp:	{ int or_nocase;		/* case-distinction override */
 		  static const struct {const char*regkey,*regsubst;}
 		   *regsp,regs[]=
 		    { {FROMDkey,FROMDsubstitute},
+		      {TO_key,TO_substitute},
 		      {TOkey,TOsubstitute},
 		      {FROMMkey,FROMMsubstitute},
 		      {0,0}

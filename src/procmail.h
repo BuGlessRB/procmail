@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.30 1994/09/28 19:58:59 berg Exp $*/
+/*$Id: procmail.h,v 1.31 1995/10/30 02:09:26 srb Exp $*/
 
 #include "includes.h"
 
@@ -10,6 +10,9 @@
 
 #ifndef DEFsendmail
 #define DEFsendmail SENDMAIL
+#endif
+#ifndef DEFflagsendmail
+#define DEFflagsendmail "-oi"
 #endif
 
 #ifndef DEFPATH
@@ -66,6 +69,7 @@ extern struct varstr{const char*const sname,*sval;}strenstr[];
 #define shellflags	(strenstr[5].sval)
 #define fdefault	(strenstr[6].sval)
 #define sendmail	(strenstr[7].sval)
+#define flagsendmail	(strenstr[8].sval)
 
 int
  eqFrom_ P((const char*const a));
@@ -79,7 +83,7 @@ extern long filled,lastscore;
 extern int sh,pwait,retval,retvl2,lcking,rcstate,rc,ignwerr,lexitcode,
  asgnlastf,accspooldir,crestarg,skiprc,savstdout,berkeley;
 extern size_t linebuf;
-extern volatile nextexit;
+extern volatile int nextexit;
 extern pid_t thepid;
 extern uid_t uid;
 extern gid_t gid,sgid;

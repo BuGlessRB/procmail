@@ -1,10 +1,10 @@
-$Id: INTRO,v 1.9 1995/03/20 15:29:27 berg Exp $
+$Id: INTRO,v 1.10 1995/10/30 02:09:08 srb Exp $
 
 			How to set up mailing lists
 			---------------------------
 
 	Copyright (c) 1993-1995, Stephen R. van den Berg, The Netherlands.
-				 <berg@pool.informatik.rwth-aachen.de>
+				 <srb@cuci.nl>
 
 This document mainly describes a sendmail environment, much of it applies
 to non-sendmail mail agents as well.

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.24 1994/08/12 17:33:30 berg Exp $
+#$Id: digest,v 1.25 1995/10/30 02:09:11 srb Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -31,7 +31,7 @@ then
 $SENDMAIL $sendmailOPT $listdist" >.digest.params
 else
   $echo "$digest_age $digest_size $archive_hist $UMASK
-$alt_sendmail $SENDMAIL $sendmailOPT" >.digest.params
+$alt_sendmail $SENDMAIL $sendmailOPT $sendmailOPTi" >.digest.params
 fi
 
 $awk '
@@ -139,8 +139,19 @@ HERE
   $echo "$b" >>$digesttrailer
 fi
 
-$echo  "	`$formail -x Subject: <$tmpfrom`" >>$digestheader
-$cat /dev/null >$tmprequest 2>$tmpfrom
+$echo  "  `$formail -czx Subject: <$tmpfrom |
+ $sed -e 's/[	 ][	 ]*/ /g' \
+ -e  's/$/     \
+       \
+       \
+       \
+       \
+   /' -e 's/^\(....................................\).*/\1/'
+ `  [ `
+ $formail -czx From: <$tmpfrom | $sed -e 's/[	 ][	 ]*/ /g' \
+      -e 's/^\(...................................\).*/\1/'
+ ` ]" >>$digestheader
+: >$tmprequest 2>$tmpfrom
 
 #
 # Check again, maybe we exceed the time or size limits now already.

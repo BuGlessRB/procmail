@@ -75,6 +75,14 @@ just makes the use of procmail easier because people are not required to
 start up procmail from within their .forward files.  Creation of a .procmailrc
 file will suffice.
 
+N.B. If you *are* installing it as the local delivery agent, and users on
+     your system have dormant .procmailrc files without corresponding
+     .forward file.  Then, after the installation, these dormant .procmailrc
+     files will be automagically activated/used (so you might want to rename
+     any dormant .procmailrc files out of the way and notify the users; do be
+     careful, since some users might invoke procmail through other means
+     (cron or login) and might be surprised if it stops working).
+
 The generic way to accomplish this (works with sendmail, smail and any other
 mail system that uses a local mail delivery program that takes the mail-
 to-be-delivered on stdin and the recipient(s) on the command line, with or
@@ -112,7 +120,18 @@ The following lines should take the place of the standard Mlocal definition in
 your sendmail.cf (as for the fields "S=10, R=20": if your system uses others
 or none on the current Mlocal definition, use those *instead* of "S=10, R=20"):
 
+If you're using a sendmail 8.6.x or older:
+
 Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhPfn, S=10, R=20,
+	A=procmail -Y -a $h -d $u
+
+If you're using sendmail 8.7 or newer:
+
+	In your *.mc file, insert FEATURE(local_procmail) or edit the
+	sendmail.cf file and change the Mlocal definition to match:
+
+Mlocal, P=/usr/bin/procmail, F=SAw5:|/@glDFMPhsfn, S=10/30, R=20/40,
+	T=DNS/RFC822/X-Unix,
 	A=procmail -Y -a $h -d $u
 
 In case you were wondering why there is no 'm' flag on this definition, you

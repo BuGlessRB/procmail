@@ -1,4 +1,4 @@
-/*$Id: pipes.h,v 1.9 1994/05/26 14:13:20 berg Exp $*/
+/*$Id: pipes.h,v 1.10 1995/10/30 02:09:25 srb Exp $*/
 
 void
  inittmout P((const char*const progname)),
@@ -24,5 +24,5 @@ extern const char exitcode[];
 extern int setxit;
 extern pid_t pidchild;
 extern volatile time_t alrmtime;
-extern volatile toutflag;
+extern volatile int toutflag;
 extern int pipw;

@@ -1,15 +1,11 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh3  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh3		  # we're in a buggy zsh
-#$Id: install.sh3,v 1.45 1995/03/20 14:49:46 berg Exp $
-
-umask 022
-
-ln=ln		# set ln="ln -s" if you don't have hardlinks
+#$Id: install.sh3,v 1.46 1995/10/30 02:09:10 srb Exp $
 
 test -z "$bindir" && echo "Call install.sh instead" && exit 64
 
-. ./targetdir.tmp			# get homedir from install.sh2
+. ./targetdir.tmp			# get ln & homedir from install.sh2
 
 chmod go+x "$target"			# the aliases won't work otherwise
 chmod g+s "$target" 2>/dev/null		# try to let the group id be inherited
@@ -87,9 +83,7 @@ do
   targdir="$target/.$a"
   test $a = bin && targdir="$target/$bindir"
   mkdir "$targdir" 2>/dev/null
-  cd $a
-  c=`echo *`
-  cd ..
+  c=`cd $a; echo *`
   for b in $c
   do
      sed -e "s:SedBinDir:$bindir:g" -e "s:SedHomeDir:$homedir:g" \
@@ -106,11 +100,12 @@ do
   then
      echo "*****************************************************************"
      echo "$target/$bindir/$a already exists, replace it? [y]"
-     read b <&4
-     case "X$b" in
-	X[yY]|X) echo "Replacing old $a."
-	   rm -f "$target/$bindir/$a" ;;
-     esac
+      ( read b <&4			# put it in parens to work around
+	case "X$b" in			# a bug in (stdin of) bash 1.14.4
+	   X[yY]|X) echo "Replacing old $a."
+	      rm -f "$target/$bindir/$a" ;;
+	esac
+      )
   fi
   if test -f "$target/$bindir/$a"
   then
@@ -185,7 +180,7 @@ done
 rm -f "$target/$bindir/multigram"
 cp ../src/multigram "$target/$bindir"
 
-sed -e "s:/home/list/.bin:$target/$bindir:g" <Manual >"$target/.etc/Manual"
+sed -e "s:/home/slist/.bin:$target/$bindir:g" <Manual >"$target/.etc/Manual"
 mv -f "$target/$bindir/procmail" "$target/$bindir/.procmail" 2>/dev/null
 chmod 0755 $target/$bindir/* 2>/dev/null
 chmod 0644 $target/$bindir/mimencap*

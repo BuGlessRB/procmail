@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.34 1995/04/10 19:28:30 berg Exp $";
+ "$Id: formisc.c,v 1.35 1995/10/30 02:09:20 srb Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -161,7 +161,7 @@ void startprog(argv)const char*Const*const argv;
   dup(oldstdout);
   if(*argv)			    /* do we have to start a program at all? */
    { int poutfd[2];
-     static children;
+     static int children;
      if(lenfileno>=0)
       { long val=initfileno++;char*chp;
 	chp=ffileno+LEN_FILENO_VAR;

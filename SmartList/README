@@ -36,12 +36,16 @@ world, contact me instead.
 ----------------------
 A recent version of both packages can be picked up at various
 comp.sources.misc archives.
-The latest versions can be obtained directly from the ftp-archive at:
+The latest version can be obtained from your friendly neighbour mirror site:
 
-	ftp.informatik.rwth-aachen.de
+	ftp://ftp.aist-nara.ac.jp/pub/misc/mail/filters/procmail
+	ftp://ftp.net.ohio-state.edu/pub/networking/mail/procmail
+	ftp://ftp.psg.com/pub/unix/procmail
+	ftp://hub.ucsb.edu/pub/mail		(hand updated)
+	ftp://ftp.tamu.edu/pub/Unix/Mail	(hand updated)
 
-as (g)zipped tar files:	   /pub/packages/procmail/procmail.tar.gz
-			   /pub/packages/procmail/SmartList.tar.gz
-as compressed tar files:   /pub/packages/procmail/procmail.tar.Z
-			   /pub/packages/procmail/SmartList.tar.Z
+Or directly as:
+
+ftp://ftp.informatik.rwth-aachen.de/pub/packages/procmail/procmail.tar.gz
+ftp://ftp.informatik.rwth-aachen.de/pub/packages/procmail/SmartList.tar.gz
 ----------------------

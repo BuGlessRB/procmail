@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.40 1995/04/27 19:36:53 berg Exp $";
+ "$Id: pipes.c,v 1.41 1995/10/30 02:09:24 srb Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -29,7 +29,7 @@ volatile int toutflag;
 static char*lastexec,*backblock;
 static long backlen;	       /* length of backblock, filter recovery block */
 static pid_t pidfilt;
-static pbackfd[2];			       /* the emergency backpipe :-) */
+static int pbackfd[2];			       /* the emergency backpipe :-) */
 int pipw;
 
 void inittmout(progname)const char*const progname;

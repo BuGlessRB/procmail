@@ -53,7 +53,7 @@
 #		conjunction with the RC_LOCAL_* variables which can be set
 #		in rc.init or rc.custom files)
 
-#$Id: rc.init,v 1.43 1995/03/20 14:50:31 berg Exp $
+#$Id: rc.init,v 1.44 1995/10/30 02:09:12 srb Exp $
 
 DELIVERED=yes	# we're in control of the mail now, tell sendmail to go away
 
@@ -125,6 +125,7 @@ minnames mindiffnames maxnames maxsplits maxsize maxconcur
 sendmailOPT="-oem -odb -oi -om -f$listreq"
 sendmailOPTp=-oep
 sendmailOPTq=-odq
+sendmailOPTi=-odi
 sendmailQflush="$SENDMAIL -q"
 #sendmailQflush				# uncomment if you don't want the
 					# queue to be flushed after all archive
@@ -138,6 +139,7 @@ sendmailQflush="$SENDMAIL -q"
 # -om	include myself in any alias expansions
 # -odb	background deliverymode command returns immediately
 # -odq	queued deliverymode (put messages in the queue only)
+# -odi	interactive deliverymode command, wait until most delivered
 # -q	flush the queue
 # -oem	mail back error messages
 # -oep	print error messages
@@ -148,7 +150,7 @@ sendmailQflush="$SENDMAIL -q"
 # understands the -t option of sendmail, then you have to uncomment the
 # following two lines:
 #
-#sendmailOPT sendmailOPTp sendmailOPTq sendmailQflush
+#sendmailOPT sendmailOPTp sendmailOPTq sendmailOPTi sendmailQflush
 #SENDMAIL=../SedBinDir/sendmails
 #
 ########################

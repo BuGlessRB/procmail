@@ -2,7 +2,7 @@
 		--------------------------------
 
 	Copyright (c) 1993-1995, Stephen R. van den Berg, The Netherlands.
-				 <berg@pool.informatik.rwth-aachen.de>
+				 <srb@cuci.nl>
 
 NOTE: Run "flist -v" to find out more about your installed version of
       SmartList.
@@ -31,7 +31,7 @@ Contents:
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.48 1995/04/27 19:36:26 berg Exp $
+$Id: Manual,v 1.49 1995/10/30 02:09:09 srb Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -214,7 +214,7 @@ If you would like to change the -dist alias (used to distribute the
 mail to the subscribers) into something less well known, go right ahead,
 but remember to change the corresponding assignment to listdist.  For
 completeness sake one should also correct the createlist and removelist
-scripts in that case.  If you are using chopdist to expand the dist-file,
+scripts in that case.  If you are using choplist to expand the dist-file,
 then you don't even need a -dist alias at all.
 
 
@@ -237,7 +237,7 @@ running the .bin/cronlist program every so often.  The recommended
 procedure is to create a cron job (under the list account) that contains
 something like the following entry:
 
-0 6 * * * /home/list/.bin/cronlist
+0 6 * * * /home/slist/.bin/cronlist
 
 The cronlist script can be customised to taste (maybe you'll need to
 adjust the setting of the PATH variable).
@@ -546,8 +546,8 @@ supported by the recipient's mailuser agent.  The leading Content-Type: and
 any immediately following fields will become part of the header.
 
 All other files are MIME-encapsulated before transmission.  You should take
-a look at /home/list/.bin/mimencap.local if you want to extend or customise
-the recognised file types.
+a look at /home/slist/.bin/mimencap.local if you want to extend or
+customise the recognised file types.
 
 The MIME-encapsulation is automatic and depends on the availability of the
 metamail package in the PATH defined in rc.init.  The programs from this

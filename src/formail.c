@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.76 1995/04/10 19:28:27 berg Exp $";
+ "$Id: formail.c,v 1.77 1995/10/30 02:09:19 srb Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1995/04/10 19:28:27 $";
+static /*const*/char rcsdate[]="$Date: 1995/10/30 02:09:19 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -164,8 +164,12 @@ fixfldp:
 	   uf->fld_ref=afldp;			   /* first uheader, keep it */
 	else if(fp2=findf(fldp,&Uheader))
 	 { if(fp2->fld_ref)
-	    { if(afldp==&(*fp2->fld_ref)->fld_next)
-		 afldp=fp2->fld_ref;
+	    { struct field**ch_afldp;
+	      if(afldp==(ch_afldp= &(*fp2->fld_ref)->fld_next))
+		 afldp=fp2->fld_ref;		   /* deleting own reference */
+	      for(fldp=Uheader;fldp;fldp=fldp->fld_next)
+		 if(fldp->fld_ref==ch_afldp)	  /* rearrange references to */
+		    fldp->fld_ref=fp2->fld_ref;		  /* vanishing field */
 	      delfield(fp2->fld_ref);		       /* delete old Uheader */
 	    }
 	   fp2->fld_ref=afldp;				/* keep last Uheader */
@@ -481,8 +485,16 @@ nextarg:;
 parsedoptions:
   escaplen=strlen(escap);mystdout=stdout;signal(SIGPIPE,SIG_IGN);
   thepid=getpid();
+  if(babyl)						/* skip BABYL leader */
+   { while(getchar()!=BABYL_SEP1||getchar()!=BABYL_SEP2||getchar()!='\n')
+	while(getchar()!='\n');
+     while(getchar()!='\n');
+   }
+  while((buflast=getchar())=='\n');		     /* skip leading garbage */
   if(split)
    { char**ep;char**vfileno=0;
+     if(buflast==EOF)			   /* avoid splitting empty messages */
+	return EXIT_SUCCESS;
      for(ep=environ;*ep;ep++)		   /* gobble through the environment */
 	if(!strncmp(*ep,ffileno,LEN_FILENO_VAR))	 /* look for FILENO= */
 	   vfileno=ep;					    /* yes, found it */
@@ -531,12 +543,6 @@ xusg:
 	       !findf(fcntlength,&Xheader));	  /* getting Content-Length: */
   if(areply)					       /* when auto-replying */
      addfield(&iheader,xloop,STRLEN(xloop));	  /* preserve X-Loop: fields */
-  if(babyl)						/* skip BABYL leader */
-   { while(getchar()!=BABYL_SEP1||getchar()!=BABYL_SEP2||getchar()!='\n')
-	while(getchar()!='\n');
-     while(getchar()!='\n');
-   }
-  while((buflast=getchar())=='\n');		     /* skip leading garbage */
   if(!readhead())					    /* start looking */
    {
 #ifdef sMAILBOX_SEPARATOR			      /* check for a leading */
@@ -615,8 +621,8 @@ startover:
 	loadbuf(to,STRLEN(to));loadchar(' ');	   /* generate the To: field */
 	if(namep)	       /* did we find a valid return address at all? */
 	   loadbuf(namep,strlen(namep));	      /* then insert it here */
-	else
-	   loadbuf(unknown,STRLEN(unknown));	    /* or insert our default */
+	else					    /* or insert our default */
+	   retval=EX_NOUSER,loadbuf(unknown,STRLEN(unknown));
 	loadchar('\n');addbuf();		       /* add it to rdheader */
 	if(subj->rexl)				      /* any Subject: found? */
 	 { loadbuf(subject,STRLEN(subject));	  /* sure, check for leading */
@@ -762,7 +768,7 @@ splitit:       { if(!lnl)   /* did the previous mail end with an empty line? */
 		       retval=excode;
 		  }
 		 if(!nrtotal)
-		    goto onlyhead;
+		    goto nconlyhead;
 		 startprog((const char*Const*)argv);
 		 goto startover;
 	       }				    /* and there we go again */
@@ -830,6 +836,7 @@ flbuf:	lputssn(buf,buffilled),buffilled=0;
   logfolder();
 onlyhead:
   closemine();
+nconlyhead:
   if(split)						/* wait for everyone */
    { int excode;
      close(STDIN);	       /* close stdin now, we're not reading anymore */
