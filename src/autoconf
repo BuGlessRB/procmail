@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.52 1993/06/07 12:37:12 berg Exp $
+#$Id: autoconf,v 1.53 1993/06/09 11:35:04 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -178,9 +178,13 @@ $RM _autotst.$O
 
 cat >_autotst.c <<HERE
 #include <sys/types.h>
-main(){int i;
+#include <time.h>
+void*vvoid;
+main(){int i;char*p="t";
+ {time_t vtime_t;i=vtime_t=1;}
  {off_t voff_t;i=voff_t=1;}
- return !i;}
+ vvoid=p;
+ return !vvoid;}
 struct {char a;char b;} setsid;
 #include <unistd.h>
 HERE
@@ -190,6 +194,8 @@ if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
 then
   echo "#define setsid()" >>_locktst.h
 else
+  grepfor void '#define void char'
+  grepfor time_t 'typedef long time_t;'
   grepfor off_t 'typedef long off_t;'
   if $FGREP setsid _autotst.rrr >$DEVNULL 2>&1
   then
@@ -319,11 +325,11 @@ cat >_autotst.c <<HERE
 int dolock,child[NR_of_forks],timeout,fdcollect;
 char dirlocktest[]="_locktest";
 
-stimeout()
+void stimeout()
 { timeout=1;close(fdcollect);killchildren();
 }
 
-terminate()
+void terminate()
 { stimeout();exit(1);
 }
 
@@ -352,7 +358,7 @@ main(argc,argv)char*argv[];
      signal(SIGTERM,SIG_DFL);argc=1;dolock=goodlock|testlock;
      do
       { char*curdir;
-	curdir=argv[argc];otimet=time((char*)0);
+	curdir=argv[argc];otimet=time((time_t*)0);
 	if(sfork())
 	 { close(1);close(2);i=NR_of_lockfiles;chdir(curdir);
 	   chdir(dirlocktest);
@@ -372,7 +378,7 @@ main(argc,argv)char*argv[];
 	 { unsigned char lockflag;int fd,childno=i<<SHIFT_childno;
 	   int mylocks=LOCKS_per_child;
 	   close(pipw[0]);close(pip[0]);close(1);
-	   seed=time((char*)0)+getpid()|1;chdir(curdir);chdir(dirlocktest);
+	   seed=time((time_t*)0)+getpid()|1;chdir(curdir);chdir(dirlocktest);
 	   close(pipw[1]);
 	   for(;;)					   /* and lock away! */
 	    { filename[sizeof filename-2]='0'+(i=psrand()%NR_of_lockfiles);
@@ -383,7 +389,7 @@ main(argc,argv)char*argv[];
 	      write(pip[1],&lockflag,1);
 	      fprintf(stderr,"%2x%02x",i,childno>>SHIFT_childno);
 	      lseek(fd,(off_t)0,SEEK_END);write(fd,&lockflag,1);
-	      for(i=SLEEP_loop;i;i--,time((char*)0),sleep(SLEEP_delay));
+	      for(i=SLEEP_loop;i;i--,time((time_t*)0),sleep(SLEEP_delay));
 	      lockflag&=~1;write(pip[1],&lockflag,1);
 	      if(fdunlock()||close(fd))
 	       { write(pip[1],&lockflag,1);fprintf(stderr,"XX%02x",lockflag);
@@ -407,12 +413,12 @@ main(argc,argv)char*argv[];
 	   for(j=NR_of_lockfiles;lckdfil[--j]=0,j;);
 	   timeout=0;sleep(1);read(pipw[0],&curflag,1);close(pipw[0]);
 	   kill(ppid,SIGKILL);fdcollect=pip[0];signal(SIGALRM,stimeout);
-	   dtimet=(((unsigned)time((char*)0)-otimet)*GROW)+TIME_OUT_SEC;
+	   dtimet=(((unsigned)time((time_t*)0)-otimet)*GROW)+TIME_OUT_SEC;
 	   do
 	    { unlink("_locktst.alive");alarm(dtimet+2);		 /* watchdog */
-	      dtimet=(otimet=time((char*)0)-otimet)>dtimet?
+	      dtimet=(otimet=time((time_t*)0)-otimet)>dtimet?
 	       otimet*GROW:otimet+(dtimet-otimet)*DECAY+1; /* load dependent */
-	      otimet=time((char*)0);
+	      otimet=time((time_t*)0);
 	    }
 	   while(1==read(fdcollect,&curflag,1)&&
 	    (j=lckdfil[i=(curflag&MASK_fileno)>>1],!timeout)&&
@@ -676,29 +682,24 @@ cat >_autotst.c <<HERE
 #ifndef NO_COMSAT
 #include "network.h"
 #endif
-void*vvoid;
-main(){int i;char*p="t";
+main(){int i;
  {size_t vsize_t;i=vsize_t=1;}
  {pid_t vpid_t;i=vpid_t=1;}
- {time_t vtime_t;i=vtime_t=1;}
  {mode_t vmode_t;i=vmode_t=1;}
  {uid_t vuid_t;i=vuid_t=1;}
  {gid_t vgid_t;i=vgid_t=1;}
 #ifndef NO_COMSAT
  {struct hostent host;i=!(host.h_addr_list=0);}
 #endif
- vvoid=p;
- return !vvoid;}
+ return !i;}
 HERE
 
 echo 'Testing for void*,size_t,off_t,pid_t,time_t,mode_t,uid_t,gid_t'
 $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
 $RM _autotst.$O
 
-grepfor void '#define void char'
 grepfor size_t 'typedef unsigned size_t;'
 grepfor pid_t 'typedef int pid_t;'
-grepfor time_t 'typedef long time_t;'
 grepfor mode_t 'typedef int mode_t;'
 grepfor uid_t 'typedef int uid_t;'
 grepfor gid_t 'typedef int gid_t;'
