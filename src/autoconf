@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.59 1993/07/16 14:52:23 berg Exp $
+#$Id: autoconf,v 1.60 1993/07/27 11:45:58 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -190,9 +190,9 @@ cat >_autotst.c <<HERE
 #include <sys/types.h>
 #include <time.h>
 void*vvoid;
-main(){int i;char*p="t";
- {time_t vtime_t;i=vtime_t=1;}
- {off_t voff_t;i=voff_t=1;}
+main(){int i=0;char*p="t";
+ {time_t vtime_t;i+=vtime_t=1;}
+ {off_t voff_t;i+=voff_t=1;}
  vvoid=p;
  return !vvoid;}
 #include <unistd.h>
@@ -695,17 +695,18 @@ cat >_autotst.c <<HERE
 #ifndef NO_COMSAT
 #include "network.h"
 #endif
-main(){int i;
- {size_t vsize_t;i=vsize_t=1;}
- {pid_t vpid_t;i=vpid_t=1;}
- {mode_t vmode_t;i=vmode_t=1;}
- {uid_t vuid_t;i=vuid_t=1;}
- {gid_t vgid_t;i=vgid_t=1;}
+#define testdec(type,vtype);
+main(){int i=0;
+ {size_t vsize_t;i+=vsize_t=1;}
+ {pid_t vpid_t;i+=vpid_t=1;}
+ {mode_t vmode_t;i+=vmode_t=1;}
+ {uid_t vuid_t;i+=vuid_t=1;}
+ {gid_t vgid_t;i+=vgid_t=1;}
 #ifndef NO_COMSAT
- {struct hostent host;i=!(host.h_addr_list=0);}
+ {struct hostent host;i+=!(host.h_addr_list=0);}
 #endif
 #ifndef NOuname
- {struct utsname vutsname;i= *vutsname.nodename=1;}
+ {struct utsname vutsname;i+=!(*vutsname.nodename='\0');}
 #endif
  return !i;}
 HERE
