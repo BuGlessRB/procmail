@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.11 1992/12/01 15:46:34 berg Exp $";
+ "$Id: pipes.c,v 1.12 1993/01/19 11:55:20 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -67,30 +67,30 @@ static void callnewprog(newname)const char*const newname;
      yell(executing,newname);newargv[3]=0;newargv[2]=newname;
      newargv[1]=tgetenv(shellflags);*newargv=tgetenv(shell);shexec(newargv);
    }
- {register const char*p;int argc;const char**newargv;
-  argc=1;p=newname;	     /* If no shell, chop up the arguments ourselves */
-  if(verbose)
-   { nlog(executing);elog(oquote);goto no_1st_comma;
-   }
-  do					     /* show chopped up command line */
-   { if(verbose)
-      { elog(",");
-no_1st_comma:
-	elog(p);
+  ;{ register const char*p;int argc;const char**newargv;
+     argc=1;p=newname;	     /* If no shell, chop up the arguments ourselves */
+     if(verbose)
+      { nlog(executing);elog(oquote);goto no_1st_comma;
       }
-     while(*p++);
+     do					     /* show chopped up command line */
+      { if(verbose)
+	 { elog(",");
+no_1st_comma:
+	   elog(p);
+	 }
+	while(*p++);
+      }
+     while(argc++,*p!=TMNATE);
+     if(verbose)
+	elog(cquote);				      /* allocate argv array */
+     newargv=malloc(argc*sizeof*newargv);p=newname;argc=0;
+     do
+      { newargv[argc++]=p;
+	while(*p++);
+      }
+     while(*p!=TMNATE);
+     newargv[argc]=0;shexec(newargv);
    }
-  while(argc++,*p!=TMNATE);
-  if(verbose)
-     elog(cquote);
-  newargv=malloc(argc*sizeof*newargv);p=newname;argc=0;	 /* alloc argv array */
-  do
-   { newargv[argc++]=p;
-     while(*p++);
-   }
-  while(*p!=TMNATE);
-  newargv[argc]=0;shexec(newargv);
- }
 }
 
 pipthrough(line,source,len)char*line,*source;const long len;

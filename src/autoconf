@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.24 1993/01/15 14:41:13 berg Exp $
+#$Id: autoconf,v 1.25 1993/01/19 11:55:04 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -320,34 +320,35 @@ main()
 	    }
 	 }
       }
-    {unsigned char lckdfil[NR_of_lockfiles],curflag;int j,countlocks=MIN_locks;
-     for(j=NR_of_lockfiles;lckdfil[--j]=0,j;); /* give all children a chance */
-     close(pip[1]);timeout=0;sleep(1);kill(getppid(),SIGKILL);
-     signal(SIGALRM,(void(*)())stimeout);
-     dtimet=(((unsigned)time((char*)0)-otimet)*GROW)+TIME_OUT_SEC;
-     do
-      { unlink("_locktst.alive");alarm(dtimet+2);		 /* watchdog */
-	dtimet=(otimet=time((char*)0)-otimet)>dtimet?
-	 otimet*GROW:otimet+(dtimet-otimet)*DECAY+1;	   /* load dependent */
-	otimet=time((char*)0);
-      }
-     while(1==read(pip[0],&curflag,1)&&(j=lckdfil[i=(curflag&MASK_fileno)>>1],
-      !timeout)&&((j^(lckdfil[i]=curflag))==1||!(j&1)&&curflag&1)&&
-      --countlocks);
-     alarm(0);killchildren();close(pip[0]);
+     ;{ unsigned char lckdfil[NR_of_lockfiles],curflag;
+	int j,countlocks=MIN_locks;	       /* give all children a chance */
+	for(j=NR_of_lockfiles;lckdfil[--j]=0,j;);
+	close(pip[1]);timeout=0;sleep(1);kill(getppid(),SIGKILL);
+	signal(SIGALRM,(void(*)())stimeout);
+	dtimet=(((unsigned)time((char*)0)-otimet)*GROW)+TIME_OUT_SEC;
+	do
+	 { unlink("_locktst.alive");alarm(dtimet+2);		 /* watchdog */
+	   dtimet=(otimet=time((char*)0)-otimet)>dtimet?
+	    otimet*GROW:otimet+(dtimet-otimet)*DECAY+1;	   /* load dependent */
+	   otimet=time((char*)0);
+	 }
+	while(1==read(pip[0],&curflag,1)&&
+	 (j=lckdfil[i=(curflag&MASK_fileno)>>1],!timeout)&&
+	 ((j^(lckdfil[i]=curflag))==1||!(j&1)&&curflag&1)&&--countlocks);
+	alarm(0);killchildren();close(pip[0]);
 #ifdef FAIR_LOCK_CHECK
-     j=NR_of_lockfiles;
-     do
-	if(!lckdfil[--j])			    /* was the locking fair? */
-	   countlocks+=MIN_locks;				     /* nope */
-     while(j);
+	j=NR_of_lockfiles;
+	do
+	   if(!lckdfil[--j])			    /* was the locking fair? */
+	      countlocks+=MIN_locks;				     /* nope */
+	while(j);
 #endif
-     fprintf(stdout,
-      "/*locktype: %x, countlocks: %x, timeout %x, watchdog %x*/\n",dolock,
-      countlocks,timeout,dtimet);fflush(stdout);
-     if(!countlocks)			    /* Hurray!	Locking was flawless */
-	goodlock=dolock;			  /* make a mark on our colt */
-    }
+	fprintf(stdout,
+	 "/*locktype: %x, countlocks: %x, timeout %x, watchdog %x*/\n",dolock,
+	 countlocks,timeout,dtimet);fflush(stdout);
+	if(!countlocks)			    /* Hurray!	Locking was flawless */
+	   goodlock=dolock;			  /* make a mark on our colt */
+      }
    }
   while(testlock>>=1);
   if(!(goodlock&MSK_fcntl))			      /* report our findings */
@@ -684,28 +685,31 @@ main(argc)
   if(argc==1)
    {
 #ifndef NO_COMSAT
-    {const struct protoent*p;
-     if(p=getprotobyname(COMSATprotocol))
-      { const struct servent*serv;
-	printf("#define UDP_protocolno %d\n",p->p_proto);
-	if(serv=getservbyname(COMSATservice,COMSATprotocol))
-	   printf("#define BIFF_serviceport \"%d\"\n",ntohs(serv->s_port));
+     ;{ const struct protoent*p;
+	if(p=getprotobyname(COMSATprotocol))
+	 { const struct servent*serv;
+	   printf("#define UDP_protocolno %d\n",p->p_proto);
+	   if(serv=getservbyname(COMSATservice,COMSATprotocol))
+	      printf("#define BIFF_serviceport \"%d\"\n",ntohs(serv->s_port));
 #ifdef AF_INET
-       {const struct hostent*host;
-	if(!strcmp("localhost",COMSAThost)&&(host=gethostbyname(COMSAThost))&&
-	 host->h_addr_list[0]&&host->h_addrtype==AF_INET&&host->h_length)
-	 { int j=host->h_length;const unsigned char*ad=host->h_addr_list[0];
-	   printf("#define IP_localhost {");
-	   do printf("%d,",*ad++);
-	   while(--j);
-	   puts("}");
-	 }
-       }
+	   ;{ const struct hostent*host;
+	      if(!strcmp("localhost",COMSAThost)&&
+	       (host=gethostbyname(COMSAThost))&&
+	       host->h_addr_list[0]&&host->h_addrtype==AF_INET&&
+	       host->h_length)
+	       { int j=host->h_length;
+		 const unsigned char*ad=host->h_addr_list[0];
+		 printf("#define IP_localhost {");
+		 do printf("%d,",*ad++);
+		 while(--j);
+		 puts("}");
+	       }
+	    }
 #endif /* AF_INET */
+	 }
+	else
+	   puts("#define NO_COMSAT");
       }
-     else
-	puts("#define NO_COMSAT");
-    }
 #endif /* NO_COMSAT */
      if(i<=16)
       { puts("#define SMALLHEAP");return 1;

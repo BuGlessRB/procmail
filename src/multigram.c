@@ -1,8 +1,8 @@
 /************************************************************************
  *	multigram - The human mail address reader			*
  *									*
- *	It uses multigrams to intelligenly filter out mail addresses	*
- *	from the garbage in the arbitrary mail.				*
+ *	It uses multigrams to intelligently filter out mail addresses	*
+ *	from the garbage in any arbitrary mail.				*
  *									*
  *	Seems to be relatively bug free.				*
  *									*
@@ -11,9 +11,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.14 1993/01/18 16:11:10 berg Exp $";
+ "$Id: multigram.c,v 1.15 1993/01/19 11:55:17 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/18 16:11:10 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/19 11:55:17 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -35,7 +35,7 @@ static /*const*/char rcsdate[]="$Date: 1993/01/18 16:11:10 $";
 #define REQUEST		"-request"
 #define RCSUBMIT	"./rc.submit"
 #define RCREQUEST	"./rc.request"
-#define RCPOST		"./rc.post"
+#define RCPOST		"./../.etc/rc.post"
 #define RCINIT		"RC_INIT=rc.init"
 #define XENVELOPETO	"X_ENVELOPE_TO="
 #define LIST		"list="
@@ -199,18 +199,18 @@ main(minweight,argv)char*argv[];
 		    goto usg;
 		 addit=chp;break;
 	      case 'b':case 'l':case 'w':
-		{int i;
-		 {const char*ochp;
-		 if(!*chp&&!(chp= *++argv)||
-		  (i=strtol(ochp=chp,(char**)&chp,10),chp==ochp))
-		    goto usg;
-		 }
+	       { int i;
+		 ;{ const char*ochp;
+		    if(!*chp&&!(chp= *++argv)||
+		     (i=strtol(ochp=chp,(char**)&chp,10),chp==ochp))
+		       goto usg;
+		  }
 		 switch(c)
 		  { case 'b':best_matches=i;continue;
 		    case 'l':minweight=i;continue;
 		    case 'w':maxgram=i;continue;
 		  }
-		}
+	       }
 	      case HELPOPT1:case HELPOPT2:elog(usage);
 		 elog(
  "\t-a address\tadd this address to the list\
@@ -269,54 +269,54 @@ usg:
      best_matches=DEFbest_matches;
   fuzzstr.text=malloc(fuzzstr.buflen=BUFSTEP);
   hardstr.text=malloc(hardstr.buflen=BUFSTEP);
- {int i;
-  best=malloc(best_matches--*sizeof*best);i=best_matches;
-  do
-   { best[i]=malloc(sizeof**best);best[i]->hard=malloc(1);
-     best[i]->fuzz=malloc(1);best[i]->metric= -SCALE_WEIGHT;
+  ;{ int i;
+     best=malloc(best_matches--*sizeof*best);i=best_matches;
+     do
+      { best[i]=malloc(sizeof**best);best[i]->hard=malloc(1);
+	best[i]->fuzz=malloc(1);best[i]->metric= -SCALE_WEIGHT;
+      }
+     while(i--);
    }
-  while(i--);
- }
   for(lastfrom= -1;readstr(stdin,&fuzzstr,0);)
    { int meter,maxmetric;size_t fuzzlen;long linentry,offs1,offs2;
-    {char*chp,*echp;int parens;
-     echp=strchr(chp=fuzzstr.text,'\0')-1;
-     do
-      { switch(*echp)
-	 { case '.':case ',':case ';':case ':':case '?':case '!':*echp='\0';
-	      continue;
+     ;{ char*chp,*echp;int parens;
+	echp=strchr(chp=fuzzstr.text,'\0')-1;
+	do
+	 { switch(*echp)
+	    { case '.':case ',':case ';':case ':':case '?':case '!':*echp='\0';
+		 continue;
+	    }
+	   break;
 	 }
-	break;
-      }
-     while(--echp>chp);
-     if(lastfrom<=0&&!strchr(chp,'@')&&(!strchr(chp,'!')||strchr(chp,'|')||
-      strchr(chp,',')||mystrstr(chp,"..",chp+strlen(chp))))
-      { if(lastfrom<0)
-	   lastfrom=!strcmp(SHFROM,chp);
-	continue;			  /* apparently not an email address */
-      }
-     lastfrom=0;
-     for(parens=0;chp=strchr(chp,'(');chp++,parens++);
-     for(chp=fuzzstr.text;chp=strchr(chp,')');chp++,parens--);
-     if(*(chp=fuzzstr.text)=='(')
-      { if(!parens&&*echp==')')
-	 { *echp='\0';goto shftleft;
+	while(--echp>chp);
+	if(lastfrom<=0&&!strchr(chp,'@')&&(!strchr(chp,'!')||strchr(chp,'|')||
+	 strchr(chp,',')||mystrstr(chp,"..",chp+strlen(chp))))
+	 { if(lastfrom<0)
+	      lastfrom=!strcmp(SHFROM,chp);
+	   continue;			  /* apparently not an email address */
 	 }
-	if(parens>0)
-shftleft:  tmemmove(chp,chp+1,strlen(chp));
+	lastfrom=0;
+	for(parens=0;chp=strchr(chp,'(');chp++,parens++);
+	for(chp=fuzzstr.text;chp=strchr(chp,')');chp++,parens--);
+	if(*(chp=fuzzstr.text)=='(')
+	 { if(!parens&&*echp==')')
+	    { *echp='\0';goto shftleft;
+	    }
+	   if(parens>0)
+shftleft:     tmemmove(chp,chp+1,strlen(chp));
+	 }
+	else if(parens<0&&*echp==')')
+	   *echp='\0';
+	if(*(chp=fuzzstr.text)=='<'&&*(echp=strchr(chp,'\0')-1)=='>'
+	 &&echp==strpbrk(chp,"([\">,; \t\n"))	      /* strip '<' and '>' ? */
+	   *echp='\0',tmemmove(chp,chp+1,echp-chp);
+	if(!(fuzzlen=strlen(chp)))
+	   continue;;
+	if(!curmatch)
+	   curmatch=malloc(sizeof*curmatch);
+	curmatch->fuzz=tstrdup(chp);curmatch->hard=malloc(1);
+	curmatch->metric= -SCALE_WEIGHT;
       }
-     else if(parens<0&&*echp==')')
-	*echp='\0';
-     if(*(chp=fuzzstr.text)=='<'&&*(echp=strchr(chp,'\0')-1)=='>'
-      &&echp==strpbrk(chp,"([\">,; \t\n"))	      /* strip '<' and '>' ? */
-	*echp='\0',tmemmove(chp,chp+1,echp-chp);
-     if(!(fuzzlen=strlen(chp)))
-	continue;;
-     if(!curmatch)
-	curmatch=malloc(sizeof*curmatch);
-     curmatch->fuzz=tstrdup(chp);curmatch->hard=malloc(1);
-     curmatch->metric= -SCALE_WEIGHT;
-    }
      lowcase(&fuzzstr);fseek(hardfile,0L,SEEK_SET);
      maxmetric=best[best_matches]->metric;
      for(remov_delim=offs2=linentry=0;
@@ -335,15 +335,15 @@ shftleft:  tmemmove(chp,chp+1,strlen(chp));
 	 (hardlen==minlen?fuzzlen:hardlen))-SCALE_WEIGHT/2;
 	do
 	 { register lmeter=0;
-	  {register const char*fzz,*hrd;
-	   fzz=fuzzstr.itext;
-	   do
-	      for(hrd=hardstr.itext;hrd=strchr(hrd,*fzz);)
-		 if(!strncmp(++hrd,fzz+1,gramsize))
-		  { lmeter++;break;
-		  }
-	   while(*(++fzz+gramsize));
-	  }
+	   ;{ register const char*fzz,*hrd;
+	      fzz=fuzzstr.itext;
+	      do
+		 for(hrd=hardstr.itext;hrd=strchr(hrd,*fzz);)
+		    if(!strncmp(++hrd,fzz+1,gramsize))
+		     { lmeter++;break;
+		     }
+	      while(*(++fzz+gramsize));
+	    }
 	   if(lmeter)
 	    { unsigned weight;
 	      meter+=lmeter*(weight=maxweight/(unsigned)(minlen-gramsize));
@@ -374,52 +374,52 @@ shftleft:  tmemmove(chp,chp+1,strlen(chp));
      else
 	free(curmatch->fuzz),free(curmatch->hard);
    }
- {int i;struct match*mp;
-  for(i=0;i<=best_matches&&(mp=best[i++])->metric>=minweight;)
-     if(chkmetoo)
-	printf("%s\n",strcmp(mp->hard+strlen(mp->hard)+1,NOT_METOO)
-	 ?metoo_SENDMAIL:nometoo_SENDMAIL);
-     else
-	printf("%3ld %-34s %5d %-34s\n",charoffs?mp->offs1:mp->lentry,mp->hard,
-	 mp->metric,mp->fuzz);
-  if((mp= *best)->metric>=minweight)
-   { struct match*worse;
-     if(renam)
-      { long line;int i,w1;
-	maxweight>>=1;
-	for(i=1,line=mp->lentry,w1=mp->metric,worse=0;
-	 i<=best_matches&&(mp=best[i++])->metric>=minweight;)
-	   if(mp->lentry==line&&mp->metric+maxweight<w1)
-	    { goto remv1;
-	    }
-	for(i=1;i<=best_matches&&(mp=best[i++])->metric>=minweight;)
-	   if(mp->metric+maxweight<w1)
-remv1:	    { worse=mp;mp= *best;goto remv;
-	    }
-	nlog("Couldn't find a proper address pair\n");goto norenam;
-      }
-     if(remov)
-remv: { char*buf;long offs1,offs2;size_t readin;
-	buf=malloc(COPYBUF);offs1=mp->offs1;offs2=mp->offs2;
-	while(fseek(hardfile,offs2,SEEK_SET),
-	 readin=fread(buf,1,COPYBUF,hardfile))
-	 { offs2=ftell(hardfile);fseek(hardfile,offs1,SEEK_SET);
-	   if(buf[readin-1]=='\n')	  /* try and remove some empty lines */
-	      while(readin>1&&buf[readin-2]=='\n')	/* at the end, since */
-		 readin--;		     /* every time could be the last */
-	   fwrite(buf,1,readin,hardfile);offs1=ftell(hardfile);
-	 }
-	free(buf);fseek(hardfile,offs1,SEEK_SET);
-	printf("Removed: %s\n",mp->hard);
+  ;{ int i;struct match*mp;
+     for(i=0;i<=best_matches&&(mp=best[i++])->metric>=minweight;)
+	if(chkmetoo)
+	   printf("%s\n",strcmp(mp->hard+strlen(mp->hard)+1,NOT_METOO)
+	    ?metoo_SENDMAIL:nometoo_SENDMAIL);
+	else
+	   printf("%3ld %-34s %5d %-34s\n",
+	    charoffs?mp->offs1:mp->lentry,mp->hard,mp->metric,mp->fuzz);
+     if((mp= *best)->metric>=minweight)
+      { struct match*worse;
 	if(renam)
-	   fputs(worse->fuzz,hardfile),printf("Added: %s\n",worse->fuzz);
-	do putc('\n',hardfile);				   /* erase the tail */
-	while(ftell(hardfile)<offs2);
-	fclose(hardfile);
+	 { long line;int i,w1;
+	   maxweight>>=1;
+	   for(i=1,line=mp->lentry,w1=mp->metric,worse=0;
+	    i<=best_matches&&(mp=best[i++])->metric>=minweight;)
+	      if(mp->lentry==line&&mp->metric+maxweight<w1)
+	       { goto remv1;
+	       }
+	   for(i=1;i<=best_matches&&(mp=best[i++])->metric>=minweight;)
+	      if(mp->metric+maxweight<w1)
+remv1:	       { worse=mp;mp= *best;goto remv;
+	       }
+	   nlog("Couldn't find a proper address pair\n");goto norenam;
+	 }
+	if(remov)
+remv:	 { char*buf;long offs1,offs2;size_t readin;
+	   buf=malloc(COPYBUF);offs1=mp->offs1;offs2=mp->offs2;
+	   while(fseek(hardfile,offs2,SEEK_SET),
+	    readin=fread(buf,1,COPYBUF,hardfile))
+	    { offs2=ftell(hardfile);fseek(hardfile,offs1,SEEK_SET);
+	      if(buf[readin-1]=='\n')	  /* try and remove some empty lines */
+		 while(readin>1&&buf[readin-2]=='\n')	/* at the end, since */
+		    readin--;		     /* every time could be the last */
+	      fwrite(buf,1,readin,hardfile);offs1=ftell(hardfile);
+	    }
+	   free(buf);fseek(hardfile,offs1,SEEK_SET);
+	   printf("Removed: %s\n",mp->hard);
+	   if(renam)
+	      fputs(worse->fuzz,hardfile),printf("Added: %s\n",worse->fuzz);
+	   do putc('\n',hardfile);			   /* erase the tail */
+	   while(ftell(hardfile)<offs2);
+	   fclose(hardfile);
+	 }
+	return EX_OK;
       }
-     return EX_OK;
    }
- }
   if(remov||renam)
    { nlog("Couldn't even find a single address\n");
    }

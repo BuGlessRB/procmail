@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.15 1993/01/13 16:17:19 berg Exp $";
+ "$Id: mailfold.c,v 1.16 1993/01/19 11:55:14 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -113,52 +113,54 @@ void logabstract P((void))
      ultstr(7,lastdump,buf);elog(buf);elog(newline);
    }
 #ifndef NO_COMSAT
- {int s;struct sockaddr_in addr;char*chp,*chad;
-  if(chad=strchr(chp=(char*)tgetenv(scomsat),SERV_ADDRsep))  /* @ seperator? */
-     *chad++='\0';		      /* split it up in service and hostname */
-  else if(!renvint(-1L,scomsat))		/* or is it a false boolean? */
-     return;					       /* ok, no comsat then */
-  if(!chad||!*chad)						  /* no host */
+  ;{ int s;struct sockaddr_in addr;char*chp,*chad;	     /* @ seperator? */
+     if(chad=strchr(chp=(char*)tgetenv(scomsat),SERV_ADDRsep))
+	*chad++='\0';		      /* split it up in service and hostname */
+     else if(!renvint(-1L,scomsat))		/* or is it a false boolean? */
+	return;					       /* ok, no comsat then */
+     if(!chad||!*chad)						  /* no host */
 #ifndef IP_localhost
-     chad=COMSAThost;					      /* use default */
+	chad=COMSAThost;				      /* use default */
 #else /* IP_localhost */
-   { static const unsigned char ip_localhost[]=IP_localhost;
-     addr.sin_family=AF_INET;
-     tmemmove(&addr.sin_addr,ip_localhost,sizeof ip_localhost);
-   }
-  else
+      { static const unsigned char ip_localhost[]=IP_localhost;
+	addr.sin_family=AF_INET;
+	tmemmove(&addr.sin_addr,ip_localhost,sizeof ip_localhost);
+      }
+     else
 #endif /* IP_localhost */
-   { const struct hostent*host;		      /* what host?  paranoid checks */
-     if(!(host=gethostbyname(chad))||!host->h_addr_list[0])
-      { endhostent();return;		     /* host can't be found, too bad */
+      { const struct hostent*host;	      /* what host?  paranoid checks */
+	if(!(host=gethostbyname(chad))||!host->h_addr_list[0])
+	 { endhostent();return;		     /* host can't be found, too bad */
+	 }
+	addr.sin_family=host->h_addrtype;	     /* address number found */
+	tmemmove(&addr.sin_addr,host->h_addr_list[0],host->h_length);
+	endhostent();
       }
-     addr.sin_family=host->h_addrtype;		     /* address number found */
-     tmemmove(&addr.sin_addr,host->h_addr_list[0],host->h_length);endhostent();
+     if(!*chp)						       /* no service */
+	chp=BIFF_serviceport;				      /* use default */
+     s=strtol(chp,&chad,10);
+     if(chp==chad)			       /* the service is not numeric */
+      { const struct servent*serv;
+	if(!(serv=getservbyname(chp,COMSATprotocol)))	   /* so get its no. */
+	 { endservent();return;
+	 }
+	addr.sin_port=serv->s_port;endservent();
+      }
+     else
+	addr.sin_port=htons((short)s);			    /* network order */
+     cat(tgetenv(lgname),"@");			 /* should always fit in buf */
+     if(lasttell>=0)					   /* was it a file? */
+	ultstr(0,lasttell,buf2),catlim(buf,buf2,(size_t)linebuf);     /* yep */
+     catlim(buf,COMSATxtrsep,(size_t)linebuf);		 /* custom seperator */
+     if(lasttell>=0&&!strchr(dirsep,*lastfolder))      /* relative filename? */
+      { catlim(buf,tgetenv(maildir),(size_t)linebuf); /* prepend current dir */
+	catlim(buf,_MCDIRSEP,(size_t)linebuf);
+      }				     /* no need to bind() for one UDP-packet */
+     catlim(buf,lastfolder,linebuf);
+     s=socket(AF_INET,SOCK_DGRAM,UDP_protocolno);
+     sendto(s,buf,strlen(buf),0,&addr,sizeof(addr));rclose(s);
+     yell("Notified comsat:",buf);
    }
-  if(!*chp)						       /* no service */
-     chp=BIFF_serviceport;				      /* use default */
-  s=strtol(chp,&chad,10);
-  if(chp==chad)				       /* the service is not numeric */
-    {const struct servent*serv;
-     if(!(serv=getservbyname(chp,COMSATprotocol)))	   /* so get its no. */
-      { endservent();return;
-      }
-     addr.sin_port=serv->s_port;endservent();
-    }
-  else
-     addr.sin_port=htons((short)s);			    /* network order */
-  cat(tgetenv(lgname),"@");			 /* should always fit in buf */
-  if(lasttell>=0)					   /* was it a file? */
-     ultstr(0,lasttell,buf2),catlim(buf,buf2,(size_t)linebuf);	      /* yep */
-  catlim(buf,COMSATxtrsep,(size_t)linebuf);		 /* custom seperator */
-  if(lasttell>=0&&!strchr(dirsep,*lastfolder))	       /* relative filename? */
-   { catlim(buf,tgetenv(maildir),(size_t)linebuf);   /* prepend current dir/ */
-     catlim(buf,_MCDIRSEP,(size_t)linebuf);
-   }				     /* no need to bind() for one UDP-packet */
-  catlim(buf,lastfolder,linebuf);s=socket(AF_INET,SOCK_DGRAM,UDP_protocolno);
-  sendto(s,buf,strlen(buf),0,&addr,sizeof(addr));rclose(s);
-  yell("Notified comsat:",buf);
- }
 #endif /* NO_COMSAT */
 }
 
@@ -175,43 +177,44 @@ void concon(ch)const int ch;   /* flip between concatenated and split fields */
 
 void readmail(rhead,tobesent)const long tobesent;
 { char*chp,*pastend,*realstart;
- {long dfilled;
-  if(rhead)					/* only read in a new header */
-   { dfilled=mailread=0;chp=readdyn(malloc(1),&dfilled);filled-=tobesent;
-     if(tobesent<dfilled)		   /* adjust buffer size (grow only) */
-	themail=realloc(themail,dfilled+filled);
-     tmemmove(themail+dfilled,thebody,filled);tmemmove(themail,chp,dfilled);
-     free(chp);themail=realloc(themail,1+(filled+=dfilled));
-   }
-  else
-   { if(!mailread||!filled)
-	rhead=1;	 /* yup, we read in a new header as well as new mail */
-     mailread=0;dfilled=thebody-themail;themail=readdyn(themail,&filled);
-   }
-  pastend=filled+(thebody=themail);
-  while(thebody<pastend&&*thebody++=='\n');	     /* skip leading garbage */
-  realstart=thebody;
-  if(rhead)			      /* did we read in a new header anyway? */
-   { confield.filled=0;concnd='\n';
-     while(thebody=egrepin("[^\n]\n[\n\t ]",thebody,(long)(pastend-thebody),1))
-	if(thebody[-1]!='\n')			  /* mark continuated fields */
-	   app_val(&confield,(long)(--thebody-1-themail));
-	else
-	   goto eofheader;		   /* empty line marks end of header */
-     thebody=pastend;	      /* provide a default, in case there is no body */
+  ;{ long dfilled;
+     if(rhead)					/* only read in a new header */
+      { dfilled=mailread=0;chp=readdyn(malloc(1),&dfilled);filled-=tobesent;
+	if(tobesent<dfilled)		   /* adjust buffer size (grow only) */
+	   themail=realloc(themail,dfilled+filled);
+	tmemmove(themail+dfilled,thebody,filled);tmemmove(themail,chp,dfilled);
+	free(chp);themail=realloc(themail,1+(filled+=dfilled));
+      }
+     else
+      { if(!mailread||!filled)
+	   rhead=1;	 /* yup, we read in a new header as well as new mail */
+	mailread=0;dfilled=thebody-themail;themail=readdyn(themail,&filled);
+      }
+     pastend=filled+(thebody=themail);
+     while(thebody<pastend&&*thebody++=='\n');	     /* skip leading garbage */
+     realstart=thebody;
+     if(rhead)			      /* did we read in a new header anyway? */
+      { confield.filled=0;concnd='\n';
+	while(thebody=
+	 egrepin("[^\n]\n[\n\t ]",thebody,(long)(pastend-thebody),1))
+	   if(thebody[-1]!='\n')		  /* mark continuated fields */
+	      app_val(&confield,(long)(--thebody-1-themail));
+	   else
+	      goto eofheader;		   /* empty line marks end of header */
+	thebody=pastend;      /* provide a default, in case there is no body */
 eofheader:;
+      }
+     else			       /* no new header read, keep it simple */
+	thebody=themail+dfilled; /* that means we know where the body starts */
    }
-  else				       /* no new header read, keep it simple */
-     thebody=themail+dfilled;	 /* that means we know where the body starts */
- }
- {int f1stchar;	      /* to make sure that the first From_ line is uninjured */
-  f1stchar= *realstart;*(chp=realstart)='\0';escFrom_.filled=0;
-  while(chp=egrepin(FROM_EXPR,chp,(long)(pastend-chp),1))
-   { while(*--chp!='\n');		       /* where did this line start? */
-     app_val(&escFrom_,(long)(++chp-themail));chp++;		   /* bogus! */
+  ;{ int f1stchar;    /* to make sure that the first From_ line is uninjured */
+     f1stchar= *realstart;*(chp=realstart)='\0';escFrom_.filled=0;
+     while(chp=egrepin(FROM_EXPR,chp,(long)(pastend-chp),1))
+      { while(*--chp!='\n');		       /* where did this line start? */
+	app_val(&escFrom_,(long)(++chp-themail));chp++;		   /* bogus! */
+      }
+     *realstart=f1stchar;mailread=1;
    }
-  *realstart=f1stchar;mailread=1;
- }
 }
 
 dirmail P((void))			/* buf should contain directory name */

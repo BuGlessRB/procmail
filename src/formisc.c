@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.11 1993/01/13 15:20:52 berg Exp $";
+ "$Id: formisc.c,v 1.12 1993/01/19 11:55:12 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -38,14 +38,14 @@ notend:	      if(p=strpbrk(start,"([\"<,; \t\n"))	/* find next special */
 	case '"':delim='"';start++;
       }
 machref:
-    {int i;
-     do
-	if((i= *start++)==delim)		 /* corresponding delimiter? */
-	   break;
-	else if(i=='\\'&&*start)		    /* skip quoted character */
-	   start++;
-     while(start<end);						/* anything? */
-    }
+     ;{ int i;
+	do
+	   if((i= *start++)==delim)		 /* corresponding delimiter? */
+	      break;
+	   else if(i=='\\'&&*start)		    /* skip quoted character */
+	      start++;
+	while(start<end);					/* anything? */
+      }
    }
   while(start<end);
   return(char*)end;

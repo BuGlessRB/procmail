@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.16 1993/01/13 15:20:49 berg Exp $";
+ "$Id: formail.c,v 1.17 1993/01/19 11:55:08 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/13 15:20:49 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/19 11:55:08 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -217,130 +217,131 @@ xusg:
   else
 startover:
      while(readhead());				 /* read in the whole header */
- {size_t namel=0;size_t lenparkedbuf;void*parkedbuf;
-  if(rdheader&&!strncmp(rdheader->fld_text,Article_,STRLEN(Article_)))
-     rdheader->fld_text[STRLEN(Article_)-1]=HEAD_DELIMITER;  /* proper field */
-  totallen=0;i=maxindex(rex);
-  do rex[i].rexl=0;
-  while(i--);					 /* all state has been reset */
-  for(fldp=rdheader;fldp;fldp=fldp->fld_next)	    /* go through the linked */
-   { int nowm;					    /* list of header-fields */
-     chp=fldp->fld_text;
-     if((j=fldp->id_len)==STRLEN(From_)&&fldp==rdheader&&eqFrom_(chp))
-      { nowm=trust?1:3/*wreply*/;goto foundfrom;	    /* leading From_ */
-      }
-     if(conctenate)
-	concatenate(fldp);
-     i=maxindex(sest);				  /* look for other "sender" */
-     while((sest[i].len!=j||strnIcmp(sest[i].head,chp,j))&&i--);   /* fields */
-     if(i>=0)						  /* found anything? */
-      { const char*saddr,*end;
-	nowm=areply?trust&&sest[i].head==replyto?    /* determine the weight */
-	 maxindex(sest)+1:sest[i].wrepl:trust&&sest[i].head==path?-1:i;
-foundfrom:
-	saddr=end=chp+fldp->tot_len-1;chp+=j;
-	for(;;chp=skipwords(chp,end))			/* skip RFC 822 wise */
-	 { switch(*(chp=pstrspn(chp,",; \t")))
-	    { default:
-		 if(saddr==end)		   /* if we haven't got anything yet */
-		    saddr=chp;			/* this might be the address */
-	      case '(':continue;		  /* a comment, don't bother */
-	      case '<':saddr=chp;		  /* hurray, machine useable */
-	      case '\n':;
+  ;{ size_t namel=0;size_t lenparkedbuf;void*parkedbuf;
+     if(rdheader&&!strncmp(rdheader->fld_text,Article_,STRLEN(Article_)))
+	rdheader->fld_text[STRLEN(Article_)-1]=HEAD_DELIMITER;	   /* proper */
+     totallen=0;i=maxindex(rex);				    /* field */
+     do rex[i].rexl=0;
+     while(i--);				 /* all state has been reset */
+     for(fldp=rdheader;fldp;fldp=fldp->fld_next)    /* go through the linked */
+      { int nowm;				    /* list of header-fields */
+	chp=fldp->fld_text;
+	if((j=fldp->id_len)==STRLEN(From_)&&fldp==rdheader&&eqFrom_(chp))
+	 { nowm=trust?1:3/*wreply*/;goto foundfrom;	    /* leading From_ */
+	 }
+	if(conctenate)
+	   concatenate(fldp);
+	i=maxindex(sest);		   /* look for other "sender" fields */
+	while((sest[i].len!=j||strnIcmp(sest[i].head,chp,j))&&i--);
+	if(i>=0)					  /* found anything? */
+	 { const char*saddr,*end;
+	   nowm=areply?trust&&sest[i].head==replyto? /* determine the weight */
+	    maxindex(sest)+1:sest[i].wrepl:trust&&sest[i].head==path?-1:i;
+foundfrom: saddr=end=chp+fldp->tot_len-1;chp+=j;
+	   for(;;chp=skipwords(chp,end))		/* skip RFC 822 wise */
+	    { switch(*(chp=pstrspn(chp,",; \t")))
+	       { default:
+		    if(saddr==end)	   /* if we haven't got anything yet */
+		       saddr=chp;		/* this might be the address */
+		 case '(':continue;		  /* a comment, don't bother */
+		 case '<':saddr=chp;		  /* hurray, machine useable */
+		 case '\n':;
+	       }
+	      break;
 	    }
-	   break;
+	   if((chp=skipwords(saddr,end),*saddr=='<')&&chp[-1]=='>'&&
+	    chp-1==strpbrk(saddr,"([\">,; \t\n"))     /* strip '<' and '>' ? */
+	      saddr++,chp--;   /* check length of the address and extract it */
+	   if(chp<=saddr&&sest[i].head==returnpath)	/* nill Return-Path: */
+	      chp=(char*)(saddr="<>")+2,nowm=maxindex(sest)+2;	 /* override */
+	   if((i=chp-saddr)>0&&(!namel||nowm>lastm))
+	    { tmemmove(namep=realloc(namep,i+1),saddr,namel=i);
+	      lastm=mystrstr(namep,".UUCP",end)?nowm-maxindex(sest)-3:nowm;
+	    }
+	 }				   /* save headers for later perusal */
+	i=maxindex(rex);chp=fldp->fld_text;j=fldp->id_len;    /* e.g. areply */
+	while((rex[i].lenr!=j||strnIcmp(rex[i].headr,chp,j))&&i--);
+	chp+=j;
+	if(i>=0&&(j=fldp->tot_len-j)>1)			  /* found anything? */
+	   tmemmove(rex[i].rexp=realloc(rex[i].rexp,rex[i].rexl=j),chp,j);
+      }
+     tmemmove(parkedbuf=malloc(buffilled),buf,lenparkedbuf=buffilled);
+     buffilled=0;    /* moved the contents of buf out of the way temporarily */
+     if(areply)		      /* autoreply requested, we clean up the header */
+      { for(fldp= *(afldp= &rdheader);fldp;)
+	   if(!(fp2=findf(fldp,iheader))||fp2->id_len<fp2->tot_len-1)
+	      *afldp=fldp->fld_next,free(fldp),fldp= *afldp;   /* remove all */
+	   else					/* except the ones mentioned */
+	      fldp= *(afldp= &fldp->fld_next);		       /* as -i ...: */
+	loadbuf(to,STRLEN(to));loadchar(' ');	   /* generate the To: field */
+	if(namel)	       /* did we find a valid return address at all? */
+	   loadbuf(namep,namel);		      /* then insert it here */
+	else
+	   loadbuf(unknown,STRLEN(unknown));	    /* or insert our default */
+	loadchar('\n');addbuf();		       /* add it to rdheader */
+	if(subj->rexl)				      /* any Subject: found? */
+	 { loadbuf(subject,STRLEN(subject));	  /* sure, check for leading */
+	   if(strnIcmp(pstrspn(chp=subj->rexp," \t"),Re,STRLEN(Re)))  /* Re: */
+	      loadbuf(re,STRLEN(re));	       /* no Re: , add one ourselves */
+	   loadsaved(subj);addbuf();
 	 }
-	if((chp=skipwords(saddr,end),*saddr=='<')&&chp[-1]=='>'&&
-	 chp-1==strpbrk(saddr,"([\">,; \t\n"))	      /* strip '<' and '>' ? */
-	   saddr++,chp--;      /* check length of the address and extract it */
-	if(chp<=saddr&&sest[i].head==returnpath)	/* nill Return-Path: */
-	   chp=(char*)(saddr="<>")+2,nowm=maxindex(sest)+2;	 /* override */
-	if((i=chp-saddr)>0&&(!namel||nowm>lastm))
-	 { tmemmove(namep=realloc(namep,i+1),saddr,namel=i);
-	   lastm=mystrstr(namep,".UUCP",end)?nowm-maxindex(sest)-3:nowm;
+	if(refr->rexl||msid->rexl)	   /* any References: or Message-ID: */
+	 { loadbuf(references,STRLEN(references)); /* yes insert References: */
+	   if(refr->rexl)
+	    { if(msid->rexl)	    /* if we're going to append a Message-ID */
+		 --refr->rexl;		    /* suppress the trailing newline */
+	      loadsaved(refr);
+	    }
+	   if(msid->rexl)
+	      loadsaved(msid);		       /* here's our missing newline */
+	   addbuf();
 	 }
-      }					   /* save headers for later perusal */
-     i=maxindex(rex);chp=fldp->fld_text;j=fldp->id_len;	  /* e.g. for areply */
-     while((rex[i].lenr!=j||strnIcmp(rex[i].headr,chp,j))&&i--);
-     chp+=j;
-     if(i>=0&&(j=fldp->tot_len-j)>1)			  /* found anything? */
-	tmemmove(rex[i].rexp=realloc(rex[i].rexp,rex[i].rexl=j),chp,j);
+	if(msid->rexl)			 /* do we add an In-Reply-To: field? */
+	   loadbuf(inreplyto,STRLEN(inreplyto)),loadsaved(msid),addbuf();
+      }				       /* are we allowed to add From_ lines? */
+     else if(!force&&(!rdheader||!eqFrom_(rdheader->fld_text)))	 /* missing? */
+      { struct field*old;time_t t;	     /* insert a From_ line up front */
+	t=time((time_t*)0);old=rdheader;rdheader=0;
+	loadbuf(From_,STRLEN(From_));
+	if(namel)			  /* we found a valid return address */
+	   loadbuf(namep,namel);
+	else
+	   loadbuf(unknown,STRLEN(unknown));			    /* Date: */
+	if(!hdate->rexl||findf(fdate,iheader)||findf(fdate,Iheader))
+	   loadchar(' '),chp=ctime(&t),loadbuf(chp,strlen(chp)); /* no Date: */
+	else					 /* we generate it ourselves */
+	   loadsaved(hdate);	      /* yes, found Date:, then copy from it */
+	addbuf();rdheader->fld_next=old;
+      }
+     for(fldp=aheader;fldp;fldp=fldp->fld_next)
+	if(!findf(fldp,rdheader))	       /* only add what didn't exist */
+	   addfield(&nheader,fldp->fld_text,fldp->tot_len);
+     if((fldp= *(afldp= &rdheader))&&logsummary&&eqFrom_(fldp->fld_text))
+	concatenate(fldp),putssn(fldp->fld_text,fldp->tot_len);
+     while(fldp)
+      { lnl=fldp->id_len;chp=fldp->fld_text;
+	if(logsummary)
+	 { if(lnl==STRLEN(subject)&&!strnIcmp(chp,subject,lnl))
+	    { concatenate(fldp);chp[i=fldp->tot_len-1]='\0';detab(chp);
+	      putcs(' ');putssn(chp,i>=MAXSUBJECTSHOW?MAXSUBJECTSHOW:i);
+	      putcs('\n');
+	    }
+	 }
+	else if(findf(fldp,xheader))		   /* extract field contents */
+	   putssn(chp+lnl,fldp->tot_len-lnl);
+	else if(findf(fldp,Xheader))			   /* extract fields */
+	   putssn(chp,fldp->tot_len);
+	if(findf(fldp,Iheader))				    /* delete fields */
+	 { *afldp=fldp->fld_next,free(fldp);fldp= *afldp;continue;
+	 }
+	else if(fp2=findf(fldp,Rheader))	  /* explicitly rename field */
+	   renfield(afldp,lnl,fp2->fld_text+lnl,fp2->tot_len-lnl);
+	else if((fp2=findf(fldp,iheader))&&!(areply&&lnl==fp2->tot_len-1))
+	   renfield(afldp,(size_t)0,old_,STRLEN(old_)); /* implicitly rename */
+	fldp= *(afldp= &(*afldp)->fld_next);
+      }					/* restore the saved contents of buf */
+     tmemmove(buf,parkedbuf,buffilled=lenparkedbuf);free(parkedbuf);
    }
-  tmemmove(parkedbuf=malloc(buffilled),buf,lenparkedbuf=buffilled);
-  buffilled=0;	     /* moved the contents of buf out of the way temporarily */
-  if(areply)		      /* autoreply requested, we clean up the header */
-   { for(fldp= *(afldp= &rdheader);fldp;)
-	if(!(fp2=findf(fldp,iheader))||fp2->id_len<fp2->tot_len-1)
-	   *afldp=fldp->fld_next,free(fldp),fldp= *afldp;      /* remove all */
-	else					/* except the ones mentioned */
-	   fldp= *(afldp= &fldp->fld_next);		       /* as -i ...: */
-     loadbuf(to,STRLEN(to));loadchar(' ');	   /* generate the To: field */
-     if(namel)		       /* did we find a valid return address at all? */
-	loadbuf(namep,namel);			      /* then insert it here */
-     else
-	loadbuf(unknown,STRLEN(unknown));	    /* or insert our default */
-     loadchar('\n');addbuf();			       /* add it to rdheader */
-     if(subj->rexl)				      /* any Subject: found? */
-      { loadbuf(subject,STRLEN(subject));	  /* sure, check for leading */
-	if(strnIcmp(pstrspn(chp=subj->rexp," \t"),Re,STRLEN(Re)))     /* Re: */
-	   loadbuf(re,STRLEN(re));	       /* no Re: , add one ourselves */
-	loadsaved(subj);addbuf();
-      }
-     if(refr->rexl||msid->rexl)		   /* any References: or Message-ID: */
-      { loadbuf(references,STRLEN(references));	  /* yes, insert References: */
-	if(refr->rexl)
-	 { if(msid->rexl)	    /* if we're going to append a Message-ID */
-	      --refr->rexl;		    /* suppress the trailing newline */
-	   loadsaved(refr);
-	 }
-	if(msid->rexl)
-	   loadsaved(msid);		       /* here's our missing newline */
-	addbuf();
-      }
-     if(msid->rexl)			 /* do we add an In-Reply-To: field? */
-	loadbuf(inreplyto,STRLEN(inreplyto)),loadsaved(msid),addbuf();
-   }				       /* are we allowed to add From_ lines? */
-  else if(!force&&(!rdheader||!eqFrom_(rdheader->fld_text))) /* was missing? */
-   { struct field*old;time_t t;		     /* insert a From_ line up front */
-     t=time((time_t*)0);old=rdheader;rdheader=0;loadbuf(From_,STRLEN(From_));
-     if(namel)				  /* we found a valid return address */
-	loadbuf(namep,namel);
-     else
-	loadbuf(unknown,STRLEN(unknown));
-     if(!hdate->rexl||findf(fdate,iheader)||findf(fdate,Iheader))   /* Date: */
-	loadchar(' '),chp=ctime(&t),loadbuf(chp,strlen(chp));	/* no Date:, */
-     else					 /* we generate it ourselves */
-	loadsaved(hdate);	      /* yes, found Date:, then copy from it */
-     addbuf();rdheader->fld_next=old;
-   }
-  for(fldp=aheader;fldp;fldp=fldp->fld_next)
-     if(!findf(fldp,rdheader))		       /* only add what didn't exist */
-	addfield(&nheader,fldp->fld_text,fldp->tot_len);
-  if((fldp= *(afldp= &rdheader))&&logsummary&&eqFrom_(fldp->fld_text))
-     concatenate(fldp),putssn(fldp->fld_text,fldp->tot_len);
-  while(fldp)
-   { lnl=fldp->id_len;chp=fldp->fld_text;
-     if(logsummary)
-      { if(lnl==STRLEN(subject)&&!strnIcmp(chp,subject,lnl))
-	 { concatenate(fldp);chp[i=fldp->tot_len-1]='\0';detab(chp);putcs(' ');
-	   putssn(chp,i>=MAXSUBJECTSHOW?MAXSUBJECTSHOW:i);putcs('\n');
-	 }
-      }
-     else if(findf(fldp,xheader))		   /* extract field contents */
-	putssn(chp+lnl,fldp->tot_len-lnl);
-     else if(findf(fldp,Xheader))			   /* extract fields */
-	putssn(chp,fldp->tot_len);
-     if(findf(fldp,Iheader))				    /* delete fields */
-      { *afldp=fldp->fld_next,free(fldp);fldp= *afldp;continue;
-      }
-     else if(fp2=findf(fldp,Rheader))		  /* explicitly rename field */
-	renfield(afldp,lnl,fp2->fld_text+lnl,fp2->tot_len-lnl);
-     else if((fp2=findf(fldp,iheader))&&!(areply&&lnl==fp2->tot_len-1))
-	renfield(afldp,(size_t)0,old_,STRLEN(old_));	/* implicitly rename */
-     fldp= *(afldp= &(*afldp)->fld_next);
-   }					/* restore the saved contents of buf */
-  tmemmove(buf,parkedbuf,buffilled=lenparkedbuf);free(parkedbuf);
- }
   if(xheader||Xheader)			     /* we're just extracting fields */
      clearfield(&rdheader),clearfield(&nheader);	    /* throw it away */
   else			     /* otherwise, display the new & improved header */

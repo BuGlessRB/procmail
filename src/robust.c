@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.8 1992/11/11 16:35:44 berg Exp $";
+ "$Id: robust.c,v 1.9 1993/01/19 11:55:25 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -96,9 +96,9 @@ opena(a)const char*const a;
 #ifdef O_CREAT
   return ropen(a,O_WRONLY|O_APPEND|O_CREAT,NORMperm);
 #else
- {int fd;
-  return(fd=ropen(a,O_WRONLY,0))<0?creat(a,NORMperm):fd;
- }
+  ;{ int fd;
+     return(fd=ropen(a,O_WRONLY,0))<0?creat(a,NORMperm):fd;
+   }
 #endif
 }
 
