@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.18 1993/05/18 13:05:32 berg Exp $*/
+/*$Id: header.h,v 1.19 1993/05/28 14:56:13 berg Exp $*/
 
 static const char
  returnpath[]=		"Return-Path:",				  /* RFC 822 */
@@ -86,7 +86,8 @@ static const char
  orgdate[]=		"Original-Date:",
  notdeliveredto[]=	"Not-Delivered-To:",
  reportversion[]=	"Report-Version:",
- status[]=		"Status:";			 /* mailer extension */
+ status[]=		"Status:",			 /* mailer extension */
+ readreceiptto[]=	"Read-Receipt-To:";	  /* miscellaneous extension */
 
 static const struct {const char*hedr;int lnr;}cdigest[]=
 { bsl(returnpath),bsl(received),bsl(replyto),bsl(Fromm),bsl(sender),
@@ -104,5 +105,5 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
   bsl(cntdescription),bsl(transportoptions),bsl(defltoptions),bsl(cntlength),
   bsl(rference),bsl(msgtype),bsl(autoforwardedfrom),bsl(autofcount),
   bsl(endofheader),bsl(orgaforwfrom),bsl(orgdate),bsl(notdeliveredto),
-  bsl(reportversion),bsl(status)
+  bsl(reportversion),bsl(status),bsl(readreceiptto)
 };
