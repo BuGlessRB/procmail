@@ -120,4 +120,5 @@
 	      - change the dir= attribute to directory=
 	      - also support the planned Content-Disposition: field (for naming
 		files)
+	      - propagate the SHELL variable to any sub-procmails we run
 	    Updated some misleading comments in rc.submit
