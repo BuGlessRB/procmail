@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.72 1994/10/18 14:30:22 berg Exp $";
+ "$Id: multigram.c,v 1.73 1994/10/18 17:36:18 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/10/18 14:30:22 $";
+static /*const*/char rcsdate[]="$Date: 1994/10/18 17:36:18 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -839,7 +839,7 @@ usg:
 		 tmemmove(mp->hard=malloc(hardlen),hardstr.text,hardlen);
 		 mp->metric=meter;mp->lentry=linentry;mp->offs1=offs1;
 		 mp->offs2=offs2;mp->hardfile=hardfile;
-		 ;{ struct const match*mpt;
+		 ;{ struct match*mpt;
 		    while(--mmp>=best&&(mpt= *mmp)->metric<meter)
 		       mmp[1]=mpt;			   /* keep it sorted */
 		  }
