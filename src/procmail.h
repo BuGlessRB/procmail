@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.52 2001/06/07 21:03:53 guenther Exp $*/
+/*$Id: procmail.h,v 1.53 2001/06/21 09:43:50 guenther Exp $*/
 
 #include "includes.h"
 
@@ -58,12 +58,14 @@
 #define MCDIRSEP	(dirsep+STRLEN(dirsep)-1)      /* most common DIRSEP */
 #define MCDIRSEP_	(dirsep+STRLEN(DIRSEP)-1)
 
-#define lck_LOCKFILE	1	  /* crosscheck the order of this with msg[] */
+#define lck_DELAYSIG	1	  /* crosscheck the order of this with msg[] */
 #define lck_ALLOCLIB	2		      /* in sterminate() in retint.c */
 #define lck_MEMORY	4
 #define lck_FORK	8
 #define lck_FILDES	16
 #define lck_KERNEL	32
+#define lck_LOGGING	64
+#define lck__NOMSG	(lck_DELAYSIG|lck_ALLOCLIB|lck_LOGGING)
 
 extern struct varval{const char*const name;long val;}strenvvar[];
 #define locksleep	(strenvvar[0].val)
@@ -96,12 +98,12 @@ extern const char shell[],lockfile[],newline[],binsh[],unexpeof[],*const*gargv,
  *defdeflock,*argv0,exceededlb[],curdir[],slogstr[],conflicting[],orgmail[],
  insufprivs[],errwwriting[],Version[];
 extern long filled,lastscore;
-extern int sh,pwait,retval,retvl2,lcking,rc,privileged,ignwerr,
+extern int sh,pwait,retval,retvl2,rc,privileged,ignwerr,
  lexitcode,accspooldir,crestarg,savstdout,berkeley,mailfilter,erestrict,
  Deliverymode,ifdepth;
 extern struct dyna_array ifstack;
 extern size_t linebuf;
-extern volatile int nextexit;
+extern volatile int nextexit,lcking;
 extern pid_t thepid;
 extern uid_t uid;
 extern gid_t gid,sgid;
@@ -110,7 +112,7 @@ extern gid_t gid,sgid;
  *	External variables that are checked/changed by the signal handlers:
  *	volatile time_t alrmtime;
  *	pid_t pidfilt,pidchild;
- *	volatile nextexit;
- *	int lcking;
- *	static volatile mailread;	in mailfold.c
+ *	volatile nextexit,lcking;
+ *	size_t linebuf;
+ *	static volatile int mailread;	in mailfold.c
  */

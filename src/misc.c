@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.112 2001/06/07 21:03:46 guenther Exp $";
+ "$Id: misc.c,v 1.113 2001/06/21 09:43:47 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -32,34 +32,47 @@ static /*const*/char rcsid[]=
 #include "memblk.h"
 #include "authenticate.h"
 #include "variables.h"
+#include "shell.h"
 
 		       /* line buffered to keep concurrent entries untangled */
 void elog(newt)const char*const newt;
-{ int lnew;size_t i;static int lold;static char*old;char*p;
+{ int lnew;size_t i;static size_t lold,lmax;static char*old;
+  if(lcking&lck_LOGGING)			 /* reentered via sighandler */
+     lold=lmax=0;		       /* so give up on any buffered message */
+  i=lold+(lnew=strlen(newt));	   /* calculate additional and total lengths */
+  if(lnew&&				/* if this is not a forced flush and */
+   (i<lmax||		      /* either we have enough room in the buffer or */
+    (i<=MAXlogbuf&&			 /* the buffer won't get too big and */
+     !nextexit)))	    /* we're not in a signal handler, then it's safe */
+   { if(i>lmax)				      /* to use or expand the buffer */
+      { char*p;size_t newmax=lmax*2;	 /* exponential expansion by default */
+	if(newmax<i)				   /* ...unless we need more */
+	   newmax=i;
+	if(newmax<MINlogbuf)		    /* ...or that would be too small */
+	   newmax=MINlogbuf;
+	lcking|=lck_LOGGING;		      /* about to change old or lmax */
+	if(p=lmax?frealloc(old,newmax):fmalloc(newmax))/* fragile allocation */
+	   lmax=newmax,old=p;				/* update the values */
+	lcking&=~lck_LOGGING;		       /* okay, they're stable again */
+	if(!p)				      /* couldn't expand the buffer? */
+	   goto flush;					/* then flush it now */
+      }				    /* okay, we now have enough buffer space */
+     tmemmove(old+lold,newt,lnew);		      /* append the new text */
+     lnew=0;lold=i		    /* the text in newt is now in the buffer */
+     if(old[i-1]!='\n')			    /* if we don't need to flush now */
+	return;						  /* then we're done */
+   }
+flush:
 #ifndef O_CREAT
   lseek(STDERR,(off_t)0,SEEK_END);	  /* locking should be done actually */
 #endif
-  if(!(lnew=strlen(newt))||nextexit)			     /* force flush? */
-     goto flush;
-  i=lold+lnew;
-  if(p=lold?realloc(old,i):malloc(i))			 /* unshelled malloc */
-   { memmove((old=p)+lold,newt,(size_t)lnew);			   /* append */
-     if(p[(lold=i)-1]=='\n')					     /* EOL? */
-	rwrite(STDERR,p,(int)i),lold=0,free(p);		/* flush the line(s) */
+  if(lold)					       /* anything buffered? */
+   { rwrite(STDERR,old,lold);
+     lold=0;					 /* we never free the buffer */
    }
-  else						   /* no memory, force flush */
-flush:
-   { if(lold)
-      { rwrite(STDERR,old,lold);lold=0;
-	if(!nextexit)
-	   free(old);			/* don't use free in signal handlers */
-      }
-     if(lnew)
-	rwrite(STDERR,newt,lnew);
-   }
+  if(lnew)
+     rwrite(STDERR,newt,lnew);
 }
-
-#include "shell.h"
 
 void ignoreterm P((void))
 { signal(SIGTERM,SIG_IGN);signal(SIGHUP,SIG_IGN);signal(SIGINT,SIG_IGN);
@@ -185,8 +198,8 @@ void nlog(a)const char*const a;
 { time_t newtime;
   static const char colnsp[]=": ";
   elog(procmailn);elog(colnsp);
-  if(verbose&&oldtime!=(newtime=time((time_t*)0)))
-   { charNUM(num,thepid);
+  if(verbose&&!nextexit&&oldtime!=(newtime=time((time_t*)0)))  /* don't call */
+   { charNUM(num,thepid);			  /* ctime from a sighandler */
      elog("[");oldtime=newtime;ultstr(0,(unsigned long)thepid,num);elog(num);
      elog("] ");elog(ctime(&oldtime));elog(procmailn);elog(colnsp);
    }
@@ -242,16 +255,16 @@ char*cstr(a,b)char*const a;const char*const b;	/* dynamic buffer management */
 }
 
 void onguard P((void))
-{ lcking|=lck_LOCKFILE;
+{ lcking|=lck_DELAYSIG;
 }
 
 void offguard P((void))
-{ lcking&=~lck_LOCKFILE;
+{ lcking&=~lck_DELAYSIG;
   if(nextexit==1)	  /* make sure we are not inside Terminate() already */
-     elog(newline),Terminate(0);
+     elog(newline),Terminate();
 }
 
-void sterminate P((void))
+static void sterminate P((void))
 { static const char*const msg[]={"memory","fork",	  /* crosscheck with */
    "a file descriptor","a kernel-lock"};	  /* lck_ defs in procmail.h */
   ignoreterm();
@@ -259,21 +272,21 @@ void sterminate P((void))
      kill(pidchild,SIGTERM);
   if(!nextexit)
    { nextexit=1;nlog("Terminating prematurely");
-     if(!(lcking&lck_LOCKFILE))
+     if(!(lcking&lck_DELAYSIG))
       { register unsigned i,j;
-	if(i=(lcking&~(lck_ALLOCLIB|lck_LOCKFILE))>>1)
+	if(i=(lcking&~lck__NOMSG)>>1)
 	 { elog(whilstwfor);
 	   for(j=0;!((i>>=1)&1);j++);
 	   elog(msg[j]);
 	 }
-	elog(newline);Terminate(1);
+	elog(newline);Terminate();
       }
    }
 }
 
 int fakedelivery;
 
-void Terminate(fromsig)int fromsig;
+void Terminate P((void))
 { const char*chp;
   ignoreterm();
   if(retvl2!=EXIT_SUCCESS)
@@ -287,12 +300,11 @@ void Terminate(fromsig)int fromsig;
       }
      else
 	lstfolder=tgetenv(lastfolder);
-     if(!fromsig)
-	logabstract(lstfolder);
+     logabstract(lstfolder);
 #ifndef NO_COMSAT
-     if(strlen(lgnameval)+2<=linebuf)		  /* first pass length check */
+     if(strlen(chp=tgetenv(lgname))+2<=linebuf)	  /* first pass length check */
       { int s;struct sockaddr_in addr;char*chad;	     /* @ seperator? */
-	strcpy(buf,lgnameval);
+	strcpy(buf,chp);
 	strcat(buf,"@");		     /* start setting up the message */
 	if(chad=strchr(chp=(char*)scomsat,SERV_ADDRsep))
 	   *chad++='\0';	      /* split it up in service and hostname */

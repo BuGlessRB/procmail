@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.95 2001/01/28 01:32:20 guenther Exp $*/
+/*$Id: config.h,v 1.96 2001/06/21 09:43:54 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -29,7 +29,7 @@
  * completion of the /etc/procmailrc file (future versions of procmail are
  * expected to provide better runtime configuration control).  The autoconf
  * process attempts to determine reasonable values for these versions of PATH
- * and setts the defSPATH and defPATH variables accordingly.  If you want to
+ * and sets the defSPATH and defPATH variables accordingly.  If you want to
  * override those settings you should uncomment and possibly change the
  * DEFSPATH and DEFPATH defines below
  */
@@ -165,6 +165,8 @@
 #define MAXinMEM	(1024*1024)		 /* when to switch to mmap() */
 #define MMAP_DIR	"/var/spool/procmail/"		     /* where to put */
 #endif								/* the files */
+#define MINlogbuf	81			       /* fit an entire line */
+#define MAXlogbuf	1000		       /* in case someone abuses LOG */
 #define MAILERDAEMON	"MAILER-DAEMON"	      /* From_ address to replace <> */
 #define FAKE_FIELD	">From "
 #define RETRYunique	8	   /* # of tries at making a unique filename */

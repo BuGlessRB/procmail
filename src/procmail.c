@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.173 2001/06/07 21:03:52 guenther Exp $";
+ "$Id: procmail.c,v 1.174 2001/06/21 09:43:49 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -55,12 +55,12 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  exceededlb[]="Exceeded LINEBUF\n",errwwriting[]="Error while writing to",
  Version[]=VERSION;
 char*Stdout;
-int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rc= -1,
+int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,rc= -1,
  privileged=priv_START,lexitcode=EXIT_SUCCESS,ignwerr,crestarg,savstdout,
  berkeley,mailfilter,erestrict,Deliverymode,ifdepth;   /* depth of outermost */
 struct dyna_array ifstack;
 size_t linebuf=mx(DEFlinebuf,1024/*STRLEN(systm_mbox)<<1*/);
-volatile int nextexit;			       /* if termination is imminent */
+volatile int nextexit,lcking;		       /* if termination is imminent */
 pid_t thepid;
 long filled,lastscore;	       /* the length of the mail, and the last score */
 memblk themail;							 /* the mail */
@@ -495,7 +495,7 @@ nomore_rc:
      if(succeed)				     /* should we panic now? */
 mailed: retval=EXIT_SUCCESS;		  /* we're home free, mail delivered */
    }
-  unlock(&loclock);Terminate(0);
+  unlock(&loclock);Terminate();
 }
 
 static void usage P((void))

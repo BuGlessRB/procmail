@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: foldinfo.c,v 1.6 2001/06/07 21:03:41 guenther Exp $";
+ "$Id: foldinfo.c,v 1.7 2001/06/21 09:43:43 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "misc.h"
@@ -133,7 +133,7 @@ int foldertype(type,forcedir,modep,paranoid)int type,forcedir;
 	nlog("Internal error: improper type (");
 	ltstr(0,type,buf2);elog(buf2);
 	elog(") passed to foldertype for folder ");logqnl(buf);
-	Terminate(0);
+	Terminate();
    }
   chp=strchr(buf,'\0');
   if((chp-buf)+UNIQnamelen+1+i>linebuf)

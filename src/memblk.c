@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: memblk.c,v 1.4 2001/06/07 21:03:45 guenther Exp $"
+ "$Id: memblk.c,v 1.5 2001/06/21 09:43:46 guenther Exp $"
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -95,7 +95,7 @@ dropf:	 { close(mb->fd);mb->fd= -1;
       { mb->filelen=len;
 	if(lseek(mb->fd,mb->filelen-1,SEEK_SET)<0||1!=rwrite(mb->fd,empty,1))
 	 { char*p=malloc(len+1);	   /* can't extend, switch to malloc */
-	   memcpy(p,mb->p,mb->len);
+	   tmemmove(p,mb->p,mb->len);
 	   munmap(mb->p,mb->len+1);
 	   mb->len=len;
 	   goto dropf;
@@ -107,7 +107,7 @@ mmap:	if((mb->p=mmap(0,len+1,P_RW,MAP_PRIVATE,mb->fd,(off_t)0))==MAP_FAILED)
 	   syslog(LOG_NOTICE,"%s of %ld bytes\n",mmapfailed,len);
 	   if(retval!=EX_TEMPFAIL)
 	      retval=EX_OSERR;
-	   Terminate(0);
+	   Terminate();
 	 }
       }
      mb->len=len;

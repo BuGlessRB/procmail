@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.31 2001/06/07 21:03:54 guenther Exp $";
+ "$Id: robust.c,v 1.32 2001/06/21 09:43:52 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -31,7 +31,7 @@ void nomemerr(len)const size_t len;
    }
   if(retval!=EX_TEMPFAIL)
      retval=EX_OSERR;
-  Terminate(0);
+  Terminate();
 }
 
 static void heapdefrag P((void))
@@ -71,6 +71,12 @@ ret:  { lcking&=~(lck_MEMORY|lck_ALLOCLIB);
       }
    }
   nomemerr(len);
+}
+
+void*fmalloc(len)const size_t len;			 /* 'fragile' malloc */
+{ void*p;
+  lcking|=lck_ALLOCLIB;p=malloc(len);lcking&=~lck_ALLOCLIB;
+  return p;
 }
 
 void*frealloc(old,len)void*const old;const size_t len;	/* 'fragile' realloc */
