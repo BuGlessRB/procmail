@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.19 1993/11/26 16:25:09 berg Exp $*/
+/*$Id: misc.h,v 1.20 1994/01/11 13:17:33 berg Exp $*/
 
 void
  elog P((const char*const newt)),
@@ -39,7 +39,6 @@ char
  *cat P((const char*const a,const char*const b)),
  *tstrdup P((const char*const a)),
  *cstr P((char*const a,const char*const b)),
- *skpspace P((const char*chp)),
  *gobenv P((char*chp)),
  *egrepin P((char*expr,const char*source,const long len,int casesens));
 const char

@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.29 1993/12/23 13:02:05 berg Exp $*/
+/*$Id: manconf.c,v 1.30 1994/01/11 13:17:24 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -206,6 +206,7 @@ See also:\1.BR DROPPRIVS .":"");
   pc("TEMPFAILOPT",TEMPFAILOPT);
   pc("MAILFILTOPT",MAILFILTOPT);
   pc("FROMWHOPT",FROMWHOPT);
+  pc("REFRESH_TIME",REFRESH_TIME);
   pc("ALTFROMWHOPT",ALTFROMWHOPT);
   pc("ARGUMENTOPT",ARGUMENTOPT);
   pc("DELIVEROPT",DELIVEROPT);

@@ -1,6 +1,10 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.13 1993/12/23 13:01:38 berg Exp $
+#$Id: mansed,v 1.14 1994/01/11 13:16:42 berg Exp $
+
+IFS="	 \
+
+"
 
 test 5 != $# &&
  echo "Don't start this script directly, use \`make'" && exit 1
@@ -10,7 +14,7 @@ SRC="$2"
 DEST="$3"
 RM="$4"
 DEVNULL=$5
-export SHELL SRC DEST RM DEVNULL
+export SHELL SRC DEST RM DEVNULL IFS
 
 if test ! -f "$DEST"
 then

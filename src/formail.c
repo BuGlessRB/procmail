@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.33 1993/11/26 16:24:57 berg Exp $";
+ "$Id: formail.c,v 1.34 1994/01/11 13:17:08 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/11/26 16:24:57 $";
+static /*const*/char rcsdate[]="$Date: 1994/01/11 13:17:08 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -90,8 +90,8 @@ static void logfolder P((void))	 /* estimate the no. of characters needed to */
 { size_t i;charNUM(num,totallen);		       /* represent totallen */
   static const char tabchar[]=TABCHAR;
   if(logsummary)
-   { putssn(sfolder,STRLEN(sfolder));i=strlen(logsummary)+STRLEN(sfolder);
-     i-=i%TABWIDTH;
+   { putssn(sfolder,STRLEN(sfolder));putssn(logsummary,i=strlen(logsummary));
+     i+=STRLEN(sfolder);i-=i%TABWIDTH;
      do putssn(tabchar,STRLEN(tabchar));
      while((i+=TABWIDTH)<LENoffset);
      ultstr(7,totallen,num);putssn(num,strlen(num));putcs('\n');
@@ -251,7 +251,14 @@ startover:
 	 { char*saddr;char*tmp;			     /* determine the weight */
 	   nowm=trust?sest[i].wtrepl:areply?sest[i].wrepl:i;chp+=j;
 	   tmp=malloc(j=fldp->tot_len-j);tmemmove(tmp,chp,j);
-	   tmp[j-1]='\0';chp=pstrspn(tmp," \t\n");
+	   (chp=tmp)[j-1]='\0';
+	   if(sest[i].head==From_&&strchr(chp,'\n'))
+	    { for(chp=tmp+j-1;*--chp!='\n';) /* skip to the last uucp >From_ */
+	      if(!(chp=strchr(chp,' ')))
+		 chp=tmp;
+	    }
+	   while(*(chp=skpspace(chp))=='\n')
+	      chp++;
 	   for(saddr=0;;chp=skipwords(chp))		/* skip RFC 822 wise */
 	    { switch(*chp)
 	       { default:
@@ -307,7 +314,7 @@ newnamep:	 if(namep)
 	loadchar('\n');addbuf();		       /* add it to rdheader */
 	if(subj->rexl)				      /* any Subject: found? */
 	 { loadbuf(subject,STRLEN(subject));	  /* sure, check for leading */
-	   if(strnIcmp(pstrspn(chp=subj->rexp," \t"),Re,STRLEN(Re)))  /* Re: */
+	   if(strnIcmp(skpspace(chp=subj->rexp),Re,STRLEN(Re)))	      /* Re: */
 	      loadbuf(re,STRLEN(re));	       /* no Re: , add one ourselves */
 	   loadsaved(subj);addbuf();
 	 }
@@ -388,8 +395,8 @@ newnamep:	 if(namep)
 fromanyway:
 	 { register size_t k;
 	   if(split&&(lnl||every)&&    /* more thorough check for a postmark */
-	    (k=strcspn(chp=pstrspn(chp+STRLEN(From_)," \t")," \t\n"))&&
-	    *pstrspn(chp+k," \t")!='\n')
+	    (k=strcspn(chp=skpspace(chp+STRLEN(From_))," \t\n"))&&
+	    *skpspace(chp+k)!='\n')
 	      goto accuhdr;		     /* ok, postmark found, split it */
 	   if(bogus)						   /* disarm */
 	      lputssn(escap,escaplen);

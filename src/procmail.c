@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.58 1993/12/23 13:02:12 berg Exp $";
+ "$Id: procmail.c,v 1.59 1994/01/11 13:17:46 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -187,8 +187,10 @@ privileged:				       /* move stdout out of the way */
 	ultstr(0,(unsigned long)uid,buf);
 	chp2=!passinvk||!*passinvk->pw_name?buf:passinvk->pw_name;
 	filled=0;
-	;{ const char*fwhom;size_t lfr,linv;
-	   fwhom=fromwhom?fromwhom:chp2;
+	;{ const char*fwhom;size_t lfr,linv;int tstamp=0;
+	   if(fromwhom&&*fromwhom==REFRESH_TIME&&!fromwhom[1])
+	      tstamp=1;
+	   fwhom=fromwhom&&!tstamp?fromwhom:chp2;
 	   thebody=themail=
 	    malloc(2*linebuf+(lfr=strlen(fwhom))+(linv=strlen(chp2)));
 	   if(Deliverymode||fromwhom)  /* need to peek for a leading From_ ? */
@@ -197,8 +199,10 @@ privileged:				       /* move stdout out of the way */
 		 t=time((time_t*)0);strcat(strcpy(buf2,"  "),ctime(&t));
 	       }
 	      lfr+=STRLEN(From_)+(r=strlen(buf2));
+	      if(tstamp)
+		 tstamp=r;
 	      if(privs)					 /* privileged user? */
-		 linv=0;	      /* yes, so no need to insert Received: */
+		 linv=0;		 /* yes, so no need to insert >From_ */
 	      else
 		 linv+=STRLEN(Fakefield)+r;
 	      while(1==(r=rread(STDIN,themail,1))&&*themail=='\n');
@@ -209,7 +213,10 @@ privileged:				       /* move stdout out of the way */
 		 if(!(rstart=strchr(rstart,'\n')))
 		    goto nonewl;		     /* drop long From_ line */
 		 i-=++rstart-themail;
-		 if(fromwhom)			       /* discard From_ line */
+		 if(tstamp)
+		    lfr=findtstamp(themail+STRLEN(From_),rstart)
+		     -themail+tstamp;
+		 else if(fromwhom)		       /* discard From_ line */
 		  { for(;!(rstart=strchr(themail,'\n'));themail[i]='\0')
 nonewl:		       if((i=rread(STDIN,themail,linebuf-2))<=0)
 			  break;
@@ -218,21 +225,27 @@ nonewl:		       if((i=rread(STDIN,themail,linebuf-2))<=0)
 		 else			       /* leave the From_ line alone */
 		  { lfr=0;
 		    if(linv)
-		     { filled=linv+i;i-=(lfr=rstart-themail);
-		       goto leaveFrom;
-		     }
+		       i-=(lfr=rstart-themail);
 		  }
 	       }
+	      else
+		 tstamp=0;
 	      filled=lfr+linv+i;
-	      if(lfr||linv)	 /* move the read text beyond our From_ line */
-leaveFrom:     { r= *rstart;tmemmove(themail+lfr+linv,rstart,i);
+	      if(lfr||linv)	     /* move read text beyond our From_ line */
+	       { r= *rstart;tmemmove(themail+lfr+linv,rstart,i);
 		 if(!linv)
-		    strcat(strcpy(themail,From_),fwhom);
+		  { rstart[-tstamp]='\0';
+		    if(!tstamp)
+		       strcat(strcpy(themail,From_),fwhom);
+		  }
 		 else
 		  { if(lfr)
-		     { strcat(strcat(strcpy(themail,From_),fwhom),buf2);
-		       rstart=strchr(themail,'\0');
-		     }	    /* insert a Received: field to distinguish fakes */
+		     { rstart-=linv;
+		       if(tstamp)
+			  strcpy(rstart-tstamp,buf2);
+		       else
+			  strcat(strcat(strcpy(themail,From_),fwhom),buf2);
+		     }	       /* insert a >From_ field to distinguish fakes */
 		    strcat(strcpy(rstart,Fakefield),chp2);
 		  }			  /* overwrite the trailing \0 again */
 		 strcat(themail,buf2);themail[lfr+linv]=r;
@@ -772,7 +785,7 @@ forward:	 if(locknext)
 		     { *buf2='\0';  /* find the implicit lockfile ('>>name') */
 		       for(chp=buf;i= *chp++;)
 			  if(i=='>'&&*chp=='>')
-			   { chp=pstrspn(chp+1," \t");
+			   { chp=skpspace(chp+1);
 			     tmemmove(buf2,chp,i=strcspn(chp,EOFName));
 			     buf2[i]='\0';
 			     if(sh)	 /* expand any environment variables */

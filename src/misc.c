@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.38 1993/12/08 17:34:19 berg Exp $";
+ "$Id: misc.c,v 1.39 1994/01/11 13:17:30 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -308,14 +308,6 @@ void setlastfolder(folder)const char*const folder;
      chp[STRLEN(lastfolder)]='=';strcpy(chp+STRLEN(lastfolder)+1,folder);
      sputenv(chp);free(chp);
    }
-}
-
-char*skpspace(chp)const char*chp;
-{ for(;;chp++)
-     switch(*chp)
-      { case ' ':case '\t':continue;
-	default:return(char*)chp;
-      }
 }
 
 char*gobenv(chp)char*chp;

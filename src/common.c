@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: common.c,v 1.13 1993/11/24 19:46:12 berg Exp $";
+ "$Id: common.c,v 1.14 1994/01/11 13:16:57 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -36,10 +36,12 @@ void detab(p)char*p;
      *p=' ';			     /* take out all tabs and other specials */
 }
 
-char*pstrspn(whole,sub)const char*whole,*const sub;
-{ while(*whole&&strchr(sub,*whole))
-     whole++;
-  return(char*)whole;
+char*skpspace(chp)const char*chp;
+{ for(;;chp++)
+     switch(*chp)
+      { case ' ':case '\t':continue;
+	default:return(char*)chp;
+      }
 }
 
 #ifdef NOstrcspn

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: fields.c,v 1.12 1993/11/24 19:46:20 berg Exp $";
+ "$Id: fields.c,v 1.13 1994/01/11 13:17:03 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -37,10 +37,11 @@ struct field**addfield(pointer,text,totlen)register struct field**pointer;
 
 void concatenate(fldp)struct field*const fldp;
 { register char*p;register size_t l;	    /* concatenate a continued field */
-  l=fldp->tot_len;p=fldp->fld_text;
-  while(l--)
-     if(*p++=='\n'&&l)	     /* by substituting all newlines except the last */
-	p[-1]=' ';
+  l=fldp->tot_len;
+  if(!eqFrom_(p=fldp->fld_text))	    /* don't concatenate From_ lines */
+     while(l--)
+	if(*p++=='\n'&&l)    /* by substituting all newlines except the last */
+	   p[-1]=' ';
 }
 
 void renfield(pointer,oldl,newname,newl)struct field**const pointer;
@@ -76,7 +77,12 @@ void dispfield(p)register const struct field*p;
 
 readhead P((void))  /* try and append one valid field to rdheader from stdin */
 { getline();
-  if(!eqFrom_(buf))				    /* it's not a From_ line */
+  if(eqFrom_(buf))					/* it's a From_ line */
+   { if(rdheader)
+	return 0;			       /* the From_ line was a fake! */
+     for(;buflast=='>';getline());	    /* gather continued >From_ lines */
+   }
+  else
    { if(!breakfield(buf,buffilled))	   /* not the start of a valid field */
 	return 0;
      for(;;getline())		      /* get the rest of the continued field */
@@ -86,8 +92,6 @@ readhead P((void))  /* try and append one valid field to rdheader from stdin */
 	break;
       }
    }
-  else if(rdheader)
-     return 0;				       /* the From_ line was a fake! */
   addbuf();return 1;		  /* phew, got the field, add it to rdheader */
 }
 

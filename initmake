@@ -1,6 +1,10 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.44 1993/12/13 15:52:18 berg Exp $
+#$Id: initmake,v 1.45 1994/01/11 13:16:07 berg Exp $
+
+IFS="	 \
+
+"
 
 PATH=.:$PATH
 BSHELL=$1
@@ -59,7 +63,7 @@ HERE
 esac
 test -z "$SHELL" && SHELL=$BSHELL
 
-export SHELL PATH
+export SHELL PATH IFS
 
 FGREP="fgrep"		# POSIX, or not POSIX, that is the question...
 if test \^hello = "`echo '^hello' | grep -F '^hello' 2>&1`"

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: subscribe,v 1.19 1993/12/13 15:52:34 berg Exp $
+#$Id: subscribe,v 1.20 1994/01/11 13:16:23 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -30,13 +30,13 @@ subscraddr=""
 address=`$formail -k -xSubject: |
  $sed -n -e 'y/ABCDEFGHIJKLMNOPQRSTUVWXYZ/abcdefghijklmnopqrstuvwxyz/' \
   -e 's/add[	 ]*'\
-'[^	 ]*[	 ]\([^	 ][^	 ]*[@!][^	 ][^	 ]*\)/\1/p' \
+'[^	 ]*[	 ]\([^	 ]*[-a-z0-9_][@!][a-z][^	 ]*\)/\1/p' \
   -e 's/address[	 ]*'\
-'[^	 ]*[	 ]\([^	 ][^	 ]*[@!][^	 ][^	 ]*\)/\1/p' \
+'[^	 ]*[	 ]\([^	 ]*[-a-z0-9_][@!][a-z][^	 ]*\)/\1/p' \
   -e 's/sub[	 ]*'\
-'[^	 ]*[	 ]\([^	 ][^	 ]*[@!][^	 ][^	 ]*\)/\1/p' \
+'[^	 ]*[	 ]\([^	 ]*[-a-z0-9_][@!][a-z][^	 ]*\)/\1/p' \
   -e 's/subscribe[	 ]*'\
-'[^	 ]*[	 ]\([^	 ][^	 ]*[@!][^	 ][^	 ]*\)/\1/p' `
+'[^	 ]*[	 ]\([^	 ]*[-a-z0-9_][@!][a-z][^	 ]*\)/\1/p' `
 
 for a in $address ""
 do

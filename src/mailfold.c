@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.38 1993/12/23 13:02:02 berg Exp $";
+ "$Id: mailfold.c,v 1.39 1994/01/11 13:17:13 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -312,4 +312,22 @@ eofheader:;
   while(chp=strstr(chp,FROM_EXPR))
      app_val(&escFrom_,(off_t)(++chp-themail));	       /* bogus From_ found! */
   mailread=1;
+}
+
+char*findtstamp(start,end)const char*start,*end;
+{ start=skpspace(start);start+=strcspn(start," \t\n");
+  if(skpspace(start)>=(end-=25))
+     return(char*)start;
+  while(!(end[13]==':'&&end[15]==':')&&--end>start);
+  ;{ int spc=0;
+     while(end-->start)
+      { switch(*end)
+	 { case ' ':case '\t':spc=1;continue;
+	 }
+	if(!spc)
+	   continue;
+	break;
+      }
+     return(char*)end+1;
+   }
 }

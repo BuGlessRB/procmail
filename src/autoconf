@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.69 1993/12/23 13:01:53 berg Exp $
+#$Id: autoconf,v 1.70 1994/01/11 13:16:53 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -73,6 +73,10 @@
 # Anything else indicates failure of your system to comply with either
 # the ANSI or POSIX standards (but procmail should be installable anyway).
 
+IFS="	 \
+
+"
+
 SHELL=$1
 PATH=.:$PATH
 shift; RM="$1"
@@ -88,7 +92,7 @@ test 1 != $# &&
  echo "Don't start this script directly, use \`make ../autoconf.h'" && exit 1
 
 LANG=""
-export SHELL PATH LANG
+export SHELL PATH LANG IFS
 
 test "X$LOCKINGTEST" = X__defaults__ && LOCKINGTEST=""
 
@@ -400,9 +404,9 @@ main(argc,argv)char*argv[];
 	      lockflag=childno|i<<1|1;
 	      lseek(fd=open(filename,O_WRONLY),(off_t)0,SEEK_END);
 	      if(sfdlock(fd))
-		 lockflag&=~1,fprintf(stderr,"XX%02x",lockflag);
+		 lockflag&=~1,fprintf(stderr,"XX%x",lockflag);
 	      write(pip[1],&lockflag,1);
-	      fprintf(stderr,"%2x%02x",i,childno>>SHIFT_childno);
+	      fprintf(stderr," %x%x",i,childno>>SHIFT_childno);
 	      lseek(fd,(off_t)0,SEEK_END);write(fd,&lockflag,1);
 	      for(i=SLEEP_loop;i;i--,time((time_t*)0),sleep(SLEEP_delay));
 	      lockflag&=~1;write(pip[1],&lockflag,1);
@@ -901,6 +905,7 @@ test -f /bin/test && echo "#define GOT_bin_test" >>$ACONF
 
 cat >_autotst.c <<HERE
 #define BENCHSIZE	16384
+#define GRANULARITY	64		    /* maximal benchmark granularity */
 #include "sublib.c"
 #ifndef NO_COMSAT
 #include "network.h"					 /* also for ntohs() */
@@ -922,7 +927,8 @@ main(argc)
 { if(argc==1)
    {
 #ifdef BENCHSIZE
-     ;{ char*haystack;unsigned c1,c2,i;time_t t;unsigned long iter,syscnt;
+     ;{ char*haystack;unsigned c1,c2,i;time_t t;
+	unsigned long iter,titer,syscnt;
 	haystack=malloc(BENCHSIZE);
 	for(i=c1=c2=0;i<BENCHSIZE-1;i++,c1++,c2++)
 	 { haystack[i]='a';
@@ -932,15 +938,17 @@ main(argc)
 	      c2=0,haystack[i]='\n';
 	 }
 	haystack[i]='\0';
-	for(t=0,iter=1;t<=1;iter<<=1)
-	 { t=time((time_t*)0);syscnt=dobench(strstr,iter,haystack);
+	for(titer=~(unsigned long)0,t=0,iter=1;t<=1&&iter<<1&&iter<titer;)
+	 { t=time((time_t*)0);
+	   if((syscnt=dobench(strstr,iter<<=1,haystack))&&!~titer)
+	      titer=iter*GRANULARITY;
 	   t=time((time_t*)0)-t;
 	 }
 	iter=dobench(sstrstr,iter,haystack);free(haystack);
 	if(!iter)
 	   iter=1;
 	printf("\
-/* Your system strstr() is %.2f times SLOWER than my implementation in C */\n",
+/* Your system's strstr() is %.2f times SLOWER than my C-routine */\n",
 	 (double)syscnt/iter);
 	if(syscnt>iter)
 	   printf("\
@@ -1009,7 +1017,7 @@ main(argc)
 }
 HERE
 
-echo 'Benchmarking your system strstr() implementation'
+echo "Benchmarking your system's strstr() implementation"
 
 $MAKE _autotst >$DEVNULL 2>&1
 _autotst >>$ACONF

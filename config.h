@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.34 1993/12/23 13:01:14 berg Exp $*/
+/*$Id: config.h,v 1.35 1994/01/11 13:16:03 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -98,7 +98,7 @@
 #define BLKSIZ		1024
 #define STDBUF		128
 #endif /* SMALLHEAP */
-#define FAKE_FIELD	"Received: "
+#define FAKE_FIELD	">From "
 #define HOSTNAMElen	9	  /* nr of significant chararacters for HOST */
 #define BOGUSprefix	"BOGUS."	     /* prepended to bogus mailboxes */
 #define PROCMAILRC	".procmailrc"
@@ -109,13 +109,13 @@
  "(^((Resent-)?(To|Cc|Bcc)|(X-Envelope|Apparently)-To):(.*[^a-zA-Z])?)"
 #define FROMDkey	"^FROM_DAEMON"		     /* matches most daemons */
 #define FROMDsubstitute "(^(Precedence:.*(junk|bulk|list)|\
-(((Resent-)?(From|Sender)|X-Envelope-From):|From )(.*[^.%@a-z0-9])?(\
+(((Resent-)?(From|Sender)|X-Envelope-From):|>?From )(.*[^.%@a-z0-9])?(\
 Post(ma?(st(e?r)?|n)|office)|Mail(er)?|daemon|mmdf|root|uucp|LISTSERV|owner|\
-request|bounce|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9]|$)))"
+request|bounce|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>]))"
 #define FROMMkey	"^FROM_MAILER"	      /* matches most mailer-daemons */
-#define FROMMsubstitute "(^(((Resent-)?(From|Sender)|X-Envelope-From):|From )\
-(.*[^.%@a-z0-9])?(Post(ma(st(er)?|n)|office)|Mail(er)?|daemon|mmdf|root|uucp|\
-serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9]|$))"
+#define FROMMsubstitute "(^(((Resent-)?(From|Sender)|X-Envelope-From):|\
+>?From )(.*[^.%@a-z0-9])?(Post(ma(st(er)?|n)|office)|Mail(er)?|daemon|mmdf|\
+root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
 #define DEFshellmetas	"&|<>~;\n?*["		    /* never put '$' in here */
 #define DEFmaildir	"$HOME"
 #define DEFdefault	"$ORGMAIL"
@@ -153,6 +153,7 @@ serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9]|$))"
 #define TEMPFAILOPT	't'		      /* return EX_TEMPFAIL on error */
 #define MAILFILTOPT	'm'	     /* act as a general purpose mail filter */
 #define FROMWHOPT	'f'			   /* set name on From_ line */
+#define REFRESH_TIME	'-'		     /* when given as argument to -f */
 #define ALTFROMWHOPT	'r'		/* alternate and obsolete form of -f */
 #define ARGUMENTOPT	'a'					   /* set $1 */
 #define DELIVEROPT	'd'		  /* deliver mail to named recipient */

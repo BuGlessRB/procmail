@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.39 1993/12/23 13:02:08 berg Exp $";
+ "$Id: multigram.c,v 1.40 1994/01/11 13:17:37 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/12/23 13:02:08 $";
+static /*const*/char rcsdate[]="$Date: 1994/01/11 13:17:37 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -144,6 +144,23 @@ static char*argstr(first,last)const char*first,*last;		/* construct */
 { char*chp;size_t i;				   /* an argument assignment */
   strcpy(chp=malloc((i=strlen(first))+strlen(last)+1),first);
   strcpy(chp+i,last);return chp;
+}
+
+static void checkparens(pleft,pright,str,echp)int pleft,pright;
+ char*str,*const echp;
+{ int parens;char*chp;
+  for(chp=str,parens=0;chp=strchr(chp,pleft);chp++,parens++);
+  for(chp=str;chp=strchr(chp,pright);chp++,parens--);
+  if(*(chp=str)==pleft)				       /* any opening paren? */
+   { if(!parens&&*echp==pright)		    /* parens matched and enclosing? */
+      { *echp='\0';goto shftleft;
+      }
+     if(parens>0)			/* more opening than closing parens? */
+shftleft:
+	tmemmove(chp,chp+1,echp-chp+1);			/* delete left paren */
+   }
+  else if(parens<0&&*echp==pright)	/* more closing than opening parens? */
+     *echp='\0';				       /* delete right paren */
 }
 
 static PROGID;
@@ -479,16 +496,18 @@ usg:
   for(lastfrom= -1;readstr(stdin,&fuzzstr,0);)
    { int meter,maxmetric;long linentry;off_t offs1,offs2;
      ;{ char*chp,*echp;int parens;
+	const static char punctuation[]="!#$%^&*-_=+|~`';:,.?{}",
+	 tpunctuation[]="@\\/";
 	echp=strchr(chp=fuzzstr.text,'\0')-1;
+	while(*chp&&strchr(punctuation,*chp))	/* strip leading punctuation */
+	   chp++;
 	do				       /* strip trailing punctuation */
-	 { switch(*echp)
-	    { case '.':case ',':case ';':case ':':case '?':case '!':*echp='\0';
-		 continue;
-	    }
-	   break;
+	 { if(!strchr(punctuation,*echp)&&!strchr(tpunctuation,*echp))
+	      break;
+	   *echp='\0';
 	 }
-	while(--echp>chp);    /* roughly check if it could be a mail address */
-	if(lastfrom<=0&&
+	while(--echp>chp);
+	if(lastfrom<=0&&      /* roughly check if it could be a mail address */
 	   !strpbrk(chp,"@/")&&			 /* RFC-822 or X-400 address */
 	   (!strchr(chp,'!')||			   /* UUCP bang path address */
 	    strchr(chp,'|')||
@@ -500,18 +519,9 @@ usg:
 	      lastfrom=!strcmp(SHFROM,chp);
 	   continue;			  /* apparently not an email address */
 	 }
-	lastfrom=0;				    /* count matching parens */
-	for(parens=0;chp=strchr(chp,'(');chp++,parens++);
-	for(chp=fuzzstr.text;chp=strchr(chp,')');chp++,parens--);
-	if(*(chp=fuzzstr.text)=='(')		       /* any opening paren? */
-	 { if(!parens&&*echp==')')	    /* parens matched and enclosing? */
-	    { *echp='\0';goto shftleft;
-	    }
-	   if(parens>0)			/* more opening than closing parens? */
-shftleft:     tmemmove(chp,chp+1,strlen(chp));		/* delete left paren */
-	 }
-	else if(parens<0&&*echp==')')	/* more closing than opening parens? */
-	   *echp='\0';				       /* delete right paren */
+	lastfrom=0;tmemmove(fuzzstr.text,chp,echp-chp+1);
+	checkparens('(',')',fuzzstr.text,echp);
+	checkparens('[',']',fuzzstr.text,strchr(fuzzstr.text,'\0'));
 	if(*(chp=fuzzstr.text)=='<'&&*(echp=strchr(chp,'\0')-1)=='>'
 	 &&!strchr(chp,','))			      /* strip '<' and '>' ? */
 	   *echp='\0',tmemmove(chp,chp+1,echp-chp);

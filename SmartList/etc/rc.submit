@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.36 1993/12/08 17:33:50 berg Exp $
+#$Id: rc.submit,v 1.37 1994/01/11 13:16:37 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -115,8 +115,8 @@ Precedence:.*junk)|^FROM_MAILER
 
      :0 wfh
      | formail -b -IFrom\  -IReceived: -IReturn-Receipt-To: -IErrors-To: \
-	-IX-Pmrqc: -iReturn-Path: -iX-Envelope-To: -iX-Envelope-From: \
-	-I"Precedence: list" -I"Resent-Sender: $listreq" \
+	-IX-Pmrqc: -IX-Diagnostic: -iReturn-Path: -iX-Envelope-To: \
+	-iX-Envelope-From: -I"Precedence: list" -I"Resent-Sender: $listreq" \
 	-a"Resent-From: $listaddr" -A"X-Loop: $listaddr" \
 	-a"Subject: Unidentified subject!" -a "$reply_to" \
 	-a"X-Mailing-List: <$listaddr> $ARCHIVE"

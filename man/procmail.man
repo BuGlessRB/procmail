@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.32 1993/12/23 13:01:41 berg Exp $
+.Id $Id: procmail.man,v 1.33 1994/01/11 13:16:45 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -112,7 +112,11 @@ the future.
 Causes procmail to regenerate the leading `@FROM@' line with
 .I fromwhom
 as the sender (instead of \-@FROMWHOPT@ one could use the alternate and
-obsolete \-@ALTFROMWHOPT@).
+obsolete \-@ALTFROMWHOPT@).  If
+.I fromwhom
+consists merely of a single `@REFRESH_TIME@', then procmail will only
+update the timestamp on the `@FROM' line (if present, if not, it will
+generate a new one).
 .Tp
 .I "\fB\-@ARGUMENTOPT@\fP argument"
 This will set $1 to be equal to
