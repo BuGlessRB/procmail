@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.2 1992/10/02 14:39:15 berg Exp $
+.Id $Id: procmailex.man,v 1.3 1992/11/03 14:43:44 berg Exp $
 .de Sx
 .PP
 .ne \\$1
@@ -102,7 +102,7 @@ doesn't follow accepted conventions, this might not be enough).
 : 2 +PASS_HEAD+ +CONTINUE+
 !^FROM_DAEMON
 !^From +YOUR_LOGIN_NAME
-| (formail \-+FM_REPLY+ \-+FM_ADD_ALWAYS+"Precedence: junk";\\
+| (formail \-+FM_REPLY+ \-+FM_ADD_ALWAYS+"Precedence: junk";\e
    echo "Mail received.") | $SENDMAIL \-t
 .Ex
 A more complicated autoreply recipe that implements the functional equivalent
@@ -125,14 +125,14 @@ ALREADYSENT=$MAILDIR/vacation     # the vacation database
 : 2 +PASS_HEAD++WAIT_EXIT_QUIET++CONTINUE+:                          # the lockfile is important
 !^FROM_DAEMON
 !^From +YOUR_LOGIN_NAME
-| FROM="`formail \-+FM_REPLY++FM_EXTRACT+ To:`" ;\\
-  if fgrep \-e "$FROM" <$ALREADYSENT ;\\
-  then exit 1 ;\\
-  else echo "$FROM" >>$ALREADYSENT ;\\
+| FROM="`formail \-+FM_REPLY++FM_EXTRACT+ To:`" ;\e
+  if fgrep \-e "$FROM" <$ALREADYSENT ;\e
+  then exit 1 ;\e
+  else echo "$FROM" >>$ALREADYSENT ;\e
   fi
 
    :+ALSO_N_IF_SUCC++PASS_HEAD++CONTINUE+
-   | (formail \-+FM_REPLY++FM_ADD_ALWAYS+"Precedence: junk";\\
+   | (formail \-+FM_REPLY++FM_ADD_ALWAYS+"Precedence: junk";\e
       echo "Mail received.") | $SENDMAIL \-t
 .Ex
 Store all messages concerning TeX in separate, unique filenames, in a directory
@@ -163,7 +163,7 @@ them.
 .Sx 4
 :+CONTINUE+
 !^X-Loop: yourname@your.main.mail.address
-| formail \-+FM_ADD_ALWAYS+ "X-Loop: yourname@your.main.mail.address" | \\
+| formail \-+FM_ADD_ALWAYS+ "X-Loop: yourname@your.main.mail.address" | \e
    $SENDMAIL \-oi yourname@the.other.account
 .Ex
 The following one is rather exotic, but it only serves to demonstrate a

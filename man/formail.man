@@ -1,4 +1,4 @@
-.Id $Id: formail.man,v 1.2 1992/10/02 14:39:05 berg Exp $
+.Id $Id: formail.man,v 1.3 1992/11/03 14:43:34 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .SH NAME
 .na
@@ -178,7 +178,7 @@ formail \-+FM_REN_INSERT+ Date: \-+FM_DIGEST++FM_SPLIT+ cat <old_mailbox >>new_m
 .Sh MISCELLANEOUS
 The regular expression that is used to find `real' postmarks is:
 .Rs
-"\\n\\n+FROM+[\\t ]*[^\\t\\n ]+[\\t ]+[^\\n\\t ]"
+"\en\en+FROM+[\et ]*[^\et\en ]+[\et ]+[^\en\et ]"
 .Re
 .Sh "SEE ALSO"
 .na

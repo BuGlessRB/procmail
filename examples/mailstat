@@ -16,7 +16,7 @@
 #	Created by S.R. van den Berg, The Netherlands		#
 #	This file can be freely copied for any use.		#
 #################################################################
-#$Id: mailstat,v 1.4 1992/11/03 14:09:35 berg Exp $
+#$Id: mailstat,v 1.5 1992/11/03 14:43:30 berg Exp $
 
 #	This shell script expects the following programs to be in the
 #	PATH (paths given here are the standard locations, your mileage
@@ -100,8 +100,8 @@ then
      then
 	if $test -f "$LOGFILE"
 	then
-	   echo No mail arrived since `$expr match "\`$ls -l \"$OLDLOGFILE\"\`"\
-	    '.*[0-9] \\([A-Z][a-z][a-z] .. .....\\) [^ ]'`
+	   echo No mail arrived since `$expr match "\`$ls -l \"$OLDLOGFILE\"
+	    \`" '.*[0-9] \\([A-Z][a-z][a-z] .. .....\\) [^ ]'`
 	else
 	   echo "Can't find your LOGFILE=$LOGFILE"
 	fi

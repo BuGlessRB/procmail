@@ -11,7 +11,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: procmail.c,v 1.7 1992/11/03 14:10:11 berg Exp $";
+static char rcsid[]="$Id: procmail.c,v 1.8 1992/11/03 14:43:56 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -409,7 +409,7 @@ noconcat:
 	    { int negate=0;
 	      for(chp=buf2+1;;strcpy(buf2,buf))
 	       { switch(*(sgetcp=buf2))
-		  { default:--chp;		     /* no special character, backup */
+		  { default:--chp;	     /* no special character, backup */
 		    case '\\':
 		     { int or_nocase;		/* case-distinction override */
 		       static const struct {const char*regkey,*regsubst;}
@@ -443,7 +443,7 @@ noconcat:
 		  }
 		 break;
 	       }
-	      if(verbose)	/* not entirely correct, but it will do */
+	      if(verbose)	     /* not entirely correct, but it will do */
 		 nlog((i^=negate)?"M":"No m"),elog("atch on"),logqnl(buf2);
 	    }
 	 }

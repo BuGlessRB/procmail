@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.6 1992/10/20 15:35:38 berg Exp $*/
+/*$Id: manconf.c,v 1.7 1992/11/03 14:43:53 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -24,11 +24,12 @@ static char*skltmark(nl,current)char**current;
 static void putcesc(i)
 { switch(i)
    { case '|':printf("\\\\h'-\\\\w' 'u' ");break;
+     case '\\':i='e';goto twoesc;
      case '\1':i='\n';goto singesc;
      case '\t':i='t';goto fin;
      case '\n':i='n';
-fin:	putchar('\\');
-     case '\\':putchar('\\');putchar('\\');
+fin:	putchar('\\');putchar('\\');
+twoesc: putchar('\\');
 singesc:
      case '&':case '/':putchar('\\');
    }

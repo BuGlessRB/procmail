@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.6 1992/11/03 14:09:44 berg Exp $
+.Id $Id: procmail.man,v 1.7 1992/11/03 14:43:38 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .SH NAME
 .na
@@ -169,8 +169,8 @@ temporary `unique' zero-length files created by procmail
 .Sh DIAGNOSTICS
 .Tp 2.3i
 Autoforwarding mailbox found
-The system mailbox for this user had its suid or sgid bit set, procmail
-terminates with EX_NOUSER assuming that this mailbox must not be delivered to.
+The system mailbox had its suid or sgid bit set, procmail terminates with
+EX_NOUSER assuming that this mailbox must not be delivered to.
 .Tp
 Bad substitution of "x"
 Not a valid environment variable name specified.

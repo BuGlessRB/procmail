@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.6 1992/11/03 14:09:47 berg Exp $
+.Id $Id: procmailrc.man,v 1.7 1992/11/03 14:43:48 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .SH NAME
 .na
@@ -102,7 +102,7 @@ decimal) number of bytes.
 .B >
 Analogous to '<'.
 .Tp
-.B "a\\\\\\\\\\\\\\\abcdefgh"
+.B \e
 To quote any of the above at the start of the line.
 .RE
 .PP
