@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.145 1999/07/16 15:57:07 guenther Exp $";
+ "$Id: procmail.c,v 1.146 1999/07/16 16:09:36 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -613,7 +613,7 @@ susp_rc:      closerc();nlog(susprcf);logqnl(buf);
 		   i&&stbuf.st_mode&S_IWGRP&&(NO_CHECK_stgid||stbuf.st_gid!=gid)
 		  )&&strcmp(devnull,buf)||    /* /dev/null is a special case */
 		 (*chp='\0',stat(buf,&stbuf))||
-#ifdef CAN_chown
+#ifndef CAN_chown
 		 !(stbuf.st_mode&S_ISVTX)&&
 #endif
 		 ((stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)||
