@@ -7,8 +7,8 @@ typedef struct memblk {
 #endif
 } memblk;
 
-typedef char*(read_func_type)(char*,long,void*);
-typedef int(cleanup_func_type)(memblk*,long*,long,void*);
+typedef char*(read_func_type) P((char*,long,void*));
+typedef int(cleanup_func_type) P((memblk*,long*,long,void*));
 
 void
  makeblock P((memblk*const,const long)), /* create block of the given length */
