@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.49 1994/08/12 17:33:24 berg Exp $
+#$Id: install.sh,v 1.50 1994/09/09 16:58:12 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -40,14 +40,14 @@ then
   exit 2
 fi
 
-if binmail=`procmail /dev/null DEFAULT=/dev/null 'LOG=$SENDMAIL' \
+if binmail=`procmail -m DEFAULT=/dev/null 'LOG=$SENDMAIL' /dev/null \
   </dev/null 2>&1`
 then
   case "$binmail" in
-     ""|*procmail:*)
+     ""|[!/]*|*procmail:*)
 	 echo "Failed in extracting the value of SENDMAIL from procmail"
 	 echo \
-	"Please make sure that the new version of procmail has been installed"
+	"Please make sure that the NEW version of procmail has been installed"
 	 echo \
        'If you already have, make sure that "console" is undefined in config.h'
 	 exit 64 ;;

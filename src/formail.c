@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.63 1994/09/09 11:13:13 berg Exp $";
+ "$Id: formail.c,v 1.64 1994/09/09 16:58:21 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/09/09 11:13:13 $";
+static /*const*/char rcsdate[]="$Date: 1994/09/09 16:58:21 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -430,7 +430,7 @@ startover:
 		 tmemmove(chp+1,chp,i-j);*chp=' ';
 	       }
 	      else if(fldp->tot_len<=j+2)
-	       { *afldp=fldp->next;free(fldp);
+	       { *afldp=fldp->fld_next;free(fldp);
 		 continue;
 	       }
 	 }

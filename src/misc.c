@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.60 1994/09/08 16:12:05 berg Exp $";
+ "$Id: misc.c,v 1.61 1994/09/09 16:58:24 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -226,7 +226,7 @@ void Terminate P((void))
 	if(chad=strchr(chp=(char*)scomsat,SERV_ADDRsep))
 	   *chad++='\0';	      /* split it up in service and hostname */
 	else if(!renvint(-1L,chp))		/* or is it a false boolean? */
-	   return;				       /* ok, no comsat then */
+	   goto nocomsat;			       /* ok, no comsat then */
 	else
 	   chp="";			  /* set to yes, so take the default */
 	if(!chad||!*chad)					  /* no host */
@@ -242,7 +242,7 @@ void Terminate P((void))
 	 { const struct hostent*host;	      /* what host?  paranoid checks */
 	   if(!(host=gethostbyname(chad))||!host->h_0addr_list)
 	    { endhostent();		     /* host can't be found, too bad */
-	      return;
+	      goto nocomsat;
 	    }
 	   addr.sin_family=host->h_addrtype;	     /* address number found */
 	   tmemmove(&addr.sin_addr,host->h_0addr_list,host->h_length);
@@ -255,7 +255,7 @@ void Terminate P((void))
 	 { const struct servent*serv;
 	   if(!(serv=getservbyname(chp,COMSATprotocol)))   /* so get its no. */
 	    { endservent();
-	      return;
+	      goto nocomsat;
 	    }
 	   addr.sin_port=serv->s_port;endservent();
 	 }
@@ -271,6 +271,7 @@ void Terminate P((void))
 	sendto(s,buf,strlen(buf),0,(const void*)&addr,sizeof(addr));rclose(s);
 	yell("Notified comsat:",buf);
       }
+nocomsat:
 #endif /* NO_COMSAT */
      shutdesc();
      if(!(lcking&lck_ALLOCLIB))			/* don't reenter malloc/free */
