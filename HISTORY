@@ -86,7 +86,7 @@
 	    Forgot to redirect output of a test in autoconf to /dev/null
 	    Reached the doubtful milestone to sometimes crash an Ultrix
 	       machine (due to the lockingtests, not procmail itself)
-1994/01/18: v2.92
+1994/01/28: v2.92
 	    Changes to procmail:
 	       - Changed the semantics of the TRAP keyword.  In order to
 		 make procmail accept the exitcode it returns, you now have
@@ -130,6 +130,8 @@
 	       - Introduced new recipe flags: E and e (else and error)
 	       - Nested blocks clone procmail on a 'c' flag
 	       - Introduced the EXITCODE special variable
+	       - Implicit delivery mode is now entered if argv[0] doesn't start
+		    with the word `procmail'
 	    Changes to formail:
 	       - Fixed a sender-determination-weight problem, it mixed up
 		 the weights when autoreplying and when regenerating the From_
