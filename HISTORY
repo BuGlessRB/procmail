@@ -148,6 +148,8 @@
 	       - Supports the -s option withouth a program argument
 	       - Recognise extra UUCP >From_ lines
 	       - Introduced the -B option to split up BABYL rmail files
+	       - It regards and generates a FILENO variable (for easy
+		 numbering)
 	    Miscellaneous changes:
 	       - Detecting and dodging buggy zshs everywhere
 	       - Slightly adjusted autoconf for the new non-standard 386BSD
@@ -163,3 +165,5 @@
 		 you used -! with more than one file
 	       - Including <limits.h> now, some (old) architectures seem to
 		 insist on this
+	       - Revamped the library search code
+	       - Provided a faster (than most libraries) strstr() routine
