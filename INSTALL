@@ -16,7 +16,8 @@ Intended configurable options in Makefile are:
 	the install-destinations and the LOCKINGTEST directories (you can
 	optionally use something like 'make BASENAME=$HOME install' instead).
 Intended configurable options in config.h are:
-	MMDF support, standard environment presettings, trusted userids.
+	MMDF support, standard environment presettings including PATH,
+	trusted userids.
 
 'make install' will:
       - implicitly do a 'make init', which will check your basic utilities for
