@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.17 1993/01/19 11:55:08 berg Exp $";
+ "$Id: formail.c,v 1.18 1993/01/19 12:47:57 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/19 11:55:08 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/19 12:47:57 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -186,7 +186,7 @@ invfield:	     { nlog("Invalid field-name:");logqnl(chp?chp:"");
 parsedoptions:
   mystdout=stdout;signal(SIGPIPE,SIG_IGN);
   if(split)
-   { oldstdout=dup(STDOUT);fclose(stdout);startprog(argv);
+   { oldstdout=dup(STDOUT);fclose(stdout);startprog((const char*Const*)argv);
      if(!minfields)			       /* no user specified minimum? */
 	minfields=DEFminfields;				 /* take our default */
    }
@@ -381,8 +381,8 @@ splitit:    { if(!lnl)	    /* did the previous mail end with an empty line? */
 		 nlog(couldntw),elog(", continuing...\n"),split= -1;
 	      if(!nowait)
 		 waitforit();		 /* wait till the child has finished */
-	      startprog(argv);goto startover;	    /* and there we go again */
-	    }
+	      startprog((const char*Const*)argv);goto startover;
+	    }					    /* and there we go again */
 	 }
       }
      else if(eqFrom_(buf))			 /* special case, From_ line */
