@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.85 1999/02/16 21:13:43 guenther Exp $";
+ "$Id: misc.c,v 1.86 1999/02/19 07:17:01 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -178,10 +178,12 @@ int nextrcfile P((void))	/* next rcfile specified on the command line */
 	   continue;
 	 }
 	rcfile=p;
+	nlog("nextrcfile called, returned");logqnl(rval);
 	return rval;
       }
      rval=1;			       /* not the first argument encountered */
    }
+  nlog("nextrcfile called, returned 0\n");
   return 0;
 }
 
@@ -308,10 +310,8 @@ int alphanum(c)const unsigned c;
 
 char*pmrc2buf P((void))
 { sgetcp=pmrc;
-  nlog("pmrc=");logqnl(pmrc);
   if(readparse(buf,sgetc,2))
      buf[0]='\0';
-  nlog("buf=");logqnl(buf);
   return buf;
 }
 
