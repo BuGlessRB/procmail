@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.4 1992/10/28 17:22:40 berg Exp $
+#$Id: Makefile.1,v 1.5 1992/11/03 14:09:17 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -56,7 +56,7 @@ suid.sh: recommend
 suid: suid.sh install.bin
 	@cat $@.sh
 	@$(SHELL) ./$@.sh
-	@cd $(BINDIR); echo Installed in $(BINDIR); ls -l $(BINS)
+	@cd $(BINDIR); echo Installed in $(BINDIR); ls -l $(BINSS)
 
 $(MANS): mans
 
@@ -74,9 +74,9 @@ install.man: $(MANS)
 	  do $(INSTALL) new/$$a.5 $(MAN5DIR)/$$a.$(MAN5SUFFIX); done
 
 install.bin: $(BINS)
-	@echo Housekeeping file >install.bin
 	@-mkdir $(BINDIR) 2>$(DEVNULL); exit 0
 	@chmod 0755 $(BINS)
+	@echo Housekeeping file >install.bin
 	$(INSTALL) $(BINS) $(BINDIR)
 
 install: install.man install.bin

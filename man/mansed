@@ -1,7 +1,7 @@
+#! /bin/sh
+: || exec /bin/sh ./mansed $argv:q # we're in a csh, feed myself to sh
 
-#$Id: mansed,v 1.2 1992/10/02 14:39:09 berg Exp $
-
-SHELL=/bin/sh || exec /bin/sh ./mansed $* # we're in a csh, feed myself to sh
+#$Id: mansed,v 1.3 1992/11/03 14:09:40 berg Exp $
 
 test 4 != $# &&
  echo "Don't start this script directly, use \`make'" && exit 1
@@ -54,7 +54,7 @@ expr match "$DEST" '.*[18]$' >$DEVNULL && cat <<HERE
 This program is part of the
 .I procmail mail-processing-package
 (+PM_VERSION+) available at your nearest USENET comp.sources.misc archive, or
-at ftp.informatik.rwth-aachen.de (137.226.144.33) as
+at ftp.informatik.rwth-aachen.de (137.226.112.172) as
 .BR pub/unix/procmail.tar.Z .
 .Sh MAILINGLIST
 There exists a mailinglist for questions relating to any program in the

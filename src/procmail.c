@@ -11,7 +11,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: procmail.c,v 1.6 1992/10/28 17:24:03 berg Exp $";
+static char rcsid[]="$Id: procmail.c,v 1.7 1992/11/03 14:10:11 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -27,6 +27,9 @@ static char rcsid[]="$Id: procmail.c,v 1.6 1992/10/28 17:24:03 berg Exp $";
 #include "locking.h"
 #include "mailfold.h"
 
+static const char tokey[]=TOkey,fromdaemon[]=FROMDkey,fdefault[]="DEFAULT",
+ orgmail[]="ORGMAIL",sendmail[]="SENDMAIL",From_[]=FROM,exflags[]=RECFLAGS,
+ systm_mbox[]=SYSTEM_MBOX,pmusage[]=PM_USAGE;
 char*buf,*buf2,*globlock,*loclock,*tolock,*lastfolder;
 const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
  shellmetas[]="SHELLMETAS",lockext[]="LOCKEXT",newline[]="\n",binsh[]=BinSh,
@@ -34,12 +37,9 @@ const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
  dirsep[]=DIRSEP,msgprefix[]="MSGPREFIX",devnull[]=DevNull,user[]="USER",
  executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",procmailn[]="procmail",
  whilstwfor[]=" whilst waiting for ",home[]="HOME",maildir[]="MAILDIR";
-static const char tokey[]=TOkey,fromdaemon[]=FROMDkey,fdefault[]="DEFAULT",
- orgmail[]="ORGMAIL",sendmail[]="SENDMAIL",From_[]=FROM,exflags[]=RECFLAGS,
- systm_mbox[]=SYSTEM_MBOX,pmusage[]=PM_USAGE;
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EX_OK,sh,pwait,lcking,rc=rc_INIT,
- ignwerr,lexitcode=EX_OK;
+ ignwerr,lexitcode=EX_OK,asgnlastf;
 size_t linebuf=mx(DEFlinebuf+XTRAlinebuf,STRLEN(systm_mbox)<<1);
 volatile int nextexit;			       /* if termination is imminent */
 pid_t thepid;
@@ -53,7 +53,7 @@ main(argc,argv)const char*const argv[];
   static const char*const keepenv[]=KEEPENV,*const prestenv[]=PRESTENV,
    *const trusted_ids[]=TRUSTED_IDS;
   char*chp,*startchar,*chp2,*fromwhom=0;long tobesent;
-  int i,lastcond,succeed;
+  int i,lastcond,succeed,suppmunreadable;
 #define Deliverymode	lastcond
 #define Presenviron	i
 #define Privileged	succeed
@@ -275,8 +275,8 @@ bogusbox:					     /* bogus mailbox found! */
 	 strchr(strcpy(buf+i,BOGUSprefix),'\0'));
 	if(rename(chp,buf))		   /* try and move it out of the way */
 	   goto fishy;		 /* couldn't rename, something is fishy here */
-      }
-     else if(stbuf.st_mode&(S_ISGID|S_ISUID))	/* SysV type autoforwarding? */
+      }						/* SysV type autoforwarding? */
+     else if(Deliverymode&&stbuf.st_mode&(S_ISGID|S_ISUID))
       { nlog("Autoforwarding mailbox found\n");return EX_NOUSER;
       }
      else
@@ -288,17 +288,18 @@ bogusbox:					     /* bogus mailbox found! */
 	goto notfishy;			      /* yes we could, fine, proceed */
   setgid(gid);setuid(uid);				   /* try some magic */
   if(xcreat(chp,NORMperm,(time_t*)0,(int*)0))	   /* try to create it again */
-fishy:
-     sputenv(orgmail),sputenv(fdefault);	/* bad news, be conservative */
+fishy:						/* bad news, be conservative */
+     nlog("Couldn't create"),logqnl(chp),sputenv(orgmail),sputenv(fdefault);
 notfishy:
   umask(INIT_UMASK);
  }
+  suppmunreadable=!verbose;
   if(!Deliverymode)			       /* not explicit delivery mode */
     /*
      *	really change the uid now, since we are not in explicit
      *	delivery mode
      */
-   { setgid(gid);setuid(uid);nextrcfile();
+   { setgid(gid);setuid(uid);suppmunreadable=nextrcfile();
      while(chp=(char*)argv[argc])      /* interpret command line specs first */
 	argc++,asenvcpy(chp);
    }
@@ -315,20 +316,21 @@ notfishy:
 	*/
 	goto findrc;
 	do
-fake_rc: { readerr(buf);
+	 { if(suppmunreadable)		  /* should we supress this message? */
+fake_rc:      readerr(buf);
 	   if(!nextrcfile())		      /* not available? try the next */
 	      goto nomore_rc;
-findrc:	  i=0;
-	  if(strchr(dirsep,*rcfile)||
-	    *rcfile==chCURDIR&&strchr(dirsep,rcfile[1])&&(i=1))
-	      *buf='\0';
+findrc:	  suppmunreadable=i=0;	    /* should we keep the current directory? */
+	  if(strchr(dirsep,*rcfile)||			   /* absolute path? */
+	   *rcfile==chCURDIR&&strchr(dirsep,rcfile[1])&&(i=1))	/* ./ prefix */
+	     *buf='\0';			/* do not put anything in front then */
 	   else
-	      cat(tgetenv(home),MCDIRSEP);
-	   if(stat(strcat(buf,rcfile),&stbuf)?
-	    rc==rc_NOSGID:stbuf.st_mode&S_IRUSR)
-	      setgid(gid),setuid(uid);
+	      cat(tgetenv(home),MCDIRSEP);	  /* prepend $HOME directory */
+	   if(stat(strcat(buf,rcfile),&stbuf)?		      /* accessible? */
+	    rc==rc_NOSGID:stbuf.st_mode&S_IRUSR)      /* and owner-readable? */
+	      setgid(gid),setuid(uid);			/* then transmogrify */
 	 }
-	while(0>bopen(buf));
+	while(0>bopen(buf));			   /* try opening the rcfile */
 	if(i&&!didchd)		  /* opened rcfile in the current directory? */
 	 { didchd=1;*(chp=strcpy(buf2,maildir)+STRLEN(maildir))='=';
 	   *++chp=chCURDIR;*++chp='\0';sputenv(buf2);
@@ -396,38 +398,53 @@ noconcat:
 	if(flags[ALSO_N_IF_SUCC])
 	   i=lastcond&&succeed;		/* only if the last recipe succeeded */
 	while(sh--)				    /* any conditions (left) */
-	 { int or_nocase=0;			/* case-distinction override */
-	   skipspace();getbl(buf2);
+	 { skipspace();getbl(buf2);
 	   for(chp=strchr(buf2,'\0');--chp>=buf2;)
 	    { switch(*chp)		  /* strip off whitespace at the end */
 	       { case ' ':case '\t':*chp='\0';continue;
 	       }
 	      break;
 	    }
-	   *buf='\0';chp2="";
-	   if(*(chp=buf2)=='!')
-	      strcat(buf,"!"),++chp;
-	   if(!strncmp(chp,tokey,STRLEN(tokey)))	     /* magic TOkey? */
-	      chp2=TOsubstitute,chp+=STRLEN(tokey);
-	   else if(!strncmp(chp,fromdaemon,STRLEN(fromdaemon)))	 /* Fdaemon? */
-	      chp2=FROMDsubstitute,chp+=STRLEN(fromdaemon),or_nocase=1;
-	   strcat(strcat(buf,chp2),chp);
 	   if(i)				 /* check out all conditions */
-	    { chp=buf+1;
-substituted:  strcpy((char*)(sgetcp=buf2),buf);
-	      switch(*buf)
-	       { default:--chp;		     /* no special character, backup */
-		 case '!':case '\\':
-		    i=!!egrepin(chp,startchar,tobesent,		  /* grep it */
-		     or_nocase?0:flags[DISTINGUISH_CASE])^*buf=='!';
-		    break;				       /* invert it? */
-		 case '$':*buf2='"';readparse(buf,sgetc,2);goto substituted;
-		 case '>':case '<':readparse(buf,sgetc,2); /* compare length */
-		    i=strtol(buf+1,&chp,10);i='<'==*buf?filled<i:filled>i;
-		    skipped(skpspace(chp));		    /* any lefovers? */
+	    { int negate=0;
+	      for(chp=buf2+1;;strcpy(buf2,buf))
+	       { switch(*(sgetcp=buf2))
+		  { default:--chp;		     /* no special character, backup */
+		    case '\\':
+		     { int or_nocase;		/* case-distinction override */
+		       static const struct {const char*regkey,*regsubst;}
+			*regsp,regs[]=
+			 { {FROMDkey,FROMDsubstitute},
+			   {TOkey,TOsubstitute},
+			   {0,0}
+			 };
+		       for(or_nocase=0,regsp=regs;regsp->regkey;++regsp)
+			  if((chp2=pstrstr(chp,regsp->regkey))&&
+			   (chp2==buf2||chp2[-1]!='\\'))
+			   { size_t l;
+			     tmemmove(buf,chp,l=chp2-chp);     /* copy start */
+			     strcpy(buf+l,regsp->regsubst);    /* copy subst */
+			     strcat(buf,chp2+strlen(regsp->regkey));
+			     strcpy(buf2,buf);	/* copy tail and put it back */
+			     if(regsp==regs)	  /* check for daemon regexp */
+				or_nocase=1;	     /* no case sensitivity! */
+			   }
+		       i=!!egrepin(chp,startchar,tobesent,	 /* egrep it */
+			or_nocase?0:flags[DISTINGUISH_CASE]);
+		       break;
+		     }
+		    case '$':*buf2='"';readparse(buf,sgetc,2);continue;
+		    case '!':negate^=1;strcpy(buf,chp);continue;
+		    case '?':pwait=2;metaparse(chp);inittmout(buf);ignwerr=1;
+			i=!pipin(buf,themail,filled);strcpy(buf2,buf);break;
+		    case '>':case '<':readparse(buf,sgetc,2);
+		       i=strtol(buf+1,&chp,10);i='<'==*buf?filled<i:filled>i;
+		       skipped(skpspace(chp));strcpy(buf2,buf); /* leftovers */
+		  }
+		 break;
 	       }
-	      if(verbose)
-		 nlog(i?"M":"No m"),elog("atch on"),logqnl(buf);
+	      if(verbose)	/* not entirely correct, but it will do */
+		 nlog((i^=negate)?"M":"No m"),elog("atch on"),logqnl(buf2);
 	    }
 	 }
 	if(!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC])
@@ -440,7 +457,7 @@ substituted:  strcpy((char*)(sgetcp=buf2),buf);
 	else if(flags[PASS_BODY])
 	   tobesent-=(startchar=thebody)-themail;
 	chp=strchr(strcpy(buf,tgetenv(sendmail)),'\0');succeed=sh=0;
-	pwait=flags[WAIT_EXIT]|flags[WAIT_EXIT_QUIET]<<1;
+	pwait=flags[WAIT_EXIT]|flags[WAIT_EXIT_QUIET]<<1;asgnlastf=1;
 	ignwerr=flags[IGNORE_WRITERR];Stdout=0;skipspace();
 	if(i)
 	   concon('\n');
@@ -501,17 +518,17 @@ forward:      if(locknext)
 	else		   /* dump the mail into a mailbox file or directory */
 	 { if(flags[FILTER])
 	      flags[FILTER]=0,nlog("Extraneous filter-flag ignored\n");
-	   if(chp=gobenv(buf))
+	   if(chp=gobenv(buf))		   /* can it be an environment name? */
 	    { if(skipspace())
-		 ++chp;
-	      if(testb('='))
+		 ++chp;			   /* keep pace with argument breaks */
+	      if(testb('='))		      /* is it really an assignment? */
 	       { int c;
 		 *chp++='=';*chp='\0';
 		 if(skipspace())
 		    ++chp;
 		 ungetb(c=getb());
 		 switch(c)
-		  { case '!':case '|':
+		  { case '!':case '|':			  /* ok, it's a pipe */
 		       if(i)
 			  primeStdout();
 		       goto progrm;
@@ -519,15 +536,15 @@ forward:      if(locknext)
 	       }
 	    }
 	   else
-	      chp=strchr(buf,'\0');
+	      chp=strchr(buf,'\0');			     /* find the end */
 	   readparse(chp,getb,0);concatenate(chp=strchr(buf,'\0')+1);
 	   skipped(chp);			     /* report any leftovers */
 	   if(i)
 	    { strcpy(buf2,buf);
 	      if(locknext)
 		 lcllock();
-	      strcpy(buf2,buf);
-	      if(dump(deliver(buf2),startchar,tobesent))
+	      strcpy(buf2,buf);		     /* write to a file or directory */
+	      if(dump(deliver(buf2),startchar,tobesent)&&!ignwerr)
 		 writeerr(buf);
 	      else if(succeed=1,!flags[CONTINUE])
 		 goto mailed;
@@ -552,17 +569,22 @@ forward:      if(locknext)
    }
   while(rc<0||!testb(EOF)||poprc());		    /* main interpreter loop */
 nomore_rc:
-  if(*tgetenv(fdefault))				     /* DEFAULT set? */
-     setuid(uid),firstchd(),asenvcpy(DEFdefaultlock);	    /* implicit lock */
-  concon('\n');
-  if(dump(deliver((char*)tgetenv(fdefault)),themail,filled))	  /* default */
-   { writeerr(buf);	    /* if it fails, don't panic, try the last resort */
-     if(dump(deliver((char*)tgetenv(orgmail)),themail,filled))
-	writeerr(buf);goto mailerr;			/* now you can panic */
+  concon('\n');succeed=0;
+  if(*(chp=(char*)tgetenv(fdefault)))			     /* DEFAULT set? */
+   { setuid(uid);firstchd();asenvcpy(DEFdefaultlock);	    /* implicit lock */
+     if(dump(deliver(chp,themail,filled)))			  /* default */
+	writeerr(buf);
+     else
+	succeed=1;
    }
+  if(!succeed&&*(chp=(char*)tgetenv(orgmail)))	       /* if all else failed */
+     if(dump(deliver(chp),themail,filled))	/* don't panic, try the last */
+	writeerr(buf);						   /* resort */
+     else
+	succeed=1;
+  if(succeed)					     /* should we panic now? */
 mailed:
-  retval=EX_OK;				  /* we're home free, mail delivered */
-mailerr:
+     retval=EX_OK;			  /* we're home free, mail delivered */
   unlock(&loclock);terminate();
 }
 

@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.4 1992/10/20 15:35:44 berg Exp $*/
+/*$Id: misc.h,v 1.5 1992/11/03 14:10:04 berg Exp $*/
 
 void
  elog P((const char*const newt)),
@@ -30,6 +30,7 @@ int
  nextrcfile P((void)),
  alphanum P((const unsigned c));
 char
+ *pstrstr P((const char*whole,const char*const part)),
  *lastdirsep P((const char*filename)),
  *cat P((const char*const a,const char*const b)),
  *tstrdup P((const char*const a)),

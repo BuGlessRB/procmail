@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: pipes.c,v 1.6 1992/10/28 17:24:00 berg Exp $";
+static char rcsid[]="$Id: pipes.c,v 1.7 1992/11/03 14:10:07 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -109,7 +109,7 @@ pipthrough(line,source,len)char*line,*source;const long len;
      rclose(PWRI);rclose(PRDO);
      if(forkerr(pidfilt,line))
 	rclose(PWRO),stermchild();
-     if(dump(PWRO,source,len))		  /* send in the text to be filtered */
+     if(dump(PWRO,source,len)&&!ignwerr)  /* send in the text to be filtered */
 	writeerr(line),lexitcode=EX_IOERR,stermchild();
      if(pwait&&waitfor(pidfilt)!=EX_OK)	 /* check the exitcode of the filter */
       { pidfilt=0;
@@ -134,8 +134,8 @@ long pipin(line,source,len)char*const line;char*source;long len;
      rclose(PWRO),closerc(),getstdin(PRDO),callnewprog(line);
   rclose(PRDO);
   if(forkerr(pidchild,line))
-     return 1;
-  if(len=dump(PWRO,source,len))			    /* dump mail in the pipe */
+     return 1;					    /* dump mail in the pipe */
+  if((len=dump(PWRO,source,len))&&(!ignwerr||(len=0)))
      writeerr(line);		       /* pipe was shut in our face, get mad */
   if(pwait&&waitfor(pidchild)!=EX_OK)	    /* optionally check the exitcode */
    { if(!(pwait&2))				  /* do we put it on report? */
@@ -145,7 +145,9 @@ long pipin(line,source,len)char*const line;char*source;long len;
   pidchild=0;
   if(!sh)
      concatenate(line);
-  lastfolder=cstr(lastfolder,line);return len;
+  if(asgnlastf)
+     asgnlastf=0,lastfolder=cstr(lastfolder,line);
+  return len;
 }
 
 char*readdyn(bf,filled)char*bf;long*const filled;

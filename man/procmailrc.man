@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.5 1992/10/28 17:23:13 berg Exp $
+.Id $Id: procmailrc.man,v 1.6 1992/11/03 14:09:47 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .SH NAME
 .na
@@ -73,23 +73,38 @@ follow the first line of the recipe.  Conditions are complete lines that are
 passed on to the internal egrep
 .BR literally ,
 except for leading and trailing whitespace.
-If a condition starts with an '!', the condition is inverted.  If you really
-want the condition to start with an '!', precede the '!' by a '\\'.
-These conditions are
+These regular expressions are
 .B completely
 compatible to the normal
 .BR egrep (1)
 regular expressions.
 .PP
-A special case condition is one starting with either '<' or '>', this
-condition is true only if the total length of the mail is shorter,
-respectively longer than the specified (in decimal) number of bytes.
-.PP
-Another special case condition is one starting with a '$'.  This condition
-will be evaluated according to
+There are some special conditions you can use that are not straight regular
+expressions.  To select them, the first character of the condition must
+be a:
+.RS
+.Tp 0.5i
+.B !
+Invert the condition.
+.Tp
+.B $
+Evaluate the remainder according to
 .BR sh (1)
-subtitution rules inside double quotes, i.e. environment variable
-substitutions take place here, prior to being interpreted as a condition.
+substitution rules inside double quotes.
+.Tp
+.B ?
+Use the exitcode of the specified program.
+.Tp
+.B <
+Check if the total length of the mail is shorter than the specified (in
+decimal) number of bytes.
+.Tp
+.B >
+Analogous to '<'.
+.Tp
+.B "a\\\\\\\\\\\\\\\abcdefgh"
+To quote any of the above at the start of the line.
+.RE
 .PP
 Conditions are anded; if
 .I number
@@ -394,12 +409,9 @@ backslash to indicate continuation.  This is due to the two pass parsing
 process needed (first procmail, then the shell (or not, depending on
 .BR SHELLMETAS )).
 .PP
-Don't put comments on the condition lines (the regular expressions) in a
+Don't put comments on the regular expression condition lines in a
 recipe, these lines are fed to the internal egrep
 .IR literally .
-(Exceptions: leading or trailing whitespace, or a leading `!', `$' or `\\', it
-will be stripped.  Precede leading whitespace, or a leading `!', `$' or `\\'
-by another `\\' if you want it to be taken literally too.)
 .PP
 Watch out for deadlocks when doing unhealthy things like forwarding mail
 to your own account.  Deadlocks can be broken by proper use of
@@ -417,8 +429,8 @@ and the recipe matches, then, unless a `+FILTER+' or `+CONTINUE+' flag is
 present as well, the body respectively the header of the mail will be silently
 lost.
 .PP
-The `+CONTINUE+' flag defaults to on when a conditional variable assignment
-precedes the action line.
+The `+CONTINUE+' flag defaults to on when capturing stdout of a recipe in an
+environment variable.
 .Sh "SEE ALSO"
 .na
 .BR procmail (1),
@@ -462,13 +474,13 @@ paths to specify global lockfiles).
 When capturing stdout from a recipe into an environment variable, exactly
 one trailing newline will be stripped.
 .Sh MISCELLANEOUS
-If the regular expression starts with `\fB+TOkey+\fP' it will be substituted by
+If the regular expression contains `\fB+TOkey+\fP' it will be substituted by
 .na
 `\fB+TOsubstitute+\fP',
 which should catch all destination specifications.
 .ad
 .PP
-If the regular expression starts with `\fB+FROMDkey+\fP' it will be
+If the regular expression contains `\fB+FROMDkey+\fP' it will be
 substituted by
 .na
 `\fB+FROMDsubstitute+\fP',

@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: mailfold.c,v 1.6 1992/10/21 20:12:04 berg Exp $";
+static char rcsid[]="$Id: mailfold.c,v 1.7 1992/11/03 14:09:58 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -73,7 +73,7 @@ writefin:
 	nlog("Kernel-unlock failed\n");
      i=rclose(s);
    }			   /* return an error even if nothing was to be sent */
-  tofile=0;return ignwerr?(ignwerr=0):i&&!len?-1:len;
+  tofile=0;return i&&!len?-1:len;
 }
 				       /* open file or new file in directory */
 deliver(boxname)char*const boxname;
@@ -84,30 +84,32 @@ deliver(boxname)char*const boxname;
 }
 
 void logabstract P((void))
-{{char*chp,*chp2;int i;static const char sfolder[]=FOLDER;
-  if(mailread&&logopened)		  /* is the mail completely read in? */
-   { *thebody='\0';		       /* terminate the header, just in case */
-     if(eqFrom_(chp=themail))			       /* any "From " header */
-      { if(chp=strchr(themail,'\n'))
-	   *chp++='\0';
-	else
-	   chp=thebody;
-	elog(themail);elog(newline); /* preserve mailbox format (any length) */
+{ if(logopened)		      /* make sure that this doesn't get mailed back */
+   { char*chp,*chp2;int i;static const char sfolder[]=FOLDER;
+     if(mailread)			  /* is the mail completely read in? */
+      { *thebody='\0';		       /* terminate the header, just in case */
+	if(eqFrom_(chp=themail))		       /* any "From " header */
+	 { if(chp=strchr(themail,'\n'))
+	      *chp++='\0';
+	   else
+	      chp=thebody;			  /* preserve mailbox format */
+	   elog(themail);elog(newline);			     /* (any length) */
+	 }
+	if(!(lcking&lck_ALLOCLIB)&&		/* don't reenter malloc/free */
+	 (chp=egrepin(NSUBJECT,chp,(long)(thebody-chp),0)))
+	 { for(chp2= --chp;*--chp2!='\n'&&*chp2;);
+	   if(chp-++chp2>MAXSUBJECTSHOW)	    /* keep it within bounds */
+	      chp2[MAXSUBJECTSHOW]='\0';
+	   *chp='\0';detab(chp2);elog(" ");elog(chp2);elog(newline);
+	 }
       }
-     if(!(lcking&lck_ALLOCLIB)&&		/* don't reenter malloc/free */
-      (chp=egrepin(NSUBJECT,chp,(long)(thebody-chp),0)))
-      { for(chp2= --chp;*--chp2!='\n'&&*chp2;);
-	if(chp-++chp2>MAXSUBJECTSHOW)		    /* keep it within bounds */
-	   chp2[MAXSUBJECTSHOW]='\0';
-	*chp='\0';detab(chp2);elog(" ");elog(chp2);elog(newline);
-      }
+     elog(sfolder);
+     i=strlen(strncpy(buf,lastfolder,MAXfoldlen))+STRLEN(sfolder);
+     buf[MAXfoldlen]='\0';detab(buf);elog(buf);i-=i%TABWIDTH;	/* last dump */
+     do elog(TABCHAR);
+     while((i+=TABWIDTH)<LENoffset);
+     ultstr(7,lastdump,buf);elog(buf);elog(newline);
    }
-  elog(sfolder);i=strlen(strncpy(buf,lastfolder,MAXfoldlen))+STRLEN(sfolder);
-  buf[MAXfoldlen]='\0';detab(buf);elog(buf);i-=i%TABWIDTH;	/* last dump */
-  do elog(TABCHAR);
-  while((i+=TABWIDTH)<LENoffset);
-  ultstr(7,lastdump,buf);elog(buf);elog(newline);
- }
 #ifndef NO_COMSAT
  {int s;struct sockaddr_in addr;char*chp,*chad;
   static const char scomsat[]="COMSAT";

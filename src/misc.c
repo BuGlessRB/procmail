@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: misc.c,v 1.7 1992/10/28 17:23:55 berg Exp $";
+static char rcsid[]="$Id: misc.c,v 1.8 1992/11/03 14:10:01 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -193,6 +193,14 @@ void slose P((void))
 
 void sbounce P((void))
 { retval=EX_CANTCREAT;sterminate();
+}
+
+char*pstrstr(whole,part)const char*whole,*const part;
+{ size_t i;const char*end;
+  for(end=strchr(whole,'\0')-(i=strlen(part))-1;--end>=whole;)
+     if(!strncmp(end,part,i))
+	return(char*)end;
+  return 0;
 }
 
 void catlim(dest,src,lim)register char*dest,*src;register size_t lim;

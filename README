@@ -109,7 +109,7 @@ Snail-Mail:	P.O.Box 21074
 A recent version can be picked up at various comp.sources.misc archives.
 The latest version can be obtained directly from the ftp-archive at:
 
-	ftp.informatik.rwth-aachen.de (137.226.144.33)
+	ftp.informatik.rwth-aachen.de (137.226.112.172 or 137.226.112.31)
 
 	as compressed tar file:		pub/unix/procmail.tar.Z		<128KB
 	or in compressed shar format:	pub/unix/procmail.0?.Z
