@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.10 2001/02/20 10:14:10 guenther Exp $";
+ "$Id: variables.c,v 1.11 2001/06/03 21:56:09 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -317,10 +317,13 @@ void asenv(chp)const char*const chp;
      mallocbuffers(linebuf=lineb,0);
    }
   else if(!strcmp(buf,maildir))
-     if(chdir(chp))
-	chderr(chp);
+   { if(chdir(chp))
+      { chderr(chp);
+	setmaildir(curdir);
+      }
      else
 	didchd=1;
+   }
   else if(!strcmp(buf,logfile))
      opnlog(chp);
   else if(!strcmp(buf,Log))
@@ -353,7 +356,9 @@ void asenv(chp)const char*const chp;
       }
    }
   else if(!strcmp(buf,lockfile))
-     lockit(tstrdup((char*)chp),&globlock);
+   { if(!lockit(tstrdup((char*)chp),&globlock))
+	sputenv(lockfile);			      /* unset it on failure */
+   }
   else if(!strcmp(buf,eumask))
      doumask((mode_t)strtol(chp,(char**)0,8));
   else if(!strcmp(buf,includerc))
