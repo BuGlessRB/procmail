@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1992-1994, S.R. van den Berg, The Netherlands
-#$Id: initmake,v 1.46 1994/01/18 14:06:01 berg Exp $
+#$Id: initmake,v 1.47 1994/01/25 15:38:46 berg Exp $
 
 IFS="	 \
 
@@ -190,7 +190,8 @@ do
      if test _dummy_ != $lib
      then
 	a=-l$lib
-	if <_autotst.rrr (
+	if
+	 (
 	   while read b
 	   do
 	      case ".$b." in
@@ -198,7 +199,7 @@ do
 	      esac
 	   done
 	   exit 0
-	 )
+	 ) <_autotst.rrr
 	then
 	   found=yes
 	   if test $checkpath = yes

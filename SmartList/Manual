@@ -20,7 +20,7 @@ Contents:
 		6. Multigram and the thresholds in rc.init/rc.custom
 		7. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.22 1994/01/18 16:10:30 berg Exp $
+$Id: Manual,v 1.23 1994/01/25 15:38:58 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -62,7 +62,7 @@ can give a maintainer complete and sole control over his or her own list
 without the need for them to have user list or group list rights.
 For this to work, you simply have to "donatelist the_maintainer his_list"
 the whole tree that contains his list to him (her).  Make sure that the
-group id of all necessary files in the tree are still group-writeable by
+group id of all necessary files in the tree are still group-writable by
 "list", because that's the access privilege the mailinglist will be running
 under.
 

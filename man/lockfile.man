@@ -1,4 +1,6 @@
-.Id $Id: lockfile.man,v 1.8 1993/04/27 17:33:41 berg Exp $
+Please read the README file in this directory first.
+.ex
+.Id $Id: lockfile.man,v 1.9 1994/01/25 15:39:20 berg Exp $
 .TH LOCKFILE 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -23,7 +25,7 @@ lockfile \- conditional semaphore-file creator
 .I filename
 \&.\|.\|.
 .ad
-.Sh DESCRIPTION
+.SH DESCRIPTION
 .B lockfile
 can be used to create one or more
 .I semaphore
@@ -73,7 +75,7 @@ program (compare
 .BR SUSPEND
 in
 .BR procmail (1)).
-.Ss "Mailbox locks"
+.SS "Mailbox locks"
 If the permissions on the system mail spool directory allow it, or if lockfile
 is suitably setgid, it will be able to lock and unlock your system mailbox by
 using the options
@@ -81,12 +83,12 @@ using the options
 and
 .B "\-mu"
 respectively.
-.Sh EXAMPLES
+.SH EXAMPLES
 Suppose you want to make sure that access to the file "important" is
 serialised, i.e. no more than one program or shell script should be allowed
 to access it.  For simplicity's sake, let's suppose that it is a shell
 script.  In this case you could solve it like this:
-.Rs
+.RS
 \&.\|.\|.
 lockfile important.lock
 \&.\|.\|.
@@ -94,25 +96,25 @@ access_"important"_to_your_hearts_content
 \&.\|.\|.
 rm -f important.lock
 \&.\|.\|.
-.Re
+.RE
 Now if all the scripts that access "important" follow this guideline, you
 will be assured that at most one script will be executing between the
 `lockfile' and the `rm' commands.
-.Sh ENVIRONMENT
-.Tp 2.3i
+.SH ENVIRONMENT
+.TP 2.3i
 .B LOGNAME
 used as a hint to determine the invoker's loginname
-.Sh FILES
-.Tp 2.3i
+.SH FILES
+.TP 2.3i
 .B /etc/passwd
 to verify and/or correct the invoker's loginname (and to find out his HOME
 directory, if needed)
-.Tp
+.TP
 .B @SYSTEM_MBOX@@DEFlockext@
 lockfile for the system mailbox, the environment variables present in here
 will not be taken from the environment, but will be determined by looking
 in /etc/passwd
-.Sh "SEE ALSO"
+.SH "SEE ALSO"
 .na
 .nh
 .BR rm (1),
@@ -122,43 +124,43 @@ in /etc/passwd
 .BR procmail (1)
 .hy
 .ad
-.Sh DIAGNOSTICS
-.Tp 2.3i
+.SH DIAGNOSTICS
+.TP 2.3i
 Filename too long, .\|.\|.
 Use shorter filenames.
-.Tp
+.TP
 Forced unlock denied on "x"
 No write permission in the directory where lockfile "x" resides, or more than
 one lockfile trying to force a lock at exactly the same time.
-.Tp
+.TP
 Forcing lock on "x"
 Lockfile "x" is going to be removed by force because of a timeout
 (compare
 .BR LOCKTIMEOUT
 in
 .BR procmail (1)).
-.Tp
+.TP
 Out of memory, .\|.\|.
 The system is out of swap space.
-.Tp
+.TP
 Signal received, .\|.\|.
 Lockfile will remove anything it created till now and terminate.
-.Tp
+.TP
 Sorry, .\|.\|.
 The
 .I retries
 limit has been reached.
-.Tp
+.TP
 Truncating "x" and retrying lock
 "x" does not seem to be a valid filename.
-.Tp
+.TP
 Try praying, .\|.\|.
 Missing subdirectories or insufficient privileges.
-.Sh BUGS
+.SH BUGS
 Definitely less than one.
-.Sh MISCELLANEOUS
+.SH MISCELLANEOUS
 Lockfile is NFS-resistant and eight-bit clean.
-.Sh NOTES
+.SH NOTES
 Calling up lockfile with the \-@HELPOPT1@ or \-@HELPOPT2@ options will cause
 it to display a command-line help page.
 .PP

@@ -1,4 +1,6 @@
-.Id $Id: procmailex.man,v 1.23 1994/01/13 13:39:42 berg Exp $
+Please read the README file in this directory first.
+.ex
+.Id $Id: procmailex.man,v 1.24 1994/01/25 15:39:33 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -6,7 +8,7 @@ procmailex \- procmail rcfile examples
 .SH SYNOPSIS
 .B $HOME/@PROCMAILRC@ examples
 .ad
-.Sh DESCRIPTION
+.SH DESCRIPTION
 For a description of the rcfile format see
 .BR procmailrc (5).
 .PP
@@ -19,7 +21,7 @@ you can check the NOTES section in
 .BR procmail (1),
 or look at the example rcfiles part of the procmail source distribution
 (procmail*/examples/?procmailrc).
-.Sh EXAMPLES
+.SH EXAMPLES
 Sort out all mail coming from the scuba-dive mailing list into the mailfolder
 scubafile (uses the locallockfile scubafile.lock).
 .Sx 3
@@ -396,7 +398,7 @@ DEFAULT=|     # pipe to stdout instead of
      \-I 'Content-Type: text/plain; charset=3DISO-8859-1' \e
      \-I 'Content-Transfer-Encoding: quoted-printable'
 .Ex
-.Sh "SEE ALSO"
+.SH "SEE ALSO"
 .na
 .nh
 .BR procmail (1),

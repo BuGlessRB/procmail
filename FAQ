@@ -153,7 +153,7 @@
 	- Some systems support the sticky bit on directories (when set only
 	  allows the owner of a file in that directory to rename or remove
 	  it).	This enables you to make /usr/spool/mail drwxrwxrwt.  It is
-	  thus effectively world writeable, but all the mailboxes in it are
+	  thus effectively world writable, but all the mailboxes in it are
 	  protected because only the mailbox owner can remove or rename it.
 	- If your system did not exhibit the !@#$%^&* POSIX semantics for
 	  setgid(), procmail would have been able to switch back and forth

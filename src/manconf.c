@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.31 1994/01/18 17:29:35 berg Exp $*/
+/*$Id: manconf.c,v 1.32 1994/01/25 15:40:13 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -95,6 +95,7 @@ static void pc(name,value)const char*const name;const int value;
 main(argc,argv)const char*const argv[];
 { char*p,*q;
   gargv=argv;
+  puts("/^\\.ex/,/^\\.ex/ d");
 #ifdef CF_no_procmail_yet
   ps("CF_procmail","If procmail is\1\
 .I not\1\

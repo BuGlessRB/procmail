@@ -1,4 +1,6 @@
-.Id $Id: procmail.man,v 1.34 1994/01/17 15:28:54 berg Exp $
+Please read the README file in this directory first.
+.ex
+.Id $Id: procmail.man,v 1.35 1994/01/25 15:39:27 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -29,7 +31,7 @@ procmail \- autonomous mail processor
 .B procmail
 .B \-@VERSIONOPT@
 .ad
-.Sh DESCRIPTION
+.SH DESCRIPTION
 For a quick start, see
 .B NOTES
 at the end.
@@ -65,49 +67,49 @@ man page.
 Examples for rcfile recipes can be looked up in the
 .BR procmailex (5)
 man page.
-.Ss Signals
-.Tp 1.2i
+.SS Signals
+.TP 1.2i
 .B TERMINATE
 Terminate prematurely and requeue the mail.
-.Tp
+.TP
 .B HANGUP
 Terminate prematurely and bounce the mail.
-.Tp
+.TP
 .B INTERRUPT
 Terminate prematurely and bounce the mail.
-.Tp
+.TP
 .B QUIT
 Terminate prematurely and silently lose the mail.
-.Tp
+.TP
 .B ALARM
 Force a timeout (see
 .BR TIMEOUT).
-.Tp
+.TP
 .B USR1
 Equivalent to a
 .BR VERBOSE =off.
-.Tp
+.TP
 .B USR2
 Equivalent to a
 .BR VERBOSE =on.
-.Sh OPTIONS
-.Tp 0.5i
+.SH OPTIONS
+.TP 0.5i
 .B \-@VERSIONOPT@
 Procmail will print its version number and exit.
-.Tp
+.TP
 .B \-@PRESERVOPT@
 Preserve any old environment.  Normally procmail clears the environment
 upon startup@KEEPENV@.  However, in any case: any default values will override
 any preexisting environment variables, i.e. procmail will not pay any attention
 to any predefined environment variables, it will happily overwrite them
 with its own defaults.
-.Tp
+.TP
 .B \-@TEMPFAILOPT@
 Make procmail fail softly, i.e. if procmail cannot deliver the mail to
 any of the destinations you gave, the mail will not bounce, but will return
 to the mailqueue.  Another delivery-attempt will be made at some time in
 the future.
-.Tp
+.TP
 .I "\fB\-@FROMWHOPT@\fP fromwhom"
 Causes procmail to regenerate the leading `@FROM@' line with
 .I fromwhom
@@ -117,14 +119,14 @@ obsolete \-@ALTFROMWHOPT@).  If
 consists merely of a single `@REFRESH_TIME@', then procmail will only
 update the timestamp on the `@FROM@' line (if present, if not, it will
 generate a new one).
-.Tp
+.TP
 .I "\fB\-@ARGUMENTOPT@\fP argument"
 This will set $1 to be equal to
 .IR argument .
 It can be used to pass meta information along to procmail.  This is
 typically done by passing along the $@x information from the sendmail
 mailer rule.
-.Tp
+.TP
 .I "\fB\-@DELIVEROPT@\fP recipient .\|.\|."
 This turns on explicit delivery mode, delivery will be to the local user
 .IR recipient .
@@ -134,7 +136,7 @@ Procmail will setuid to the intended recipients and shall
 .I only
 read the recipient's @PROCMAILRC@ file (if present, if not, delivery is like
 ordinary mail).
-.Tp
+.TP
 .B \-@MAILFILTOPT@
 Turns procmail into a general purpose mail filter.  In this mode an rcfile
 must be specified on the command line.  You should also specify the
@@ -143,7 +145,7 @@ line so that the mail can be transparently resent if needed.
 For some typical usage of this option you should look in the
 .B EXAMPLES
 section below.
-.Sh ARGUMENTS
+.SH ARGUMENTS
 Any arguments containing an '=' are considered to be environment variable
 assignments, they will
 .I all
@@ -164,7 +166,7 @@ If no rcfiles are specified, it looks for
 If not even that can be found, processing will continue according to
 the default settings of the environment variables and the ones specified
 on the command line.
-.Sh EXAMPLES
+.SH EXAMPLES
 Examples for rcfile recipes can be looked up in the
 .BR procmailex (5)
 man page.
@@ -190,7 +192,7 @@ to continue the rule, and the tab to separate the comments):
 R$*<@some.where>$*
         $#procmail $@/etc/some.rc $:$1@some.where.procmail$2
 R$*<@some.where.procmail>$*
-        $1<@some.some>$*       Already filtered, map back
+        $1<@some.some>$2       Already filtered, map back
 .Ex
 And /etc/some.rc could be as simple as:
 .Sx 6
@@ -201,27 +203,27 @@ And /etc/some.rc could be as simple as:
 :0                              # pass along all other mail
 ! \-oi \-f "$@"
 .Ex
-.Sh FILES
-.Tp 2.3i
+.SH FILES
+.TP 2.3i
 .B /etc/passwd
 to set the recipient's LOGNAME, HOME and SHELL variable defaults
-.Tp
+.TP
 .B @SYSTEM_MBOX@
 system mailbox@ETCRC_files@
-.Tp
+.TP
 .B $HOME/@PROCMAILRC@
 default rcfile
-.Tp
+.TP
 .B @SYSTEM_MBOX@@DEFlockext@
 lockfile for the system mailbox (not used by procmail automatically, unless
 $DEFAULT equals @SYSTEM_MBOX@ and procmail is delivering to $DEFAULT)
-.Tp
+.TP
 .B @DEFsendmail@
 default mail forwarder
-.Tp
+.TP
 .B @UNIQ_PREFIX@????`hostname`
 temporary `unique' zero-length files created by procmail
-.Sh "SEE ALSO"
+.SH "SEE ALSO"
 .na
 .nh
 .BR procmailrc (5),
@@ -244,203 +246,203 @@ temporary `unique' zero-length files created by procmail
 .BR cron (1)
 .hy
 .ad
-.Sh DIAGNOSTICS
-.Tp 2.3i
+.SH DIAGNOSTICS
+.TP 2.3i
 Autoforwarding mailbox found
 The system mailbox had its suid or sgid bit set, procmail terminates with
 EX_NOUSER assuming that this mailbox must not be delivered to.
-.Tp
+.TP
 Bad substitution of "x"
 Not a valid environment variable name specified.
-.Tp
+.TP
 Closing brace unexpected
 There was no corresponding opening brace (nesting block).
-.Tp
+.TP
 Conflicting options
 Not all option combinations are useful
-.Tp
+.TP
 Couldn't create "x"
 The system mailbox was missing and could not/will not be created.
-.Tp
+.TP
 Couldn't determine implicit lockfile from "x"
 There were no `>>' redirectors to be found, using simply `$LOCKEXT' as
 locallockfile.
-.Tp
+.TP
 Couldn't unlock "x"
 Lockfile was already gone, or write permission to the directory were the
 lockfile is has been denied.
-.Tp
+.TP
 Deadlock attempted on "x"
 The locallockfile specified on this recipe is equal to a still active
 $LOCKFILE.
-.Tp
+.TP
 Error while writing to "x"
 Nonexistent subdirectory, no write permission, pipe died or disk full.
-.Tp
+.TP
 Exceeded LINEBUF
 Buffer overflow detected, LINEBUF was too small, memory might be corrupted.
-.Tp
+.TP
 Excessive output quenched from "x"
 The program or filter "x" tried to produce too much output for the current
 LINEBUF, discarded the rest.
-.Tp
+.TP
 Extraneous x ignored
 The action line of this recipe makes x meaningless.
-.Tp
+.TP
 Failed forking "x"
 Process table is full (and NORESRETRY has been exhausted).
-.Tp
+.TP
 Failed to execute "x"
 Program not in path, or not executable.
-.Tp
+.TP
 Forced unlock denied on "x"
 No write permission in the directory where
 .B lockfile
 "x" resides, or more than one procmail trying to force a lock at exactly the
 same time.
-.Tp
+.TP
 Forcing lock on "x"
 .B Lockfile
 "x" is going to be removed by force because of a timeout (see also:
 .BR LOCKTIMEOUT ).
-.Tp
+.TP
 Incomplete recipe
 The start of a recipe was found, but it stranded in an EOF.
-.Tp
+.TP
 Insufficient privileges
 Procmail either needs root privileges, or must have the
 right (e)uid and (e)gid to run in delivery mode.  Delivery will proceed
 to the invoker.
-.Tp
+.TP
 Invalid regexp "x"
 The regular expression "x" contains errors (most likely some missing or
 extraneous parens).
-.Tp
+.TP
 Kernel-lock failed
 While trying to use the kernel-supported locking calls, one of them failed
 (usually indicates an OS error), procmail ignores this error and proceeds.
-.Tp
+.TP
 Kernel-unlock failed
 See above.
-.Tp
+.TP
 Lock failure on "x"
 Can only occur if you specify some real weird (and illegal) lockfilenames
 or if the
 .B lockfile
 could not be created because of insufficient permissions or nonexistent
 subdirectories.
-.Tp
+.TP
 Missing closing brace
 A nesting block was started, but never finished.
-.Tp
+.TP
 Missing name
 The \-@FROMWHOPT@ option needs an extra argument.
-.Tp
+.TP
 Missing argument
 You specified the \-@ARGUMENTOPT@ option but forgot the argument.
-.Tp
+.TP
 Missing rcfile
 You specified the \-@MAILFILTOPT@ option, procmail expects the name of an
 rcfile as argument.
-.Tp
+.TP
 Missing recipient
 You specified the \-@DELIVEROPT@ option or called procmail under a different
 name, it expects one or more recipients as arguments.
-.Tp
+.TP
 Out of memory
 The system is out of swap space (and NORESRETRY has been exhausted).
-.Tp
+.TP
 Processing continued
 The unrecognised options on the command line are ignored, proceeding as
 usual.
-.Tp
+.TP
 Program failure (nnn) of "x"
 Program that was started by procmail returned nnn instead of EX_OK (=@EX_OK@);
 if nnn is negative, then this is the signal the program died on.
-.Tp
+.TP
 Skipped: "x"
 Couldn't do anything with "x" in the rcfile (syntax error), ignoring it.
-.Tp
+.TP
 Suspicious rcfile
 The owner of the rcfile was not the recipient, or the directory that contained
-it was world writeable (the rcfile was not used)
-.Tp
+it was world writable (the rcfile was not used)
+.TP
 Terminating prematurely whilst waiting for .\|.\|.
 Procmail received a signal while it was waiting for .\|.\|.
-.Tp
+.TP
 Timeout, terminating "x"
 Timeout has occurred on program or filter "x".
-.Tp
+.TP
 Timeout, was waiting for "x"
 Timeout has occurred on program, filter or file "x".  If it was a program or
 filter, then it didn't seem to be running anymore.
-.Tp
+.TP
 Truncating "x" and retrying lock
 "x" does not seem to be a valid filename or the file is not empty.
-.Tp
+.TP
 Rescue of unfiltered data succeeded/failed
 A filter returned unsuccessfully, procmail tried to get back the original text.
-.Tp
+.TP
 Unexpected EOL
 Missing closing quote, or trying to escape EOF.
-.Tp
+.TP
 Unknown user "x"
 The specified recipient does not have a corresponding uid.
-.Sh "EXTENDED DIAGNOSTICS"
+.SH "EXTENDED DIAGNOSTICS"
 Extended diagnostics can be turned on and off through setting the
 VERBOSE variable.
-.Tp 2.3i
+.TP 2.3i
 [pid] time & date
 Procmail's pid and a timestamp.  Generated whenever procmail logs a
 diagnostic and at least a second has elapsed since the last timestamp.
-.Tp
+.TP
 Assigning "x"
 Environment variable assignment.
-.Tp
+.TP
 Bypassed locking "x"
 The mail spool directory was not accessible to procmail, it relied solely
 on kernel locks.
-.Tp
+.TP
 Executing "x"
 Starting program "x".  If it is started by procmail directly (without an
 intermediate shell), procmail will show where it separated the arguments
 by inserting commas.
-.Tp
+.TP
 HOST mismatched "x"
 This host was called "x", HOST contained something else.
-.Tp
+.TP
 Locking "x"
 Creating lockfile "x".
-.Tp
+.TP
 Linking to "x"
 Creating a hardlink between directory folders.
-.Tp
+.TP
 Match on "x"
 Condition matched.
-.Tp
+.TP
 No match on "x"
 Condition didn't match, recipe skipped.
-.Tp
+.TP
 Notified comsat: "$LOGNAME@offset:file"
 Sent comsat/biff a notice that mail arrived for user $LOGNAME at `offset'
 in `file'.
-.Tp
+.TP
 Opening "x"
 Opening file "x" for appending.
-.Tp
+.TP
 Rcfile: "x"
 Rcfile changed to "x".
-.Tp
+.TP
 Reiterating kernel-lock
 While attempting several locking methods, one of these failed.  Procmail will
 reiterate until they all succeed in rapid succession.
-.Tp
+.TP
 Score: total added "x"
 This condition scored `added' points, which resulted in a `total' score.
-.Tp
+.TP
 Unlocking "x"
 Removing lockfile "x" again.
-.Sh WARNINGS
+.SH WARNINGS
 You should create a shell script that uses
 .BR lockfile (1)
 before invoking your mail shell on any mailbox file other than the system
@@ -461,7 +463,7 @@ Beware when using the
 option, if procmail repeatedly is unable to deliver the mail (e.g. due to
 an incorrect rcfile), the system mailqueue could fill up.  This could
 aggravate both the local postmaster and other users.@ETCRC_warn@
-.Sh BUGS
+.SH BUGS
 After removing a lockfile by force, procmail waits $SUSPEND seconds before
 creating a new lockfile so that another process that decides to remove the
 stale lockfile will not remove the newly created lock by mistake.
@@ -469,13 +471,13 @@ stale lockfile will not remove the newly created lock by mistake.
 Procmail uses the regular TERMINATE signal to terminate any runaway filter,
 but it does not check if the filter responds to that signal and it only sends
 it to the filter itself, not to any of the filter's children.
-.Sh MISCELLANEOUS
+.SH MISCELLANEOUS
 When appending to regular mailfolders any lines in the body of the message that
 look like postmarks are prepended with `@ESCAP@' (disarms bogus mailheaders).
 The regular expression that is used to search for these postmarks is:
-.Rs
+.RS
 `@FROM_EXPR@'
-.Re
+.RE
 .PP
 If the destination name used in explicit delivery mode is not in /etc/passwd,
 procmail will proceed as if explicit delivery mode was not in effect.
@@ -489,11 +491,11 @@ line if none is present.  If one is already present procmail will leave it
 intact.@TRUSTED_IDS@
 .PP
 For security reasons procmail will only use an absolute or $HOME relative
-rcfile if it is either owned by the recipient and not world writeable, or if
-the directory it is contained in is not world writeable.
+rcfile if it is either owned by the recipient and not world writable, or if
+the directory it is contained in is not world writable.
 .PP
 If @SYSTEM_MBOX@ is a bogus mailbox (i.e. does not belong to the recipient,
-is unwriteable, is a symbolic link or is a hard link), procmail will upon
+is unwritable, is a symbolic link or is a hard link), procmail will upon
 startup try to rename it into a file starting with `@BOGUSprefix@' and
 ending in an inode-sequence-code.  If this turns out to be impossible,
 .B ORGMAIL
@@ -528,9 +530,9 @@ Comsat/biff notifications are done using @COMSATprotocol@.  They are sent off
 once when procmail generates the regular logfile entry.  The notification
 messages have the following extended format (or as close as you can get when
 final delivery was not to a file):
-.Rs
+.RS
 $LOGNAME@offset_of_message_in_mailbox@COMSATxtrsep@absolute_path_to_mailbox
-.Re
+.RE
 .PP
 Whenever procmail itself opens a file to deliver to, it
 @KERNEL_LOCKING@.
@@ -538,7 +540,7 @@ Whenever procmail itself opens a file to deliver to, it
 Procmail is NFS-resistant and eight-bit clean.
 .br
 .ne 11
-.Sh NOTES
+.SH NOTES
 Calling up procmail with the \-@HELPOPT1@ or \-@HELPOPT2@ options will cause
 it to display a command-line help and recipe flag quick-reference page.
 .PP
@@ -566,7 +568,7 @@ $HOME/@DOT_FORWARD@ file (in which case the following script could
 periodically be called from within
 .BR cron (1),
 or whenever you start reading mail):
-.Rs
+.RS
 #!/bin/sh
 
 if cd $HOME &&
@@ -584,10 +586,10 @@ then
   rm \-f .newmail.lock
 fi
 exit 0
-.Re
+.RE
 .br
 .ne 14
-.Ss "A sample small @PROCMAILRC@:"
+.SS "A sample small @PROCMAILRC@:"
 .na
 .nf
 PATH=/bin:/usr/bin:@BINDIR@

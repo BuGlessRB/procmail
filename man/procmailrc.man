@@ -1,4 +1,6 @@
-.Id $Id: procmailrc.man,v 1.31 1993/12/23 13:01:44 berg Exp $
+Please read the README file in this directory first.
+.ex
+.Id $Id: procmailrc.man,v 1.32 1994/01/25 15:39:38 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -6,7 +8,7 @@ procmailrc \- procmail rcfile
 .SH SYNOPSIS
 .B $HOME/@PROCMAILRC@
 .ad
-.Sh DESCRIPTION
+.SH DESCRIPTION
 For a quick start, see
 .B NOTES
 at the end of the
@@ -52,19 +54,19 @@ if an environment variable appears without a trailing '=', it will be
 removed from the environment.  Any program in backquotes started by procmail
 will have the entire mail at its stdin.
 .PP
-.Ss Comments
+.SS Comments
 A word beginning with # and all the following characters up to a NEWLINE
 are ignored.
-.Ss Recipes
+.SS Recipes
 .PP
 A line starting with ':' marks the beginning of a recipe.  It has the
 following format:
 .PP
-.Rs
+.RS
 : [\fInumber\fP] [\fIflags\fP] [ : [\fIlocallockfile\fP] ]
 <zero or more conditions (one per line)>
 <exactly one action line>
-.Re
+.RE
 .PP
 The
 .I number
@@ -93,50 +95,50 @@ next.
 .PP
 .I Flags
 can be any of the following:
-.Tp 0.5i
+.TP 0.5i
 .B @HEAD_GREP@
 Egrep the header (default).
-.Tp
+.TP
 .B @BODY_GREP@
 Egrep the body.
-.Tp
+.TP
 .B @DISTINGUISH_CASE@
 Tell the internal egrep to distinguish between upper and lower case (contrary
 to the default which is to ignore case).
-.Tp
+.TP
 .B @ALSO_NEXT_RECIPE@
 This recipe will depend on the last preceding recipe (on the current
 block-nesting level) without the `@ALSO_NEXT_RECIPE@' or `@ALSO_N_IF_SUCC@'
 flag.  This allows you to chain actions that depend on a common condition.
 The number of conditions that are expected to follow default to none.
-.Tp
+.TP
 .B @ALSO_N_IF_SUCC@
 Has the same meaning as the `@ALSO_NEXT_RECIPE@' flag, but will depend on the
 .I successful
 completion of the immediately preceding recipe as well.
-.Tp
+.TP
 .B @PASS_HEAD@
 Feed the header to the pipe (default).
-.Tp
+.TP
 .B @PASS_BODY@
 Feed the body to the pipe (default).
-.Tp
+.TP
 .B @FILTER@
 Consider the pipe as a filter.
-.Tp
+.TP
 .B @CONTINUE@
 Continue processing rcfile even if this recipe matches (not needed when 'f'
 specified).
-.Tp
+.TP
 .B @WAIT_EXIT@
 Wait for the filter or program to finish and check its exitcode (normally
 ignored); if the filter is unsuccessful, then the text will not have been
 filtered.
-.Tp
+.TP
 .B @WAIT_EXIT_QUIET@
 Has the same meaning as the `@WAIT_EXIT@' flag, but will suppress any
 `Program failure' message.
-.Tp
+.TP
 .B @IGNORE_WRITERR@
 Ignore any write errors on this recipe (i.e. usually due to an early closed
 pipe).
@@ -144,29 +146,29 @@ pipe).
 There are some special conditions you can use that are not straight regular
 expressions.  To select them, the first character of the condition must
 be a:
-.Tp 0.5i
+.TP 0.5i
 .B !
 Invert the condition.
-.Tp
+.TP
 .B $
 Evaluate the remainder according to
 .BR sh (1)
 substitution rules inside double quotes, skip leading whitespace,
 then reparse it.
-.Tp
+.TP
 .B ?
 Use the exitcode of the specified program.
-.Tp
+.TP
 .B <
 Check if the total length of the mail is shorter than the specified (in
 decimal) number of bytes.
-.Tp
+.TP
 .B >
 Analogous to '<'.
-.Tp
+.TP
 .B \e
 To quote any of the above at the start of the line.
-.Ss "Local lockfile"
+.SS "Local lockfile"
 .PP
 If you put a second (trailing) ':' on the first recipe line, then procmail
 will use a
@@ -174,13 +176,13 @@ will use a
 (for this recipe only).  You can optionally specify the locallockfile
 to use; if you don't however, procmail will use the destination filename
 (or the filename following the first '>>') and will append $LOCKEXT to it.
-.Ss "Recipe action line"
+.SS "Recipe action line"
 .PP
 The action line can start with the following characters:
-.Tp
+.TP
 .B !
 Forwards to all the specified mail addresses.
-.Tp
+.TP
 .B |
 Starts the specified program, possibly in $SHELL if any
 of the characters $SHELLMETAS are spotted.  You can optionally prepend this
@@ -190,7 +192,7 @@ which will cause stdout of the program to be captured in the environment
 .IR variable .
 If you specify just this pipe symbol, without any program, then procmail will
 pipe the mail to stdout.
-.Tp
+.TP
 .B {
 Followed by at least one space, tab or newline will mark the start of a
 nesting block.  Everything up till the next closing brace will depend on
@@ -206,67 +208,67 @@ directory name ends in "@MCDIRSEP@@chCURDIR@", then this directory is presumed
 to be an MH folder; i.e. procmail will use the next number it finds available.
 When procmail is delivering to directories, you can specify multiple
 directories to deliver to (using hardlinks).
-.Ss "Environment variable defaults"
-.Tp 2.2i
+.SS "Environment variable defaults"
+.TP 2.2i
 .B "LOGNAME, HOME and SHELL"
 Your (the recipient's) defaults
-.Tp
+.TP
 .B SHELLMETAS
 \&@DEFshellmetas@
-.Tp
+.TP
 .B SHELLFLAGS
 \&@DEFshellflags@
-.Tp
+.TP
 .BR ORGMAIL
 \&@SYSTEM_MBOX@
-.Tp
+.TP
 .B MAILDIR
 \&@DEFmaildir@
 .br
 (Unless the name of the first successfully opened rcfile starts with
 `@chCURDIR@@MCDIRSEP@', in which case it defaults to `@chCURDIR@')
-.Tp
+.TP
 .B DEFAULT
 \&@DEFdefault@
-.Tp
+.TP
 .B MSGPREFIX
 \&@DEFmsgprefix@
-.Tp
+.TP
 .B SENDMAIL
 \&@DEFsendmail@
-.Tp
+.TP
 .B COMSAT
 \&@DEFcomsat@
 .br
 (If an rcfile is specified on the command line)
-.Tp
+.TP
 .B LOCKEXT
 \&@DEFlockext@
-.Tp
+.TP
 .B LOCKFILE
 \&@DEFdefaultlock@
 .br
 (After procmail closed the last rcfile)@PRESTENV@@LD_ENV_FIX@
-.Ss Environment
+.SS Environment
 .PP
 Before you get lost in the multitude of environment variables, keep in mind
 that all of them have reasonable defaults.
-.Tp 1.2i
+.TP 1.2i
 .B MAILDIR
 Current directory while procmail is executing (that means that all paths
 are relative to $MAILDIR).
-.Tp
+.TP
 .B DEFAULT
 Default
 .B mailbox
 file (if not told otherwise, procmail will dump mail in this mailbox).
 Procmail will automatically use LOCKFILE=$DEFAULT$LOCKEXT prior to writing
 to this mailbox.
-.Tp
+.TP
 .B MSGPREFIX
 Filename prefix that is used when delivering to a directory (not used when
 delivering to an MH directory).
-.Tp
+.TP
 .B LOGFILE
 This file will also contain any error or diagnostic messages from procmail
 (normally none :-) or any other programs started by procmail.  If this file
@@ -274,29 +276,29 @@ is not specified, any diagnostics or error messages will
 @pconsole@@console@@aconsole@
 See also
 .BR LOGABSTRACT .
-.Tp
+.TP
 .B VERBOSE
 You can turn on
 .I extended diagnostics
 by setting this variable to `yes' or `on', to turn it off again set it to `no'
 or `off'.
-.Tp
+.TP
 .B LOGABSTRACT
 Just before procmail exits it logs an abstract of the delivered message in
 $LOGFILE showing the `@FROM@' and `Subject:' fields of the header, what folder
 it finally went to and how long (in bytes) the message was.  By setting this
 variable to `no', generation of this abstract is suppressed.
-.Tp
+.TP
 .B LOG
 Anything assigned to this variable will be appended to $LOGFILE.
-.Tp
+.TP
 .B ORGMAIL
 Usually the system mailbox (\fBOR\fPi\fBG\fPinal \fBMAIL\fPbox).  If, for
 some obscure reason (like `\fBfilesystem full\fP') the mail could not be
 delivered, then this mailbox will be the last resort.  If procmail
 fails to save the mail in here (deep, deep trouble :-), then the mail
 will bounce back to the sender.
-.Tp
+.TP
 .B LOCKFILE
 Global semaphore file.  If this file already exists, procmail
 will wait until it has gone before proceeding, and will create it itself
@@ -305,19 +307,19 @@ will wait until it has gone before proceeding, and will create it itself
 are specified, then the previous one will be removed before trying to create
 the new one.  The use of a global lockfile is discouraged, whenever possible
 use locallockfiles (on a per recipe basis) instead.
-.Tp
+.TP
 .B LOCKEXT
 Default extension that is appended to a destination file to determine
 what local
 .I lockfile
 to use (only if turned on, on a per-recipe basis).
-.Tp
+.TP
 .B LOCKSLEEP
 Number of seconds procmail will sleep before retrying on a
 .I lockfile
 (if it already existed); if not specified, it defaults to @DEFlocksleep@
 seconds.
-.Tp
+.TP
 .B LOCKTIMEOUT
 Number of seconds that have to have passed since a
 .I lockfile
@@ -328,14 +330,14 @@ lockfile is removed; if not specified, it defaults to @DEFlocktimeout@ seconds.
 This variable is useful to prevent indefinite hangups of
 .BR sendmail /procmail.
 Procmail is immune to clock skew.
-.Tp
+.TP
 .B TIMEOUT
 Number of seconds that have to have passed before procmail decides that
 some child it started must be hanging.  The offending program will receive
 a TERMINATE signal from procmail, and processing of the rcfile will continue.
 If zero, then no timeout will be used and procmail will wait forever until the
 child has terminated; if not specified, it defaults to @DEFtimeout@ seconds.
-.Tp
+.TP
 .B HOST
 If this is not the
 .I hostname
@@ -346,7 +348,7 @@ command line, processing will continue with the next one.  If all rcfiles
 are exhausted, the program will terminate, but will not generate an error
 (i.e. to the mailer it will seem that the mail has been delivered).  Only the
 first @HOSTNAMElen@ characters of the HOST are significant.
-.Tp
+.TP
 .B UMASK
 The name says it all (if it doesn't, then forget about this one :-).
 Anything assigned to UMASK is taken as an
@@ -354,17 +356,17 @@ Anything assigned to UMASK is taken as an
 number.  If not specified, the umask defaults to @INIT_UMASK@.  If the umask
 permits o+x, all the mailboxes procmail delivers to directly will receive
 a o+x mode change.  This can be used to check if new mail arrived.
-.Tp
+.TP
 .B SHELLMETAS
 If any of the characters in SHELLMETAS appears in the line specifying
 a filter or program, the line will be fed to $SHELL
 instead of being executed directly.
-.Tp
+.TP
 .B SHELLFLAGS
 Any invocation of $SHELL will be like:
 .br
 "$SHELL" "$SHELLFLAGS" "$*";
-.Tp
+.TP
 .B SENDMAIL
 If you're not using the
 .I forwarding
@@ -372,7 +374,7 @@ facility don't worry about this one.  It specifies the program being
 called to forward any mail.
 .br
 It gets invoked as: "$SENDMAIL" "$@";
-.Tp
+.TP
 .B NORESRETRY
 Number of retries that are to be made if any `\fBprocess table full\fP',
 `\fBfile table full\fP', `\fBout of memory\fP' or
@@ -389,13 +391,13 @@ is full, usually several other programs will either detect this as well
 and abort or crash 8-), thereby freeing valuable
 .I resources
 for procmail.
-.Tp
+.TP
 .B SUSPEND
 Number of seconds that procmail will pause if it has to wait for something
 that is currently unavailable (memory, fork, etc.); if not specified, it will
 default to @DEFsuspend@ seconds.  See also:
 .BR LOCKSLEEP .
-.Tp
+.TP
 .B LINEBUF
 Length of the internal line buffers, cannot be set smaller than @MINlinebuf@.
 All lines read from the
@@ -405,29 +407,29 @@ specified, it defaults to @DEFlinebuf@.  This limit, of course, does
 .I not
 apply to the mail itself, which can have arbitrary line lengths, or could
 be a binary file for that matter.
-.Tp
+.TP
 .B DELIVERED
 If set to `yes' procmail will pretend (to the mail agent) the mail
 has been delivered.  If mail cannot be delivered after meeting this
 assignment (to `yes'), the mail will be lost (i.e. it will not bounce).
-.Tp
+.TP
 .B TRAP
 When procmail terminates it will execute the contents of this variable.
 A copy of the mail can be read from stdin.  Any output produced by this
 command will be appended to $LOGFILE.  Possible uses for TRAP are: removal
 of temporary files, logging customised abstracts, change the exitcode of
 procmail, etc.
-.Tp
+.TP
 .B LASTFOLDER
 This variable is assigned to by procmail whenever it is delivering
 to a folder or program.  It always contains the name of the last folder
 (or program) procmail delivered to.
-.Tp
+.TP
 .B INCLUDERC
 Names an rcfile (relative to the current directory) which will be included
 here as if it were part of the current rcfile.  Unlimited nesting is
 permitted.
-.Tp
+.TP
 .B COMSAT
 .BR Comsat (8)/ biff (1)
 notification is on by default, it can be turned off by setting this variable
@@ -435,11 +437,11 @@ to `no'.  Alternatively the biff-service can be customised by setting it to
 either `service@SERV_ADDRsep@', `@SERV_ADDRsep@hostname', or
 `service@SERV_ADDRsep@hostname'.  When not specified it defaults
 to @COMSATservice@@SERV_ADDRsep@@COMSAThost@.@DROPPRIVS@
-.Sh EXAMPLES
+.SH EXAMPLES
 Look in the
 .BR procmailex (5)
 man page.
-.Sh CAVEATS
+.SH CAVEATS
 Continued lines in an action line that specifies a program always have to end
 in a backslash, even if the underlying shell would not need or want the
 backslash to indicate continuation.  This is due to the two pass parsing
@@ -485,7 +487,7 @@ lost.
 .PP
 The `@CONTINUE@' flag defaults to on when capturing stdout of a recipe in an
 environment variable.
-.Sh "SEE ALSO"
+.SH "SEE ALSO"
 .na
 .nh
 .BR procmail (1),
@@ -507,7 +509,7 @@ environment variable.
 .BR formail (1)
 .hy
 .ad
-.Sh BUGS
+.SH BUGS
 The only substitutions of environment variables that can be handled by
 procmail itself are of the type $name, ${name}, ${name:-text}, ${name:+text},
 ${name-text}, ${name+text}, $#, $n, $$, $?, $\- and $=; whereas $\- will be
@@ -544,7 +546,7 @@ matches.
 .PP
 When the regular expression starts with `^^' it will anchor the match
 at the very start of the text.
-.Sh MISCELLANEOUS
+.SH MISCELLANEOUS
 If the regular expression contains `\fB@TOkey@\fP' it will be substituted by
 .na
 .nh
@@ -580,7 +582,7 @@ procmail accepts as true every string starting with: a non-zero value, `on',
 .PP
 If the action line of a recipe specifies a program, a sole backslash-newline
 pair in it on an otherwise empty line will be converted into a newline.
-.Sh NOTES
+.SH NOTES
 Since unquoted leading whitespace is generally ignored in the rcfile you can
 indent everything to taste.
 .PP

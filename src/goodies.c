@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.24 1994/01/18 17:29:25 berg Exp $";
+ "$Id: goodies.c,v 1.25 1994/01/25 15:40:03 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -192,7 +192,7 @@ noalt:			  skiprc++;
 		       else
 doalt:			  startb=p;
 		       ;{ const char*sall_args;
-			  sall_args=All_args;readparse(p,sgetc,3);
+			  sall_args=All_args;readparse(p,fpgetc,3);
 			  if(!All_args)	       /* only one can be remembered */
 			     All_args=sall_args;	    /* this is a bug */
 			}

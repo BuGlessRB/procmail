@@ -2,7 +2,7 @@
  *	procmail - The autonomous mail processor			*
  *									*
  *	It has been designed to be able to be run suid root and (in	*
- *	case your mail spool area is *not* world writeable) sgid	*
+ *	case your mail spool area is *not* world writable) sgid		*
  *	mail (or daemon), without creating security holes.		*
  *									*
  *	Seems to be perfect.						*
@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.63 1994/01/18 17:29:47 berg Exp $";
+ "$Id: procmail.c,v 1.64 1994/01/25 15:40:19 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -235,7 +235,10 @@ privileged:				       /* move stdout out of the way */
 		  }
 	       }
 	      else
-		 tstamp=0;
+	       { tstamp=0;
+		 if(!fromwhom)
+		    linv=0;
+	       }
 	      filled=lfr+linv+i;
 	      if(lfr||linv)	     /* move read text beyond our From_ line */
 	       { r= *rstart;tmemmove(themail+lfr+linv,rstart,i);
@@ -340,7 +343,7 @@ Setuser: { gid=pass->pw_gid;uid=pass->pw_uid;
 	       (rcstate=rc_NOSGID,0))&&
 	      (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH))==(S_IWGRP|S_IXGRP))
 	    { if(!Deliverymode)		     /* we aren't the only deliverer */
-		 umask(INIT_UMASK&~S_IRWXG);	  /* make it group-writeable */
+		 umask(INIT_UMASK&~S_IRWXG);	   /* make it group-writable */
 	      goto keepgid;
 	    }
 	   else if(stbuf.st_mode&S_ISGID)
@@ -483,8 +486,8 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 	    {/*
 	      * OK, so now we have opened an absolute rcfile, but for security
 	      * reasons we only accept it if it is owned by the recipient and
-	      * is not world writeable, or if the the directory it is in is
-	      * not world writeable or does not have the sticky bit set
+	      * is not world writable, or if the the directory it is in is
+	      * not world writable or does not have the sticky bit set
 	      */
 	      i= *(chp=lastdirsep(buf));
 	      if(lstat(buf,&stbuf)||	      /* /dev/null is a special case */

@@ -1,4 +1,6 @@
-.Id $Id: procmailsc.man,v 1.3 1993/12/08 17:34:00 berg Exp $
+Please read the README file in this directory first.
+.ex
+.Id $Id: procmailsc.man,v 1.4 1994/01/25 15:39:43 berg Exp $
 .TH PROCMAILSC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -7,7 +9,7 @@ procmailsc \- procmail weighted scoring techique
 .RB [ * ]
 .B "w^x condition"
 .ad
-.Sh DESCRIPTION
+.SH DESCRIPTION
 In addition to the traditional true or false conditions you can specify
 on a recipe, you can use a weighted scoring technique to decide if
 a certain recipe matches or not.  When weighted scoring is used in a
@@ -20,16 +22,16 @@ a `weight'
 and an `exponent'
 .RB ( x ).
 You do this by preceding the condition (on the same line) with:
-.Rs
+.RS
 .B w^x
-.Re
+.RE
 Whereas both
 .B w
 and
 .B x
 are real numbers between -2147483647.0 and 2147483647.0.
 
-.Sh "Weighted regular expression conditions"
+.SH "Weighted regular expression conditions"
 The first time the regular expression is found, it will add
 .I w
 to the score.  The second time it is found,
@@ -52,25 +54,25 @@ It represents the total added score for this condition if
 matches are found.
 
 Note that the following case distinctions can be made:
-.Tp 8
+.TP 8
 x=0
 Only the first match will contribute w to the score.  Any subsequent
 matches are ignored.
-.Tp
+.TP
 x=1
 Every match will contribute the same w to the score.  The score grows
 linearly with the number of matches found.
-.Tp
+.TP
 0<x<1
 Every match will contribute less to the score than the previous one.
 The score will asymptotically approach a certain value (see the
 .B NOTES
 section below).
-.Tp
+.TP
 1<x
 Every match will contribute more to the score than the previous one.
 The score will grow exponentionally.
-.Tp
+.TP
 x<0
 Can be utilised to favour odd or even number of matches.
 .PP
@@ -78,7 +80,7 @@ If the regular expression is negated (i.e. matches if it isn't found),
 then
 .B n
 obviously can either be zero or one.
-.Sh "Weighted program conditions"
+.SH "Weighted program conditions"
 If the program returns an exitcode of EX_OK (=@EX_OK@), then the total
 added score will be
 .BR w .
@@ -92,7 +94,7 @@ of the added score then proceeds as if it had been a normal regular
 expression with
 .B n=`exitcode'
 matches.
-.Sh "Weighted length conditions"
+.SH "Weighted length conditions"
 If the length of the actual mail is
 .B M
 then:
@@ -122,7 +124,7 @@ In both cases, if L=M, this will add w to the score.  In the former case
 however, larger mails will be favoured, in the latter case, smaller
 mails will be favoured.  Although x can be varied to fine-tune the
 steepness of the function, typical usage sets x=1.
-.Sh EXAMPLES
+.SH EXAMPLES
 The following recipe will ditch all mails having more than 150 lines in the
 body.
 The first condition contains an empty regular expression which, because
@@ -193,19 +195,19 @@ Everything that survived the previous test, is filed.
 For further examples you should look in the
 .BR procmailex (5)
 man page.
-.Sh CAVEATS
+.SH CAVEATS
 Because this speeds up the search by an order of magnitude,
 the procmail internal egrep will always search for the leftmost
 .I shortest
 match (contrary to most editors, which search the leftmost longest match).
 E.g. by itself, the regular expression:
-.Tp
+.TP
 .B .*
 will always match a zero length string at the same spot.
-.Tp
+.TP
 .B .+
 will always match one character (except newlines of course).
-.Sh "SEE ALSO"
+.SH "SEE ALSO"
 .na
 .nh
 .BR procmail (1),
@@ -217,7 +219,7 @@ will always match one character (except newlines of course).
 .BR grep (1),
 .hy
 .ad
-.Sh BUGS
+.SH BUGS
 If, in a length condition, you specify an
 .B x
 that causes an overflow, procmail is at the mercy of the
@@ -225,14 +227,14 @@ that causes an overflow, procmail is at the mercy of the
 function in your mathematical library.
 .PP
 Floating point numbers in `engineering' format (e.g. 12e5) are not accepted.
-.Sh MISCELLANEOUS
+.SH MISCELLANEOUS
 As soon as `plus infinity' (2147483647) is reached, any subsequent
 .I weighted
 conditions will simply be skipped.
 .PP
 As soon as `minus infinity' (-2147483647) is reached, the condition will
 be considered as `no match' and the recipe will terminate early.
-.Sh NOTES
+.SH NOTES
 If in the regular expression weighted formula
 .BR 0<x<1 ,
 the total added score for this condition will asymptotically approach:

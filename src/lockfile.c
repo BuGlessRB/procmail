@@ -3,7 +3,7 @@
  *									*
  *	It has been designed to be able to be run sgid mail or		*
  *	any gid you see fit (in case your mail spool area is *not*	*
- *	world writeable, but group writeable), without creating		*
+ *	world writable, but group writable), without creating		*
  *	security holes.							*
  *									*
  *	Seems to be relatively bug free.				*
@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.20 1994/01/18 17:29:29 berg Exp $";
+ "$Id: lockfile.c,v 1.21 1994/01/25 15:40:08 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/01/18 17:29:29 $";
+static /*const*/char rcsdate[]="$Date: 1994/01/25 15:40:08 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"

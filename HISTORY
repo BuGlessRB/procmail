@@ -53,7 +53,7 @@
 1993/02/19: v2.81
 	    Procmail now uses saved-gids if available (allows for system-
 	       mailbox locking from within an rcfile on systems that did not
-	       have world-writeable /usr/mail directories)
+	       have world-writable /usr/mail directories)
 1993/06/02: v2.82 (never really released, was only available as prerelease 4)
 	    Made the regexp lib faster again (worst case performance improved)
 	    Procmail can now deliver to multiple directories (using hardlinks)
@@ -112,7 +112,7 @@
 	       - Added support for filesystems not capable of creating
 		 hardlinks
 	       - Tightened the security check on initial absolute rcfiles
-		 (they sometimes can't be world writeable)
+		 (they sometimes can't be world writable)
 	       - Weighted scoring on conditions
 	       - Ability to inline parse ${var-text} and ${var:-text}
 	       - Ability to inline parse ${var+text} and ${var:+text}
