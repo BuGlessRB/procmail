@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: acommon.c,v 1.7 1997/04/03 01:58:39 srb Exp $";
+ "$Id: acommon.c,v 1.8 1999/04/19 06:48:09 guenther Exp $";
 #endif
 #include "includes.h"
 #include "acommon.h"
@@ -20,15 +20,17 @@ const char*hostname P((void))
 #define MAXHOSTNAMELEN	64
 #endif
   static char name[MAXHOSTNAMELEN];
-  gethostname(name,MAXHOSTNAMELEN);name[MAXHOSTNAMELEN-1]='\0';
+  if(!name[0])
+     gethostname(name,MAXHOSTNAMELEN),name[MAXHOSTNAMELEN-1]='\0';
 #else
-  struct utsname names;static char*name;
-  if(name)
-     free(name);
-  Uname(&names);
-  if(!(name=malloc(strlen(names.nodename)+1)))
-     return "";		      /* can happen when called from within lockfile */
-  strcpy(name,names.nodename);
+  static char*name;
+  if(!name)
+   { struct utsname names;
+     Uname(&names);
+     if(!(name=malloc(strlen(names.nodename)+1)))
+	return "";	      /* can happen when called from within lockfile */
+     strcpy(name,names.nodename);
+   }
 #endif
   return name;
 }
