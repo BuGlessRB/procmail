@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.37 1994/03/01 13:45:15 berg Exp $
+.Id $Id: procmailrc.man,v 1.38 1994/04/05 15:33:53 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -250,18 +250,16 @@ Your (the recipient's) defaults
 .B SENDMAIL
 \&@DEFsendmail@
 .TP
+.B HOST
+The current hostname
+.TP
 .B COMSAT
 \&@DEFcomsat@
 .br
 (If an rcfile is specified on the command line)
 .TP
 .B LOCKEXT
-\&@DEFlockext@
-.TP
-.B LOCKFILE
-\&@DEFdefaultlock@
-.br
-(After procmail closed the last rcfile)@PRESTENV@@LD_ENV_FIX@
+\&@DEFlockext@@PRESTENV@@LD_ENV_FIX@
 .SS Environment
 .PP
 Before you get lost in the multitude of environment variables, keep in mind
@@ -275,7 +273,7 @@ are relative to $MAILDIR).
 Default
 .B mailbox
 file (if not told otherwise, procmail will dump mail in this mailbox).
-Procmail will automatically use LOCKFILE=$DEFAULT$LOCKEXT prior to writing
+Procmail will automatically use $DEFAULT$LOCKEXT as lockfile prior to writing
 to this mailbox.
 .TP
 .B LOGFILE
@@ -359,8 +357,7 @@ of the machine, processing of the current
 will immediately cease. If other rcfiles were specified on the
 command line, processing will continue with the next one.  If all rcfiles
 are exhausted, the program will terminate, but will not generate an error
-(i.e. to the mailer it will seem that the mail has been delivered).  Only the
-first @HOSTNAMElen@ characters of the HOST are significant.
+(i.e. to the mailer it will seem that the mail has been delivered).
 .TP
 .B UMASK
 The name says it all (if it doesn't, then forget about this one :-).
@@ -436,12 +433,12 @@ and
 .BR LOGABSTRACT .
 .Tp
 .B EXITCODE
-When procmail terminates and this variable has a positive numeric value,
-procmail will use this as the exitcode.  If this variable is set but
+When procmail terminates and this variable has been set to a positive numeric
+value, procmail will use this as the exitcode.  If this variable is set but
 empty, procmail will set the exitcode to whatever the
 .B TRAP
 program returns.
-If this variable is not set, procmail will set it shortly before calling
+If this variable has not been set, procmail will set it shortly before calling
 up the
 .B TRAP
 program.

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.41 1994/03/10 16:20:46 berg Exp $
+.Id $Id: procmail.man,v 1.42 1994/04/05 15:33:47 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -13,7 +13,7 @@ procmail \- autonomous mail processor
 \&.\|.\|.
 .br
 .B procmail
-.RB [ \-@PRESERVOPT@@TEMPFAILOPT@@OVERRIDEOPT@ ]
+.RB [ \-@TEMPFAILOPT@@OVERRIDEOPT@ ]
 .RB [ "\-@FROMWHOPT@ \fIfromwhom\fP" ]
 .RB [ "\-@ARGUMENTOPT@ \fIargument\fP" ]
 .B \-@DELIVEROPT@
@@ -106,7 +106,12 @@ Preserve any old environment.  Normally procmail clears the environment
 upon startup@KEEPENV@.  However, in any case: any default values will override
 any preexisting environment variables, i.e. procmail will not pay any attention
 to any predefined environment variables, it will happily overwrite them
-with its own defaults.
+with its own defaults.  For the list of environment variables that procmail
+will preset see the
+.BR procmailrc (5)
+man page.  If both \-@PRESERVOPT@ and \-@MAILFILTOPT@ are specified, the
+list of preset environment variables shrinks to just: LOGNAME, HOME, SHELL,
+ORGMAIL and MAILDIR.
 .TP
 .B \-@TEMPFAILOPT@
 Make procmail fail softly, i.e. if procmail cannot deliver the mail to
@@ -143,13 +148,13 @@ privileges@SETRUID@.
 Procmail will setuid to the intended recipients and shall
 .I only
 read the recipient's @PROCMAILRC@ file (if present, if not, delivery is like
-ordinary mail).
+ordinary mail).  This option is incompatible with
+.BR \-@PRESERVEOPT@ .
 .TP
 .B \-@MAILFILTOPT@
-Turns procmail into a general purpose mail filter.  In this mode an rcfile
-must be specified on the command line.  You should also specify the
-envelope sender and one or more envelope recipient addresses on the command
-line so that the mail can be transparently resent if needed.
+Turns procmail into a general purpose mail filter.  In this mode one rcfile
+must be specified on the command line.  After the rcfile, procmail will
+accept an unlimited number of arguments.@ETCRCS_desc@
 For some typical usage of this option you should look in the
 .B EXAMPLES
 section below.
@@ -164,10 +169,12 @@ Any other arguments are presumed to be rcfile paths (either absolute,
 or if they start with `@chCURDIR@@MCDIRSEP@' relative to the current
 directory;
 .B any other relative
-path is relative to $HOME); procmail will start with the first one it finds
-on the command line.  The following ones will only be parsed if the preceding
-ones have a not matching HOST-directive entry, or in case they should not
-exist.
+path is relative to $HOME, unless the
+.B \-@MAILFILTOPT@
+option has been given, in which case all relative paths are relative to the
+current directory); procmail will start with the first one it finds on the
+command line.  The following ones will only be parsed if the preceding ones
+have a not matching HOST-directive entry, or in case they should not exist.
 .PP
 If no rcfiles are specified, it looks for
 .BR $HOME/@PROCMAILRC@ .
@@ -220,13 +227,13 @@ be creating an endless mail loop.
 to set the recipient's LOGNAME, HOME and SHELL variable defaults
 .TP
 .B @SYSTEM_MBOX@
-system mailbox@ETCRC_files@
+system mailbox@ETCRC_files@@ETCRCS_files@
 .TP
 .B $HOME/@PROCMAILRC@
 default rcfile
 .TP
 .B @SYSTEM_MBOX@@DEFlockext@
-lockfile for the system mailbox (not used by procmail automatically, unless
+lockfile for the system mailbox (not automatically used by procmail, unless
 $DEFAULT equals @SYSTEM_MBOX@ and procmail is delivering to $DEFAULT)
 .TP
 .B @DEFsendmail@
@@ -288,7 +295,7 @@ lockfile is has been denied.
 .TP
 Deadlock attempted on "x"
 The locallockfile specified on this recipe is equal to a still active
-$LOCKFILE.
+$LOCKFILE.@ETCRCS_error@
 .TP
 Error while writing to "x"
 Nonexistent subdirectory, no write permission, pipe died or disk full.
@@ -479,7 +486,7 @@ Beware when using the
 .B \-@TEMPFAILOPT@
 option, if procmail repeatedly is unable to deliver the mail (e.g. due to
 an incorrect rcfile), the system mailqueue could fill up.  This could
-aggravate both the local postmaster and other users.@ETCRC_warn@
+aggravate both the local postmaster and other users.@ETCRC_warn@@ETCRCS_warn@
 .SH BUGS
 After removing a lockfile by force, procmail waits $SUSPEND seconds before
 creating a new lockfile so that another process that decides to remove the
@@ -586,7 +593,7 @@ $HOME/@DOT_FORWARD@ file (in which case the following script could
 periodically be called from within
 .BR cron (1),
 or whenever you start reading mail):
-.RS
+.Sx 17
 #!/bin/sh
 
 if cd $HOME &&
@@ -604,8 +611,7 @@ then
   rm \-f .newmail.lock
 fi
 exit 0
-.RE
-.br
+.Ex
 .ne 14
 .SS "A sample small @PROCMAILRC@:"
 .na

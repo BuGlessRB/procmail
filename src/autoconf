@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.80 1994/03/10 16:21:05 berg Exp $
+#$Id: autoconf,v 1.81 1994/04/05 15:34:10 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -43,6 +43,7 @@
 #	#define NOsetresgid
 #	#define NOpow
 #	#define NOmkdir
+#	#define NOfstat
 #	#define NOuname
 #	#define NOstrtol
 #	#define SLOWstrstr
@@ -63,6 +64,7 @@
 #	#define oBRAIN_DAMAGE
 #Ok	#define LD_ENV_FIX
 #Ok	#define GOT_bin_test
+#Ok	#define MAX_argc 128
 #Ok	#define SMALLHEAP
 #	#define NOfcntl_lock
 #Ok	#define USElockf
@@ -121,10 +123,12 @@ HERE
      esac
   fi
   trap "kill \`cat _locktst.pid\` 2>$DEVNULL;cp $ACONF $ACONF.tmp
-   $RM -r \$OLDTESTDIRS;test ! -z \"\$tailpid\" && kill \$tailpid 2>$DEVNULL
+   test ! -z \"\$OLDTESTDIRS\" && $RM -r \$OLDTESTDIRS
+   test ! -z \"\$tailpid\" && kill \$tailpid 2>$DEVNULL
    kill \`cat _locktst.pid\` 2>$DEVNULL; exit 1" 1 2 3 15
 else
-  trap "kill \`cat _locktst.pid\` 2>$DEVNULL;$RM -r \$OLDTESTDIRS $ACONF.tmp
+  trap "kill \`cat _locktst.pid\` 2>$DEVNULL;$RM -r $ACONF.tmp
+   test ! -z \"\$OLDTESTDIRS\" && $RM -r \$OLDTESTDIRS
    mv $ACONF $ACONF.tmp 2>$DEVNULL
    test ! -z \"\$tailpid\" && kill \$tailpid 2>$DEVNULL
    kill \`cat _locktst.pid\` 2>$DEVNULL; exit 1" 1 2 3 15
@@ -133,6 +137,10 @@ fi
 nocore=yes
 set dummy *core*
 test -f $2 && nocore=no
+
+set dummy $LOCKINGTEST
+shift
+LOCKINGTEST="$*"
 
 test ! -z "$LOCKINGTEST" && exec 9>&1 1>$DEVNULL	# make it shut up
 
@@ -152,7 +160,12 @@ An excellent candidate would be a remotely mounted mail spool directory.
 HERE
 
 testdirs="/tmp ."
-b=dummy
+
+case "$LOCKINGTEST" in
+  *[!0-9]*) b=dummy;;
+  *) b=""; testdirs=$LOCKINGTEST; LOCKINGTEST=dummy ;;
+esac
+
 while test ! -z "$b"
 do
   echo ""
@@ -357,7 +370,7 @@ cat >_autotst.c <<HERE
 #define FIRST_lock	0x04		/* testing is in order of importance */
 #define MSK_fcntl	0x04	       /* don't change this order unless you */
 #define MSK_lockf	0x02	       /* change locking.c as well, fdlock() */
-#define MSK_flock	0x01
+#define MSK_flock	0x01			 /* and hotwired LOCKINGTEST */
 
 int dolock,child[NR_of_forks],timeout,fdcollect;
 char dirlocktest[]="_locktest";
@@ -366,7 +379,7 @@ stimeout()
 { timeout=1;close(fdcollect);killchildren();
 }
 
-terminate()
+Terminate()
 { stimeout();exit(1);
 }
 
@@ -387,6 +400,18 @@ main(argc,argv)char*argv[];
 { int goodlock,testlock,i,pip[2],pipw[2];unsigned otimet,dtimet;
   static char filename[]="_locktst.l0";
   close(0);goodlock=0;testlock=FIRST_lock;signal(SIGPIPE,SIG_DFL);
+  if(argc==2)
+   { char*p;
+     for(p=argv[1];;)
+      { switch(*p++)					/* parse the hotwire */
+	 { case '1':goodlock<<=1;goodlock++;continue;
+	   case '0':goodlock<<=1;continue;
+	   case '\0':goto skip_tests;
+	 }
+	break;						 /* oops, no hotwire */
+      }
+     goodlock=0;
+   }
   if(sfork())				 /* try to ditch the controlling tty */
      return EX_OK;	/* mainly to prevent rather messy kernel-diagnostics */
   setsid();				       /* from appearing on your tty */
@@ -436,7 +461,7 @@ main(argc,argv)char*argv[];
 		 sleep(SLEEP_retreat);
 	    }
 	 }
-	signal(SIGTERM,terminate);
+	signal(SIGTERM,Terminate);
 	;{ unsigned char lckdfil[NR_of_lockfiles],curflag;
 	   int j,ppid;			       /* give all children a chance */
 	   ppid=getppid();
@@ -471,6 +496,9 @@ main(argc,argv)char*argv[];
 	goodlock=dolock;			  /* make a mark on our colt */
    }
   while(testlock>>=1);
+skip_tests:
+  printf("/* Hotwire LOCKINGTEST=%c%c%c */\n",goodlock&0x4?'1':'0',
+   goodlock&0x2?'1':'0',goodlock&0x1?'1':'0');
   if(!(goodlock&MSK_fcntl))			      /* report our findings */
      puts("#define NOfcntl_lock");
   if(goodlock&MSK_lockf)
@@ -582,20 +610,26 @@ else
 fi
 
 $MV _locktst _locktst.$$ 2>$DEVNULL
-$RM _autotst.$O _autotst.rrr locktst* 2>$DEVNULL
+$RM _autotst.$O _autotst.rrr _locktst* 2>$DEVNULL
+echo "" >_locktst.pid
 $MV _autotst _locktst
 
-for b in $TESTDIRS
-do
-  for a in 0 1 2 3
-  do echo dummy_file >$b/_locktst.l$a
-  done
-done
+case "$testdirs" in
+  *[!0-9]*)
+     for b in $TESTDIRS
+     do
+	for a in 0 1 2 3
+	do echo dummy_file >$b/_locktst.l$a
+	done
+     done ;;
+  *) TESTDIRS=$testdirs ;;
+esac
 
 echo 2>&1 ""
 
 _locktst $TESTDIRS >_locktst.rrr 2>lock.log	# will finish in the background
 echo 'Proceeding with kernel-locking-support tests in the background'
+
 
 cat >_autotst.c <<HERE
 #include "$ACONF"
@@ -816,6 +850,9 @@ main(){char a[2];
  strtol("0",(char**)0,10);strchr("0",'0');strpbrk(a,"0");rename(a,"0");
  setrgid(0);setegid(0);setregid(0,0);setresgid(0,0,0);opendir("0");
  initgroups("0",0);strstr("0","0");mkdir("0",0);pow(0.,0.);clock();
+#ifdef S_ISLNK
+ {struct stat stbuf;fstat(0,&stbuf);}
+#endif
 #ifndef NOuname
  {struct utsname b;uname(&b);}
 #endif
@@ -861,6 +898,7 @@ then
 fi
 grepfor pow '#define NOpow'
 grepfor mkdir '#define NOmkdir'
+grepfor fstat '#define NOfstat'
 grepfor strchr '#define strchr(s,c) index(s,c)'
 grepfor uname "\
 #define NOuname		  \
@@ -935,9 +973,9 @@ cat >_autotst.c <<HERE
 #ifndef NO_COMSAT
 #include "network.h"					 /* also for ntohs() */
 #endif
+#undef malloc						     /* from shell.h */
 #ifdef BENCHSIZE
 #undef strstr						  /* from includes.h */
-#undef malloc						     /* from shell.h */
 #undef free						     /* from shell.h */
 unsigned long dobench(strstr,iter,haystack)char*(*const strstr)();
  unsigned long iter;const char*const haystack;
@@ -948,13 +986,13 @@ unsigned long dobench(strstr,iter,haystack)char*(*const strstr)();
   return (unsigned long)clock()-to;
 }
 #endif
-main(argc)
+main(argc,argv)int argc;const char*argv[];
 { if(argc==1)
-   {
+   { char*haystack;
 #ifdef BENCHSIZE
-     ;{ char*haystack;unsigned c1,c2,i;time_t t;
+     if(haystack=malloc(BENCHSIZE))
+      { unsigned c1,c2,i;time_t t;
 	unsigned long iter,titer,syscnt;
-	haystack=malloc(BENCHSIZE);
 	for(i=c1=c2=0;i<BENCHSIZE-1;i++,c1++,c2++)
 	 { haystack[i]='a';
 	   if(c1==37)
@@ -982,6 +1020,8 @@ main(argc)
 	   printf("\
 #define SLOWstrstr\t\t\t      /* using my substitute instead */\n");
       }
+     else
+	printf("/* Insufficient memory to perform the benchmark! */\n");
 #endif /* SLOWstrstr */
 #ifndef NO_COMSAT
 #ifndef UDP_protocolno
@@ -1041,14 +1081,65 @@ main(argc)
    { printf("#define SENDMAIL %s\n",DEFsendmail);return 1;
    }
 #endif
-  return 0;
+  if(argc>3)
+#define MAX_ENVMEM	2048			 /* typical environment size */
+#define MAX_ARGMEM	(2048*1024L)	       /* upper limit arguments size */
+   { static const char arg[]="e%04u=6789012345";unsigned diff;
+     charNUM(num,diff);char**nargv;const char*einfo="";
+#define MAXT(type)	(~(type)0>>1)
+     sscanf(argv[1],"%u",&diff);  /* what did our previous incarnation want? */
+     if(!diff)			   /* first run?  initialise the environment */
+      { char*envs,**nenviron;
+	diff=MAX_ENVMEM/sizeof arg+1;
+	if(!(nenviron=malloc(diff*sizeof*environ+MAX_ENVMEM)))
+	   goto printit;			      /* oops, panic already */
+	envs=(char*)((environ=nenviron)+diff);
+	while(--diff)				       /* put in some colour */
+	   sprintf(*nenviron++=envs,arg,diff),envs+=sizeof arg;
+	*environ="PATH=.";*nenviron=0;diff=argc;	   /* start doubling */
+      }
+     if(MAX_ARGMEM/sizeof arg<=argc)			 /* we are satisfied */
+      { einfo=" /* soft limit */";goto printit;	  /* no reason to hog memory */
+      }
+     ;{ unsigned narg;
+	while(narg=argc+diff+1,		  /* allocate space for the new args */
+	     !(nargv=malloc(narg*sizeof*argv+(size_t)diff*sizeof arg)))
+	   if(!(diff>>=1))			 /* oops, no space, back off */
+	      goto printit;					    /* panic */
+	tmemmove(nargv,argv,argc*sizeof*argv);nargv[1]=num;	 /* copy old */
+	;{ char**pargv,*args;unsigned i;
+	   pargv=nargv+argc;args=(char*)(nargv+narg);i=diff;
+	   do
+	    { const char*p;			/* and paint in the new ones */
+	      for(*pargv++=args,p=arg;*args++= *p++;);
+	    }
+	   while(--i);
+	 }
+      }
+     for(;;diff>>=1)
+      { unsigned newdiff=diff>>1;	    /* take a small step for mankind */
+	if(argc==diff)				    /* or shall we boldly go */
+	   newdiff=(unsigned)argc<<1;	     /* where no man has gone before */
+	;{ unsigned maxdiff=MAXT(unsigned)-argc;
+	   if(newdiff>maxdiff)			 /* that would overflow argc */
+	      newdiff=maxdiff;	 /* and we wouldn't want that, would we now? */
+	 }
+	if(!newdiff)				    /* reductio ad adsurdum? */
+	   break;			    /* yes, break off the engagement */
+	sprintf(num,"%u",newdiff);nargv[argc+diff]=0;  /* pass on the target */
+	execve(argv[0],nargv,environ);				/* jeronimo! */
+      }
+printit:					   /* we proudly present the */
+     printf("#define MAX_argc %d%s\n",argc-2,einfo); /* results of the jury! */
+   }
+  return EX_OK;
 }
 HERE
 
-echo "Benchmarking your system's strstr() implementation"
+echo "Determining the maximum number of 16 byte arguments execve() takes"
 
 if $MAKE _autotst >$DEVNULL 2>_autotst.rrr &&
-   _autotst >>$ACONF 2>>_autotst.rrr
+   _autotst 0 012345678901234 012345678901234 >>$ACONF 2>>_autotst.rrr
 then
 :
 else
@@ -1063,6 +1154,10 @@ else
 fi
 
 $RM _autotst.rrr
+
+echo "Benchmarking your system's strstr() implementation"
+
+_autotst >>$ACONF
 
 found=no
 for a in /usr/spool/mail /usr/mail /var/spool/mail /var/mail /spool/mail

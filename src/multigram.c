@@ -13,21 +13,24 @@
  *	Seems to be relatively bug free.				*
  *									*
  *	Copyright (c) 1992-1994, S.R. van den Berg, The Netherlands	*
- *	#include "README"						*
+ *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.45 1994/03/10 16:21:33 berg Exp $";
+ "$Id: multigram.c,v 1.46 1994/04/05 15:35:12 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/03/10 16:21:33 $";
+static /*const*/char rcsdate[]="$Date: 1994/04/05 15:35:12 $";
 #include "includes.h"
 #include "sublib.h"
+#include "hsort.h"
 #include "shell.h"
 #include "ecommon.h"
+#include "mcommon.h"
 
 #include "targetdir.h"	    /* see ../SmartList/install.sh2 for more details */
 
 #define BUFSTEP		16
+#define ADDR_INCR	128
 #define COPYBUF		16384
 /*#define SPEEDBUF	COPYBUF	       /* uncomment to get a speed increase? */
 #define SCALE_WEIGHT	0x7fff
@@ -36,6 +39,8 @@ static /*const*/char rcsdate[]="$Date: 1994/03/10 16:21:33 $";
 #define DEFmaxgram	4
 #define DEFminweight	(SCALE_WEIGHT/4)	      /* sanity cutoff value */
 #define DEFbest_matches 2
+
+#define TMPMAILFILE	"/tmp/choplist.%ld"
 
 #define DEFAULTS_DIR	".etc"			  /* some configurable paths */
 #define GLOCKFILE	"../.etc/rc.lock"
@@ -107,11 +112,50 @@ static char*tstrdup(p)const char*const p;
 { return strcpy(malloc(strlen(p)+1),p);
 }
 
+static const char*mailfile;
+static int retval=EX_UNAVAILABLE;
+
+static void sterminate P((void))
+{ unlink(mailfile);exit(retval);
+}
+
+static int strIcmp(s1,s2)const char*const s1,*const s2;
+{ register unsigned i,j;register const char*a,*b;
+  a=s1;b=s2;
+  do
+   { while(*a&&*a==*b)
+	a++,b++;
+     if((i= *a++)-'A'<='Z'-'A')
+	i+='a'-'A';
+     if((j= *b++)-'A'<='Z'-'A')
+	j+='a'-'A';
+     if(j!=i)
+	return i>j?a-s1:s1-a;
+   }
+  while(i&&j);
+  return 0;
+}
+
+static int pstrIcmp(s1,s2)const void*const s1,*const s2;
+{ return strIcmp(*(const char*const*)s1,*(const char*const*)s2);
+}
+
+static void revstr(p)register char*p;		       /* reverse the string */
+{ register char*q;
+  for(q=strchr(p,'\0')-1;p<q;p++,q--)
+   { unsigned i;
+     i= *p;*p= *q;*q=i;
+   }
+}
+
+static void makelow(str)register char*str;
+{ for(;*str;str++)
+     if((unsigned)*str-'A'<'Z'-'A')
+	*str+='a'-'A';
+}
+
 static void lowcase(str)struct string*const str;	   /* make lowercase */
-{ register char*p;
-  for(p=str->itext=tstrdup(str->text);*p;p++)
-     if((unsigned)*p-'A'<'Z'-'A')
-	*p+='a'-'A';
+{ makelow(str->itext=tstrdup(str->text));
 }
 
 static void elog(a)const char*const a;
@@ -119,11 +163,18 @@ static void elog(a)const char*const a;
 }
 							/* the program names */
 static const char idhash[]="idhash",flist[]="flist",senddigest[]="senddigest",
- dirsep[]=DIRSEP;
+ choplist[]="choplist",dirsep[]=DIRSEP;
 static const char*progname="multigram";
+
+#define ISPROGRAM(curname,refname)	\
+ (!strncmp(curname,refname,STRLEN(refname)))
 
 void nlog(a)const char*const a;		    /* log error with identification */
 { elog(progname);elog(": ");elog(a);
+}
+
+void logqnl(a)const char*const a;
+{ elog(" \"");elog(a);elog("\"\n");
 }
 						 /* finds the next character */
 static char*lastdirsep(filename)const char*filename;
@@ -207,20 +258,21 @@ dble_gram:;
   return meter;
 }
 
-main(minweight,argv)char*argv[];
+main(argc,argv)int argc;char*argv[];
 { struct string fuzzstr,hardstr,excstr,exc2str;FILE*hardfile;
   const char*addit=0;
   struct match{char*fuzz,*hard;int metric;long lentry;off_t offs1,offs2;}
    **best,*curmatch=0;
   unsigned best_matches,charoffs=0,remov=0,renam=0,incomplete=0,
    chkmetoo=(char*)progid-(char*)progid;
-  int lastfrom;
+  int lastfrom,minweight;
+  static const char cldntopen[]="Couldn't open";
   static const char usage[]=
 "Usage: multigram [-cdimr] [-b nnn] [-l nnn] [-w nnn] [-ax address] filename\n"
    ;
-  if(minweight)			      /* sanity check, any arguments at all? */
+  if(argc)			      /* sanity check, any arguments at all? */
    { char*chp;						 /* suid flist prog? */
-     if(!strncmp(chp=lastdirsep(argv[0]),flist,STRLEN(flist)))
+     if(ISPROGRAM(chp=lastdirsep(argv[0]),flist))
       { struct stat stbuf;char*arg;
 	static const char request[]=REQUEST,listid[]=LISTID,
 	 rcrequest[]=RCREQUEST,rcpost[]=RCPOST,list[]=LIST,
@@ -229,14 +281,13 @@ main(minweight,argv)char*argv[];
 #define Endpmexec(i)	(pmexec[maxindex(pmexec)-(i)])
 	progname=flist;*chp='\0';
 	if(chdir(targetdir))
-	 { nlog("Couldn't chdir to \"");elog(targetdir);elog("\"\n");
-	   return EX_NOPERM;
+	 { nlog("Couldn't chdir to");logqnl(targetdir);return EX_NOPERM;
 	 }
 	if(stat(defdir,&stbuf))
-	 { nlog("Can't find \"");elog(defdir);elog("\" in \"");
-	   elog(targetdir);elog("\"\n");return EX_NOINPUT;
+	 { nlog("Can't find \"");elog(defdir);elog("\" in");logqnl(targetdir);
+	   return EX_NOINPUT;
 	 }
-	if(minweight!=2)		       /* wrong number of arguments? */
+	if(argc!=2)			       /* wrong number of arguments? */
 	 { elog("Usage: flist listname[-request]\n");return EX_USAGE;
 	 }
 	chp=strchr(arg=argv[1],'\0');		       /* check for -request */
@@ -280,27 +331,27 @@ main(minweight,argv)char*argv[];
 	   *chp= *request;		     /* then restore the leading '-' */
 	Endpmexec(3)=argstr(XENVELOPETO,arg);
 	while(rclock(GLOCKFILE,&stbuf)||rclock(LLOCKFILE,&stbuf));  /* stall */
-	execve(pmexec[0],(char*const*)pmexec,environ);nlog("Couldn't exec \"");
-	elog(pmexec[0]);elog("\"\n");return EX_UNAVAILABLE;	    /* panic */
+	execve(pmexec[0],(char*const*)pmexec,environ);nlog("Couldn't exec");
+	logqnl(pmexec[0]);return EX_UNAVAILABLE;		    /* panic */
       }
     /*
      *	revoke the any suid permissions now, since we're not flist
      */
      setgid(getgid());setuid(getuid());
-     if(!strcmp(chp,idhash))				  /* idhash program? */
+     if(ISPROGRAM(chp,idhash))				  /* idhash program? */
       { unsigned long hash=0;int i;
 	progname=idhash;
-	if(minweight!=1)
+	if(argc!=1)
 	 { elog("Usage: idhash\n");return EX_USAGE;
 	 }
 	while(i=fgetc(stdin),!feof(stdin))		       /* hash away! */
 	   hash=hash*67067L+i;
 	printf("%lx",hash);return EX_OK;
       }
-     if(!strcmp(chp,senddigest))		      /* senddigest program? */
+     if(ISPROGRAM(chp,senddigest))		      /* senddigest program? */
       { struct stat stbuf;
 	progname=senddigest;
-	if(minweight<5)
+	if(argc<5)
 	 { elog(
 	 "Usage: senddigest maxage maxsize bodyfile trailerfile [file] ...\n");
 	   return EX_USAGE;
@@ -308,20 +359,169 @@ main(minweight,argv)char*argv[];
 	if(!stat(argv[3],&stbuf))
 	 { time_t newt;off_t size;
 	   newt=stbuf.st_mtime;size=stbuf.st_size;
-	   if(!stat(argv[minweight=4],&stbuf))
+	   if(!stat(argv[argc=4],&stbuf))
 	    { off_t maxsize;
 	      if(stbuf.st_mtime+strtol(argv[1],(char**)0,10)<newt)
 		 return EX_OK;				   /* digest too old */
 	      maxsize=strtol(argv[2],(char**)0,10);goto statd;
 	      do
-	       { if(!stat(argv[minweight],&stbuf))
+	       { if(!stat(argv[argc],&stbuf))
 statd:		    if((size+=stbuf.st_size)>maxsize)	  /* digest too big? */
 		       return EX_OK;
 	       }
-	      while(argv[++minweight]);
+	      while(argv[++argc]);
 	    }
 	 }
 	return 1;
+      }
+     hardstr.text=malloc(hardstr.buflen=BUFSTEP);
+     if(ISPROGRAM(chp,choplist))
+      { unsigned long minnames,maxnames,maxsplits,maxsize,maxconcur;
+	char*distfile,**nargv,**revarr;int mailfd;size_t revfilled;
+	static const char tmpmailfile[]=TMPMAILFILE;
+	char lmailfile[STRLEN(TMPMAILFILE)+8*sizeof(pid_t)*4/10+1+1];
+	progname=choplist;
+	if(argc<8)
+	 { elog(
+	    "Usage: choplist minnames maxnames maxsplits maxsize maxconcur\n\
+\tdistfile sendmail [flags ...]\n");
+	   return EX_USAGE;
+	 }
+	minnames=strtol(argv[1],(char**)0,10);
+	maxnames=strtol(argv[2],(char**)0,10);
+	maxsplits=strtol(argv[3],(char**)0,10);
+	maxsize=strtol(argv[4],(char**)0,10);
+	maxconcur=strtol(argv[5],(char**)0,10);distfile=argv[6];
+	nargv=argv+7;argc-=7;setbuf(stdin,(char*)0);setbuf(stdout,(char*)0);
+	sprintf((char*)(mailfile=lmailfile),tmpmailfile,(long)getpid());
+	qsignal(SIGTERM,sterminate);qsignal(SIGINT,sterminate);
+	qsignal(SIGHUP,sterminate);qsignal(SIGQUIT,sterminate);
+	unlink(mailfile);
+#ifndef O_CREAT
+	if(0>(mailfd=creat(mailfile,NORMperm)))
+#else
+	if(0>(mailfd=open(mailfile,O_RDWR|O_CREAT|O_EXCL,NORMperm)))
+#endif
+	 { nlog("Can't create temporary file");logqnl(mailfile);
+	   return EX_CANTCREAT;
+	 }
+	;{ char*buf;int i;unsigned long totsize=0;
+	   buf=malloc(COPYBUF);goto jin;
+	   do
+	    { char*a=buf;size_t len;
+	      totsize+=(len=i);
+	      do
+	       { while(0>(i=write(mailfd,buf,(size_t)len))&&errno==EINTR);
+		 if(i<0)
+		  { nlog("Can't write temporary file");logqnl(mailfile);
+		    retval=EX_IOERR;sterminate();
+		  }
+		 a+=i;
+	       }
+	      while(i>0&&(len-=i));
+jin:	      while(0>(i=read(STDIN,buf,(size_t)COPYBUF))&&errno==EINTR);
+	    }
+	   while(i>0);
+	   if(!totsize)
+	      nlog("Can't find the mail\n"),retval=EX_NOINPUT,sterminate();
+	   free(buf);totsize=(maxsize+totsize-1)/totsize;
+	   if(maxsize&&(!maxsplits||totsize<maxsplits))
+	      maxsplits=totsize?totsize:1;
+	 }
+	fclose(stdin);close(STDIN);
+	if(!(hardfile=fopen(chp=distfile,"r")))
+	   nlog(cldntopen),logqnl(distfile),retval=EX_IOERR,sterminate();
+	;{ size_t revlen;
+	   revarr=malloc((revlen=ADDR_INCR)*sizeof*revarr);revfilled=0;
+	   while(readstr(hardfile,&hardstr,1))
+	    { if(*hardstr.text=='(')
+		 continue;				     /* comment line */
+	      if(revfilled==revlen)			  /* watch our space */
+		 revarr=realloc(revarr,(revlen+=ADDR_INCR)*sizeof*revarr);
+	      revstr(hardstr.text);revarr[revfilled++]=tstrdup(hardstr.text);
+	    }
+	 }
+	free(hardstr.text);fclose(hardfile);
+	if(!revfilled)
+	   retval=EX_OK,sterminate();	    /* oops, no recipients, finished */
+	if(fork()>0)					   /* loose our tail */
+	   return EX_OK;	  /* causes procmail to release the lockfile */
+	revarr=realloc(revarr,revfilled*sizeof*revarr);		/* be modest */
+	hsort(revarr,revfilled,sizeof*revarr,pstrIcmp);		  /* sort'em */
+	if(maxsplits)
+	 { maxsplits=(revfilled+maxsplits-1)/maxsplits;
+	   if(!minnames||minnames<maxsplits)
+	    { minnames=maxsplits;
+	      if(maxnames&&maxnames<minnames)
+		 maxnames=minnames;
+	    }
+	 }
+	if(!maxnames||(maxnames+argc>MAX_argc))
+	   maxnames=MAX_argc-argc;
+	if(minnames>maxnames)
+	   minnames=maxnames;
+	if(!minnames)
+	   minnames=1;
+	;{ int*rdist,*ip;char**nam;size_t n;
+	   ip=rdist=malloc((n=revfilled)*sizeof*rdist);nam=revarr;
+	   while(--n)
+	    { int i,j;char*left,*right;
+	      left= *nam;
+	      if(!(i=strIcmp(right= *++nam,left)))
+		 j=SCALE_WEIGHT;	  /* identical!	 don't split them up */
+	      else
+		 for(j=0;--i;)
+		    switch(*right++)
+		     { case '@':j=SCALE_WEIGHT/2;	   /* domains match! */
+		       case '.':j++;			   /* domain borders */
+		     }
+	      revstr(left);*ip++=j;
+	    }
+	   revstr(*nam);*ip=0;nam=malloc(++argc*sizeof*argv);
+	   tmemmove(nam,nargv,argc*sizeof*argv);nargv=nam;
+	   ;{ unsigned long cnames,cnsize,cconcur,maxnsize;
+	      char**first,**best;
+	      for(maxnsize=MAX_argc*16L;*nam;maxnsize-=strlen(*nam++));
+	      n=cconcur=0;
+	      do
+	       { int bestval;
+		 cnsize=strlen(*(first=nam=revarr+n));cnames=0;
+		 do
+		  { if(first-nam<minnames||rdist[n]<=bestval)
+		       bestval=rdist[n],best=nam;
+		    cnames++;
+		  }
+		 while(++n<revfilled&&
+		       maxnsize>=(cnsize+=strlen(*++nam)+1)&&
+		       maxnames>cnames);
+		 nam=(nargv=realloc(nargv,
+		  ((bestval=best-first+1)+argc)*sizeof*argv))+argc-1;
+		 if(maxconcur&&maxconcur<++cconcur)
+		    wait((int*)0);
+		 tmemmove(nam,first,bestval*sizeof*argv);nam[bestval]=0;
+		 if(STDIN!=open(mailfile,O_RDONLY))
+		  { nlog("Lost");logqnl(mailfile);retval=EX_NOINPUT;
+		    sterminate();
+		  }
+		 for(;;)
+		  { switch(fork())
+		     { case -1:nlog("Couldn't fork, retrying\n");
+			  if(wait((int*)0)==-1)
+			     sleep(DEFsuspend);
+			  continue;
+		       case 0:
+			  execve(nargv[0],nargv,environ);
+			  kill(getppid(),SIGTERM);nlog("Couldn't exec");
+			  logqnl(nargv[0]);return EX_UNAVAILABLE;
+		     }
+		    break;
+		  }
+		 close(STDIN);
+	       }
+	      while((n=best-revarr+1)<revfilled);
+	    }
+	 }
+	retval=EX_OK;sterminate();
       }
      minweight=SCALE_WEIGHT;best_matches=maxgram=0;exc2str.text=excstr.text=0;
      while((chp= *++argv)&&*chp=='-')
@@ -388,7 +588,7 @@ lastopt:
 	   exc2str.textlen=strlen(exc2str.text),lowcase(&exc2str);
       }
      if(!(hardfile=fopen(chp,remov||renam||addit?"r+":"r")))
-      { nlog("Couldn't open \"");elog(chp);elog("\"\n");return EX_IOERR;
+      { nlog(cldntopen);logqnl(chp);return EX_IOERR;
       }
 #ifdef SPEEDBUF				   /* allocate a bigger stdio buffer */
      setvbuf(hardfile,malloc(SPEEDBUF),_IOFBF,(size_t)SPEEDBUF);
@@ -422,7 +622,6 @@ usg:
   if(!best_matches)
      best_matches=DEFbest_matches;
   fuzzstr.text=malloc(fuzzstr.buflen=BUFSTEP);
-  hardstr.text=malloc(hardstr.buflen=BUFSTEP);
   ;{ int i;
      best=malloc(best_matches--*sizeof*best);i=best_matches;
      do

@@ -73,3 +73,5 @@
 	       popular demand)
 	    Use the setid program instead of su while installing (does away
 	       with those "inexplicable" installation problems)
+	    Weed out duplicate Date: fields before resending mails
+	    Created choplist, the dist-file expander

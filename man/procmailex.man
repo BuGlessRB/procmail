@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.27 1994/03/10 16:20:50 berg Exp $
+.Id $Id: procmailex.man,v 1.28 1994/04/05 15:33:51 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -257,7 +257,7 @@ If you are using temporary files in a procmailrc file, and want to make
 sure that they are removed just before procmail exits, you could use
 something along the lines of:
 .Sx 2
-TEMPORARY=/tmp/pmail.$$
+TEMPORARY=$HOME/tmp/pmail.$$
 TRAP="/bin/rm \-f $TEMPORARY"
 .Ex
 The TRAP keyword can also be used to change the exitcode of procmail.

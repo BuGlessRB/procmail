@@ -1,12 +1,8 @@
-/*$Id: exopen.h,v 1.8 1993/09/16 14:43:10 berg Exp $*/
+/*$Id: exopen.h,v 1.9 1994/04/05 15:34:22 berg Exp $*/
 
-const char*
- hostname P((void));
-void
- qsignal P((const sig,void(*action)(void))),
- ultoan P((unsigned long val,char*dest));
 int
- unique Q((const char*const full,char*const p,const mode_t mode,const verbos)),
+ unique Q((const char*const full,char*p,const mode_t mode,const verbos,
+  const chownit)),
  myrename P((const char*const old,const char*const newn)),
  hlink P((const char*const old,const char*const newn));
 

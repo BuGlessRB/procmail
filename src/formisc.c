@@ -2,11 +2,11 @@
  *	Miscellaneous routines used by formail				*
  *									*
  *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
- *	#include "README"						*
+ *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.22 1994/03/10 16:21:20 berg Exp $";
+ "$Id: formisc.c,v 1.23 1994/04/05 15:34:35 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -103,7 +103,7 @@ getline P((void))			   /* read a newline-terminated line */
   if(buflast!='\n')
    { int ch;
      while((ch=getchar())!=EOF&&ch!='\n')
-	loadchar(ch);				/* load the rest of the line */
+	rhash=rhash*67067L+(uchar)ch,loadchar(ch);  /* load rest of the line */
      loadchar('\n');		    /* make sure (!), it ends with a newline */
    }		/* (some code in formail.c depends on a terminating newline) */
   return buflast=getchar();			/* look ahead, one character */

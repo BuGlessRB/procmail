@@ -2,11 +2,11 @@
  *	Routines related to setting up pipes and filters		*
  *									*
  *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
- *	#include "README"						*
+ *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.28 1994/02/11 18:01:06 berg Exp $";
+ "$Id: pipes.c,v 1.29 1994/04/05 15:35:16 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -16,9 +16,12 @@ static /*const*/char rcsid[]=
 #include "common.h"
 #include "cstdio.h"
 #include "exopen.h"
+#include "mcommon.h"
 #include "goodies.h"
 #include "mailfold.h"
 
+const char exitcode[]="EXITCODE";
+int setxit;
 pid_t pidchild;
 volatile time_t alrmtime;
 volatile int toutflag;
@@ -71,7 +74,7 @@ static void callnewprog(newname)const char*const newname;
 { if(sh)					 /* should we start a shell? */
    { const char*newargv[4];
      yell(executing,newname);newargv[3]=0;newargv[2]=newname;
-     newargv[1]=tgetenv(shellflags);*newargv=tgetenv(shell);shexec(newargv);
+     newargv[1]=shellflags;*newargv=tgetenv(shell);shexec(newargv);
    }
   ;{ register const char*p;int argc;
      argc=1;p=newname;	     /* If no shell, chop up the arguments ourselves */
@@ -247,9 +250,9 @@ char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
 }
 
 void exectrap(tp)const char*const tp;
-{ int forceret;static const char exitcode[]="EXITCODE";
+{ int forceret;
   ;{ char*p;
-     if(p=getenv(exitcode))			 /* user specified exitcode? */
+     if(setxit&&(p=getenv(exitcode)))		 /* user specified exitcode? */
       { if((forceret=renvint(-2L,p))>=0)	     /* yes, is it positive? */
 	   retval=forceret;				 /* then override it */
       }

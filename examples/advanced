@@ -3,8 +3,9 @@ Discusses:
 		1. One home directory, several machine architectures
 		2. Procmail as an integrated local mail delivery agent
 		2a.Special directions for sites with sendmail
-		2b.Special directions for sites with smail
-		2c.Special directions for sites with SysV /etc/mail/mailsurr
+		2b.Special directions for sites with ZMailer
+		2c.Special directions for sites with smail
+		2d.Special directions for sites with SysV /etc/mail/mailsurr
 		3. Changing the mail spool directory to $HOME for all users
 		4. Security considerations (when installing procmail suid root)
 		5. Some exorbitant examples of rcfile formats
@@ -56,6 +57,12 @@ The leading dots are important.	 Check what `/bin/uname -n` returns on
 your.favourite.machine, and substitute that for your.favourite.machine in the
 sample .forward file.  If your system does not have /bin/uname, check if there
 is a /bin/hostname.
+
+With some sendmails, the last suggestion causes you to get a superfluous
+copy in the system mailfolder.	If that is the case, you'll have to change
+your .forward to something like:
+
+"|IFS=' ';if test .`/bin/uname -n` == .your.favourite.machine ; then exec /usr/local/bin/procmail; else exec /usr/lib/sendmail -oi YOUR_LOGIN_NAME@your.favourite.machine; fi"
 
 				---
 
@@ -109,9 +116,13 @@ your sendmail.cf:
 Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhPfn, S=10, R=20,
 	A=procmail -a $h -d $u
 
-The `f' and the `n' flags can be omitted (if your sendmail generates correct
-From_ lines).  As for the options "S=10, R=20": if your system uses others or
-none on the current Mlocal definition, use those instead of "S=10, R=20".
+As for the fields "S=10, R=20": if your system uses others or none on the
+current Mlocal definition, use those instead of "S=10, R=20".
+
+To impose a 2MB limit on mails, you could add a `Maxsize=' field like in:
+
+Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhPfn, S=10, R=20, M=2000000
+	A=procmail -a $h -d $u
 
 In order to take advantage of the meta argument that can be passed to
 procmail you'd have to change to $#local mailer rule to set the $@ host name
@@ -123,7 +134,15 @@ filter.	 For more information, see EXAMPLES section the procmail(1) man page.
 
 				---
 
-2b.Special directions for sites with smail
+2b.Special directions for sites with ZMailer
+   -----------------------------------------
+
+...
+local	sSPfn	/usr/local/bin/procmail		procmail -a $h -d $u
+
+				---
+
+2c.Special directions for sites with smail
    ---------------------------------------
 
 For smail 2.x users there are two options:
@@ -138,12 +157,12 @@ For smail 3.x users there are also two options:
  ii.Replace any existing "local"-entry in the /usr/lib/smail/transports file
     (create one, if need be) with the following two lines:
 
-local: return_path, local, from, driver=pipe; user=root, -ignore_status,
+local: return_path, local, from, driver=pipe; user=root,
 	cmd="/usr/local/bin/procmail -d $($user$)"
 
 				---
 
-2c.Special directions for sites with SysV /etc/mail/mailsurr
+2d.Special directions for sites with SysV /etc/mail/mailsurr
    ---------------------------------------------------------
 
 Some systems use a SysV /bin/mail that supports mailsurr.  To interface

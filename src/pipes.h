@@ -1,4 +1,4 @@
-/*$Id: pipes.h,v 1.6 1993/10/29 17:08:15 berg Exp $*/
+/*$Id: pipes.h,v 1.7 1994/04/05 15:35:18 berg Exp $*/
 
 void
  inittmout P((const char*const progname)),
@@ -20,6 +20,8 @@ char*
 #define PRDB	pbackfd[0]
 #define PWRB	pbackfd[1]
 
+extern const char exitcode[];
+extern int setxit;
 extern pid_t pidchild;
 extern volatile time_t alrmtime;
 extern volatile toutflag;

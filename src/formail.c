@@ -4,16 +4,17 @@
  *	Seems to be relatively bug free.				*
  *									*
  *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
- *	#include "README"						*
+ *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.39 1994/03/10 16:21:14 berg Exp $";
+ "$Id: formail.c,v 1.40 1994/04/05 15:34:29 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/03/10 16:21:14 $";
+static /*const*/char rcsdate[]="$Date: 1994/04/05 15:34:29 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
+#include "acommon.h"
 #include "sublib.h"
 #include "shell.h"
 #include "common.h"
@@ -33,6 +34,7 @@ static const char
  Article_[]=		"Article ",		   /* USENET 'Article ' line */
  x_[]=			"X-",				/* general extension */
  old_[]=		OLD_PREFIX,			     /* my extension */
+ xloop[]=		"X-Loop:",				/* ditto ... */
  unknown[]=UNKNOWN,re[]=" Re:",fmusage[]=FM_USAGE;
 
 static const struct {const char*hedr;int lnr;}cdigest[]=
@@ -92,12 +94,13 @@ long initfileno;
 char ffileno[LEN_FILENO_VAR+8*sizeof(initfileno)*4/10+1+1]=DEFfileno;
 int lexitcode;					     /* dummy, for waitfor() */
 pid_t child= -1;
+unsigned long rhash;
 FILE*mystdout;
 int nrskip,nrtotal= -1,retval=EX_OK;
 size_t buflen,buffilled;
 long totallen;
 char*buf,*logsummary;
-struct field*rdheader,*xheader,*Xheader;
+struct field*rdheader,*xheader,*Xheader,*uheader,*Uheader;
 static struct field*iheader,*Iheader,*aheader,*Aheader,*Rheader,*nheader;
 
 static void logfolder P((void))	 /* estimate the no. of characters needed to */
@@ -130,10 +133,11 @@ static artheadr P((void))	     /* could it be the start of an article? */
 
 static PROGID;
 
-main(lastm,argv)const char*const argv[];
+main(lastm,argv)int lastm;const char*const argv[];
 { int i,split=0,force=0,bogus=1,every=0,areply=0,trust=0,digest=0,nowait=0,
-   keepb=0,minfields=(char*)progid-(char*)progid,conctenate=0,babyl=0;
-  off_t maxlen,insoffs;FILE*idcache;
+   keepb=0,minfields=(char*)progid-(char*)progid,conctenate=0,babyl=0,
+   babylstart;
+  off_t maxlen,insoffs;FILE*idcache=0;pid_t thepid;
   size_t j,lnl,escaplen;char*chp,*namep,*escap=ESCAP;
   struct field*fldp,*fp2,**afldp,*fdate;
   if(lastm)			       /* sanity check, any argument at all? */
@@ -188,16 +192,22 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 	      case FM_QPREFIX:Qnext_arg();escap=chp;break;
 	      case FM_ADD_IFNOT:case FM_ADD_ALWAYS:case FM_REN_INSERT:
 	      case FM_DEL_INSERT:case FM_EXTRACT:case FM_EXTRC_KEEP:
-	      case FM_ReNAME:Qnext_arg();
-		 if(!breakfield(chp,lnl=strlen(chp)))
-		    if(lnl||chp!=*argv)
-		       goto invfield;
-		    else
-		       break;				 /* silently drop it */
+	      case FM_FIRST_UNIQ:case FM_LAST_UNIQ:case FM_ReNAME:Qnext_arg();
+		 i=breakfield(chp,lnl=strlen(chp));
+		 switch(lastm)
+		  { case FM_DEL_INSERT:case FM_REN_INSERT:case FM_EXTRACT:
+		    case FM_FIRST_UNIQ:case FM_LAST_UNIQ:case FM_EXTRC_KEEP:
+		       if(-i!=lnl)
+		    default:
+			  if(i<=0)
+			     goto invfield;
+		    case FM_ReNAME:;
+		  }
 		 chp[lnl]='\n';			       /* terminate the line */
 		 afldp=addfield(lastm==FM_REN_INSERT?&iheader:
 		  lastm==FM_DEL_INSERT?&Iheader:lastm==FM_ADD_IFNOT?&aheader:
 		  lastm==FM_ADD_ALWAYS?&Aheader:lastm==FM_EXTRACT?&xheader:
+		  lastm==FM_FIRST_UNIQ?&uheader:lastm==FM_LAST_UNIQ?&Uheader:
 		  lastm==FM_EXTRC_KEEP?&Xheader:&Rheader,chp,++lnl);
 		 if(lastm==FM_ReNAME)	      /* then we need a second field */
 		  { int copied=0;
@@ -208,10 +218,12 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 			}
 		       break;
 		     }				   /* second field attached? */
-		    if(i=breakfield(chp,(size_t)(namep-chp)))  /* squeeze on */
+		    lastm=i;
+		    if((i=breakfield(chp,(size_t)(namep-chp)))>0)
 		       tmemmove((char*)fldp->fld_text+lnl,chp,i),copied=1;
-		    else if(!(chp=(char*)*++argv)||	 /* look at next arg */
-		     !(i=breakfield(chp,strlen(chp))))		/* no field? */
+		    else if(namep>chp&&lastm<=0|| /* first field ended early */
+			    !(chp=(char*)*++argv)||	 /* look at next arg */
+			    (i=breakfield(chp,strlen(chp)))<=0) /* no field? */
 invfield:	     { nlog("Invalid field-name:");logqnl(chp?chp:"");
 		       goto usg;
 		     }
@@ -228,6 +240,7 @@ nextarg:;
       }
 parsedoptions:
   escaplen=strlen(escap);mystdout=stdout;signal(SIGPIPE,SIG_IGN);
+  thepid=getpid();
   if(split)
    { char**ep;char**vfileno=0;
      for(ep=environ;*ep;ep++)		   /* gobble through the environment */
@@ -264,6 +277,8 @@ xusg:
   do rex[i].rexp=malloc(1);
   while(i--);
   fdate=0;addfield(&fdate,date,STRLEN(date)); /* fdate is only for searching */
+  if(areply)					       /* when auto-replying */
+     addfield(&iheader,xloop,STRLEN(xloop));	  /* preserve X-Loop: fields */
   if(babyl)						/* skip BABYL leader */
    { while(getchar()!=BABYL_SEP1||getchar()!=BABYL_SEP2||getchar()!='\n')
 	while(getchar()!='\n');
@@ -296,9 +311,10 @@ startover:
 	   tmemmove(tmp,tmp2,rdheader->tot_len-=tmp2-tmp);
 	 }
       }
-     namep=0;totallen=0;i=maxindex(rex);		     /* proper field */
+     namep=0;totallen=0;i=maxindex(rex);
      do rex[i].rexl=0;
-     while(i--);				 /* all state has been reset */
+     while(i--);
+     clear_uhead(uheader);clear_uhead(Uheader);	 /* all state has been reset */
      for(fldp=rdheader;fldp;fldp=fldp->fld_next)    /* go through the linked */
       { int nowm;				    /* list of header-fields */
 	if(conctenate)
@@ -310,8 +326,8 @@ startover:
 	   nowm=trust?sest[i].wtrepl:areply?sest[i].wrepl:i;chp+=j;
 	   tmp=malloc(j=fldp->tot_len-j);tmemmove(tmp,chp,j);
 	   (chp=tmp)[j-1]='\0';
-	   if(sest[i].head==From_&&strchr(chp,'\n'))
-	    { for(chp=tmp+j-1;*--chp!='\n';) /* skip to the last uucp >From_ */
+	   if(!trust&&sest[i].head==From_&&strchr(chp,'\n'))
+	    { for(chp+=j-1;*--chp!='\n';);   /* skip to the last uucp >From_ */
 	      if(!(chp=strchr(chp,' ')))
 		 chp=tmp;
 	    }
@@ -402,7 +418,7 @@ dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
      buffilled=0;    /* moved the contents of buf out of the way temporarily */
      if(areply)		      /* autoreply requested, we clean up the header */
       { for(fldp= *(afldp= &rdheader);fldp;)
-	   if(!(fp2=findf(fldp,iheader))||fp2->id_len<fp2->tot_len-1)
+	   if(!(fp2=findf(fldp,&iheader))||fp2->id_len<fp2->tot_len-1)
 	      *afldp=fldp->fld_next,free(fldp),fldp= *afldp;   /* remove all */
 	   else					/* except the ones mentioned */
 	      fldp= *(afldp= &fldp->fld_next);		       /* as -i ...: */
@@ -441,15 +457,32 @@ dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
 	else
 	   loadbuf(unknown,STRLEN(unknown));
 	loadchar(' ');				   /* insert one extra blank */
-	if(!hdate->rexl||!findf(fdate,aheader))			    /* Date: */
+	if(!hdate->rexl||!findf(fdate,&aheader))		    /* Date: */
 	   loadchar(' '),chp=ctime(&t),loadbuf(chp,strlen(chp)); /* no Date: */
 	else					 /* we generate it ourselves */
 	   loadsaved(hdate);	      /* yes, found Date:, then copy from it */
 	addbuf();rdheader->fld_next=old;
       }
      for(fldp=aheader;fldp;fldp=fldp->fld_next)
-	if(!findf(fldp,rdheader))	       /* only add what didn't exist */
-	   addfield(&nheader,fldp->fld_text,fldp->tot_len);
+	if(!findf(fldp,&rdheader))	       /* only add what didn't exist */
+	   if(fldp->id_len+1>=fldp->tot_len&&		  /* field name only */
+	      (fldp->id_len==STRLEN(messageid)&&
+	       !strnIcmp(fldp->fld_text,messageid,STRLEN(messageid))||
+	       fldp->id_len==STRLEN(res_messageid)&&
+	       !strnIcmp(fldp->fld_text,res_messageid,STRLEN(res_messageid))))
+	    { char*p;const char*name;unsigned long h1,h2,h3;
+	      static unsigned long h4; /* conjure up a `unique' msg-id field */
+	      h1=time((time_t*)0);h2=thepid;h3=rhash;
+	      p=chp=malloc(fldp->id_len+2+((sizeof h1*8+5)/6+1)*4+
+	       strlen(name=hostname())+2);     /* allocate worst case length */
+	      strncpy(p,fldp->fld_text,fldp->id_len);*(p+=fldp->id_len)=' ';
+	      *++p='<';*(p=ultoan(h3,p+1))='.';*(p=ultoan(h4,p+1))='.';
+	      *(p=ultoan(h2,p+1))='.';*(p=ultoan(h1,p+1))='@';
+	      strcpy(p+1,name);*(p=strchr(p,'\0'))='>';*++p='\n';
+	      addfield(&nheader,chp,p-chp+1);free(chp);h4++;	/* put it in */
+	    }
+	   else
+	      addfield(&nheader,fldp->fld_text,fldp->tot_len);
      if((fldp= *(afldp= &rdheader))&&logsummary&&eqFrom_(fldp->fld_text))
 	concatenate(fldp),putssn(fldp->fld_text,fldp->tot_len);
      while(fldp)
@@ -461,12 +494,26 @@ dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
 	      putcs('\n');
 	    }
 	 }
-	if(findf(fldp,Iheader))				    /* delete fields */
-	 { *afldp=fldp->fld_next,free(fldp);fldp= *afldp;continue;
+	if(findf(fldp,&Iheader))			    /* delete fields */
+	   goto delfld;
+	;{ struct field*uf;
+	   if((uf=findf(fldp,&uheader))&&!uf->fld_ref)
+	      uf->fld_ref=afldp;		   /* first uheader, keep it */
+	   else if(fp2=findf(fldp,&Uheader))
+	    { if(fp2->fld_ref)
+	       { if(afldp==&(*fp2->fld_ref)->fld_next)
+		    afldp=fp2->fld_ref;
+		 delfield(fp2->fld_ref);	       /* delete old Uheader */
+	       }
+	      fp2->fld_ref=afldp;			/* keep last Uheader */
+	    }
+	   else if(uf)			    /* delete all following uheaders */
+delfld:	    { fldp=delfield(afldp);continue;
+	    }
 	 }
-	else if(fp2=findf(fldp,Rheader))	  /* explicitly rename field */
+	if(fp2=findf(fldp,&Rheader))		  /* explicitly rename field */
 	   renfield(afldp,lnl,(char*)fp2->fld_text+lnl,fp2->tot_len-lnl);
-	else if((fp2=findf(fldp,iheader))&&!(areply&&lnl==fp2->tot_len-1))
+	else if((fp2=findf(fldp,&iheader))&&!(areply&&lnl==fp2->tot_len-1))
 	   renfield(afldp,(size_t)0,old_,STRLEN(old_)); /* implicitly rename */
 	fldp= *(afldp= &(*afldp)->fld_next);
       }					/* restore the saved contents of buf */
@@ -491,44 +538,47 @@ dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
      buffilled=0;	      /* throw it away, since we already inserted it */
   if(babyl)
    { int c,lc;					/* ditch pseudo BABYL header */
-     for(lc=0;c=getchar(),c!='\n'||lc!='\n';lc=c);
+     for(lc=0;c=getchar(),c!=EOF&&(c!='\n'||lc!='\n');lc=c);
+     babylstart=0;
    }
   while(buffilled||!lnl||buflast!=EOF)	 /* continue the quest, line by line */
    { if(!buffilled)				      /* is it really empty? */
 	readhead();				      /* read the next field */
-     if(rdheader)		    /* anything looking like a header found? */
-      { if(eqFrom_(chp=rdheader->fld_text))	      /* check if it's From_ */
-fromanyway:
-	 { register size_t k;
-	   if(split&&(lnl||every)&&    /* more thorough check for a postmark */
-	    (k=strcspn(chp=skpspace(chp+STRLEN(From_))," \t\n"))&&
-	    *skpspace(chp+k)!='\n')
-	      goto accuhdr;		     /* ok, postmark found, split it */
-	   if(bogus)						   /* disarm */
-	      lputssn(escap,escaplen);
+     if(!babyl||babylstart)	       /* don't split BABYL files everywhere */
+      { if(rdheader)		    /* anything looking like a header found? */
+	 { if(eqFrom_(chp=rdheader->fld_text))	      /* check if it's From_ */
+fromanyway: { register size_t k;
+	      if(split&&
+		 (lnl||every)&&	       /* more thorough check for a postmark */
+		 (k=strcspn(chp=skpspace(chp+STRLEN(From_))," \t\n"))&&
+		 *skpspace(chp+k)!='\n')
+		 goto accuhdr;		     /* ok, postmark found, split it */
+	      if(bogus)						   /* disarm */
+		 lputssn(escap,escaplen);
+	    }
+	   else if(split&&digest&&(lnl||every)&&digheadr())	  /* digest? */
+accuhdr:    { for(i=minfields;--i&&readhead()&&digheadr();); /* found enough */
+	      if(!i)					   /* then split it! */
+splitit:       { if(!lnl)   /* did the previous mail end with an empty line? */
+		    lputcs('\n');		      /* but now it does :-) */
+		 logfolder();
+		 if((fclose(mystdout)==EOF||errout==EOF)&&!quiet)
+		    nlog(couldntw),elog(", continuing...\n"),split= -1;
+		 if(!nowait&&*argv)	 /* wait till the child has finished */
+		  { int excode;
+		    if((excode=waitfor(child))!=EX_OK&&retval!=EX_OK)
+		       retval=excode;
+		  }
+		 startprog((const char*Const*)argv);goto startover;
+	       }				    /* and there we go again */
+	    }
 	 }
-	else if(split&&digest&&(lnl||every)&&digheadr())	  /* digest? */
-accuhdr: { for(i=minfields;--i&&readhead()&&digheadr(););   /* found enough? */
-	   if(!i)					   /* then split it! */
-splitit:    { if(!lnl)	    /* did the previous mail end with an empty line? */
-		 lputcs('\n');			      /* but now it does :-) */
-	      logfolder();
-	      if((fclose(mystdout)==EOF||errout==EOF)&&!quiet)
-		 nlog(couldntw),elog(", continuing...\n"),split= -1;
-	      if(!nowait&&*argv)	 /* wait till the child has finished */
-	       { int excode;
-		 if((excode=waitfor(child))!=EX_OK&&retval!=EX_OK)
-		    retval=excode;
-	       }
-	      startprog((const char*Const*)argv);goto startover;
-	    }					    /* and there we go again */
+	else if(eqFrom_(buf))			 /* special case, From_ line */
+	 { addbuf();goto fromanyway;   /* add it manually, readhead() didn't */
 	 }
+	else if(split&&digest&&(lnl||every)&&artheadr())
+	   goto accuhdr;
       }
-     else if(eqFrom_(buf))			 /* special case, From_ line */
-      { addbuf();goto fromanyway;      /* add it manually, readhead() didn't */
-      }
-     else if(split&&digest&&(lnl||every)&&artheadr())
-	goto accuhdr;
 #ifdef MAILBOX_SEPARATOR
      if(!strncmp(emboxsep,buf,STRLEN(emboxsep)))	     /* end of mail? */
       { if(split)		       /* gobble up the next start separator */
@@ -548,7 +598,7 @@ putsp:	lputcs(' ');
 #endif /* MAILBOX_SEPARATOR */
      lnl=buffilled==1;		      /* check if we just read an empty line */
      if(babyl&&*buf==BABYL_SEP1)
-	closemine(),opensink();				 /* discard the rest */
+	babylstart=1,closemine(),opensink();		 /* discard the rest */
      if(areply&&bogus)					  /* escape the body */
 	if(fldp=rdheader)	      /* we already read some "valid" fields */
 	 { register char*p;
@@ -596,15 +646,15 @@ eqFrom_(a)const char*const a;
 
 breakfield(line,len)const char*const line;size_t len;	   /* look where the */
 { const char*p=line;			   /* fieldname ends (RFC 822 specs) */
-  if(eqFrom_(line))				      /* special case, From_ */
+  if(eqFrom_(p))				      /* special case, From_ */
      return STRLEN(From_);
-  while(len--&&!iscntrl(*p))		    /* no control characters allowed */
+  while(len&&!iscntrl(*p))		    /* no control characters allowed */
    { switch(*p++)
-      { default:continue;
+      { default:len--;continue;
 	case HEAD_DELIMITER:len=p-line;return len==1?0:len;	  /* eureka! */
-	case ' ':;					/* no spaces allowed */
+	case ' ':p--;					/* no spaces allowed */
       }
      break;
    }
-  return 0;		    /* sorry, does not seem to be a legitimate field */
+  return -(int)(p-line);    /* sorry, does not seem to be a legitimate field */
 }

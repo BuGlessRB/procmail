@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.37 1994/03/10 16:21:29 berg Exp $*/
+/*$Id: manconf.c,v 1.38 1994/04/05 15:34:59 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -108,11 +108,11 @@ yourself.");
   puts("/^\\.ex/,/^\\.ex/ d");
 #ifndef MAILBOX_SEPARATOR
   ps("DOT_FORWARD",".forward");
-  ps("FW_content","\"|IFS=' '&&exec /usr/local/bin/procmail ||\
+  ps("FW_content","\"|IFS=' '&&exec /usr/local/bin/procmail -f-||\
 exit 75 \\fB#\\fP\\fIYOUR_USERNAME\\fP\"");
 #else
   ps("DOT_FORWARD",".maildelivery");
-  ps("FW_content","* - | ? \"IFS=' '&&exec /usr/local/bin/procmail ||\
+  ps("FW_content","* - | ? \"IFS=' '&&exec /usr/local/bin/procmail -f-||\
 exit 75 \fB#\fP\fIYOUR_USERNAME\fP\"");
 #endif
   plist("PRESTENV","\1.PP\1Other preset environment variables are "
@@ -141,14 +141,14 @@ is case sensitive, and some users have login names with uppercase letters in\
   ps("UPPERCASE_USERNAMES","");
 #endif
   ps("SYSTEM_MBOX",SYSTEM_MBOX);
-  ps("ETCRC_desc",etcrc?"\1.PP\1If no rcfiles have been specified on the\
- command line, procmail will, prior to reading\
+  ps("ETCRC_desc",etcrc?"\1.PP\1If no rcfiles and no\1.B \\-@PRESERVOPT@\1have\
+ been specified on the command line, procmail will, prior to reading\
  $HOME/@PROCMAILRC@, interpret commands from\1.B @ETCRC@\1(if present).\1\
 Care must be taken when creating @ETCRC@, because, if circumstances\
  permit, it will be executed with root privileges (contrary to the\
  $HOME/@PROCMAILRC@ file of course).":"");
-  ps("ETCRC_files",etcrc?"\1.Tp\1.B @ETCRC@\1initial global rcfile":"");
-  ps("DROPPRIVS",etcrc?"\1.Tp\1.B DROPPRIVS\1If set to `yes' procmail\
+  ps("ETCRC_files",etcrc?"\1.TP\1.B @ETCRC@\1initial global rcfile":"");
+  ps("DROPPRIVS",etcrc?"\1.TP\1.B DROPPRIVS\1If set to `yes' procmail\
  will drop all privileges it might have had (suid or sgid).  This is\
  most useful if you want to guarantee that the bottom half of the\
  @ETCRC@ file is executed on behalf of the recipient.":"");
@@ -156,6 +156,26 @@ Care must be taken when creating @ETCRC@, because, if circumstances\
  with root privileges, so be very careful of what you put in it.\1\
 See also:\1.BR DROPPRIVS .":"");
   ps("ETCRC",etcrc?etcrc:"");
+#ifdef ETCRCS
+  ps("ETCRCS_desc","\1If the rcfile is an absolute path starting with\
+\1.B @ETCRCS@\
+\1 without backward references (i.e. the parent directory cannot\
+ be mentioned) procmail will, only if no security violations are found,\
+ take on the identity of the owner of the rcfile.");
+  ps("ETCRCS_files","\1.TP\1.B @ETCRCS@\1special privileges path for rcfiles");
+  ps("ETCRCS_warn","\1.PP\1Keep in mind that if\1.BR chown (1)\1is permitted\
+ on files in\1.BR @ETCRCS@ ,\1that they can be chowned to root\
+ (or anyone else) by their current owners.");
+  ps("ETCRCS_error","\1.TP\1Denying special privileges for \"x\"\1\
+Procmail will not take on the identity that comes with the rcfile because\1\
+a security violation was found (e.g. \1.B \\-@PRESERVOPT@\1 or variable\
+ assignments on the command line) or procmail had insufficient privileges\
+ to do so.");
+  ps("ETCRCS",ETCRCS);
+#else
+  ps("ETCRCS_desc","");ps("ETCRCS_files","");ps("ETCRCS_warn","");
+  ps("ETCRCS_error","");
+#endif
 #ifdef console
   ps("pconsole","appear on\1.BR ");
   ps("console",console);
@@ -182,7 +202,6 @@ See also:\1.BR DROPPRIVS .":"");
   ps("DEFshellmetas",DEFshellmetas);
   ps("DEFmaildir",DEFmaildir);
   ps("DEFdefault",DEFdefault);
-  ps("DEFdefaultlock",strchr(DEFdefaultlock,'=')+1);
   ps("DEFmsgprefix",DEFmsgprefix);
   ps("DEFsendmail",DEFsendmail);
   ps("DEFlockext",DEFlockext);
@@ -260,6 +279,8 @@ See also:\1.BR DROPPRIVS .":"");
   pc("FM_ADD_ALWAYS",FM_ADD_ALWAYS);
   pc("FM_REN_INSERT",FM_REN_INSERT);
   pc("FM_DEL_INSERT",FM_DEL_INSERT);
+  pc("FM_FIRST_UNIQ",FM_FIRST_UNIQ);
+  pc("FM_LAST_UNIQ",FM_LAST_UNIQ);
   pc("FM_ReNAME",FM_ReNAME);
   pn("EX_OK",EX_OK);
   *(p=strchr(strchr(q=strchr(pm_version,' ')+1,' ')+1,' '))='\0';p++;

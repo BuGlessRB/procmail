@@ -86,7 +86,7 @@
 	    Forgot to redirect output of a test in autoconf to /dev/null
 	    Reached the doubtful milestone to sometimes crash an Ultrix
 	       machine (due to the lockingtests, not procmail itself)
-1994/02/16: v2.92
+1994/04/05: v2.92
 	    Changes to procmail:
 	       - Changed the semantics of the TRAP keyword.  In order to
 		 make procmail accept the exitcode it returns, you now have
@@ -138,6 +138,11 @@
 		 munged when filtering headers only
 	       - Added -o option (makes procmail override the From_ lines, like
 		 it used to)
+	       - -p and -m together shrink the set of preset variables to the
+		 bare minimum
+	       - -p is not supported alongside -d anymore
+	       - /etc/procmailrcs/ is the place for optional privileged
+		 rcfiles in -m mailfilter mode
 	    Changes to formail:
 	       - Fixed a sender-determination-weight problem, it mixed up
 		 the weights when autoreplying and when regenerating the From_
@@ -159,6 +164,12 @@
 	       - It terminates early now if it only needs the header
 	       - The -n option can now sustain itself by reaping children
 		 if it can't fork() immediately
+	       - It supports incomplete field specifications which match
+		 any field starting similarly
+	       - Introduced the -u and -U options
+	       - -a Message-ID: and -a Resent-Message-ID: to make it generate
+		 new ones
+	       - Keep the X-Loop: field when generating autoreplies
 	    Miscellaneous changes:
 	       - Detecting and dodging buggy zshs everywhere
 	       - Slightly adjusted autoconf for the new non-standard 386BSD
@@ -178,3 +189,8 @@
 	       - Provided a faster (than most libraries) strstr() routine
 	       - Created the setid program (to be used by the SmartList
 		 installation)
+	       - Checking for fstat() in autoconf
+	       - Avoiding i/o-redirection on subshells
+	       - Provided for the ability to hotwire the lockingtests
+	       - Autoconf asks if you'd like to use the existing autoconf.h
+	       - Autoconf determines MAX_argc

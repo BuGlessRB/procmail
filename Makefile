@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.49 1994/03/10 17:15:00 berg Exp $
+#$Id: Makefile,v 1.50 1994/04/05 15:32:42 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -54,6 +54,14 @@ LOCKINGTEST=__defaults__
 ########################################################################
 # Only edit below this line if you *think* you know what you are doing #
 ########################################################################
+
+#LOCKINGTEST=100	# Uncomment (and change) if you think you know
+#			it better than the autoconf lockingtests.
+#			This will cause the lockingtests to be hotwired.
+#			100	to enable fcntl()
+#			010	to enable lockf()
+#			001	to enable flock()
+#			Or them together to get the desired combination.
 
 # Optional system libraries we search for
 SEARCHLIBS = -lm -ldir -lx -lsocket -lnet -linet -lnsl_s -lnsl_i -lnsl -lsun \

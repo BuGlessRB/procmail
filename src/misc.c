@@ -2,13 +2,14 @@
  *	Miscellaneous routines used by procmail				*
  *									*
  *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
- *	#include "README"						*
+ *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.46 1994/03/01 16:17:51 berg Exp $";
+ "$Id: misc.c,v 1.47 1994/04/05 15:35:06 berg Exp $";
 #endif
 #include "procmail.h"
+#include "acommon.h"
 #include "sublib.h"
 #include "robust.h"
 #include "misc.h"
@@ -17,15 +18,23 @@ static /*const*/char rcsid[]=
 #include "cstdio.h"
 #include "exopen.h"
 #include "regexp.h"
+#include "mcommon.h"
 #include "goodies.h"
 #include "locking.h"
 #include "mailfold.h"
 
-const char lastfolder[]="LASTFOLDER";
 struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
  {"LOCKTIMEOUT",DEFlocktimeout},{"SUSPEND",DEFsuspend},
  {"NORESRETRY",DEFnoresretry},{"TIMEOUT",DEFtimeout},{"VERBOSE",DEFverbose},
  {"LOGABSTRACT",DEFlogabstract}};
+struct varstr strenstr[]={{"SHELLMETAS",DEFshellmetas},{"LOCKEXT",DEFlockext},
+ {"MSGPREFIX",DEFmsgprefix},{"COMSAT",DEFcomsat},{"TRAP",""},
+ {"SHELLFLAGS",DEFshellflags},{"DEFAULT",DEFdefault},{"SENDMAIL",DEFsendmail}};
+
+#define MAXvarvals	 maxindex(strenvvar)
+#define MAXvarstrs	 maxindex(strenstr)
+
+const char lastfolder[]="LASTFOLDER";
 int didchd;
 char*globlock;
 static fakedelivery;
@@ -85,12 +94,12 @@ forkerr(pid,a)const pid_t pid;const char*const a;
   return 0;
 }
 
-void progerr(line,exitcode)const char*const line;int exitcode;
+void progerr(line,xitcode)const char*const line;int xitcode;
 { charNUM(num,thepid);
   nlog("Program failure (");
-  if(exitcode<0)
-     exitcode= -exitcode,elog("-");
-  ultstr(0,(unsigned long)exitcode,num);elog(num);
+  if(xitcode<0)
+     xitcode= -xitcode,elog("-");
+  ultstr(0,(unsigned long)xitcode,num);elog(num);
   elog(") of");logqnl(line);
 }
 
@@ -143,12 +152,13 @@ void skipped(x)const char*const x;
 }
 
 nextrcfile P((void))		/* next rcfile specified on the command line */
-{ const char*p;
+{ const char*p;int retval=2;
   while(p= *gargv)
    { gargv++;
      if(!strchr(p,'='))
-      { rcfile=p;return 1;
+      { rcfile=p;return retval;
       }
+     retval=1;			       /* not the first argument encountered */
    }
   return 0;
 }
@@ -168,12 +178,12 @@ void sterminate P((void))
 	   for(j=0;!((i>>=1)&1);j++);
 	   elog(msg[j]);
 	 }
-	elog(newline);terminate();
+	elog(newline);Terminate();
       }
    }
 }
 
-void terminate P((void))
+void Terminate P((void))
 { ignoreterm();
   if(retvl2!=EX_OK)
      fakedelivery=0,retval=retvl2;
@@ -187,7 +197,7 @@ void terminate P((void))
 	logabstract(tgetenv(lastfolder));
      shutdesc();
      if(!(lcking&lck_ALLOCLIB))			/* don't reenter malloc/free */
-	exectrap(tgetenv("TRAP"));
+	exectrap(traps);
      nextexit=2;unlock(&loclock);unlock(&globlock);fdunlock();
    }					/* flush the logfile & exit procmail */
   elog("");exit(fakedelivery==2?EX_OK:retval);
@@ -250,7 +260,7 @@ void setdef(name,contents)const char*const name,*const contents;
 }
 
 void metaparse(p)const char*p;				    /* result in buf */
-{ if(sh=!!strpbrk(p,tgetenv(shellmetas)))
+{ if(sh=!!strpbrk(p,shellmetas))
      strcpy(buf,p);			 /* copy literally, shell will parse */
   else
 #ifndef GOT_bin_test
@@ -327,8 +337,9 @@ char*gobenv(chp)char*chp;
 int asenvcpy(src)char*src;
 { strcpy(buf,src);
   if(src=strchr(buf,'='))			     /* is it an assignment? */
-   { strcpy((char*)(sgetcp=buf2),++src);readparse(src,sgetc,2);sputenv(buf);
-     src[-1]='\0';asenv(src);return 1;
+   { const char*chp;
+     strcpy((char*)(sgetcp=buf2),++src);readparse(src,sgetc,2);
+     chp=sputenv(buf);src[-1]='\0';asenv(chp);return 1;
    }
   return 0;
 }
@@ -336,7 +347,7 @@ int asenvcpy(src)char*src;
 void asenv(chp)const char*const chp;
 { static const char slinebuf[]="LINEBUF",logfile[]="LOGFILE",Log[]="LOG",
    sdelivered[]="DELIVERED",includerc[]="INCLUDERC",eumask[]="UMASK",
-   host[]="HOST",dropprivs[]="DROPPRIVS",shift[]="SHIFT";
+   dropprivs[]="DROPPRIVS",shift[]="SHIFT";
   if(!strcmp(buf,slinebuf))
    { if((linebuf=renvint(0L,chp)+XTRAlinebuf)<MINlinebuf+XTRAlinebuf)
 	linebuf=MINlinebuf+XTRAlinebuf;		       /* check minimum size */
@@ -351,6 +362,8 @@ void asenv(chp)const char*const chp;
      opnlog(chp);
   else if(!strcmp(buf,Log))
      elog(chp);
+  else if(!strcmp(buf,exitcode))
+     setxit=1;
   else if(!strcmp(buf,shift))
    { int i;
      if((i=renvint(0L,chp))>0)
@@ -373,7 +386,7 @@ void asenv(chp)const char*const chp;
 	   fakedelivery=1;
 	thepid=getpid();lcking&=~lck_LOCKFILE;
 	if(nextexit)				 /* signals occurred so far? */
-	   elog(newline),terminate();
+	   elog(newline),Terminate();
       }
    }
   else if(!strcmp(buf,lockfile))
@@ -384,10 +397,10 @@ void asenv(chp)const char*const chp;
      pushrc(chp);
   else if(!strcmp(buf,host))
    { const char*name;
-     if(strncmp(chp,name=hostname(),HOSTNAMElen))
+     if(strcmp(chp,name=hostname()))
       { yell("HOST mismatched",name);
 	if(rc<0||!nextrcfile())			  /* if no rcfile opened yet */
-	   retval=EX_OK,terminate();		  /* exit gracefully as well */
+	   retval=EX_OK,Terminate();		  /* exit gracefully as well */
 	closerc();rc= -1;
       }
    }
@@ -395,8 +408,12 @@ void asenv(chp)const char*const chp;
    { int i=MAXvarvals;
      do					      /* several numeric assignments */
 	if(!strcmp(buf,strenvvar[i].name))
-	 { strenvvar[i].val=renvint(strenvvar[i].val,chp);break;
-	 }
+	   strenvvar[i].val=renvint(strenvvar[i].val,chp);
+     while(i--);
+     i=MAXvarstrs;
+     do						 /* several text assignments */
+	if(!strcmp(buf,strenstr[i].sname))
+	   strenstr[i].sval=chp;
      while(i--);
    }
 }
@@ -451,4 +468,32 @@ char*egrepin(expr,source,len,casesens)char*expr;const char*source;
      free(expr);
    }
   return(char*)source;
+}
+
+const struct passwd*savepass(spass,uid)struct passwd*const spass;
+ const uid_t uid;
+{ struct passwd*tpass;
+  if(spass->pw_name&&spass->pw_uid==uid)
+     goto ret;
+  if(tpass=getpwuid(uid))				  /* save by copying */
+   { spass->pw_uid=tpass->pw_uid;spass->pw_gid=tpass->pw_gid;
+     spass->pw_name=cstr(spass->pw_name,tpass->pw_name);
+     spass->pw_dir=cstr(spass->pw_dir,tpass->pw_dir);
+     spass->pw_shell=cstr(spass->pw_shell,tpass->pw_shell);
+ret: return spass;
+   }
+  return(const struct passwd*)0;
+}
+
+int enoughprivs(passinvk,euid,egid,uid,gid)const struct passwd*const passinvk;
+ const uid_t euid,uid;const gid_t egid,gid;
+{ return euid==ROOT_uid||passinvk&&passinvk->pw_uid==uid||euid==uid&&egid==gid;
+}
+
+void initdefenv P((void))
+{ int i=MAXvarstrs;
+  do	   /* initialise all non-empty string variables into the environment */
+     if(*strenstr[i].sval)
+	setdef(strenstr[i].sname,strenstr[i].sval);
+  while(i--);
 }

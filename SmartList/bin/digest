@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.15 1994/03/10 16:20:16 berg Exp $
+#$Id: digest,v 1.16 1994/04/05 15:33:10 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -27,13 +27,13 @@ digestadmin2=archive/latest/$digestadmin
 digestbody=archive/latest/digest.body
 digesttrailer=archive/latest/digest.trailer
 
-if test -z "$alt_sendmail"
+if $test -z "$alt_sendmail"
 then
   $echo "$digest_age $digest_size $archive_hist $UMASK
 $SENDMAIL $sendmailOPT $listdist" >.digest.params
 else
   $echo "$digest_age $digest_size $archive_hist $UMASK
-$SENDMAIL $sendmailOPT \`sed -e '/^(.*)$/ d' dist\`" >.digest.params
+$alt_sendmail $SENDMAIL $sendmailOPT" >.digest.params
 fi
 
 $awk '
@@ -118,6 +118,7 @@ then
 From: $listreq
 Subject: $list Digest V$Year #$Issue
 X-Loop: $listaddr
+X-Mailing-List: <$listaddr> archive/volume$Year/$Issue
 Precedence: list
 MIME-Version: 1.0
 Content-Type: multipart/digest; boundary="----------------------------"

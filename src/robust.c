@@ -2,11 +2,11 @@
  *	The fault-tolerant system-interface				*
  *									*
  *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
- *	#include "README"						*
+ *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.14 1994/03/10 16:21:41 berg Exp $";
+ "$Id: robust.c,v 1.15 1994/04/05 15:35:31 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -26,7 +26,7 @@ static void nomemerr P((void))
    }
   if(retval!=EX_TEMPFAIL)
      retval=EX_OSERR;
-  terminate();
+  Terminate();
 }
 
 void*tmalloc(len)const size_t len;    /* this malloc can survive a temporary */

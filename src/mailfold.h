@@ -1,4 +1,4 @@
-/*$Id: mailfold.h,v 1.8 1994/01/11 13:17:18 berg Exp $*/
+/*$Id: mailfold.h,v 1.9 1994/04/05 15:34:56 berg Exp $*/
 
 long
  dump P((const s,const char*source,long len));
@@ -11,7 +11,6 @@ void
 char
  *findtstamp P((const char*start,const char*end));
 
-extern const char scomsat[];
 extern logopened,tofile;
 extern off_t lasttell;
 

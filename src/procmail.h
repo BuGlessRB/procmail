@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.21 1994/01/11 13:25:14 berg Exp $*/
+/*$Id: procmail.h,v 1.22 1994/04/05 15:35:25 berg Exp $*/
 
 #include "includes.h"
 
@@ -47,14 +47,24 @@ extern struct varval{const char*const name;long val;}strenvvar[];
 #define verbose		(*(volatile long*)&strenvvar[5].val)
 #define lgabstract	(strenvvar[6].val)
 
+extern struct varstr{const char*const sname,*sval;}strenstr[];
+#define shellmetas	(strenstr[0].sval)
+#define lockext		(strenstr[1].sval)
+#define msgprefix	(strenstr[2].sval)
+#define scomsat		(strenstr[3].sval)
+#define traps		(strenstr[4].sval)
+#define shellflags	(strenstr[5].sval)
+#define fdefault	(strenstr[6].sval)
+#define sendmail	(strenstr[7].sval)
+
 int
  eqFrom_ P((const char*const a));
 
 extern char*buf,*buf2,*loclock,*tolock,*Stdout,*themail,*thebody;
-extern const char shellflags[],shell[],lockfile[],lockext[],newline[],binsh[],
- unexpeof[],shellmetas[],*const*gargv,*const*restargv,*sgetcp,*rcfile,
- dirsep[],msgprefix[],devnull[],lgname[],executing[],oquote[],cquote[],
- whilstwfor[],procmailn[],Mail[],home[],maildir[],*defdeflock,*argv0;
+extern const char shell[],lockfile[],newline[],binsh[],unexpeof[],*const*gargv,
+ *const*restargv,*sgetcp,*rcfile,dirsep[],devnull[],lgname[],executing[],
+ oquote[],cquote[],whilstwfor[],procmailn[],Mail[],home[],maildir[],host[],
+ *defdeflock,*argv0;
 extern long filled,lastscore;
 extern sh,pwait,retval,retvl2,lcking,rcstate,rc,ignwerr,lexitcode,asgnlastf,
  accspooldir,crestarg,skiprc,savstdout;

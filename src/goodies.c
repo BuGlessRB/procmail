@@ -2,11 +2,11 @@
  *	Collection of library-worthy routines				*
  *									*
  *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
- *	#include "README"						*
+ *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.26 1994/03/10 16:21:23 berg Exp $";
+ "$Id: goodies.c,v 1.27 1994/04/05 15:34:37 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -42,12 +42,12 @@ static const char*evalenv P((void))	/* expects the variable name in buf2 */
 /* sarg==0 : normal parsing, split up arguments like in /bin/sh
  * sarg==1 : environment assignment parsing, parse up till first whitespace
  * sarg==2 : normal parsing, split up arguments by existing whitespace
- * sarg==3 : normal parsing till '}', split up arguments by existing whitespace
  */
 void readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
  const int sarg;
-{ static i;int got,bracelev;char*startb;
-  All_args=0;bracelev=0;
+{ static i,skipbracelev;int got,bracelev,qbracelev;char*startb;
+  static char*skipback;static const char*oldstartb;
+  bracelev=qbracelev=0;All_args=0;
   for(got=NOTHING_YET;;)		    /* buf2 is used as scratch space */
 loop:
    { i=fgetc();
@@ -76,7 +76,8 @@ ready:	   if(got!=SKIPPING_SPACE||sarg)  /* not terminated yet or sarg==2 ? */
 		    goto noesc;
 	      case '"':case '\\':case '$':case '`':goto nodelim;
 	      case '}':
-		 if(sarg==3&&got<=NORMAL_TEXT)
+		 if(got<=NORMAL_TEXT&&bracelev||
+		    got==DOUBLE_QUOTED&&bracelev>qbracelev)
 		    goto nodelim;
 	    }
 	   if(got>NORMAL_TEXT)
@@ -96,11 +97,10 @@ forcebquote:	 case EOF:case '`':
 		    else
 		     { int osh=sh;
 		       *p='\0';
-		       if(!(sh=!!strpbrk(startb,tgetenv(shellmetas))))
-			{ const char*save=sgetcp,*sall_args=All_args;
-			  sgetcp=p=tstrdup(startb);readparse(startb,sgetc,0);
-			  if(!All_args)	       /* only one can be remembered */
-			     All_args=sall_args;	    /* this is a bug */
+		       if(!(sh=!!strpbrk(startb,shellmetas)))
+			{ const char*save=sgetcp,*sAll_args;
+			  sgetcp=p=tstrdup(startb);sAll_args=All_args;
+			  readparse(startb,sgetc,0);All_args=sAll_args;
 #ifndef GOT_bin_test
 			  if(!strcmp(test,startb))
 			     strcpy(startb,p),sh=1;    /* oops, `test' found */
@@ -132,10 +132,13 @@ escaped:      *p++=i;
 	    }
 	case '"':
 	   switch(got)
-	    { case DOUBLE_QUOTED:got=NORMAL_TEXT;continue;	/* closing " */
-	      case SINGLE_QUOTED:goto nodelim;
+	    { case DOUBLE_QUOTED:
+		 if(qbracelev<bracelev)		   /* still inside a ${...}? */
+	      case SINGLE_QUOTED:
+		    goto nodelim;				 /* nonsense */
+		 got=NORMAL_TEXT;continue;			/* closing " */
 	    }
-	   got=DOUBLE_QUOTED;continue;				/* opening " */
+	   qbracelev=bracelev;got=DOUBLE_QUOTED;continue;	/* opening " */
 	case '\'':
 	   switch(got)
 	    { case DOUBLE_QUOTED:goto nodelim;
@@ -143,12 +146,15 @@ escaped:      *p++=i;
 	    }
 	   got=SINGLE_QUOTED;continue;				/* opening ' */
 	case '}':
-	   if(got<=NORMAL_TEXT)
-	      if(sarg==3)
-		 goto ready;
-	      else if(bracelev)
-	       { bracelev--;continue;
+	   if(got<=NORMAL_TEXT&&bracelev||
+	      got==DOUBLE_QUOTED&&bracelev>qbracelev)
+	    { bracelev--;
+	      if(skipback&&bracelev==skipbracelev)
+	       { skiprc--;p=skipback;skipback=0;startb=(char*)oldstartb;
+		 goto closebrace;
 	       }
+	      continue;
+	    }
 	   goto nodelim;
 	case '#':
 	   if(got>SKIPPING_SPACE)		/* comment at start of word? */
@@ -164,7 +170,9 @@ escaped:      *p++=i;
 	      case '@':
 		 if(got!=DOUBLE_QUOTED)
 		    goto normchar;
-		 All_args=p;continue;
+		 if(!skiprc)	      /* don't do it while skipping (braces) */
+		    All_args=p;
+		 continue;
 	      case '{':						  /* ${name} */
 		 while(EOF!=(i=fgetc())&&alphanum(i))
 		    *startb++=i;
@@ -192,17 +200,13 @@ badsub:			     nlog("Bad substitution of");logqnl(buf2);continue;
 		       goto noalt;
 		    case '-':
 		       if(startb)
-noalt:			{ const char*sall_args;
-			  if(skiprc)
-			     goto doalt;  /* to minimise pointless recursion */
-			  skiprc++;sall_args=All_args;readparse(p,fpgetc,3);
-			  All_args=sall_args;skiprc--;
-			}
-		       else
-doalt:			{ bracelev++;continue;
-			}
+noalt:			  if(!skiprc)
+			   { skiprc++;skipback=p;skipbracelev=bracelev;
+			     oldstartb=startb;
+			   }
+doalt:		       bracelev++;continue;
 		    case '}':
-		       if(!startb)
+closebrace:	       if(!startb)
 			  startb="";
 		  }
 		 goto ibreak;					  /* $$ =pid */
@@ -303,21 +307,21 @@ double stod(str,ptr)const char*str;const char**const ptr;
 static struct lienv{struct lienv*enext;char ename[255];}*myenv;
 static char**lastenv;
 			      /* smart putenv, the way it was supposed to be */
-void sputenv(a)const char*const a;
-{ static alloced;size_t i;int remove;char*split,**preenv;
+const char*sputenv(a)const char*const a;
+{ static alloced;size_t eq,i;int remove;char*split,**preenv;
   struct lienv*curr,**last;
   yell("Assigning",a);remove=0;
   if(!(split=strchr(a,'=')))			   /* assignment or removal? */
      remove=1,split=strchr(a,'\0');
-  i=split-a;							    /* is it */
+  eq=split-a;							    /* is it */
   for(curr= *(last= &myenv);curr;curr= *(last= &curr->enext))  /* one I made */
-     if(!strncmp(a,curr->ename,i)&&((char*)curr->ename)[i]=='=') /* earlier? */
-      { split=curr->ename;*last=curr->enext;free(curr);
+     if(!strncmp(a,curr->ename,eq)&&((char*)curr->ename)[eq]=='=')
+      { split=curr->ename;*last=curr->enext;free(curr);		 /* earlier? */
 	for(preenv=environ;*preenv!=split;preenv++);
 	goto wipenv;
       }
   for(preenv=environ;*preenv;preenv++)		    /* is it in the standard */
-     if(!strncmp(a,*preenv,i)&&(*preenv)[i]=='=')	     /* environment? */
+     if(!strncmp(a,*preenv,eq)&&(*preenv)[eq]=='=')	     /* environment? */
 wipenv:
       { while(*preenv=preenv[1])   /* wipe this entry out of the environment */
 	   preenv++;
@@ -332,8 +336,9 @@ wipenv:
    { for(preenv=environ;*preenv;preenv++);
      curr=malloc(ioffsetof(struct lienv,ename[0])+(i=strlen(a)+1));
      tmemmove(*(lastenv=preenv)=curr->ename,a,i);preenv[1]=0;curr->enext=myenv;
-     myenv=curr;
+     return(const char*)((myenv=curr)->ename)+eq+1;
    }
+  return "";
 }
 			    /* between calling primeStdout() and retStdout() */
 void primeStdout P((void))	    /* *no* environment changes are allowed! */

@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.22 1994/01/28 11:57:27 berg Exp $*/
+/*$Id: misc.h,v 1.23 1994/04/05 15:35:09 berg Exp $*/
 
 struct dyna_long{size_t filled,tspace;off_t*offs;};
 
@@ -8,7 +8,7 @@ void
  shutdesc P((void)),
  setids P((void)),
  writeerr P((const char*const line)),
- progerr P((const char*const line,int exitcode)),
+ progerr P((const char*const line,int xitcode)),
  chderr P((const char*const dir)),
  readerr P((const char*const file)),
  verboff P((void)),
@@ -18,7 +18,7 @@ void
  logqnl P((const char*const a)),
  skipped P((const char*const x)),
  sterminate P((void)),
- terminate P((void)),
+ Terminate P((void)),
  suspend P((void)),
  app_val P((struct dyna_long*const sp,const off_t val)),
  firstchd P((void)),
@@ -31,12 +31,15 @@ void
  setlastfolder P((const char*const folder)),
  asenv P((const char*const chp)),
  concatenate P((char*p)),
- squeeze P((char*target));
+ squeeze P((char*target)),
+ initdefenv P((void));
 int
  forkerr Q((const pid_t pid,const char*const a)),
  nextrcfile P((void)),
  asenvcpy P((char*src)),
- alphanum P((const unsigned c));
+ alphanum P((const unsigned c)),
+ enoughprivs Q((const struct passwd*const passinvk,const uid_t euid,
+  const gid_t egid,const uid_t uid,const gid_t gid));
 char
  *lastdirsep P((const char*filename)),
  *cat P((const char*const a,const char*const b)),
@@ -48,9 +51,9 @@ const char
  *tgetenv P((const char*const a));
 long
  renvint P((const long i,const char*const env));
+const struct passwd
+ *savepass Q((struct passwd*const spass,const uid_t uid));
 
 extern const char lastfolder[];
 extern didchd;
 extern char*globlock;
-
-#define MAXvarvals	maxindex(strenvvar)

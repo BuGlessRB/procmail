@@ -4,11 +4,11 @@
  *	Seems to be perfect.						*
  *									*
  *	Copyright (c) 1991-1994, S.R. van den Berg, The Netherlands	*
- *	#include "README"						*
+ *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.35 1994/02/18 18:43:33 berg Exp $";
+ "$Id: regexp.c,v 1.36 1994/04/05 15:35:28 berg Exp $";
 #endif
 #include "includes.h"
 #include "robust.h"

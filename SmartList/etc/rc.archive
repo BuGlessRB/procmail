@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.archive,v 1.8 1994/02/22 15:22:55 berg Exp $
+#$Id: rc.archive,v 1.9 1994/04/05 15:33:18 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -81,7 +81,7 @@ INCLUDERC=$RC_LOCAL_REQUEST_30
 request
 
 :0 w
-| formail -R"From X-Envelope-From:" -iReturn-Receipt-To: \
+| formail -R"From X-Envelope-From:" -iDate: -iReturn-Receipt-To: \
    | $SENDMAIL $sendmailOPT $sendmailOPTp $maintainer
 
 :0 wfh

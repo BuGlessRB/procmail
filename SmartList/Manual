@@ -19,9 +19,10 @@ Contents:
 		4. The archive server
 		5. The format of the dist file
 		6. Multigram and the thresholds in rc.init/rc.custom
-		7. FTP addresses & the SmartList mailinglist
+		7. Choplist & sendmail
+		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.27 1994/03/10 16:20:04 berg Exp $
+$Id: Manual,v 1.28 1994/04/05 15:32:57 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -185,7 +186,8 @@ If you would like to change the -dist alias (used to distribute the
 mail to the subscribers) into something less well known, go right ahead,
 but remember to change the corresponding assignment to listdist.  For
 completeness sake one should also correct the createlist and removelist
-scripts in that case.
+scripts in that case.  If you are using chopdist to expand the dist-file,
+then you don't even need a -dist alias at all.
 
 
 3a.Digest processing
@@ -464,7 +466,7 @@ The following conditions apply:
 Some sample entries (the preferred format):
 	joe@some.where
 	joe@some.where (some comment)
-	joe@some.where (some comment) (some more comment)
+	joe@some.where (some comment) (some more comments)
 
 Depreciated, but allowed:
 	<joe@some.where>
@@ -526,7 +528,27 @@ the following test:
 	existing addresses as well).
 
 
-7. FTP addresses & the SmartList mailinglist
+7. Choplist & sendmail
+   -------------------
+
+There are two ways of distributing the message to the addresses listed
+in the dist file: either directly through sendmail and the :include:
+alias expansion, or indirectly, through choplist which does the
+expansion itself and calls up sendmail on suitable chunks.
+
+By default, choplist takes care of the expansion, uncomment the appropriate
+alt_sendmail environment variable in rc.init to revert to standard sendmail
+expansion.
+
+Choplist tries to make sure that even for big lists, the alias expansion
+goes as swiftly as possible and several sendmails will be delivering the
+mail to the subscribers concurrently.  The various limits that can be
+imposed on this process can be tuned in the rc.init file.
+
+Most sendmails will do a worse job without choplist as a preprocessor.
+
+
+8. FTP addresses & the SmartList mailinglist
    -----------------------------------------
 
 A recent version can be picked up at various comp.sources.misc archives.

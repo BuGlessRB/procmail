@@ -9,16 +9,17 @@
  *	Seems to be relatively bug free.				*
  *									*
  *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
- *	#include "README"						*
+ *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.21 1994/01/25 15:40:08 berg Exp $";
+ "$Id: lockfile.c,v 1.22 1994/04/05 15:34:49 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/01/25 15:40:08 $";
+static /*const*/char rcsdate[]="$Date: 1994/04/05 15:34:49 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
+#include "mcommon.h"
 
 #ifndef SYSTEM_MBOX
 #define SYSTEM_MBOX	SYSTEM_MAILBOX
@@ -26,6 +27,8 @@ static /*const*/char rcsdate[]="$Date: 1994/01/25 15:40:08 $";
 
 static volatile exitflag;
 pid_t thepid;
+uid_t uid;
+gid_t sgid;
 static char systm_mbox[]=SYSTEM_MBOX;
 static const char dirsep[]=DIRSEP,lockext[]=DEFlockext,
  nameprefix[]="lockfile: ",lgname[]="LOGNAME",home[]="HOME";
@@ -41,7 +44,7 @@ static xcreat(name,tim)const char*const name;time_t*const tim;
   if(!(p=malloc(i+UNIQnamelen)))
      return exitflag=1;
   strncpy(p,name,i);
-  if(unique(p,p+i,0,0))
+  if(unique(p,p+i,0,0,0))
      stat(p,&stbuf),*tim=stbuf.st_mtime,j=myrename(p,name);
   free(p);return j;
 }
@@ -250,7 +253,14 @@ usg:
 }
 
 void*tmalloc(len)const size_t len;				     /* stub */
-{ return malloc(len);
+{ void*p;
+  if(!(p=malloc(len)))
+     exitflag=1;				     /* signal out of memory */
+  return p;
+}
+
+void tfree(p)void*const p;					     /* stub */
+{ free(p);
 }
 
 ropen(name,mode,mask)const char*const name;const int mode;const mode_t mask;

@@ -1,11 +1,13 @@
 
-#$Id: Makefile.0,v 1.27 1994/03/10 17:15:24 berg Exp $
+#$Id: Makefile.0,v 1.28 1994/04/05 15:34:01 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
- mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O)
-LF_OBJ=exopen.$(O) sublib.$(O)
-FM_OBJ=common.$(O) fields.$(O) formisc.$(O) sublib.$(O) ecommon.$(O)
-MG_OBJ=sublib.$(O) ecommon.$(O)
+ mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O) \
+ acommon.$(O) mcommon.$(O)
+LF_OBJ=exopen.$(O) sublib.$(O) acommon.$(O) mcommon.$(O)
+FM_OBJ=common.$(O) fields.$(O) formisc.$(O) sublib.$(O) ecommon.$(O) \
+ acommon.$(O)
+MG_OBJ=sublib.$(O) ecommon.$(O) mcommon.$(O) hsort.$(O)
 
 all:	$(BINSS)
 
@@ -51,22 +53,24 @@ targetdir.h:
 	echo "more directions."
 	exit 64
 
+acommon.$(O): ../autoconf.h ../config.h includes.h acommon.h robust.h shell.h
+
 common.$(O): ../autoconf.h ../config.h includes.h procmail.h sublib.h robust.h
 common.$(O): shell.h misc.h common.h
 
 cstdio.$(O): ../autoconf.h ../config.h includes.h procmail.h robust.h cstdio.h
 cstdio.$(O):  misc.h
 
-ecommon.$(O): ../autoconf.h ../config.h includes.h ecommon.h
+ecommon.$(O): ../autoconf.h ../config.h includes.h ecommon.h common.h shell.h
 
-exopen.$(O): ../autoconf.h ../config.h includes.h procmail.h robust.h misc.h
-exopen.$(O): exopen.h
+exopen.$(O): ../autoconf.h ../config.h includes.h procmail.h acommon.h robust.h
+exopen.$(O): misc.h exopen.h
 
 fields.$(O): ../autoconf.h ../config.h includes.h formail.h sublib.h shell.h
 fields.$(O): common.h fields.h ecommon.h formisc.h
 
-formail.$(O): ../autoconf.h ../config.h includes.h formail.h sublib.h shell.h
-formail.$(O): common.h fields.h ecommon.h formisc.h header.h
+formail.$(O): ../autoconf.h ../config.h includes.h formail.h acommon.h sublib.h
+formail.$(O): shell.h common.h fields.h ecommon.h formisc.h header.h
 
 formisc.$(O): ../autoconf.h ../config.h includes.h formail.h sublib.h shell.h
 formisc.$(O): common.h ecommon.h formisc.h
@@ -74,29 +78,34 @@ formisc.$(O): common.h ecommon.h formisc.h
 goodies.$(O): ../autoconf.h ../config.h includes.h procmail.h sublib.h robust.h
 goodies.$(O): shell.h misc.h pipes.h common.h cstdio.h goodies.h
 
-lockfile.$(O): ../autoconf.h ../config.h includes.h sublib.h exopen.h robust.h
-lockfile.$(O): misc.h
+hsort.$(O): ../autoconf.h ../config.h includes.h hsort.h
+
+lockfile.$(O): ../autoconf.h ../config.h includes.h sublib.h exopen.h mcommon.h
 
 locking.$(O): ../autoconf.h ../config.h includes.h procmail.h robust.h shell.h
 locking.$(O): misc.h pipes.h exopen.h locking.h
 
-mailfold.$(O): ../autoconf.h ../config.h includes.h procmail.h sublib.h
-mailfold.$(O): robust.h shell.h misc.h pipes.h common.h exopen.h goodies.h
-mailfold.$(O): locking.h mailfold.h network.h
+mailfold.$(O): ../autoconf.h ../config.h includes.h procmail.h acommon.h
+mailfold.$(O): sublib.h robust.h shell.h misc.h pipes.h common.h exopen.h
+mailfold.$(O): goodies.h locking.h mailfold.h network.h
 
-misc.$(O): ../autoconf.h ../config.h includes.h procmail.h sublib.h robust.h
-misc.$(O): shell.h misc.h pipes.h common.h cstdio.h exopen.h regexp.h goodies.h
-misc.$(O): locking.h mailfold.h
+mcommon.$(O): ../autoconf.h ../config.h includes.h mcommon.h
 
-multigram.$(O): ../autoconf.h ../config.h includes.h sublib.h shell.h ecommon.h
-multigram.$(O): targetdir.h
+misc.$(O): ../autoconf.h ../config.h includes.h procmail.h acommon.h sublib.h
+misc.$(O): robust.h shell.h misc.h pipes.h common.h cstdio.h exopen.h regexp.h
+misc.$(O): mcommon.h goodies.h locking.h mailfold.h
+
+multigram.$(O): ../autoconf.h ../config.h includes.h sublib.h hsort.h shell.h
+multigram.$(O): ecommon.h mcommon.h targetdir.h
 
 pipes.$(O): ../autoconf.h ../config.h includes.h procmail.h robust.h shell.h
-pipes.$(O): misc.h pipes.h common.h cstdio.h exopen.h goodies.h mailfold.h
+pipes.$(O): misc.h pipes.h common.h cstdio.h exopen.h mcommon.h goodies.h
+pipes.$(O): mailfold.h
 
 procmail.$(O): ../patchlevel.h ../autoconf.h ../config.h includes.h procmail.h
-procmail.$(O): sublib.h robust.h shell.h misc.h pipes.h common.h cstdio.h
-procmail.$(O): exopen.h regexp.h goodies.h locking.h mailfold.h
+procmail.$(O): acommon.h sublib.h robust.h shell.h misc.h pipes.h common.h
+procmail.$(O): cstdio.h exopen.h regexp.h mcommon.h goodies.h locking.h
+procmail.$(O): mailfold.h
 
 regexp.$(O): ../autoconf.h ../config.h includes.h procmail.h robust.h shell.h
 regexp.$(O): misc.h regexp.h

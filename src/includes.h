@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.36 1994/02/18 18:43:30 berg Exp $*/
+/*$Id: includes.h,v 1.37 1994/04/05 15:34:46 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -35,7 +35,8 @@
 #endif
 #include <stdio.h>		/* setbuf() fclose() stdin stdout stderr
 				/* fopen() fread() fwrite() fgetc() getc()
-				   fdopen() putc() fputs() FILE EOF */
+				   fdopen() putc() fputs() printf() sprintf()
+				   fprintf() sscanf() FILE EOF */
 #ifndef STDDEF_H_MISSING
 #include <stddef.h>		/* ptrdiff_t size_t */
 #else

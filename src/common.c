@@ -1,12 +1,12 @@
 /************************************************************************
- *	Some common routines for procmail and formail			*
+ *	Some routines common to procmail and formail			*
  *									*
  *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
- *	#include "README"						*
+ *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: common.c,v 1.15 1994/03/10 16:21:08 berg Exp $";
+ "$Id: common.c,v 1.16 1994/04/05 15:34:14 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"

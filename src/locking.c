@@ -2,11 +2,11 @@
  *	Whatever is needed for (un)locking files in various ways	*
  *									*
  *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
- *	#include "README"						*
+ *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.31 1994/03/01 16:17:47 berg Exp $";
+ "$Id: locking.c,v 1.32 1994/04/05 15:34:51 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -87,18 +87,19 @@ term: { free(name);break;		     /* drop the preallocated buffer */
      setegid(gid);		      /* we put back our regular permissions */
   lcking&=~lck_LOCKFILE;
   if(nextexit)
-   { elog(whilstwfor);elog("lockfile");logqnl(name);terminate();
+   { elog(whilstwfor);elog("lockfile");logqnl(name);Terminate();
    }
 }
 
 void lcllock P((void))				    /* lock a local lockfile */
 { char*lckfile;			    /* locking /dev/null or | would be silly */
   if(tolock||strcmp(buf2,devnull)&&strcmp(buf2,"|"))
-     if(!strcmp(lckfile=tolock?tolock:strcat(buf2,tgetenv(lockext)),
-      tgetenv(lockfile)))
+   { lckfile=tolock?tolock:strcat(buf2,lockext);
+     if(globlock&&!strcmp(lckfile,globlock))	 /* same as global lockfile? */
 	nlog("Deadlock attempted on"),logqnl(lckfile);
      else
 	lockit(lckfile,&loclock);
+   }
 }
 
 void unlock(lockp)char**const lockp;
@@ -117,24 +118,20 @@ void unlock(lockp)char**const lockp;
    }
   lcking&=~lck_LOCKFILE;
   if(nextexit==1)	    /* make sure we are not inside terminate already */
-     elog(newline),terminate();
+     elog(newline),Terminate();
 }
 					/* an NFS secure exclusive file open */
 xcreat(name,mode,tim,chownit)const char*const name;const mode_t mode;
  time_t*const tim;const int chownit;
 { char*p;int j= -2;size_t i;
   i=lastdirsep(name)-name;strncpy(p=malloc(i+UNIQnamelen),name,i);
-  if(unique(p,p+i,mode,verbose))       /* try and rename the unique filename */
-   { if(chownit&&chown(p,uid,sgid))			 /* try and chown it */
-      { unlink(p);goto sorry;			 /* forget it, no permission */
-      }
-     if(tim)
+  if(unique(p,p+i,mode,verbose,chownit)) /* try & rename the unique filename */
+   { if(tim)
       { struct stat stbuf;	 /* return the filesystem time to the caller */
 	stat(p,&stbuf);*tim=stbuf.st_mtime;
       }
      j=myrename(p,name);
    }
-sorry:
   free(p);return j;
 }
 	/* if you've ever wondered what conditional compilation was good for */

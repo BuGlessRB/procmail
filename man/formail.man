@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.17 1994/03/10 16:20:39 berg Exp $
+.Id $Id: formail.man,v 1.18 1994/04/05 15:33:45 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -29,6 +29,11 @@ formail \- mail (re)formatter
 .RB [ \-@FM_REN_INSERT@
 .IR "header field" ]
 .RB [ \-@FM_DEL_INSERT@
+.IR "header field" ]
+.if n .ti +0.5i
+.RB [ \-@FM_FIRST_UNIQ@
+.IR "header field" ]
+.RB [ \-@FM_LAST_UNIQ@
 .IR "header field" ]
 .if n .ti +0.5i
 .RB [ \-@FM_ReNAME@
@@ -75,8 +80,8 @@ generate a `@FROM@' line as the first line).
 .TP
 .B \-@FM_REPLY@
 Generate an auto-reply header.  This will normally throw away all the existing
-fields in the original message, fields you wish to preserve need to be named
-using the
+fields (except X-Loop:) in the original message, fields you wish to preserve
+need to be named using the
 .B \-@FM_REN_INSERT@
 option.
 .TP
@@ -150,6 +155,11 @@ but also preserves the field name.
 Append a custom
 .I header field
 onto the header; but only if a similar field does not exist yet.
+If you specify either one of the field names
+.B Message-ID:
+or
+.B Resent-Message-ID:
+with no field contents, then formail will generate a unique message-ID for you.
 .TP
 .I "\fB\-@FM_ADD_ALWAYS@\fP header field"
 Append a custom
@@ -168,6 +178,14 @@ consists only of a field-name, it will not be appended.
 Same as
 .BR \-@FM_REN_INSERT@ ,
 except that any existing similar fields are simply removed.
+.TP
+.I "\fB\-@FM_FIRST_UNIQ@\fP header field"
+Make the first occurrence of this field unique, and thus delete all
+subsequent occurrences of it.
+.TP
+.I "\fB\-@FM_LAST_UNIQ@\fP header field"
+Make the last occurrence of this field unique, and thus delete all
+preceding occurrences of it.
 .TP
 .I "\fB\-@FM_ReNAME@\fP oldfield newfield"
 Renames all occurrences of the fieldname

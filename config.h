@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.44 1994/03/10 16:19:57 berg Exp $*/
+/*$Id: config.h,v 1.45 1994/04/05 15:32:45 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -21,11 +21,11 @@
 /* every environment variable appearing in PRESTENV will be set or wiped
  * out of the environment (variables without an '=' sign will be thrown
  * out), e.g. you could define PRESTENV as follows:
- * #define PRESTENV	{"IFS","PATH=$HOME/bin:/bin:/usr/bin",0}
+ * #define PRESTENV	{"IFS","ENV","PWD","PATH=$HOME/bin:/bin:/usr/bin",0}
  * any side effects (like setting the umask after an assignment to UMASK) will
  * *not* take place
  */
-#define PRESTENV	{"IFS","PATH=$HOME/bin:/bin:/usr/bin", \
+#define PRESTENV	{"IFS","ENV","PWD","PATH=$HOME/bin:/bin:/usr/bin", \
 			 "USER=$LOGNAME",0}
 
 /************************************************************************
@@ -65,8 +65,14 @@
 	not suitable */
 
 #define ETCRC	"/etc/procmailrc"	/* optional global procmailrc startup
-	file (will only be read if procmail is started with no rcfile
-	on the command line). */
+					   file (will only be read if procmail
+	is started with no rcfile on the command line). */
+
+#define ETCRCS	"/etc/procmailrcs/"	/* optional trusted path prefix for
+					   rcfiles which will be executed with
+	the uid of the owner of the rcfile (this only happens if procmail is
+	called with the -m option, without variable assignments on the command
+	line). */
 
 /*#define console	"/dev/console"	/* uncomment if you want procmail to
 					   use the console (or any other
@@ -99,7 +105,7 @@
 #define STDBUF		128
 #endif /* SMALLHEAP */
 #define FAKE_FIELD	">From "
-#define HOSTNAMElen	9	  /* nr of significant chararacters for HOST */
+#define HOSTNAMElen	9	  /* determines hostname-ID-len on tempfiles */
 #define BOGUSprefix	"BOGUS."	     /* prepended to bogus mailboxes */
 #define PROCMAILRC	".procmailrc"
 #define DEFsuspend	16		 /* multi-purpose 'idle loop' period */
@@ -114,12 +120,11 @@ Post(ma?(st(e?r)?|n)|office)|Mail(er)?|daemon|mmdf|root|uucp|LISTSERV|owner|\
 request|bounce|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>]))"
 #define FROMMkey	"^FROM_MAILER"	      /* matches most mailer-daemons */
 #define FROMMsubstitute "(^(((Resent-)?(From|Sender)|X-Envelope-From):|\
->?From )(.*[^.%@a-z0-9])?(Post(ma(st(er)?|n)|office)|Mail(er)?|daemon|mmdf|\
-root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
+>?From )(.*[^(.%@a-z0-9])?(Post(ma(st(er)?|n)|office)|Mail(er)?|daemon|mmdf|\
+root|uucp|serv(ices?|er)|Admin(istrator)?)([^).!:a-z0-9].*)?$[^>])"
 #define DEFshellmetas	"&|<>~;\n?*["		    /* never put '$' in here */
 #define DEFmaildir	"$HOME"
 #define DEFdefault	"$ORGMAIL"
-#define DEFdefaultlock	"LOCKFILE=$DEFAULT$LOCKEXT"
 #define DEFmsgprefix	"msg."
 #define DEFlockext	".lock"
 #define DEFshellflags	"-c"
@@ -138,6 +143,7 @@ root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
 #define BinSh		"/bin/sh"
 #define RootDir		"/"
 #define DevNull		"/dev/null"
+#define NICE_RANGE	39			  /* maximal nice difference */
 #define chCURDIR	'.'			    /* the current directory */
 #define chPARDIR	".."			     /* the parent directory */
 #define DIRSEP		"/"		 /* directory separator symbols, the */
@@ -160,7 +166,7 @@ root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
 #define DELIVEROPT	'd'		  /* deliver mail to named recipient */
 #define PM_USAGE	\
  "Usage: procmail [-vpto] [-f fromwhom] [parameter=value | rcfile] ...\
-\n   Or: procmail [-pto] [-f fromwhom] [-a argument] -d recipient ...\
+\n   Or: procmail [-to] [-f fromwhom] [-a argument] -d recipient ...\
 \n   Or: procmail [-pt] -m [parameter=value] ... rcfile mail_from rcpt_to ...\
 \n"
 #define PM_HELP		\
@@ -252,12 +258,14 @@ root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
 #define FM_ADD_ALWAYS	'A'		       /* add this field in any case */
 #define FM_REN_INSERT	'i'			/* rename and insert a field */
 #define FM_DEL_INSERT	'I'			/* delete and insert a field */
+#define FM_FIRST_UNIQ	'u'		    /* preserve the first occurrence */
+#define FM_LAST_UNIQ	'U'		     /* preserve the last occurrence */
 #define FM_ReNAME	'R'				   /* rename a field */
 #define FM_USAGE	"\
 Usage: formail [-bcfrktq] [-D nnn idcache] [-p prefix] [-l folder]\n\
-\t[-xXaAiI field] [-R ofield nfield]\n\
+\t[-xXaAiIuU field] [-R ofield nfield]\n\
    Or: formail [+nnn] [-nnn] [-bcfrktnedqB] [-D nnn idcache] [-p prefix]\n\
-\t[-m nnn] [-l folder] [-xXaAiI field] [-R ofield nfield]\n\
+\t[-m nnn] [-l folder] [-xXaAiIuU field] [-R ofield nfield]\n\
 \t-s [prg [arg ...]]\n"
 #define FM_HELP		\
  " -b\t\tdon't escape bogus mailbox headers\
@@ -271,10 +279,11 @@ Usage: formail [-bcfrktq] [-D nnn idcache] [-p prefix] [-l folder]\n\
 \n -s prg arg\tsplit the mail, startup prg for every message\
 \n +nnn\t\tskip the first nnn\t-nnn\toutput at most nnn messages\
 \n -n\t\tdon't serialise splits\t-e\tempty lines are optional\
-\n -d\t\taccept digest format\t-B\taccept BABYL rmail format\
+\n -d\t\taccept digest format\t-B\texpect BABYL rmail format\
 \n -q\t\tbe quiet\t\t-p prefix\tquotation prefix\
 \n -m nnn \tmin fields threshold (default 2) for start of message\
 \n -x field\textract contents\t-X field\textract fully\
 \n -a field\tadd if not present\t-A field\tadd in any case\
 \n -i field\trename and insert\t-I field\tdelete and insert\
+\n -u field\tfirst unique\t\t-U field\tlast unique\
 \n -R oldfield newfield\trename\n"

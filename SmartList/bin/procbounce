@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands
-#$Id: procbounce,v 1.21 1994/01/18 14:06:23 berg Exp $
+#$Id: procbounce,v 1.22 1994/04/05 15:33:12 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -36,7 +36,7 @@ test -z "$addr" &&
   $multigram -i -b1 -l16384 -x$domain $dist `
 
 test -z "$addr" &&
- addr=`$formail -1 +1 -cqdem4 -xReceived: -s sed -e 1q <$tmprequest |
+ addr=`$formail -1 +1 -dem4 -XReceived: -uReceived: -s |
   $multigram -i -b1 -l16384 -x$domain $dist `
 
 if test ! -z "$addr"

@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.42 1994/03/10 17:15:14 berg Exp $
+#$Id: install.sh,v 1.43 1994/04/05 15:33:02 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -91,7 +91,7 @@ then
   fi
 else
   /bin/rm -f $TMPF
-  if ( echo Id test >id.test ) 2>/dev/null
+  if ( exec 2>/dev/null; echo Id test >id.test )
   then
   :
   else	# You can run install.sh WITHOUT root permissions as well!
@@ -124,7 +124,7 @@ then
 	 exec 4>&- ;;
      *) $setid $installerid 4>&0 <install.sh2 || exit 1;;
   esac
-  $setid $listid <install.sh3
+  $setid $listid $target <install.sh3 || exit 64
   echo "Making $target/$bindir/flist suid root..."
   if chown root "$target/$bindir/flist" && chmod 04755 "$target/$bindir/flist"
   then
@@ -145,16 +145,20 @@ else
 fi
 
 echo '**********************************************************************'
-echo "Finished installing, now you should"
+echo "Finished installing, now you should:"
+echo ""
 if test -f $target/.etc/rc.init.new
 then
-  echo "edit $target/.etc/rc.init.new,"
-  echo "AND *cat* (preserving hardlinks!) it into the"
-  echo "old $target/.etc/rc.init to make sure"
+  echo "	edit $target/.etc/rc.init.new"
+  echo ""
+  echo "AND then (preserving hardlinks!):"
+  echo ""
+  echo "	cat $target/.etc/rc.init.new >$target/.etc/rc.init"
 else
-  echo "edit $target/.etc/rc.init to make sure"
+  echo "	edit $target/.etc/rc.init"
 fi
-echo "that \`PATH', \`domain' and \`listmaster' reflect your installation."
+echo ""
+echo "so that \`PATH', \`domain' and \`listmaster' reflect your installation."
 if test -f $target/.etc/rc.init.new
 then
   echo "Finally, to reenable the lists execute:"

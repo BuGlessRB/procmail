@@ -1,4 +1,4 @@
-/*$Id: formail.h,v 1.8 1994/03/10 16:21:17 berg Exp $*/
+/*$Id: formail.h,v 1.9 1994/04/05 15:34:32 berg Exp $*/
 
 #define Bsize		128
 
@@ -20,14 +20,22 @@ extern char ffileno[];
 extern errout,oldstdout,quiet,buflast,lenfileno;
 extern long initfileno;
 extern pid_t child;
+extern unsigned long rhash;
 extern FILE*mystdout;
 extern int nrskip,nrtotal,retval;
 extern size_t buflen,buffilled;
 extern long totallen;
 extern char*buf,*logsummary;
 
-extern struct field{size_t id_len;size_t tot_len;struct field*fld_next;
- char fld_text[255];}*rdheader,*xheader,*Xheader;
+extern struct field
+ { size_t id_len;
+   union {size_t utot_len;struct field**ufld_ref;} len_fld;
+   struct field*fld_next;
+   char fld_text[255];
+ }*rdheader,*xheader,*Xheader,*uheader,*Uheader;
+
+#define tot_len len_fld.utot_len
+#define fld_ref len_fld.ufld_ref
 
 int
  eqFrom_ P((const char*const a)),

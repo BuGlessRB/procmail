@@ -2,13 +2,14 @@
  *	Routines that deal with the mailfolder(format)			*
  *									*
  *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
- *	#include "README"						*
+ *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.42 1994/03/10 16:21:26 berg Exp $";
+ "$Id: mailfold.c,v 1.43 1994/04/05 15:34:54 berg Exp $";
 #endif
 #include "procmail.h"
+#include "acommon.h"
 #include "sublib.h"
 #include "robust.h"
 #include "shell.h"
@@ -21,9 +22,8 @@ static /*const*/char rcsid[]=
 #include "mailfold.h"
 #ifndef NO_COMSAT
 #include "network.h"
-
-const char scomsat[]="COMSAT";
 #endif
+
 int logopened,tofile;
 off_t lasttell;
 static long lastdump;
@@ -108,7 +108,7 @@ static dirfile(chp,linkonly)char*const chp;const int linkonly;
   ;{ struct stat stbuf;
      stat(buf2,&stbuf);
      ultoan((unsigned long)stbuf.st_ino,      /* filename with i-node number */
-      strchr(strcat(buf,tgetenv(msgprefix)),'\0'));
+      strchr(strcat(buf,msgprefix),'\0'));
    }
   if(linkonly)
    { yell(lkingto,buf);
@@ -165,7 +165,7 @@ makefile:
   else					 /* fixup directory name, append a / */
      strcat(chp,MCDIRSEP_),strcpy(buf2,buf),chp=0;
   ;{ int fd= -1;		/* generate the name for the first directory */
-     if(unique(buf2,strchr(buf2,'\0'),NORMperm,verbose)&&
+     if(unique(buf2,strchr(buf2,'\0'),NORMperm,verbose,0)&&
       (fd=dirfile(chp,0))>=0&&linkfolder)	 /* save the file descriptor */
 	for(strcpy(buf2,buf),boxname=linkfolder;boxname!=Tmnate;)
 	 { strcpy(buf,boxname);		/* go through the list of other dirs */
@@ -218,7 +218,7 @@ void logabstract(lstfolder)const char*const lstfolder;
    }
 #ifndef NO_COMSAT
   ;{ int s;struct sockaddr_in addr;char*chp,*chad;	     /* @ seperator? */
-     if(chad=strchr(chp=(char*)tgetenv(scomsat),SERV_ADDRsep))
+     if(chad=strchr(chp=(char*)scomsat,SERV_ADDRsep))
 	*chad++='\0';		      /* split it up in service and hostname */
      else if(!renvint(-1L,chp))			/* or is it a false boolean? */
 	return;					       /* ok, no comsat then */
