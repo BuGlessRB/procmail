@@ -269,7 +269,7 @@
 	    Reject attempts to subscribe someone twice with an X-Command mail
 	    Recognize DSNs and enable some primitive parsing of them
 	    Mention online FAQ in SmartList Manual
-2000/08/21: v3.15pre
+2000/09/03: v3.15
 	    Let the location of the "latest" archive be set from rc.custom
 	    Add List-Help: and List-Post: header fields with mailto: URLs for
 	       the request address and correct format of other List-* header
