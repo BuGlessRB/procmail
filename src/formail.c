@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.96 1999/08/13 02:54:32 guenther Exp $";
+ "$Id: formail.c,v 1.97 1999/10/24 06:32:08 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/08/13 02:54:32 $";
+static /*const*/char rcsdate[]="$Date: 1999/10/24 06:32:08 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -36,6 +36,7 @@ static const char
  x_[]=			"X-",				/* general extension */
  old_[]=		OLD_PREFIX,			     /* my extension */
  xloop[]=		"X-Loop:",				/* ditto ... */
+ Resent_[]=		"Resent-",	   /* for tweaking reply preferences */
  mdaemon[]="<>",unknown[]=UNKNOWN,re[]=" Re:",fmusage[]=FM_USAGE;
 
 static const struct {const char*hedr;int lnr;}cdigest[]=
@@ -373,7 +374,7 @@ int main(lastm,argv)int lastm;const char*const argv[];
 	   goto usg;
 	for(;;)
 	 { switch(lastm= *chp++)
-	    { case FM_TRUST:headreply=1;
+	    { case FM_TRUST:headreply|=1;
 		 continue;
 	      case FM_REPLY:areply=1;
 		 continue;
@@ -444,9 +445,17 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 	      case FM_FIRST_UNIQ:case FM_LAST_UNIQ:case FM_ReNAME:Qnext_arg();
 		 i=breakfield(chp,lnl=strlen(chp));
 		 switch(lastm)
-		  { default:
+		  { case FM_ADD_IFNOT:
+		       if(i>0)			   /* the only partial field */
+			  break;			  /* allowed with -a */
+		       else if(i!=-STRLEN(Resent_)||-i!=lnl||  /* is Resent- */
+			strnIcmp(chp,Resent_,STRLEN(Resent_)+1))
+			  goto invfield;
+		       headreply|=2;
+		       goto nextarg;		/* don't add to the list */
+		    default:
 		       if(-i!=lnl)	  /* it is not an early ending field */
-		    case FM_ADD_IFNOT:case FM_ADD_ALWAYS:
+		    case FM_ADD_ALWAYS:
 			  if(i<=0)	      /* and it is not a valid field */
 			     goto invfield;			 /* complain */
 		    case FM_ReNAME:;		       /* everything allowed */
@@ -477,8 +486,9 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		       tmemmove((char*)fldp->fld_text+lnl,chp,i),copied=1;
 		    else if(namep>chp||				 /* garbage? */
 			    !(chp=(char*)*++argv)||	 /* look at next arg */
-			    !(i=breakfield(chp,strlen(chp)))||	/* fieldish? */
-			    i<0&&(i= -i,lastm>0))  /* impossible combination */
+			    (!(i=breakfield(chp,strlen(chp)))&& /* fieldish? */
+			     *chp)||			   /* but "" is fine */
+			    i<=0&&(i= -i,lastm>0)) /* impossible combination */
 invfield:	     { nlog("Invalid field-name:");logqnl(chp?chp:"");
 		       goto usg;
 		     }
@@ -547,6 +557,10 @@ usg:						     /* options sanity check */
 xusg:
      return EX_USAGE;
    }
+  if(headreply==2)				/* -aResent- is only allowed */
+   { chp=(char*)Resent_;		  /* as a modifier to header replies */
+     goto invfield;
+   }
   buf=malloc(buflen=Bsize);Totallen=0;i=maxindex(rex); /* prime some buffers */
   do rex[i].rexp=malloc(1);
   while(i--);
@@ -554,13 +568,6 @@ xusg:
   fcntlength=0;addfield(&fcntlength,cntlength,STRLEN(cntlength));   /* ditto */
   fFrom_=0;addfield(&fFrom_,From_,STRLEN(From_));
   fsubject=0;addfield(&fsubject,subject,STRLEN(subject));	 /* likewise */
-  if(headreply)				/* determine the specific reply type */
-   { struct field*fresent_;
-     fresent_=0;addfield(&fresent_,RESENT_,STRLEN(RESENT_));
-     if(findf(fresent_,&aheader))				/* -aResent- */
-	headreply++;
-     free(fresent_);
-   }
   forgetclen=digest||		      /* forget Content-Length: for a digest */
 	     berkeley||				      /* for Berkeley format */
 	     keepb&&			    /* if we're keeping the body and */
@@ -880,7 +887,7 @@ int eqFrom_(a)const char*const a;
 
 int breakfield(line,len)const char*const line;size_t len;  /* look where the */
 { const char*p=line;			   /* fieldname ends (RFC 822 specs) */
-  while(len&&!iscntrl(*p))		    /* no control characters allowed */
+  while(len&&*p&&!iscntrl(*p))		    /* no control characters allowed */
    { switch(*p++)
       { default:len--;
 	   continue;
