@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.29 1994/04/05 15:35:16 berg Exp $";
+ "$Id: pipes.c,v 1.30 1994/05/26 13:48:08 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -21,6 +21,7 @@ static /*const*/char rcsid[]=
 #include "mailfold.h"
 
 const char exitcode[]="EXITCODE";
+static const char comma[]=",";
 int setxit;
 pid_t pidchild;
 volatile time_t alrmtime;
@@ -28,7 +29,8 @@ volatile int toutflag;
 static char*lastexec,*backblock;
 static long backlen;	       /* length of backblock, filter recovery block */
 static pid_t pidfilt;
-static pipw,pbackfd[2];			       /* the emergency backpipe :-) */
+static pbackfd[2];			       /* the emergency backpipe :-) */
+int pipw;
 
 void inittmout(progname)const char*const progname;
 { lastexec=cstr(lastexec,progname);toutflag=0;
@@ -83,7 +85,7 @@ static void callnewprog(newname)const char*const newname;
       }
      do					     /* show chopped up command line */
       { if(verbose)
-	 { elog(",");
+	 { elog(comma);
 no_1st_comma:
 	   elog(p);
 	 }
@@ -92,7 +94,7 @@ no_1st_comma:
 	 { const char*const*walkargs=restargv;
 	   goto No_1st_comma;
 	   do
-	    { elog(",");
+	    { elog(comma);
 No_1st_comma: elog(*walkargs);					/* expand it */
 	    }
 	   while(*++walkargs);
@@ -121,7 +123,7 @@ No_1st_comma: elog(*walkargs);					/* expand it */
    }
 }
 
-pipthrough(line,source,len)char*line,*source;const long len;
+int pipthrough(line,source,len)char*line,*source;const long len;
 { int pinfd[2],poutfd[2];
   if(Stdout)
      PWRB=PRDB= -1;
@@ -159,15 +161,43 @@ perr:	      progerr(line,excode);	      /* I'm going to tell my mommy! */
   if(forkerr(pidchild,procmailn))
      return -1;
   if(Stdout)
-   { retStdout(readdyn(Stdout,&Stdfilled));
-     if(pwait)
-	return pipw;
+   { retStdout(readdyn(Stdout,&Stdfilled));return pipw;
    }
   return 0;		    /* we stay behind to read back the filtered text */
 }
 
 long pipin(line,source,len)char*const line;char*source;long len;
 { int poutfd[2];
+#if 0						     /* not supported (yet?) */
+  if(!sh)					/* shortcut builtin commands */
+   { const char*t1,*t2,*t3;
+     static const char pbuiltin[]="Builtin";
+     t1=strchr(line,'\0')+1;
+     if(!strcmp(test,line))
+      { if(t1!=Tmnate)
+	 { t2=strchr(t1,'\0')+1;
+	   if(t2!=Tmnate)
+	    { t3=strchr(t2,'\0')+1;
+	      if(t3!=Tmnate&&!strcmp(t2,"=")&&strchr(t3,'\0')==Tmnate-1)
+	       { int excode;
+		 if(verbose)
+		  { nlog(pbuiltin);elog(oquote);elog(test);elog(comma),
+		 if(!ignwerr)
+		    writeerr(line);
+		 else
+		    len=0;
+		 if(pwait&&(excode=strcmp(t1,t3)?1:EX_OK)!=EX_OK)
+		  { if(!(pwait&2)||verbose)	  /* do we put it on report? */
+		       progerr(line,excode);
+		    len=1;
+		  }
+		 goto builtin;
+	       }
+	    }
+	 }
+      }
+   }
+#endif
   rpipe(poutfd);
   if(!(pidchild=sfork()))				    /* spawn program */
      rclose(PWRO),shutdesc(),getstdin(PRDO),callnewprog(line);
@@ -184,6 +214,7 @@ long pipin(line,source,len)char*const line;char*source;long len;
       }
    }
   pidchild=0;
+builtin:
   if(!sh)
      concatenate(line);
   setlastfolder(line);return len;
@@ -208,8 +239,9 @@ jumpback:;
       { getstdin(PRDB);			       /* filter ready, get backpipe */
 	if(1==rread(STDIN,buf,1))		      /* backup pipe closed? */
 	 { bf=realloc(bf,(*filled=oldsize+1)+BLKSIZ);bf[oldsize]= *buf;
+	   pipw=NO_PROCESS;
 	   if(pwait)
-	      waitfor(pidchild);
+	      pipw=waitfor(pidchild);
 	   pidchild=0;goto jumpback;	       /* filter goofed, rescue data */
 	 }
       }
@@ -217,6 +249,8 @@ jumpback:;
 	pipw=waitfor(pidchild);		      /* reap your child in any case */
    }
   pidchild=0;					/* child must be gone by now */
+  if(!(pwait&2))
+     pipw=0;				    /* keep quiet about any failures */
   if(!*filled)
      return realloc(bf,1);		     /* +1 for housekeeping purposes */
   return realloc(bf,*filled+1);			/* minimise the buffer space */

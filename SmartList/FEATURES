@@ -18,7 +18,7 @@ Summary of what SmartList provides:
 	  of unwanted subscribers and a general address screening mechanism
 	  which allows you to control exactly who is allowed to subscribe
 	+ Optional implicit subscription upon first submission to the list
-	+ Auto-digest-generation (configurable per list)
+	+ MIME-compliant auto-digest-generation (configurable per list)
 	+ Joint management of several mailinglists possible
 	+ Customisation per mailinglist or mailinglist group possible (simply
 	  remove or create the desired hardlinks)
@@ -31,7 +31,10 @@ Summary of what SmartList provides:
 	+ Integrated archiving service
 	+ Integrated diagnostic aid to give hints to the maintainer about
 	  possible problems
-	+ You can set up a mailinglist to function as a standalone mail
-	  archive server
 	+ Moderated mailinglists with an arbitrary number of moderators
 	+ Automatically eliminates duplicate submissions
+	+ You can set up a mailinglist to function as a standalone mail
+	  archive server
+	+ Extended MIME support (autorecognition of well known file formats)
+	+ The archive server can send arbitrarily long (even binary) files
+	  in MIME-multipart mails

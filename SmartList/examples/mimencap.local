@@ -9,7 +9,7 @@
 #	This file is not automatically replaced during an upgrade of	#
 #	SmartList.							#
 #########################################################################
-#$Id: mimencap.local,v 1.3 1994/05/10 18:09:54 berg Exp $
+#$Id: mimencap.local,v 1.4 1994/05/26 13:46:35 berg Exp $
 
 # What we have at our disposal are:
 #
@@ -50,9 +50,17 @@
 * ^^%!
 | $formail -I "Content-Type: application/postscript"
 
-:0 E wfh
-* ^Content-ID: <[^%]*\.gif%
+:0 EB wfh
+* ^^GIF
 | $formail -I "Content-Type: image/gif"
+
+:0 EB wfh
+* ^^пип
+| $formail -I "Content-Type: image/jpeg"
+
+:0 EB wfh
+* ^^[^-џ][^-џ]ГY
+| $formail -I "Content-Type: video/mpeg"
 
 :0 E wfh
 * ^Content-ID: <[^%]*\.tar%

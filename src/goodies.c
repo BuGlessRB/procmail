@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.30 1994/04/12 16:32:12 berg Exp $";
+ "$Id: goodies.c,v 1.31 1994/05/26 13:47:40 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -19,9 +19,7 @@ static /*const*/char rcsid[]=
 #include "goodies.h"
 
 long Stdfilled;
-#ifndef GOT_bin_test
 const char test[]="test";
-#endif
 const char*Tmnate,*All_args;
 
 static const char*evalenv P((void))	/* expects the variable name in buf2 */
@@ -215,6 +213,7 @@ closebrace:	       if(!startb)
 	      case '#':ultstr(0,(unsigned long)crestarg,p);goto ieofstr;
 	      case '=':ltstr(0,lastscore,p);
 ieofstr:	 i='\0';goto eofstr;
+	      case '_':startb=incnamed?incnamed->ename:"";goto ibreak;
 	      case '-':startb=(char*)tgetenv(lastfolder); /* $- =$LASTFOLDER */
 ibreak:		 i='\0';break;
 	      default:

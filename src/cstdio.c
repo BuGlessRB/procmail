@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.22 1994/04/14 12:12:05 berg Exp $";
+ "$Id: cstdio.c,v 1.23 1994/05/26 13:47:20 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -16,7 +16,7 @@ static /*const*/char rcsid[]=
 static uchar rcbuf[STDBUF],*rcbufp,*rcbufend;	  /* buffer for custom stdio */
 static off_t blasttell;
 static struct dyna_long inced;				  /* includerc stack */
-static struct dynstring*incnamed;
+struct dynstring*incnamed;
 
 void pushrc(name)const char*const name;		      /* open include rcfile */
 { struct stat stbuf;					   /* only if size>0 */
@@ -50,7 +50,7 @@ static void closeonerc P((void))
      rclose(rc),rc= -1,last=incnamed,incnamed=last->enext,free(last);
 }
 
-poprc P((void))
+int poprc P((void))
 { closeonerc();					     /* close it in any case */
   if(skiprc)
      skiprc=0,nlog("Missing closing brace\n");
@@ -64,15 +64,23 @@ void closerc P((void))					/* {while(poprc());} */
 { while(closeonerc(),inced.filled)
      rc=inced.offs[inced.filled-1],inced.filled-=3;
 }
-
+							    /* destroys buf2 */
 int bopen(name)const char*const name;				 /* my fopen */
 { rcbufp=rcbufend=0;rc=ropen(name,O_RDONLY,0);
   if(rc>=0)
-     newdynstring(&incnamed,name);
+   { char*md;		 /* if it's a relative name and an absolute $MAILDIR */
+     if(!strchr(dirsep,name)&&strchr(dirsep,*(md=(char*)tgetenv(maildir))))
+      { strcpy(buf2,md);*(md=strchr(buf2,'\0'))= *dirsep;strcpy(++md,name);
+	md=buf2;				    /* then prepend $MAILDIR */
+      }
+     else
+	md=(char*)name;			      /* pick the original otherwise */
+     newdynstring(&incnamed,md);
+   }
   return rc;
 }
 
-getbl(p)char*p;							  /* my gets */
+int getbl(p)char*p;						  /* my gets */
 { int i;char*q;
   for(q=p;;)
    { switch(i=getb())
@@ -83,7 +91,7 @@ getbl(p)char*p;							  /* my gets */
    }
 }
 
-getb P((void))							 /* my fgetc */
+int getb P((void))						 /* my fgetc */
 { if(rcbufp==rcbufend)						   /* refill */
    { blasttell=tell(rc);rcbufend=rcbuf+rread(rc,rcbufp=rcbuf,STDBUF);
      if(rcbufp==rcbufend)
@@ -97,18 +105,18 @@ void ungetb(x)const int x;	/* only for pushing back original characters */
      rcbufp--;							   /* backup */
 }
 
-testb(x)const int x;		   /* fgetc that only succeeds if it matches */
+int testb(x)const int x;	   /* fgetc that only succeeds if it matches */
 { int i;
   if((i=getb())==x)
      return 1;
   ungetb(i);return 0;
 }
 
-sgetc P((void))					/* a fake fgetc for a string */
+int sgetc P((void))				/* a fake fgetc for a string */
 { return *sgetcp?(int)*(uchar*)sgetcp++:EOF;
 }
 
-skipspace P((void))
+int skipspace P((void))
 { int any=0;
   while(testb(' ')||testb('\t'))
      any=1;

@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.32 1994/04/12 13:20:32 berg Exp $
+#$Id: Makefile.1,v 1.33 1994/05/26 13:45:23 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -20,7 +20,7 @@ autoconf.h: src/Makefile src/autoconf
 
 procmail: config.check src/Makefile man/Makefile
 	cd src; $(MAKE) ../new/$@ ../new/mailstat
-	cd man; $(MAKE) ../new/$@.1 ../new/$@rc.5 ../new/$@ex.5
+	cd man; $(MAKE) ../new/$@.1 ../new/$@rc.5 ../new/$@ex.5 ../new/$@sc.5
 
 mailstat: procmail
 
@@ -32,7 +32,7 @@ setid multigram: config.check src/Makefile man/Makefile
 	cd src; $(MAKE) $@
 
 config.check: config.h
-	@echo Housekeeping file >$@
+	echo Housekeeping file >$@
 	@-mkdir new 2>$(DEVNULL); exit 0
 	@-if $(FGREP) -n -e '`' config.h $(DEVNULL) | $(FGREP) -v EOFName ; \
 	 then \
@@ -88,16 +88,16 @@ install.man: $(MANS) $(BASENAME)
 	  do $(INSTALL) new/$$a.1 $(MAN1DIR)/$$a.$(MAN1SUFFIX); done
 	@for a in $(MANS5S); \
 	  do $(INSTALL) new/$$a.5 $(MAN5DIR)/$$a.$(MAN5SUFFIX); done
-	@echo Housekeeping file >install.man
+	echo Housekeeping file >install.man
 
 install.bin: $(BINS) $(BASENAME)
 	@-mkdir $(BINDIR) 2>$(DEVNULL); exit 0
 	@chmod 0755 $(BINS)
 	$(INSTALL) $(BINS) $(BINDIR)
 	@-dirname / >$(DEVNULL) || $(INSTALL) examples/dirname $(BINDIR)
-	@echo Housekeeping file >install.bin
+	echo Housekeeping file >install.bin
 
-install: install.man install.bin	# to avoid too many recursions
+install:
 	@$(MAKE) install.man install.bin
 	@echo
 	@cd $(BINDIR); echo Installed in $(BINDIR); ls -l $(BINSS)

@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.49 1994/05/09 18:56:56 berg Exp $*/
+/*$Id: config.h,v 1.50 1994/05/26 13:45:28 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -88,6 +88,8 @@
 #define ROOT_uid	0
 
 #define UPDATE_MASK	S_IXOTH	   /* bit set on mailboxes when mail arrived */
+#define OVERRIDE_MASK	S_IXUSR	      /* if found to be set, the permissions */
+				    /* on the mailbox will be left untouched */
 #define INIT_UMASK	(S_IRWXG|S_IRWXO)			   /* == 077 */
 #define NORMperm	\
  (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH|UPDATE_MASK)

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.35 1994/04/12 16:28:18 berg Exp $";
+ "$Id: locking.c,v 1.36 1994/05/26 13:47:50 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -120,7 +120,7 @@ void unlock(lockp)char**const lockp;
   offguard();
 }
 					/* an NFS secure exclusive file open */
-xcreat(name,mode,tim,chownit)const char*const name;const mode_t mode;
+int xcreat(name,mode,tim,chownit)const char*const name;const mode_t mode;
  time_t*const tim;const int chownit;
 { char*p;int j= -2;size_t i;
   i=lastdirsep(name)-name;strncpy(p=malloc(i+UNIQnamelen),name,i);
@@ -157,7 +157,7 @@ static off_t oldlockoffset;
 #define REITlockf	0
 #endif /* USElockf */
 
-fdlock(fd)
+int fdlock(fd)
 { int ret;
   if(verbose)
      nlog("Acquiring kernel-lock\n");
@@ -215,7 +215,7 @@ ufcntl:
    }
 }
 
-fdunlock P((void))
+int fdunlock P((void))
 { int i;
   if(oldfdlock<0)
      return -1;

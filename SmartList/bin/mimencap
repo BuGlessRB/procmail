@@ -5,7 +5,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: mimencap,v 1.1 1994/05/05 15:52:53 berg Exp $
+#$Id: mimencap,v 1.2 1994/05/26 13:46:02 berg Exp $
 
 DEFAULT=|
 
@@ -26,6 +26,7 @@ INCLUDERC=../SedBinDir/mimencap.local
 
     :0 wfh
     | $formail -I "MIME-Version: 1.0" \
+       -a "Content-Type: application/octet-stream" \
        -I "Content-Transfer-Encoding: quoted-printable"
 
     :0

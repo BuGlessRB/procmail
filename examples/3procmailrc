@@ -8,8 +8,8 @@ LOGFILE =	$MAILDIR/from
 LOCKFILE=	$HOME/.lockmail
 
 			# This will create a local lockfile named todd.lock
-::			# *if* the condition matches
-^From.*thf
+:0:			# *if* the condition matches
+* ^From.*thf
 todd
 
 LOCKFILE=$MAILDIR/whatever	# This will remove the global lockfile
@@ -22,13 +22,13 @@ LOCKFILE=$MAILDIR/whatever	# This will remove the global lockfile
 				# jobs and will put them in a terse format
 				# (only the date and the body) in
 				# a file called $MAILDIR/atjunk
-: 2 fh
-^From root
-^Subject: Output from "at" job
+:0 fh
+* ^From root
+* ^Subject: Output from "at" job
 |egrep "^Date:"
 				# The next recipe will only be used if
 				# the previous one matched
-:A
+:0 A
 atjunk
 
 
@@ -42,14 +42,14 @@ MAILDIR=$HOME/News	# This will change the current directory
 			# through `sort` (sorry, couldn't come up with anything
 			# better :-), after which the result will be
 			# appended to $HOME/News/dustbin
-:b:
-^Subject:.*rubbish
+:0 b:
+* ^Subject:.*rubbish
 |sort >>dustbin
 
 			# The next recipe will use the games directory as a MH
 			# folder (of course you need MH to read the mail then)
-:
-^Subject:.*games
+:0
+* ^Subject:.*games
 games/.
 
 # Anything not delivered by now will go to $HOME/Mail/mbox

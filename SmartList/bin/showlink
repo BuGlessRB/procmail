@@ -1,5 +1,6 @@
 #! /bin/sh
-: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #########################################################################
 #	showlink	Displays all links to a file			#
 #									#
@@ -8,7 +9,7 @@
 #	If you can figure out and understand everything in this script, #
 #	you can consider yourself an awk guru!				#
 #########################################################################
-#$Id: showlink,v 1.4 1993/06/28 16:23:06 berg Exp $
+#$Id: showlink,v 1.5 1994/05/26 13:46:10 berg Exp $
 
 defaults=.etc
 
@@ -35,8 +36,8 @@ case $# in
 	do $ls -di $defaults/$a .bin*/$a */$a 2>/dev/null
 	done
      else
-	file="`$basename \"$1\"`"
-	cd="`$dirname \"$1\"`"
+	file=`$basename "$1"`
+	cd=`$dirname "$1"`
 	$test ! -d $defaults -a -d ../$defaults && cd ..
 	$ls -di $defaults/$file .bin*/$file */$file 2>/dev/null
      fi;;

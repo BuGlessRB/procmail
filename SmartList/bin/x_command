@@ -1,13 +1,12 @@
 #! /bin/sh
 :
-#$Id: x_command,v 1.13 1994/01/14 15:53:54 berg Exp $
+#$Id: x_command,v 1.14 1994/05/26 13:46:14 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
 cat=cat			# /bin/cat
 rm=rm			# /bin/rm
 formail=formail		# /usr/local/bin/formail
-lockfile=lockfile	# /usr/local/bin/lockfile
 subscribe=subscribe	# ../SedBinDir/subscribe
 unsubscribe=unsubscribe # ../SedBinDir/unsubscribe
 multigram=multigram	# ../SedBinDir/multigram
@@ -23,9 +22,11 @@ $test -z "$listaddr" &&
 X_ENVELOPE_TO=$list-request	# to convince (un)subscribe we used the right
 export X_ENVELOPE_TO		# address
 
-$formail -R$X_COMMAND: X-Processed:
 
-set dummy `$formail -x$X_COMMAND: <tmp.request`
+$cat >$tmprequest
+$formail -R$X_COMMAND: X-Processed: <$tmprequest
+
+set dummy `$formail -x$X_COMMAND: <$tmprequest`
 shift; shift
 test "_$X_COMMAND_PASSWORD" = "_$1" && shift
 

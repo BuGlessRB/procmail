@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.31 1994/05/09 18:57:28 berg Exp $*/
+/*$Id: header.h,v 1.32 1994/05/26 13:47:43 berg Exp $*/
 
 X(returnpath,		"Return-Path:")				  /* RFC 822 */
 X(received,		"Received:")				/* ditto ... */
@@ -46,12 +46,33 @@ X(text,			"Text:")
 X(via,			"Via:")
 X(apparentlyto,		"Apparently-To:")
 X(apresto,		"Apparently-Resent-To:")
-X(x400received,		"X400-Received:")
-X(x400originator,	"X400-Originator:")
-X(x400rcipients,	"X400-Recipients:")
-X(x400mtsidentifier,	"X400-Mts-Identifier:")
+X(autforwarded,		"Autoforwarded:")		  /* X.400 extension */
+X(cntidentifier,	"Content-Identifier:")			/* ditto ... */
+X(conversion,		"Conversion:")
+X(convwithloss,		"Conversion-With-Loss:")
+X(deldate,		"Delivery-Date:")
+X(dx4ipmsextensions,	"Discarded-X400-IPMS-Extensions:")
+X(dx4mtsextensions,	"Discarded-X400-MTS-Extensions:")
+X(dlexpansionhistory,	"DL-Expansion-History:")
+X(defdelivery,		"Deferred-Delivery:")
+X(expirydate,		"Expiry-Date:")
+X(importance,		"Importance:")
+X(incompletecopy,	"Incomplete-Copy:")
+X(language,		"Language:")
+X(latdeliverytime,	"Latest-Delivery-Time:")
+X(msgtype,		"Message-Type:")
+X(obsoletes,		"Obsoletes:")
+X(orgencodedinfts,	"Original-Encoded-Information-Types:")
+X(orgnreturnaddress,	"Originator-Return-Address:")
+X(priority,		"Priority:")
+X(replyby,		"Reply-By:")
+X(reqdeliverymethod,	"Requested-Delivery-Method:")
+X(sensitivity,		"Sensitivity:")
 X(x400contenttype,	"X400-Content-Type:")
-X(priority,		"Priority:")			    /* ELM extension */
+X(x400mtsidentifier,	"X400-MTS-Identifier:")
+X(x400originator,	"X400-Originator:")
+X(x400received,		"X400-Received:")
+X(x400rcipients,	"X400-Recipients:")
 X(fcc,			"Fcc:")				   /* Mush extension */
 X(resent,		"Resent:")			     /* MH extension */
 X(forwarded,		"Forwarded:")				/* ditto ... */
@@ -99,7 +120,6 @@ X(transportoptions,	"Transport-Options:")	    /* SysV mailer extension */
 X(defltoptions,		"Default-Options:")
 X(cntlength,		"Content-Length:")
 X(rference,		"Reference:")
-X(msgtype,		"Message-Type:")
 X(autoforwardedfrom,	"Auto-Forwarded-From:")
 X(autofcount,		"Auto-Forward-Count:")
 X(endofheader,		"End-of-Header:")

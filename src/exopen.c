@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.19 1994/05/05 15:53:44 berg Exp $";
+ "$Id: exopen.c,v 1.20 1994/05/26 13:47:26 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -49,9 +49,8 @@ int unique(full,p,mode,verbos,chownit)const char*const full;char*p;
    { struct stat fdbuf;
      fstat(i,&fdbuf);			/* match between the file descriptor */
 #define NEQ(what)	(fdbuf.what!=filebuf.what)	    /* and the file? */
-     if(lstat(full,&filebuf)||fdbuf.st_nlink!=1||filebuf.st_nlink!=1||
-	fdbuf.st_size||filebuf.st_size||NEQ(st_ino)||NEQ(st_mode)||
-	NEQ(st_uid)||NEQ(st_gid)||
+     if(lstat(full,&filebuf)||filebuf.st_nlink!=1||filebuf.st_size||
+	NEQ(st_dev)||NEQ(st_ino)||NEQ(st_uid)||NEQ(st_gid)||
 	 chownit&doCHOWN&&
 #endif
 	 chown(full,uid,sgid))

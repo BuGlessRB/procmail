@@ -26,6 +26,10 @@ address), and then a new subscribe to the new address (the order is important).
 Most (un)subscription requests are processed automatically without human
 intervention.
 
+Do not send multiple (un)subscription or info requests in one mail.  Only one
+will be processed per mail.
+
+
 			The archive server
 			------------------
 Every submission sent to this list is archived.	 The size of the archive

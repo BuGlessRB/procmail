@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.24 1994/05/05 15:53:54 berg Exp $";
+ "$Id: formisc.c,v 1.25 1994/05/26 13:47:37 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -133,12 +133,8 @@ void lputcs(i)const int i;
 }
 
 void startprog(argv)const char*Const*const argv;
-{ if(!nrtotal)					/* no more mails to display? */
-     goto squelch;
-  if(nrskip)				  /* should we still skip this mail? */
-   { nrskip--;							 /* count it */
-squelch:
-     opensink();return;
+{ if(nrskip)				  /* should we still skip this mail? */
+   { nrskip--;opensink();return;				 /* count it */
    }
   if(nrtotal>0)
      nrtotal--;							 /* count it */

@@ -11,7 +11,7 @@
 	       "#define console"
 	    Stripping off leading "From " lines now before passing mails
 	       through the mailinglist
-1994/02/22: v2.92
+1994/05/05: v3.00
 	    Cleaned up install.sh* for the mailinglists: starting su with
 	       commands on stdin, checking some permissions now in the
 	       filesystem to prevent silly mistakes during the installation
@@ -77,3 +77,5 @@
 	    Created choplist, the dist-file expander
 	    Created cronlist, the new recommended script to put in the
 	       crontab entry (instead of flush_digests directly)
+	    Allow for carbon copies to the maintainer of unsubscription
+	       requests

@@ -43,9 +43,8 @@ examples/advanced
 		Some extra info for network mounted mailboxes, examples of
 		advanced .procmailrc expressions and using procmail as
 		a local delivery agent.
-mailinglist/*	All you need to start up a mailinglist.
-mailinglist/FEATURES
-		A summary of all the things this mailinglist package will take
-		care of.
-mailinglist/INTRO
+SmartList/*	All you need to start up lots of mailinglists.
+SmartList/FEATURES
+		A summary of all the SmartList package will take care of.
+SmartList/INTRO
 		Comprehensive introduction on maintaining a mailinglist.

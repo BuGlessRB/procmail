@@ -9,7 +9,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: flush_digests,v 1.11 1993/11/24 19:45:39 berg Exp $
+#$Id: flush_digests,v 1.12 1994/05/26 13:46:01 berg Exp $
 
 test=test		# /bin/test
 mkdir=mkdir		# /bin/mkdir
@@ -87,12 +87,15 @@ then
   fi
 
 else
-  a=`$dirname "$0"`/..
-  if cd "$a"
+  if test -z "$cronlist"	# for backward compatibility
   then
-  :
-  else
-     $echo "Can't chdir to $a" 1>&2 ; exit 66
+     a=`$dirname "$0"`/..
+     if cd "$a"
+     then
+     :
+     else
+	$echo "Can't chdir to $a" 1>&2 ; exit 66
+     fi
   fi
   for a in dummy */.digest.params
   do

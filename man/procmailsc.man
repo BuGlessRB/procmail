@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailsc.man,v 1.5 1994/02/08 16:14:30 berg Exp $
+.Id $Id: procmailsc.man,v 1.6 1994/05/26 13:47:06 berg Exp $
 .TH PROCMAILSC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -124,6 +124,14 @@ In both cases, if L=M, this will add w to the score.  In the former case
 however, larger mails will be favoured, in the latter case, smaller
 mails will be favoured.  Although x can be varied to fine-tune the
 steepness of the function, typical usage sets x=1.
+.SH MISCELLANEOUS
+You can query the final score of all the conditions on a recipe from the
+environment variable
+.BR $= .
+This variable is set
+.I every
+time just after procmail has parsed all conditions on a recipe (even if the
+recipe is not being executed).
 .SH EXAMPLES
 The following recipe will ditch all mails having more than 150 lines in the
 body.

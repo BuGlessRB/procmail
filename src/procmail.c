@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.78 1994/05/10 18:10:20 berg Exp $";
+ "$Id: procmail.c,v 1.79 1994/05/26 13:48:12 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -372,11 +372,11 @@ Setuser: { gid=pass->pw_gid;uid=pass->pw_uid;
 	 { setdef(lgname,buf);setdef(home,RootDir);setdef(shell,binsh);
 	   setids();
 	 }
+	endpwent();
 	if(passinvk)
 	 { free(spassinvk.pw_name);free(spassinvk.pw_dir);
 	   free(spassinvk.pw_shell);
 	 }
-	endpwent();
       }
      setdef(orgmail,systm_mbox);setdef(maildir,DEFmaildir);
      if(!presenviron||!mailfilter)

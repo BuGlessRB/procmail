@@ -49,6 +49,9 @@ maintainer	=
 ##cc_requests	=	yes		# uncomment if you want subscribe
 					# and help requests to be Cc'd to
 					# the maintainer
+#cc_unsubrequests
+##cc_unsubrequests=	yes		# uncomment if you want unsubscribe
+					# requests to be Cc'd to the maintainer
 #reply_to
 ##reply_to	= "Resent-Reply-To: $listaddr" # uncomment (and perhaps change
 					# it to "Reply-To") to force replies

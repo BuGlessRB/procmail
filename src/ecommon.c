@@ -1,3 +1,13 @@
+/************************************************************************
+ *	Some common routines to all programs but procmail		*
+ *									*
+ *	Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands	*
+ *	#include "../README"						*
+ ************************************************************************/
+#ifdef RCS
+static /*const*/char rcsid[]=
+ "$Id: ecommon.c,v 1.5 1994/05/26 13:47:23 berg Exp $";
+#endif
 #include "includes.h"
 #include "ecommon.h"
 #include "common.h"

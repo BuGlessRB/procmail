@@ -1,11 +1,12 @@
 #! /bin/sh
-: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #########################################################################
 #	delink		Gracefully disconnects a hardlinked file	#
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: delink,v 1.4 1993/06/02 15:30:42 berg Exp $
+#$Id: delink,v 1.5 1994/05/26 13:45:57 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -22,6 +23,6 @@ trap "$rm -f \$TMPF; exit 1" 1 2 3 15
 
 for a in "$@"
 do
-  TMPF="`dirname \"$a\"`"/delink.$$
+  TMPF=`dirname "$a"`/delink.$$
   $cp -p "$a" "$TMPF" && $mv -f "$TMPF" "$a"
 done

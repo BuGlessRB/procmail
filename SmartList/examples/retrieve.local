@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: retrieve.local,v 1.1 1994/03/10 16:20:34 berg Exp $
+#$Id: retrieve.local,v 1.2 1994/05/26 13:46:37 berg Exp $
 
 # This script provides an example on how to extend the default archive
 # server with your own custom commands (for more info, look in the
@@ -10,8 +10,9 @@
 # will be propagated back to the arch_retrieve script; also, you should
 # not "exit" from this script, since that will exit arch_retrieve as well.
 
-# $1 contains the command, the arguments have been expanded inside
-# the archive directory.
+# $1 contains the command.
+# $* contains the command + arguments (already expanded inside the archive
+# directory).
 # $line contains the original unexpanded command line.
 # $maxfiles can be queried.
 # $ILLEGAL can be set to first illegal filename encountered.

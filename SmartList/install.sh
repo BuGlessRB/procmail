@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.43 1994/04/05 15:33:02 berg Exp $
+#$Id: install.sh,v 1.44 1994/05/26 13:45:46 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -22,6 +22,11 @@ target="$1"
 bindir="$2"
 
 setid=../src/setid
+
+case "$target" in		# Make sure $target is absolute
+  /*) ;;
+  *) target=`cd "$target";pwd` ;;
+esac
 
 test -z "$bindir" && bindir=.bin
 

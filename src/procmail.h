@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.22 1994/04/05 15:35:25 berg Exp $*/
+/*$Id: procmail.h,v 1.23 1994/05/26 13:48:15 berg Exp $*/
 
 #include "includes.h"
 
@@ -24,6 +24,12 @@
 #define MIN32	(-(long)MAX32)
 
 #define XTRAlinebuf	2	     /* surplus of LINEBUF (see readparse()) */
+#ifdef MAXPATHLEN
+#if MAXPATHLEN>DEFlinebuf		/* to protect people from themselves */
+#undef DEFlinebuf
+#define DEFlinebuf MAXPATHLEN
+#endif
+#endif
 
 #define rc_NOSGID	1		      /* you can forget any sgidness */
 #define rc_NORMAL	2
@@ -66,8 +72,8 @@ extern const char shell[],lockfile[],newline[],binsh[],unexpeof[],*const*gargv,
  oquote[],cquote[],whilstwfor[],procmailn[],Mail[],home[],maildir[],host[],
  *defdeflock,*argv0;
 extern long filled,lastscore;
-extern sh,pwait,retval,retvl2,lcking,rcstate,rc,ignwerr,lexitcode,asgnlastf,
- accspooldir,crestarg,skiprc,savstdout;
+extern int sh,pwait,retval,retvl2,lcking,rcstate,rc,ignwerr,lexitcode,
+ asgnlastf,accspooldir,crestarg,skiprc,savstdout;
 extern size_t linebuf;
 extern volatile nextexit;
 extern pid_t thepid;

@@ -2,11 +2,11 @@
  *	Collection of standard library substitute routines		*
  *									*
  *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
- *	#include "README"						*
+ *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: sublib.c,v 1.10 1993/12/23 13:02:21 berg Exp $";
+ "$Id: sublib.c,v 1.11 1994/05/26 13:48:29 berg Exp $";
 #endif
 #include "includes.h"
 #include "sublib.h"

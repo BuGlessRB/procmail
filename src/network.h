@@ -1,9 +1,9 @@
-/*$Id: network.h,v 1.4 1993/01/27 12:53:23 berg Exp $*/
+/*$Id: network.h,v 1.5 1994/05/26 13:48:06 berg Exp $*/
 
 #include <sys/socket.h>			/* socket() sendto() AF_INET
-					   SOCK_DGRAM */
+					/* SOCK_DGRAM */
 #include <netdb.h>			/* gethostbyname() getservbyname()
-					   getprotobyname() */
+					/* getprotobyname() */
 #include <netinet/in.h>			/* htons() struct sockaddr_in */
 
 #ifndef BIFF_serviceport

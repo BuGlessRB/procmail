@@ -43,6 +43,10 @@ Feature summary for procmail:
 	  support (*fully* downwards compatible with /bin/mail); in which case
 	  it can heal your system mailbox, if something messes up the
 	  permissions
+	+ Secure system mailbox handling (contrary to several well known
+	  /bin/mail implementations)
+	+ Provides for a controlled execution of programs and scripts from
+	  the aliases file (i.e. under defined user ids)
 	+ Allows you to painlessly shift the system mailboxes into the
 	  user's home directories
 	+ It runs on virtually all (old and future) operating systems which
@@ -61,6 +65,8 @@ Feature summary for formail:
 	+ Can split up digests into the individual messages
 	+ Can split up saved articles into the individual articles
 	+ Can do simple header munging/extraction
+	+ Can extract messages from mailboxes
+	+ Can recognise duplicate messages
 
 Feature summary for lockfile:
 	+ Provides NFS-secure lockfiles to shell script programmers

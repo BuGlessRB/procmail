@@ -90,7 +90,7 @@ read mail or check for mail).  So, it would definitely be preferred if you
 could edit the invocation of /bin/mail from within your mail transport agent
 to invoke procmail instead (with appropriate flags, if needed).	 Special
 directions detailing this process for some of the more popular MTAs are
-included in sections (2a) and (2b) below.
+included in subsections below.
 
 In addition to needing root privileges upon startup, on some systems procmail
 needs to be sgid to daemon or mail.  One way to check is by looking at the

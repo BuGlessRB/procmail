@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.20 1994/05/10 18:09:58 berg Exp $
+.Id $Id: formail.man,v 1.21 1994/05/26 13:46:54 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -262,6 +262,11 @@ the body verbatim before resuming the regular scanning for message boundaries
 .TP 2.3i
 Can't fork
 Too many processes on this machine.
+.TP
+Content-Length: field exceeds actual length by nnn bytes
+The Content-Length: field in the header specified a length that was longer
+than the actual body.  This causes this message to absorb a number of
+subsequent messages following it in the same mailbox.
 .TP
 Couldn't write to stdout
 The program that formail was trying to pipe into didn't accept all the data

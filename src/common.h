@@ -1,4 +1,4 @@
-/*$Id: common.h,v 1.8 1994/03/10 16:21:12 berg Exp $*/
+/*$Id: common.h,v 1.9 1994/05/26 13:47:18 berg Exp $*/
 
 void
  shexec P((const char*const*argv)),
@@ -18,4 +18,4 @@ int
 #define LENoffset	(TABWIDTH*LENtSTOP)
 #define MAXfoldlen	(LENoffset-STRLEN(sfolder)-1)
 
-#define NO_PROCESS	-256
+#define NO_PROCESS	(-256)

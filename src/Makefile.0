@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.28 1994/04/05 15:34:01 berg Exp $
+#$Id: Makefile.0,v 1.29 1994/05/26 13:47:12 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O) \
@@ -115,11 +115,14 @@ robust.$(O): misc.h pipes.h common.h mailfold.h shell.h
 
 sublib.$(O): ../autoconf.h ../config.h includes.h sublib.h shell.h
 
-setid.$(O) recommend.$(O): ../autoconf.h ../config.h includes.h
+gethome.$(O) setid.$(O) recommend.$(O): ../autoconf.h ../config.h includes.h
 	@$(CC) -c $(CFLAGS) $*.c
 
 .c.$(O):
 	$(CC) -c $(CFLAGS) $<
+
+gethome: gethome.$(O) setid
+	@$(CC) $(CFLAGS) $@.$(O) -o $@ $(LDFLAGS)
 
 setid: setid.$(O)
 	@$(CC) $(CFLAGS) $@.$(O) -o $@ $(LDFLAGS)
@@ -139,7 +142,8 @@ clean:
 	$(RM) procmail.$(O) $(PM_OBJ) lockfile.$(O) $(LF_OBJ) formail.$O \
 	 $(FM_OBJ) multigram.$(O) $(MG_OBJ) $(BINSS) multigram ../autoconf.h \
 	 _autotst* lookfor _locktst* grepfor recommend recommend.$(O) manconf \
-	 _Makefile lock.log *core* targetdir.h setid setid.$(O)
+	 _Makefile lock.log *core* targetdir.h setid setid.$(O) gethome \
+	 gethome.$(O)
 
 Makefile: ../Makefile Makefile.0
 	@echo "You have made changes to the master Makefile, in order for"

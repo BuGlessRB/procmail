@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: fields.c,v 1.14 1994/04/05 15:34:25 berg Exp $";
+ "$Id: fields.c,v 1.15 1994/05/26 13:47:29 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -87,8 +87,8 @@ void dispfield(p)register const struct field*p;
      if(p->id_len+1<p->tot_len)			 /* any contents to display? */
 	extractfield(p);
 }
-
-readhead P((void))  /* try and append one valid field to rdheader from stdin */
+		    /* try and append one valid field to rdheader from stdin */
+int readhead P((void))
 { getline();
   if(eqFrom_(buf))					/* it's a From_ line */
    { if(rdheader)

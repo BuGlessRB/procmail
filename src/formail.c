@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.45 1994/05/10 18:10:14 berg Exp $";
+ "$Id: formail.c,v 1.46 1994/05/26 13:47:33 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/05/10 18:10:14 $";
+static /*const*/char rcsdate[]="$Date: 1994/05/26 13:47:33 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -552,12 +552,19 @@ delfld:	    { fldp=delfield(afldp);continue;
      babylstart=0;
    }
   if(ctlength>0)
-   { lputssn(buf,buffilled);ctlength-=buffilled;buffilled=0;lnl='\n';
-     while(--ctlength>=0&&buflast!=EOF)	       /* skip Content-Length: bytes */
-	putcs(lnl=buflast),buflast=getchar();
-     if(buflast=='\n'&&lnl!='\n')		/* just before a line break? */
-	putcs('\n'),buflast=getchar();			/* wrap up loose end */
-     lnl=0;	/* view the block as monolithic, empty lines are not checked */
+   { if(buffilled)
+	lputssn(buf,buffilled),ctlength-=buffilled,buffilled=lnl=0;
+     ;{ int tbl=buflast,lwr='\n';
+	while(--ctlength>=0&&tbl!=EOF)	       /* skip Content-Length: bytes */
+	   lnl=lwr==tbl&&lwr=='\n',putcs(lwr=tbl),tbl=getchar();
+	if((buflast=tbl)=='\n'&&lwr!=tbl)	/* just before a line break? */
+	   putcs('\n'),buflast=getchar();		/* wrap up loose end */
+      }
+     if(ctlength>0)
+      { charNUM(num,ctlength);
+	nlog(cntlength);elog(" field exceeds actual length by ");
+	ultstr(0,(unsigned long)ctlength,num);elog(num);elog(" bytes\n");
+      }
    }
   while(buffilled||!lnl||buflast!=EOF)	 /* continue the quest, line by line */
    { if(!buffilled)				      /* is it really empty? */

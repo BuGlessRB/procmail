@@ -6,25 +6,25 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: mimesend,v 1.1 1994/05/05 15:52:57 berg Exp $
+#$Id: mimesend,v 1.2 1994/05/26 13:46:04 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
 rm=rm			# /bin/rm
+cat=cat			# /bin/cat
 splitmail=splitmail	# /usr/local/bin/splitmail	# MIME metamail package
 mimencode=mimencode	# /usr/local/bin/mimencode	# MIME metamail package
 formail=formail		# /usr/local/bin/formail
+procmail=procmail	# /usr/local/bin/procmail
 
 $test 1 != $# && $echo "Usage: mimesend filename" 1>&2 &&
  exit 64
 
 $test -z "$archivedir" &&
- $echo "mimesend: some environment variables need to be set" 1>&2 && exit 64
+ $echo "mimesend: Certain environment variables need to be set" 1>&2 && exit 64
 
 TMPF=/tmp/ms$$.
-
 trap "$rm -f \$TMPF*; exit 1" 1 2 3 15
-
 $rm -f $TMPF*
 
 filename=$1
@@ -39,6 +39,10 @@ export filename archivedir mimencode formail	# for mimencap
   cd $archivedir
   if $test -f "./$filename"
   then
+     case "`sed -e 1q <\"./$filename\"`" in
+	Content-[Tt]ype:*) ;;
+	*) echo "" ;
+     esac
      $cat "./$filename"
   else
      $echo "MIME-Version: 1.0"

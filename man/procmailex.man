@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.28 1994/04/05 15:33:51 berg Exp $
+.Id $Id: procmailex.man,v 1.29 1994/05/26 13:47:02 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -242,7 +242,8 @@ mailbox
 .Ex
 Alternatively, you can have procmail deliver into its own set of mailboxes,
 which you then periodically empty and copy over to your emacs files using
-.BR movemail .  Movemail uses mailbox.lock local lockfiles per mailbox.
+.BR movemail .
+Movemail uses mailbox.lock local lockfiles per mailbox.
 .PP
 To extract certain headers from a mail and put them into environment
 variables you can use any of the following constructs:

@@ -9,8 +9,10 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #	Created by S.R. van den Berg, The Netherlands			#
 #									#
 #	Customise to taste.						#
+#	This script will not be automatically overwritten by the next	#
+#	upgrade.							#
 #########################################################################
-#$Id: cronlist,v 1.2 1994/04/12 15:55:17 berg Exp $
+#$Id: cronlist,v 1.3 1994/05/26 13:46:31 berg Exp $
 
 test=test			# /bin/test
 echo=echo			# /bin/echo

@@ -1,4 +1,4 @@
-/*$Id: locking.h,v 1.3 1992/11/11 14:00:08 berg Exp $*/
+/*$Id: locking.h,v 1.4 1994/05/26 13:47:52 berg Exp $*/
 
 void
  lockit P((char*name,char**const lockp)),
@@ -6,7 +6,7 @@ void
  unlock P((char**const lockp));
 int
  xcreat Q((const char*const name,const mode_t mode,time_t*const tim,
- int*const chowned));
+  const chownit));
 
 #ifdef NOfcntl_lock
 #ifndef USElockf

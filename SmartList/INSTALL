@@ -15,6 +15,9 @@ In order to make sure that SmartList works reliably for both remote and
 local mail, it has to be run under someone's account.
 The recommended procedure would be to create a new account and group named
 "list" that is only going to be used to manage SmartList mailinglists.
+You are of course free to choose any name you'd like instead of "list".
+Common names would be "list" or "lists".  Do not pick "smartlist" because that
+name is nine characters long.  The maximum for most systems is eight.
 
 If you are unable/unwilling to create a new user just for SmartList,
 then it should be installed in a separate subdirectory.	 The owner of this
@@ -33,7 +36,8 @@ Restarting sendmail is not necessary.
 
 Sendmail 6.x and later don't need this anymore.	 And even if you have an
 older sendmail but can't put this in the sendmail.cf file, the mailinglist
-scripts will still work, albeit under less than ideal circumstances.
+scripts will still work, albeit under less than ideal circumstances (i.e.
+automatic bounce handling is severely impaired).
 
 				---
 
@@ -103,7 +107,7 @@ your own convenience) it would be wise to edit the .bin/createlist script
 to display the proper aliases to insert (so that you can cut and paste
 in the future).
 
-For further instructions, you should read the "Manual" file, it has
+For further instructions, you should consult the "Manual" file, it has
 been copied to the /home/list/.etc directory as well, and can serve as a
 quick reference.
 

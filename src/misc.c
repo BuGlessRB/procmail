@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.50 1994/04/14 12:12:15 berg Exp $";
+ "$Id: misc.c,v 1.51 1994/05/26 13:48:00 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -28,7 +28,7 @@ struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
  {"NORESRETRY",DEFnoresretry},{"TIMEOUT",DEFtimeout},{"VERBOSE",DEFverbose},
  {"LOGABSTRACT",DEFlogabstract}};
 struct varstr strenstr[]={{"SHELLMETAS",DEFshellmetas},{"LOCKEXT",DEFlockext},
- {"MSGPREFIX",DEFmsgprefix},{"COMSAT",DEFcomsat},{"TRAP",""},
+ {"MSGPREFIX",DEFmsgprefix},{"COMSAT",""},{"TRAP",""},
  {"SHELLFLAGS",DEFshellflags},{"DEFAULT",DEFdefault},{"SENDMAIL",DEFsendmail}};
 
 #define MAXvarvals	 maxindex(strenvvar)
@@ -38,7 +38,7 @@ const char lastfolder[]="LASTFOLDER";
 int didchd;
 char*globlock;
 static time_t oldtime;
-static fakedelivery;
+static int fakedelivery;
 		       /* line buffered to keep concurrent entries untangled */
 void elog(newt)const char*const newt;
 { int lnew;size_t i;static lold;static char*old;char*p;
@@ -91,7 +91,7 @@ void writeerr(line)const char*const line;
 { nlog("Error while writing to");logqnl(line);
 }
 
-forkerr(pid,a)const pid_t pid;const char*const a;
+int forkerr(pid,a)const pid_t pid;const char*const a;
 { if(pid==-1)
    { nlog("Failed forking");logqnl(a);return 1;
    }
@@ -159,7 +159,7 @@ void skipped(x)const char*const x;
      nlog("Skipped"),logqnl(x);
 }
 
-nextrcfile P((void))		/* next rcfile specified on the command line */
+int nextrcfile P((void))	/* next rcfile specified on the command line */
 { const char*p;int rval=2;
   while(p= *gargv)
    { gargv++;
@@ -234,7 +234,7 @@ void app_val(sp,val)struct dyna_long*const sp;const off_t val;
   sp->offs[sp->filled++]=val;				     /* append to it */
 }
 
-alphanum(c)const unsigned c;
+int alphanum(c)const unsigned c;
 { return numeric(c)||c-'a'<='z'-'a'||c-'A'<='Z'-'A'||c=='_';
 }
 
@@ -407,7 +407,7 @@ void asenv(chp)const char*const chp;
   else if(!strcmp(buf,lockfile))
      lockit((char*)chp,&globlock);
   else if(!strcmp(buf,eumask))
-     umask((mode_t)strtol(chp,(char**)0,8));
+     doumask((mode_t)strtol(chp,(char**)0,8));
   else if(!strcmp(buf,includerc))
      pushrc(chp);
   else if(!strcmp(buf,host))

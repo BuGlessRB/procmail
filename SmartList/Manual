@@ -22,7 +22,7 @@ Contents:
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.31 1994/05/09 18:57:04 berg Exp $
+$Id: Manual,v 1.32 1994/05/26 13:45:42 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -576,7 +576,7 @@ The latest version can be obtained directly from the ftp-archive at:
 
 	ftp.informatik.rwth-aachen.de (137.226.112.172)
 
-as (g)zipped tar file:	   /pub/packages/procmail/SmartList.tar.zip
+as (g)zipped tar file:	   /pub/packages/procmail/SmartList.tar.gz
 as compressed tar file:	   /pub/packages/procmail/SmartList.tar.Z
 
 There exists a dedicated mailinglist for SmartList users, send your

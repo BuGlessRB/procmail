@@ -1,4 +1,4 @@
-/*$Id: cstdio.h,v 1.6 1994/04/08 15:22:20 berg Exp $*/
+/*$Id: cstdio.h,v 1.7 1994/05/26 13:47:21 berg Exp $*/
 
 void
  pushrc P((const char*const name)),
@@ -14,3 +14,5 @@ int
  testb P((const x)),
  sgetc P((void)),
  skipspace P((void));
+
+extern struct dynstring*incnamed;

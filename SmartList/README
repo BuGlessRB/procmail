@@ -40,8 +40,8 @@ The latest versions can be obtained directly from the ftp-archive at:
 
 	ftp.informatik.rwth-aachen.de (137.226.112.172)
 
-as (g)zipped tar files:	   /pub/packages/procmail/procmail.tar.zip
-			   /pub/packages/procmail/SmartList.tar.zip
+as (g)zipped tar files:	   /pub/packages/procmail/procmail.tar.gz
+			   /pub/packages/procmail/SmartList.tar.gz
 as compressed tar files:   /pub/packages/procmail/procmail.tar.Z
 			   /pub/packages/procmail/SmartList.tar.Z
 ----------------------

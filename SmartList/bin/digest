@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.16 1994/04/05 15:33:10 berg Exp $
+#$Id: digest,v 1.17 1994/05/26 13:45:58 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -64,7 +64,7 @@ BEGIN					{ lines=0;mode=0; }
   else if(mtch==4)
      print("- ------------------------------");
   else if(mtch==5)
-     printf(". ");
+     printf(" .");
   else
      print($0);
 }

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.36 1994/04/05 15:35:28 berg Exp $";
+ "$Id: regexp.c,v 1.37 1994/05/26 13:48:18 berg Exp $";
 #endif
 #include "includes.h"
 #include "robust.h"
@@ -108,7 +108,7 @@ static struct eps*skiplen(ep)const struct eps*const ep;
    SZ(mchar):skplen[(ep->opc&DONE_MASK)-OPC_EPS]);
 }
 
-static por P((const struct eps*const e));
+static int por P((const struct eps*const e));
 
 static void psimp(e)const struct eps*const e;
 { switch(*p)
@@ -237,7 +237,7 @@ incagoon:  switch(*++p)			/* at the end of this group already? */
    }
 }
 
-static por(e)const struct eps*const e;
+static int por(e)const struct eps*const e;
 { uchar*pvold;struct eps*rvold;
   if(!e)
    { rvold=r;

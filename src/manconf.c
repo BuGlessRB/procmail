@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.39 1994/04/14 12:12:12 berg Exp $*/
+/*$Id: manconf.c,v 1.40 1994/05/26 13:47:57 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -37,6 +37,7 @@ static void putcesc(i)
    { case '|':printf("\\\\h'-\\\\w' 'u' ");break;
      case '\\':i='e';goto twoesc;
      case '\1':i='\n';goto singesc;
+     case '\2':i='\\';goto singesc;
      case '\t':i='t';goto fin;
      case '\n':i='n';
 fin:	putchar('\\');putchar('\\');
@@ -109,11 +110,11 @@ yourself.");
 #ifndef MAILBOX_SEPARATOR
   ps("DOT_FORWARD",".forward");
   ps("FW_content","\"|IFS=' '&&exec /usr/local/bin/procmail -f-||\
-exit 75 \\fB#\\fP\\fIYOUR_USERNAME\\fP\"");
+exit 75 \2fB#\2fP\2fIYOUR_USERNAME\2fP\"");
 #else
   ps("DOT_FORWARD",".maildelivery");
   ps("FW_content","* - | ? \"IFS=' '&&exec /usr/local/bin/procmail -f-||\
-exit 75 \fB#\fP\fIYOUR_USERNAME\fP\"");
+exit 75 \2fB#\2fP\2fIYOUR_USERNAME\2fP\"");
 #endif
   plist("PRESTENV","\1.PP\1Other preset environment variables are "
    ,prestenv,".",""," and ");
@@ -141,7 +142,7 @@ is case sensitive, and some users have login names with uppercase letters in\
   ps("UPPERCASE_USERNAMES","");
 #endif
   ps("SYSTEM_MBOX",SYSTEM_MBOX);
-  ps("ETCRC_desc",etcrc?"\1.PP\1If no rcfiles and no\1.B \\-@PRESERVOPT@\1have\
+  ps("ETCRC_desc",etcrc?"\1.PP\1If no rcfiles and no\1.B \2-@PRESERVOPT@\1have\
  been specified on the command line, procmail will, prior to reading\
  $HOME/@PROCMAILRC@, interpret commands from\1.B @ETCRC@\1(if present).\1\
 Care must be taken when creating @ETCRC@, because, if circumstances\
@@ -168,7 +169,7 @@ See also:\1.BR DROPPRIVS .":"");
  (or anyone else) by their current owners.");
   ps("ETCRCS_error","\1.TP\1Denying special privileges for \"x\"\1\
 Procmail will not take on the identity that comes with the rcfile because\1\
-a security violation was found (e.g. \1.B \\-@PRESERVOPT@\1 or variable\
+a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1 or variable\
  assignments on the command line) or procmail had insufficient privileges\
  to do so.");
   ps("ETCRCS",ETCRCS);

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.43 1994/04/05 15:34:54 berg Exp $";
+ "$Id: mailfold.c,v 1.44 1994/05/26 13:47:54 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -78,7 +78,7 @@ writefin:
   tofile=0;return i&&!len?-1:len;
 }
 
-static dirfile(chp,linkonly)char*const chp;const int linkonly;
+static int dirfile(chp,linkonly)char*const chp;const int linkonly;
 { const static char lkingto[]="Linking to";
   if(chp)
    { long i=0;			     /* first let us try to prime i with the */
@@ -122,27 +122,27 @@ ret:
   return -1;
 }
 
-static ismhdir(chp)char*const chp;
+static int ismhdir(chp)char*const chp;
 { if(chp-1>=buf&&chp[-1]==*MCDIRSEP_&&*chp==chCURDIR)
    { chp[-1]='\0';return 1;
    }
   return 0;
 }
 				       /* open file or new file in directory */
-deliver(boxname,linkfolder)char*boxname,*linkfolder;
-{ struct stat stbuf;char*chp;int mhdir;mode_t cumask;
+int deliver(boxname,linkfolder)char*boxname,*linkfolder;
+{ struct stat stbuf;char*chp;int mhdir;mode_t numask;
   asgnlastf=1;
   if(*boxname=='|'&&(!linkfolder||linkfolder==Tmnate))
    { setlastfolder(boxname);return rdup(savstdout);
    }
-  umask(cumask=umask(0));cumask=UPDATE_MASK&~cumask;tofile=to_FILE;
+  numask=UPDATE_MASK&~cumask;tofile=to_FILE;
   if(boxname!=buf)
      strcpy(buf,boxname);		 /* boxname can be found back in buf */
   if(*(chp=buf))				  /* not null length target? */
      chp=strchr(buf,'\0')-1;		     /* point to just before the end */
   mhdir=ismhdir(chp);				      /* is it an MH folder? */
   if(!stat(boxname,&stbuf))					/* it exists */
-   { if(cumask&&!(stbuf.st_mode&UPDATE_MASK))
+   { if(numask&&!(stbuf.st_mode&UPDATE_MASK))
 	chmod(boxname,stbuf.st_mode|UPDATE_MASK);
      if(!S_ISDIR(stbuf.st_mode))	 /* it exists and is not a directory */
 	goto makefile;				/* no, create a regular file */
@@ -174,7 +174,7 @@ makefile:
 	   mhdir=ismhdir(chp);			      /* is it an MH folder? */
 	   if(stat(boxname,&stbuf))			 /* it doesn't exist */
 	      mkdir(buf,NORMdirperm);				/* create it */
-	   else if(cumask&&!(stbuf.st_mode&UPDATE_MASK))
+	   else if(numask&&!(stbuf.st_mode&UPDATE_MASK))
 	      chmod(buf,stbuf.st_mode|UPDATE_MASK);
 	   if(mhdir)
 	      *chp='\0',chp[-1]= *MCDIRSEP_;
@@ -267,7 +267,7 @@ void logabstract(lstfolder)const char*const lstfolder;
 #endif /* NO_COMSAT */
 }
 
-static concnd;					 /* last concatenation value */
+static int concnd;				 /* last concatenation value */
 
 void concon(ch)const int ch;   /* flip between concatenated and split fields */
 { size_t i;

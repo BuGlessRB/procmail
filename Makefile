@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.53 1994/04/14 12:11:32 berg Exp $
+#$Id: Makefile,v 1.54 1994/05/26 13:45:21 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -55,7 +55,7 @@ LOCKINGTEST=__defaults__
 # Only edit below this line if you *think* you know what you are doing #
 ########################################################################
 
-LOCKINGTEST=100 # Uncomment (and change) if you think you know
+#LOCKINGTEST=100	# Uncomment (and change) if you think you know
 #			it better than the autoconf lockingtests.
 #			This will cause the lockingtests to be hotwired.
 #			100	to enable fcntl()
@@ -72,13 +72,11 @@ SEARCHLIBS = -lm -ldir -lx -lsocket -lnet -linet -lnsl_s -lnsl_i -lnsl -lsun \
 LIBPATHS=/lib /usr/lib /usr/local/lib
 
 GCC_WARNINGS = -pedantic -Wimplicit -Wreturn-type -Wunused -Wformat \
- -Wuninitialized -Wtraditional -Wshadow -Wid-clash-6 -Wpointer-arith \
- -Wconversion -Waggregate-return
+ -Wtraditional -Wshadow -Wid-clash-6 -Wpointer-arith -Wconversion \
+ -Waggregate-return #-Wuninitialized
 
 # The place to put your favourite extra cc flag
 CFLAGS0 = -O #$(GCC_WARNINGS)
-CFLAGS0 = -O $(GCC_WARNINGS) -Wno-uninitialized
-CC=gcc
 LDFLAGS0= -s
 
 CFLAGS1 = $(CFLAGS0) #-posix -Xp

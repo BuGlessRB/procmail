@@ -1,4 +1,4 @@
-/*$Id: formisc.h,v 1.7 1993/01/22 13:42:32 berg Exp $*/
+/*$Id: formisc.h,v 1.8 1994/05/26 13:47:38 berg Exp $*/
 
 void
  loadsaved P((const struct saved*const sp)),
@@ -10,7 +10,6 @@ void
  lputcs P((const i)),
  startprog P((const char*Const*const argv)),
  nofild P((void)),
- waitforit P((void)),
  nlog P((const char*const a)),
  logqnl P((const char*const a)),
  closemine P((void)),

@@ -2,7 +2,7 @@
  *	recommend	Analyses the installation, and makes		*
  *			recommendations about suid/sgid modes		*
  ************************************************************************/
-/*$Id: recommend.c,v 1.6 1993/11/24 19:46:57 berg Exp $*/
+/*$Id: recommend.c,v 1.7 1994/05/26 13:48:17 berg Exp $*/
 #include "includes.h"				       /* also for fprintf() */
 
 #ifndef SYSTEM_MBOX
@@ -24,7 +24,7 @@ char*lastdirsep(filename)const char*filename;	 /* finds the next character */
 }
 
 main(argc,argv)const int argc;const char*const argv[];
-{ struct group*grp;struct stat stbuf;gid_t gid= -1;
+{ struct group*grp;struct stat stbuf;gid_t gid=(gid_t)-1;
   const char*const*p;mode_t sgid=0;int chmdir=0;
   if(argc!=3)
    { fprintf(stderr,"Please run this program via 'make recommend'\n");

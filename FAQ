@@ -84,11 +84,9 @@
 8. Where do I look for examples about:
 	One home directory, several machine architectures?
 	Procmail as an integrated local mail delivery agent? (generic,
-	 sendmail, smail, SysV mailsurr)
+	 sendmail, ZMailer, smail, SysV mailsurr)
 	Changing the mail spool directory to $HOME for all users
 	Security considerations (when installing procmail suid root)
-	Exorbitant rcfile formats?
-	The `A' flag?
 
 	Well, this probably is your lucky day :-), all these topics are covered
 	in the examples/advanced file.

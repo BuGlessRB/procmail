@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: lockfile.man,v 1.9 1994/01/25 15:39:20 berg Exp $
+.Id $Id: lockfile.man,v 1.10 1994/05/26 13:46:56 berg Exp $
 .TH LOCKFILE 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -25,7 +25,7 @@ lockfile \- conditional semaphore-file creator
 .I filename
 \&.\|.\|.
 .ad
-.SH DESCRIPTION
+.SH DESCRIPTION
 .B lockfile
 can be used to create one or more
 .I semaphore
@@ -83,7 +83,7 @@ using the options
 and
 .B "\-mu"
 respectively.
-.SH EXAMPLES
+.SH EXAMPLES
 Suppose you want to make sure that access to the file "important" is
 serialised, i.e. no more than one program or shell script should be allowed
 to access it.  For simplicity's sake, let's suppose that it is a shell
@@ -100,11 +100,11 @@ rm -f important.lock
 Now if all the scripts that access "important" follow this guideline, you
 will be assured that at most one script will be executing between the
 `lockfile' and the `rm' commands.
-.SH ENVIRONMENT
+.SH ENVIRONMENT
 .TP 2.3i
 .B LOGNAME
 used as a hint to determine the invoker's loginname
-.SH FILES
+.SH FILES
 .TP 2.3i
 .B /etc/passwd
 to verify and/or correct the invoker's loginname (and to find out his HOME
@@ -114,7 +114,7 @@ directory, if needed)
 lockfile for the system mailbox, the environment variables present in here
 will not be taken from the environment, but will be determined by looking
 in /etc/passwd
-.SH "SEE ALSO"
+.SH "SEE ALSO"
 .na
 .nh
 .BR rm (1),
@@ -124,7 +124,7 @@ in /etc/passwd
 .BR procmail (1)
 .hy
 .ad
-.SH DIAGNOSTICS
+.SH DIAGNOSTICS
 .TP 2.3i
 Filename too long, .\|.\|.
 Use shorter filenames.
@@ -156,11 +156,11 @@ Truncating "x" and retrying lock
 .TP
 Try praying, .\|.\|.
 Missing subdirectories or insufficient privileges.
-.SH BUGS
+.SH BUGS
 Definitely less than one.
-.SH MISCELLANEOUS
+.SH MISCELLANEOUS
 Lockfile is NFS-resistant and eight-bit clean.
-.SH NOTES
+.SH NOTES
 Calling up lockfile with the \-@HELPOPT1@ or \-@HELPOPT2@ options will cause
 it to display a command-line help page.
 .PP

@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.46 1994/05/05 15:53:06 berg Exp $
+#$Id: rc.request,v 1.47 1994/05/26 13:46:26 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -75,13 +75,16 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 # Is it an unsubscription request?
 #
 
+  cc_unsubrequests="${cc_unsubrequests:+$maintainer}"
+
   :0 HB w:dist.lock
   * ^^(.+$)*Subject:[	 ]*(((\(none\))?$(.+$)*(^[ ]*)+)?\
       (signoff|delete|remove|unsub)|\
      ((\(none\))?$(.*$)*)?(.*[^a-z])?(unsubscri|\
       ((delete|remove) .* from|take .* off) .* [a-z-]*list\>))
-  | unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from` \
-     ${cc_unsubrequests:+$maintainer}
+  | unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from` ${cc_unsubrequests}
+
+  cc_unsubrequests
 
 #
 # Is it a subscription request?	 Yes, well, then check if the person

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.28 1994/05/05 15:52:47 berg Exp $
+#$Id: arch_retrieve,v 1.29 1994/05/26 13:45:52 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -11,7 +11,7 @@ sed=sed			# /bin/sed
 cat=cat			# /bin/cat
 egrep=egrep		# /bin/egrep
 nice=nice		# /bin/nice
-mimesend		# SedHomeDir/.bin/mimesend
+mimesend=mimesend	# SedHomeDir/.bin/mimesend
 mimencode=mimencode	# /usr/local/bin/mimencode	# metamail MIME package
 formail=formail		# /usr/local/bin/formail
 

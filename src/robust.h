@@ -1,11 +1,12 @@
-/*$Id: robust.h,v 1.6 1993/08/09 14:11:13 berg Exp $*/
+/*$Id: robust.h,v 1.7 1994/05/26 13:48:24 berg Exp $*/
 
 void
  *tmalloc Q((const size_t len)),
  *trealloc Q((void*const old,const size_t len)),
  tfree P((void*const p)),
  opnlog P((const char*file)),
- ssleep P((const unsigned seconds));
+ ssleep P((const unsigned seconds)),
+ doumask Q((const mode_t mask));
 pid_t
  sfork P((void));
 int
@@ -16,3 +17,5 @@ int
  rclose P((const fd)),
  rread P((const fd,void*const a,const len)),
  rwrite P((const fd,const void*const a,const len));
+
+extern mode_t cumask;

@@ -1,11 +1,12 @@
 #! /bin/sh
-: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #########################################################################
 #	dirname		A substitute, for the deprived			#
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: dirname,v 1.1 1993/06/23 12:55:40 berg Exp $
+#$Id: dirname,v 1.2 1994/05/26 13:46:45 berg Exp $
 
 t=`expr "$1" : "\(.*/\)[^/]*$"`
 

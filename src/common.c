@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: common.c,v 1.16 1994/04/05 15:34:14 berg Exp $";
+ "$Id: common.c,v 1.17 1994/05/26 13:47:17 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -45,7 +45,7 @@ char*skpspace(chp)const char*chp;
 }
 
 #ifdef NOstrcspn
-strcspn(whole,sub)const char*const whole,*const sub;
+int strcspn(whole,sub)const char*const whole,*const sub;
 { const register char*p;
   p=whole;
   while(*p&&!strchr(sub,*p))

@@ -1,4 +1,4 @@
-/*$Id: exopen.h,v 1.10 1994/04/08 15:22:24 berg Exp $*/
+/*$Id: exopen.h,v 1.11 1994/05/26 13:47:27 berg Exp $*/
 
 int
  unique Q((const char*const full,char*p,const mode_t mode,const verbos,
@@ -15,4 +15,5 @@ int
 #define mrotbSERIAL	((maskSERIAL&irotbSERIAL-1)+irotbSERIAL)
 
 #define doCHOWN		1
-#define noCHOWN		2
+#define doCHECK		2
+#define doLOCK		4

@@ -1,4 +1,4 @@
-#$Id: rc.post,v 1.5 1994/04/05 15:33:27 berg Exp $
+#$Id: rc.post,v 1.6 1994/05/26 13:46:24 berg Exp $
 MAILDIR=../$defaults		# back to the defaults directory
 LOGFILE=log			# enabled by default, because when processing
 				# reaches this point, some unusual circumstance
@@ -11,7 +11,7 @@ request
 
 :0 w
 | formail -R"From X-Envelope-From:" -iDate: -iReturn-Receipt-To: \
-   | $SENDMAIL $sendmailOPT $sendmailOPTp $listmaster
+   -iAcknowledge-To: | $SENDMAIL $sendmailOPT $sendmailOPTp $listmaster
 
 :0:
 request

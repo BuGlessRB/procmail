@@ -1,8 +1,6 @@
-/*$Id: ecommon.h,v 1.2 1992/11/11 13:59:13 berg Exp $*/
+/*$Id: ecommon.h,v 1.3 1994/05/26 13:47:24 berg Exp $*/
 
 void
  *tmalloc Q((const size_t len)),
  *trealloc Q((void*old,const size_t len)),
  tfree P((void*a));
-int
- mystrstr P((const char*whole,const char*const part,const char*end));

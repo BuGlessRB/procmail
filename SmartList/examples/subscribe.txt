@@ -1,3 +1,7 @@
 This is an automated subscription mechanism.  For your verification, a
-transcript of the original subscription request is included below:
+transcript of the original subscription request is included below.
+
+If the wrong address has been subscribed and you seem to be unable to fix it
+yourself, reply to this message now (quoting it entirely (for diagnostic
+purposes), and of course adding any comments you see fit).
 --

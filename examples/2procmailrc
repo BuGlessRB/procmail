@@ -13,8 +13,8 @@ DEFAULT=$MAILDIR/mbox
 # The next recipe will split up Digests into their individual messages.
 # Don't do this if you use a global lockfile before this recipe (deadlock)
 
-:
-^Subject:.*Digest
+:0
+* ^Subject:.*Digest
 |formail +1 -d -s procmail
 
 LOGFILE=$MAILDIR/from		# Put it here, in order to avoid logging
@@ -23,38 +23,38 @@ LOGFILE=$MAILDIR/from		# Put it here, in order to avoid logging
 # An alternative and probably more efficient solution to splitting up a digest
 # would be (only works for standard format mailbox files though):
 
-::
-^Subject:.*Other Digest
+:0:
+* ^Subject:.*Other Digest
 |formail +1 -ds cat >>this_lists_mailbox
 
 # Notice the double : in the next recipe, this will cause a lockfile
 # named "$MAILDIR/todd.lock" to be used if and only if this mail is going
 # into the file "todd".
 
-::				# Anything from thf
-^From.*thf@somewhere.someplace
+:0:				# Anything from thf
+* ^From.*thf@somewhere.someplace
 todd				# will go to $MAILDIR/todd
 
 
 # The next recipe will likewise use $MAILDIR/uunetbox.lock as a lock file.
 
-::				# Anything from people at uunet
-^From.*@uunet
+:0:				# Anything from people at uunet
+* ^From.*@uunet
 uunetbox			# will go to $MAILDIR/uunetbox
 
 
 # And here the lockfile will be $MAILDIR/henries.lock of course.
 
-::				# Anything from Henry
-^From.*henry
+:0:				# Anything from Henry
+* ^From.*henry
 henries				# will go to $MAILDIR/henries
 
 
 # But you can specify any lockfile you want, like "myfile".  The following
 # recipe will use "$MAILDIR/myfile" as the lock file.
 
-::myfile			# All 'questions' will go to
-^Subject:.*questions
+:0:myfile			# All 'questions' will go to
+* ^Subject:.*questions
 toread				# $MAILDIR/toread
 
 # Anything that has not been delivered by now will go to $DEFAULT

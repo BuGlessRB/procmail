@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.39 1994/04/14 12:11:56 berg Exp $
+.Id $Id: procmailrc.man,v 1.40 1994/05/26 13:47:04 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -61,13 +61,11 @@ are ignored.
 .PP
 A line starting with ':' marks the beginning of a recipe.  It has the
 following format:
-.PP
-.RS
+.Sx 3
 : [\fInumber\fP] [\fIflags\fP] [ : [\fIlocallockfile\fP] ]
 <zero or more conditions (one per line)>
 <exactly one action line>
-.RE
-.PP
+.Ex
 The
 .I number
 is optional (defaults to 1) and specifies the number of conditions that
@@ -542,8 +540,9 @@ environment variable.
 .SH BUGS
 The only substitutions of environment variables that can be handled by
 procmail itself are of the type $name, ${name}, ${name:-text}, ${name:+text},
-${name-text}, ${name+text}, $#, $n, $$, $?, $\- and $=; whereas $\- will be
-substituted by $LASTFOLDER and $= will contain the score of the last recipe.
+${name-text}, ${name+text}, $#, $n, $$, $?, $_, $\- and $=; whereas $_ will be
+substituted by the name of the current rcfile, $\- by $LASTFOLDER and $=
+will contain the score of the last recipe.
 When the
 .B \-@ARGUMENTOPT@
 or

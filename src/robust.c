@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.15 1994/04/05 15:35:31 berg Exp $";
+ "$Id: robust.c,v 1.16 1994/05/26 13:48:22 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -14,6 +14,8 @@ static /*const*/char rcsid[]=
 #include "pipes.h"
 #include "common.h"
 #include "mailfold.h"
+
+mode_t cumask;
 
 #define nomemretry	noresretry
 #define noforkretry	noresretry
@@ -84,6 +86,7 @@ pid_t sfork P((void))			/* this fork can survive a temporary */
 
 void opnlog(file)const char*file;
 { int i;
+  elog("");						     /* flush stderr */
   if(!*file)						   /* empty LOGFILE? */
      file=devnull;				 /* substitute the bitbucket */
   if(0>(i=opena(file)))
@@ -92,7 +95,7 @@ void opnlog(file)const char*file;
      rclose(STDERR),rdup(i),rclose(i),logopened=1;
 }
 
-opena(a)const char*const a;
+int opena(a)const char*const a;
 { setlastfolder(a);yell("Opening",a);
 #ifdef O_CREAT
   return ropen(a,O_WRONLY|O_APPEND|O_CREAT,NORMperm);
@@ -103,7 +106,8 @@ opena(a)const char*const a;
 #endif
 }
 
-ropen(name,mode,mask)const char*const name;const int mode;const mode_t mask;
+int ropen(name,mode,mask)const char*const name;const int mode;
+ const mode_t mask;
 { int i,r;					       /* a SysV secure open */
   for(r=noresretry,lcking|=lck_FILDES;0>(i=open(name,mode,mask));)
      if(errno!=EINTR&&!(errno==ENFILE&&(r<0||r--)))
@@ -111,7 +115,7 @@ ropen(name,mode,mask)const char*const name;const int mode;const mode_t mask;
   lcking&=~lck_FILDES;return i;
 }
 
-rpipe(fd)int fd[2];
+int rpipe(fd)int fd[2];
 { int i,r;					  /* catch "file table full" */
   for(r=noresretry,lcking|=lck_FILDES;0>(i=pipe(fd));)
      if(!(errno==ENFILE&&(r<0||r--)))
@@ -120,7 +124,7 @@ rpipe(fd)int fd[2];
   lcking&=~lck_FILDES;return i;
 }
 
-rdup(p)const int p;
+int rdup(p)const int p;
 { int i,r;					  /* catch "file table full" */
   for(r=noresretry,lcking|=lck_FILDES;0>(i=dup(p));)
      if(!(errno==ENFILE&&(r<0||r--)))
@@ -128,19 +132,19 @@ rdup(p)const int p;
   lcking&=~lck_FILDES;return i;
 }
 
-rclose(fd)const int fd;		      /* a SysV secure close (signal immune) */
+int rclose(fd)const int fd;	      /* a SysV secure close (signal immune) */
 { int i;
   while((i=close(fd))&&errno==EINTR);
   return i;
 }
 
-rread(fd,a,len)const int fd,len;void*const a;	       /* a SysV secure read */
+int rread(fd,a,len)const int fd,len;void*const a;      /* a SysV secure read */
 { int i;
   while(0>(i=read(fd,a,(size_t)len))&&errno==EINTR);
   return i;
 }
-
-rwrite(fd,a,len)const int fd,len;const void*const a;  /* a SysV secure write */
+						      /* a SysV secure write */
+int rwrite(fd,a,len)const int fd,len;const void*const a;
 { int i;
   while(0>(i=write(fd,a,(size_t)len))&&errno==EINTR);
   return i;
@@ -154,4 +158,8 @@ void ssleep(seconds)const unsigned seconds;
 	ftimeout();				  /* activate it by hand now */
      else		    /* set it manually again, to avoid problems with */
 	alarm((unsigned)t);	/* badly implemented sleep library functions */
+}
+
+void doumask(mask)const mode_t mask;
+{ umask(cumask=mask);
 }

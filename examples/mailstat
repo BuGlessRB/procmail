@@ -17,7 +17,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #	Created by S.R. van den Berg, The Netherlands		#
 #	This file can be freely copied for any use.		#
 #################################################################
-#$Id: mailstat,v 1.18 1993/07/16 14:51:03 berg Exp $
+#$Id: mailstat,v 1.19 1994/05/26 13:46:48 berg Exp $
 
 #	This shell script expects the following programs to be in the
 #	PATH (paths given here are the standard locations, your mileage
@@ -155,10 +155,11 @@ trap "rm -f $TMPF; exit 2" 1 2 3 15
 trap "rm -f $TMPF; exit 0" 0
 
 ########
-#	And now we descend into the wonderful mix if shell-quoting and
+#	And now we descend into the wonderful mix of shell-quoting and
 #	portable awk-programming :-)
 ########
 
+rm -f $TMPF
 $cat >$TMPF <<HERE
 BEGIN {
     FS="\\t";

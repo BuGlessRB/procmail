@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_trunc,v 1.3 1993/03/02 14:40:37 berg Exp $
+#$Id: arch_trunc,v 1.4 1994/05/26 13:45:53 berg Exp $
 
 echo=echo		# /bin/echo
 ls=ls			# /bin/ls
@@ -9,12 +9,11 @@ rm=rm			# /bin/rm
 
 if cd archive && cd latest
 then
-  case "$1" in		# do not start removing every time, to decrease load
+  case "$LASTFOLDER" in # do not start removing every time, to decrease load
      *[248])
-	$rm -f `$ls -t | $sed -e '1,'$archive_hist' d' -e '/[^0-9]/ d' ` ;;
+	$rm -f _dummy_ \
+	 `$ls -t | $sed -e '1,'$archive_hist' d' -e '/[^0-9]/ d' ` ;;
   esac
-
-  $echo "$1"
 else
   $echo "Don't start this script directly, it is used in rc.request"
   exit 64

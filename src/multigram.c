@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.49 1994/05/05 15:54:25 berg Exp $";
+ "$Id: multigram.c,v 1.50 1994/05/26 13:48:04 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/05/05 15:54:25 $";
+static /*const*/char rcsdate[]="$Date: 1994/05/26 13:48:04 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -279,14 +279,45 @@ main(argc,argv)int argc;char*argv[];
 	 defdir[]=DEFAULTS_DIR,targetdir[]=TARGETDIR,
 	 *pmexec[]={PROCMAIL,RCSUBMIT,RCINIT,0,0,0,rcrequest,rcpost,0};
 #define Endpmexec(i)	(pmexec[maxindex(pmexec)-(i)])
-	progname=flist;*chp='\0';
-	if(chdir(targetdir))
-	 { nlog("Couldn't chdir to");logqnl(targetdir);return EX_NOPERM;
+	progname=flist;*chp='\0';euid=geteuid();
+	;{ struct passwd*pass;uid_t euid;
+	   if((euid=geteuid())==ROOT_uid)
+	    { if(!(pass=getpwnam(listid)))
+	       { nlog("User \");elog(listid);elog("\"");goto bailout;
+	       }
+	     /*
+	      * continue as the compile-time-determined list maintainer
+	      */
+	      setgid(pass->pw_gid);initgroups(listid,pass->pw_gid);
+	      setuid(pass->pw_uid);
+	    }
+	   else if(!(pass=getpwuid(euid)))
+	    { nlog("Euid");
+bailout:      elog(" unknown\n");return EX_NOUSER;
+	    }
+	   else
+	     /*
+	      * we weren't root, so try to get the uid and gid of the .etc
+	      * directory
+	      */
+	    { int error;
+	      setrgid(pass->pw_gid);error=setgid(pass->pw_gid);setruid(euid);
+	      if(setuid(pass->pw_uid)&&error)
+		 nlog("Insufficient privileges\n");
+	    }
+	   endpwent();
+	   if(chdir(chp=pass->pw_dir))
+	      goto nochdir;
+	 }
+	if(*(chp=targetdir)&&chdir(chp))
+nochdir: { nlog("Couldn't chdir to");logqnl(targetdir);return EX_NOPERM;
 	 }
 	if(stat(defdir,&stbuf))
 	 { nlog("Can't find \"");elog(defdir);elog("\" in");logqnl(targetdir);
 	   return EX_NOINPUT;
 	 }
+	if(pass->pw_uid!=stbuf.st_uid||pass->pw_gid!=stbuf.st_gid)
+	   nlog("Strange group or user id\n");
 	if(argc!=2)			       /* wrong number of arguments? */
 	 { elog("Usage: flist listname[-request]\n");return EX_USAGE;
 	 }
@@ -297,31 +328,6 @@ main(argc,argv)int argc;char*argv[];
 	   chp=0;
 	if(!strcmp(arg,chPARDIR)||strpbrk(arg,dirsep))
 	 { nlog("Bogus listname\n");return EX_NOPERM;
-	 }
-	if(geteuid()==ROOT_uid)		  /* continue as the list maintainer */
-	 { struct passwd*pass;
-	   if(!(pass=getpwnam(listid)))
-	    { nlog("User \");elog(listid);elog(\" unknown\n");
-	      return EX_NOUSER;
-	    }
-	  /*
-	   *	continue as the compile-time-determined list maintainer
-	   */
-	   setgid(pass->pw_gid);initgroups(listid,pass->pw_gid);
-	   setuid(pass->pw_uid);endpwent();
-	   if(pass->pw_uid!=stbuf.st_uid||pass->pw_gid!=stbuf.st_gid)
-	      nlog("Strange group or user id\n");
-	 }
-	else
-	  /*
-	   *	we weren't root, so try to get the uid and gid of the .etc
-	   *	directory
-	   */
-	 { int error;
-	   setrgid(stbuf.st_gid);error=setgid(stbuf.st_gid);
-	   setruid(stbuf.st_uid);
-	   if(setuid(stbuf.st_uid)&&error)
-	      nlog("Insufficient privileges\n");
 	 }
 	if(chdir(arg))			     /* goto the list's subdirectory */
 	   pmexec[1]=RCMAIN,Endpmexec(2)=0,chdir(defdir);

@@ -7,16 +7,16 @@ DEFAULT=$MAILDIR/mbox
 LOGFILE=$MAILDIR/from
 LOCKFILE=$HOME/.lockmail
 
-:				# Anything from thf
-^From.*thf@somewhere.someplace
+:0				# Anything from thf
+* ^From.*thf@somewhere.someplace
 todd				# will go to $MAILDIR/todd
 
-:				# Anything from people at uunet
-^From.*@uunet
+:0				# Anything from people at uunet
+* ^From.*@uunet
 uunetbox			# will go to $MAILDIR/uunetbox
 
-:				# Anything from Henry
-^From.*henry
+:0				# Anything from Henry
+* ^From.*henry
 henries				# will go to $MAILDIR/henries
 
 # Anything that has not been delivered by now will go to $DEFAULT

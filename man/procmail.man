@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.45 1994/05/05 15:53:25 berg Exp $
+.Id $Id: procmail.man,v 1.46 1994/05/26 13:46:59 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -539,6 +539,10 @@ ending in an inode-sequence-code.  If this turns out to be impossible,
 will have
 .I no
 initial value, and hence will inhibit delivery without a proper rcfile.
+.PP
+If @SYSTEM_MBOX@ already is a valid mailbox, but has got too loose permissions
+on it, procmail will correct this.  To prevent procmail from doing this make
+sure the u+x bit is set.
 .PP
 When delivering to directories (or to MH folders) you
 .B don't

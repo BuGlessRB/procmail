@@ -7,7 +7,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: donatelist,v 1.3 1994/02/08 16:13:48 berg Exp $
+#$Id: donatelist,v 1.4 1994/05/26 13:46:00 berg Exp $
 
 defaults=.etc
 
@@ -63,10 +63,13 @@ then $echo "donatelist: \"$list\" doesn't exist" 1>&2
 fi
 
 fragilef="log tmp.from tmp.request msgid.cache request"
-fragiled="bounce"
+fragiled="bounces"
 miscf="dist accept rc.custom"
 
+umask 007
+
 $chmod g+w $list
+$chmod g+s $list 2>/dev/null	# attempt to make the gid inheritable
 
 if $chown $user $list
 then
@@ -77,17 +80,13 @@ fi
 
 cd $list
 
-$chmod g+w dist archive
+$touch $fragilef
+$mkdir $fragiled 2>/dev/null
 
-( umask 0
-  $touch $fragilef
-  $mkdir $fragiled 2>/dev/null
-)
+$chmod g+w dist archive $fragilef
 $chown $user $fragilef $fragiled $miscf archive
-$chmod 0660 $fragilef
-$chmod 0770 $fragiled
 
-$chmod -R g+w archive/latest archive/volume* 2>/dev/null
-$chown -R $user archive/latest archive/volume* 2>/dev/null
+$chmod g+w archive/latest archive/volume* archive/latest/* 2>/dev/null
+$chown $user archive/latest archive/volume* archive/latest/* 2>/dev/null
 
 $ls -la

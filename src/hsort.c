@@ -6,13 +6,13 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: hsort.c,v 1.1 1994/04/05 15:34:42 berg Exp $";
+ "$Id: hsort.c,v 1.2 1994/05/26 13:47:45 berg Exp $";
 #endif
 #include "includes.h"
 #include "hsort.h"
 
 typedef uchar*bytep;
-#define fcmp(p1,p2)	((*fcmp)(p1,p2))
+#define fpcmp(p1,p2)	((*fcmp)(p1,p2))
 
 static void swap(p1,p2,len)bytep p1,p2;size_t len;
 { register bytep q1=p1,q2=p2;register size_t l=len;
@@ -42,9 +42,9 @@ void hsort(base,nelem,width,fcmp)void*base;size_t nelem,width;
 	 { register bytep child;size_t childoffset;
 	   child=rroot+(childoffset=(parent-rroot<<1)+width);  /* find child */
 	   if(childoffset<leafoffset)		     /* child within bounds? */
-	    { if(fcmp(child,child+width)<0)	     /* pick highest sibling */
+	    { if(fpcmp(child,child+width)<0)	     /* pick highest sibling */
 		 child+=width;
-docmp:	      if(fcmp(parent,child)<0)		 /* parent lower than child? */
+docmp:	      if(fpcmp(parent,child)<0)		 /* parent lower than child? */
 	       { swap(parent,child,width);parent=child;continue;
 	       }					    /* delve deeper! */
 	    }

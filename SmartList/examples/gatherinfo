@@ -2,12 +2,12 @@
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #########################################################################
-#	gatherinfo	To collect the info.txt files from various	#
+#	gatherinfo	To collect the e.g. info.txt files from various #
 #			mailinglists					#
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: gatherinfo,v 1.1 1993/12/22 19:47:03 berg Exp $
+#$Id: gatherinfo,v 1.2 1994/05/26 13:46:34 berg Exp $
 
 test=test		# /bin/test
 ln=ln			# /bin/ln
@@ -17,16 +17,22 @@ echo=echo		# /bin/echo
 
 getfile="$ln -s"
 
-maindir="$1"
-targetdir="$2"
+filename="$1"
+maindir="$2"
+targetdir="$3"
 
-$test $# != 2 -o ! -d "$maindir" -o ! -d "$targetdir" &&
- $echo "Usage: gatherinfo main-listdirectory targetdirectory" 1>&2 &&
+$test $# != 3 -o ! -d "$maindir" -o ! -d "$targetdir" &&
+ $echo "Usage: gatherinfo filename main-listdirectory targetdirectory" 1>&2 &&
  exit 64
 
-for a in $targetdir/*
+set dummy `cd "$targetdir"; echo *`
+shift
+
+for a in "$@"
 do
-  $test ! -d "$a" && $rm -f "$a"
+  from="$maindir/$a/$filename"
+  to="$targetdir/$a"
+  $test ! -d "$to" -a ! -f "$from" && $rm -f "$to"
 done
 
 set dummy `cd "$maindir"; echo *`
@@ -34,11 +40,19 @@ shift
 
 for a in "$@"
 do
-  from="$maindir/$a/info.txt"
+  from="$maindir/$a/$filename"
   to="$targetdir/$a"
   if $test -f "$from"
   then
-     $rm -f "$to"
-     $getfile "$from" "$to"
+     if $test -f "$to"
+     then
+	case "$getfile" in
+	   *ln*|*link*) ;;
+	   *) $rm -f "$to"
+	      $getfile "$from" "$to" ;;
+	esac
+     else
+	$getfile "$from" "$to"
+     fi
   fi
 done

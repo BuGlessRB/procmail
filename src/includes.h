@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.38 1994/04/12 16:28:14 berg Exp $*/
+/*$Id: includes.h,v 1.39 1994/05/26 13:47:46 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -265,7 +265,7 @@ double pow();
 #endif
 
 extern /*const*/char**environ;
-extern errno;
+extern int errno;
 
 #ifndef STDIN_FILENO
 #define STDIN	0
@@ -406,7 +406,7 @@ extern void*memmove();
 #define offsetof(s,m) ((char*)&(((s*)sizeof(s))->m)-(char*)sizeof(s))
 #endif
 
-#define PROGID		const char progid[]="Stephen R. van den Berg"
+#define PROGID		/*const*/char progid[]="Stephen R. van den Berg"
 #define maxindex(x)	(sizeof(x)/sizeof((x)[0])-1)
 #define STRLEN(x)	(sizeof(x)-1)
 #define ioffsetof(s,m)	((int)offsetof(s,m))

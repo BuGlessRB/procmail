@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.26 1994/04/14 12:23:57 berg Exp $*/
+/*$Id: misc.h,v 1.27 1994/05/26 13:48:02 berg Exp $*/
 
 struct dyna_long{size_t filled,tspace;off_t*offs;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -60,5 +60,5 @@ const struct passwd
  *savepass Q((struct passwd*const spass,const uid_t uid));
 
 extern const char lastfolder[];
-extern didchd;
+extern int didchd;
 extern char*globlock;

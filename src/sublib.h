@@ -1,4 +1,4 @@
-/*$Id: sublib.h,v 1.7 1993/01/26 14:49:54 berg Exp $*/
+/*$Id: sublib.h,v 1.8 1994/05/26 13:48:31 berg Exp $*/
 
 #ifdef NOmemmove
 void
@@ -10,9 +10,9 @@ char
  *strpbrk P((const char*const st,const char*del));
 #endif
 
-#ifdef NOstrstr
+#ifdef SLOWstrstr
 char
- *strstr P((const char*whole,const char*const part));
+ *sstrstr P((const char*const phaystack,const char*const pneedle));
 #endif
 
 #ifdef NOstrtol

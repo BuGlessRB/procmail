@@ -46,7 +46,7 @@
 # rc.out	optional rcfile for any local transformations on outgoing
 #		submissions
 
-#$Id: rc.init,v 1.30 1994/04/05 15:33:24 berg Exp $
+#$Id: rc.init,v 1.31 1994/05/26 13:46:21 berg Exp $
 
 DELIVERED=yes	# we're in control of the mail now, tell sendmail to go away
 
@@ -103,13 +103,15 @@ listdist=$list-dist@$domain
 				# expander (zero means: no limit) which
 				# calls sendmail
 minnames	=	32	# minimum number of names per call
+mindiffnames	=	8	# minimum for maxnames-minnames
 maxnames	=	64	# maximum number of names per call
 maxsplits	=	0	# maximum number of parts to split dist in
 maxsize		=	200000	# maximal disk space to be taken up per mail
 maxconcur	=	4	# maximum number of concurrent sendmail calls
 
-alt_sendmail="choplist $minnames $maxnames $maxsplits $maxsize $maxconcur dist"
-minnames maxnames maxsplits maxsize maxconcur
+alt_sendmail="\
+choplist $minnames $mindiffnames $maxnames $maxsplits $maxsize $maxconcur dist"
+minnames mindiffnames maxnames maxsplits maxsize maxconcur
 #alt_sendmail				# uncomment if you'd prefer sendmail
 					# to handle the $listdist expansion
 

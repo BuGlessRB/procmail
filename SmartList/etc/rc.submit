@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.53 1994/04/08 15:22:04 berg Exp $
+#$Id: rc.submit,v 1.54 1994/05/26 13:46:28 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -85,8 +85,8 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      * !^Approved:
      * !? formail -xApproved: | \
 	   multigram -b1 -m -l$reject_threshold moderators
-     | formail -R"From X-Envelope-From:" -uDate: -IReturn-Receipt-To: \
-	| $SENDMAIL $sendmailOPT `cat moderators`
+     | formail -R"From X-Envelope-From:" -uDate: -iReturn-Receipt-To: \
+	-iAcknowledge-To: | $SENDMAIL $sendmailOPT `cat moderators`
 
      #
      # Eliminate duplicate submissions by checking the Message-ID: field.
@@ -174,14 +174,19 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      # Main header munger for submissions passing through this list.
      #
 
+     oldshellmetas="$SHELLMETAS" SHELLMETAS	# Save a shell, procmail can
+						# do this one by itself.
      :0 wfh
      | formail -b -IFrom\  -IReceived: -IReturn-Receipt-To: -IErrors-To: \
-	-IX-Pmrqc: -IX-Diagnostic: -iReturn-Path: -iX-Envelope-To: \
-	-iX-Envelope-From: -I"Precedence: list" -I"Resent-Sender: $listreq" \
+	-IX-Pmrqc: -IAcknowledge-To: -IX-Diagnostic: \
+	-iReturn-Path: -iX-Envelope-To: -iX-Envelope-From: \
+	-I"Precedence: list" -I"Resent-Sender: $listreq" \
 	-uDate: -aMessage-ID: -aResent-Message-ID: \
 	-a"To: $listaddr" -a"Resent-From: $listaddr" -A"X-Loop: $listaddr" \
 	-a"Subject: Unidentified subject!" ${reply_to:+"-a$reply_to"} \
 	-a"X-Mailing-List: <$listaddr> $ARCHIVE"
+
+     SHELLMETAS="$oldshellmetas" oldshellmetas
 
      INCLUDERC=$RC_LOCAL_SUBMIT_20
 

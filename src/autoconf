@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.82 1994/04/08 15:22:15 berg Exp $
+#$Id: autoconf,v 1.83 1994/05/26 13:47:14 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -162,7 +162,7 @@ HERE
 testdirs="/tmp ."
 
 case "$LOCKINGTEST" in
-  *[!0-9]*) b=dummy;;
+  ""|*[!0-9]*) b=dummy;;
   *) b=""; testdirs=$LOCKINGTEST; LOCKINGTEST=dummy ;;
 esac
 
