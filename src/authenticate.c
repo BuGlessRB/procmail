@@ -11,7 +11,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: authenticate.c,v 1.4 1997/04/11 10:29:03 srb Exp $";
+ "$Id: authenticate.c,v 1.5 1997/04/28 00:27:45 srb Exp $";
 #endif
 
 #ifdef PROCMAIL
@@ -53,19 +53,19 @@ struct auth_identity
 
 static auth_identity authi;		      /* reuse copy, only one active */
 
-static void castlower(str)register char*str;
+static void castlower(str)register char*str;   /* and I'll take the low road */
 { for(;*str;str++)
-     if((unsigned)*str-'A'<='Z'-'A')
-	*str+='a'-'A';
+     if((unsigned)*str-'A'<='Z'-'A')		     /* uppercase character? */
+	*str+='a'-'A';				     /* cast it to lowercase */
 }
 
 static const struct passwd*cgetpwnam(user,sock)const char*const user;
  const int sock;
-{ return getpwnam(user);
+{ return getpwnam(user);	       /* this should be selfexplanatory :-) */
 }
 
 static const struct passwd*cgetpwuid(uid,sock)const uid_t uid;const int sock;
-{ return getpwuid(uid);
+{ return getpwuid(uid);					       /* no comment */
 }
 
 /*const*/auth_identity*auth_finduser(user,sock)char*const user;const int sock;
@@ -77,18 +77,18 @@ static const struct passwd*cgetpwuid(uid,sock)const uid_t uid;const int sock;
      if(!(authi.pw=cgetpwnam(user,sock)))	/* ok, be nice and try again */
 	return 0;		       /* sorry, no such user on this planet */
    }
-  authi.sock=sock;
-  if(authi.mbox)
-     free(authi.mbox),authi.mbox=0;
+  authi.sock=sock;  /* save the filedescriptor for virtual server separation */
+  if(authi.mbox)			  /* any old mailbox reference left? */
+     free(authi.mbox),authi.mbox=0;		      /* clear the reference */
   return &authi;					       /* user found */
 }
 
 /*const*/auth_identity*auth_finduid(uid,sock)const uid_t uid;const int sock;
 { if(!(authi.pw=cgetpwuid(uid,sock)))		  /* /etc/passwd user lookup */
      return 0;							     /* nada */
-  authi.sock=sock;
-  if(authi.mbox)
-     free(authi.mbox),authi.mbox=0;
+  authi.sock=sock;		    /* save filedescriptor for later perusal */
+  if(authi.mbox)				   /* old mailbox reference? */
+     free(authi.mbox),authi.mbox=0;		/* nix old mailbox reference */
   return &authi;					       /* user found */
 }
 
@@ -96,16 +96,16 @@ static const struct passwd*cgetpwuid(uid,sock)const uid_t uid;const int sock;
 int auth_checkpassword(pass,pw,allowemptypw)const auth_identity*const pass;
  const char*const pw;const int allowemptypw;
 { const char*rpw;
-  rpw=pass->pw->pw_passwd;
+  rpw=pass->pw->pw_passwd;	     /* get the regular (encrypted) password */
 #ifdef SHADOW_PASSWD
   ;{ struct spwd*spwd;
-     if(spwd=getspnam(pass->pw->pw_name))
-	rpw=spwd->sp_pwdp;
+     if(spwd=getspnam(pass->pw->pw_name))	     /* any shadow password? */
+	rpw=spwd->sp_pwdp;			 /* override the regular one */
    }
 #endif
-  if(!*rpw)
-     return allowemptypw;
-  return !strcmp(rpw,crypt(pw,rpw));
+  if(!*rpw)					     /* empty password found */
+     return allowemptypw;			    /* should we allow this? */
+  return !strcmp(rpw,crypt(pw,rpw));		    /* compare the passwords */
 }
 
 const char*auth_getsecret(pass)const auth_identity*const pass;
@@ -113,7 +113,7 @@ const char*auth_getsecret(pass)const auth_identity*const pass;
 }
 #else /* PROCMAIL */
 auth_identity*auth_newid P((void))
-{ auth_identity*pass;
+{ auth_identity*pass;		   /* create a new auth_identity placeholder */
   (pass=malloc(sizeof*pass))->pw=0;pass->mbox=0;return pass;
 }
 
@@ -180,7 +180,7 @@ uid_t auth_whatuid(pass)const auth_identity*const pass;
 }
 
 uid_t auth_whatgid(pass)const auth_identity*const pass;
-{ return pass->pw->pw_uid;
+{ return pass->pw->pw_gid;
 }
 
 const char*auth_homedir(pass)const auth_identity*const pass;
@@ -197,9 +197,9 @@ const char*auth_username(pass)const auth_identity*const pass;
 
 void auth_end P((void))
 { if(authi.mbox)
-     free(authi.mbox),authi.mbox=0;
+     free(authi.mbox),authi.mbox=0;	    /* discard the mailbox reference */
   endpwent();
 #ifdef SHADOW_PASSWD
-  endspwent();
+  endspent();
 #endif
 }

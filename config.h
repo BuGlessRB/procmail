@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.75 1997/04/11 10:28:55 srb Exp $*/
+/*$Id: config.h,v 1.76 1997/04/28 00:27:41 srb Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -49,6 +49,8 @@
 /*#define NO_lockf_LOCK		/* definitely do not want procmail to make   */
 /*#define NO_flock_LOCK		/* use of those kernel-locking methods	     */
 
+/*#define RESTRICT_EXEC		    /* don't allow everyone to fork programs */
+
 /*#define NO_NFS_ATIME_HACK	/* uncomment if you're definitely not using
 				   NFS mounted filesystems and can't afford
 	procmail to sleep for 1 sec. before writing a regular mailbox
@@ -56,7 +58,9 @@
 
 /* This usually allowed you to define SYSTEM_MBOX.  This has changed.
    If you want mail delivery to custom mail-spool-files, edit the
-   authenticate.c file and change the content of:  auth_mailboxname() */
+   src/authenticate.c file and change the content of:  auth_mailboxname()
+   (either directly, or through changing the definitions in the same file
+   of MAILSPOOLDIR, MAILSPOOLHASH or MAILSPOOLHOME) */
 
 /*#define DEFsendmail	"/bin/mail"	/* uncomment and/or change if the
 					   autoconfigured default SENDMAIL is
@@ -210,7 +214,8 @@ MMGR)\
 \n\th  deliver header (default)\tb  deliver body (default)\
 \n\tf  filter\t\t\ti  ignore write errors\
 \n\tc  carbon copy or clone message\
-\n\tw  wait for a program\t\tr	raw mode, mail as is\
+\n\tw  wait for a program\t\tr\
+  raw mode, mail as is\
 \n\tW  same as 'w', but suppress 'Program failure' messages\n"
 
 #define MINlinebuf	128    /* minimal LINEBUF length (don't change this) */

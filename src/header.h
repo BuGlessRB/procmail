@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.41 1996/12/21 03:28:25 srb Exp $*/
+/*$Id: header.h,v 1.42 1997/04/28 00:27:45 srb Exp $*/
 
 X(returnpath,		"Return-Path:")				  /* RFC 822 */
 X(received,		"Received:")				/* ditto ... */
@@ -52,6 +52,7 @@ X(via,			"Via:")
 X(apparentlyto,		"Apparently-To:")
 X(apresto,		"Apparently-Resent-To:")
 X(dliveredto,		"Delivered-To:")		  /* qmail extension */
+X(mlinglist,		"Mailing-List:")			/* ditto ... */
 X(autforwarded,		"Autoforwarded:")		  /* X.400 extension */
 X(cntidentifier,	"Content-Identifier:")			/* ditto ... */
 X(conversion,		"Conversion:")

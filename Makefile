@@ -1,8 +1,8 @@
-#$Id: Makefile,v 1.72 1996/12/21 03:28:05 srb Exp $
+#$Id: Makefile,v 1.73 1997/04/28 00:27:40 srb Exp $
 
 # BASENAME should point to where the whole lot will be installed
 # change BASENAME to your home directory if need be
-BASENAME	= /usr/local
+BASENAME	= /usr
 # For display in the man pages
 VISIBLE_BASENAME= $(BASENAME)
 

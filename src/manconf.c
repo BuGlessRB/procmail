@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.59 1997/04/02 03:31:57 srb Exp $*/
+/*$Id: manconf.c,v 1.60 1997/04/28 00:27:46 srb Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -8,7 +8,7 @@
 
 #define pn(name,val)	pnr(name,(long)(val))
 
-static char pm_version[]=VERSION,ffileno[]=DEFfileno,matchvar[]=MATCHVAR;
+static char pm_version[]=VERSION,ffileno[]=DEFfileno;
 static int lines;
 const char dirsep[]=DIRSEP,pmrc[]=PROCMAILRC;
 char pmrc2[]=PROCMAILRC;			     /* need a writable copy */
@@ -59,11 +59,11 @@ static void putsesc(a)const char*a;
 { int c,k;
   for(c=0;;putcesc(c=k))
      switch(k= *a++)
-      { case '|':case ':':
+      { case '\0':
+	   return;
+	case '|':case ':':
 	   if(c!=' ')	 /* only insert these if there wasn't a space before */
 	      printf("\\\\h'-\\\\w' 'u' ");		 /* breaking nospace */
-	case '\0':
-	   return;
       }
 }
 
@@ -246,8 +246,7 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
   pn("DEFlocktimeout",DEFlocktimeout);
   pn("DEFtimeout",DEFtimeout);
   pn("DEFnoresretry",DEFnoresretry);
-  matchvar[STRLEN(matchvar)-1]='\0';
-  ps("MATCHVAR",matchvar);
+  ps("MATCHVAR",MATCHVAR);
   ps("COMSAThost",COMSAThost);
   ps("COMSATservice",COMSATservice);
   ps("COMSATprotocol",COMSATprotocol);

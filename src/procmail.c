@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.119 1997/04/11 10:29:06 srb Exp $";
+ "$Id: procmail.c,v 1.120 1997/04/28 00:27:48 srb Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -111,7 +111,7 @@ main(argc,argv)const char*const argv[];
 		    elog(", flock()");
 #endif
 		    elog("\nDefault rcfile:\t\t");elog(pmrc);
-		    elog("\nSystem mailbox:\t\t");
+		    elog("\nYour system mailbox:\t");
 		    elog(auth_mailboxname(auth_finduid(getuid(),0)));
 		    elog(newline);
 		    return EXIT_SUCCESS;
@@ -448,7 +448,7 @@ nospecial:	     { static const char densppr[]=
 	  /*
 	   *	set preferred uid to the intended recipient
 	   */
-Setuser: { gid=auth_whatuid(pass);uid=auth_whatgid(pass);
+Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
 	   if(!*(chp=(char*)auth_username(pass)))
 	      chp=buf;
 	   setdef(lgname,chp);setdef(home,auth_homedir(pass));

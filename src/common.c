@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: common.c,v 1.23 1997/04/03 01:58:40 srb Exp $";
+ "$Id: common.c,v 1.24 1997/04/28 00:27:45 srb Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -27,7 +27,8 @@ void shexec(argv)const char*const*argv;
   for(p=(const char**)argv,i=1;i++,*p++;);	      /* count the arguments */
   newargv=malloc(i*sizeof*p);		      /* no shell script? -> trouble */
   for(*(p=(const char**)newargv)=binsh;*++p= *argv++;);
-  execv(*newargv,newargv);nlog("Failed to execute");logqnl(*argv);
+  execv(*newargv,newargv);free(newargv);nlog("Failed to execute");
+  logqnl(*argv);
   exit(EX_UNAVAILABLE);
 }
 

@@ -28,6 +28,7 @@ Feature summary for procmail:
 	+ Supports four mailfolder standards: single file folders (standard
 	  and nonstandard VNIX format), directory folders that contain one file
 	  per message, or the similar MH directory folders (numbered files)
+	+ Native support for /var/spool/mail/b/a/bar type mailspools
 	+ Variable assignment and substitution is an extremely complete subset
 	  of the standard /bin/sh syntax
 	+ Provides a mail log file, which logs all mail arrival, shows

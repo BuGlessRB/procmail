@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.76 1997/04/03 01:58:45 srb Exp $";
+ "$Id: misc.c,v 1.77 1997/04/28 00:27:46 srb Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -26,6 +26,7 @@ static /*const*/char rcsid[]=
 #endif
 #include "mailfold.h"
 #include "lastdirsep.h"
+#include "authenticate.h"
 
 struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
  {"LOCKTIMEOUT",DEFlocktimeout},{"SUSPEND",DEFsuspend},
@@ -555,9 +556,11 @@ char*egrepin(expr,source,len,casesens)char*expr;const char*source;
   return (char*)source;
 }
 
-int enoughprivs(passinvk,euid,egid,uid,gid)const struct passwd*const passinvk;
+int enoughprivs(passinvk,euid,egid,uid,gid)const auth_identity*const passinvk;
  const uid_t euid,uid;const gid_t egid,gid;
-{ return euid==ROOT_uid||passinvk&&passinvk->pw_uid==uid||euid==uid&&egid==gid;
+{ return euid==ROOT_uid||
+   passinvk&&auth_whatuid(passinvk)==uid||
+   euid==uid&&egid==gid;
 }
 
 void initdefenv P((void))

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.43 1997/04/03 01:58:47 srb Exp $";
+ "$Id: pipes.c,v 1.44 1997/04/28 00:27:47 srb Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -74,7 +74,13 @@ static void getstdin(pip)const int pip;
 }
 
 static void callnewprog(newname)const char*const newname;
-{ if(sh)					 /* should we start a shell? */
+{
+#ifdef RESTRICT_EXEC
+  syslog(LOG_ERR,slogstr,"Attempt to execute",newname)
+  nlog("Insufficient permission to execute");logqnl(newname);
+  return;
+#endif
+  if(sh)					 /* should we start a shell? */
    { const char*newargv[4];
      yell(executing,newname);newargv[3]=0;newargv[2]=newname;
      newargv[1]=shellflags;*newargv=tgetenv(shell);shexec(newargv);

@@ -34,7 +34,7 @@ see "src/includes.h".
 
 ------------------------------ DESCRIPTION -----------------------------------
 
-The procmail mail processing program. (vv3.11pre6 1997/04/11)
+The procmail mail processing program. (v3.11pre7 1997/04/28)
 
 Can be used to create mail-servers, mailing lists, sort your incoming mail
 into separate folders/files (real convenient when subscribing to one or more
@@ -104,6 +104,10 @@ feedback procmail would not have looked the same:
 	 <czyborra@cs.tu-berlin.de>
 	Ari Kornfeld		The guardian angel of SmartList
 	 <ari@perspective.com>
+	Alan K. Stebbens	For his endless creativity and suggestions
+	 <aks@sgi.com>
+	Philip Guenther		Sometimes faster at repairing bugs than I can
+	 <guenther@gac.edu>					write them :-)
 
 ----------------------
 

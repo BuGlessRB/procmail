@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.82 1996/12/21 03:28:14 srb Exp $
+#$Id: rc.submit,v 1.83 1997/04/28 00:27:43 srb Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -23,6 +23,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 :0
 * < $size_limit
 * !$^($X_COMMAND:|X-Loop: $\listaddr)
+* ! B ?? $^^$X_COMMAND:
 * $$daemon_bias
 * -100^0 ^FROM_MAILER|\
 	 ^(((Resent-)?(From|Sender)|X-Envelope-From):|>?From )\
@@ -106,6 +107,10 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      :0
      * moderated_flag ?? y
       {
+	:0 Bfw				# contract header and body
+	* ^^Approved:.*$^
+	| sed -e '1,/^$/{' -e '/^$/d' -e '}'
+
 	:0
 	* !$^Approved:.*$moderator_PASSWORD
 	| formail -R"From X-Envelope-From:" -uDate: -iReturn-Receipt-To: \
