@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.84 1999/01/20 17:58:21 guenther Exp $";
+ "$Id: formail.c,v 1.85 1999/01/23 07:30:45 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/01/20 17:58:21 $";
+static /*const*/char rcsdate[]="$Date: 1999/01/23 07:30:45 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -433,6 +433,8 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		 continue;
 	      case FM_QPREFIX:Qnext_arg();escap=chp;
 		 break;
+	      case FM_VERSION:elog("formail");elog(VERSION);
+		 return EXIT_SUCCESS;
 	      case FM_ADD_IFNOT:case FM_ADD_ALWAYS:case FM_REN_INSERT:
 	      case FM_DEL_INSERT:case FM_EXTRACT:case FM_EXTRC_KEEP:
 	      case FM_FIRST_UNIQ:case FM_LAST_UNIQ:case FM_ReNAME:Qnext_arg();
@@ -481,8 +483,6 @@ invfield:	     { nlog("Invalid field-name:");logqnl(chp?chp:"");
 		    if(!copied)			   /* if not squeezed on yet */
 		       tmemmove((char*)fldp->fld_text+lnl,chp,i);  /* do now */
 		  }
-	      case FM_VERSION:elog("formail");elog(VERSION);
-		 return EXIT_SUCCESS;
 	      case '\0':;
 	    }
 	   break;
