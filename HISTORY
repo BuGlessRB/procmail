@@ -564,6 +564,8 @@
 		 variable initialization)
 	       - When delivering to a maildir, don't force the message to end
 		 with an empty line
+	       - A race to create the mailspool would bounce one of the
+		 messages due to an internal error
 	    Changes to autoconf:
 	       - Check for enum support
 	       - Warn people that non-ISO/ANSI C compilers might not be

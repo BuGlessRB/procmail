@@ -7,7 +7,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: foldinfo.c,v 1.3 2000/11/18 03:44:19 guenther Exp $";
+ "$Id: foldinfo.c,v 1.4 2000/12/22 20:33:49 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "misc.h"
@@ -167,14 +167,14 @@ ret:
 			     /* lifted out of main() to reduce main()'s size */
 int screenmailbox(chp,egid,Deliverymode)
  char*chp;const gid_t egid;const int Deliverymode;
-{ char ch;struct stat stbuf;int type;
+{ char ch;struct stat stbuf;int basetype,type;
   /*
    *	  do we need sgidness to access the mail-spool directory/files?
    */
   accspooldir=3;	   /* assume we can write to the spool directory and */
   sgid=gid;	      /* that we don't need to setgid() to create a lockfile */
   strcpy(buf,chp);
-  type=folderparse();				       /* strip off the type */
+  basetype=folderparse();			       /* strip off the type */
   if(buf[0]=='\0')				/* don't even bother with "" */
      return 0;
   ch= *(chp=lastdirsep(buf));
@@ -212,7 +212,7 @@ keepgid:			   /* keep the gid from the parent directory */
   */
   chp=strchr(buf,'\0')-1;
   for(;;)				     /* what type of folder is this? */
-   { type=foldertype(type,0,0,&stbuf);
+   { type=foldertype(basetype,0,0,&stbuf);
      if(type==ft_NOTYET)
       { if(errno!=EACCES||(setids(),lstat(buf,&stbuf)))
 	   goto nobox;
