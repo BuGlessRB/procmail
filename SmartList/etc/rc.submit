@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.41 1994/01/18 16:10:48 berg Exp $
+#$Id: rc.submit,v 1.42 1994/02/08 16:14:01 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -18,10 +18,9 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 #	It does not look like an administrative request.
 #	It wasn't sent by this list itself.
 #	It wasn't sent by a daemon (misdirected bounce message perhaps).
-# Then check to see if sender is on the accept list.
 #
 
-:0 Wch i
+:0
 * < $size_limit
 * $!^($X_COMMAND:|\
       Subject:([	 ]*(archive:?([	 ]+(\
@@ -32,18 +31,24 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 	 take .* off|put .* on) .* [a-z-]*list|subscri(be|ption))([^a-z-]|$))|\
       X-Loop: $listaddr|\
       Precedence:.*junk)|^FROM_MAILER
-| test yes = "$foreign_submit" && exit 0; \
-  formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
-   -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
-    multigram -b1 -m -l$submit_threshold -x$listaddr -x$listreq accept
+{
 
-  :0 a
+  #
+  # Then check to see if sender is on the accept list (if foreign_submit
+  # is not set).
+  #
+
+  :0 A
+  * 1^1 !$${foreign_submit:+!}
+  * 2^0 ? formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
+	   -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
+	   multigram -b1 -m -l$submit_threshold -x$listaddr -x$listreq accept
    {
 
      INCLUDERC=$RC_LOCAL_SUBMIT_10
 
      :0
-     * $$moderated_flag
+     * $!${moderated_flag:+!}
      * !^Approved:
      * !? formail -xApproved: | \
 	   multigram -b1 -m -l$reject_threshold moderators
@@ -62,7 +67,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      #
 
      :0
-     * $$force_subscribe
+     * $!${force_subscribe:+!}
      * !? formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 	   -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
 	    multigram -b1 -m -l$submit_threshold -x$listaddr -x$listreq dist
@@ -86,7 +91,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      #
 
      :0 W :tmp.lock
-     * $$digest_flag
+     * $!${digest_flag:+!}
      | digest
 
      ARCHIVE				# Wipe ARCHIVE from the environment
@@ -97,6 +102,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      #
 
      :0
+     * $archive_hist^0
      * !^X-Mailing-List:
       {
 	:0 c
@@ -155,5 +161,6 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
   | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
 	   cat accept.txt) | $SENDMAIL $sendmailOPT -t
 
+}
 
 HOST=continue_with_rc.request

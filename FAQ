@@ -50,7 +50,7 @@
 4. The compiler seems to issue warnings about "loop not entered at top",
    is that a problem?
 
-	No, no problem at all, it just means I wrote the code :-)
+	No, no problem at all, it just means I wrote the code :-).
 	That's just about the only uncommon coding technique I use (don't
 	think I don't try to avoid those jumps in loops, it's just that
 	sometimes they are the best way to code it).  Use gcc if you want
@@ -136,7 +136,17 @@
 	make sure that your sendmail always forwards to a mailserver first or
 	upgrade to sendmail 6.x or later.
 
-14. I sometimes get these `Lock failure on "/usr/mail/$LOGNAME.lock"' errors
+14. My mailtool sometimes reports that it is confused about the state of
+    the mailbox, or I get "Couldn't unlock" errors from procmail now and then.
+
+	This is a known bug in the OpenLook mailtool.  It holds on to the
+	kernel lock on the mail-spoolfile most of the time, and releases
+	this lock when it shouldn't.  Either ask for a bugfix from your
+	vendor (I'm not sure if a bugfix exists), or make sure that during
+	the compilation of procmail both the fcntl() and lockf() locking
+	methods are disabled (see config.h).
+
+15. I sometimes get these `Lock failure on "/usr/mail/$LOGNAME.lock"' errors
     from procmail.  What do I do about it?
 
 	The problem here is that as long as procmail has not read a
@@ -185,7 +195,7 @@
 	  system mailbox will be using the same lockfile of course.
 
 
-15. None of the above topics cover my problem.	Should I panic?
+16. None of the above topics cover my problem.	Should I panic?
 
 	Let me ask you a question :-), have you examined the CAVEATS, WARNINGS,
 	BUGS and NOTES sections of the manual pages *closely* ?

@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh3  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh3		  # we're in a buggy zsh
-#$Id: install.sh3,v 1.21 1994/01/17 14:40:19 berg Exp $
+#$Id: install.sh3,v 1.22 1994/02/08 16:13:41 berg Exp $
 
 umask 022
 
@@ -47,6 +47,23 @@ then
 	  test -f $a/accept || (cd $a && $ln dist accept 2>/dev/null )
 	  test -f $a/unsubscribe.txt ||
 	   (cd $a && $ln ../.etc/unsubscribe.txt unsubscribe.txt 2>/dev/null )
+	  if sed \
+	    -e 's/\(^[	 ]*undigested_list[^#]*\$list@\$domain[	 ]\)/#\1/' \
+	    -e 's/=\([	 ]*\)<0/\1/' \
+	    -e 's/=\([	 ]*\)>0/=\1yes/' \
+	    -e 's/\(cc_requests[	 ]*=[	 ]*\)c/\1yes/' \
+	    <$a/rc.custom >$a/#rc.custom &&
+	   cat $a/#rc.custom >$a/rc.custom &&
+	   rm -f $a/#rc.custom
+	  then
+	  :
+	  else
+	     echo "*****************************************************"
+	     echo "Couldn't move $a/#rc.custom over $a/rc.custom"
+	     echo "Please do that by hand, or repeat the install.sh"
+	     echo "script all over, after making the rc.custom files"
+	     echo "group writable."
+	  fi
        fi
     done
   )

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.30 1993/12/23 13:02:19 berg Exp $";
+ "$Id: regexp.c,v 1.31 1994/02/08 16:15:03 berg Exp $";
 #endif
 #include "includes.h"
 #include "robust.h"
@@ -38,15 +38,15 @@ static /*const*/char rcsid[]=
 #define LOOPL_NODE		(OPB<<2)
 #define LOOPR_NODE		(OPB<<3)
 #define LOOP_MASK		(LOOPL_NODE-1)
-#define OPC_SEMPTY		OPB
-#define OPC_TSWITCH		(OPB+1)
+#define OPC_SEMPTY		OPB		      /* stack empty special */
+#define OPC_TSWITCH		(OPB+1)		      /* task switch special */
 #define OPC_DOT			(OPB+2)
 #define OPC_BOTEXT		(OPB+3)
 #define OPC_EPS			(OPB+4)
 #define OPC_JUMP		(OPB+5)
 #define OPC_CLASS		(OPB+6)
 #define OPC_FIN			(OPB+7)
-#define OPC_FILL		(OPB+8)
+#define OPC_FILL		(OPB+8)	      /* filler opcode, not executed */
 		  /* Don't change any opcode above without checking skplen[] */
 #define bit_type		unsigned
 #define bit_bits		(sizeof(bit_type)*8)
@@ -298,7 +298,7 @@ static struct eps*maxback(down)struct eps*down;
       }
      if(ii)				       /* loop found directly below? */
       { down->opc|=LOOPR_NODE;				/* mark a right-loop */
-	if(!(down->opc&LOOPL_NODE))	/* if we didn't also had a left-loop */
+	if(!(down->opc&LOOPL_NODE))    /* if we didn't also have a left-loop */
 	   ii=0;		/* we tell our predecessor we are not a loop */
       }
      if(!left)					    /* found no loop at all? */

@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.34 1994/01/12 19:13:21 berg Exp $*/
+/*$Id: includes.h,v 1.35 1994/02/08 16:14:42 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -22,9 +22,10 @@
 #include <sys/types.h>		/* pid_t mode_t uid_t gid_t off_t */
 #ifndef UNISTD_H_MISSING
 #include <unistd.h>		/* open() read() write() close() dup() pipe()
-				/* fork() getuid() getgid() getpid() execve()
-				   execvp() sleep() setuid() setgid()
-				   setruid() setrgid() setegid() chown() */
+				/* fork() getuid() geteuid() getgid() getegid()
+				   getpid() execve() execvp() sleep() setuid()
+				   setgid() setruid() setrgid() setegid()
+				   chown() */
 #else
 #undef UNISTD_H_MISSING
 #endif

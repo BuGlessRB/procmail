@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.65 1994/01/28 11:57:47 berg Exp $";
+ "$Id: procmail.c,v 1.66 1994/02/08 16:14:59 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -58,6 +58,7 @@ main(argc,argv)const char*const argv[];
   kill(getpid(),SIGSTOP);/*raise(SIGSTOP);*/
 #endif
   ;{ int Deliverymode,mailfilter;char*fromwhom=0;const char*idhint=0;
+     gid_t egid=getegid();
 #define Presenviron	i
      Deliverymode=mailfilter=0;thepid=getpid();
      if(argc)			       /* sanity check, any argument at all? */
@@ -289,7 +290,7 @@ privileged:				       /* move stdout out of the way */
 	    }
 	   if(euid==ROOT_uid||
 	      passinvk&&passinvk->pw_uid==pass->pw_uid||
-	      euid==pass->pw_uid&&!setgid(pass->pw_gid))
+	      euid==pass->pw_uid&&egid==pass->pw_gid)
 	      goto Setuser;
 	   nlog("Insufficient privileges\n");
 	 }
@@ -340,7 +341,7 @@ Setuser: { gid=pass->pw_gid;uid=pass->pw_uid;
 	if(!stat(buf,&stbuf))
 	 { accspooldir=stbuf.st_mode&(S_IWGRP|S_IWOTH)||uid==stbuf.st_uid;
 	   if((uid!=stbuf.st_uid&&
-		stbuf.st_gid==getegid()||
+		stbuf.st_gid==egid||
 	       (rcstate=rc_NOSGID,0))&&
 	      (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH))==(S_IWGRP|S_IXGRP))
 	    { if(!Deliverymode)		     /* we aren't the only deliverer */
@@ -640,21 +641,27 @@ jinregs:			   regsp=regs;	/* start over and look again */
 				    }
 				   else
 				    { double oweight=weight*weight;
-				      while(weight&&(chp2=
+				      while(weight!=0&&
+					    MIN32<score&&
+					    score<MAX32&&
+					    (chp2=
 				       bregexec(re,(const uchar*)startchar,
 					(const uchar*)chp,(size_t)rest,
 					igncase)))
 				       { score+=weight;weight*=xponent;
+					 if(chp>=chp2)	  /* break off empty */
+					  { if(0<xponent&&xponent<1)
+					       score+=weight/(1-xponent);
+					    else if(xponent>=1&&weight!=0)
+					       score+=weight<0?MIN32:MAX32;
+					    break;	    /* matches early */
+					  }
 					 ;{ double nweight;
 					    if((nweight=weight*weight)<oweight
 					       &&oweight<1)
 					       break;
+					    oweight=nweight;
 					  }
-					 if(chp==chp2)
-					    if(score>=MAX32||score<=MIN32)
-					       break;
-					    else
-					       continue;
 					 rest-=chp2-chp;chp=chp2;
 				       }
 				    }
@@ -723,8 +730,8 @@ mininfty:	       score=MIN32,i=0;
 		    if(verbose)	     /* not entirely correct, but it will do */
 		     { if(scoreany)
 			{ charNUM(num,long);
-			  nlog("Score: ");ltstr(7,(long)score,num);elog(num);
-			  elog(" ");ltstr(7,(long)(score-lscore),num);
+			  nlog("Score: ");ltstr(7,(long)(score-lscore),num);
+			  elog(num);elog(" ");ltstr(7,(long)score,num);
 			  elog(num);
 			}
 		       else
@@ -872,7 +879,7 @@ forward:	 if(locknext)
 				progerr(procmailn,excode);
 			     succeed=0;
 			   }
-			  pidchild=0;
+			  pidchild=0;skiprc++;	     /* skip over the braces */
 			}
 		     }
 		  }
@@ -900,8 +907,9 @@ frmailed:	  { if(ifstack.offs)
 	    }
 	 }
 	else if(testb('}'))					/* end block */
-	 { if(skiprc)					    /* just skipping */
-	      skiprc--;					   /* decrease level */
+	 { prevcond=1;
+	   if(skiprc)					    /* just skipping */
+	      prevcond=0,skiprc--;			   /* decrease level */
 	   if(ifstack.filled)		      /* restore lastcond from stack */
 	      lastcond=ifstack.offs[--ifstack.filled];
 	   else

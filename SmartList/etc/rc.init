@@ -46,7 +46,7 @@
 # rc.out	optional rcfile for any local transformations on outgoing
 #		submissions
 
-#$Id: rc.init,v 1.25 1994/01/17 14:40:40 berg Exp $
+#$Id: rc.init,v 1.26 1994/02/08 16:13:54 berg Exp $
 
 PATH=.:$PATH:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises
@@ -143,27 +143,27 @@ foreign_submit	=	yes
 #foreign_submit				# uncomment this line if you
 					# want to restrict submitting to
 					# people on the accept list
-force_subscribe =	<0
-#force_subscribe=	>0		# uncomment to cause people to
+force_subscribe
+#force_subscribe=	yes		# uncomment to cause people to
 					# be autosubscribed upon first
 					# submission to the list
-auto_subscribe	=	>0
-#auto_subscribe =	<0		# uncomment to disable unattended
+auto_subscribe	=	yes
+#auto_subscribe =			# uncomment to disable unattended
 					# subscription handling
-moderated_flag	=	<0
-#moderated_flag =	>0		# uncomment this to make the list
+moderated_flag
+#moderated_flag =	yes		# uncomment this to make the list
 					# moderated (you must create a
 					# `moderators' file for this to work)
 cc_requests
-#cc_requests	=	c		# uncomment if you want subscribe
+#cc_requests	=	yes		# uncomment if you want subscribe
 					# and help requests to be Cc'd to
 					# the maintainer
 reply_to
 #reply_to	= "Resent-Reply-To: $listaddr" # uncomment (and perhaps change
 					# it to "Reply-To") to force replies
 					# to go to the list (discouraged)
-digest_flag	=	<0
-#digest_flag	=	>0		# uncomment this if you want digests
+digest_flag
+#digest_flag	=	yes		# uncomment this if you want digests
 digest_age	=	262144		# maximum age of a digest in seconds
 digest_size	=	32768		# maximum size of a digest in bytes
 

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.24 1994/01/25 15:39:33 berg Exp $
+.Id $Id: procmailex.man,v 1.25 1994/02/08 16:14:22 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -8,7 +8,7 @@ procmailex \- procmail rcfile examples
 .SH SYNOPSIS
 .B $HOME/@PROCMAILRC@ examples
 .ad
-.SH DESCRIPTION
+.SH DESCRIPTION
 For a description of the rcfile format see
 .BR procmailrc (5).
 .PP
@@ -21,7 +21,7 @@ you can check the NOTES section in
 .BR procmail (1),
 or look at the example rcfiles part of the procmail source distribution
 (procmail*/examples/?procmailrc).
-.SH EXAMPLES
+.SH EXAMPLES
 Sort out all mail coming from the scuba-dive mailing list into the mailfolder
 scubafile (uses the locallockfile scubafile.lock).
 .Sx 3
@@ -125,7 +125,7 @@ doesn't follow accepted conventions, this might not be enough).
 .Sx 4
 :0 @PASS_HEAD@ @CONTINUE@
 * !^FROM_DAEMON
-* !^From +YOUR_LOGIN_NAME
+* !^From +YOUR_USERNAME
 | (formail \-@FM_REPLY@ \-@FM_ADD_ALWAYS@"Precedence: junk";\e
    echo "Mail received.") | $SENDMAIL \-t
 .Ex
@@ -147,7 +147,7 @@ SHELL=/bin/sh    # for other shells, this might need adjustment
 
 :0
 * !^FROM_DAEMON
-* !^From +YOUR_LOGIN_NAME
+* !^From +YOUR_USERNAME
 {
   FROM=`formail \-@FM_REPLY@@FM_EXTRACT@ To:`
   ALREADYSENT=$HOME/vacation     # the vacation database
@@ -303,7 +303,7 @@ sender.  Like in all recipes where we send mail, we watch out for mail
 loops.
 .Sx 6
 :0
-* !^From +YOUR_LOGIN_NAME
+* !^From +YOUR_USERNAME
 * !^Subject:.*Re:
 * !^FROM_DAEMON
 * ^Subject:.*retrieve
@@ -398,7 +398,7 @@ DEFAULT=|     # pipe to stdout instead of
      \-I 'Content-Type: text/plain; charset=3DISO-8859-1' \e
      \-I 'Content-Transfer-Encoding: quoted-printable'
 .Ex
-.SH "SEE ALSO"
+.SH "SEE ALSO"
 .na
 .nh
 .BR procmail (1),

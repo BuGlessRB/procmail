@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.36 1994/01/28 11:56:49 berg Exp $
+.Id $Id: procmail.man,v 1.37 1994/02/08 16:14:18 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -31,7 +31,7 @@ procmail \- autonomous mail processor
 .B procmail
 .B \-@VERSIONOPT@
 .ad
-.SH DESCRIPTION
+.SH DESCRIPTION
 For a quick start, see
 .B NOTES
 at the end.
@@ -92,7 +92,7 @@ Equivalent to a
 .B USR2
 Equivalent to a
 .BR VERBOSE =on.
-.SH OPTIONS
+.SH OPTIONS
 .TP 0.5i
 .B \-@VERSIONOPT@
 Procmail will print its version number and exit.
@@ -145,7 +145,7 @@ line so that the mail can be transparently resent if needed.
 For some typical usage of this option you should look in the
 .B EXAMPLES
 section below.
-.SH ARGUMENTS
+.SH ARGUMENTS
 Any arguments containing an '=' are considered to be environment variable
 assignments, they will
 .I all
@@ -166,7 +166,7 @@ If no rcfiles are specified, it looks for
 If not even that can be found, processing will continue according to
 the default settings of the environment variables and the ones specified
 on the command line.
-.SH EXAMPLES
+.SH EXAMPLES
 Examples for rcfile recipes can be looked up in the
 .BR procmailex (5)
 man page.
@@ -191,8 +191,8 @@ to continue the rule, and the tab to separate the comments):
 .Sx 4
 R$*<@some.where>$*
         $#procmail $@/etc/some.rc $:$1@some.where.procmail$2
-R$*<@some.where.procmail>$*
-        $1<@some.some>$2       Already filtered, map back
+R$*<@$*.procmail>$*
+        $1<@$2>$3       Already filtered, map back
 .Ex
 And /etc/some.rc could be as simple as:
 .Sx 6
@@ -203,7 +203,10 @@ And /etc/some.rc could be as simple as:
 :0                              # pass along all other mail
 ! \-oi \-f "$@"
 .Ex
-.SH FILES
+Do watch out when sending mail from within the /etc/some.rc file, if
+you send mail to addresses which match the first rule again, you could
+be creating an endless mail loop.
+.SH FILES
 .TP 2.3i
 .B /etc/passwd
 to set the recipient's LOGNAME, HOME and SHELL variable defaults
@@ -223,7 +226,7 @@ default mail forwarder
 .TP
 .B @UNIQ_PREFIX@????`hostname`
 temporary `unique' zero-length files created by procmail
-.SH "SEE ALSO"
+.SH "SEE ALSO"
 .na
 .nh
 .BR procmailrc (5),
@@ -246,7 +249,7 @@ temporary `unique' zero-length files created by procmail
 .BR cron (1)
 .hy
 .ad
-.SH DIAGNOSTICS
+.SH DIAGNOSTICS
 .TP 2.3i
 Autoforwarding mailbox found
 The system mailbox had its suid or sgid bit set, procmail terminates with
@@ -284,7 +287,7 @@ Buffer overflow detected, LINEBUF was too small, memory might be corrupted.
 .TP
 Excessive output quenched from "x"
 The program or filter "x" tried to produce too much output for the current
-LINEBUF, discarded the rest.
+LINEBUF, the rest was discarded.
 .TP
 Extraneous x ignored
 The action line of this recipe makes flag x meaningless.
@@ -388,7 +391,7 @@ Missing closing quote, or trying to escape EOF.
 .TP
 Unknown user "x"
 The specified recipient does not have a corresponding uid.
-.SH "EXTENDED DIAGNOSTICS"
+.SH "EXTENDED DIAGNOSTICS"
 Extended diagnostics can be turned on and off through setting the
 VERBOSE variable.
 .TP 2.3i
@@ -437,12 +440,12 @@ Reiterating kernel-lock
 While attempting several locking methods, one of these failed.  Procmail will
 reiterate until they all succeed in rapid succession.
 .TP
-Score: total added "x"
-This condition scored `added' points, which resulted in a `total' score.
+Score: added newtotal "x"
+This condition scored `added' points, which resulted in a `newtotal' score.
 .TP
 Unlocking "x"
 Removing lockfile "x" again.
-.SH WARNINGS
+.SH WARNINGS
 You should create a shell script that uses
 .BR lockfile (1)
 before invoking your mail shell on any mailbox file other than the system
@@ -463,7 +466,7 @@ Beware when using the
 option, if procmail repeatedly is unable to deliver the mail (e.g. due to
 an incorrect rcfile), the system mailqueue could fill up.  This could
 aggravate both the local postmaster and other users.@ETCRC_warn@
-.SH BUGS
+.SH BUGS
 After removing a lockfile by force, procmail waits $SUSPEND seconds before
 creating a new lockfile so that another process that decides to remove the
 stale lockfile will not remove the newly created lock by mistake.
@@ -471,7 +474,7 @@ stale lockfile will not remove the newly created lock by mistake.
 Procmail uses the regular TERMINATE signal to terminate any runaway filter,
 but it does not check if the filter responds to that signal and it only sends
 it to the filter itself, not to any of the filter's children.
-.SH MISCELLANEOUS
+.SH MISCELLANEOUS
 When appending to regular mailfolders any lines in the body of the message that
 look like postmarks are prepended with `@ESCAP@' (disarms bogus mailheaders).
 The regular expression that is used to search for these postmarks is:
@@ -540,7 +543,7 @@ Whenever procmail itself opens a file to deliver to, it
 Procmail is NFS-resistant and eight-bit clean.
 .br
 .ne 11
-.SH NOTES
+.SH NOTES
 Calling up procmail with the \-@HELPOPT1@ or \-@HELPOPT2@ options will cause
 it to display a command-line help and recipe flag quick-reference page.
 .PP
@@ -552,7 +555,7 @@ the single and double quotes, and it
 .I must
 be an
 .I absolute
-path.  The `#YOUR_LOGIN_NAME' is not actually a parameter that is required by
+path.  The `#YOUR_USERNAME' is not actually a parameter that is required by
 procmail, in fact, it will be discarded by sh before procmail ever sees it;
 it is however a necessary kludge against overoptimising sendmail programs:
 .PP

@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.38 1994/01/28 11:56:33 berg Exp $
+#$Id: install.sh,v 1.39 1994/02/08 16:13:38 berg Exp $
 
 SHELL=/bin/sh
 export SHELL
@@ -149,7 +149,7 @@ fi
 echo "that \`PATH', \`domain' and \`listmaster' reflect your installation."
 if test -f $target/.etc/rc.init.new
 then
-  echo "Then execute:"
+  echo "Finally, to reenable the lists execute:"
   echo "		/bin/rm -f $target/.etc/rc.lock"
   touch "$target/.etc/rc.lock"
 fi

@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.76 1994/01/28 11:57:10 berg Exp $
+#$Id: autoconf,v 1.77 1994/02/08 16:14:38 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -725,7 +725,7 @@ main(){int i=0;char*p="t";
  return !vvoid;}
 HERE
 
-echo 'Testing for void*,size_t,off_t,pid_t,time_t,mode_t,uid_t,gid_t'
+echo 'Testing for void*, size_t, off_t, pid_t, time_t, mode_t, uid_t & gid_t'
 
 i0="";i1="";i2="";i3="";i4="";i5="";i6="";i7=""
 oldi=""
@@ -998,7 +998,7 @@ main(argc)
      ;{ unsigned long s=(size_t)~0;int bits;
 	for(bits=1;s>>=1;bits++);
 	if(bits<=16)
-	 { puts("#define SMALLHEAP");return 1;
+	 { puts("#define SMALLHEAP");return 0;
 	 }
       }
 #ifdef _GUID_T						      /* ISC cc hack */
@@ -1025,8 +1025,22 @@ HERE
 
 echo "Benchmarking your system's strstr() implementation"
 
-$MAKE _autotst >$DEVNULL 2>&1
-_autotst >>$ACONF
+if $MAKE _autotst >$DEVNULL 2>_autotst.rrr &&
+   _autotst >>$ACONF 2>>_autotst.rrr
+then
+:
+else
+  echo 2>&1 "Whoeaaa!  This actually can't happen."
+  echo 2>&1 "You have a look and see if you detect anything uncanny:"
+  echo 2>&1 "*******************************************************"
+  cat 2>&1 _autotst.rrr
+  echo 2>&1 "*******************************************************"
+  echo 2>&1 "I suggest you take a look at the definition of LDLAGS*"
+  echo 2>&1 "in the Makefile before you try make again."
+  kill -15 $$
+fi
+
+$RM _autotst.rrr
 
 found=no
 for a in /usr/spool/mail /usr/mail /var/spool/mail /var/mail /spool/mail

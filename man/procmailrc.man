@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.33 1994/01/28 11:56:55 berg Exp $
+.Id $Id: procmailrc.man,v 1.34 1994/02/08 16:14:26 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -276,10 +276,6 @@ file (if not told otherwise, procmail will dump mail in this mailbox).
 Procmail will automatically use LOCKFILE=$DEFAULT$LOCKEXT prior to writing
 to this mailbox.
 .TP
-.B MSGPREFIX
-Filename prefix that is used when delivering to a directory (not used when
-delivering to an MH directory).
-.TP
 .B LOGFILE
 This file will also contain any error or diagnostic messages from procmail
 (normally none :-) or any other programs started by procmail.  If this file
@@ -348,6 +344,10 @@ some child it started must be hanging.  The offending program will receive
 a TERMINATE signal from procmail, and processing of the rcfile will continue.
 If zero, then no timeout will be used and procmail will wait forever until the
 child has terminated; if not specified, it defaults to @DEFtimeout@ seconds.
+.TP
+.B MSGPREFIX
+Filename prefix that is used when delivering to a directory (not used when
+delivering to an MH directory).
 .TP
 .B HOST
 If this is not the
@@ -448,6 +448,13 @@ program.
 This variable is assigned to by procmail whenever it is delivering
 to a folder or program.  It always contains the name of the last folder
 (or program) procmail delivered to.
+.Tp
+.B SHIFT
+Assigning a positive value to this variable has the same effect as
+the `shift' command in
+.BR sh (1).
+This command is most useful to extract extra arguments passed to procmail
+when acting as a generic mailfilter.
 .TP
 .B INCLUDERC
 Names an rcfile (relative to the current directory) which will be included
@@ -461,11 +468,11 @@ to `no'.  Alternatively the biff-service can be customised by setting it to
 either `service@SERV_ADDRsep@', `@SERV_ADDRsep@hostname', or
 `service@SERV_ADDRsep@hostname'.  When not specified it defaults
 to @COMSATservice@@SERV_ADDRsep@@COMSAThost@.@DROPPRIVS@
-.SH EXAMPLES
+.SH EXAMPLES
 Look in the
 .BR procmailex (5)
 man page.
-.SH CAVEATS
+.SH CAVEATS
 Continued lines in an action line that specifies a program always have to end
 in a backslash, even if the underlying shell would not need or want the
 backslash to indicate continuation.  This is due to the two pass parsing
@@ -511,7 +518,7 @@ lost.
 .PP
 The `@CONTINUE@' flag defaults to on when capturing stdout of a recipe in an
 environment variable.
-.SH "SEE ALSO"
+.SH "SEE ALSO"
 .na
 .nh
 .BR procmail (1),
@@ -533,7 +540,7 @@ environment variable.
 .BR formail (1)
 .hy
 .ad
-.SH BUGS
+.SH BUGS
 The only substitutions of environment variables that can be handled by
 procmail itself are of the type $name, ${name}, ${name:-text}, ${name:+text},
 ${name-text}, ${name+text}, $#, $n, $$, $?, $\- and $=; whereas $\- will be
@@ -545,6 +552,8 @@ or
 options are used, "$@" will expand to respectively the specified argument
 or the sender and recipient list; but only when passed as in the
 argument list to a program.@UPPERCASE_USERNAMES@
+.PP
+Procmail does not support the expansion of `~'.
 .PP
 A line buffer of length $LINEBUF is used when processing the
 .IR rcfile ,
@@ -570,7 +579,7 @@ matches.
 .PP
 When the regular expression starts with `^^' it will anchor the match
 at the very start of the text.
-.SH MISCELLANEOUS
+.SH MISCELLANEOUS
 If the regular expression contains `\fB@TOkey@\fP' it will be substituted by
 .na
 .nh
@@ -606,7 +615,7 @@ procmail accepts as true every string starting with: a non-zero value, `on',
 .PP
 If the action line of a recipe specifies a program, a sole backslash-newline
 pair in it on an otherwise empty line will be converted into a newline.
-.SH NOTES
+.SH NOTES
 Since unquoted leading whitespace is generally ignored in the rcfile you can
 indent everything to taste.
 .PP

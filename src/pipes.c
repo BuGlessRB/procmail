@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.26 1994/01/28 11:57:40 berg Exp $";
+ "$Id: pipes.c,v 1.27 1994/02/08 16:14:55 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -253,7 +253,7 @@ void exectrap(tp)const char*const tp;
       { if((forceret=renvint(-2L,p))>=0)	     /* yes, is it positive? */
 	   retval=forceret;				 /* then override it */
       }
-     else				     /* no EXITCODE set, provide one */
+     else if(*tp)		 /* no EXITCODE set, TRAP found, provide one */
       { strcpy(p=buf2,exitcode);*(p+=STRLEN(exitcode))='=';
 	ultstr(0,(unsigned long)retval,p+1);sputenv(buf2);forceret= -1;
       }

@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.35 1994/01/18 16:10:44 berg Exp $
+#$Id: rc.request,v 1.36 1994/02/08 16:13:57 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -96,14 +96,13 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
   * !?multigram -b1 -l$reject_threshold reject
   * !?multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
    {
-     :0 W $cc_requests:dist.lock
+     :0 W ${cc_requests:+c}:dist.lock
      | subscribe
 
      :0 awfh
      | formail -A "X-Diagnostic: Added to the subscriber list"
 
-     :0 wfh
-     * !^X-Diagnostic:
+     :0 Ewfh
      | formail -A "X-Diagnostic: Tried to subscribe"
    }
 
@@ -112,7 +111,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 # optional info.txt file.
 #
 
-  :0 HB w $cc_requests
+  :0 HB w ${cc_requests:+c}
   * ^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
      [a-z,.	 ]*(help|info(rm(ation)?)?)([^a-z]|$)
   | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \

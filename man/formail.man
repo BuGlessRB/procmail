@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.13 1994/01/25 15:39:11 berg Exp $
+.Id $Id: formail.man,v 1.14 1994/02/08 16:14:10 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -39,7 +39,7 @@ formail \- mail (re)formatter
 .RI [ arg
 \&.\|.\|.\|]]]
 .ad
-.SH DESCRIPTION
+.SH DESCRIPTION
 .B formail
 is a filter that can be used to force mail into mailbox format, perform
 `@FROM@' escaping, generate auto-replying headers, do simple
@@ -54,7 +54,7 @@ If formail is started without any command line options, it will force any
 mail coming from stdin into mailbox format and will escape
 .B all
 bogus `@FROM@' lines with a `@ESCAP@'.
-.SH OPTIONS
+.SH OPTIONS
 .TP 0.5i
 .B \-@FM_BOGUS@
 Don't escape any bogus mailbox headers (i.e. lines starting with `@FROM@').
@@ -166,7 +166,7 @@ messages while splitting.
 Output at most
 .I total
 messages while splitting.
-.SH EXAMPLES
+.SH EXAMPLES
 To split up a digest one usually uses:
 .RS
 formail @FM_SKIP@1 \-@FM_DIGEST@@FM_SPLIT@ >>the_mailbox_of_your_choice
@@ -191,12 +191,12 @@ Or, alternatively, if you have a very tolerant mailer:
 .RS
 formail \-@FM_ADD_IFNOT@ Date: \-@FM_DIGEST@@FM_SPLIT@ <old_mailbox >>new_mailbox
 .RE
-.SH MISCELLANEOUS
+.SH MISCELLANEOUS
 The regular expression that is used to find `real' postmarks is:
 .RS
 "\en\en@FROM@[\et ]*[^\et\en ]+[\et ]+[^\en\et ]"
 .RE
-.SH "SEE ALSO"
+.SH "SEE ALSO"
 .na
 .nh
 .BR mail (1),
@@ -206,7 +206,7 @@ The regular expression that is used to find `real' postmarks is:
 .BR sh (1)
 .hy
 .ad
-.SH DIAGNOSTICS
+.SH DIAGNOSTICS
 .TP 2.3i
 Can't fork
 Too many processes on this machine.
@@ -226,7 +226,7 @@ Too many open files on this machine.
 Invalid field-name: "x"
 The specified field-name "x" does not contain a colon or contains control
 characters.
-.SH WARNINGS
+.SH WARNINGS
 You can save yourself and others a lot of mischief if you try to avoid using
 this autoreply feature on mails coming through mailinglists.  Depending
 on the format of the incoming mail (which in turn depends on both the
@@ -235,18 +235,18 @@ decide to generate an autoreply header that replies to the list (if
 the original sender was careful enough though, formail will be able to pick
 his/her address, instead of the list's).  Now if the list is not intelligent
 enough (most aren't) this autoreply will be widely distributed.
-.SH BUGS
+.SH BUGS
 When formail has to generate a leading `@FROM@' line it normally will contain
 the current date.  If formail is given the option `\-@FM_ADD_IFNOT@ Date:',
 it will use the date from the `Date:' field in the header (if present).
 However, since formail copies it verbatim, the format will differ from that
 expected by most mail readers.
-.SH MISCELLANEOUS
+.SH MISCELLANEOUS
 Formail is eight-bit clean.
 .PP
 When formail has to determine the sender's address, every RFC 822 conforming
 mail address is allowed.  Formail will always strip down the address to
 its minimal form (deleting excessive comments and whitespace).
-.SH NOTES
+.SH NOTES
 Calling up formail with the \-@HELPOPT1@ or \-@HELPOPT2@ options will cause
 it to display a command-line help page.

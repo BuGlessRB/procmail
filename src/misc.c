@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.43 1994/01/28 11:57:23 berg Exp $";
+ "$Id: misc.c,v 1.44 1994/02/08 16:14:52 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -324,7 +324,7 @@ char*gobenv(chp)char*chp;
   return 0;
 }
 
-asenvcpy(src)char*src;
+int asenvcpy(src)char*src;
 { strcpy(buf,src);
   if(src=strchr(buf,'='))			     /* is it an assignment? */
    { strcpy((char*)(sgetcp=buf2),++src);readparse(src,sgetc,2);sputenv(buf);
@@ -336,7 +336,7 @@ asenvcpy(src)char*src;
 void asenv(chp)const char*const chp;
 { static const char slinebuf[]="LINEBUF",logfile[]="LOGFILE",Log[]="LOG",
    sdelivered[]="DELIVERED",includerc[]="INCLUDERC",eumask[]="UMASK",
-   host[]="HOST",dropprivs[]="DROPPRIVS";
+   host[]="HOST",dropprivs[]="DROPPRIVS",shift[]="SHIFT";
   if(!strcmp(buf,slinebuf))
    { if((linebuf=renvint(0L,chp)+XTRAlinebuf)<MINlinebuf+XTRAlinebuf)
 	linebuf=MINlinebuf+XTRAlinebuf;		       /* check minimum size */
@@ -351,6 +351,14 @@ void asenv(chp)const char*const chp;
      opnlog(chp);
   else if(!strcmp(buf,Log))
      elog(chp);
+  else if(!strcmp(buf,shift))
+   { int i;
+     if((i=renvint(0L,chp))>0)
+      { if(i>crestarg)
+	   i=crestarg;
+	crestarg-=i;restargv+=i;		     /* shift away arguments */
+      }
+   }
   else if(!strcmp(buf,dropprivs))			  /* drop privileges */
    { if(renvint(0L,chp))
 	setids();

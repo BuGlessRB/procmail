@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.26 1994/01/18 17:29:32 berg Exp $";
+ "$Id: locking.c,v 1.27 1994/02/08 16:14:46 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -26,7 +26,7 @@ void lockit(name,lockp)char*name;char**const lockp;
   if(!*name)
      return;
   if(!strcmp(name,defdeflock))	       /* is it the system mailbox lockfile? */
-#ifdef fdlock
+#ifndef fdlock
      if(!accspooldir)
       { yell("Bypassed locking",name);return;
       }
