@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.23 1994/04/12 13:21:48 berg Exp $";
+ "$Id: lockfile.c,v 1.24 1994/04/12 15:55:30 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/04/12 13:21:48 $";
+static /*const*/char rcsdate[]="$Date: 1994/04/12 15:55:30 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -263,8 +263,13 @@ void tfree(p)void*const p;					     /* stub */
 { free(p);
 }
 
-ropen(name,mode,mask)const char*const name;const int mode;const mode_t mask;
+int ropen(name,mode,mask)const char*const name;const int mode;
+ const mode_t mask;
 { return open(name,mode,mask);					     /* stub */
+}
+
+int rwrite(fd,a,len)const int fd;const void*const a;const int len;   /* stub */
+{ return write(fd,a,len);
 }
 
 rclose(fd)const int fd;						     /* stub */
