@@ -136,6 +136,8 @@
 	       - Taught the regexp engine about \< and \>
 	       - Fixed bug present on some systems; caused the body to be
 		 munged when filtering headers only
+	       - Added -o option (makes procmail override the From_ lines, like
+		 it used to)
 	    Changes to formail:
 	       - Fixed a sender-determination-weight problem, it mixed up
 		 the weights when autoreplying and when regenerating the From_
@@ -174,3 +176,5 @@
 		 insist on this
 	       - Revamped the library search code
 	       - Provided a faster (than most libraries) strstr() routine
+	       - Created the setid program (to be used by the SmartList
+		 installation)

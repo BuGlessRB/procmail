@@ -44,7 +44,10 @@ Suppose you have created this pseudo user "list" with a specified home
 directory of /home/list
 
 Now create /home/list by hand and make sure that you chown it to "list".
-(Also chgrp it to "list" now if you created a group for that).
+Also chgrp it to "list" now if you created a group for that.  If you
+do not have a separate group for the list, you have to make sure that you
+change the setting of UMASK in the rc.init file.  By default the group
+to which the "list" user belongs can write in many of the files.
 
 Next, make sure that you are running as root (su root) and execute the
 "install.sh" script present in this directory by typing something like:

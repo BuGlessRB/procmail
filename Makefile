@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.48 1994/03/01 13:44:49 berg Exp $
+#$Id: Makefile,v 1.49 1994/03/10 17:15:00 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -37,6 +37,8 @@ MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 # procmail		Preinstalls just all procmail related stuff to ./new
 # formail		Preinstalls just all formail related stuff to ./new
 # lockfile		Preinstalls just all lockfile related stuff to ./new
+# setid			Creates the setid binary needed by the SmartList
+#			installation
 ########################
 
 # Makefile.0 - mark, don't (re)move this, a sed script needs it
@@ -111,6 +113,6 @@ init:
 makefiles makefile Makefiles Makefile: init
 	@$(BSHELL) -c "exit 0"
 
-bins mans install.bin install.man install recommend install-suid clean \
+bins mans install.bin install.man install recommend install-suid clean setid \
 realclean veryclean clobber deinstall autoconf.h $(BINSS) multigram: init
 	$(HIDEMAKE) make $@

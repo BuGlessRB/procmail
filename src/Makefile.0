@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.26 1994/03/10 16:20:59 berg Exp $
+#$Id: Makefile.0,v 1.27 1994/03/10 17:15:24 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O)
@@ -14,7 +14,7 @@ make:
 
 .PRECIOUS: Makefile
 
-procmail: procmail.$(O) $(PM_OBJ)
+procmail: procmail.$(O) $(PM_OBJ) setid
 	$(CC) $(CFLAGS) $@.$(O) $(PM_OBJ) -o $@ $(LDFLAGS)
 
 lockfile: lockfile.$(O) $(LF_OBJ)
@@ -27,7 +27,7 @@ mailstat: ../examples/mailstat
 	cp ../examples/$@ .
 	@chmod 0755 $@
 
-multigram: multigram.$(O) $(MG_OBJ)
+multigram: multigram.$(O) $(MG_OBJ) setid
 	$(CC) $(CFLAGS) $@.$(O) $(MG_OBJ) -o $@ $(LDFLAGS)
 
 ../config.check:
@@ -106,11 +106,14 @@ robust.$(O): misc.h pipes.h common.h mailfold.h shell.h
 
 sublib.$(O): ../autoconf.h ../config.h includes.h sublib.h shell.h
 
-recommend.$(O): ../autoconf.h ../config.h includes.h
+setid.$(O) recommend.$(O): ../autoconf.h ../config.h includes.h
 	@$(CC) -c $(CFLAGS) $*.c
 
 .c.$(O):
 	$(CC) -c $(CFLAGS) $<
+
+setid: setid.$(O)
+	@$(CC) $(CFLAGS) $@.$(O) -o $@ $(LDFLAGS)
 
 recommend: recommend.$(O) sublib.$(O)
 	@$(CC) $(CFLAGS) $@.$(O) sublib.$(O) -o $@ $(LDFLAGS)
@@ -127,7 +130,7 @@ clean:
 	$(RM) procmail.$(O) $(PM_OBJ) lockfile.$(O) $(LF_OBJ) formail.$O \
 	 $(FM_OBJ) multigram.$(O) $(MG_OBJ) $(BINSS) multigram ../autoconf.h \
 	 _autotst* lookfor _locktst* grepfor recommend recommend.$(O) manconf \
-	 _Makefile lock.log *core* targetdir.h
+	 _Makefile lock.log *core* targetdir.h setid setid.$(O)
 
 Makefile: ../Makefile Makefile.0
 	@echo "You have made changes to the master Makefile, in order for"

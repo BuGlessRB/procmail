@@ -71,3 +71,5 @@
 	       seems to have taken place
 	    Moved the idcheck functionality into formail -D (due to
 	       popular demand)
+	    Use the setid program instead of su while installing (does away
+	       with those "inexplicable" installation problems)

@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.30 1994/02/16 17:46:24 berg Exp $
+#$Id: Makefile.1,v 1.31 1994/03/10 17:15:03 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -28,7 +28,7 @@ formail lockfile: config.check src/Makefile man/Makefile
 	cd src; $(MAKE) ../new/$@
 	cd man; $(MAKE) ../new/$@.1
 
-multigram: config.check src/Makefile man/Makefile
+setid multigram: config.check src/Makefile man/Makefile
 	cd src; $(MAKE) $@
 
 config.check: config.h

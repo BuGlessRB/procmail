@@ -1,9 +1,17 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.41 1994/02/11 16:09:19 berg Exp $
+#$Id: install.sh,v 1.42 1994/03/10 17:15:14 berg Exp $
 
-SHELL=/bin/sh
+if test -z "$IFS"
+then IFS=" \
+	\
+
+"
+  export IFS
+fi
+
+SHELL=/bin/sh				# make sure we get a decent shell
 export SHELL
 umask 022				# making sure that umask has sane value
 
@@ -12,6 +20,8 @@ test $# != 1 -a $# != 2 && echo "Usage: install.sh target-directory [.bin]" &&
 
 target="$1"
 bindir="$2"
+
+setid=../src/setid
 
 test -z "$bindir" && bindir=.bin
 
@@ -99,37 +109,22 @@ export listid
 
 if test $AM_ROOT = yes
 then
+  if test ! -f $setid
+  then
+     echo "Please execute the following commands first:"
+     echo ""
+     echo "	cd ..; make setid; cd SmartList"
+     echo ""
+     echo "Then run this script again."
+     exit 64
+  fi
   case $installerid in
      [0-9]*) exec 4>&0
 	 . ./install.sh2
 	 exec 4>&- ;;
-     *) if echo ls | su $installerid | fgrep install.sh2 >/dev/null
-	then
-	:
-	else
-	   echo "Oops, panic..."
-	   echo "I just did an 'su $installerid' and I can't read and access"
-	   echo "the current directory anymore."
-	   echo "Please check to see if '$installerid' has sufficient"
-	   echo "permissions to do so.	Also, make sure that some"
-	   echo "sneaky .*shrc file does NOT change the directory."
-	   exit 64
-	fi
-	su $installerid 4>&0 <install.sh2 || exit 1;;
+     *) $setid $installerid 4>&0 <install.sh2 || exit 1;;
   esac
-  if echo ls | su $listid 2>&1 | fgrep install.sh2 >/dev/null
-  then
-  :
-  else
-     echo "Oops, panic..."
-     echo "I just did an 'su $listid' and I can't read and access the"
-     echo "current directory anymore."
-     echo "Please check to see if '$listid' has sufficient"
-     echo "permissions to do so.  Also, make sure that some"
-     echo "sneaky .*shrc file does NOT change the directory."
-     exit 64
-  fi
-  su $listid <install.sh3
+  $setid $listid <install.sh3
   echo "Making $target/$bindir/flist suid root..."
   if chown root "$target/$bindir/flist" && chmod 04755 "$target/$bindir/flist"
   then
