@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.9 1992/11/13 11:20:00 berg Exp $";
+ "$Id: locking.c,v 1.10 1992/11/24 16:58:17 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -118,7 +118,23 @@ xcreat(name,mode,tim,chowned)const char*const name;const mode_t mode;
   free(p);return j;
 }
 	/* if you've ever wondered what conditional compilation was good for */
-#ifndef fdlock						/* watch closely :-) */
+#ifdef NO_fcntl_LOCK					/* watch closely :-) */
+#ifndef NOfcntl_lock
+#define NOfcntl_lock
+#endif
+#endif
+#ifdef NO_lockf_LOCK
+#ifdef USElockf
+#undef USElockf
+#endif
+#endif
+#ifdef NO_flock_LOCK
+#ifdef USEflock
+#undef USEflock
+#endif
+#endif
+
+#ifndef fdlock
 #ifdef USEflock
 #ifndef SYS_FILE_H_MISSING
 #include <sys/file.h>

@@ -1,4 +1,6 @@
 #! /bin/sh
+: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+#$Id: subscribe,v 1.2 1992/11/24 16:58:07 berg Exp $
 
 tmprequest=tmp.request
 tmpfrom=tmp.from
@@ -8,14 +10,14 @@ subscraddr=""
 
 address=`formail -k -xSubject: |
  sed -n \
-  -e 's/^[	 ]*[aA][dD][dD][	][	 ]*'\
-'\([^	 ][^	 ]*[@!][^	 ][^	 ]*\)/\1/' \
-  -e 's/^[	 ]*[aA][dD][dD][rR][eE][sS][sS][	][	 ]*'\
-'\([^	 ][^	 ]*[@!][^	 ][^	 ]*\)/\1/' \
-  -e 's/^[	 ]*[sS][uU][bB][	][	 ]*'\
-'\([^	 ][^	 ]*[@!][^	 ][^	 ]*\)/\1/' \
-  -e 's/^[	 ]*[sS][uU][bB][sS][cC][rR][iI][bB][eE][	][	 ]*'\
-'\([^	 ][^	 ]*[@!][^	 ][^	 ]*\)/\1/' `
+  -e 's/^[	 ]*[aA][dD][dD][	 ][	 ]*'\
+'[^	 ]*[	 ]*\([^		][^	 ]*[@!][^	 ][^	 ]*\)/\1/' \
+  -e 's/^[	 ]*[aA][dD][dD][rR][eE][sS][sS][	 ][	 ]*'\
+'[^	 ]*[	 ]*\([^		][^	 ]*[@!][^	 ][^	 ]*\)/\1/' \
+  -e 's/^[	 ]*[sS][uU][bB][	 ][	 ]*'\
+'[^	 ]*[	 ]*\([^		][^	 ]*[@!][^	 ][^	 ]*\)/\1/' \
+  -e 's/^[	 ]*[sS][uU][bB][sS][cC][rR][iI][bB][eE][	 ][	 ]*'\
+'[^	 ]*[	 ]*\([^		][^	 ]*[@!][^	 ][^	 ]*\)/\1/'
 
 for a in $address ""
 do

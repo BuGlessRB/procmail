@@ -1,5 +1,5 @@
 #! /bin/sh
-: || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
 #################################################################
 #	mailstat	shows mail-arrival statistics		#
 #								#
@@ -16,7 +16,7 @@
 #	Created by S.R. van den Berg, The Netherlands		#
 #	This file can be freely copied for any use.		#
 #################################################################
-#$Id: mailstat,v 1.6 1992/11/11 13:58:04 berg Exp $
+#$Id: mailstat,v 1.7 1992/11/24 16:57:55 berg Exp $
 
 #	This shell script expects the following programs to be in the
 #	PATH (paths given here are the standard locations, your mileage

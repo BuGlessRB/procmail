@@ -1,7 +1,6 @@
 #! /bin/sh
-: || exec /bin/sh ./install.sh $argv:q # we're in a csh, feed myself to sh
-
-#$Id: install.sh,v 1.2 1992/11/12 11:38:02 berg Exp $
+: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+#$Id: install.sh,v 1.3 1992/11/24 16:57:59 berg Exp $
 
 test $# != 1 && echo "Usage: install.sh target-directory" && exit 1
 
