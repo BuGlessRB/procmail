@@ -46,7 +46,7 @@
 # rc.out	optional rcfile for any local transformations on outgoing
 #		submissions
 
-#$Id: rc.init,v 1.26 1994/02/08 16:13:54 berg Exp $
+#$Id: rc.init,v 1.27 1994/02/21 17:07:54 berg Exp $
 
 PATH=.:$PATH:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises
@@ -173,6 +173,11 @@ X_COMMAND_PASSWORD =	password	# put the global password for
 					# X-Command mails here
 				# this password can of course be changed/
 				# customised in the per list rc.custom file
+
+#reject_bias='100^0 ^From:.*daemon@ok'	# You could set "reject_bias" to
+					# positively discriminate some
+ # mail address not to be from a daemon.  Either with a regexp as demonstrated
+ # or with more complicated recipes that simply set it to '100^0' or nothing.
 
 #RC_LOCAL_SUBMIT_00	= rc.local.s00	# Uncomment (and change) these to
 #RC_LOCAL_SUBMIT_10	= rc.local.s10	# call up customised local scripts
