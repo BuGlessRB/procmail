@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.46 1998/11/06 06:21:01 guenther Exp $";
+ "$Id: pipes.c,v 1.47 1998/11/10 01:53:28 srb Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -235,49 +235,34 @@ builtin:
 }
 
 char*readdyn(bf,filled)char*bf;long*const filled;
-{ int i;long oldsize= *filled;
-#ifndef INEFFICIENTrealloc
+{ int blksiz=BLKSIZ;long oldsize= *filled;unsigned shift=EXPBLKSIZ;
   goto jumpin;
-  do
-   { *filled+=i;				/* change listed buffer size */
-jumpin:
-#ifdef SMALLHEAP
-     if((size_t)*filled>=(size_t)(*filled+BLKSIZ))
-	lcking|=lck_MEMORY,nomemerr();
-#endif
-     bf=realloc(bf,*filled+BLKSIZ);    /* dynamically adjust the buffer size */
-jumpback:;
-   }
-  while(0<(i=rread(STDIN,bf+*filled,BLKSIZ)));			/* read mail */
-#else
-  long blksiz=BLKSIZ,rlen;
-  int mul=16;
-  char *p;
-  goto jumpin;
-  do
-   { blksiz*=mul;
-     if(mul>2)
-	mul>>=1;
+  for(;;)
+   { if(shift)						 /* room for growth? */
+      { int newbs=blksiz;newbs<<=shift--;	/* capped exponential growth */
+	if(blksiz<newbs)				  /* no overflowing? */
+	   blksiz=newbs;				    /* yes, take me! */
+      }
 jumpin:
 #ifdef SMALLHEAP
      if((size_t)*filled>=(size_t)(*filled+blksiz))
 	lcking|=lck_MEMORY,nomemerr();
 #endif
-     bf=realloc(bf,*filled+blksiz);
+     bf=realloc(bf,*filled+blksiz);    /* dynamically adjust the buffer size */
 jumpback:;
-     rlen=blksiz;	/* because blksiz will get so huge, I'll be paranoid */
-     while(rlen&&0<(i=rread(STDIN,bf+*filled,rlen)))		/* read mail */
-      { rlen-=i;
-	*filled+=i;
+     ;{ int got,left=blksiz;
+	do
+	   if(0>=(got=rread(STDIN,bf+*filled,left)))		/* read mail */
+	      goto eoffound;
+	while(*filled+=got,(left-=got)>got);	/* change listed buffer size */
       }
    }
-  while(!rlen);
-#endif
+eoffound:
   if(pidchild>0)
    { if(!Stdout)
       { getstdin(PRDB);			       /* filter ready, get backpipe */
 	if(1==rread(STDIN,buf,1))		      /* backup pipe closed? */
-	 { bf=realloc(bf,(*filled=oldsize+1)+BLKSIZ);bf[oldsize]= *buf;
+	 { bf=realloc(bf,(*filled=oldsize+1)+blksiz);bf[oldsize]= *buf;
 	   Stdout=buf;pwait=2;		      /* break loop, definitely reap */
 	   goto jumpback;		       /* filter goofed, rescue data */
 	 }
