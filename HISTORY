@@ -409,11 +409,11 @@
 		 If overflow is occurs then new variable PROCMAIL_OVERFLOW
 		 is set
 	       - Catch overly long rcfile names
-	       - new variable PROCMAIL_VERSION
+	       - New variable PROCMAIL_VERSION
 	       - LOGABSTRACT=all no longer logs filtering or variable capture
 		 actions
 	       - Don't strip leading \n in a $MATCH
-	       - Work around a compiler bug in Sun C compiler 4.2 (fdefault
+	       - Worked around a compiler bug in Sun C compiler 4.2 (fdefault
 		 cached past function calls)
 	       - Tempfile names would grow on retry
 	       - Open or reopen rcfiles as the user to prevent peeking when
@@ -460,8 +460,8 @@
 	       - Refuse to open anything but regular files with INCLUDERC
 		 and SWITCHRC
 	       - Indicate whether GROUP_PER_USER was defined in the -v output
-	       - Don't depend on parens to stop function macros (they don't
-		 under SunOS 4.x compiler)
+	       - Stopped depending on parens to stop function macros (they
+		 don't under SunOS 4.x cc)
 	       - Small heap compilation would fail on nomemerr() in pipes.c
 	       - Worked around Tru64 UNIX V4.0E and V4.0F compilers
 		 (strcpy() builtin doesn't always return pointer type)
@@ -469,6 +469,8 @@
 	       - Test for allowing rcfiles in sticky directories iff chown
 		 is restricted was reversed
 	       - Added Delivered-To: to the ^TO and ^TO_ expansions
+	       - LASTFOLDER wasn't correctly set when delivering to multiple
+		 folders
 	    Changes to formail:
 	       - Replies without the -t flag go to the envelope sender
 	       - Replies without "-a Resent-" and -t flag ignore the
@@ -483,5 +485,6 @@
 	       - Don't assume realloc(0,size) works (doesn't on SunOS 4)
 	    Stopped using `implicit int' (for C9x)
 	    Cache gethostname() or uname() output
-	    Change the form of tempfile names to make them `more' unique
-	    Update list of mirrors in the README
+	    Changed the form of tempfile names to make them `more' unique
+	    Updated list of mirrors in the README
+	    Documented the exact behavior of lockfile's -! flag
