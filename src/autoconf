@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.116 1998/11/16 03:29:04 srb Exp $
+#$Id: autoconf,v 1.117 1998/11/16 21:44:47 guenther Exp $
 
 # All possible entries in autoconf.h:
 
@@ -817,57 +817,6 @@ done
 $RM _autotst.$O
 
 cat >_autotst.c <<HERE
-#include "$ACONF"
-#include "../config.h"
-#include <stdio.h>
-#ifndef STDLIB_H_MISSING
-#include <stdlib.h>
-#else
-void*malloc(),*realloc();
-#endif
-int main()
-{ char*p=0,*q=0;
-  size_t len=0,step=BLKSIZ,max=step*64,last=0;/* 1M on non-SMALLHEAP systems */
-  int count=-1;			     /* take into account the initial malloc */
-  while((len+step)<=max)
-   { /* touch at least every new page */
-     for(;last<len;last+=1024)
-	p[last]=last%127;
-     len+=step;
-     p=realloc(p,len);
-     if(!p)
-	break;
-     if(p!=q)
-	count++,q=p;
-   }
-  free(q);
-  printf("/* %d move%s in %d steps of size %d when reallocing */\n",
-	 count,count==1?"":"s",(int)(max/step),step);
-  if(step*(4*count+1)>max)
-   { puts("#define INEFFICIENTrealloc");
-     exit(1);
-   }
-  exit(0);
-}
-HERE
-
-echo 'Checking realloc implementation'
-
-if $MAKE _autotst >$DEVNULL 2>&1
- test -f _autotst
-then
- _autotst >_autotst.rrr
- case "$?" in
- 0) cat _autotst.rrr >>$ACONF;;
- 1) cat _autotst.rrr >>$ACONF
-    echo 'Sorry, repeatedly reallocing is inefficient';;
- *) echo "The test program failed somehow.  Assuming realloc is fine";;
- esac
-fi
-
-$RM _autotst.$O _autotst _autotst.rrr
-
-cat >_autotst.c <<HERE
 #include "includes.h"
 #include "network.h"
 int a;
@@ -942,6 +891,57 @@ do
 done
 
 $RM _autotst.$O
+
+cat >_autotst.c <<HERE
+#include "$ACONF"
+#include "../config.h"
+#include <stdio.h>
+#ifndef STDLIB_H_MISSING
+#include <stdlib.h>
+#else
+void*malloc(),*realloc();
+#endif
+int main()
+{ char*p=0,*q=0;
+  size_t len=0,step=BLKSIZ,max=step*64,last=0;/* 1M on non-SMALLHEAP systems */
+  int count=-1;			     /* take into account the initial malloc */
+  while((len+step)<=max)
+   { /* touch at least every new page */
+     for(;last<len;last+=1024)
+	p[last]=last%127;
+     len+=step;
+     p=realloc(p,len);
+     if(!p)
+	break;
+     if(p!=q)
+	count++,q=p;
+   }
+  free(q);
+  printf("/* %d move%s in %d steps of size %d when reallocing */\n",
+	 count,count==1?"":"s",(int)(max/step),step);
+  if(step*(4*count+1)>max)
+   { puts("#define INEFFICIENTrealloc");
+     exit(1);
+   }
+  exit(0);
+}
+HERE
+
+echo 'Checking realloc implementation'
+
+if $MAKE _autotst >$DEVNULL 2>&1
+ test -f _autotst
+then
+ _autotst >_autotst.rrr
+ case "$?" in
+ 0) cat _autotst.rrr >>$ACONF;;
+ 1) cat _autotst.rrr >>$ACONF
+    echo 'Sorry, repeatedly reallocing is inefficient';;
+ *) echo "The test program failed somehow.  Assuming realloc is fine";;
+ esac
+fi
+
+$RM _autotst.$O _autotst _autotst.rrr
 
 cat >_autotst.c <<HERE
 #include "includes.h"
