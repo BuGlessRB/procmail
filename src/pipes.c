@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.17 1993/08/09 14:10:59 berg Exp $";
+ "$Id: pipes.c,v 1.18 1993/08/24 11:30:41 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -52,9 +52,9 @@ static void stermchild P((void))
 }
 
 static void childsetup P((void))
-{ lexitcode=EX_UNAVAILABLE;signal(SIGTERM,(void(*)())stermchild);
-  signal(SIGINT,(void(*)())stermchild);signal(SIGHUP,(void(*)())stermchild);
-  signal(SIGQUIT,(void(*)())stermchild);closerc();
+{ lexitcode=EX_UNAVAILABLE;ssignal(SIGTERM,stermchild);
+  ssignal(SIGINT,stermchild);ssignal(SIGHUP,stermchild);
+  ssignal(SIGQUIT,stermchild);closerc();
 }
 
 static void getstdin(pip)const int pip;

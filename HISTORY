@@ -147,7 +147,7 @@
 	       through the mailinglist
 	    Reached the doubtful milestone to sometimes crash an Ultrix
 	       machine (due to the lockingtests, not procmail itself)
-1993/08/20: v2.92
+1993/08/24: v2.92
 	    Fixed a formail sender-determination-weight problem, it mixed up
 	       the weights when autoreplying and when regenerating the From_
 	       line (and thus didn't always pick the optimal field)
@@ -176,6 +176,8 @@
 	    Formail mistakenly didn't accept both -X and -k options
 	    Fixed a bug introduced in v2.82 in formail when using both
 	       the -x and the -k options
+	    Procmail and lockfile now inherit any ignore status of most
+	       regular signals (fixes a problem with some buggy shells)
 	    Changes to the mailinglist package:
 	       Cleaned up install.sh* for the mailinglists: starting su with
 		  commands on stdin now, checking some permissions now in the

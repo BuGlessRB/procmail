@@ -1,8 +1,9 @@
-/*$Id: exopen.h,v 1.5 1993/05/05 13:06:12 berg Exp $*/
+/*$Id: exopen.h,v 1.6 1993/08/24 11:30:32 berg Exp $*/
 
 const char*
  hostname P((void));
 void
+ ssignal P((const sig,void(*action)(void))),
  ultoan P((unsigned long val,char*dest));
 int
  unique Q((const char*const full,char*const p,const mode_t mode,const verbos)),

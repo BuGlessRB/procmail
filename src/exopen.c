@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.10 1993/05/05 13:06:10 berg Exp $";
+ "$Id: exopen.c,v 1.11 1993/08/24 11:30:30 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -22,6 +22,23 @@ const char*hostname P((void))
   Uname(&names);strncpy(name,names.nodename,HOSTNAMElen);
 #endif
   name[HOSTNAMElen]='\0';return name;
+}
+
+static volatile gotsig;
+
+static void fakehandler P((void))
+{ gotsig=1;
+}
+
+void ssignal(sig,action)const int sig;void(*action)P((void));
+{ gotsig=0;
+  if(SIG_IGN==signal(sig,(void(*)())fakehandler))
+     signal(sig,SIG_IGN);
+  else
+   { signal(sig,(void(*)())action);
+     if(gotsig)
+	(*action)();
+   }
 }
 
 void ultoan(val,dest)unsigned long val;char*dest;     /* convert to a number */

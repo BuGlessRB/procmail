@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.25 1993/07/30 13:17:33 berg Exp $*/
+/*$Id: includes.h,v 1.26 1993/08/24 11:30:34 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -15,6 +15,9 @@
 #ifndef _HPUX_SOURCE
 #define _HPUX_SOURCE	      /* sad, but needed on HP-UX when compiling -Aa */
 #endif
+#ifndef NO_FIX_MALLOC
+#define NO_FIX_MALLOC		   /* we don't need a `fixed' malloc(0) call */
+#endif				/* saves a few bytes in some implementations */
 
 #include <sys/types.h>		/* pid_t mode_t uid_t gid_t off_t */
 #ifndef UNISTD_H_MISSING

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.29 1993/08/20 11:22:53 berg Exp $";
+ "$Id: misc.c,v 1.30 1993/08/24 11:30:39 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -93,14 +93,14 @@ void readerr(file)const char*const file;
 void verboff P((void))
 { verbose=0;
 #ifdef SIGUSR1
-  signal(SIGUSR1,(void(*)())verboff);
+  ssignal(SIGUSR1,(void(*)())verboff);
 #endif
 }
 
 void verbon P((void))
 { verbose=1;
 #ifdef SIGUSR2
-  signal(SIGUSR2,(void(*)())verbon);
+  ssignal(SIGUSR2,(void(*)())verbon);
 #endif
 }
 

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.45 1993/08/11 14:25:55 berg Exp $";
+ "$Id: procmail.c,v 1.46 1993/08/24 11:30:44 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -179,9 +179,9 @@ privileged:
 #else
 	verbon();verboff();
 #endif
-	signal(SIGPIPE,SIG_IGN);signal(SIGTERM,(void(*)())srequeue);
-	signal(SIGINT,(void(*)())sbounce);signal(SIGHUP,(void(*)())sbounce);
-	signal(SIGQUIT,(void(*)())slose);signal(SIGALRM,(void(*)())ftimeout);
+	signal(SIGPIPE,SIG_IGN);ssignal(SIGTERM,srequeue);
+	ssignal(SIGINT,sbounce);ssignal(SIGHUP,sbounce);
+	ssignal(SIGQUIT,slose);signal(SIGALRM,(void(*)())ftimeout);
 	ultstr(0,(unsigned long)uid,buf);
 	chp2=fromwhom?
 	 fromwhom:!passinvk||!*passinvk->pw_name?buf:passinvk->pw_name;
