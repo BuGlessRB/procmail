@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.19 1994/05/05 15:53:21 berg Exp $
+.Id $Id: formail.man,v 1.20 1994/05/10 18:09:58 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -118,7 +118,9 @@ the messages could start on every line).
 .B \-@FM_DIGEST@
 Tell formail that the messages it is supposed to split need not be in strict
 mailbox format (i.e. allows you to split digests/articles or non-standard
-mailbox formats).
+mailbox formats).  This disables recognition of the
+.B Content-Length:
+field.
 .TP
 .B \-@FM_BABYL@
 Makes formail assume that it is splitting up a BABYL rmail file.
@@ -240,6 +242,12 @@ The regular expression that is used to find `real' postmarks is:
 .RS
 "\en\en@FROM@[\et ]*[^\et\en ]+[\et ]+[^\en\et ]"
 .RE
+.PP
+If a
+.B Content-Length:
+field is found in a header, formail will copy the number of specified bytes in
+the body verbatim before resuming the regular scanning for message boundaries
+(except when splitting digests).
 .SH "SEE ALSO"
 .na
 .nh

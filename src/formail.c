@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.44 1994/05/09 18:57:22 berg Exp $";
+ "$Id: formail.c,v 1.45 1994/05/10 18:10:14 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/05/09 18:57:22 $";
+static /*const*/char rcsdate[]="$Date: 1994/05/10 18:10:14 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -137,9 +137,9 @@ main(lastm,argv)int lastm;const char*const argv[];
 { int i,split=0,force=0,bogus=1,every=0,areply=0,trust=0,digest=0,nowait=0,
    keepb=0,minfields=(char*)progid-(char*)progid,conctenate=0,babyl=0,
    babylstart;
-  off_t maxlen,insoffs;FILE*idcache=0;pid_t thepid;
+  off_t maxlen,insoffs,ctlength;FILE*idcache=0;pid_t thepid;
   size_t j,lnl,escaplen;char*chp,*namep,*escap=ESCAP;
-  struct field*fldp,*fp2,**afldp,*fdate;
+  struct field*fldp,*fp2,**afldp,*fdate,*fcntlength;
   if(lastm)			       /* sanity check, any argument at all? */
 #define Qnext_arg()	if(!*chp&&!(chp=(char*)*++argv))goto usg
      while(chp=(char*)*++argv)
@@ -280,6 +280,7 @@ xusg:
   do rex[i].rexp=malloc(1);
   while(i--);
   fdate=0;addfield(&fdate,date,STRLEN(date)); /* fdate is only for searching */
+  fcntlength=0;addfield(&fcntlength,cntlength,STRLEN(cntlength));   /* ditto */
   if(areply)					       /* when auto-replying */
      addfield(&iheader,xloop,STRLEN(xloop));	  /* preserve X-Loop: fields */
   if(babyl)						/* skip BABYL leader */
@@ -417,6 +418,12 @@ dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
 	if(dupid)			       /* duplicate? suppress output */
 	   closemine(),opensink();
       }
+     ctlength=0;
+     if(!digest&&(fldp=findf(fcntlength,&rdheader)))
+      { *(chp=(char*)fldp->fld_text+fldp->tot_len-1)='\0';   /* terminate it */
+	ctlength=strtol((char*)fldp->fld_text+STRLEN(cntlength),(char**)0,10);
+	*chp='\n';			     /* restore the trailing newline */
+      }
      tmemmove(parkedbuf=malloc(buffilled),buf,lenparkedbuf=buffilled);
      buffilled=0;    /* moved the contents of buf out of the way temporarily */
      if(areply)		      /* autoreply requested, we clean up the header */
@@ -543,6 +550,14 @@ delfld:	    { fldp=delfield(afldp);continue;
    { int c,lc;					/* ditch pseudo BABYL header */
      for(lc=0;c=getchar(),c!=EOF&&(c!='\n'||lc!='\n');lc=c);
      babylstart=0;
+   }
+  if(ctlength>0)
+   { lputssn(buf,buffilled);ctlength-=buffilled;buffilled=0;lnl='\n';
+     while(--ctlength>=0&&buflast!=EOF)	       /* skip Content-Length: bytes */
+	putcs(lnl=buflast),buflast=getchar();
+     if(buflast=='\n'&&lnl!='\n')		/* just before a line break? */
+	putcs('\n'),buflast=getchar();			/* wrap up loose end */
+     lnl=0;	/* view the block as monolithic, empty lines are not checked */
    }
   while(buffilled||!lnl||buflast!=EOF)	 /* continue the quest, line by line */
    { if(!buffilled)				      /* is it really empty? */

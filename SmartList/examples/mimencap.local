@@ -9,7 +9,7 @@
 #	This file is not automatically replaced during an upgrade of	#
 #	SmartList.							#
 #########################################################################
-#$Id: mimencap.local,v 1.2 1994/05/09 18:57:15 berg Exp $
+#$Id: mimencap.local,v 1.3 1994/05/10 18:09:54 berg Exp $
 
 # What we have at our disposal are:
 #
@@ -83,7 +83,7 @@
       | $mimencode
 
       :0 wfh
-      | $formail -I "Content-Encoding: base64"
+      | $formail -I "Content-Transfer-Encoding: base64"
     }
   }
 

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.77 1994/05/05 15:54:42 berg Exp $";
+ "$Id: procmail.c,v 1.78 1994/05/10 18:10:20 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -459,7 +459,7 @@ bogusbox:	  { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
 		  { nlog("Autoforwarding mailbox found\n");return EX_NOUSER;
 		  }
 		 else
-		  { if(stbuf.st_mode&cumask)
+		  { if(!(stbuf.st_mode&OVERRIDE_MASK)&&stbuf.st_mode&cumask)
 		     { nlog("Enforcing stricter permissions on");logqnl(chp);
 		       setids();chmod(chp,stbuf.st_mode&=~cumask);
 		     }
