@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.11 1993/04/02 12:38:34 berg Exp $
+.Id $Id: procmailex.man,v 1.12 1993/04/21 15:02:26 berg Exp $
 .de Sx
 .PP
 .ne \\$1
@@ -63,7 +63,7 @@ you have to specify option `+WAIT_EXIT+'; otherwise the lockfile would be
 removed as soon as the pipe has accepted the mail.
 .Sx 3
 :+PASS_HEAD++WAIT_EXIT++CONTINUE+:
-!From +[^ ]*(postmaster|Mailer)
+!+FROMMkey+
 | uncompress headc.Z; cat >>headc; compress headc
 .Ex
 Forward all mails shorter than 1000 bytes to my home address (no lockfile
@@ -84,7 +84,7 @@ Store everything coming from the postmaster or mailer-daemon (like bounced
 mail) into the file postm, using postm.lock as the locallockfile.
 .Sx 3
 ::
-^From[ :].*(postmaster|Mailer)
++FROMMkey+
 postm
 .Ex
 A simple autoreply recipe.  It makes sure that neither mail from any daemon

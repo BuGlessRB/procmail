@@ -1,3 +1,6 @@
+!! Special note for people upgrading from an older version of the scripts: !!
+!! look at the end of this file.					   !!
+
 Before you start installing mailinglists there are some things you should
 consider:
 
@@ -41,7 +44,7 @@ the "multigram" program is compiled from the procmail*/src directory and
 copied into /home/list/.bin.
 
 	For people that want to run the lists on a shared filesystem across
-	different architectures there exists the possibility using several
+	different architectures there exists the possibility of using several
 	.bin directories.  Simply use something like:
 		sh install.sh /home/list .bin.sun4
 	to install to a different .bin directory.  Repeat the complete
@@ -49,8 +52,8 @@ copied into /home/list/.bin.
 	specifying a different .bin directory every time.
 
 Furthermore install.sh will link /home/list/.etc/rc.main to
-/home/list/.procmailrc.	 This is of course superfluous if you are still
-using this account to receive regular mail.
+/home/list/.procmailrc.	 This is of course superfluous (but nondestructive) if
+you are still using this account to receive regular mail.
 
 Depending on your mail configuration, if procmail has not been integrated
 in the maildelivery system (see procmail*/examples/advanced for more
@@ -66,3 +69,26 @@ however, is only necessary if you created a seperate "list" account.
 For further instructions, you should read the "Manual" file, it has
 been copied to the /home/list/.etc directory as well, and can serve as a
 quick reference.
+
+				---
+
+Special notes for people upgrading from an older version of these scripts:
+
+- You can simply use the install.sh script again to install directly over
+  the old installation IF you customised ONLY the master rc.init and rc.custom
+  files.  Once you ran the install.sh script, you'll have to merge the changes
+  you made to the old rc.init file (still there) into the rc.init.new file.
+  Then move the rc.init.new file over the rc.init file.
+
+  There are some new entries in the new rc.custom file template.  Since they
+  are commented out (i.e. rc.init already provides defaults) their omission
+  in the old rc.custom files should not cause any problems.
+
+- If you customised more than just the rc.init or rc.custom files, you'll
+  have to make diffs between the old versions of the scripts, then install
+  the new scripts and then apply back the diffs (probably by hand).
+
+  The reason why parts of the old scripts cannot operate with the new scripts
+  is that (most notably) one environment variable is no longer defined
+  (FROM_MAILER_DAEMON) in rc.init.  It is provided as a procmail builtin.
+  Other than that, things should work.

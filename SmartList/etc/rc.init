@@ -33,7 +33,7 @@
 # rc.request	rcfile used when processing requests
 # rc.custom	rcfile that contains all the customisations per list
 
-#$Id: rc.init,v 1.11 1993/04/13 15:48:16 berg Exp $
+#$Id: rc.init,v 1.12 1993/04/21 15:02:17 berg Exp $
 
 PATH=.:$PATH:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises
@@ -67,8 +67,13 @@ listmaster=
 #UMASK=007				# group can write as well
 
 defaults=.etc				# the name of the defaults directory
-#LOGFILE=../$defaults/log		# uncomment in case of emergency
+LOGFILE=log
+LOGABSTRACT=no
+
+#LOGABSTRACT=yes			# uncomment in case of emergency
 #VERBOSE=yes				# uncomment in case of real emergency
+#LOGFILE=../$defaults/log		# uncomment if you want centralised
+					# logging
 
 RC_INIT					# clear this one from the environment
 					# so that we include this file only
@@ -79,6 +84,7 @@ listreq=$list-request@$domain
 listdist=$list-dist@$domain
 
 sendmailOPT="-oem -odb -oi -f$listreq"
+sendmailOPTp=-oep
 ########################
 # sendmail options used:
 #
@@ -93,11 +99,11 @@ sendmailOPT="-oem -odb -oi -f$listreq"
 
 size_limit	=	524288		# sanity cutoff value for submissions
 archive_hist	=	2		# number of messages left archived
-archive_log	=	log		# log file for archive retrievals
+archive_log	=	$LOGFILE	# log file for archive retrievals
 maxhist		=	8		# bounce history limit
 minbounce	=	3		# no. of bounces before removal
 cutoff_bounce	=	256		# lines to keep in bounce processing
-subscribe_log	=	log		# log file for (un)subscriptions
+subscribe_log	=	$LOGFILE	# log file for administrivia
 match_threshold =	30730		# for close matches to the list
 off_threshold	=	24476		# for loosely finding your name
 

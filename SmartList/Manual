@@ -1,4 +1,4 @@
-$Id: Manual,v 1.7 1993/03/04 15:30:51 berg Exp $
+$Id: Manual,v 1.8 1993/04/21 15:02:04 berg Exp $
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
@@ -9,6 +9,7 @@ Contents:
 		2. Remote maintenance of mailinglists
 		3. Customisation
 		3a.Digest processing
+		3b.Schematic overview of what goes on behind the scenes
 		4. The archive server
 		5. The format of the dist file
 		6. Multigram and the thresholds in rc.init/rc.custom
@@ -86,7 +87,10 @@ possible, you can keep the password secret.  Also, the exact mailaddress
 of the maintainer might not be publicly known.	You can simply change
 the X-Command field into something else like X-MyCommand.  Above all, since
 faking mail is a well known possibility it would be ridiculous to take
-more precautions than these.
+more precautions than these.  Besides, if someone indeed manages to sneek in
+a bogus X-Command:, it will never go unnoticed since the mailing list
+maintainer (and only the maintainer) will always receive the X-Processed:
+mail.
 
 
 3. Customisation
@@ -173,8 +177,44 @@ This is what you can do:
 	"undigested_list =	thelist@$domain".
 
 	After you've done this, you're all set.	 People that want digests
-	simply subscribe to thelist-d and people that don't subscribe to
+	simply subscribe to thelist-d and people that don't, subscribe to
 	thelist.
+
+
+3b.Schematic overview of what goes on behind the scenes
+   ----------------------------------------------------
+
+Suppose you have two entries in the aliases file, one for thelist@domain
+and one for thelist-request@domain.
+
+Whenever mail arrives for either address, the following happens:
+	- flist is started suid root with thelist as its argument
+		- changes its uid and gid to that of the list account
+		- changes its current directory to that of thelist
+		- waits until both ../.etc/rc.lock and rc.lock are gone or
+		  are old enough (17 minutes)
+
+Then, if it was a regular submission to thelist@domain:
+	- flist execs procmail with rcfile rc.submit
+		- pulls in rc.init that sets up the defaults
+		- pulls in rc.custom that overrides some defaults (if any)
+		- checks the submission format and fires of sendmail to
+		  send the mail to thelist-dist@domain
+	- If the mail was an administrative request, it does not get
+	  passed on to the list, instead, procmail pulls in rc.request
+
+But, if it was an administrative mail for thelist-request@domain:
+	- flist execs procmail with rcfile rc.request
+		- pulls in rc.init that sets up the defaults
+		- pulls in rc.custom that overrides some defaults (if any)
+		- performs the necessary actions, depending on the content
+		- if the content was undecipherable, it gets passed on to
+		  the maintainer of thelist
+
+If there are grave system failures during all this, the catch-all script
+rc.post will kick in and make sure that the mail is stashed away somewhere
+or forwarded to the maintainer, whatever works.	 This to ensure that no
+mail gets lost.
 
 
 4. The archive server

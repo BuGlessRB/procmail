@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.23 1993/04/19 10:36:42 berg Exp $";
+ "$Id: misc.c,v 1.24 1993/04/21 15:02:37 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -24,7 +24,8 @@ static /*const*/char rcsid[]=
 const char lastfolder[]="LASTFOLDER";
 struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
  {"LOCKTIMEOUT",DEFlocktimeout},{"SUSPEND",DEFsuspend},
- {"NORESRETRY",DEFnoresretry},{"TIMEOUT",DEFtimeout},{"VERBOSE",DEFverbose}};
+ {"NORESRETRY",DEFnoresretry},{"TIMEOUT",DEFtimeout},{"VERBOSE",DEFverbose},
+ {"LOGABSTRACT",DEFlogabstract}};
 int didchd;
 static fakedelivery;
 		       /* line buffered to keep concurrent entries untangled */

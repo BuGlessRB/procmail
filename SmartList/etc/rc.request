@@ -5,14 +5,10 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.13 1993/04/19 10:36:27 berg Exp $
+#$Id: rc.request,v 1.14 1993/04/21 15:02:23 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
-
-#LOGFILE=log		# uncomment this if you want all request mails to
-			# be logged (normally only unprocessed ones are
-			# logged).
 
 LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 			# also makes sure that the load doesn't go sky-high
@@ -134,8 +130,6 @@ $!^X-Loop: $listaddr
 
 LOCKFILE				# we don't need the lockfile anymore
 
-LOGFILE=log				# log -request arrivals
-
 #
 # Anything not taken care of yet will be served to the maintainer of the list.
 #
@@ -183,13 +177,15 @@ $^X-Loop: $listaddr
 # the file request.
 #
 
+LOGABSTRACT=yes
+
 ::
 ?test -z "$maintainer"
 request
 
 :0w
 | formail -R"From X-Envelope-From:" -iReturn-Receipt-To: \
-   | $SENDMAIL $sendmailOPT -oep $maintainer
+   | $SENDMAIL $sendmailOPT $sendmailOPTp $maintainer
 
 :0wfh
 | formail -A"X-Diagnostic: Maintainer $maintainer could not be reached"

@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.26 1993/04/13 15:44:22 berg Exp $";
+ "$Id: multigram.c,v 1.27 1993/04/21 15:02:41 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/04/13 15:44:22 $";
+static /*const*/char rcsdate[]="$Date: 1993/04/21 15:02:41 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -128,9 +128,11 @@ static char*lastdirsep(filename)const char*filename;
   return(char*)filename;
 }
 						   /* check rc.lock file age */
-static void rclock(file,stbuf)const char*const file;struct stat*const stbuf;
-{ while(!stat(file,stbuf)&&time((time_t*)0)-stbuf->st_mtime<DEFlocktimeout)
-     sleep(DEFlocksleep);			     /* wait, if appropriate */
+static rclock(file,stbuf)const char*const file;struct stat*const stbuf;
+{ int waited=0;
+  while(!stat(file,stbuf)&&time((time_t*)0)-stbuf->st_mtime<DEFlocktimeout)
+     waited=1,sleep(DEFlocksleep);		     /* wait, if appropriate */
+  return waited;
 }
 
 static char*argstr(first,last)const char*first,*last;		/* construct */
@@ -196,10 +198,10 @@ main(minweight,argv)char*argv[];
 	Endpmexec(4)=argstr(list,arg);		    /* pass on the list name */
 	if(chp)					  /* was it a -request list? */
 	   *chp= *request;		     /* then restore the leading '-' */
-	Endpmexec(3)=argstr(XENVELOPETO,arg);rclock(GLOCKFILE,&stbuf);
-	rclock(LLOCKFILE,&stbuf);execve(pmexec[0],(char*const*)pmexec,environ);
-	nlog("Couldn't exec \"");elog(pmexec[0]);elog("\"\n");
-	return EX_UNAVAILABLE;					    /* panic */
+	Endpmexec(3)=argstr(XENVELOPETO,arg);
+	while(rclock(GLOCKFILE,&stbuf)||rclock(LLOCKFILE,&stbuf));  /* stall */
+	execve(pmexec[0],(char*const*)pmexec,environ);nlog("Couldn't exec \"");
+	elog(pmexec[0]);elog("\"\n");return EX_UNAVAILABLE;	    /* panic */
       }
      setgid(getgid());setuid(getuid());		  /* revoke suid permissions */
      if(!strcmp(chp,idhash))				  /* idhash program? */

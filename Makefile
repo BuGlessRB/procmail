@@ -1,7 +1,7 @@
-#$Id: Makefile,v 1.24 1993/04/19 15:13:46 berg Exp $
+#$Id: Makefile,v 1.25 1993/04/21 15:01:54 berg Exp $
 
 # change BASENAME to your home directory if need be
-BASENAME = /usr/local
+BASENAME = /global
 
 # You can predefine ARCHITECTURE to a bin directory suffix
 ARCHITECTURE=

@@ -181,7 +181,7 @@
 	       turns out to be /dev/null
 	    Added a paragraph to the mailinglist/Manual (explaining multigram
 	       and threshold values)
-1993/04/19: v2.82
+1993/04/21: v2.82
 	    Fixed sleeptime argument to lockfile
 	    Refined the ^FROM_DAEMON macro again
 	    Added a ^FROM_MAILER macro
@@ -201,7 +201,8 @@
 	    Extended recommend.c, it advises changing the permissions on
 	       the system mail spool directory as well now (if needed)
 	    Procmail can now deliver to multiple directories (using hardlinks)
-	    Added the LASTFOLDER variable to procmail
+	    Added the LASTFOLDER & LOGABSTRACT variables to procmail in order
+	       to ease the generation of custom logfile abstracts/summaries
 	    Programs started from within TRAP can read the mail from stdin
 	    Worked my way around the !@#$%^&*() POSIX setgid() semantics (if
 	       your OS supports setrgid() or setregid())
@@ -209,7 +210,8 @@
 	       - Finetuned some scripts
 	       - Added digested lists
 	       - Added standalone archive servers
-	       - Extended logging for (un)subscription requests
+	       - Extended logging for administrivia requests
 	       - Flist can and should be setuid root now, POSIX setuid
 		 semantics require it <sigh>
 	       - Added support for multiple architectures
+	       - Updated and extended the Manual file (reading recommended)
