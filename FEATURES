@@ -10,6 +10,7 @@ Feature summary for procmail:
 	+ It poses a very low impact on your system's resources
 	+ Allows for very-easy-to-use yes-no decisions on where the mail
 	  should go (can take the size of the mail into consideration)
+	+ Also allows for neural-net-type weighted scoring of mails
 	+ Filters, delivers and forwards mail *reliably*
 	+ Provides a reliable hook (you might even say anchor :-) for any
 	  programs or shell scripts you may wish to start upon mail arrival

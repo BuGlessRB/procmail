@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: unsubscribe,v 1.17 1993/07/16 14:51:46 berg Exp $
+#$Id: unsubscribe,v 1.18 1993/11/24 19:45:43 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -35,7 +35,7 @@ fromaddr=`$cat $tmpfrom`
 remtext=`
  if $multigram -b1 -l$off_threshold -x$listreq -x$listaddr -d $dist 2>/dev/null
  then
-   $echo
+   $echo ""
    $echo "You have been removed from the list."
  else
    $echo "You have not been removed, I couldn't find your name on the list."
@@ -57,11 +57,11 @@ fi
 
 $echo "$fromaddr" >>$tmpfrom
 
-$echo
+$echo ""
 $echo "If this wasn't your intention, reply to this mail now (quoting it"
 $echo "entirely (for diagnostic purposes), and of course adding any"
 $echo "comments you see fit)."
-$echo
+$echo ""
 $echo "Transcript of unsubscription request follows:"
 $echo "-- "
 

@@ -1,12 +1,12 @@
 /************************************************************************
  *	Collection of library-worthy routines				*
  *									*
- *	Copyright (c) 1990-1992, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.18 1993/08/20 11:22:48 berg Exp $";
+ "$Id: goodies.c,v 1.19 1993/11/24 19:46:28 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -24,6 +24,13 @@ const char test[]="test";
 #endif
 const char*Tmnate,*All_args;
 
+static const char*evalenv P((void))	/* expects the variable name in buf2 */
+{ int j;
+  return (unsigned)(j=(*buf2)-'0')>9?getenv(buf2):
+	  !j?argv0:
+	   j<=crestarg?restargv[j-1]:(const char*)0;
+}
+
 #define NOTHING_YET	(-1)	 /* readparse understands a very complete    */
 #define SKIPPING_SPACE	0	 /* subset of the standard /bin/sh syntax    */
 #define NORMAL_TEXT	1	 /* that includes single-, double- and back- */
@@ -35,6 +42,7 @@ const char*Tmnate,*All_args;
 /* sarg==0 : normal parsing, split up arguments like in /bin/sh
  * sarg==1 : environment assignment parsing, parse up till first whitespace
  * sarg==2 : normal parsing, split up arguments by existing whitespace
+ * sarg==3 : normal parsing till '}', split up arguments by existing whitespace
  */
 void readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
  const int sarg;
@@ -49,7 +57,7 @@ loop:
 newchar:
      switch(i)
       { case EOF:	/* check sarg too to prevent warnings in the recipe- */
-	   if(sarg!=2&&got>NORMAL_TEXT)		 /* condition expansion code */
+	   if(sarg<2&&got>NORMAL_TEXT)		 /* condition expansion code */
 early_eof:    nlog(unexpeof);
 ready:	   if(got!=SKIPPING_SPACE||sarg)  /* not terminated yet or sarg==2 ? */
 	      *p++='\0';
@@ -67,6 +75,9 @@ ready:	   if(got!=SKIPPING_SPACE||sarg)  /* not terminated yet or sarg==2 ? */
 		 if(got==DOUBLE_QUOTED)
 		    goto noesc;
 	      case '"':case '\\':case '$':case '`':goto nodelim;
+	      case '}':
+		 if(sarg==3&&got<=NORMAL_TEXT)
+		    goto nodelim;
 	    }
 	   if(got>NORMAL_TEXT)
 noesc:	      *p++='\\';		/* nothing to escape, just echo both */
@@ -104,7 +115,7 @@ forcebquote:	 case EOF:case '`':
 		     { i=0;startb=p;goto simplsplit;	      /* split it up */
 		     }
 		    if(i=='"'||got<=SKIPPING_SPACE)   /* missing closing ` ? */
-		       got=NORMAL_TEXT;			     /* or sarg!=0 ? */
+		       got=NORMAL_TEXT;
 		    p=startb;goto loop;
 		 case '\\':
 		    switch(i=fgetc())
@@ -128,8 +139,13 @@ escaped:      *p++=i;
 	case '\'':
 	   switch(got)
 	    { case DOUBLE_QUOTED:goto nodelim;
-	      case SINGLE_QUOTED:got=NORMAL_TEXT;continue;}	/* closing ' */
+	      case SINGLE_QUOTED:got=NORMAL_TEXT;continue;	/* closing ' */
+	    }
 	   got=SINGLE_QUOTED;continue;				/* opening ' */
+	case '}':
+	   if(sarg==3&&got<=NORMAL_TEXT)
+	      goto ready;
+	   goto nodelim;
 	case '#':
 	   if(got>SKIPPING_SPACE)		/* comment at start of word? */
 	      break;
@@ -148,19 +164,37 @@ escaped:      *p++=i;
 	      case '{':						  /* ${name} */
 		 while(EOF!=(i=fgetc())&&alphanum(i))
 		    *startb++=i;
-		 *startb='\0';
-		 if(i!='}'||numeric(*buf2)&&buf2[1])
-		  { nlog("Bad substitution of");logqnl(buf2);continue;
+		 *startb='\0';startb=evalenv();
+		 if(numeric(*buf2)&&buf2[1])
+		    goto badsub;
+		 switch(i)
+		  { case ':':
+		       if(fgetc()!='-')
+		    default:
+badsub:			{ nlog("Bad substitution of");logqnl(buf2);continue;
+			}
+		       if(!startb||!*startb)
+			  goto doalt;
+		    case '-':
+		       if(!startb)
+doalt:			  startb=p;
+		       ;{ const char*sall_args;
+			  sall_args=All_args;readparse(p,sgetc,3);
+			  if(!All_args)	       /* only one can be remembered */
+			     All_args=sall_args;	    /* this is a bug */
+			}
+		    case '}':
+		       if(!startb)
+			  startb="";
 		  }
-		 i='\0';break;					  /* $$ =pid */
+		 goto ibreak;					  /* $$ =pid */
 	      case '$':ultstr(0,(unsigned long)thepid,p);goto ieofstr;
-	      case '?':strcpy(p,"-1");
-		 if(lexitcode>=0)  /* $? =exitcode from last started program */
-		    ultstr(0,(unsigned long)lexitcode,p);
-		 goto ieofstr; /* $# =number of extra command-line arguments */
+	      case '?':ltstr(0,(long)lexitcode,p);goto ieofstr;
 	      case '#':ultstr(0,(unsigned long)crestarg,p);goto ieofstr;
-	      case '-':strcpy(p,tgetenv(lastfolder));
-ieofstr:	 i='\0';goto eofstr;			   /* $- =lastfolder */
+	      case '=':ltstr(0,lastscore,p);
+ieofstr:	 i='\0';goto eofstr;
+	      case '-':startb=(char*)tgetenv(lastfolder); /* $- =$LASTFOLDER */
+ibreak:		 i='\0';break;
 	      default:
 		 if(numeric(i))			   /* $n positional argument */
 		  { *startb++=i;i='\0';goto finsb;
@@ -170,13 +204,12 @@ ieofstr:	 i='\0';goto eofstr;			   /* $- =lastfolder */
 		    while(EOF!=(i=fgetc())&&alphanum(i));
 		    if(i==EOF)
 			i='\0';
-finsb:		    *startb='\0';break;
+finsb:		    *startb='\0';
+		    if(!(startb=(char*)evalenv()))
+		       startb="";
+		    break;
 		  }
 normchar:	 *p++='$';goto newchar;		       /* not a substitution */
-	    }
-	   ;{ int j;
-	      startb=(unsigned)(j=(*buf2)-'0')>9?(char*)tgetenv(buf2):
-	       !j?(char*)argv0:j<=crestarg?(char*)restargv[j-1]:"";
 	    }
 	   if(got!=DOUBLE_QUOTED)
 simplsplit: { if(sarg)
@@ -218,6 +251,35 @@ nodelim:
      if(got<=SKIPPING_SPACE)		 /* should we bother to change mode? */
 	got=NORMAL_TEXT;
    }
+}
+
+void ltstr(minwidth,val,dest)const int minwidth;const long val;char*dest;
+{ if(val<0)
+   { *dest=' ';ultstr(minwidth-1,-val,dest+1);
+     while(*++dest==' ');		     /* look for the first non-space */
+     dest[-1]='-';				  /* replace it with a minus */
+   }
+  else
+     ultstr(minwidth,val,dest);				/* business as usual */
+}
+
+double stod(str,ptr)const char*str;const char**const ptr;
+{ int sign,any;unsigned i;char*chp;double acc,fracc;
+  fracc=1;acc=any=sign=0;chp=skpspace(str);
+  switch(*chp)							 /* the sign */
+   { case '-':sign=1;
+     case '+':chp++;
+   }
+  while((i= *chp++-'0')<=9)			 /* before the decimal point */
+     acc=acc*10+i,any=1;
+  switch(i)
+   { case '.':case ',':
+	while(fracc/=10,(i= *chp++-'0')<=9)	  /* and the fractional part */
+	   acc+=fracc*i,any=1;
+   }
+  if(ptr)
+     *ptr=any?chp:str;
+  return sign?-acc:acc;
 }
 
 static struct lienv{struct lienv*enext;char ename[255];}*myenv;

@@ -91,7 +91,7 @@
 	       through the mailinglist
 	    Reached the doubtful milestone to sometimes crash an Ultrix
 	       machine (due to the lockingtests, not procmail itself)
-1993/11/02: v2.92
+1993/11/24: v2.92
 	    Changes to procmail:
 	       - It was still occasionally trying to lock /dev/null, which
 		 is of course silly, fixed that
@@ -116,6 +116,11 @@
 		 a slight speedup)
 	       - Added support for filesystems not capable of creating
 		 hardlinks
+	       - Tightened the security check on initial absolute rcfiles
+		 (they sometimes can't be world writeable)
+	       - Weighted scoring on conditions
+	       - Ability to inline parse ${var-text} and ${var:-text}
+	       - Skipping spaces after "!" on condition lines
 	    Changes to formail:
 	       - Fixed a sender-determination-weight problem, it mixed up
 		 the weights when autoreplying and when regenerating the From_
@@ -151,8 +156,13 @@
 	       Eliminating duplicate submissions
 	       Catering for autoreplies to people not on the accept list
 	       Flush_digests can now be forced to push out digests
+	       Made the generated digests MIME compliant
 	       Clipped an a bit too greedy -request-redirection-regexp in
 		  rc.submit
+	       Implicit subscription can be enabled (force_subscribe in
+		  rc.custom)
+	       You can create a subscreen script to screen the addresses
+		  of prospective subscribers (allows tighter control)
 	       Tuned the procbounce script (it does what I mean now
 		  and it got more verbose in its diagnostics)
 	       Changes to the arch_retrieve script:
@@ -161,5 +171,10 @@
 		  - allow searching for regexps
 		  - protect the user against all too eager wildcards
 		  - fixed the ls command (one mail back per command)
+		  - made it more intelligent with respect to ignoring
+		    signatures
+		  - the standalone archive server will include the contents
+		    of the optional help.txt and info.txt files on a help
+		    request
 	       Carbon copies of subscription requests contained misleading
 		  diagnostics

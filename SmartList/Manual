@@ -1,4 +1,4 @@
-$Id: Manual,v 1.16 1993/09/09 11:02:24 berg Exp $
+$Id: Manual,v 1.17 1993/11/24 19:45:30 berg Exp $
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
@@ -11,8 +11,10 @@ Contents:
 		3a.Digest processing
 		3b.Restricting subscriptions
 		3c.Restricting submissions
-		3d.Moderated lists
-		3e.Schematic overview of what goes on behind the scenes
+		3d.Auto subscription on first submission
+		3e.Moderated lists
+		3f.List of lists
+		3g.Schematic overview of what goes on behind the scenes
 		4. The archive server
 		5. The format of the dist file
 		6. Multigram and the thresholds in rc.init/rc.custom
@@ -165,6 +167,12 @@ an rc.lock file, mails to that (or all) lists will stall for the next
 17 minutes.  If you need more time, touch the file every so often.
 You should remove the rc.lock files again after finishing your editing.
 
+If you would like to change the -dist alias (used to distribute the
+mail to the subscribers) into something less well known, go right ahead,
+but remember to change the corresponding assignment to listdist.  For
+completeness sake one should also correct the createlist and removelist
+scripts in that case.
+
 
 3a.Digest processing
    -----------------
@@ -218,9 +226,15 @@ This is what you can do:
 3b.Restricting subscriptions
    -------------------------
 
-There are two ways in which you can restrict who can subscribe to a list:
+There are three ways in which you can restrict who can subscribe to a list:
 - You can put the addresses of unwanted subscribers on the so-called reject-
   list (the `reject'-file).
+- You can create a program (e.g. a shell script) called "subscreen".  It must
+  be executable and will receive the mail address of the prospective subscriber
+  as the first argument.  If subscription for that address is allowed, the
+  program must return with exitcode zero.  If subscription is disallowed,
+  simply return with exitcode one.  A sample program is provided in the
+  examples directory.
 - You can completely disable automatic subscription by uncommenting the
   appropriate "auto_subscribe" line in rc.custom.
 
@@ -249,7 +263,16 @@ This feature is not the same as a moderated list, the two features can be
 used accumulatively.
 
 
-3d.Moderated lists
+3d.Auto subscription on first submission
+   -------------------------------------
+
+Instead of rejecting submissions by people not on the accept (dist) list,
+you can enable "force_subscribe".  This will cause people submitting
+mails to the list to be autosubscribed to the list if they were not in the
+dist file.
+
+
+3e.Moderated lists
    ---------------
 
 First create a file named "moderators", it should contain the fully
@@ -269,7 +292,25 @@ filter out duplicates anyway (i.e. only the first one will go out and
 be archived).
 
 
-3e.Schematic overview of what goes on behind the scenes
+3f.List of lists
+   -------------
+
+If you want people to be able to get an overview of which lists are
+publicly available at your site, you can have your listmaintainers create
+a file called "info.txt" in their respective list directory.  This info.txt
+file should contain a short description of the purpose and main topic of
+this particular list.
+
+You can then setup a command like examples/gatherinfo in crontab to collect
+all these various info.txt files once a day.
+
+The thus gathered info.txt files can be placed in a directory which can
+be accessed by a gopher or ftp server, or, you can put them into the
+archive directory of a procmail-managed mail-archive server (e.g. under
+the mail-alias "metalist").
+
+
+3g.Schematic overview of what goes on behind the scenes
    ----------------------------------------------------
 
 Suppose you have two entries in the aliases file, one for thelist@domain
@@ -336,17 +377,22 @@ to the -request address with the following Subject:
 
 The body of the mail or the rest of the subject line can then be
 filed with requests to the archive server.  It basically understands
-four commands:
+five commands:
 
 	get file ...
 	ls directory ...
 	egrep case_insensitive_regular_expression file ...
+	maxfiles nnn
 	help
 
 The archive server does a thorough check on the commands and the files
 that are requested.  This to ensure that it does not access any files
-outside the "scuba/archive" directory.	Any text-file that you put below
-the "scuba/archive" directory can now be retrieved by the archive commands.
+outside the "scuba/archive" directory.	Any text-file that you put in
+the "scuba/archive" directory (or any of its subdirectories) can now be
+retrieved by the archive commands.
+
+If you put links in the "scuba/archive" tree, you can allow the archive
+server to retrieve files from other parts of the filesystem.
 
 The whole archive server can be found in the .bin/arch_retrieve script.
 

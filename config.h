@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.30 1993/10/29 16:41:52 berg Exp $*/
+/*$Id: config.h,v 1.31 1993/11/24 19:45:21 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -78,8 +78,6 @@
  * Only edit below this line if you *think* you know what you are doing *
  ************************************************************************/
 
-#define NOBODY_uid	0xfffe	      /* default uid when no valid recipient */
-#define NOBODY_gid	0xfffe	      /* default gid when no valid recipient */
 #define ROOT_uid	0
 
 #define UPDATE_MASK	S_IXOTH

@@ -12,14 +12,14 @@
  *									*
  *	Seems to be relatively bug free.				*
  *									*
- *	Copyright (c) 1990-1992, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1992-1994, S.R. van den Berg, The Netherlands	*
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.34 1993/08/20 11:22:56 berg Exp $";
+ "$Id: multigram.c,v 1.35 1993/11/24 19:46:47 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/08/20 11:22:56 $";
+static /*const*/char rcsdate[]="$Date: 1993/11/24 19:46:47 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -235,10 +235,16 @@ main(minweight,argv)char*argv[];
 	    { nlog("User \");elog(listid);elog(\" unknown\n");
 	      return EX_NOUSER;
 	    }
+	  /*
+	   *	continue as the compile-time-determined list maintainer
+	   */
 	   setgid(pass->pw_gid);initgroups(listid,pass->pw_gid);
 	   setuid(pass->pw_uid);endpwent();
 	 }
 	else
+	  /*
+	   *	we weren't root, so try to get the uid of the .etc directory
+	   */
 	   setgid(stbuf.st_gid),setuid(stbuf.st_uid);
 	if(chdir(arg))			     /* goto the list's subdirectory */
 	   pmexec[1]=RCMAIN,Endpmexec(2)=0,chdir(defdir);
@@ -251,7 +257,10 @@ main(minweight,argv)char*argv[];
 	execve(pmexec[0],(char*const*)pmexec,environ);nlog("Couldn't exec \"");
 	elog(pmexec[0]);elog("\"\n");return EX_UNAVAILABLE;	    /* panic */
       }
-     setgid(getgid());setuid(getuid());		  /* revoke suid permissions */
+    /*
+     *	revoke the any suid permissions now, since we're not flist
+     */
+     setgid(getgid());setuid(getuid());
      if(!strcmp(chp,idhash))				  /* idhash program? */
       { unsigned long hash=0;int i;
 	progname=idhash;

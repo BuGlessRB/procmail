@@ -3,12 +3,12 @@
  *									*
  *	Seems to be perfect.						*
  *									*
- *	Copyright (c) 1991-1992, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1991-1994, S.R. van den Berg, The Netherlands	*
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.28 1993/07/02 15:36:24 berg Exp $";
+ "$Id: regexp.c,v 1.29 1993/11/24 19:47:00 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -368,18 +368,21 @@ struct eps*bregcomp(a,ign_case)const char*const a;
  (ioffsetof(struct chclass,pos1)^ioffsetof(struct chclass,pos2))
 #define PC(this,t)	(*(struct eps**)((char*)(this)+(t)))
 
-char*bregexec(code,text,len,ign_case)struct eps*code;const uchar*const text;
- size_t len;
+char*bregexec(code,text,str,len,ign_case)struct eps*code;
+ const uchar*const text;const uchar*str;size_t len;
 { register struct eps*reg,*stack,*other,*thiss;unsigned i,th1,ot1;
-  const uchar*str;struct eps*initstack,*initcode;
+  struct eps*initstack,*initcode;
   static struct mchar tswitch={OPC_TSWITCH,Ceps&tswitch};
   static struct eps sempty={OPC_SEMPTY,&sempty};
   sempty.spawn=initstack= &sempty;
   if((initcode=code)->opc==OPC_EPS)
      initcode=(initstack=code)+1,code->spawn= &sempty;
-  thiss=Ceps&tswitch;th1=ioffsetof(struct chclass,pos1);
-  ot1=ioffsetof(struct chclass,pos2);str=text-1;len++;i='\n';goto setups;
-  do			      /* make sure any beginning-of-line-hooks catch */
+  th1=ioffsetof(struct chclass,pos1);ot1=ioffsetof(struct chclass,pos2);
+  if(str--==text||*str=='\n') /* make sure any beginning-of-line-hooks catch */
+   { thiss=Ceps&tswitch;len++;i='\n';goto setups;
+   }
+  other=Ceps&tswitch;
+  do
    { i= *++str;				 /* get the next real-text character */
      if(ign_case&&i-'A'<'Z'-'A')
 	i+='a'-'A';			     /* transmogrify it to lowercase */

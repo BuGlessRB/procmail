@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.38 1993/10/29 16:41:47 berg Exp $
+#$Id: Makefile,v 1.39 1993/11/24 19:45:19 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -54,8 +54,8 @@ LOCKINGTEST=__defaults__
 ########################################################################
 
 # Optional system libraries we search for
-SEARCHLIBS = -ldir -lx -lsocket -lnet -linet -lnsl_s -lnsl_i -lnsl -lsun -lgen\
- -lsockdns
+SEARCHLIBS = -lm -ldir -lx -lsocket -lnet -linet -lnsl_s -lnsl_i -lnsl -lsun \
+ -lgen -lsockdns
 #			-lresolv	# not really needed, is it?
 
 # Informal list of directories where we look for the libraries in SEARCHLIBS

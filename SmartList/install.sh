@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.30 1993/11/09 16:03:19 berg Exp $
+#$Id: install.sh,v 1.31 1993/11/24 19:45:32 berg Exp $
 
 SHELL=/bin/sh
 export SHELL
@@ -24,8 +24,9 @@ then
   case "$binmail" in
      ""|*procmail:*)
 	 echo \
-	"Please make sure that the new version of procmail has been installed"\
-	 exit 64
+	"Please make sure that the new version of procmail has been installed"
+	 exit 64 ;;
+  esac
 else
   echo "Please make sure that procmail is on our PATH"
   exit 64

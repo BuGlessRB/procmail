@@ -15,7 +15,9 @@ Summary of what the mailinglist scripts in here provide:
 	+ Submissions can be limited to people on the accept list (which could
 	  be the current list of subscribers)
 	+ The fully automated subscription mechanism allows for a reject list
-	  of unwanted subscribers
+	  of unwanted subscribers and a general address screening mechanism
+	  which allows you to control exactly who is allowed to subscribe
+	+ Optional implicit subscription upon first submission to the list
 	+ Auto-digest-generation (configurable per list)
 	+ Joint management of several mailinglists possible
 	+ Customisation per mailinglist or mailinglist group possible (simply

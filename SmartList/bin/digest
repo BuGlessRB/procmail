@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.9 1993/10/29 16:42:06 berg Exp $
+#$Id: digest,v 1.10 1993/11/24 19:45:38 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -37,11 +37,11 @@ $SENDMAIL $sendmailOPT $listdist" >.digest.params
 #$SENDMAIL $sendmailOPT \`sed -e '/^(.*)$/ d' dist\`" >.digest.params
 
 $awk '
-BEGIN					{ lines=0;mode=0; }
-					{ mtch=0; }
+BEGIN { lines=0;mode=0;print("------------------------------");}
 /^$/					{ mtch=1; }
 /^[	 ][	 ]*$/			{ mtch=2; }
 /^------------------------------$/	{ mtch=3; }
+/^--------------------------------$/	{ mtch=4; }
 { if(mode==0)
    { print($0) >"'$tmpfrom'";
      if(mtch==1)
@@ -59,15 +59,18 @@ BEGIN					{ lines=0;mode=0; }
    }
   if(mtch==3)
      print(" -----------------------------");
+  else if(mtch==4)
+     print(" -------------------------------");
   else
      print($0);
 }
-END { print("");print("------------------------------");print(""); }
 ' >$tmprequest
 
 $test -f $digestbody && flush_digests -c
 
-for a in Date From To Cc Subject Message-ID Keywords Summary
+for a in Date From To Cc Subject Message-ID Keywords Summary \
+ `$sed -n -e 's/^\([Cc][Oo][Nn][Tt][Ee][Nn][Tt]-[^:]*\):/\1/p' \
+   -e '/^$/ q' `
 do
   b=`$formail -X $a: <$tmpfrom`
   if $test ! -z "$b"
@@ -102,6 +105,8 @@ From: $listreq
 Subject: $list Digest V$Year #$Issue
 X-Loop: $listaddr
 Precedence: list
+MIME-Version: 1.0
+Content-Type: multipart/digest; boundary="----------------------------"
 To: $listaddr
 Reply-To: $undigested_list
 
@@ -110,7 +115,10 @@ $list Digest				Volume $Year : Issue $Issue
 Today's Topics:
 HERE
 
-  $echo "End of $list Digest V$Year Issue #$Issue" >$digesttrailer
+  $cat >$digesttrailer <<HERE
+--------------------------------
+End of $list Digest V$Year Issue #$Issue
+HERE
   b=`$sed -e 's/./*/g' <$digesttrailer`
   $echo "$b" >>$digesttrailer
 fi

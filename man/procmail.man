@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.28 1993/10/29 17:08:01 berg Exp $
+.Id $Id: procmail.man,v 1.29 1993/11/24 19:46:00 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -180,8 +180,8 @@ to continue the rule, and the tab to separate the comments):
 .Sx 4
 R$*<@some.where>$*
         $#procmail $@/etc/some.rc $:$1@some.where.procmail$2
-R$*<@somehost.somewhere.procmail>$*
-        $1<@somehost.somewhere>$*       Already filtered, map back
+R$*<@some.where.procmail>$*
+        $1<@some.some>$*       Already filtered, map back
 .Ex
 And /etc/some.rc could be as simple as:
 .Sx 6
@@ -294,6 +294,9 @@ Forcing lock on "x"
 "x" is going to be removed by force because of a timeout (see also:
 .BR LOCKTIMEOUT ).
 .Tp
+Incomplete recipe
+The start of a recipe was found, but it stranded in an EOF.
+.Tp
 Invalid regexp "x"
 The regular expression "x" contains errors (most likely some missing or
 extraneous parens).
@@ -336,8 +339,9 @@ Processing continued
 The unrecognised options on the command line are ignored, proceeding as
 usual.
 .Tp
-Program failure of "x"
-Program that was started by procmail didn't return EX_OK (=@EX_OK@).
+Program failure (nnn) of "x"
+Program that was started by procmail returned nnn instead of EX_OK (=@EX_OK@);
+if nnn is negative, then this is the signal the program died on.
 .Tp
 Skipped: "x"
 Couldn't do anything with "x" in the rcfile (syntax error), ignoring it.
@@ -416,6 +420,9 @@ Reiterating kernel-lock
 While attempting several locking methods, one of these failed.  Procmail will
 reiterate until they all succeed in rapid succession.
 .Tp
+Score: total added "x"
+This condition scored `added' points, which resulted in a `total' score.
+.Tp
 Unlocking "x"
 Removing lockfile "x" again.
 .Sh WARNINGS
@@ -466,8 +473,9 @@ When in explicit delivery mode, procmail will generate a leading `@FROM@'
 line if none is present.  If one is already present@TRUSTED_IDS@ procmail will
 leave it intact.
 .PP
-For security reasons procmail will only use an rcfile if it is owned by the
-recipient or if the directory it is contained in, is not world writeable.
+For security reasons procmail will only use an absolute or $HOME relative
+rcfile if it is either owned by the recipient and not world writeable, or if
+the directory it is contained in is not world writeable.
 .PP
 If @SYSTEM_MBOX@ is a bogus mailbox (i.e. does not belong to the recipient,
 is unwriteable, is a symbolic link or is a hard link), procmail will upon

@@ -1,12 +1,12 @@
 /************************************************************************
  *	Miscellaneous routines used by procmail				*
  *									*
- *	Copyright (c) 1990-1992, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.35 1993/11/09 16:03:31 berg Exp $";
+ "$Id: misc.c,v 1.36 1993/11/24 19:46:42 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -85,8 +85,13 @@ forkerr(pid,a)const pid_t pid;const char*const a;
   return 0;
 }
 
-void progerr(line)const char*const line;
-{ nlog("Program failure of");logqnl(line);
+void progerr(line,exitcode)const char*const line;const int exitcode;
+{ charNUM(num,thepid);
+  nlog("Program failure (");
+  if(exitcode<0)
+     exitcode= -exitcode,elog("-");
+  ultstr(0,(unsigned long)exitcode,num);elog(num);
+  elog(") of");logqnl(line);
 }
 
 void chderr(dir)const char*const dir;
@@ -121,7 +126,7 @@ void nlog(a)const char*const a;
   static const char colnsp[]=": ";
   elog(procmailn);elog(colnsp);
   if(verbose&&oldtime!=(newtime=time((time_t*)0)))
-   { char num[8*sizeof thepid*4/10+1];
+   { charNUM(num,thepid);
      elog("[");oldtime=newtime;ultstr(0,(unsigned long)thepid,num);elog(num);
      elog("] ");elog(ctime(&oldtime));elog(procmailn);elog(colnsp);
    }
@@ -419,8 +424,11 @@ long renvint(i,env)const long i;const char*const env;
 
 char*egrepin(expr,source,len,casesens)char*expr;const char*source;
  const long len;
-{ source=(const char*)bregexec((struct eps*)(expr=(char*)
-   bregcomp(expr,!casesens)),(const uchar*)source,len>0?
-   (size_t)len:(size_t)0,!casesens);
-  free(expr);return(char*)source;
+{ if(*expr)		 /* only do the search if the expression is nonempty */
+   { source=(const char*)bregexec((struct eps*)(expr=(char*)
+      bregcomp(expr,!casesens)),(const uchar*)source,(const uchar*)source,
+      len>0?(size_t)len:(size_t)0,!casesens);
+     free(expr);
+   }
+  return(char*)source;
 }

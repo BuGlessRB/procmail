@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.33 1993/11/05 12:40:11 berg Exp $
+#$Id: rc.submit,v 1.34 1993/11/24 19:45:55 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -16,7 +16,7 @@ INCLUDERC=$RC_CUSTOM
 #	It does not look like an administrative request.
 #	It wasn't sent by this list itself.
 #	It wasn't sent by a daemon (misdirected bounce message perhaps).
-# Then check to see if sender is a subscriber of this mailinglist.
+# Then check to see if sender is on the accept list.
 #
 
 :0 Wch i
@@ -51,6 +51,18 @@ Precedence:.*junk)|^FROM_MAILER
 
      :0 Wh :msgid.lock
      | formail -xMessage-ID: | idcheck $idcache_size msgid.cache
+
+     #
+     # Check if we need to autosubscribe anyone not on the dist list.
+     #
+
+     :0 c
+     * $$force_subscribe
+     * !? formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
+	   -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
+	    multigram -b1 -m -l$submit_threshold -x$listaddr -x$listreq dist
+     | sed -e '/^$/,/^-- $/ d' | formail -I "Subject: auto subscribe" | \
+	flist $listreq
 
      #
      # Check if this is a digested mailinglist.	 If yes, processing stops

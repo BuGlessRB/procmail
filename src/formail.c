@@ -3,14 +3,14 @@
  *									*
  *	Seems to be relatively bug free.				*
  *									*
- *	Copyright (c) 1990-1992, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.31 1993/10/29 16:42:28 berg Exp $";
+ "$Id: formail.c,v 1.32 1993/11/24 19:46:23 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/10/29 16:42:28 $";
+static /*const*/char rcsdate[]="$Date: 1993/11/24 19:46:23 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -86,7 +86,7 @@ struct field*rdheader,*xheader,*Xheader;
 static struct field*iheader,*Iheader,*aheader,*Aheader,*Rheader,*nheader;
 
 static void logfolder P((void))	 /* estimate the no. of characters needed to */
-{ size_t i;char num[8*sizeof totallen*4/10+1];	       /* represent totallen */
+{ size_t i;charNUM(num,totallen);		       /* represent totallen */
   static const char tabchar[]=TABCHAR;
   if(logsummary)
    { putssn(sfolder,STRLEN(sfolder));i=strlen(logsummary)+STRLEN(sfolder);
@@ -367,7 +367,7 @@ newnamep:	 if(namep)
   dispfield(iheader);dispfield(Iheader);
   if(namep)
      free(namep);
-  if(!(xheader||Xheader))		 /* we're not just extracting fields */
+  if(keepb||!(xheader||Xheader))	 /* we're not just extracting fields */
      lputcs('\n');		/* make sure it is followed by an empty line */
   if(!keepb&&(areply||xheader||Xheader))		    /* decision time */
    { logfolder();				   /* we throw away the rest */
@@ -453,7 +453,7 @@ putsp:	lputcs(' ');
 	   goto flbuf;
 	 }
      else if(rdheader)
-      { struct field*ox=xheader,*oX=Xheader;
+      { struct field*ox,*oX;
 	ox=xheader;oX=Xheader;xheader=Xheader=0;flushfield(&rdheader);
 	xheader=ox;Xheader=oX; /* beware, after this buf can still be filled */
       }

@@ -23,17 +23,27 @@
 # log		optional logfile (uncomment the LOGFILE assignment to enable
 #		it)
 # dist		the subscriber list, one address per line
-# reject	list of people you definitely do want to subscribe
+# accept	the list of people allowed to submit messages (usually a
+#		link to dist, only checked if $foreign_submit != yes)
+# reject	list of people you definitely do not want to subscribe
+# subscreen	program (e.g. shell script) to screen prospective subscribers
+#		(see in the examples directory for a sample script)
 # request	all the messages to request that could not be handled
 #		automatically (only if maintainer is empty)
-# help.txt	file sent to help requests
+# help.txt	file sent to help & info requests
+# info.txt	optional file sent to help & info requests as well,
+#		it should contain a concise description of what the
+#		list is all about
+#		the various info.txt files are optionally gathered in
+#		order to advertise the availability of the mailinglists
 # subscribe.txt file sent to new subscribers
+# accept.txt	file sent to people not on the accept list
 # bounces	directory containing the bounce history files
 # rc.submit	rcfile used when distributing submissions
 # rc.request	rcfile used when processing requests
 # rc.custom	rcfile that contains all the customisations per list
 
-#$Id: rc.init,v 1.22 1993/10/29 16:42:11 berg Exp $
+#$Id: rc.init,v 1.23 1993/11/24 19:45:50 berg Exp $
 
 PATH=.:$PATH:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises
@@ -130,8 +140,12 @@ foreign_submit	=	yes
 #foreign_submit				# uncomment this line if you
 					# want to restrict submitting to
 					# people on the accept list
+force_subscribe =	<0
+#force_subscribe=	>0		# uncomment to cause people to
+					# be autosubscribed upon first
+					# submission to the list
 auto_subscribe	=	>0
-#auto_subscribe =	<0		# uncomment to disable automatic
+#auto_subscribe =	<0		# uncomment to disable unattended
 					# subscription handling
 moderated_flag	=	<0
 #moderated_flag =	>0		# uncomment this to make the list

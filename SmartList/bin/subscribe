@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: subscribe,v 1.17 1993/07/19 15:43:09 berg Exp $
+#$Id: subscribe,v 1.18 1993/11/24 19:45:42 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -63,6 +63,11 @@ then
   $test -z "$subscraddr" && subscraddr=`$cat $tmpfrom`
 fi
 
+if $test -f subscreen
+then
+  ./subscreen "$subscraddr" || exit 1
+fi
+
 NOT_METOO=""
 
 $formail -k -xSubject: <$tmprequest |
@@ -74,27 +79,28 @@ $test -z "$subscribe_log" ||
  $echo "subscribe: $subscraddr by:`$formail -rtxTo: <$tmprequest`" \
  >>$subscribe_log
 
-$formail -i"From: $listreq" -rtA"X-Loop: $listaddr" -I"Precedence: bulk" \
- <$tmprequest
+( $formail -i"From: $listreq" -rtA"X-Loop: $listaddr" -I"Precedence: bulk" \
+   <$tmprequest
 
-$test ! -z "$wrongaddress" && $echo "$wrongaddress" && wrongaddress=""
+  $test ! -z "$wrongaddress" && $echo "$wrongaddress" && wrongaddress=""
 
-$echo "You have added to the subscriber list of:"
-$echo
-$echo  "	$listaddr"
-$echo
-$echo "the following mail address:"
-$echo
-$echo  "	$subscraddr"
-$echo
-if $test -z "$NOT_METOO"
-then
-  $echo "By default, copies of your own submissions will be returned."
-else
-  $echo "As requested, copies of your own submissions will not be returned."
-fi
-$echo
+  $echo "You have added to the subscriber list of:"
+  $echo ""
+  $echo "	$listaddr"
+  $echo ""
+  $echo "the following mail address:"
+  $echo ""
+  $echo "	$subscraddr"
+  $echo ""
+  if $test -z "$NOT_METOO"
+  then
+     $echo "By default, copies of your own submissions will be returned."
+  else
+    $echo "As requested, copies of your own submissions will not be returned."
+  fi
+  $echo ""
 
-$cat $subscribetxt
+  $cat $subscribetxt
 
-$sed -e 's/^\(.\)/>\1/' $tmprequest
+  $sed -e 's/^\(.\)/>\1/' $tmprequest
+) | $SENDMAIL $sendmailOPT -t

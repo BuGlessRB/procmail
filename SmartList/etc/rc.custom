@@ -34,8 +34,12 @@ maintainer	=
 ##foreign_submit			# uncomment this line if you
 					# want to restrict submitting to
 					# people on the accept list
+#force_subscribe=	<0
+##force_subscribe=	>0		# uncomment to cause people to
+					# be autosubscribed upon first
+					# submission to the list
 #auto_subscribe =	>0
-##auto_subscribe=	<0		# uncomment to disable automatic
+##auto_subscribe=	<0		# uncomment to disable unattended
 					# subscription handling
 #moderated_flag =	<0
 ##moderated_flag=	>0		# uncomment this to make the list

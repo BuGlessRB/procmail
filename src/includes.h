@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.28 1993/11/09 16:03:28 berg Exp $*/
+/*$Id: includes.h,v 1.29 1993/11/24 19:46:32 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -51,7 +51,7 @@
 #endif
 #ifndef SYS_WAIT_H_MISSING
 #include <sys/wait.h>		/* wait() WIFEXITED() WIFSTOPPED()
-				/* WEXITSTATUS() */
+				/* WEXITSTATUS() WTERMSIG() */
 #else
 #undef SYS_WAIT_H_MISSING
 #endif
@@ -66,6 +66,9 @@
 #include <string.h>		/* strcpy() strncpy() strcat() strlen()
 				/* strspn() strcspn() strchr() strcmp()
 				   strncmp() strpbrk() strstr() memmove() */
+#endif
+#ifndef MATH_H_MISSING
+#include <math.h>		/* pow() */
 #endif
 #include <errno.h>		/* EINTR EEXIST ENFILE EACCES EAGAIN EXDEV */
 #ifndef SYSEXITS_H_MISSING
@@ -118,6 +121,10 @@ char*strpbrk();
 #ifdef SYS_UTSNAME_H_MISSING
 #undef SYS_UTSNAME_H_MISSING
 #define NOuname
+#endif
+#ifdef MATH_H_MISSING
+#undef MATH_H_MISSING
+double pow();
 #endif
 #ifdef SYSEXITS_H_MISSING
 #undef SYSEXITS_H_MISSING
@@ -233,6 +240,9 @@ char*strpbrk();
 #ifdef WEXITSTATUS
 #undef WEXITSTATUS
 #endif
+#ifdef WTERMSIG
+#undef WTERMSIG
+#endif
 #endif /* WMACROS_NON_POSIX */
 
 #ifndef WIFEXITED
@@ -243,6 +253,9 @@ char*strpbrk();
 #endif
 #ifndef WEXITSTATUS
 #define WEXITSTATUS(waitval)	((waitval)>>8&255)
+#endif
+#ifndef WTERMSIG
+#define WTERMSIG(waitval)	((waitval)&255)
 #endif
 
 extern /*const*/char**environ;
@@ -348,6 +361,7 @@ extern void*memmove();
 #define STRLEN(x)	(sizeof(x)-1)
 #define ioffsetof(s,m)	((int)offsetof(s,m))
 #define numeric(x)	((unsigned)((x)-'0')<='9'-'0')
+#define charNUM(num,v)	char num[8*sizeof(v)*4/10+1+1]
 
 #define mx(a,b)		((a)>(b)?(a):(b))
 

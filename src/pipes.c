@@ -1,12 +1,12 @@
 /************************************************************************
  *	Routines related to setting up pipes and filters		*
  *									*
- *	Copyright (c) 1990-1992, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.23 1993/11/09 16:03:37 berg Exp $";
+ "$Id: pipes.c,v 1.24 1993/11/24 19:46:50 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -137,22 +137,24 @@ pipthrough(line,source,len)char*line,*source;const long len;
 	rclose(PWRO),stermchild();
      if(dump(PWRO,source,len)&&!ignwerr)  /* send in the text to be filtered */
 	writeerr(line),lexitcode=EX_IOERR,stermchild();
-     if(pwait&&waitfor(pidfilt)!=EX_OK)	 /* check the exitcode of the filter */
-      { pidfilt=0;
-	if(pwait&2)				  /* do we put it on report? */
-	 { pwait=4;			     /* no, we'll look the other way */
-	   if(verbose)
-	      goto perr;
+     ;{ int excode;	      /* optionally check the exitcode of the filter */
+	if(pwait&&(excode=waitfor(pidfilt))!=EX_OK)
+	 { pidfilt=0;
+	   if(pwait&2)				  /* do we put it on report? */
+	    { pwait=4;			     /* no, we'll look the other way */
+	      if(verbose)
+		 goto perr;
+	    }
+	   else
+perr:	      progerr(line,excode);	      /* I'm going to tell my mommy! */
+	   stermchild();
 	 }
-	else
-perr:	   progerr(line);		      /* I'm going to tell my mommy! */
-	stermchild();
       }
      rclose(PWRB);exit(EX_OK);			  /* allow parent to proceed */
    }
   rclose(PWRB);rclose(PWRI);getstdin(PRDI);
   if(forkerr(pidchild,procmailn))
-     return 1;
+     return -1;
   if(Stdout)
    { retStdout(readdyn(Stdout,&Stdfilled));
      if(pwait)
@@ -168,13 +170,15 @@ long pipin(line,source,len)char*const line;char*source;long len;
      rclose(PWRO),shutdesc(),getstdin(PRDO),callnewprog(line);
   rclose(PRDO);
   if(forkerr(pidchild,line))
-     return 1;					    /* dump mail in the pipe */
+     return -1;					    /* dump mail in the pipe */
   if((len=dump(PWRO,source,len))&&(!ignwerr||(len=0)))
      writeerr(line);		       /* pipe was shut in our face, get mad */
-  if(pwait&&waitfor(pidchild)!=EX_OK)	    /* optionally check the exitcode */
-   { if(!(pwait&2)||verbose)			  /* do we put it on report? */
-	progerr(line);
-     len=1;
+  ;{ int excode;			    /* optionally check the exitcode */
+     if(pwait&&(excode=waitfor(pidchild))!=EX_OK)
+      { if(!(pwait&2)||verbose)			  /* do we put it on report? */
+	   progerr(line,excode);
+	len=1;
+      }
    }
   pidchild=0;
   if(!sh)

@@ -7,12 +7,12 @@
  *									*
  *	Seems to be perfect.						*
  *									*
- *	Copyright (c) 1990-1992, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.52 1993/11/09 16:03:40 berg Exp $";
+ "$Id: procmail.c,v 1.53 1993/11/24 19:46:53 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -46,7 +46,7 @@ int retval=EX_CANTCREAT,retvl2=EX_OK,sh,pwait,lcking,rcstate,rc= -1,ignwerr,
 size_t linebuf=mx(DEFlinebuf+XTRAlinebuf,STRLEN(systm_mbox)<<1);
 volatile int nextexit;			       /* if termination is imminent */
 pid_t thepid;
-long filled;					   /* the length of the mail */
+long filled,lastscore;	       /* the length of the mail, and the last score */
 char*themail,*thebody;			    /* the head and body of the mail */
 uid_t uid;
 gid_t gid,sgid;
@@ -292,9 +292,10 @@ Setuser: { gid=pass->pw_gid;uid=pass->pw_uid;
 	*/
 	if(!stat(buf,&stbuf))
 	 { accspooldir=stbuf.st_mode&(S_IWGRP|S_IWOTH)||uid==stbuf.st_uid;
-	   if((uid!=stbuf.st_uid&&stbuf.st_gid==getegid()||
-	    (rcstate=rc_NOSGID,0))&&
-	    (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH))==(S_IWGRP|S_IXGRP))
+	   if((uid!=stbuf.st_uid&&
+		stbuf.st_gid==getegid()||
+	       (rcstate=rc_NOSGID,0))&&
+	      (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH))==(S_IWGRP|S_IXGRP))
 	    { umask(INIT_UMASK&~S_IRWXG);goto keepgid;	  /* group-writeable */
 	    }
 	   else if(stbuf.st_mode&S_ISGID)
@@ -329,10 +330,11 @@ boglock:	    if(!goodlock)	      /* try & rename bogus lockfile */
 		       rename(defdeflock,buf);		   /* out of the way */
 	       }
 	      if(mboxstat>0||mboxstat<0&&(setids(),!lstat(chp,&stbuf)))
-		 if(!(stbuf.st_mode&S_IWUSR)||S_ISLNK(stbuf.st_mode)||
-		  (S_ISDIR(stbuf.st_mode)?
-		  !(stbuf.st_mode&S_IXUSR):stbuf.st_nlink!=1))
-		    goto bogusbox;	    /* we only deliver to real files */
+		 if(!(stbuf.st_mode&S_IWUSR)||	     /* recipient can write? */
+		    S_ISLNK(stbuf.st_mode)||		/* no symbolic links */
+		    (S_ISDIR(stbuf.st_mode)?  /* directories, yes, hardlinks */
+		      !(stbuf.st_mode&S_IXUSR):stbuf.st_nlink!=1))     /* no */
+		    goto bogusbox;	/* can't deliver to this contraption */
 		 else if(stbuf.st_uid!=uid)	      /* recipient not owner */
 bogusbox:	  { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
 		     strchr(strcpy(buf+i,BOGUSprefix),'\0'));	    /* bogus */
@@ -426,22 +428,27 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 		 setids();				/* then transmogrify */
 	    }
 	   while(0>bopen(buf));			   /* try opening the rcfile */
-	   if(i&&!didchd)	  /* opened rcfile in the current directory? */
-	    { didchd=1;*(chp=strcpy(buf2,maildir)+STRLEN(maildir))='=';
-	      *++chp=chCURDIR;*++chp='\0';sputenv(buf2);
+	   if(i)		  /* opened rcfile in the current directory? */
+	    { if(!didchd)
+	       { didchd=1;*(chp=strcpy(buf2,maildir)+STRLEN(maildir))='=';
+		 *++chp=chCURDIR;*++chp='\0';sputenv(buf2);
+	       }
 	    }
-	  /*
-	   *	OK, so now we have opened an rcfile, but for security reasons
-	   *	we only accept it if it is owned by the recipient or if the
-	   *	the directory it is in, is not world writeable or does not
-	   *	have the sticky bit set
-	   */
-	   i= *(chp=lastdirsep(buf));	      /* /dev/null is a special case */
-	   if(lstat(buf,&stbuf)||(stbuf.st_uid!=uid&&strcmp(devnull,buf)&&
-	    (*chp='\0',stat(buf,&stbuf)||
-	    (stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)&&
-	    !(stbuf.st_mode&S_ISVTX))))
-	    { *chp=i;rclose(rc);nlog("Suspicious rcfile\n");goto fake_rc;
+	   else
+	    {/*
+	      * OK, so now we have opened an absolute rcfile, but for security
+	      * reasons we only accept it if it is owned by the recipient and
+	      * is not world writeable, or if the the directory it is in is
+	      * not world writeable or does not have the sticky bit set
+	      */
+	      i= *(chp=lastdirsep(buf));      /* /dev/null is a special case */
+	      if(lstat(buf,&stbuf)||
+		 ((stbuf.st_uid!=uid||stbuf.st_mode&S_IWOTH)&&
+		   strcmp(devnull,buf)&&(*chp='\0',stat(buf,&stbuf)||
+		  (stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)&&
+		   !(stbuf.st_mode&S_ISVTX))))
+	       { *chp=i;rclose(rc);nlog("Suspicious rcfile\n");goto fake_rc;
+	       }
 	    }
 	  /*
 	   *	set uid back to recipient in any case, since we might just
@@ -467,9 +474,9 @@ commint:   do skipspace();				  /* skip whitespace */
 	if(testb(':'))				       /* check for a recipe */
 	 { int locknext;long tobesent;char*startchar;
 	   static char flags[maxindex(exflags)];
-	   ;{ int nrcond;
+	   ;{ int nrcond;double score;
 	      readparse(buf,getb,0);
-	      ;{ char*chp3=chp;
+	      ;{ char*chp3;
 		 nrcond=strtol(buf,&chp3,10);chp=chp3;
 	       }
 	      if(chp==buf)				 /* no number parsed */
@@ -520,10 +527,28 @@ noconcat:     i=flags[ALSO_NEXT_RECIPE]?lastcond:1;	  /* init test value */
 		    break;
 		  }
 		 if(i)				 /* check out all conditions */
-		  { int negate=0;
+		  { int negate,scoreany;double weight,xponent,lscore;
+		    negate=scoreany=0;lscore=score;
 		    for(chp=buf2+1;;strcpy(buf2,buf))
 		     { switch(*(sgetcp=buf2))
-			{ default:chp--;     /* no special character, backup */
+			{ case '0':case '1':case '2':case '3':case '4':
+			  case '5':case '6':case '7':case '8':case '9':
+			  case '-':case '+':case '.':case ',':case ' ':
+			  case '\t':
+			   { char*chp3;double w;
+			     w=stod(buf2,&chp3);chp2=chp3;
+			     if(chp2>buf2&&*(chp2=skpspace(chp2))=='^')
+			      { double x;
+				x=stod(chp2+1,&chp3);
+				if(chp3>chp2+1)
+				 { if(score>=MAX32)
+				      goto skiptrue;
+				   chp=chp3;xponent=x;weight=w;scoreany=1;
+				   goto copyrest;
+				 }
+			      }
+			   }
+			  default:chp--;     /* no special character, backup */
 			  case '\\':
 			   { int or_nocase;	/* case-distinction override */
 			     static const struct {const char*regkey,*regsubst;}
@@ -568,33 +593,98 @@ jinregs:			   regsp=regs;	/* start over and look again */
 				else
 				   regsp++;		     /* next keyword */
 			     while(regsp->regkey);
-			     i=!!egrepin(chp,startchar,tobesent, /* egrep it */
-			      or_nocase?0:flags[DISTINGUISH_CASE]);
+			     ;{ int igncase;
+				igncase=or_nocase||!flags[DISTINGUISH_CASE];
+				if(scoreany)
+				 { struct eps*re;long rest;
+				   re=bregcomp(chp,igncase);
+				   chp=startchar;rest=tobesent;
+				   if(negate)
+				    { if(weight&&!bregexec(re,
+				       (const uchar*)chp,(const uchar*)chp,
+				       (size_t)rest,igncase))
+					 score+=weight;
+				    }
+				   else
+				      while(weight&&(chp2=
+				       bregexec(re,(const uchar*)startchar,
+					(const uchar*)chp,(size_t)rest,
+					igncase)))
+				       { score+=weight;
+					 ;{ double oweight=weight;
+					    if((weight*=xponent)<oweight&&
+					     oweight<1)
+					       break;
+					  }
+					 if(chp==chp2)
+					    if(score>=MAX32||score<=MIN32)
+					       break;
+					    else
+					       continue;
+					 rest-=chp2-chp;chp=chp2;
+				       }
+				   free(re);
+				 }
+				else			     /* egrep for it */
+				   i=!!egrepin(chp,startchar,tobesent,
+				    !igncase)^negate;
+			      }
 			     break;
 			   }
 			  case '$':*buf2='"';readparse(buf,sgetc,2);continue;
-			  case '!':negate^=1;strcpy(buf,chp);continue;
+			  case '!':negate^=1;
+copyrest:		     strcpy(buf,skpspace(chp));continue;
 			  case '?':pwait=2;metaparse(chp);inittmout(buf);
-			      ignwerr=1;i=!pipin(buf,startchar,tobesent);
+			      ignwerr=1;
+			      if(!pipin(buf,startchar,tobesent))
+				 if(scoreany&&lexitcode>=0)
+				  { int j=lexitcode;
+				    if(negate)
+				       while(--j>=0&&(score+=weight)<MAX32&&
+					score>MIN32)
+					  weight*=xponent;
+				    else
+				       score+=j?xponent:weight;
+				  }
+				 else if(lexitcode&&!negate)
+				    i=0;
 			      strcpy(buf2,buf);break;
 			  case '>':case '<':readparse(buf,sgetc,2);
-			     ;{ char*chp3=chp;
+			     ;{ char*chp3;
 				i=strtol(buf+1,&chp3,10);chp=chp3;
 			      }
-			     i='<'==*buf?filled<i:filled>i;
+			     if(scoreany)
+			      { double f;
+				f=(*buf=='<')^negate?
+				 (double)i/filled:(double)filled/i;
+				score+=weight*pow(f,xponent);
+			      }
+			     else
+				i=(*buf=='<'?filled<i:filled>i)^negate;
 			     skipped(skpspace(chp));strcpy(buf2,buf);
 			}					/* leftovers */
 		       break;
 		     }
-		    i^=negate;
+		    if(score>MAX32)		/* chop off at plus infinity */
+		       score=MAX32;
+		    if(score<=MIN32)	       /* chop off at minus infinity */
+		       score=MIN32,i=0;
 		    if(verbose)	     /* not entirely correct, but it will do */
-		     { nlog(i?"M":"No m");elog("atch on");
+		     { if(scoreany)
+			{ charNUM(num,long);
+			  nlog("Score: ");ltstr(7,(long)score,num);elog(num);
+			  elog(" ");ltstr(7,(long)(score-lscore),num);
+			  elog(num);
+			}
+		       else
+			  nlog(i?"M":"No m"),elog("atch on");
 		       if(negate)
 			  elog(" !");
 		       logqnl(buf2);
 		     }
-		  }
+skiptrue:;	  }
 	       }
+	      lastscore=score;
 	    }
 	   if(!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC])
 	      lastcond=i;		   /* save the outcome for posterity */
@@ -667,6 +757,8 @@ forward:	 if(locknext)
 		    goto frmailed;
 	       }
 	    }
+	   else if(testb(EOF))
+	      nlog("Incomplete recipe");
 	   else		   /* dump the mail into a mailbox file or directory */
 	    { static const char extrns[]="Extraneous ",ignrd[]=" ignored\n";
 	      if(flags[FILTER])

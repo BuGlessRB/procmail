@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.21 1993/11/05 16:07:50 berg Exp $
+#$Id: arch_retrieve,v 1.22 1993/11/24 19:45:35 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -28,6 +28,8 @@ tmpfrom=tmp.from
 
 archivedir=archive
 
+standalone=$1
+
 from=`$echo "arch_retrieve:" \`$cat $tmpfrom\` requested`
 $cat /dev/null >$tmpfrom
 
@@ -40,7 +42,7 @@ case "$X_ENVELOPE_TO" in
 esac
 
 $formail -k -xSubject: |
- $sed -e '/^--/,$ d' -e 's/^[	 ]*archive/ARCHIVE/' \
+ $sed -e '/^[^a-zA-Z	 ]/,$ d' -e 's/^[	 ]*archive/ARCHIVE/' \
   -e 's/[	 ]archive\/\/*/ /g' |
  (  oldwrongaddress="$wrongaddress"
     wrongaddress="WARNING:
@@ -176,6 +178,12 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 	 $echo "ls latest"
 	 $echo "get latest/12"
 	 $echo "egrep some.word latest/*"
+	 if $test ! -z "$standalone"
+	 then
+	    $echo ""
+	    $test -f help.txt && $cat help.txt
+	    $test -f info.txt && $cat info.txt
+	 fi
        ) | $SENDMAIL $sendmailOPT -t
    fi
  )

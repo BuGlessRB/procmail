@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.29 1993/11/05 16:07:53 berg Exp $
+#$Id: rc.request,v 1.30 1993/11/24 19:45:52 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -79,7 +79,7 @@ Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)([^a-z]|$)))|\
 #
 # Is it a subscription request?	 Yes, well, then check if the person
 # subscribing isn't on the reject list.	 If not, then let's see if he might
-# already be on the mailinglist.  If not, add him.
+# already be on the mailinglist.  If not, add him(/her/it?).
 #
 
   :0 HB
@@ -91,22 +91,27 @@ Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)([^a-z]|$)))|\
   * !?multigram -b1 -l$reject_threshold reject
   * !?multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
    {
-     :0 w $cc_requests:dist.lock
-     | subscribe | $SENDMAIL $sendmailOPT -t
+     :0 W $cc_requests:dist.lock
+     | subscribe
+
+     :0 awfh
+     | formail -A "X-Diagnostic: Added to the subscriber list"
 
      :0 wfh
-     | formail -A "X-Diagnostic: Added to the subscriber list"
+     * !^X-Diagnostic:
+     | formail -A "X-Diagnostic: Tried to subscribe"
    }
 
 #
-# Is it an info or help request?  Send back the help.txt file.
+# Is it an info or help request?  Send back the help.txt and the
+# optional info.txt file.
 #
 
   :0 HB w $cc_requests
   * ^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
      [a-z,.	 ]*(help|info(rm(ation)?)?)([^a-z]|$)
   | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
-     cat help.txt) | $SENDMAIL $sendmailOPT -t
+     cat help.txt info.txt 2>/dev/null ) | $SENDMAIL $sendmailOPT -t
 }
 
 #

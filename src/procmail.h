@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.18 1993/10/29 16:42:49 berg Exp $*/
+/*$Id: procmail.h,v 1.19 1993/11/24 19:46:55 berg Exp $*/
 
 #include "includes.h"
 
@@ -25,6 +25,9 @@ typedef unsigned char uschar;	     /* sometimes uchar is already typedef'd */
 #ifndef ETCRC
 #define ETCRC	0
 #endif
+
+#define MAX32	((long)(~(unsigned long)0>>1))
+#define MIN32	(-(long)MAX32)
 
 #define XTRAlinebuf	2	     /* surplus of LINEBUF (see readparse()) */
 
@@ -60,7 +63,7 @@ extern const char shellflags[],shell[],lockfile[],lockext[],newline[],binsh[],
  unexpeof[],shellmetas[],*const*gargv,*const*restargv,*sgetcp,*rcfile,
  dirsep[],msgprefix[],devnull[],lgname[],executing[],oquote[],cquote[],
  whilstwfor[],procmailn[],Mail[],home[],maildir[],*defdeflock,*argv0;
-extern long filled;
+extern long filled,lastscore;
 extern sh,pwait,retval,retvl2,lcking,rcstate,rc,ignwerr,lexitcode,asgnlastf,
  accspooldir,crestarg,skiprc,savstdout;
 extern size_t linebuf;

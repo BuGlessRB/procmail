@@ -1,12 +1,12 @@
 /************************************************************************
  *	Some common routines for procmail and formail			*
  *									*
- *	Copyright (c) 1990-1992, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands	*
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: common.c,v 1.12 1993/08/20 11:22:35 berg Exp $";
+ "$Id: common.c,v 1.13 1993/11/24 19:46:12 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -64,15 +64,15 @@ void ultstr(minwidth,val,dest)unsigned long val;char*dest;
   while(val/=10);
 }
 
-waitfor(pid)const pid_t pid;		      /* wait for a specific process */
+int waitfor(pid)const pid_t pid;	      /* wait for a specific process */
 { int i;pid_t j;
   while(pid!=(j=wait(&i))||WIFSTOPPED(i))
      if(-1==j)
-	return -1;
-  return lexitcode=WIFEXITED(i)?WEXITSTATUS(i):-1;
+	return -256;
+  return lexitcode=WIFEXITED(i)?WEXITSTATUS(i):-WTERMSIG(i);
 }
 
-strnIcmp(a,b,l)register const char*a,*b;register size_t l;
+int strnIcmp(a,b,l)register const char*a,*b;register size_t l;
 { unsigned i,j;
   if(l)						 /* case insensitive strncmp */
      do
