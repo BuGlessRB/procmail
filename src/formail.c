@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.26 1993/07/19 12:41:13 berg Exp $";
+ "$Id: formail.c,v 1.27 1993/07/23 08:56:06 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/07/19 12:41:13 $";
+static /*const*/char rcsdate[]="$Date: 1993/07/23 08:56:06 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -167,8 +167,7 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		    if(lnl||chp!=*argv)
 		       goto invfield;
 		    else
-		     { free(fldp);*afldp=0;break;	 /* silently drop it */
-		     }
+		       break;				 /* silently drop it */
 		 chp[lnl]='\n';			       /* terminate the line */
 		 afldp=addfield(lastm==FM_REN_INSERT?&iheader:
 		  lastm==FM_DEL_INSERT?&Iheader:lastm==FM_ADD_IFNOT?&aheader:
