@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.27 1993/04/13 16:43:19 berg Exp $
+#$Id: initmake,v 1.28 1993/04/19 10:36:13 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -8,7 +8,7 @@ shift; MSHELL=$1
 shift; RM="$1"
 shift; MV="$1"
 shift; LN="$1"
-shift; LIBPATHS="$1"
+shift; SEARCHLIBS="$1"
 shift; DEVNULL=$1
 shift; MAKE="$1"
 shift; O=$1
@@ -40,7 +40,28 @@ if test \^hello = "`echo '^hello' | grep -F '^hello' 2>&1`"
 then FGREP="grep -F"				# and POSIX it is!
 fi
 
-cc=""
+echo hi | $FGREP hi >$DEVNULL
+t=$?
+echo ho | $FGREP hi >$DEVNULL
+f=$?
+if test 0 != $t -o 0 = $f
+then
+  echo "Your \"$FGREP\" program seems to be incapable of returning a proper"
+  echo "exitvalue depending on the success of the search.  This script can"
+  echo "not work without it."
+  exit 2
+fi
+
+if test ! -z "$LD_LIBRARY_PATH"
+then
+  echo '***************************** WARNING *********************************'
+  echo '* You seem to have set the LD_LIBRARY_PATH variable, this might cause *'
+  echo '* some trouble during the execution of this autoconf script.  If the  *'
+  echo '* the make does not finish by itself, do a: "make clean",	      *'
+  echo '* clear LD_LIBRARY_PATH from the environment, and start over.	      *'
+  echo '***************************** WARNING *********************************'
+fi
+
 cd src				# diving into the source directory ######
 cat >_autotst.c <<HERE
 main()
@@ -48,6 +69,9 @@ main()
 }
 HERE
 $RM _autotst.rrr _autotst.$O _autotst
+
+cc=""
+
 for a in "$CC" cc gcc
 do
   echo $a $CFLAGS1 _autotst.c -o _autotst $LDFLAGS1 >>_autotst.rrr
@@ -71,6 +95,7 @@ $RM _autotst.rrr _autotst.$O _autotst
 echo "$cc seems to work fine, using that as the C-compiler"
 
 cat >_autotst.c <<HERE
+#include <sys/types.h>
 #include <stdio.h>
 #include <sys/stat.h>
 main()
@@ -79,6 +104,7 @@ main()
 HERE
 
 CFLAGS=""
+
 case "$CFLAGS1" in
   *-D_POSIX_SOURCE*);;
   *)
@@ -92,53 +118,51 @@ case "$CFLAGS1" in
      fi;;
 esac
 
-LDFLAGS=""
 LDFLAGSC=""
-export LDFLAGS
 
 test -f _autotst.$O || $cc -c $CFLAGS1 $CFLAGS _autotst.c >$DEVNULL 2>&1
-$cc $CFLAGS1 $CFLAGS _autotst.c -o _autotst $LDFLAGS1 -lc >$DEVNULL 2>&1 &&
+$cc $CFLAGS1 $CFLAGS _autotst.$(O) -o _autotst $LDFLAGS1 -lc >$DEVNULL 2>&1 &&
  LDFLAGSC=" -lc"
+$RM _autotst
+
+LDFLAGS="$SEARCHLIBS"
+
+while $cc $CFLAGS1 $CFLAGS _autotst.$(O) -o _autotst $LDFLAGS1 $LDFLAGS \
+ $LDFLAGSC 2>&1 | $FGREP lib >_autotst.rrr
+ test ! -f _autotst
+do
+  NEWLDFLAGS=""
+  for a in $LDFLAGS dummy
+  do
+     if test dummy != $a
+     then
+	lib=`expr match $a '-l\(.*\)'`
+	$FGREP lib$lib _autotst.rrr || NEWLDFLAGS="$NEWLDFLAGS -l$lib"
+     fi
+  done
+  if test a"$LDFLAGS" = a"$NEWLDFLAGS"
+  then
+     echo 2>&1 "Whoeaaa!  There's something fishy going on here."
+     echo 2>&1 "You have a look and see if you detect anything uncanny:"
+     echo 2>&1 "-------------------------------------------------------"
+     cat 2>&1 _autotst.rrr
+     echo 2>&1 "-------------------------------------------------------"
+     echo 2>&1 \
+       "I suggest you take a look at the definition of LDFLAGS* and SEARCHLIBS"
+     echo 2>&1 "in the Makefile before you try make again."
+     echo 2>&1 "Also: write me a mail showing the errorlog you just generated."
+     echo 2>&1 "The errorlog can still be found in src/_autotst.rrr"
+     echo 2>&1 "It would be helpful if you could mention what machine and OS"
+     echo 2>&1 "you are trying to compile this on (uname -a).  Thanks."
+     exit 1
+  fi
+  LDFLAGS="$NEWLDFLAGS"
+done
+
 $RM _autotst.$O _autotst.c _autotst
 cd ..			# returning to the main procmail directory ######
 
-cat >checklib <<HERE
-name="\$1"
-for libpath in $LIBPATHS
-do
-  set \$libpath/*lib\$name[A-Z.]*
-  libname="\$1"
-  if test -f \$libname
-  then
-     case "\$libpath" in
-	/usr/local/lib)
-	   case "\$LDFLAGS" in
-	      *-L\$libpath*) LDFLAGS="\$LDFLAGS -L\$libpath";;
-	   esac;;
-     esac
-     echo "\$LDFLAGS -l\$name"
-     exit 0
-  fi
-done
-echo "\$LDFLAGS"
-HERE
-chmod 0755 checklib
-
-LDFLAGS=`checklib dir`
-LDFLAGS=`checklib x`
-LDFLAGS=`checklib socket`		# why did everyone have to think up
-LDFLAGS=`checklib net`			# their own name?
-LDFLAGS=`checklib inet`
-LDFLAGS=`checklib nsl_s`
-LDFLAGS=`checklib nsl_i`
-LDFLAGS=`checklib nsl`
-LDFLAGS=`checklib gen`
-LDFLAGS=`checklib sockdns`
-#LDFLAGS=`checklib resolv`		# not really needed, is it?
-LDFLAGS=`checklib sun`
-#LDFLAGS=`checklib c`
 LDFLAGS="$LDFLAGS$LDFLAGSC"
-$RM checklib
 
 test -z "$CFLAGS" || echo "Added CFLAGS=$CFLAGS"
 test -z "$LDFLAGS" || echo "Added LDFLAGS=$LDFLAGS"

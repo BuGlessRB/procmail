@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.22 1993/04/13 15:44:17 berg Exp $";
+ "$Id: misc.c,v 1.23 1993/04/19 10:36:42 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -276,8 +276,8 @@ void setlastfolder(folder)const char*const folder;
    { char*chp;
      asgnlastf=0;
      strcpy(chp=malloc(STRLEN(lastfolder)+1+strlen(folder)+1),lastfolder);
-     chp[STRLEN(lastfolder)]='=';
-     sputenv(strcpy(chp+STRLEN(lastfolder)+1,folder));free(chp);
+     chp[STRLEN(lastfolder)]='=';strcpy(chp+STRLEN(lastfolder)+1,folder);
+     sputenv(chp);free(chp);
    }
 }
 
@@ -341,7 +341,7 @@ void asenv(chp)const char*const chp;
   else if(!strcmp(buf,lockfile))
      lockit((char*)chp,&globlock);
   else if(!strcmp(buf,eumask))
-     umask((int)strtol(chp,(char**)0,8));
+     umask((mode_t)strtol(chp,(char**)0,8));
   else if(!strcmp(buf,includerc))
      pushrc(chp);
   else if(!strcmp(buf,host))

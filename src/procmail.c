@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.30 1993/04/13 15:44:25 berg Exp $";
+ "$Id: procmail.c,v 1.31 1993/04/19 10:36:47 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -511,7 +511,7 @@ jinregs:			regsp=regs;	/* start over and look again */
 	else if(flags[PASS_BODY])
 	   tobesent-=(startchar=thebody)-themail;
 	chp=strchr(strcpy(buf,tgetenv(sendmail)),'\0');succeed=sh=0;
-	pwait=flags[WAIT_EXIT]|flags[WAIT_EXIT_QUIET]<<1;asgnlastf=1;
+	pwait=flags[WAIT_EXIT]|flags[WAIT_EXIT_QUIET]<<1;
 	ignwerr=flags[IGNORE_WRITERR];Stdout=0;skipspace();
 	if(i)
 	   concon('\n');
@@ -590,8 +590,7 @@ noloclock:    inittmout(buf);
 	    }
 	   else
 	      chp=strchr(buf,'\0');			     /* find the end */
-	   readparse(chp,getb,0);concatenate(chp=strchr(buf,'\0')+1);
-	   skipped(chp);			     /* report any leftovers */
+	   readparse(chp,getb,0);
 	   if(i)
 	    { strcpy(buf2,buf);
 	      if(locknext)
@@ -624,7 +623,7 @@ noloclock:    inittmout(buf);
 nomore_rc:
   concon('\n');succeed=0;
   if(*(chp=(char*)tgetenv(fdefault)))			     /* DEFAULT set? */
-   { setuid(uid);firstchd();asenvcpy(DEFdeflock);	    /* implicit lock */
+   { setuid(uid);firstchd();asenvcpy((char*)DEFdeflock);    /* implicit lock */
      if(dump(deliver(chp,(char*)0),themail,filled))		  /* default */
 	writeerr(buf);
      else

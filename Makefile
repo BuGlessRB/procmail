@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.20 1993/04/13 15:47:27 berg Exp $
+#$Id: Makefile,v 1.21 1993/04/19 10:36:08 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -15,6 +15,12 @@ MAN1SUFFIX= 1
 MAN5SUFFIX= 5
 MAN1DIR	  = $(MANDIR)/man$(MAN1SUFFIX)
 MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
+
+#LOCKINGTEST=/tmp .	# Uncomment and add any directories you see fit.
+			# If LOCKINGTEST is undefined, autoconf will not
+			# prompt you to enter additional directories.
+			# See INSTALL for more information about the
+			# significance of the locking tests.
 
 # Things that can be made are:
 
@@ -43,8 +49,10 @@ MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 
 # Makefile.0 - mark, don't (re)move this, a sed script needs it
 
-# Paths for system libraries
-LIBPATHS   = /lib /usr/lib /usr/local/lib /lib/386
+# Optional system libraries we search for
+SEARCHLIBS = -ldir -lx -lsocket -lnet -linet -lnsl_s -lnsl_i -lnsl -lgen\
+ -lsockdns -lsun
+			# -lresolv	# not really needed, is it?
 
 CFLAGS0 = -O #-ansi -pedantic #-Wid-clash-6
 LDFLAGS0= -s
@@ -79,7 +87,8 @@ make:
 
 init:
 	$(BSHELL) ./initmake $(BSHELL) "$(SHELL)" "$(RM)" "$(MV)" "$(LN)" \
-	 "$(LIBPATHS)" $(DEVNULL) "$(HIDEMAKE)" $(O) \
+	 "$(SEARCHLIBS)" \
+	 $(DEVNULL) "$(HIDEMAKE)" $(O) \
 	 "$(CC)" "$(CFLAGS1)" "$(LDFLAGS1)" "$(BINSS)" \
 	 "$(MANS1S)" "$(MANS5S)" "$(SUBDIRS)"
 

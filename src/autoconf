@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.39 1993/04/13 16:43:27 berg Exp $
+#$Id: autoconf,v 1.40 1993/04/19 10:36:34 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -77,6 +77,7 @@ shift; DEVNULL=$1
 shift; FGREP="$1"
 shift; MAKE="$1"
 shift; O=$1
+shift; LOCKINGTEST="$1"
 shift; ACONF=$1
 
 test 1 != $# &&
@@ -96,30 +97,65 @@ else
    test ! -z \"\$tailpid\" && kill \$tailpid; exit 1" 1 2 3 15
 fi
 
-if test ! -z "$LD_LIBRARY_PATH"
-then
-  echo '***************************** WARNING *********************************'
-  echo '* You seem to have set the LD_LIBRARY_PATH variable, this might cause *'
-  echo '* some trouble during the execution of this autoconf script.  If the  *'
-  echo '* the make does not finish by itself, do a: "make clean",	      *'
-  echo '* clear LD_LIBRARY_PATH from the environment, and start over.	      *'
-  echo '***************************** WARNING *********************************'
-fi
-
-echo hi | $FGREP hi >$DEVNULL
-t=$?
-echo ho | $FGREP hi >$DEVNULL
-f=$?
-if test 0 != $t -o 0 = $f
-then
-  echo "Your \"$FGREP\" program seems to be incapable of returning a proper"
-  echo "exitvalue depending on the success of the search.  This script can"
-  echo "not work without it."
-  exit 2
-fi
-
 nocore=yes
 test -f core && nocore=no
+
+cat 2>&1 <<HERE
+==============================================================================
+In order for the kernel-locking tests to work as intended I have to be able to
+test-lock files on as many semantically different filesystems as possible (for
+more information about this, READ PARAGRAPH TWO in INSTALL).  To suppress this
+prompt you can set the LOCKINGTEST variable in the Makefile.
+
+Please add writeable directories to the list.  You should only add directories
+that reside on filesystems that have unique characterics.  E.g. if you have
+several remote NFS partitions, pick some unique client-server pairs, there is
+little use in picking the same server twice from the same client-machine.
+An excellent candidate would be a remotely mounted mail spool directory.
+==============================================================================
+HERE
+
+testdirs="/tmp ."
+b=dummy
+while test ! -z "$b"
+do
+  echo 2>&1 ""
+  b=""
+  OLDTESTDIRS="$TESTDIRS"
+  TESTDIRS=""
+  for a in $testdirs
+  do $RM -r $a/_locktest
+     if mkdir $a/_locktest
+     then
+	b="$b $a"
+	TESTDIRS="$TESTDIRS $a/_locktest"
+     else
+	echo 2>&1 "Can't create $a/_locktest"
+     fi
+  done
+  OLDTESTDIRS="$TESTDIRS"
+  testdirs="$b"
+  echo 2>&1 ""
+  echo 2>&1 "I will temporarily use a testdirectory named _locktest"
+  echo 2>&1 "in the following directories:"
+  echo 2>&1 ""
+  echo 2>&1 $testdirs
+  echo 2>&1 ""
+  echo 2>&1 "If you would like to add any, please specify them below,"
+  echo 2>&1 "press return to continue:"
+  echo 2>&1 ""
+  if test -z "$LOCKINGTEST"
+  then
+     read b
+  elif test dummy = "$LOCKINGTEST"
+  then
+     b=""
+  else
+     testdirs=""; b="$LOCKINGTEST"; LOCKINGTEST=dummy
+     echo $b
+  fi
+  testdirs="$testdirs $b"
+done
 
 cat >grepfor <<HERE
 $FGREP -e "\$1" _autotst.rrr >$DEVNULL && echo "\$2" >>$ACONF
@@ -141,7 +177,7 @@ cat >_autotst.c <<HERE
 int setsid;
 HERE
 
-if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr &&
+if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
  test -f _autotst.$O
 then
   echo "#define setsid()" >>_locktst.h
@@ -477,53 +513,6 @@ $MV _locktst _locktst.$$ 2>$DEVNULL
 $RM _autotst.$O _autotst.rrr locktst* 2>$DEVNULL
 $MV _autotst _locktst
 
-cat 2>&1 <<HERE
-==============================================================================
-In order for the kernel-locking tests to work as intended I have to be able to
-test-lock files on as many semantically different filesystems as possible (for
-more information about this, READ PARAGRAPH TWO in INSTALL).
-
-Please add writeable directories to the list.  You should only add directories
-that reside on filesystems that have unique characterics.  E.g. if you have
-several remote NFS partitions, pick some unique client-server pairs, there is
-little use in picking the same server twice from the same client-machine.
-An excellent candidate would be a remotely mounted mail spool directory.
-==============================================================================
-HERE
-
-testdirs="/tmp ."
-b=dummy
-while test ! -z "$b"
-do
-  echo 2>&1 ""
-  b=""
-  OLDTESTDIRS="$TESTDIRS"
-  TESTDIRS=""
-  for a in $testdirs
-  do $RM -r $a/_locktest
-     if mkdir $a/_locktest
-     then
-	b="$b $a"
-	TESTDIRS="$TESTDIRS $a/_locktest"
-     else
-	echo 2>&1 "Can't create $a/_locktest"
-     fi
-  done
-  OLDTESTDIRS="$TESTDIRS"
-  testdirs="$b"
-  echo 2>&1 ""
-  echo 2>&1 "I will temporarily use a testdirectory named _locktest"
-  echo 2>&1 "in the following directories:"
-  echo 2>&1 ""
-  echo 2>&1 $testdirs
-  echo 2>&1 ""
-  echo 2>&1 "If you would like to add any, please specify them below,"
-  echo 2>&1 "press return to continue:"
-  echo 2>&1 ""
-  read b
-  testdirs="$testdirs $b"
-done
-
 for b in $TESTDIRS
 do
   for a in 0 1 2 3
@@ -533,7 +522,7 @@ done
 
 echo 2>&1 ""
 
-_locktst $testdirs >_locktst.rrr 2>lock.log	# will finish in the background
+_locktst $TESTDIRS >_locktst.rrr 2>lock.log	# will finish in the background
 echo 'Proceeding with kernel-locking-support tests in the background'
 
 cat >_autotst.c <<HERE
@@ -551,7 +540,7 @@ main()
 HERE
 
 echo 'Testing for const'
-if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr &&
+if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
  test -f _autotst.$O
 then
   grepfor const '#define const'
@@ -601,9 +590,8 @@ HERE
 i0="";i1="";i2="";i3="";i4="";i5="";i6="";i7="";i8="";i9="";i10="";
 oldi=""
 
-while $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr &&
- test -f _autotst.$O
- test $? != 0
+while $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
+ test ! -f _autotst.$O
 do
   test -z "$i0" && grepfor stddef.h "#define STDDEF_H_MISSING" && i0=I
   test -z "$i1" && grepfor stdlib.h "#define STDLIB_H_MISSING" && i1=I
@@ -646,7 +634,7 @@ HERE
 
 echo 'Checking for network/comsat/biff support'
 
-if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr &&
+if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
  test -f _autotst.$O
 then
 :

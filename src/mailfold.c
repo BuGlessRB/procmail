@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.21 1993/04/13 15:44:11 berg Exp $";
+ "$Id: mailfold.c,v 1.22 1993/04/19 10:36:37 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -123,7 +123,7 @@ ret:
 				       /* open file or new file in directory */
 deliver(boxname,linkfolder)char*boxname,*linkfolder;
 { struct stat stbuf;char*chp;int mhdir;
-  tofile=to_FILE;
+  tofile=to_FILE;asgnlastf=1;
   if(boxname!=buf)
      strcpy(buf,boxname);		 /* boxname can be found back in buf */
   if(*(chp=buf))

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: procbounce,v 1.7 1993/04/13 15:48:03 berg Exp $
+#$Id: procbounce,v 1.8 1993/04/19 10:36:24 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -9,7 +9,6 @@ mkdir=mkdir		# /bin/mkdir
 sed=sed			# /bin/sed
 ls=ls			# /bin/ls
 rm=rm			# /bin/rm
-find=find		# /bin/find
 expr=expr		# /bin/expr
 date=date		# /bin/date
 formail=formail		# /usr/local/bin/formail
@@ -45,17 +44,21 @@ then
   done
 
   addfield="X-Diagnostic: Mail to $addr bounced $bounced times"
-  if expr $bounced \>= $minbounce >/dev/null
+  if $expr $bounced \>= $minbounce >/dev/null
   then
-     addfield="$addfield
-X-Diagnostic: Bounces exceed threshold of $minbounce
-X-Diagnostic: `
+     fieldcontent="`
      if echo "$addr" | $multigram -b1 -l$match_threshold -d $dist 2>/dev/null
      then
      :
      else
 	$echo 'Could not find the offending address'
      fi | $sed -e '1 s/^ *[0-9]* \([^ ]* *[0-9]*\).*\$/Removed: \1/' -e '2 d'`"
+     $test ! -z "$subscribe_log" &&
+      $expr match "$fieldcontent" 'Removed:' >/dev/null &&
+      $echo "procbounce: $fieldcontent" >>$subscribe_log
+     addfield="$addfield
+X-Diagnostic: Bounces exceed threshold of $minbounce
+X-Diagnostic: $fieldcontent"
   fi
   $formail -A "$addfield"
 fi

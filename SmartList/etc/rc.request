@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.12 1993/03/12 16:54:35 berg Exp $
+#$Id: rc.request,v 1.13 1993/04/19 10:36:27 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -102,6 +102,14 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 	   cat help.txt) | $SENDMAIL $sendmailOPT -t
 
 #
+# Check if there is no envelope From_ address, in that case add one.
+#
+
+:fh
+!^^From .
+| formail
+
+#
 # Could it be a bounce message from a daemon?  Hand it down to procbounce
 # which will evaluate it.
 #
@@ -109,7 +117,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 :3wc
 !^Subject:(.*[^a-z])?Re:
 $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
-^FROM_DAEMON
+^FROM_DAEMON|^^From foo@bar .
 | sed -e $cutoff_bounce',$ d' >tmp.request
 
 	:Ahfw

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.11 1993/03/04 15:30:57 berg Exp $
+#$Id: arch_retrieve,v 1.12 1993/04/19 10:36:21 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -22,8 +22,7 @@ $cat /dev/null >$tmpfrom
 
 case "$X_ENVELOPE_TO" in
   *$list-request*) wrongaddress="" ;;
-  *) wrongaddress="
-WARNING:
+  *) wrongaddress="WARNING:
 	Please try to use '$listreq'
 	the next time when issuing archive server requests.
 " ;;
