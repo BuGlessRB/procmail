@@ -147,7 +147,7 @@
 	       through the mailinglist
 	    Reached the doubtful milestone to sometimes crash an Ultrix
 	       machine (due to the lockingtests, not procmail itself)
-1993/09/16: v2.92
+1993/10/22: v2.92
 	    Fixed a formail sender-determination-weight problem, it mixed up
 	       the weights when autoreplying and when regenerating the From_
 	       line (and thus didn't always pick the optimal field)
@@ -158,7 +158,7 @@
 	       an rcfile to be grouped hierarchically
 	    Fixed a discrepancy between /bin/sh backquote expansion in
 	       environment assignments and procmail (preserving all spaces)
-	    Procmail logs the value of time() when verbose logging is turned
+	    Procmail logs its pid and the time when verbose logging is turned
 	       on
 	    Slightly adjusted autoconf for the new non-standard 386BSD and
 	       NeXTStep 3.1 environments
@@ -180,19 +180,20 @@
 	    Procmail and lockfile now inherit any ignore status of most
 	       regular signals (fixes a problem with some buggy shells)
 	    Added support for filesystems not capable of creating hardlinks
+	    Procmail optionally reads in a global rcfile (/etc/procmailrc)
+	       before doing regular delivery
+	    Procmail can pipe the mail to stdout on request
+	    Rearranged the weights for "formail -rt" (made From: more
+	       important)
 	    Changes to the mailinglist package:
 	       Cleaned up install.sh* for the mailinglists: starting su with
-		  commands on stdin now, checking some permissions now in the
+		  commands on stdin, checking some permissions now in the
 		  filesystem to prevent silly mistakes during the installation
 	       v2.91 archive server logged into the wrong file (../log), fixed
 	       Made the x_command script list the nearest match when adding
 		  or removing people from a list
 	       New x_command directive: checkdist
 	       New convenience command: donatelist
-	       Allow the archive directory in the mailinglists to be a
-		  symbolic link
-	       Taught the embedded archive server in the mailinglists to allow
-		  searching for regexps
 	       Fixed a few typos that slipped into procbounce and flush_digests
 	       Explicit support for moderated lists
 	       Eliminating duplicate submissions
@@ -202,3 +203,11 @@
 		  rc.submit
 	       Tuned the procbounce script (it does what I mean now
 		  and it got more verbose in its diagnostics)
+	       Changes to the arch_retrieve script:
+		  - allow the archive directory to be a symbolic link itself
+		  - friendlier help command
+		  - allow searching for regexps
+		  - protect the user against all too eager wildcards
+		  - fixed the ls command (one mail back per command)
+	       Carbon copies of subscription requests contained misleading
+		  diagnostics

@@ -1,8 +1,9 @@
-/*$Id: pipes.h,v 1.5 1993/08/09 14:11:01 berg Exp $*/
+/*$Id: pipes.h,v 1.6 1993/10/29 17:08:15 berg Exp $*/
 
 void
  inittmout P((const char*const progname)),
  ftimeout P((void)),
+ resettmout P((void)),
  exectrap P((const char*const tp));
 int
  pipthrough P((char*line,char*source,const long len));

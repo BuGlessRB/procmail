@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.25 1993/06/23 12:56:08 berg Exp $*/
+/*$Id: manconf.c,v 1.26 1993/10/29 17:08:11 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -10,7 +10,7 @@
 static char pm_version[]=VERSION;
 const char dirsep[]=DIRSEP;
 static const char*const keepenv[]=KEEPENV,*const prestenv[]=PRESTENV,
- *const trusted_ids[]=TRUSTED_IDS,
+ *const trusted_ids[]=TRUSTED_IDS,*const etcrc=ETCRC,
  *const krnllocks[]={
 #ifndef NOfcntl_lock
   "fcntl(2)",
@@ -138,6 +138,21 @@ is case sensitive, and some users have login names with uppercase letters in\
   ps("UPPERCASE_USERNAMES","");
 #endif
   ps("SYSTEM_MBOX",SYSTEM_MBOX);
+  ps("ETCRC_desc",etcrc?"\1.PP\1If no rcfiles have been specified on the\
+ command line, procmail will, prior to reading\
+ $HOME/@PROCMAILRC@, interpret commands from\1.B @ETCRC@\1(if present).\1\
+Care must be taken when creating @ETCRC@, because, if circumstances\
+ permit, it will be executed with root privileges (contrary to the\
+ $HOME/@PROCMAILRC@ file of course).":"");
+  ps("ETCRC_files",etcrc?"\1.Tp\1.B @ETCRC@\1initial global rcfile":"");
+  ps("DROPPRIVS",etcrc?"\1.Tp\1.B DROPPRIVS\1If set to `yes' procmail\
+ will drop all privileges it might have had (suid or sgid).  This is\
+ most useful if you want to guarantee that the bottom half of the\
+ @ETCRC@ file is executed on behalf of the recipient.":"");
+  ps("ETCRC_warn",etcrc?"\1.PP\1The\1.B @ETCRC@\1file might be executed\
+ with root privileges, so be very careful of what you put in it.\1\
+See also:\1.BR DROPPRIVS .":"");
+  ps("ETCRC",etcrc?etcrc:"");
 #ifdef console
   ps("pconsole","appear on\1.BR ");
   ps("console",console);
@@ -237,7 +252,9 @@ is case sensitive, and some users have login names with uppercase letters in\
   *(p=strchr(strchr(q=strchr(pm_version,' ')+1,' ')+1,' '))='\0';p++;
   ps("PM_VERSION",q);
   ps("MY_MAIL_ADDR",skltmark(1,&p));
+#if 0
   ps("MY_ALT_MAIL_ADDR",skltmark(0,&p));
+#endif
   ps("PM_MAILINGLIST",skltmark(2,&p));
   ps("PM_MAILINGLISTR",skltmark(2,&p));
   ps("BINDIR",BINDIR);

@@ -1,7 +1,6 @@
 #define VERSION "\
-procmail v2.92pre7 1993/09/16 written and created by Stephen R. van den Berg\n\
+procmail v2.92pre8 1993/10/22 written and created by Stephen R. van den Berg\n\
 \t\t\t\tberg@pool.informatik.rwth-aachen.de\n\
-\t\t\t\tberg@physik.tu-muenchen.de\n\
 \n\
 Submit questions/answers to the procmail-related mailinglist by sending to:\n\
 \tprocmail@informatik.rwth-aachen.de\n\

@@ -1,9 +1,9 @@
-/*$Id: misc.h,v 1.15 1993/08/09 14:10:54 berg Exp $*/
+/*$Id: misc.h,v 1.16 1993/10/29 17:08:13 berg Exp $*/
 
 void
  elog P((const char*const newt)),
  ignoreterm P((void)),
- setids Q((const uid_t uid,const gid_t gid)),
+ setids P((void)),
  writeerr P((const char*const line)),
  progerr P((const char*const line)),
  chderr P((const char*const dir)),

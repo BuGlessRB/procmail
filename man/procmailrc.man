@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.26 1993/09/06 16:19:40 berg Exp $
+.Id $Id: procmailrc.man,v 1.27 1993/10/29 17:08:05 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -151,7 +151,7 @@ Invert the condition.
 .B $
 Evaluate the remainder according to
 .BR sh (1)
-substitution rules inside double quotes.
+substitution rules inside double quotes, then reparse it.
 .Tp
 .B ?
 Use the exitcode of the specified program.
@@ -187,6 +187,8 @@ pipe symbol with
 .IR variable= ,
 which will cause stdout of the program to be captured in the environment
 .IR variable .
+If you specify just this pipe symbol, without any program, then procmail will
+pipe the mail to stdout.
 .Tp
 .B {
 Followed by at least one space, tab or newline will mark the start of a
@@ -431,7 +433,7 @@ notification is on by default, it can be turned off by setting this variable
 to `no'.  Alternatively the biff-service can be customised by setting it to
 either `service@SERV_ADDRsep@', `@SERV_ADDRsep@hostname', or
 `service@SERV_ADDRsep@hostname'.  When not specified it defaults
-to @COMSATservice@@SERV_ADDRsep@@COMSAThost@.
+to @COMSATservice@@SERV_ADDRsep@@COMSAThost@.@DROPPRIVS@
 .Sh EXAMPLES
 Look in the
 .BR procmailex (5)

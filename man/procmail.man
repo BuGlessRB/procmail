@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.27 1993/09/01 15:53:54 berg Exp $
+.Id $Id: procmail.man,v 1.28 1993/10/29 17:08:01 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -46,7 +46,7 @@ for a file named
 .B @PROCMAILRC@
 in your home directory.  According to the processing recipes in this file,
 the mail message that just arrived gets distributed into the right folder
-(and more).
+(and more).@ETCRC_desc@
 .PP
 If running suid root or with root privileges, procmail will be able to
 perform as a functionally enhanced, backwards compatible mail delivery agent.
@@ -198,7 +198,7 @@ And /etc/some.rc could be as simple as:
 to set the recipient's LOGNAME, HOME and SHELL variable defaults
 .Tp
 .B @SYSTEM_MBOX@
-system mailbox
+system mailbox@ETCRC_files@
 .Tp
 .B $HOME/@PROCMAILRC@
 default rcfile
@@ -438,7 +438,7 @@ Beware when using the
 .B \-@TEMPFAILOPT@
 option, if procmail repeatedly is unable to deliver the mail (e.g. due to
 an incorrect rcfile), the system mailqueue could fill up.  This could
-aggravate both the local postmaster and other users.
+aggravate both the local postmaster and other users.@ETCRC_warn@
 .Sh BUGS
 After removing a lockfile by force, procmail waits $SUSPEND seconds before
 creating a new lockfile so that another process that decides to remove the
