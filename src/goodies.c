@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.20 1993/11/25 11:53:53 berg Exp $";
+ "$Id: goodies.c,v 1.21 1993/11/26 16:25:04 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -164,7 +164,7 @@ escaped:      *p++=i;
 	      case '{':						  /* ${name} */
 		 while(EOF!=(i=fgetc())&&alphanum(i))
 		    *startb++=i;
-		 *startb='\0';startb=evalenv();
+		 *startb='\0';startb=(char*)evalenv();
 		 if(numeric(*buf2)&&buf2[1])
 		    goto badsub;
 		 switch(i)

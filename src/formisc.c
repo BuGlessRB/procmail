@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.18 1993/11/24 19:46:26 berg Exp $";
+ "$Id: formisc.c,v 1.19 1993/11/26 16:25:02 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -133,8 +133,7 @@ void lputcs(i)const int i;
 }
 
 void startprog(argv)const char*Const*const argv;
-{ int poutfd[2];
-  if(!nrtotal)					/* no more mails to display? */
+{ if(!nrtotal)					/* no more mails to display? */
      goto squelch;
   if(nrskip)				  /* should we still skip this mail? */
    { nrskip--;							 /* count it */
@@ -143,17 +142,23 @@ squelch:
    }
   if(nrtotal>0)
      nrtotal--;							 /* count it */
-  dup(oldstdout);pipe(poutfd);
-  if(!(child=fork()))	/* DON'T fclose(stdin) here, provokes a bug on HP/UX */
-   { close(STDIN);close(oldstdout);close(PWRO);dup(PRDO);close(PRDO);
-     shexec(argv);
+  dup(oldstdout);
+  if(*argv)			    /* do we have to start a program at all? */
+   { int poutfd[2];
+     pipe(poutfd);
+     if(!(child=fork()))     /* DON'T fclose(stdin), provokes a bug on HP/UX */
+      { close(STDIN);close(oldstdout);close(PWRO);dup(PRDO);close(PRDO);
+	shexec(argv);
+      }
+     close(STDOUT);close(PRDO);
+     if(STDOUT!=dup(PWRO))
+	nofild();
+     close(PWRO);
+     if(-1==child)
+	nlog("Can't fork\n"),exit(EX_OSERR);
    }
-  close(STDOUT);close(PRDO);
-  if(STDOUT!=dup(PWRO)||!(mystdout=Fdopen(STDOUT,"a")))
+  if(!(mystdout=Fdopen(STDOUT,"a")))
      nofild();
-  close(PWRO);
-  if(-1==child)
-     nlog("Can't fork\n"),exit(EX_OSERR);
 }
 
 void nofild P((void))

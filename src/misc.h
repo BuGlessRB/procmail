@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.18 1993/11/24 19:46:44 berg Exp $*/
+/*$Id: misc.h,v 1.19 1993/11/26 16:25:09 berg Exp $*/
 
 void
  elog P((const char*const newt)),
@@ -6,7 +6,7 @@ void
  shutdesc P((void)),
  setids P((void)),
  writeerr P((const char*const line)),
- progerr P((const char*const line,const exitcode)),
+ progerr P((const char*const line,int exitcode)),
  chderr P((const char*const dir)),
  readerr P((const char*const file)),
  verboff P((void)),

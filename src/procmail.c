@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.53 1993/11/24 19:46:53 berg Exp $";
+ "$Id: procmail.c,v 1.54 1993/11/26 16:25:15 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -24,6 +24,7 @@ static /*const*/char rcsid[]=
 #include "common.h"
 #include "cstdio.h"
 #include "exopen.h"
+#include "regexp.h"
 #include "goodies.h"
 #include "locking.h"
 #include "mailfold.h"
@@ -474,7 +475,8 @@ commint:   do skipspace();				  /* skip whitespace */
 	if(testb(':'))				       /* check for a recipe */
 	 { int locknext;long tobesent;char*startchar;
 	   static char flags[maxindex(exflags)];
-	   ;{ int nrcond;double score;
+	   ;{ int nrcond,scored;double score;
+	      score=scored=0;
 	      readparse(buf,getb,0);
 	      ;{ char*chp3;
 		 nrcond=strtol(buf,&chp3,10);chp=chp3;
@@ -536,15 +538,15 @@ noconcat:     i=flags[ALSO_NEXT_RECIPE]?lastcond:1;	  /* init test value */
 			  case '-':case '+':case '.':case ',':case ' ':
 			  case '\t':
 			   { char*chp3;double w;
-			     w=stod(buf2,&chp3);chp2=chp3;
+			     w=stod(buf2,(const char**)&chp3);chp2=chp3;
 			     if(chp2>buf2&&*(chp2=skpspace(chp2))=='^')
 			      { double x;
-				x=stod(chp2+1,&chp3);
+				x=stod(chp2+1,(const char**)&chp3);
 				if(chp3>chp2+1)
 				 { if(score>=MAX32)
 				      goto skiptrue;
-				   chp=chp3;xponent=x;weight=w;scoreany=1;
-				   goto copyrest;
+				   chp=chp3;xponent=x;weight=w;
+				   scored=scoreany=1;goto copyrest;
 				 }
 			      }
 			   }
@@ -635,19 +637,19 @@ jinregs:			   regsp=regs;	/* start over and look again */
 			  case '!':negate^=1;
 copyrest:		     strcpy(buf,skpspace(chp));continue;
 			  case '?':pwait=2;metaparse(chp);inittmout(buf);
-			      ignwerr=1;
-			      if(!pipin(buf,startchar,tobesent))
-				 if(scoreany&&lexitcode>=0)
-				  { int j=lexitcode;
-				    if(negate)
-				       while(--j>=0&&(score+=weight)<MAX32&&
-					score>MIN32)
-					  weight*=xponent;
+			      ignwerr=1;pipin(buf,startchar,tobesent);
+			      if(scoreany&&lexitcode>=0)
+			       { int j=lexitcode;
+				 if(negate)
+				    while(--j>=0&&
+					  (score+=weight)<MAX32&&
+					  score>MIN32)
+				       weight*=xponent;
 				    else
 				       score+=j?xponent:weight;
-				  }
-				 else if(lexitcode&&!negate)
-				    i=0;
+			       }
+			      else if(!!lexitcode^negate)
+				 i=0;
 			      strcpy(buf2,buf);break;
 			  case '>':case '<':readparse(buf,sgetc,2);
 			     ;{ char*chp3;
@@ -656,8 +658,8 @@ copyrest:		     strcpy(buf,skpspace(chp));continue;
 			     if(scoreany)
 			      { double f;
 				f=(*buf=='<')^negate?
-				 (double)i/filled:(double)filled/i;
-				score+=weight*pow(f,xponent);
+				   (double)i/filled:(double)filled/i;
+				score+=weight*pow(f,xponent);i=1;
 			      }
 			     else
 				i=(*buf=='<'?filled<i:filled>i)^negate;
@@ -684,7 +686,11 @@ copyrest:		     strcpy(buf,skpspace(chp));continue;
 		     }
 skiptrue:;	  }
 	       }
-	      lastscore=score;
+	      if(scored)	       /* any scored conditions encountered? */
+	       { lastscore=score;			   /* save it for $= */
+		 if(i&&score<=0)
+		    i=0;			     /* it was not a success */
+	       }
 	    }
 	   if(!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC])
 	      lastcond=i;		   /* save the outcome for posterity */

@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.30 1993/11/24 19:45:52 berg Exp $
+#$Id: rc.request,v 1.31 1993/11/26 16:24:44 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -26,7 +26,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 
 :0 wh
 * < 8192
-* $!^((X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)|\
+* $!^((X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND:)|\
 Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)([^a-z]|$)))|\
 ^FROM_DAEMON
 {
@@ -121,7 +121,7 @@ Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)([^a-z]|$)))|\
 
 :0 wic
 * $!^(Subject:(.*[^a-z])?Re:|\
-X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
+X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND:)
 * ^FROM_DAEMON
 | sed -e $cutoff_bounce' q' >tmp.request
 
@@ -180,7 +180,7 @@ LOCKFILE				# we don't need the lockfile anymore
 }
 
 :0 wfh
-| formail -A"X-Envelope-To: $X_ENVELOPE_TO"
+| formail -A"X-Envelope-To: $X_ENVELOPE_TO" -a"X-Diagnostic: Unprocessed"
 
 #
 # If this list does not have a maintainer e-mail address, drop things in

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.32 1993/11/24 19:46:23 berg Exp $";
+ "$Id: formail.c,v 1.33 1993/11/26 16:24:57 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/11/24 19:46:23 $";
+static /*const*/char rcsdate[]="$Date: 1993/11/26 16:24:57 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -79,7 +79,8 @@ int errout,oldstdout,quiet,buflast;
 int lexitcode;					     /* dummy, for waitfor() */
 pid_t child= -1;
 FILE*mystdout;
-size_t nrskip,nrtotal= -1,buflen,buffilled;
+int nrskip,nrtotal= -1;
+size_t buflen,buffilled;
 long totallen;
 char*buf,*logsummary;
 struct field*rdheader,*xheader,*Xheader;
@@ -143,8 +144,9 @@ main(lastm,argv)const char*const argv[];
 		    chp[MAXfoldlen]='\0';
 		 detab(chp);break;
 	      case FM_SPLIT:split=1;
-		 if(!*chp&&*++argv)
-		    goto parsedoptions;
+		 if(!*chp)
+		  { ++argv;goto parsedoptions;
+		  }
 		 goto usg;
 	      case HELPOPT1:case HELPOPT2:elog(fmusage);elog(FM_HELP);
 		 goto xusg;
@@ -207,8 +209,8 @@ parsedoptions:
      if(!minfields)			       /* no user specified minimum? */
 	minfields=DEFminfields;				 /* take our default */
    }
-  else if(every||digest||minfields)	      /* these combinations are only */
-     goto usg;				  /* valid in combination with split */
+  else if(nrskip>0||nrtotal>=0||every||digest||minfields||nowait)
+     goto usg;			     /* only valid in combination with split */
   if((xheader||Xheader)&&logsummary||keepb&&!(areply||xheader||Xheader))
 usg:						     /* options sanity check */
    { elog(fmusage);					   /* impossible mix */
@@ -400,7 +402,7 @@ splitit:    { if(!lnl)	    /* did the previous mail end with an empty line? */
 	      logfolder();
 	      if((fclose(mystdout)==EOF||errout==EOF)&&!quiet)
 		 nlog(couldntw),elog(", continuing...\n"),split= -1;
-	      if(!nowait)		 /* wait till the child has finished */
+	      if(!nowait&&*argv)	 /* wait till the child has finished */
 	       { int excode;
 		 if((excode=waitfor(child))!=EX_OK&&retval!=EX_OK)
 		    retval=excode;

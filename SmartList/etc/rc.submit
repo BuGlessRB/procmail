@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.34 1993/11/24 19:45:55 berg Exp $
+#$Id: rc.submit,v 1.35 1993/11/26 16:24:46 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -62,7 +62,7 @@ Precedence:.*junk)|^FROM_MAILER
 	   -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
 	    multigram -b1 -m -l$submit_threshold -x$listaddr -x$listreq dist
      | sed -e '/^$/,/^-- $/ d' | formail -I "Subject: auto subscribe" | \
-	flist $listreq
+	flist $list-request
 
      #
      # Check if this is a digested mailinglist.	 If yes, processing stops

@@ -132,6 +132,7 @@
 	       - Rearranged the weights for "-rt" (made From: more important)
 	       - Parsed return-addresses starting with a \ incorrectly
 		 (causing it to coredump on occasion)
+	       - Supports the -s option withouth a program argument
 	    Miscellaneous changes:
 	       - Detecting and dodging buggy zshs everywhere
 	       - Slightly adjusted autoconf for the new non-standard 386BSD

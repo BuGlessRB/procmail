@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.35 1993/11/24 19:46:47 berg Exp $";
+ "$Id: multigram.c,v 1.36 1993/11/26 16:25:11 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/11/24 19:46:47 $";
+static /*const*/char rcsdate[]="$Date: 1993/11/26 16:25:11 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -39,7 +39,7 @@ static /*const*/char rcsdate[]="$Date: 1993/11/24 19:46:47 $";
 
 #define DEFAULTS_DIR	".etc"			  /* some configurable paths */
 #define GLOCKFILE	"../.etc/rc.lock"
-#define RCMAIN		"./.etc/rc.main"
+#define RCMAIN		"./../.etc/rc.main"
 #define LLOCKFILE	"rc.lock"
 #define REQUEST		"-request"
 #define RCSUBMIT	"./rc.submit"

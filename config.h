@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.31 1993/11/24 19:45:21 berg Exp $*/
+/*$Id: config.h,v 1.32 1993/11/26 16:24:35 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -242,8 +242,10 @@ Post(ma(st(er)?|n)|office)|Mail(er)?|daemon|mmdf|root|uucp|serv(ices?|er))\
 #define FM_DEL_INSERT	'I'			/* delete and insert a field */
 #define FM_ReNAME	'R'				   /* rename a field */
 #define FM_USAGE	"\
-Usage: formail [+nnn] [-nnn] [-bcfrktnedq] [-p prefix] [-m nnn] [-l folder]\n\
-\t[-xXaAiI field] [-R ofield nfield] [-s prg arg ...]\n"
+Usage: formail [-bcfrktq] [-p prefix] [-l folder] [-xXaAiI field]\n\
+\t[-R ofield nfield]\n\
+   Or: formail [+nnn] [-nnn] [-bcfrktnedq] [-p prefix] [-m nnn] [-l folder]\n\
+\t[-xXaAiI field] [-R ofield nfield] -s [prg [arg ...]]\n"
 #define FM_HELP		\
  "\t-b\tdon't escape bogus mailbox headers\
 \n\t-p prefix\tdefine quotation prefix\
@@ -255,12 +257,11 @@ Usage: formail [+nnn] [-nnn] [-bcfrktnedq] [-p prefix] [-m nnn] [-l folder]\n\
 \n\t-l folder\tgenerate a procmail-compatible log summary\
 \n\t-q\tbe quiet about write errors on stdout\
 \n\t-s prg arg\tsplit the mail, startup prg for every message\
+\n\t+nnn\tskip the first nnn\t-nnn\toutput at most nnn messages\
 \n\t-n\tdon't wait for every prg while splitting\
 \n\t-e\tdon't require empty lines to precede a header\
 \n\t-d\taccept digest format\
 \n\t-m nnn\tmin fields threshold (default 2) for start of message\
-\n\t+nnn\tskip the first nnn messages while splitting\
-\n\t-nnn\toutput at most nnn messages while splitting\
 \n\t-x field   extract contents\t-X field   extract fully\
 \n\t-a field   add if not present\t-A field   add in any case\
 \n\t-i field   rename and insert\t-I field   delete and insert\

@@ -1,4 +1,4 @@
-.Id $Id: formail.man,v 1.10 1993/05/05 13:05:52 berg Exp $
+.Id $Id: formail.man,v 1.11 1993/11/26 16:24:49 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -32,9 +32,9 @@ formail \- mail (re)formatter
 .I "oldfield"
 .IR "newfield" ]
 .RB [ \-@FM_SPLIT@
-.I command
-.I arg
-\&.\|.\|.\|]
+.RI [ command
+.RI [ arg
+\&.\|.\|.\|]]]
 .ad
 .Sh DESCRIPTION
 .B formail
@@ -92,7 +92,8 @@ a program one by one (a new program is started for every part).
 .B \-@FM_SPLIT@
 has to be the last option specified, the first argument following it
 is expected to be the name of a program, any other arguments will be passed
-along to it.
+along to it.  If you omit the program, then formail will simply concatenate the
+splitted mails on stdout again.
 .Tp
 .B \-@FM_NOWAIT@
 Tell formail not to wait for every program to finish before starting the next.
@@ -165,7 +166,7 @@ messages while splitting.
 .Sh EXAMPLES
 To split up a digest one usually uses:
 .Rs
-formail @FM_SKIP@1 \-@FM_DIGEST@@FM_SPLIT@ cat >>the_mailbox_of_your_choice
+formail @FM_SKIP@1 \-@FM_DIGEST@@FM_SPLIT@ >>the_mailbox_of_your_choice
 .Re
 or
 .Rs
@@ -180,12 +181,12 @@ formail \-@FM_REN_INSERT@ "Reply-To: foo@bar"
 To convert a non-standard mailbox file into a standard mailbox file you can
 use:
 .Rs
-formail \-@FM_DIGEST@@FM_SPLIT@ cat <old_mailbox >>new_mailbox
+formail \-@FM_DIGEST@@FM_SPLIT@ <old_mailbox >>new_mailbox
 .Re
 .PP
 Or, alternatively, if you have a very tolerant mailer:
 .Rs
-formail \-@FM_ADD_IFNOT@ Date: \-@FM_DIGEST@@FM_SPLIT@ cat <old_mailbox >>new_mailbox
+formail \-@FM_ADD_IFNOT@ Date: \-@FM_DIGEST@@FM_SPLIT@ <old_mailbox >>new_mailbox
 .Re
 .Sh MISCELLANEOUS
 The regular expression that is used to find `real' postmarks is:

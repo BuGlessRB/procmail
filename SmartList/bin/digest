@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.10 1993/11/24 19:45:38 berg Exp $
+#$Id: digest,v 1.11 1993/11/26 16:24:41 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -37,7 +37,8 @@ $SENDMAIL $sendmailOPT $listdist" >.digest.params
 #$SENDMAIL $sendmailOPT \`sed -e '/^(.*)$/ d' dist\`" >.digest.params
 
 $awk '
-BEGIN { lines=0;mode=0;print("------------------------------");}
+BEGIN					{ lines=0;mode=0; }
+					{ mtch=0; }
 /^$/					{ mtch=1; }
 /^[	 ][	 ]*$/			{ mtch=2; }
 /^------------------------------$/	{ mtch=3; }
@@ -58,9 +59,9 @@ BEGIN { lines=0;mode=0;print("------------------------------");}
    { print("");--lines;
    }
   if(mtch==3)
-     print(" -----------------------------");
+     print("- ----------------------------");
   else if(mtch==4)
-     print(" -------------------------------");
+     print("- ------------------------------");
   else
      print($0);
 }
@@ -68,9 +69,11 @@ BEGIN { lines=0;mode=0;print("------------------------------");}
 
 $test -f $digestbody && flush_digests -c
 
-for a in Date From To Cc Subject Message-ID Keywords Summary \
- `$sed -n -e 's/^\([Cc][Oo][Nn][Tt][Ee][Nn][Tt]-[^:]*\):/\1/p' \
-   -e '/^$/ q' `
+$cat >>$digestbody <<HERE
+------------------------------
+HERE
+
+for a in Date From To Cc Subject Message-ID Keywords Summary
 do
   b=`$formail -X $a: <$tmpfrom`
   if $test ! -z "$b"
@@ -79,8 +82,13 @@ do
   fi
 done
 
+$formail -X Content-Type: -X Content-MD5: -X Content-Transfer-Encoding: \
+ -X Content-ID: -X Content-Description: -X Content-Disposition: \
+ -X Content-Length: <$tmpfrom >>$digestbody
+
 $echo "" >>$digestbody
 $cat $tmprequest >>$digestbody
+$echo "" >>$digestbody
 
 if $test ! -f $digesttrailer
 then
@@ -119,7 +127,7 @@ HERE
 --------------------------------
 End of $list Digest V$Year Issue #$Issue
 HERE
-  b=`$sed -e 's/./*/g' <$digesttrailer`
+  b=`$sed -n -e '$ s/./*/gp' <$digesttrailer`
   $echo "$b" >>$digesttrailer
 fi
 
