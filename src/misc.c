@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.86 1999/02/19 07:17:01 guenther Exp $";
+ "$Id: misc.c,v 1.87 1999/02/19 07:24:38 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -178,12 +178,10 @@ int nextrcfile P((void))	/* next rcfile specified on the command line */
 	   continue;
 	 }
 	rcfile=p;
-	nlog("nextrcfile called, returned");logqnl(rval);
 	return rval;
       }
      rval=1;			       /* not the first argument encountered */
    }
-  nlog("nextrcfile called, returned 0\n");
   return 0;
 }
 
