@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.14 1993/01/22 14:38:05 berg Exp $*/
+/*$Id: includes.h,v 1.15 1993/01/27 20:33:10 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -13,47 +13,47 @@
 #include <sys/types.h>		/* pid_t mode_t uid_t gid_t */
 #ifndef UNISTD_H_MISSING
 #include <unistd.h>		/* open() read() write() close() dup() pipe()
-				   fork() getuid() getpid() execve()
+				/* fork() getuid() getpid() execve()
 				   execvp() sleep() */
 #endif
 #include <stdio.h>		/* setbuf() fclose() stdin stdout stderr
-				   fopen() fread() fwrite() fgetc() getc()
+				/* fopen() fread() fwrite() fgetc() getc()
 				   fdopen() putc() fputs() FILE EOF */
 #ifndef STDDEF_H_MISSING
 #include <stddef.h>		/* ptrdiff_t size_t */
 #endif
 #ifndef STDLIB_H_MISSING
 #include <stdlib.h>		/* getenv() malloc() realloc() free()
-				   strtol() exit() */
+				/* strtol() exit() */
 #endif
 #include <time.h>		/* time() ctime() time_t */
 #include <fcntl.h>		/* fcntl() struct flock O_RDONLY O_WRONLY
-				   O_APPEND O_CREAT O_EXCL */
+				/* O_APPEND O_CREAT O_EXCL */
 #include <grp.h>		/* getgrgid() struct group */
 #include <pwd.h>		/* getpwuid() getpwnam() struct passwd */
 #ifndef DIRENT_H_MISSING
 #include <dirent.h>		/* opendir() readdir() closedir() DIR
-				   struct dirent */
+				/* struct dirent */
 #endif
 #ifndef SYS_WAIT_H_MISSING
 #include <sys/wait.h>		/* wait() WIFEXITED() WIFSTOPPED()
-				   WEXITSTATUS() */
+				/* WEXITSTATUS() */
 #endif
 #ifndef SYS_UTSNAME_H_MISSING
 #include <sys/utsname.h>	/* uname() utsname */
 #endif
 #include <sys/stat.h>		/* stat() S_ISDIR() S_ISREG() struct stat */
 #include <signal.h>		/* signal() kill() alarm() SIG_IGN SIGHUP
-				   SIGINT SIGQUIT SIGALRM SIGTERM */
+				/* SIGINT SIGQUIT SIGALRM SIGTERM */
 #ifndef STRING_H_MISSING
 #include <string.h>		/* strcpy() strncpy() strcat() strlen()
-				   strspn() strcspn() strchr() strcmp()
+				/* strspn() strcspn() strchr() strcmp()
 				   strncmp() strpbrk() memmove() */
 #endif
 #include <errno.h>		/* EINTR EEXIST ENFILE EACCES EAGAIN */
 #ifndef SYSEXITS_H_MISSING
 #include <sysexits.h>		/* EX_OK EX_USAGE EX_NOUSER EX_UNAVAILABLE
-				   EX_OSERR EX_OSFILE EX_CANTCREAT EX_IOERR
+				/* EX_OSERR EX_OSFILE EX_CANTCREAT EX_IOERR
 				   EX_TEMPFAIL EX_NOPERM */
 #endif
 

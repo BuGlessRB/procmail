@@ -6,7 +6,7 @@
 # shortly before writing out the new version of this file (remove the lockfile
 # afterwards of course)
 
-#$Id: rc.submit,v 1.8 1993/01/20 14:24:58 berg Exp $
+#$Id: rc.submit,v 1.9 1993/01/27 20:33:02 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -57,7 +57,7 @@ METOO=	| multigram -b1 -m -l$submit_threshold dist
 	| formail -b -IReceived: -IReturn-Receipt-To: -IErrors-To: \
 	   -iReturn-Path: -iX-Envelope-To: -iX-Envelope-From: \
 	   -I"Precedence: bulk" -i"Resent-Sender: $listreq" \
-	   -i"Resent-From: $listaddr" -IReceived: -A"X-Loop: $listaddr" \
+	   -i"Resent-From: $listaddr" -A"X-Loop: $listaddr" \
 	   -a"Subject: Unidentified subject!" \
 	   -a"X-Mailing-List: <$listaddr> $ARCHIVE"
 

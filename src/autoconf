@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.30 1993/01/27 12:53:15 berg Exp $
+#$Id: autoconf,v 1.31 1993/01/27 20:33:07 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -488,7 +488,7 @@ main()
 HERE
 
 echo 'Testing for const'
-if $MAKE _autotst.$O 2>&1 | $FGREP -v /include/ >_autotst.rrr &&
+if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr &&
  test -f _autotst.$O
 then
   grepfor const '#define const'
@@ -549,7 +549,7 @@ main(){int i;char*p="t";
 HERE
 
 echo 'Testing for void*,size_t,pid_t,time_t,mode_t,uid_t,gid_t'
-$MAKE _autotst.$O 2>&1 | $FGREP -v /include/  >_autotst.rrr
+$MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
 $RM _autotst.$O
 
 grepfor void '#define void char'
@@ -572,7 +572,7 @@ main(){int i;i=1;
 HERE
 
 echo 'Testing for WIFEXITED(), WIFSTOPPED() & WEXITSTATUS()'
-if $MAKE _autotst.$O 2>&1 | $FGREP -v /include/	 >_autotst.rrr
+if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
 then
    grepfor struct '#define WMACROS_NON_POSIX' ||
     grepfor union '#define WMACROS_NON_POSIX'
@@ -601,8 +601,37 @@ main(){char a[2];
 HERE
 
 echo 'Testing for memmove, strchr, strpbrk, strcspn, strtol, strstr & opendir'
-$MAKE _autotst.$O >$DEVNULL 2>&1
-$MAKE _autotst 2>&1 | $FGREP -v /include/  >_autotst.rrr
+if $MAKE _autotst.$O >_autotst.rrr 2>&1
+then
+:
+else
+  echo 2>&1 "Whoeaaa!  There's something fishy going on here."
+  echo 2>&1 "You have a look and see if you detect anything uncanny:"
+  echo 2>&1 "*******************************************************"
+  cat 2>&1 _autotst.rrr
+  echo 2>&1 "*******************************************************"
+  if $FGREP NO_COMSAT $ACONF >$DEVNULL
+  then
+     echo 2>&1 "Your include files seem to be beyond repair <sigh>."
+     echo 2>&1 "I give up."
+     kill -15 $$
+  else
+     echo 2>&1 "Maybe your network-support include files are messed up."
+     echo 2>&1 "Continuing the compilation, throwing out network"
+     echo 2>&1 "support..."
+     $RM _autotst.$O
+     echo "#define NO_COMSAT" >>$ACONF
+     if $MAKE _autotst.$O >$DEVNULL 2>&1
+     then
+	echo "It seems to be all right."
+     else
+	echo 2>&1 "Your include files seem to be beyond repair <sigh>."
+	echo 2>&1 "I give up."
+	kill -15 $$
+     fi
+  fi
+fi
+$MAKE _autotst 2>&1 | $FGREP -v include/ >_autotst.rrr
 $RM _autotst _autotst.$O
 
 grepfor strcspn '#define NOstrcspn'
@@ -750,19 +779,7 @@ HERE
 
 echo 'Determining the most applicable block size'
 
-if $MAKE _autotst >_autotst.rrr 2>&1
-then
-:
-else
-  echo 2>&1 "Whoeaaa!  There's something fishy going on here."
-  echo 2>&1 "You have a look and see if you detect anything uncanny:"
-  echo 2>&1 "*******************************************************"
-  cat 2>&1 _autotst.rrr
-  echo 2>&1 "*******************************************************"
-  echo 2>&1 "It seems that your network-support include files"
-  echo 2>&1 "are messed up (see procmail/src/network.h)."
-  kill -15 $$
-fi
+$MAKE _autotst >$DEVNULL 2>&1
 _autotst >>$ACONF
 
 found=no
