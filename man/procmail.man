@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.90 2001/08/04 06:08:18 guenther Exp $
+.Id $Id: procmail.man,v 1.91 2001/08/27 08:44:04 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -355,7 +355,7 @@ or didn't start with a file separator.
 .TP
 Excessive output quenched from "x"
 The program or filter "x" tried to produce too much output for the current
-LINEBUF, the rest was discarded.
+LINEBUF, the rest was discarded and PROCMAIL_OVERFLOW has been set.
 .TP
 Extraneous x ignored
 The action line or other flags on this recipe makes flag x meaningless.

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.72 2001/08/25 05:59:58 guenther Exp $";
+ "$Id: pipes.c,v 1.73 2001/08/27 08:43:59 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -142,11 +142,17 @@ No_1st_comma: elog(*walkargs);					/* expand it */
 
 int pipthrough(line,source,len)char*line,*source;const long len;
 { int pinfd[2],poutfd[2];char*eq;
-  if(Stdout&&(*(eq=strchr(Stdout,'\0')-1)='\0',		     /* chop the '=' */
-   !(backblock=getenv(Stdout))))			/* no current value? */
-     PRDB=PWRB= -1;
+  if(Stdout)
+   { *(eq=strchr(Stdout,'\0')-1)='\0';			     /* chop the '=' */
+     if(!(backblock=getenv(Stdout)))			/* no current value? */
+	PRDB=PWRB= -1;
+     else
+      { backlen=strlen(backblock);
+	goto pip;
+      }
+   }
   else
-     rpipe(pbackfd);
+pip: rpipe(pbackfd);
   rpipe(pinfd);						 /* main pipes setup */
   if(!(pidchild=sfork()))			/* create a sending procmail */
    { if(Stdout&&backblock)
@@ -187,7 +193,7 @@ perr:	      progerr(line,excode,pwait==4);  /* I'm going to tell my mommy! */
      *eq='=';name=Stdout;Stdout=0;primeStdout(name);free(name);
      makeblock(&temp,Stdfilled);
      tmemmove(temp.p,Stdout,Stdfilled);
-     readdyn(&temp,&Stdfilled,0);
+     readdyn(&temp,&Stdfilled,Stdfilled+backlen+1);
      Stdout=realloc(Stdout,&Stdfilled+1);
      tmemmove(Stdout,temp.p,Stdfilled+1);
      freeblock(&temp);
@@ -272,9 +278,9 @@ static int read_cleanup(mb,filledp,origfilled,data)memblk*mb;
    { if(PRDB>=0)
       { getstdin(PRDB);			       /* filter ready, get backpipe */
 	if(1==rread(STDIN,buf,1))		      /* backup pipe closed? */
-	 { resizeblock(mb,*filledp=oldfilled,0);
+	 { resizeblock(mb,oldfilled,0);
 	   mb->p[origfilled]= *buf;
-	   *filledp=origfilled++;
+	   *filledp=origfilled+1;
 	   PRDB= -1;pwait=2;		      /* break loop, definitely reap */
 	   return 1;			       /* filter goofed, rescue data */
 	 }

@@ -614,9 +614,11 @@
 		  - procmail -p -m was overridding PATH
 		  - maildir delivery included garbage in filenames
 		  - Mismatched HOST in last rcfile didn't discard the message
+		  - COMSAT wasn't turned off by an rcfile on the command line
 	       - Catch overly long command line variable assignments
 	       - If a command expansion is truncated, set PROCMAIL_OVERFLOW
 		 and don't trim trailing (really middle) newlines
+	       - If the comsat host can't be resolved, set COMSAT to "no"
 	    Some fixes to the man pages
 	    More paranoia: start to use strlcpy()
 	    Generate safe temp and maildir filenames when the hostname

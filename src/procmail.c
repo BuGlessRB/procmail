@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.180 2001/08/25 04:38:38 guenther Exp $";
+ "$Id: procmail.c,v 1.181 2001/08/27 08:44:00 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -95,7 +95,7 @@ static int
  mainloop P((void));
 
 int main(argc,argv)int argc;const char*const argv[];
-{ register char*chp,*chp2;int suppmunreadable;
+{ register char*chp,*chp2;
 #if 0				/* enable this if you want to trace procmail */
   kill(getpid(),SIGSTOP);/*raise(SIGSTOP);*/
 #endif
@@ -242,6 +242,7 @@ nodevnull:
 	signal(SIGCHLD,SIG_DFL);
 #endif
 	signal(SIGPIPE,SIG_IGN);
+	setcomsat(empty);			  /* turn on biff by default */
 	ultstr(0,(unsigned long)uid,buf);filled=0;
 	if(!passinvk||!(chp2=(char*)auth_username(passinvk)))
 	   chp2=buf;
@@ -319,13 +320,17 @@ dorcpt:	   if(enoughprivs(passinvk,euid,egid,auth_whatuid(pass),
 	   return EX_NOPERM;	      /* need more mana, decline the request */
 	 }
 	else
-	 { suppmunreadable=nextrcfile();
+	 { int commandlinerc=nextrcfile();
 	   if(presenviron)		      /* preserving the environment? */
 	      etcrc=0;				    /* don't read etcrc then */
-	   if(suppmunreadable)			     /* command-line rcfile? */
-	      etcrc=0,setcomsat(DEFcomsat);	  /* forget etcrc and comsat */
+	   if(commandlinerc)			     /* command-line rcfile? */
+	    { etcrc=0;				 /* forget etcrc and comsat: */
+	      setcomsat(DEFcomsat);			/* the internal flag */
+	      if(!presenviron)			 /* and usually the variable */
+		 setdef(scomsat,DEFcomsat);
+	    }
 	   if(mailfilter)
-	    { if(!suppmunreadable)
+	    { if(!commandlinerc)
 	       { nlog("Missing rcfile\n");
 		 return EX_NOINPUT;
 	       }
@@ -354,7 +359,7 @@ dorcpt:	   if(enoughprivs(passinvk,euid,egid,auth_whatuid(pass),
 		    *	last bit
 		    */
 		    if(presenviron||			  /* -p is dangerous */
-		       suppmunreadable!=2||   /* so are variable assignments */
+		       commandlinerc!=2||     /* so are variable assignments */
 #ifdef CAN_chown		  /* anyone can chown in this filesystem so: */
 		       stat(buf2,&stbuf)||	     /* the /etc/procmailrcs */
 		       !S_ISDIR(stbuf.st_mode)||	/* directory must be */
@@ -400,13 +405,13 @@ Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
 	initdefenv(pass,buf,!presenviron||!mailfilter);		 /* override */
 	endpwent();auth_freeid(spassinvk);	   /* environment by default */
       }
-     /*
-      * Processing point of proposed /etc/procmail.conf file
-      */
      if(buildpath(orgmail,fdefault,(char*)0))	/* setup DEFAULT and ORGMAIL */
       { fdefault=empty;			   /* uh, Houston, we have a problem */
 	goto nix_sysmbox;
       }
+     /*
+      * Processing point of proposed /etc/procmail.conf file
+      */
      fdefault=tstrdup(buf);sgid=egid;
      chp=(char*)tgetenv(orgmail);
      if(mailfilter||!screenmailbox(chp,egid,Deliverymode))

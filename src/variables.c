@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.20 2001/08/25 04:45:45 guenther Exp $";
+ "$Id: variables.c,v 1.21 2001/08/27 08:44:01 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -36,7 +36,8 @@ struct varstr strenstr[]={{"SHELLMETAS",DEFshellmetas},{"LOCKEXT",DEFlockext},
 #define MAXvarvals	 maxindex(strenvvar)
 #define MAXvarstrs	 maxindex(strenstr)
 
-const char lastfolder[]="LASTFOLDER",maildir[]="MAILDIR";
+const char lastfolder[]="LASTFOLDER",maildir[]="MAILDIR",scomsat[]="COMSAT",
+ offvalue[]="no";
 int didchd;
 long Stdfilled;
 char*Stdout;
@@ -44,7 +45,7 @@ char*Stdout;
 static void asenvtext P((const char*const chp));      /* needed by retStdout */
 
 static const char slinebuf[]="LINEBUF",pmoverflow[]="PROCMAIL_OVERFLOW=yes",
- exitcode[]="EXITCODE",scomsat[]="COMSAT";
+ exitcode[]="EXITCODE";
 static int setxit;
 
 static struct dynstring*myenv;
@@ -216,7 +217,6 @@ void initdefenv(pass,fallback,do_presets)auth_identity*pass;
      while(i--);
      setdef(host,hostname());		       /* the other standard presets */
      sputenv(lastfolder);
-     sputenv(scomsat);setcomsat(empty);
      sputenv(exitcode);
      eputenv(defpath,buf);
      for(pp=prestenv;*pp;pp++)			     /* non-standard presets */
@@ -374,7 +374,12 @@ void asenv(chp)const char*const chp;
   else if(!strcmp(buf,lastfolder))
      setlfcs(chp);
   else if(!strcmp(buf,scomsat))
-     setcomsat(chp);
+   { if(!setcomsat(chp))
+      { char*p=buf+STRLEN(scomsat);		/* set it to "no" on failure */
+	*p++='=';strcpy(p,offvalue);
+	sputenv(buf);
+      }
+   }
   else if(!strcmp(buf,shift))
    { int i;
      if((i=renvint(0L,chp))>0)
