@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.153 1999/12/12 08:51:00 guenther Exp $";
+ "$Id: procmail.c,v 1.154 1999/12/12 08:59:49 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -299,12 +299,12 @@ nodevnull:
 		 qsignal(SIGHUP,sbounce);qsignal(SIGQUIT,slose);
 		 signal(SIGALRM,(void(*)())ftimeout);
 		 pass=*currcpt;
-		 while(++currcpt<lastrcpt)
-		    auth_freeid(*currcpt);
-		 free(rcpts);
-		 free(overread);
-		 newid();
-		 gargv=&nullp;
+		 if(++currcpt==lastrcpt)   /* last one out gets the original */
+		    private(1);
+		 while(currcpt<lastrcpt)
+		    auth_freeid(*currcpt++);
+		 free(rcpts);free(overread);
+		 newid();gargv=&nullp;
 		 goto dorcpt;
 	       }
 	      if(forkerr(pidchild,procmailn))
