@@ -14,6 +14,7 @@ maintainer	=
 #idcache_size	=	8192		# duplicate-msgid cache size in bytes
 
 #archive_hist	=	2		# number of messages left archived
+					# or "all" to keep them all
 #archive_log	=	$LOGFILE	# log file for archive retrievals
 #subscribe_log	=	$LOGFILE	# log file for administrivia
 

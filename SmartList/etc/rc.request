@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.80 1998/11/06 05:35:22 guenther Exp $
+#$Id: rc.request,v 1.81 1999/11/22 05:40:53 guenther Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -247,15 +247,19 @@ LOGABSTRACT=yes
 | sed -e $cutoff_bounce' q' >tmp.request
 
   #
-  # Sink all messages we can recognise to be queue warnings
+  # Sink all messages we can recognise to be queue warnings or
+  # message-content specific errors
   #
 
   :0 Ah
   * ^Subject: \
-     (Returned mail: Unbalanced '"'|\
-      Warning - delayed mail|\
+     (Warning - delayed mail|\
       (WARNING: message ([^	 ]+ )?|Mail )delayed|\
-      (Returned mail: )?warning: c(an|ould )not send m(essage fo|ail afte)r|\
+      (Returned mail: )?\
+       (warning: c(an|ould )not send m(essage fo|ail afte)r|Unbalanced '"'|\
+	Cannot send (within [0-9]|8-bit data to 7-bit)|\
+	Data format error|Headers too large|Eight bit data not allowed|\
+	Message (size )?exceeds (fixed )?maximum (fixed|message) size)|\
       Undeliverable (RFC822 )?mail: temporarily unable to deliver|\
       \*\*\* WARNING - Undelivered mail in mailqueue|Execution succee?ded)
   /dev/null
@@ -271,10 +275,29 @@ LOGABSTRACT=yes
   /dev/null
 
   #
+  # Enable special handling for DSNs
+  #
+
+  :0 A
+  * ^Content-Type:[	]*multipart/report;[	]*\/[^	].*
+  * ^Mime-Version:.*1.*\..*0
+  * MATCH ?? report-type="?delivery-status"?
+  * B ?? ^Content-Type:.*message.*delivery-status
+  {
+     # If there were no fatal errors, drop it
+     :0 B
+     * ! ^Status:[	]*5[	]*\.
+     /dev/null
+
+     isadsn=yes
+  }
+
+  #
   # Anything that still survived is most likely to be a bounce message.
   #
 
   :0 Ahfw
+  * ! ^X-Diagnostic:
   | procbounce
 
 #

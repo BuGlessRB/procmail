@@ -254,3 +254,17 @@
 	    Strip List-* headers from incoming messages
 	    Add List-Subscriber: and List-Unsubscribe: headers with mailto:
 	       URLs for the request address
+	    Automatic cross-posting of messages sent to a digested list over
+	       to the undigested list only worked if the latter contained
+	       the letter 'y'
+	    Recognize still more queue warning messages
+	    Ignore "Data format", 8-bit conversion, and size errors -- the
+	       address is fine, the particular message is presumably at fault
+	    Use four digit digest volume numbers starting in the year 2000
+	    Setting archive_hist to "all" causes the archive to never be
+	       truncated
+	    Changes to multigram:
+	       - ignore words that start with an '@' unless they look like
+		 a route address
+	    Reject attempts to subscribe someone twice with an X-Command mail
+	    Recognize DSNs and enable some primitive parsing of them

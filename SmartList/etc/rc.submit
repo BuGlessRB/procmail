@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.85 1999/10/20 04:58:02 guenther Exp $
+#$Id: rc.submit,v 1.86 1999/11/22 05:40:54 guenther Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -183,7 +183,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 	#
 
 	:0 c
-	* undigested_list ?? y
+	* undigested_list ?? .
 	* $!^X-Loop: $\undigested_list
 	! $sendmailOPT $undigested_list
 
@@ -203,7 +203,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      #
 
      :0
-     * archive_hist ?? [1-9]
+     * archive_hist ?? [1-9]|all
      * !^X-Mailing-List:
       {
 	LASTFOLDER=unarchived
@@ -220,6 +220,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 	#
 
 	:0 c hi
+	* ! archive_hist ?? all
 	| arch_trunc
       }
 

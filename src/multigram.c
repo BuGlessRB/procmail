@@ -19,9 +19,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.92 1999/11/18 01:58:14 guenther Exp $";
+ "$Id: multigram.c,v 1.93 1999/11/22 05:40:45 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/11/18 01:58:14 $";
+static /*const*/char rcsdate[]="$Date: 1999/11/22 05:40:45 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -781,6 +781,8 @@ usg:
      ;{ char*chp;
 	static const char tpunctuation[]="@\\/!#$%^&*-_=+|~`';:,.?{}";
 #define punctuation	(tpunctuation+3)
+	static const char colonpunct[]="/:@!";
+#define routepunct	(colonpunct+1)
 	chp=fuzzstr.text;
 	if(!dodomain)			    /* still have to do with domain? */
 	 { char*echp=strchr(chp,'\0')-1;
@@ -791,7 +793,7 @@ usg:
 	   while(*chp&&strchr(punctuation,*chp))
 	      chp++;				/* strip leading punctuation */
 	   ;{ const char*colon;				/* no decnet address */
-	      if(*(colon=chp+strcspn(chp,":@!/"))==':'&&colon[1]!=':')
+	      if(*(colon=chp+strcspn(chp,colonpunct))==':'&&colon[1]!=':')
 		 chp=(char*)colon+1;	       /* strip leading ...: garbage */
 	    }
 	   while(echp>=chp&&strchr(tpunctuation,*echp))
@@ -811,9 +813,14 @@ usg:
 	       strstr(chp,".."))&&
 	      !(*chp=='<'&&*echp=='>')&&	  /* RFC-822 machine literal */
 	      !(incomplete&&strchr(chp,'.')))		      /* domain name */
-	    { if(lastfrom<0)
+reject:	    { if(lastfrom<0)
 		 lastfrom=!strcmp(SHFROM,chp);
 	      continue;			 /* apparently not an e-mail address */
+	    }
+	   ;{ const char*colon;
+	      if((*chp=='@'||*chp=='<'&&chp[1]=='@')&&	 /* leading at's are */
+		 (!(colon=strchr(chp,':'))||strchr(routepunct,colon[1])))
+		 goto reject;		  /* only allowed on route addresses */
 	    }
 	   lastfrom=0;tmemmove(fuzzstr.text,chp,echp-chp+2);
 	   checkparens('(',')',fuzzstr.text,echp);

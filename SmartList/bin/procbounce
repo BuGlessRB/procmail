@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1996, S.R. van den Berg, The Netherlands
-#$Id: procbounce,v 1.35 1999/10/20 04:56:38 guenther Exp $
+#$Id: procbounce,v 1.36 1999/11/22 05:40:49 guenther Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -32,9 +32,34 @@ $formail -1 -kdem4 -xSubject: <$tmprequest -s |
   -e '/^Xsucceed:/d' \
   -e '/^The mail system at .* unable to deliver/,/^-* Message Log Follows -/d'\
   -e '/ent successfully/,/^[	 ]*$/d' \
+  -e '/^Content-Type:.*message.rfc822/q' \
   -e 's/^\([^	 ]*\) @ /\1@/' >$tmpfrom
 
-addr=`sed -n -e '/^5[0-9][0-9] /p' <$tmpfrom |
+addr=''
+
+# Special processing for DSNs
+if $test ".$isadsn" = .yes
+then
+   # Accept any number of 'exact' matches on Original-Receipient: lines
+   addr=`$sed -n \
+    -e 's/^Original-[Rr]ecipient:.*[Rr][Ff][Cc]822;//p' <$tmprequest |
+    $multigram -l$match_threshold -x$listaddr -x$listreq $dist`
+
+   # Accept just one close match on Final-Receipient: lines
+   test -z "$addr" &&
+    addr=`$sed -n \
+     -e 's/^Final-[Rr]ecipient:.*[Rr][Ff][Cc]822;//p' <$tmprequest |
+     $multigram -b1 -l$off_threshold -x$listaddr -x$listreq $dist`
+
+   # Ditto for X-Actual-Recipient: lines
+   test -z "$addr" &&
+    addr=`$sed -n \
+     -e 's/^X-[Aa]ctual-[Rr]ecipient:.*[Rr][Ff][Cc]822;//p' <$tmprequest |
+     $multigram -b1 -l$off_threshold -x$listaddr -x$listreq $dist`
+fi
+
+test -z "$addr" &&
+ addr=`sed -n -e '/^5[0-9][0-9] /p' <$tmpfrom |
       $multigram -b1 -l$off_threshold -x$listaddr -x$listreq $dist`
 
 test -z "$addr" &&
@@ -49,10 +74,11 @@ $test -z "$addr" &&
 
 if $test ! -z "$addr"
 then
-  addr=`$expr "X$addr" : 'X.* \([^ ]*\)$' `
+  addr=`$expr "X $addr" : 'X.* \([^ ]*\)$' `
   serial=`$formail +1 -1 -m4 -zdexMessage-Id: -s $idhash <$tmprequest`
   case "X$serial" in
-     X|X0) set dummy `LANG='' $date +'%y %m %d' 2>/dev/null`
+     X|X0) set dummy `LANG='' LC_TIME='' LC_ALL='' \
+	    $date +'%y %m %d' 2>/dev/null`
 	serial=$3$4$2 ;;
   esac
   $echo "$addr" >>$bounces/$serial

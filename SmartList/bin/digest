@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.26 1995/11/14 04:27:25 srb Exp $
+#$Id: digest,v 1.27 1999/11/22 05:40:48 guenther Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -92,11 +92,14 @@ $echo "" >>$digestbody
 
 if $test ! -f $digesttrailer
 then
-
-  Year=`LANG='' $date +%y 2>&1`
+  Year=`LANG='' LC_TIME='' LC_ALL=''$date +%y 2>&1`
   case "$Year" in
-     ????|??) ;;
-     *) Year=`set \`$date\`; echo $6` ;;	# for the POSIX deprived
+     ????|9?) ;;
+     *) Year=`LANG='' LC_TIME='' LC_ALL='' $date +%Y 2>&1`
+	case "$Year" in
+	   ????) ;;
+	   *) Year=`set \`$date\`; echo $6` ;;	# for the POSIX deprived
+	esac;;
   esac
   Issue=0
 
