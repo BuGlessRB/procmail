@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.71 1994/10/26 19:37:17 berg Exp $
+#$Id: rc.request,v 1.72 1994/10/31 18:57:21 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -75,7 +75,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
      ((send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|list|show|\
       search|[fe]?grep|find|maxfiles|version)([	 ]+[^	 ]*)?$)
   {
-    :0
+    :0 W
     * 1^1 $${restrict_archive:+!}
     * 2^0 ? formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 	     -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
@@ -138,7 +138,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
      #
 
      :0 E HB wfh
-     * ? formail -IIn-Reply-To: -ICc: | \
+     * ? formail -IReceived: -IX-Envelope-To: -IIn-Reply-To: -ICc: | \
 	   multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
      | formail -A "X-Diagnostic: Already on the subscriber list" \
 	-A "X-Diagnostic: `multigram -b1 -x$listreq -x$listaddr \
@@ -287,7 +287,7 @@ LOCKFILE				# we don't need the lockfile anymore
   | formail -A "X-Diagnostic: Suspicious $X_COMMAND format"
 
   :0 HB wfh
-  * ? formail -IIn-Reply-To: -ICc: | \
+  * ? formail -IReceived: -IX-Envelope-To: -IIn-Reply-To: -ICc: | \
        multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
   | formail -A "X-Diagnostic: Already on the subscriber list" \
      -A "X-Diagnostic: `multigram -b1 -x$listreq -x$listaddr \
