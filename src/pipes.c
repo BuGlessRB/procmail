@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.47 1998/11/10 01:53:28 srb Exp $";
+ "$Id: pipes.c,v 1.48 1998/11/10 05:08:47 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -254,7 +254,7 @@ jumpback:;
 	do
 	   if(0>=(got=rread(STDIN,bf+*filled,left)))		/* read mail */
 	      goto eoffound;
-	while(*filled+=got,(left-=got)>got);	/* change listed buffer size */
+	while(*filled+=got,left-=got);		/* change listed buffer size */
       }
    }
 eoffound:
