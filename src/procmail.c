@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.171 2001/06/03 21:57:09 guenther Exp $";
+ "$Id: procmail.c,v 1.172 2001/06/06 04:36:08 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -102,12 +102,12 @@ int main(argc,argv)int argc;const char*const argv[];
   newid();
   ;{ int presenviron,override;char*fromwhom=0;
      const char*idhint=0;gid_t egid=getegid();
-     Deliverymode=mailfilter=override=0;
+     presenviron=Deliverymode=mailfilter=override=0;
      Openlog(procmailn,LOG_PID,LOG_MAIL);		  /* for the syslogd */
      if(argc)			       /* sanity check, any argument at all? */
-      { Deliverymode=strncmp(lastdirsep(argv0=argv[0]),procmailn,
+      { Deliverymode=!!strncmp(lastdirsep(argv0=argv[0]),procmailn,
 	 STRLEN(procmailn));
-	for(presenviron=argc=0;(chp2=(char*)argv[++argc])&&*chp2=='-';)
+	for(argc=0;(chp2=(char*)argv[++argc])&&*chp2=='-';)
 	   for(;;)				       /* processing options */
 	    { switch(*++chp2)
 	       { case VERSIONOPT:
