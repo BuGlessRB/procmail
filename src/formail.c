@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.88 1999/02/16 21:13:36 guenther Exp $";
+ "$Id: formail.c,v 1.89 1999/03/26 02:45:56 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/02/16 21:13:36 $";
+static /*const*/char rcsdate[]="$Date: 1999/03/26 02:45:56 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -773,7 +773,7 @@ splitit:       { if(!lnl)   /* did the previous mail end with an empty line? */
 		 if(!nowait&&*argv)	 /* wait till the child has finished */
 		  { int excode;
 		    if((excode=waitfor(child))!=EXIT_SUCCESS&&
-		       retval!=EXIT_SUCCESS)
+		       retval==EXIT_SUCCESS)
 		       retval=excode;
 		  }
 		 if(!nrtotal)
