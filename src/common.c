@@ -1,12 +1,12 @@
 /************************************************************************
  *	Some routines common to procmail and formail			*
  *									*
- *	Copyright (c) 1990-1995, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1996, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: common.c,v 1.21 1995/03/20 15:29:58 berg Exp $";
+ "$Id: common.c,v 1.22 1996/12/21 03:28:21 srb Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -26,8 +26,9 @@ void shexec(argv)const char*const*argv;
   signal(SIGPIPE,SIG_DFL);execvp(*argv,(char*const*)argv);
   for(p=(const char**)argv,i=1;i++,*p++;);	      /* count the arguments */
   newargv=malloc(i*sizeof*p);		      /* no shell script? -> trouble */
-  for(*(p=(const char**)newargv)=binsh;*++p= *argv++;);execv(*newargv,newargv);
-  nlog("Failed to execute");logqnl(*argv);exit(EX_UNAVAILABLE);
+  for(*(p=(const char**)newargv)=binsh;*++p= *argv++;);
+  execv(*newargv,newargv);nlog("Failed to execute");logqnl(*argv);
+  exit(EX_UNAVAILABLE);
 }
 
 void detab(p)char*p;

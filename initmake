@@ -1,7 +1,7 @@
 #! /bin/sh
 :
-# Copyright (c) 1992-1995, S.R. van den Berg, The Netherlands
-#$Id: initmake,v 1.65 1995/04/10 19:28:00 berg Exp $
+# Copyright (c) 1992-1996, S.R. van den Berg, The Netherlands
+#$Id: initmake,v 1.66 1996/12/21 03:28:07 srb Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -23,7 +23,7 @@ else
   case "$BSHELL" in
      *zsh*) ;;
      *) echo "(If I wouldn't know better, I'd say you're trying to sell"
-	echo "me a buggy zsh :-)" ;;
+	echo "me an incompatible zsh :-)" ;;
   esac
   echo "Please edit the Makefile and try setting BSHELL to a shell which"
   echo "is more backwards compatible with a Bourne, Korn or POSIX shell."
@@ -55,17 +55,7 @@ test -z "$MSHELL" || SHELL=$MSHELL
 case "$SHELL" in
   *sh*)
      case "$SHELL" in
-	*csh*) echo "Warning: really perverted make detected"; SHELL="";;
-	*zsh*) $RM src/_autotst
-	    $SHELL <<HERE
-	    O="echo test >src/_autotst"
-	    exec 2>$DEVNULL
-	    \$O
-HERE
-	   if test ! -f src/_autotst
-	   then
-	      echo "Warning: your $SHELL is broken, avoiding it"; SHELL=""
-	   fi ;;
+	*[zc]sh*) echo "Warning: really perverted make detected"; SHELL="";;
      esac
      if test ! -z "$SHELL"
      then
@@ -283,6 +273,9 @@ do
 	echo 2>&1 "Whoeaaa!  There's something fishy going on here."
 	echo 2>&1 "You have a look and see if you detect anything uncanny:"
 	echo 2>&1 "*******************************************************"
+	echo \ $cc $CFLAGS1 $CFLAGS _autotst.$O -o _autotst $LDFLAGS1 $LDFLAGS\
+	 >>_autotst.rrr
+	echo "	$LDFLAGSC" >>_autotst.rrr
 	cat 2>&1 _autotst.rrr
 	echo 2>&1 "*******************************************************"
 	echo 2>&1 \

@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.54 1995/05/17 09:23:47 berg Exp $*/
+/*$Id: includes.h,v 1.55 1996/12/21 03:28:26 srb Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -85,9 +85,10 @@
 #include <errno.h>		/* EINTR EEXIST ENFILE EACCES EAGAIN EXDEV */
 				/* EDQUOT ENOSPC */
 #ifndef SYSEXITS_H_MISSING
-#include <sysexits.h>		/* EX_USAGE EX_NOINPUT EX_NOUSER EX_UNAVAILABLE
-				   EX_OSERR EX_OSFILE EX_CANTCREAT EX_IOERR
-				   EX_TEMPFAIL EX_NOPERM */
+#include <sysexits.h>		/* EX_USAGE EX_DATAERR EX_NOINPUT EX_NOUSER
+				   EX_UNAVAILABLE EX_OSERR EX_OSFILE
+				   EX_CANTCREAT EX_IOERR EX_TEMPFAIL
+				   EX_NOPERM */
 #endif
 
 #ifdef STDLIB_H_MISSING
@@ -143,6 +144,7 @@ double pow();
 		/* Standard exit codes, original list maintained
 		   by Eric Allman (eric@berkeley.edu) */
 #define EX_USAGE	64
+#define EX_DATAERR	65
 #define EX_NOINPUT	66
 #define EX_NOUSER	67
 #define EX_UNAVAILABLE	69
@@ -177,7 +179,7 @@ double pow();
 #endif
 
 #ifndef EWOULDBLOCK
-#define EWOULDBLOCK	EACCES
+#define EWOULDBLOCK	EAGAIN
 #endif
 #ifndef EAGAIN
 #define EAGAIN		EINTR
@@ -420,7 +422,7 @@ extern void*memmove();
 #endif
 
 #ifdef NOinitgroups
-#undef NOinitgroups
+/*#undef NOinitgroups				 need this macro in autoconf */
 #define initgroups(n,g)
 #endif
 

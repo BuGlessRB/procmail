@@ -149,7 +149,9 @@ In order to take advantage of the optional meta argument that can be passed to
 procmail you'd have to change the sendmail.cf file to add a $#local mailer
 rule to set the $@ host name (which will be substituted for $h in the mailer
 definition).  There is nothing forcing you to do this, but if you do, you'll
-gain functionality.
+gain functionality.  If you are using sendmail 8.7.* or newer, and are
+using the standard FEATURE(local_procmail), then the support for this
+meta argument is already present.
 
 For example:
 	Make sure that the definition of operators in the sendmail.cf file
@@ -194,7 +196,8 @@ N.B. Do NOT create the extra rules mentioned in the EXAMPLES section of the
 
 After having edited the sendmail.cf file you'll have to kill (terminate)
 the running sendmail daemon.  Then restart it.	It will *not* suffice to
-send sendmail a SIGHUP.
+send sendmail a SIGHUP (unless you are running sendmail 8.7.* or newer
+and started it with an absolute path).
 
 				---
 

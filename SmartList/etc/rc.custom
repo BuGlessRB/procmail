@@ -62,6 +62,8 @@ maintainer	=
 ##moderated_flag=	yes		# uncomment this to make the list
 					# moderated (you must create a
 					# `moderators' file for this to work)
+					# set moderator_PASSWORD to get
+					# stricter checking
 #cc_requests
 ##cc_requests	=	yes		# uncomment if you want subscribe
 					# and help requests to be Cc'd to
@@ -81,14 +83,22 @@ maintainer	=
 ##reply_to	= "Resent-Reply-To: $listaddr" # uncomment (and perhaps change
 					# it to "Reply-To") to force replies
 					# to go to the list (discouraged)
+					# why discouraged?  see:
+			# http://garcon.unicom.com/FAQ/reply-to-harmful.html
 #digest_flag
 ##digest_flag	=	yes		# uncomment this if you want digests
 #digest_age	=	262144		# maximum age of a digest in seconds
 #digest_size	=	32768		# maximum size of a digest in bytes
 #undigested_list =	$list@$domain	# Reply-To: address for digests
 
+#moderator_PASSWORD =			# put the optional password for
+					# moderators here, this definition
+					# can contain regular expression magic
+					# characters (to support multiple
+					# passwords)
+
 #X_COMMAND	=	X-Command
-#X_COMMAND_PASSWORD =			# put the password for
+#X_COMMAND_PASSWORD =			# put the literal password for
 					# X-Command mails here
 
 #daemon_bias='100^0 ^From:.*daemon@ok'	# You could set "daemon_bias" to

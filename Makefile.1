@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.48 1995/11/14 04:27:23 srb Exp $
+#$Id: Makefile.1,v 1.49 1996/12/21 03:28:05 srb Exp $
 
 all: bins mans recommend
 	@echo If you would like to inspect the results before running make \
@@ -91,13 +91,13 @@ install.man: $(MANS) $(BASENAME)
 	@-mkdir $(MAN5DIR) 2>$(DEVNULL); exit 0
 	@chmod 0644 $(MANS)
 	@for a in $(MANS1S); \
-  do $(INSTALL) new/$$a.1 $(MAN1DIR)/$$a.$(MAN1SUFFIX); \
+  do $(INSTALL) new/$$a.1 $(MAN1DIR)/$$a.$(MAN1SUFFIX) || exit 1; \
      if test "X$(MANCOMPRESS)" != "X"; \
      then $(MANCOMPRESS) -c new/$$a.1 >$(MAN1DIR)/$$a.$(MAN1SUFFIX); \
      else :; fi; \
   done
 	@for a in $(MANS5S); \
-  do $(INSTALL) new/$$a.5 $(MAN5DIR)/$$a.$(MAN5SUFFIX); \
+  do $(INSTALL) new/$$a.5 $(MAN5DIR)/$$a.$(MAN5SUFFIX) || exit 1; \
      if test "X$(MANCOMPRESS)" != "X"; \
      then $(MANCOMPRESS) -c new/$$a.5 >$(MAN5DIR)/$$a.$(MAN5SUFFIX); \
      else :; fi; \

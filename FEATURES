@@ -48,7 +48,7 @@ Feature summary for procmail:
 	+ Provides for a controlled execution of programs and scripts from
 	  the aliases file (i.e. under defined user ids)
 	+ Allows you to painlessly shift the system mailboxes into the
-	  user's home directories
+	  users' home directories
 	+ It runs on virtually all (old and future) operating systems which
 	  names start with a 'U' or end in an 'X' :-) (i.e. extremely portable
 	  code; POSIX, ANSI C and K&R conforming)

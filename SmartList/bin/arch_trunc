@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_trunc,v 1.8 1995/03/20 14:49:52 berg Exp $
+#$Id: arch_trunc,v 1.9 1996/12/21 03:28:10 srb Exp $
 
 echo=echo		# /bin/echo
 ls=ls			# /bin/ls
@@ -12,7 +12,7 @@ then
   case "$ARCHIVE" in	# do not start removing every time, to decrease load
      *[248])
 	$rm -f _dummy_ \
-	 `$ls -t | $sed -e '/[^0-9]/ d' | $sed -e '1,'$archive_hist' d'` ;;
+	 `$ls -t | $sed -n -e '/^[0-9]/ p' | $sed -e '1,'$archive_hist' d'` ;;
   esac
 else
   $echo "Don't start this script directly, it is used in rc.submit"

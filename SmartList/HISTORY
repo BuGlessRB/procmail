@@ -188,7 +188,7 @@
 	       to noise ratio for typical mail addresses
 	    Mails that did not have a Return-Path: or Reply-To: field were
 	       not replied to correctly (regression bug since v3.06), fixed
-1995/10/29: v3.11pre4
+1996/03/03: v3.11pre5
 	    Cc_unsubrequests and cc_requests had some undesirable side-effects
 	    Procbounce reported spurious errors if badly formatted bounces
 	       were received
@@ -211,6 +211,7 @@
 	       - Eliminated lots of system calls during fuzzy matching
 		 (basically a speedup)
 	       - Account for compilers with sizeof(off_t)>sizeof(long)
+	       - Work around a DomainOS compiler bug
 	    The Solaris 2.3 grep doesn't accept -e options, caused a minor
 	       glitch in createlist
 	    Provide examples/rc.local.r00 sample for X-Command fields in the
@@ -228,3 +229,6 @@
 	    Forced subscriptions on moderated lists didn't work too well
 	    Include author name in digest topic summaries
 	    Use the -odi option to sendmail to improve control of the load
+	    Createlist didn't work well if $HOME was set wrong
+	    Spurious "attempt" unsubscribe notices that were more than just
+	       attempts

@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.77 1995/11/14 04:27:25 srb Exp $
+#$Id: rc.request,v 1.78 1996/12/21 03:28:13 srb Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -110,7 +110,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
       (Could you )?(please )?\
       (sign( [^ ]+ |-)?off|cancel|leave|delete|remove|(un|de)-?sub)\>|\
      ($(.+$)*$(.*$)*)?(.*[^a-z])?\
-      ((un-?|(un|de)-?(sub?))s(cr|c|r)i|\
+      ((un-?|(un|de)-?sub?)s(cr|c|r)i|\
       (leave|(delete|remove) .* from|(sign|take|get) .* off) .* [a-z-]*list\>))
   *  1^0 B ?? ^^([	 ]|$)*unsub(scribe)?([	 ].*)?([	 ]|$)*\
 	       [^	 a-z]?^^
@@ -249,7 +249,7 @@ LOGABSTRACT=yes
   :0 Ah
   * ^Subject: \
      (WARNING: message delayed|\
-      (Returned mail: )?warning: cannot send m(essage fo|ail afte)r|\
+      (Returned mail: )?warning: (could |can)not send m(essage fo|ail afte)r|\
       Undeliverable (RFC822 )?mail: temporarily unable to deliver|\
       \*\*\* WARNING - Undelivered mail in mailqueue)
   /dev/null

@@ -3,14 +3,14 @@
  *									*
  *	Seems to be relatively bug free.				*
  *									*
- *	Copyright (c) 1990-1995, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1996, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.77 1995/10/30 02:09:19 srb Exp $";
+ "$Id: formail.c,v 1.78 1996/12/21 03:28:24 srb Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1995/10/30 02:09:19 $";
+static /*const*/char rcsdate[]="$Date: 1996/12/21 03:28:24 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -94,32 +94,33 @@ long initfileno;
 char ffileno[LEN_FILENO_VAR+8*sizeof(initfileno)*4/10+1+1]=DEFfileno;
 int lexitcode;					     /* dummy, for waitfor() */
 pid_t child= -1;
+int childlimit;
 unsigned long rhash;
 FILE*mystdout;
 int nrskip,nrtotal= -1,retval=EXIT_SUCCESS;
 size_t buflen,buffilled;
-long totallen;
+long Totallen;
 char*buf,*logsummary;
 struct field*rdheader,*xheader,*Xheader,*uheader,*Uheader;
 static struct field*iheader,*Iheader,*aheader,*Aheader,*Rheader,*nheader;
 static int areply;
 
 static void logfolder P((void))	 /* estimate the no. of characters needed to */
-{ size_t i;charNUM(num,totallen);		       /* represent totallen */
+{ size_t i;charNUM(num,Totallen);		       /* represent Totallen */
   static const char tabchar[]=TABCHAR;
   if(logsummary)
    { putssn(sfolder,STRLEN(sfolder));putssn(logsummary,i=strlen(logsummary));
      i+=STRLEN(sfolder);i-=i%TABWIDTH;
      do putssn(tabchar,STRLEN(tabchar));
      while((i+=TABWIDTH)<LENoffset);
-     ultstr(7,totallen,num);putssn(num,strlen(num));putcs('\n');
+     ultstr(7,Totallen,num);putssn(num,strlen(num));putcs('\n');
    }
 }
 
 static void renfield(pointer,oldl,newname,newl)struct field**const pointer;
  size_t oldl;const size_t newl;const char*const newname;    /* rename fields */
 { struct field*p;size_t i;char*chp;
-  p= *pointer;(chp=p->fld_text)[p->tot_len-1]='\0';
+  p= *pointer;(chp=p->fld_text)[p->Tot_len-1]='\0';
   if(eqFrom_(chp))				       /* continued From_ to */
      for(;chp=strstr(chp,"\n>");*++chp=' ');	  /* continued regular field */
   if(newl==STRLEN(From_)&&eqFrom_(newname))
@@ -132,10 +133,10 @@ static void renfield(pointer,oldl,newname,newl)struct field**const pointer;
   if(newname[newl-1]==HEAD_DELIMITER)		     /* completely new field */
 replaceall:
      oldl=p->id_len;			     /* replace the old one entirely */
-  p->id_len+=(int)newl-(int)oldl;p->fld_text[p->tot_len-1]='\n';
-  p->tot_len=(i=p->tot_len-oldl)+newl;
+  p->id_len+=(int)newl-(int)oldl;p->fld_text[p->Tot_len-1]='\n';
+  p->Tot_len=(i=p->Tot_len-oldl)+newl;
   if(newl>oldl)
-     *pointer=p=realloc(p,FLD_HEADSIZ+p->tot_len);
+     *pointer=p=realloc(p,FLD_HEADSIZ+p->Tot_len);
   chp=p->fld_text;tmemmove(chp+newl,chp+oldl,i);tmemmove(chp,newname,newl);
 }
 
@@ -144,21 +145,21 @@ static void procfields(sareply)const int sareply;
   fldp= *(afldp= &rdheader);
   while(fldp)
    { struct field*fp2;
-     if(fp2=findf(fldp,&Rheader))		  /* explicitly rename field */
-      { renfield(afldp,fp2->id_len,(char*)fp2->fld_text+fp2->id_len,
-	 fp2->tot_len-fp2->id_len);
-	goto fixfldp;
-      }
      if(!sareply&&
 	(fp2=findf(fldp,&iheader))&&
-	!(areply&&fldp->id_len>=fp2->tot_len-1))      /* filled replacement? */
+	!(areply&&fldp->id_len>=fp2->Tot_len-1))      /* filled replacement? */
       { renfield(afldp,(size_t)0,old_,STRLEN(old_));	/* implicitly rename */
+	goto fixfldp;
+      }
+     if((fp2=findf(fldp,&Iheader))&&			    /* delete fields */
+	!(sareply&&fldp->id_len<fp2->Tot_len-1))       /* empty replacement? */
+	goto delfld;
+     if(fp2=findf(fldp,&Rheader))		  /* explicitly rename field */
+      { renfield(afldp,fp2->id_len,(char*)fp2->fld_text+fp2->id_len,
+	 fp2->Tot_len-fp2->id_len);
 fixfldp:
 	fldp= *afldp;
       }
-     if((fp2=findf(fldp,&Iheader))&&			    /* delete fields */
-	!(sareply&&fldp->id_len<fp2->tot_len-1))       /* empty replacement? */
-	goto delfld;
      ;{ struct field*uf;
 	if((uf=findf(fldp,&uheader))&&!uf->fld_ref)
 	   uf->fld_ref=afldp;			   /* first uheader, keep it */
@@ -208,7 +209,7 @@ static char*getsender(namep,fldp,trust)char*namep;struct field*fldp;
   if(i>=0&&(i!=maxindex(sest)||fldp==rdheader))		  /* found anything? */
    { char*saddr;char*tmp;			     /* determine the weight */
      nowm=trust?sest[i].wtrepl:areply?sest[i].wrepl:i;chp+=j;
-     tmp=malloc(j=fldp->tot_len-j);tmemmove(tmp,chp,j);(chp=tmp)[j-1]='\0';
+     tmp=malloc(j=fldp->Tot_len-j);tmemmove(tmp,chp,j);(chp=tmp)[j-1]='\0';
      if(sest[i].head==From_)
       { char*pastad;
 	if(trust||!(saddr=strchr(chp,'\n')))	     /* skip the first line? */
@@ -376,7 +377,8 @@ main(lastm,argv)int lastm;const char*const argv[];
 	      case FM_BABYL:babyl=every=1;
 	      case FM_DIGEST:digest=1;
 		 continue;
-	      case FM_NOWAIT:nowait=1;
+	      case FM_NOWAIT:nowait=1;Qnext_arg();
+		 childlimit=strtol(chp,&chp,10);
 		 continue;
 	      case FM_KEEPB:keepb=1;
 		 continue;
@@ -413,7 +415,7 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		    case FM_DUPLICATE:maxlen=i;Qnext_arg();
 		       if(!(idcache=fopen(chp,"r+b"))&&	  /* existing cache? */
 			  !(idcache=fopen(chp,"w+b")))	    /* create cache? */
-			{ nlog("Couldn't open");logqnl(argv[i]);
+			{ nlog("Couldn't open");logqnl(chp);
 			  return EX_CANTCREAT;
 			}
 		       goto nextarg;
@@ -472,7 +474,7 @@ invfield:	     { nlog("Invalid field-name:");logqnl(chp?chp:"");
 		       goto usg;
 		     }
 		    *afldp=fldp=
-		     realloc(fldp,FLD_HEADSIZ+(fldp->tot_len=lnl+i));
+		     realloc(fldp,FLD_HEADSIZ+(fldp->Tot_len=lnl+i));
 		    if(!copied)			   /* if not squeezed on yet */
 		       tmemmove((char*)fldp->fld_text+lnl,chp,i);  /* do now */
 		  }
@@ -484,6 +486,9 @@ nextarg:;
       }
 parsedoptions:
   escaplen=strlen(escap);mystdout=stdout;signal(SIGPIPE,SIG_IGN);
+#ifdef SIGCHLD
+  signal(SIGCHLD,SIG_DFL);
+#endif
   thepid=getpid();
   if(babyl)						/* skip BABYL leader */
    { while(getchar()!=BABYL_SEP1||getchar()!=BABYL_SEP2||getchar()!='\n')
@@ -528,7 +533,7 @@ usg:						     /* options sanity check */
 xusg:
      return EX_USAGE;
    }
-  buf=malloc(buflen=Bsize);totallen=0;i=maxindex(rex); /* prime some buffers */
+  buf=malloc(buflen=Bsize);Totallen=0;i=maxindex(rex); /* prime some buffers */
   do rex[i].rexp=malloc(1);
   while(i--);
   fdate=0;addfield(&fdate,date,STRLEN(date)); /* fdate is only for searching */
@@ -567,10 +572,10 @@ startover:
 		!strncmp(tmp,mailfrom,STRLEN(mailfrom))&&
 		eqFrom_(tmp2=skpspace(tmp+STRLEN(mailfrom))))
 	 { rdheader->id_len=STRLEN(From_);
-	   tmemmove(tmp,tmp2,rdheader->tot_len-=tmp2-tmp);
+	   tmemmove(tmp,tmp2,rdheader->Tot_len-=tmp2-tmp);
 	 }
       }
-     namep=0;totallen=0;i=maxindex(rex);
+     namep=0;Totallen=0;i=maxindex(rex);
      do rex[i].rexl=0;
      while(i--);			      /* reset all state information */
      clear_uhead(uheader);clear_uhead(Uheader);
@@ -580,12 +585,12 @@ startover:
       { if(zap)		      /* go through the linked list of header-fields */
 	 { chp=fldp->fld_text+(j=fldp->id_len);
 	   if(chp[-1]==HEAD_DELIMITER)
-	      if(*chp!=' '&&fldp->tot_len>j+1)
+	      if(*chp!=' '&&fldp->Tot_len>j+1)
 	       { chp=j+(*afldp=fldp=
-		  realloc(fldp,FLD_HEADSIZ+(i= ++fldp->tot_len)))->fld_text;
+		  realloc(fldp,FLD_HEADSIZ+(i= ++fldp->Tot_len)))->fld_text;
 		 tmemmove(chp+1,chp,i-j);*chp=' ';
 	       }
-	      else if(fldp->tot_len<=j+2)
+	      else if(fldp->Tot_len<=j+2)
 	       { *afldp=fldp->fld_next;free(fldp);fldp= *afldp;
 		 continue;
 	       }
@@ -596,7 +601,7 @@ startover:
 	j=fldp->id_len;
 	while((rex[i].lenr!=j||strnIcmp(rex[i].headr,chp,j))&&i--);
 	chp+=j;
-	if(i>=0&&(j=fldp->tot_len-j)>1)			  /* found anything? */
+	if(i>=0&&(j=fldp->Tot_len-j)>1)			  /* found anything? */
 	 { tmemmove(rex[i].rexp=realloc(rex[i].rexp,(rex[i].rexl=j)+1),chp,j);
 	   rex[i].rexp[j]='\0';			     /* add a terminating \0 */
 	 }
@@ -606,7 +611,7 @@ startover:
 	elimdups(namep,idcache,maxlen,split);
      ctlength=0;
      if(!forgetclen&&(fldp=findf(fcntlength,&rdheader)))
-      { *(chp=(char*)fldp->fld_text+fldp->tot_len-1)='\0';   /* terminate it */
+      { *(chp=(char*)fldp->fld_text+fldp->Tot_len-1)='\0';   /* terminate it */
 	ctlength=strtol((char*)fldp->fld_text+STRLEN(cntlength),(char**)0,10);
 	*chp='\n';			     /* restore the trailing newline */
       }
@@ -614,11 +619,11 @@ startover:
      buffilled=0;    /* moved the contents of buf out of the way temporarily */
      if(areply)		      /* autoreply requested, we clean up the header */
       { for(fldp= *(afldp= &rdheader);fldp;)
-	   if(!(fp2=findf(fldp,&iheader))||fp2->id_len<fp2->tot_len-1)
+	   if(!(fp2=findf(fldp,&iheader))||fp2->id_len<fp2->Tot_len-1)
 	      *afldp=fldp->fld_next,free(fldp),fldp= *afldp;   /* remove all */
 	   else					/* except the ones mentioned */
 	      fldp= *(afldp= &fldp->fld_next);		       /* as -i ...: */
-	loadbuf(to,STRLEN(to));loadchar(' ');	   /* generate the To: field */
+	loadbuf(To,STRLEN(To));loadchar(' ');	   /* generate the To: field */
 	if(namep)	       /* did we find a valid return address at all? */
 	   loadbuf(namep,strlen(namep));	      /* then insert it here */
 	else					    /* or insert our default */
@@ -647,7 +652,7 @@ startover:
       }
      else if(!force&&		       /* are we allowed to add From_ lines? */
 	     (!rdheader||!eqFrom_(rdheader->fld_text))&&   /* is it missing? */
-	     ((fldp=findf(fFrom_,&aheader))&&STRLEN(From_)+1>=fldp->tot_len||
+	     ((fldp=findf(fFrom_,&aheader))&&STRLEN(From_)+1>=fldp->Tot_len||
 	      !wasafrom_&&			    /* if there was no From_ */
 	      !findf(fFrom_,&iheader)&&		   /* and From_ is not being */
 	      !findf(fFrom_,&Iheader)&&				/* supressed */
@@ -668,7 +673,7 @@ startover:
       }
      for(fldp=aheader;fldp;fldp=fldp->fld_next)
 	if(!findf(fldp,&rdheader))	       /* only add what didn't exist */
-	   if(fldp->id_len+1>=fldp->tot_len&&		  /* field name only */
+	   if(fldp->id_len+1>=fldp->Tot_len&&		  /* field name only */
 	      (fldp->id_len==STRLEN(messageid)&&
 	       !strnIcmp(fldp->fld_text,messageid,STRLEN(messageid))||
 	       fldp->id_len==STRLEN(res_messageid)&&
@@ -686,12 +691,12 @@ startover:
 	      free(chp);h4++;					/* put it in */
 	    }
 	   else
-	      addfield(&nheader,fldp->fld_text,fldp->tot_len);
+	      addfield(&nheader,fldp->fld_text,fldp->Tot_len);
      if(logsummary)
       { if(eqFrom_(rdheader->fld_text))
-	   putssn(rdheader->fld_text,rdheader->tot_len);
+	   putssn(rdheader->fld_text,rdheader->Tot_len);
 	if(fldp=findf(fsubject,&rdheader))
-	 { concatenate(fldp);(chp=fldp->fld_text)[i=fldp->tot_len-1]='\0';
+	 { concatenate(fldp);(chp=fldp->fld_text)[i=fldp->Tot_len-1]='\0';
 	   detab(chp);putcs(' ');
 	   putssn(chp,i>=MAXSUBJECTSHOW?MAXSUBJECTSHOW:i);putcs('\n');
 	 }
@@ -815,7 +820,7 @@ putsp:	lputcs(' ');
 	       { lputssn(escap,escaplen);
 		 lputssn(chp,(p=strchr(chp,'\n')+1)-chp);
 	       }
-	      while((chp=p)<(char*)fldp->fld_text+fldp->tot_len);
+	      while((chp=p)<(char*)fldp->fld_text+fldp->Tot_len);
 	      free(fldp);					/* delete it */
 	    }
 	   while(fldp=fp2);		       /* escape all fields we found */

@@ -1,12 +1,12 @@
 /************************************************************************
  *	Routines to deal with the header-field objects in formail	*
  *									*
- *	Copyright (c) 1990-1995, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1996, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: fields.c,v 1.24 1995/03/20 15:30:09 berg Exp $";
+ "$Id: fields.c,v 1.25 1996/12/21 03:28:23 srb Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -40,7 +40,7 @@ struct field**addfield(pointer,text,totlen)struct field**pointer;
   for(pp=pointer;*pp;pp= &(*pp)->fld_next);   /* skip to the end of the list */
   (*pp=p=malloc(FLD_HEADSIZ+totlen))->fld_next=0;idlen=breakfield(text,totlen);
   p->id_len=idlen>0?idlen:pp==&rdheader?0:-idlen;	    /* copy contents */
-  tmemmove(p->fld_text,text,p->tot_len=totlen);
+  tmemmove(p->fld_text,text,p->Tot_len=totlen);
   return pp;
 }
 
@@ -52,7 +52,7 @@ struct field*delfield(pointer)struct field**pointer;
 
 void concatenate(fldp)struct field*const fldp;
 { register char*p;register size_t l;	    /* concatenate a continued field */
-  l=fldp->tot_len;
+  l=fldp->Tot_len;
   if(!eqFrom_(p=fldp->fld_text))	    /* don't concatenate From_ lines */
      while(l--)
 	if(*p++=='\n'&&l)    /* by substituting all newlines except the last */
@@ -63,7 +63,7 @@ static void extractfield(p)register const struct field*p;
 { if(xheader||Xheader)					 /* extracting only? */
    { if(findf(p,&xheader))			   /* extract field contents */
       { char*chp,*echp;
-	echp=(chp=(char*)p->fld_text+p->id_len)+(int)(p->tot_len-p->id_len-1);
+	echp=(chp=(char*)p->fld_text+p->id_len)+(int)(p->Tot_len-p->id_len-1);
 	if(zap)
 	 { chp=skpspace(chp);
 	   while(chp<echp)
@@ -80,7 +80,7 @@ static void extractfield(p)register const struct field*p;
      if(!findf(p,&Xheader))				   /* extract fields */
 	return;
    }
-  lputssn(p->fld_text,p->tot_len);		      /* display it entirely */
+  lputssn(p->fld_text,p->Tot_len);		      /* display it entirely */
 }
 
 void flushfield(pointer)register struct field**pointer;	 /* delete and print */
@@ -91,7 +91,7 @@ void flushfield(pointer)register struct field**pointer;	 /* delete and print */
 
 void dispfield(p)register const struct field*p;
 { for(;p;p=p->fld_next)			     /* print list non-destructively */
-     if(p->id_len+1<p->tot_len)			 /* any contents to display? */
+     if(p->id_len+1<p->Tot_len)			 /* any contents to display? */
 	extractfield(p);
 }
 		    /* try and append one valid field to rdheader from stdin */

@@ -12,14 +12,14 @@
  *									*
  *	Seems to be relatively bug free.				*
  *									*
- *	Copyright (c) 1992-1995, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1992-1996, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.80 1995/11/14 04:27:28 srb Exp $";
+ "$Id: multigram.c,v 1.81 1996/12/21 03:28:32 srb Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1995/11/14 04:27:28 $";
+static /*const*/char rcsdate[]="$Date: 1996/12/21 03:28:32 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -344,7 +344,7 @@ Usage: flist listname[-request]\n\
 	      setuid(pass->pw_uid);
 	    }
 	   else if(!(pass=getpwuid(euid)))
-	    { nlog("Euid");
+	    { nlog("Euid");fprintf(stderr," %d",(int)euid);
 bailout:      elog(" unknown\n");
 	      return EX_NOUSER;
 	    }
@@ -359,7 +359,8 @@ bailout:      elog(" unknown\n");
 		 error||
 		 getuid()!=euid||
 		 getgid()!=pass->pw_gid)
-	       { nlog("Insufficient privileges\n");
+	       { nlog("Insufficient privileges to become");
+		 logqnl(pass->pw_name);
 		 return EX_NOPERM;
 	       }
 	    }
@@ -367,12 +368,12 @@ bailout:      elog(" unknown\n");
 	   if(chdir(chp=pass->pw_dir))
 	      goto nochdir;
 	 }
-	if(*(chp=(char*)targetdir)&&chdir(chp))
-nochdir: { nlog("Couldn't chdir to");logqnl(targetdir);
-	   return EX_NOPERM;
+	if(*targetdir&&chdir(chp=(char*)targetdir))
+nochdir: { nlog("Couldn't chdir to");logqnl(chp);
+	   return EX_NOINPUT;
 	 }
 	if(stat(defdir,&stbuf))
-	 { nlog("Can't find \"");elog(defdir);elog("\" in");logqnl(targetdir);
+	 { nlog("Can't find \"");elog(defdir);elog("\" in");logqnl(chp);
 	   return EX_NOINPUT;
 	 }
 	if(pass->pw_uid!=stbuf.st_uid||pass->pw_gid!=stbuf.st_gid)
@@ -384,7 +385,7 @@ nochdir: { nlog("Couldn't chdir to");logqnl(targetdir);
 	   chp=0;
 	if(!strcmp(arg,chPARDIR)||strpbrk(arg,dirsep))
 	 { nlog("Bogus listname\n");
-	   return EX_NOPERM;
+	   return EX_DATAERR;
 	 }
 	;{ int foundlock;
 	   do
@@ -472,7 +473,10 @@ statd:		    if((size+=stbuf.st_size)>maxsize)	  /* digest too big? */
 	sprintf((char*)(mailfile=lmailfile),tmpmailfile,(long)getpid());
 	qsignal(SIGTERM,sterminate);qsignal(SIGINT,sterminate);
 	qsignal(SIGHUP,sterminate);qsignal(SIGQUIT,sterminate);
-	unlink(mailfile);
+#ifdef SIGCHLD
+	signal(SIGCHLD,SIG_DFL);
+#endif
+	signal(SIGPIPE,SIG_DFL);unlink(mailfile);
 #ifndef O_CREAT
 	if(0>(mailfd=creat(mailfile,NORMperm)))
 #else
@@ -519,8 +523,9 @@ jin:	      while(0>(i=read(STDIN,buf,(size_t)COPYBUF))&&errno==EINTR);
 		    case ')':case '\0':;
 		  }
 	      else					     /* comment line */
-		 switch(i)
-invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
+		 switch(i)		      /* DomainOS compiler chokes on */
+		  { default:	    /* labels between the switch() and the { */
+invaddr:	       nlog("Skipping invalid address entry:");*chp=' ';
 		       logqnl(hardstr.text);
 		    case ')':case '\0':
 		       continue;
@@ -795,11 +800,12 @@ usg:
 	      *echp--='\0';		       /* strip trailing punctuation */
 	   if(echp<chp)
 	      continue;
-	   if(lastfrom<=0&&   /* roughly check if it could be a mail address */
+	   if(*chp=='/'&&chp[1]=='/'||			/* eek, it's an URL! */
+	      lastfrom<=0&&   /* roughly check if it could be a mail address */
 	      !strpbrk(chp,"@/")&&		 /* RFC-822 or X-400 address */
 	      (!strchr(chp,'!')||		   /* UUCP bang path address */
-	       strchr(chp,'|')||
-	       strchr(chp,',')||
+	       strchr(chp,'|')||		  /* impossible in addresses */
+	       strchr(chp,',')||	  /* only in a source routed address */
 	       strstr(chp,".."))&&
 	      !(*chp=='<'&&*echp=='>')&&	  /* RFC-822 machine literal */
 	      !(incomplete&&strchr(chp,'.')))		      /* domain name */

@@ -1,7 +1,7 @@
 		SmartList mailinglist management
 		--------------------------------
 
-	Copyright (c) 1993-1995, Stephen R. van den Berg, The Netherlands.
+	Copyright (c) 1993-1996, Stephen R. van den Berg, The Netherlands.
 				 <srb@cuci.nl>
 
 NOTE: Run "flist -v" to find out more about your installed version of
@@ -22,7 +22,8 @@ Contents:
 		3i.Default help text replies
 		3j.Unsubscribe assistance
 		3k.Exploding other (non-SmartList) lists
-		3l.Schematic overview of what goes on behind the scenes
+		3l.Making the subscriber list public
+		3m.Schematic overview of what goes on behind the scenes
 		4. The archive server
 		4a.Sending files to the archive server
 		4b.Restricting access to the archive server
@@ -31,7 +32,7 @@ Contents:
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.50 1995/11/14 04:27:24 srb Exp $
+$Id: Manual,v 1.51 1996/12/21 03:28:09 srb Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -460,6 +461,15 @@ by uncommenting the appropriate "pass_diverts" variable in rc.custom
 then passed on to the maintainer verbatim).
 
 
+3l.Making the subscriber list public
+   ---------------------------------
+
+If you want anyone to be able to retrieve the list of current subscribers
+to a list, simply make a link from the dist file to archive/subscribers.
+This enables anyone to send in a request to the archive server retrieving
+the file "subscribers".
+
+
 3m.Schematic overview of what goes on behind the scenes
    ----------------------------------------------------
 
@@ -617,11 +627,9 @@ The following conditions apply:
   is not present at all, automatic unsubscriptions to this list are impossible.
 - Whenever multigram automatically removes an address from the list, it
   rewrites the dist file `in situ'.  This means that the dist file will be
-  contracted at that point, any excess slack at the end will be overwritten
-  by newlines (i.e. the dist file never shrinks, this because ANSI-C does not
-  provide a truncate() command of some kind).  I choose to write in situ in
-  order to avoid copying the dist file every time it changes (a real life
-  saver if the list grows too big).
+  contracted at that point.  I choose to write in situ in order to avoid
+  copying the dist file every time it changes (a real life saver if the
+  list grows too big).
 - Multigram always adds new subscribers on the line immediately following the
   last filled entry in the dist file.
 

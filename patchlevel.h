@@ -1,5 +1,5 @@
 #define VERSION "\
-procmail v3.11pre4 1995/10/29 written and created by Stephen R. van den Berg\n\
+procmail v3.11pre5 1996/03/03 written and created by Stephen R. van den Berg\n\
 \t\t\t\t\t\t\t<srb@cuci.nl>\n\
 \n\
 Submit questions/answers to the procmail-related mailinglist by sending to:\n\

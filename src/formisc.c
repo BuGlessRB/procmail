@@ -1,12 +1,12 @@
 /************************************************************************
  *	Miscellaneous routines used by formail				*
  *									*
- *	Copyright (c) 1990-1995, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1996, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.35 1995/10/30 02:09:20 srb Exp $";
+ "$Id: formisc.c,v 1.36 1996/12/21 03:28:25 srb Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -96,7 +96,7 @@ normal:	   *target++= *start++;
 
 void loadsaved(sp)const struct saved*const sp;	     /* load some saved text */
 { switch(*sp->rexp)
-   { default:loadchar(' ');	       /* make sure it has leading whitspace */
+   { default:loadchar(' ');	      /* make sure it has leading whitespace */
      case ' ':case '\t':;
    }
   loadbuf(sp->rexp,sp->rexl);
@@ -140,14 +140,14 @@ void tputssn(a,l)const char*a;size_t l;
 
 void ltputssn(a,l)const char*a;size_t l;
 { if(logsummary)
-     totallen+=l;
+     Totallen+=l;
   else
      putssn(a,l);
 }
 
 void lputcs(i)const int i;
 { if(logsummary)
-     totallen++;
+     Totallen++;
   else
      putcs(i);
 }
@@ -172,15 +172,16 @@ void startprog(argv)const char*Const*const argv;
 	   *chp++='0';
       }
      pipe(poutfd);
-     ;{ int maxchild=(unsigned long)children*CHILD_FACTOR,excode;
+     ;{ int maxchild=childlimit?childlimit:
+	 (unsigned long)children*CHILD_FACTOR,excode;
 	while(children&&waitpid((pid_t)-1,&excode,WNOHANG)>0)
 	   if(!WIFSTOPPED(excode))		      /* collect any zombies */
 	    { children--;
 	      if((excode=WIFEXITED(excode)?
 		  WEXITSTATUS(excode):-WTERMSIG(excode))!=EXIT_SUCCESS)
 		 retval=excode;
-	    }
-	while((child=fork())==-1&&children)	       /* reap some children */
+	    }					       /* reap some children */
+	while(childlimit&&children>=childlimit||(child=fork())==-1&&children)
 	   for(--children;(excode=waitfor((pid_t)0))!=NO_PROCESS;)
 	    { if(excode!=EXIT_SUCCESS)
 		 retval=excode;

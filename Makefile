@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.71 1995/10/30 02:58:33 srb Exp $
+#$Id: Makefile,v 1.72 1996/12/21 03:28:05 srb Exp $
 
 # BASENAME should point to where the whole lot will be installed
 # change BASENAME to your home directory if need be
@@ -75,7 +75,7 @@ LOCKINGTEST=__defaults__
 
 # Optional system libraries we search for
 SEARCHLIBS = -lm -ldir -lx -lsocket -lnet -linet -lnsl_s -lnsl_i -lnsl -lsun \
- -lgen -lsockdns
+ -lgen -lsockdns -ldl
 #			-lresolv	# not really needed, is it?
 
 # Informal list of directories where we look for the libraries in SEARCHLIBS

@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.34 1995/10/30 02:09:11 srb Exp $
+#$Id: createlist,v 1.35 1996/12/21 03:28:11 srb Exp $
 
 defaults=.etc
 
@@ -122,6 +122,9 @@ case "$list" in
      exit $EX_USAGE;;
   "*[/	 ]*") $echo "createlist: Suspicious listname specified" 1>&2
      exit $EX_USAGE;;
+  owner-*|*-owner)
+     $echo "createlist: Listname does not agree with sendmail" 1>&2
+     exit $EX_USAGE;;
   *[@!]*) $echo "createlist: Specify listname without domain name appended" \
      1>&2; exit $EX_USAGE;;
 esac
@@ -184,7 +187,17 @@ set `./$flist -v 2>&1 | $sed -n -e 's/^User: //p' -e 's/^Directory: //p'`
 listuser=$1			# The SmartList user
 listdir=$2			# The SmartList directory
 
-$test $# = 1 && listdir=$HOME
+if $test $# = 1
+then
+  listdir=`$sed -n \
+   -e "s/^$listuser:[^:]*:[^:]*:[^:]*:[^:]*:\([^:]*\):.*/\1/p" <$etcpasswd`
+  if test -z "$listdir"
+  then
+     listdir=$HOME
+  fi
+fi
+
+$test -d "$listdir/$list" || listdir=`$pwd`
 
 flist=$listdir/$flist
 

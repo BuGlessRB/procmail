@@ -1,7 +1,7 @@
 #! /bin/sh
 :
-# Copyright (c) 1993-1995, S.R. van den Berg, The Netherlands
-#$Id: unsubscribe,v 1.30 1995/10/30 02:09:12 srb Exp $
+# Copyright (c) 1993-1996, S.R. van den Berg, The Netherlands
+#$Id: unsubscribe,v 1.31 1996/12/21 03:28:12 srb Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -69,16 +69,16 @@ remtext=`
 $echo "$remtext" | $sed -e '1 s/^ *[0-9]* [^ ]* \(.*\)$/\1/' \
   -e '2 s/^Removed: \(.*\)$/\1/w '$tmpfrom
 
+echo "X$remtext.X" >>$subscribe_log
 if $test ! -z "$subscribe_log"
 then
-  if $expr "X$remtext" : ".*You have been removed" >/dev/null
-  then
-     $echo "unsubscribe: `$echo \"$remtext\" |
-      $sed -e '2,$d'` by: $fromaddr  `$date`"
-  else
-     $echo "unsubscribe: attempt `$multigram -b1 -l0 -x$listreq -x$listaddr \
-      $dist <$tmprequest` by: $fromaddr	 `$date`"
-  fi >>$subscribe_log
+  case "$remtext" in
+     *You\ have\ been\ removed*)
+	$echo "unsubscribe: `$echo \"$remtext\" |
+	 $sed -e '2,$d'` by: $fromaddr	`$date`" ;;
+     *) $echo "unsubscribe: attempt `$multigram -b1 -l0 -x$listreq -x$listaddr \
+	 $dist <$tmprequest` by: $fromaddr	 `$date`" ;;
+  esac >>$subscribe_log
 fi
 
 $echo "$fromaddr" >>$tmpfrom

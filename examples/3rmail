@@ -22,6 +22,6 @@ then
 fi
 trap "rm -f $LOCKFILE $LOCKFILE2;exit 0" 0 1 2 3 13 15
 #
-# Call you favourite mailer here.
+# Call your favourite mailer here.
 #
 /usr/ucb/mail -f $*

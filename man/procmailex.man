@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.47 1995/10/30 02:09:15 srb Exp $
+.Id $Id: procmailex.man,v 1.48 1996/12/21 03:28:18 srb Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -224,7 +224,7 @@ is created automatically:
 .Sx 9
 MONTHFOLDER=`date +%y-%m`
 
-:0 @IGNORE_WRITERR@@CONTINUE@
+:0 @WAIT_EXIT_QUIET@@IGNORE_WRITERR@@CONTINUE@
 * ? test ! \-d $MONTHFOLDER
 | mkdir $MONTHFOLDER
 

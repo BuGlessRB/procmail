@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.71 1995/10/30 02:09:07 srb Exp $*/
+/*$Id: config.h,v 1.72 1996/12/21 03:28:06 srb Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -129,14 +129,16 @@
 To: Multiple recipients of |\
 (((Resent-)?(From|Sender)|X-Envelope-From):|>?From )([^>]*[^(.%@a-z0-9])?(\
 Post(ma?(st(e?r)?|n)|office)|(send)?Mail(er)?|daemon|mmdf|n?uucp|\
-LIST(SERV|proc)|NETSERV|owner|r(e(quest|sponse)|oot)|b(ounce|bs\\.smtp)|echo|\
-mirror|s(erv(ices?|er)|mtp)|A(dmin(istrator)?|MMGR|utoanswer)\
+LIST(SERV|proc)|NETSERV|o(wner|ps)|r(e(quest|sponse)|oot)|b(ounce|bs\\.smtp)|\
+echo|mirror|s(erv(ices?|er)|mtp(error)?|ystem)|\
+A(dmin(istrator)?|MMGR|utoanswer)\
 )(([^).!:a-z0-9][-_a-z0-9]*)?[%@>	 ][^<)]*(\\(.*\\).*)?)?$([^>]|$)))"
 #define FROMMkey	"^FROM_MAILER"	      /* matches most mailer-daemons */
 #define FROMMsubstitute "(^(((Resent-)?(From|Sender)|X-Envelope-From):|\
 >?From )([^>]*[^(.%@a-z0-9])?(\
-Post(ma(st(er)?|n)|office)|(send)?Mail(er)?|daemon|mmdf|n?uucp|\
-r(esponse|oot)|(bbs\\.)?smtp|serv(ices?|er)|A(dmin(istrator)?|MMGR)\
+Post(ma(st(er)?|n)|office)|(send)?Mail(er)?|daemon|mmdf|n?uucp|ops|\
+r(esponse|oot)|(bbs\\.)?smtp(error)?|s(erv(ices?|er)|ystem)|A(dmin(istrator)?|\
+MMGR)\
 )(([^).!:a-z0-9][-_a-z0-9]*)?[%@>	 ][^<)]*(\\(.*\\).*)?)?$([^>]|$))"
 #define DEFshellmetas	"&|<>~;?*["		    /* never put '$' in here */
 #define DEFdefault	"$ORGMAIL"
@@ -287,8 +289,8 @@ r(esponse|oot)|(bbs\\.)?smtp|serv(ices?|er)|A(dmin(istrator)?|MMGR)\
 #define FM_USAGE	"\
 Usage: formail [-bczfrktqY] [-D nnn idcache] [-p prefix] [-l folder]\n\
 \t[-xXaAiIuU field] [-R ofield nfield]\n\
-   Or: formail [+nnn] [-nnn] [-bczfrktnedqBY] [-D nnn idcache] [-p prefix]\n\
-\t[-m nnn] [-l folder] [-xXaAiIuU field] [-R ofield nfield]\n\
+   Or: formail [+nnn] [-nnn] [-bczfrktedqBY] [-D nnn idcache] [-p prefix]\n\
+\t[-n [nnn]] [-m nnn] [-l folder] [-xXaAiIuU field] [-R ofield nfield]\n\
 \t-s [prg [arg ...]]\n"	    /* split up FM_HELP, token too long for some ccs */
 #define FM_HELP		\
  " -b\t\tdon't escape bogus mailbox headers\
@@ -304,7 +306,7 @@ Usage: formail [-bczfrktqY] [-D nnn idcache] [-p prefix] [-l folder]\n\
 \n -s prg arg\tsplit the mail, startup prg for every message\n"
 #define FM_HELP2	\
  " +nnn\t\tskip the first nnn\t-nnn\toutput at most nnn messages\
-\n -n\t\tdon't serialise splits\t-e\tempty lines are optional\
+\n -n [nnn]\tdon't serialise splits\t-e\tempty lines are optional\
 \n -d\t\taccept digest format\t-B\texpect BABYL rmail format\
 \n -q\t\tbe quiet\t\t-p prefix\tquotation prefix\
 \n -m nnn \tmin fields threshold (default 2) for start of message\

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.35 1994/10/18 14:29:47 berg Exp $
+.Id $Id: formail.man,v 1.36 1996/12/21 03:28:16 srb Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -9,7 +9,7 @@ formail \- mail (re)formatter
 .B formail
 .RI [ "\fB\@FM_SKIP@\fPskip" ]
 .RI [ "\fB\@FM_TOTAL@\fPtotal" ]
-.RB [ \-@FM_BOGUS@@FM_CONCATENATE@@FM_ZAPWHITE@@FM_FORCE@@FM_REPLY@@FM_KEEPB@@FM_TRUST@@FM_NOWAIT@@FM_EVERY@@FM_DIGEST@@FM_QUIET@@FM_BABYL@@FM_BERKELEY@ ]
+.RB [ \-@FM_BOGUS@@FM_CONCATENATE@@FM_ZAPWHITE@@FM_FORCE@@FM_REPLY@@FM_KEEPB@@FM_TRUST@@FM_EVERY@@FM_DIGEST@@FM_QUIET@@FM_BABYL@@FM_BERKELEY@ ]
 .RB [ \-@FM_QPREFIX@
 .IR prefix ]
 .if n .ti +0.5i
@@ -40,6 +40,9 @@ formail \- mail (re)formatter
 .I oldfield
 .IR newfield ]
 .if n .ti +0.5i
+.RB [ \-@FM_NOWAIT@
+.RI [ maxprocs
+]]
 .RB [ \-@FM_MINFIELDS@
 .IR minfields ]
 .RB [ \-@FM_SPLIT@
@@ -119,9 +122,12 @@ along to it.  If you omit the program, then formail will simply concatenate the
 splitted mails on stdout again.  See
 .BR @FILENO@ .
 .TP
-.B \-@FM_NOWAIT@
+.I "\fB\-@FM_NOWAIT@\fP [maxprocs]"
 Tell formail not to wait for every program to finish before starting the next
 (causes splits to be processed in parallel).
+.I Maxprocs
+optionally specifies an upper limit on the number of concurrently
+running processes.
 .TP
 .B \-@FM_EVERY@
 Do not require empty lines to be preceding the header of a new message (i.e.
@@ -138,8 +144,8 @@ field.
 Makes formail assume that it is splitting up a BABYL rmail file.
 .TP
 .I "\fB\-@FM_MINFIELDS@\fP minfields"
-Allows you to specify the number of consecutive fields formail needs to find
-before it decides it found the start of a new message, it defaults to
+Allows you to specify the number of consecutive headerfields formail needs to
+find before it decides it found the start of a new message, it defaults to
 @DEFminfields@.
 .TP
 .B \-@FM_QUIET@
@@ -297,7 +303,9 @@ sed \-e '1,/^$/ d'
 .BR sendmail (8),
 .BR procmail (1),
 .BR sed (1),
-.BR sh (1)
+.BR sh (1),
+.BR RFC822 ,
+.B RFC1123
 .hy
 .ad
 .SH DIAGNOSTICS
@@ -351,10 +359,16 @@ it in this case, include \fB\-@FM_ADD_IFNOT@ '@FROM@'\fP.
 If formail is not called as the first program in a pipe and it is told to
 split up the input in several messages, then formail will not terminate until
 the program it receives the input from terminates itself.
+.PP
+If formail is instructed to generate an autoreply mail, it will
+.B never
+put more than one address in the `To:' field.
 .SH MISCELLANEOUS
 Formail is eight-bit clean.
 .PP
-When formail has to determine the sender's address, every RFC 822 conforming
+When formail has to determine the sender's address, every
+.B RFC822
+conforming
 mail address is allowed.  Formail will always strip down the address to
 its minimal form (deleting excessive comments and whitespace).
 .PP

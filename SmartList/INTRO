@@ -1,9 +1,9 @@
-$Id: INTRO,v 1.10 1995/10/30 02:09:08 srb Exp $
+$Id: INTRO,v 1.11 1996/12/21 03:28:08 srb Exp $
 
 			How to set up mailing lists
 			---------------------------
 
-	Copyright (c) 1993-1995, Stephen R. van den Berg, The Netherlands.
+	Copyright (c) 1993-1996, Stephen R. van den Berg, The Netherlands.
 				 <srb@cuci.nl>
 
 This document mainly describes a sendmail environment, much of it applies
@@ -52,6 +52,9 @@ sendmail special alias like:
 owner-mylist: mylist-request@your.domain
 
 This way local mail will bounce back to mylist-request@your.domain.
+
+N.B. Do *not* use the owner alias in conjunction with a SmartList managed
+     list.  It will backfire.
 
 
 3. The disadvantages
@@ -133,7 +136,7 @@ B. All mail headers (including From: and Reply-To:) could very well be
    (in case you want to remove a header, or do some complicated substitution).
 
 C. Another hairy problem will be determining the end of the header, of course
-   that is solvable, but you have to make some extra precautions in your
+   that is solvable, but you have to take some extra precautions in your
    awk script to ensure that any substitutions/changes will not occur in
    the body of the message (further degrading performance and increasing the
    load on your machine).

@@ -1,12 +1,12 @@
 /************************************************************************
  *	Miscellaneous routines used by procmail				*
  *									*
- *	Copyright (c) 1990-1995, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1996, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.72 1995/11/14 04:27:28 srb Exp $";
+ "$Id: misc.c,v 1.73 1996/12/21 03:28:29 srb Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -868,8 +868,7 @@ jinregs:		regsp=regs;		/* start over and look again */
 		     igncase=or_nocase||!flags[DISTINGUISH_CASE];
 		     if(scoreany)
 		      { struct eps*re;
-			re=bregcomp(chp,igncase);
-			chp=lstartchar;
+			re=bregcomp(chp,igncase);chp=lstartchar;
 			if(negate)
 			 { if(weight&&!bregexec(re,(const uchar*)chp,
 			    (const uchar*)chp,(size_t)ltobesent,igncase))

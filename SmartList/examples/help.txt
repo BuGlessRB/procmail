@@ -20,7 +20,8 @@ As in:		To: thelist-request@some.domain
 
 In the event of an address change, it would probably be the wisest to first
 send an unsubscribe for the old address (this can be done from the new
-address), and then a new subscribe to the new address (the order is important).
+address), and then a new subscribe for the new address (the order is
+important).
 
 Most (un)subscription requests are processed automatically without human
 intervention.

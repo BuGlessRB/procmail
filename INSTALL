@@ -30,6 +30,8 @@ Intended configurable options in config.h are:
 	formail.1, procmailrc.5, procmailsc.5, procmailex.5
       - copy these binaries and mailstat to $(BINDIR)
       - copy the man pages to $(MAN1DIR) and $(MAN5DIR)
+      - BEWARE: the installation obeys the current umask setting.  If you
+	want the files to be available to anyone, correct your umask first.
 
 'make deinstall' will:
       - remove the just installed files in $(BINDIR)

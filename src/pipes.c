@@ -1,12 +1,12 @@
 /************************************************************************
  *	Routines related to setting up pipes and filters		*
  *									*
- *	Copyright (c) 1990-1995, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1996, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.41 1995/10/30 02:09:24 srb Exp $";
+ "$Id: pipes.c,v 1.42 1996/12/21 03:28:33 srb Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"

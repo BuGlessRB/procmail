@@ -1,7 +1,7 @@
 #! /bin/sh
 :
-# Copyright (c) 1990-1995, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.107 1995/10/30 02:09:19 srb Exp $
+# Copyright (c) 1990-1996, S.R. van den Berg, The Netherlands
+#$Id: autoconf,v 1.108 1996/12/21 03:28:20 srb Exp $
 
 # All possible entries in autoconf.h:
 
@@ -79,6 +79,7 @@
 #Ok	#define USEflock
 #Ok	#define SYSTEM_MAILBOX "/var/spool/mail/$LOGNAME"
 #Ok	#define SENDMAIL "/usr/sbin/sendmail"
+#	#define buggy_SENDMAIL
 #	#define DEFflagsendmail ""
 #Ok	#define CF_no_procmail_yet
 #Ok	#define defPATH "PATH=$HOME/bin:/bin:/usr/bin:/usr/local/bin"
@@ -898,14 +899,16 @@ main(){int i;i=1;
 HERE
 
 echo 'Testing for WIFEXITED(), WIFSTOPPED(), WEXITSTATUS() & WSIGTERM()'
-if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
+if $MAKE _autotst.$O >_autotst.rrr 2>&1
 then
+   $FGREP -v include/ <_autotst.rrr >_autotst.$O
+   $MV _autotst.$O _autotst.rrr
    grepfor struct '#define WMACROS_NON_POSIX' ||
     grepfor union '#define WMACROS_NON_POSIX'
 else
    echo '#define WMACROS_NON_POSIX' >>$ACONF
 fi
-$RM _autotst.$O
+$RM _autotst.$O _autotst.rrr
 
 cat >_autotst.c <<HERE
 #include "includes.h"
@@ -959,7 +962,7 @@ grepfor opendir "
 grepfor rename '#define NOrename'
 a=no
 grepfor setrgid '#define NOsetrgid' && a=yes
-if grepfor setrgid '#define NOsetegid' || test $a = yes
+if grepfor setegid '#define NOsetegid' || test $a = yes
 then
   grepfor setregid '#define NOsetregid' &&
    grepfor setresgid '#define NOsetresgid'
@@ -1154,9 +1157,9 @@ main(argc,argv)int argc;const char*argv[];
 	      puts("#define TOGGLE_SGID_OK");
 	 }
       }
-     else
-      { gid_t groups[3];unsigned i;
-	for(i=getgroups(3,groups);i--&&groups[i]==getgid(););
+     else			       /* some OSes expect an array of ints? */
+      { gid_t groups[3*2];unsigned i;
+	for(i=getgroups(3,groups);--i<3&&groups[i]==getgid(););
 	if(i<3)
 	 { setegid(groups[i]);
 	   if(!setrgid(groups[i])&&getgid()!=groups[i])
@@ -1326,6 +1329,10 @@ _autotst $a/__ $a/__/__ 4 >>$ACONF
 cat /usr/lib/sendmail.cf /etc/sendmail.cf /etc/mail/sendmail.cf 2>$DEVNULL |
  grep 'Mlocal.*procmail' >$DEVNULL ||
  echo '#define CF_no_procmail_yet' >>$ACONF
+
+cat /usr/lib/sendmail.cf /etc/sendmail.cf /etc/mail/sendmail.cf 2>$DEVNULL |
+ grep '^V' >$DEVNULL ||
+ echo '#define buggy_SENDMAIL' >>$ACONF
 
 lpath='PATH=$HOME/bin:/bin'
 bins="/bin"

@@ -1,12 +1,12 @@
 /************************************************************************
  *	Whatever is needed for (un)locking files in various ways	*
  *									*
- *	Copyright (c) 1990-1995, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1996, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.45 1995/10/30 02:09:21 srb Exp $";
+ "$Id: locking.c,v 1.46 1996/12/21 03:28:27 srb Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -242,7 +242,10 @@ int fdunlock P((void))
   i|=flock(oldfdlock,LOCK_UN);
 #endif
 #ifdef USElockf
-  lseek(oldfdlock,oldlockoffset,SEEK_SET);i|=lockf(oldfdlock,F_ULOCK,(off_t)0);
+  ;{ off_t curp=tell(oldfdlock);	       /* restore the position later */
+     lseek(oldfdlock,oldlockoffset,SEEK_SET);
+     i|=lockf(oldfdlock,F_ULOCK,(off_t)0);lseek(oldfdlock,curp,SEEK_SET);
+   }
 #endif
 #ifndef NOfcntl_lock
   flck.l_type=F_UNLCK;i|=fcntl(oldfdlock,F_SETLK,&flck);

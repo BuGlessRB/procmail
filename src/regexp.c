@@ -3,12 +3,12 @@
  *									*
  *	Seems to be perfect.						*
  *									*
- *	Copyright (c) 1991-1995, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1991-1996, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.58 1995/05/16 19:56:46 berg Exp $";
+ "$Id: regexp.c,v 1.59 1996/12/21 03:28:35 srb Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -174,7 +174,7 @@ static void psimp(e)const struct eps*const e;
 	   goto fine;
 	 }
 	goto fine2;
-     case R_EOL:case R_SOL:		      /* match a newline (in effect) */
+     case R_SOL:			      /* match a newline (in effect) */
 	if(p[1]==R_SOL)
 	 { p++;
 	   if(e)
@@ -182,10 +182,12 @@ static void psimp(e)const struct eps*const e;
 	       goto fine;
 	    }
 	 }
-	else if(e)
-	 { r->opc='\n';
-	   goto fine;
-	 }
+	else
+     case R_EOL:
+	   if(e)
+	    { r->opc='\n';
+	      goto fine;
+	    }
 	goto fine2;
      case R_ESCAPE:					  /* quote something */
 	switch(*++p)
@@ -529,9 +531,9 @@ pcstack_switch:;				   /* this pc-stack is empty */
 		    case OPC_JUMP-OPB:reg=reg->next;
 		       continue;
 		    case OPC_BOM-OPB:
-		       if(eom)			       /* extended behaviour */
-			  goto setmatch;
-foundbom:	       reg=epso(reg,sizeof(union seps));start=(const char*)str;
+		       if(!eom)
+foundbom:		  start=(const char*)str;
+		       reg=epso(reg,sizeof(union seps));
 		       continue;
 		    case OPC_FILL-OPB:		/* nop, nothing points at it */
 		       if(thiss==Ceps&tswitch)
@@ -587,7 +589,6 @@ wrapup:
 checkmatch:
      if(eom)
       { static char match[]=MATCHVAR;char*q;
-setmatch:
 	if(bom<(char*)text)
 	   bom=(const char*)text;
 	if(eom>--pend)

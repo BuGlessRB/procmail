@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.59 1995/10/30 02:09:17 srb Exp $
+.Id $Id: procmailrc.man,v 1.60 1996/12/21 03:28:18 srb Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -144,10 +144,10 @@ This recipe only executes if the immediately preceding recipe
 (i.e. the action line was attempted, but resulted in an error).
 .TP
 .B @PASS_HEAD@
-Feed the header to the pipe (default).
+Feed the header to the pipe, file or mail destination (default).
 .TP
 .B @PASS_BODY@
-Feed the body to the pipe (default).
+Feed the body to the pipe, file or mail destination (default).
 .TP
 .B @FILTER@
 Consider the pipe as a filter.
@@ -160,7 +160,7 @@ of this mail.  This only makes sense on
 recipes.  The only non-delivering recipe this flag has an effect on is
 on a nesting block, in order to generate a carbon copy this will
 .B clone
-the running procmail process (lockfiles will not be inherited), whereas
+the running procmail process (lockfiles will not be inherited), whereby
 the clone will proceed as usual and the parent will jump across the block.
 .TP
 .B @WAIT_EXIT@
@@ -644,6 +644,7 @@ lost.
 .BR aliases (5),
 .BR sendmail (8),
 .BR egrep (1),
+.BR regexp (5),
 .BR grep (1),
 .BR biff (1),
 .BR comsat (8),
@@ -655,7 +656,7 @@ lost.
 The only substitutions of environment variables that can be handled by
 procmail itself are of the type $name, ${name}, ${name:-text}, ${name:+text},
 ${name-text}, ${name+text}, $\ename, $#, $n, $$, $?, $_, $\- and $=;
-whereas $\ename will be substituted by the
+whereby $\ename will be substituted by the
 all-magic-regular-expression-characters-disarmed
 equivalent of $name, $_ by the name of the current rcfile, $\- by
 $LASTFOLDER and $= will contain the score of the last recipe.
@@ -746,6 +747,9 @@ procmail accepts as true every string starting with: a non-zero value, `on',
 .PP
 If the action line of a recipe specifies a program, a sole backslash-newline
 pair in it on an otherwise empty line will be converted into a newline.
+.PP
+The regular expression engine built into procmail does not support named
+character classes.
 .SH NOTES
 Since unquoted leading whitespace is generally ignored in the rcfile you can
 indent everything to taste.
@@ -761,3 +765,7 @@ For
 complicated processing you can even consider calling
 .B procmail
 recursively.
+.PP
+In the old days, the `:0' that marks the beginning of a recipe, had to
+be changed to `:n', whereby `n' denotes the number of conditions that
+follow.
