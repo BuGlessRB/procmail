@@ -15,9 +15,9 @@ void
  freeblock P((memblk*const)),				    /* deallocate it */
  lockblock P((memblk*const));	   /* protect this block from future changes */
 int							  /* by this process */
- resizeblock P((memblk*,const long,const int)); /* change the allocated size */
+ resizeblock P((memblk*const,const long,const int));	  /* change the size */
 char		      /* dynamically grow a block to fit data as it comes in */
- *read2blk P((memblk*,long*const,read_func_type*,cleanup_func_type*,void*));
+ *read2blk P((memblk*const,long*const,read_func_type*,cleanup_func_type*,void*));
 
 #ifdef USE_MMAP
 extern int ISprivate;		     /* is themail a private copy or shared? */
