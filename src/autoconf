@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.131 2001/05/30 21:24:48 guenther Exp $
+#$Id: autoconf,v 1.132 2001/06/07 20:55:33 guenther Exp $
 
 # All possible entries in autoconf.h:
 
@@ -50,9 +50,12 @@
 #	#define NOmkdir
 #	#define NOfstat
 #	#define NOuname
+#	#define NO_exit
 #	#define NOstrtol
 #	#define NOstrtod
+#	#define NOstrerror
 #Ok	#define NOstrncasecmp
+#Ok	#define NOsys_errlist
 #Ok	#define NObzero
 #	#define NOmemset
 #	#define NOwaitpid
@@ -1035,7 +1038,7 @@ int main(){char a[2];
  setrgid(0);setegid(0);setregid(0,0);setresgid(0,0,0);opendir("0");
  initgroups("0",0);strstr("0","0");mkdir("0",0);pow(0.,0.);clock();
  waitpid((pid_t)-1,(int*)0,0);ftruncate(0,0);fsync(0);strtod("0.0",(char**)0);
- strncasecmp("foo","bar",3);bzero(a,2);memset(a,'\0',2);
+ strncasecmp("foo","bar",3);strerror(ENOENT);bzero(a,2);memset(a,'\0',2);
 #ifdef S_ISLNK
  {struct stat stbuf;fstat(0,&stbuf);}
 #endif
@@ -1046,12 +1049,13 @@ int main(){char a[2];
  gethostbyname("0");getprotobyname(COMSATprotocol);endhostent();endservent();
  endprotoent();
 #endif
+ _exit(0);
  return 0;}
 HERE
 
 echo 'Testing for memmove, strchr, strpbrk, strcspn, strtol, strstr,'
 echo '	rename, setrgid, setegid, pow, opendir, mkdir, waitpid, fsync, '
-echo '	ftruncate, strtod, strncasecmp, memset, and bzero'
+echo '	ftruncate, strtod, strncasecmp, strerror, memset, _exit, and bzero'
 if $MAKE _autotst.$O >$DEVNULL 2>&1
 then
 :
@@ -1070,10 +1074,13 @@ $RM _autotst _autotst.$O
 
 # The simple ones
 for func in strcspn strpbrk rename pow mkdir fstat initgroups \
- strtol waitpid ftruncate fsync strtod strncasecmp memset bzero
+ strtol waitpid ftruncate fsync strtod strncasecmp memset _exit bzero
 do
   grepfor $func "#define NO$func"
 done
+
+NOstrerror=no
+grepfor strerror "#define NOstrerror" && NOstrerror=yes
 
 grepfor opendir "
 #define NOopendir	/* the readdir library does not seem to be available
@@ -1108,6 +1115,26 @@ grepfor memmove '#define NOmemmove' &&
 if $FGREP -e bcopy _autotst.rrr >$DEVNULL
 then
  echo '#define NObcopy' >>$ACONF
+
+if test $NOstrerror = yes
+then
+  cat >_autotst.c <<HERE
+#include "includes.h"
+int main(){
+ return puts(sys_errlist[sys_nerr-1]);}
+HERE
+
+  echo 'Testing for sys_errlist'
+  if $MAKE _autotst.$O >_autotst.rrr 2>&1
+  then
+    if $MAKE _autotst >_autotst.rrr 2>&1
+    then
+      echo '' >_autotst.rrr
+    fi
+  fi
+  grepfor sys_errlist '#define NOsys_errlist'
+  $RM _autotst _autotst.$O _autotst.rrr
+fi
 
  echo 'Testing for brain damage'
  cat >_autotst.c <<HERE
