@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: x_command,v 1.17 1994/06/13 16:12:11 berg Exp $
+#$Id: x_command,v 1.18 1994/06/14 14:28:30 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -44,10 +44,10 @@ do
      _subscribe)
 	 $echo "The prospective subscriber address generates the following"
 	 $echo "multigram matches to the current list:"
-	 $echo "From $2" | $multigram -b8 -l-32767 dist`"
+	 $echo "From $2" | $multigram -b8 -l-32767 dist
 	 $echo ""
 	 $echo "From $2 " >$tmprequest
-	 $echo "From: $listreq" >>$tmprequest
+	 $echo "From: request ($listreq)" >>$tmprequest
 	 $echo "Reply-To: $2" >>$tmprequest
 	 $echo "To: $listreq" >>$tmprequest
 	 $echo "Subject: subscribe $2" >>$tmprequest
@@ -58,8 +58,10 @@ do
 	  $echo "X-Diagnostic: Unscreened, not subscribed"
 	 shift ;;
      _unsubscribe)
-	 $echo \
-	  "X-Diagnostic: `$echo \"From $2\" | $multigram -b1 -l-32767 dist`"
+	 $echo "The address that is about to unsubscribed generates the"
+	 $echo "following multigram matches to the current list:"
+	 $echo "From $2" | $multigram -b8 -l-32767 dist
+	 $echo ""
 	 $echo "From $2 " >$tmprequest
 	 $echo "From: $listreq" >>$tmprequest
 	 $echo "Reply-To: $2" >>$tmprequest
@@ -69,9 +71,6 @@ do
 	 $test -z "$subscribe_log" ||
 	  $echo "x_command: unsubscribe" >>$subscribe_log
 	 $unsubscribe <$tmprequest | $SENDMAIL $sendmailOPT `cat $tmpfrom`
-	 $echo "The unsubscribed address generates the following"
-	 $echo "multigram matches to the updated list:"
-	 $echo "From $2" | $multigram -b8 -l-32767 dist`"
 	 shift ;;
      _checkdist)
 	 $echo "Multigram checking the dist file for matches with"
