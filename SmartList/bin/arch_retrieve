@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.45 1994/09/20 19:33:14 berg Exp $
+#$Id: arch_retrieve,v 1.46 1994/09/22 17:44:43 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -12,6 +12,8 @@ cat=cat			# /bin/cat
 egrep=egrep		# /bin/egrep
 nice=nice		# /bin/nice
 date=date		# /bin/date
+touch=touch		# /bin/touch
+chmod=chmod		# /bin/chmod
 mimesend=mimesend	# SedHomeDir/.bin/mimesend
 sleep=sleep		# /bin/sleep
 mimencode=mimencode	# /usr/local/bin/mimencode	# metamail MIME package
@@ -40,12 +42,14 @@ waitsleep=1			# number of seconds to sleep between sending
 tmprequest=tmp.request
 tmpfrom=tmp.from
 
+$chmod u+w tmp.lock		# so that we can touch it
+
 archivetxt=archive.txt		# the helpfile
 archivedir=archive
 
 standalone=$1
 
-from="arch_retrieve:  requesting"
+from="arch_retrieve:  requested"
 $echo "arch_retrieve: processing for `$cat $tmpfrom`  `$date`" >$tmpfrom
 
 case "$X_ENVELOPE_TO" in
