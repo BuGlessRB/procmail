@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.143 1999/04/19 06:42:24 guenther Exp $";
+ "$Id: procmail.c,v 1.144 1999/06/09 07:44:25 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -112,6 +112,9 @@ int main(argc,argv)const char*const argv[];
 		    elog(", flock()");
 #endif
 		    elog("\nDefault rcfile:\t\t");elog(pmrc);
+#ifdef GROUP_PER_USER
+		    elog("\n\tIt may be writable by your primary group");
+#endif
 		    elog("\nYour system mailbox:\t");
 		    elog(auth_mailboxname(auth_finduid(getuid(),0)));
 		    elog(newline);
@@ -900,7 +903,7 @@ jsetlsucc:	 lastsucc=succeed;lasttell= -1;		       /* for comsat */
 	 { char*end=buf+linebuf;
 	   if(!(chp=gobenv(buf,end)))
 	    { if(!*buf)					/* skip a word first */
-		 getbl(buf,buf+linebuf);		      /* then a line */
+		 getbl(buf,end);			      /* then a line */
 	      skipped(buf);				/* display leftovers */
 	      continue;
 	    }
@@ -931,13 +934,14 @@ nomore_rc:
   ;{ int succeed;
      concon('\n');succeed=0;
      if(*(chp=(char*)fdefault))				     /* DEFAULT set? */
-      { int len,tlen;
+      { int len,tlen;mode_t mode;
 	setuid(uid);
 	len=strlen(chp);		   /* make sure we have enough space */
 	if(linebuf<(tlen=len+strlen(lockext)+XTRAlinebuf+UNIQnamelen))
 	   mallocbuffers(linebuf=tlen,1);  /* to perform the lock & delivery */
 	if(strcmp(chp,devnull)&&strcmp(chp,"|")&& /* neither /dev/null nor | */
-	 (strcpy(buf,chp),to_dotlock(foldertype(buf+len))))/* but yet a file */
+	 (tofile=foldertype(strcpy(buf,chp)+len,&mode,0,1),
+	  to_dotlock(tofile)))				   /* but yet a file */
 	 { cat(chp,lockext);
 	   if(!globlock||strcmp(buf,globlock))		  /* already locked? */
 	      lockit(tstrdup(buf),&loclock);		    /* implicit lock */

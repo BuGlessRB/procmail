@@ -1,9 +1,9 @@
-/*$Id: mailfold.h,v 1.18 1999/05/28 06:31:46 guenther Exp $*/
+/*$Id: mailfold.h,v 1.19 1999/06/09 07:44:24 guenther Exp $*/
 
 long
  dump P((const int s,const char*source,long len));
 int
- foldertype P((char*const chp)),
+ foldertype P((char*chp,mode_t*const modep,int forcedir,int allowlinks)),
  writefolder P((char*boxname,char*linkfolder,const char*source,const long len,
   const int ignwerr));
 void
@@ -16,26 +16,22 @@ char
 extern int logopened,tofile,rawnonl;
 extern off_t lasttell;
 
-#define to__LOCK	(1<<2)			   /* fdlock before writing? */
-#define to__DIR		(1<<3)			     /* must exist or mkdir? */
-
+#define to_CANTCREATE	(-2)	/* wrong file type and can't change our mind */
 #define to_TOOLONG	(-1)		    /* path + UNIQnamelen > linebuf? */
 /*#define to_PIPE	0				/* program or stdout */
-#define to_FILE		(to__LOCK)				/* real file */
-#define to_MAILDIR	(to__DIR)			   /* maildir folder */
-#define to_DIR		(to__LOCK)		     /* msg.inode# directory */
-#define to_MH		(to__LOCK|to__DIR)			/* MH folder */
+#define to_MAILDIR	1				   /* maildir folder */
+#define to_FILE		2					/* real file */
+#define to_DIR		3			     /* msg.inode# directory */
+#define to_MH		4					/* MH folder */
 
-#define to_overflow(to)	   ((to)<0)
-#define to_shouldbedir(to) ((to)&to__DIR)
-#define to_lock(to)	   ((to)&to__LOCK)
-#define to_doatime(to)	   ((to)==to_FILE)	      /* force atime < mtime */
+#define to_lock(to)	   ((to)>to_MAILDIR)
+#define to_atime(to)	   ((to)==to_FILE)	      /* force atime < mtime */
 #define to_dotlock(to)	   ((to)==to_FILE)
-#define to_dodelim(to)	   ((to)==to_FILE)
+#define to_delim(to)	   ((to)==to_FILE)
 
 
 #ifdef sMAILBOX_SEPARATOR
-#define smboxseparator(fd)	(to_dodelim(tofile)&&\
+#define smboxseparator(fd)	(to_delim(tofile)&&\
  (part=len,rwrite(fd,sMAILBOX_SEPARATOR,STRLEN(sMAILBOX_SEPARATOR))))
 #define MAILBOX_SEPARATOR
 #else
@@ -43,7 +39,7 @@ extern off_t lasttell;
 #endif /* sMAILBOX_SEPARATOR */
 #ifdef eMAILBOX_SEPARATOR
 #define emboxseparator(fd)	\
- (to_dodelim(tofile)&&rwrite(fd,eMAILBOX_SEPARATOR,STRLEN(eMAILBOX_SEPARATOR)))
+ (to_delim(tofile)&&rwrite(fd,eMAILBOX_SEPARATOR,STRLEN(eMAILBOX_SEPARATOR)))
 #ifndef MAILBOX_SEPARATOR
 #define MAILBOX_SEPARATOR
 #endif

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: acommon.c,v 1.8 1999/04/19 06:48:09 guenther Exp $";
+ "$Id: acommon.c,v 1.9 1999/06/09 07:44:19 guenther Exp $";
 #endif
 #include "includes.h"
 #include "acommon.h"
@@ -19,11 +19,11 @@ const char*hostname P((void))
 #ifndef MAXHOSTNAMELEN
 #define MAXHOSTNAMELEN	64
 #endif
-  static char name[MAXHOSTNAMELEN];
+  static char name[MAXHOSTNAMELEN]="";
   if(!name[0])
      gethostname(name,MAXHOSTNAMELEN),name[MAXHOSTNAMELEN-1]='\0';
 #else
-  static char*name;
+  static char*name=0;
   if(!name)
    { struct utsname names;
      Uname(&names);

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.34 1999/05/28 06:26:56 guenther Exp $";
+ "$Id: exopen.c,v 1.35 1999/06/09 07:44:20 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -28,15 +28,18 @@ int unique(full,p,len,mode,verbos,chownit)char*const full;char*p;
   *(end=len?full+len-1:p+UNIQnamelen-1)='\0';
   cutoff=p+MINnamelen;
   *p=UNIQ_PREFIX;dot=ultoan((long)thepid,p+1);
+  if(serial<4)
+     goto in;
   do
    { if(serial>3)				     /* roll over the count? */
       { time_t t2;
 	while(t==(t2=time((time_t*)0)))		/* make sure time has passed */
 	   ssleep(1);					   /* tap tap tap... */
-	p=ultoan((long)(t=t2),dot+1);
+	serial=0;
+	t=t2;
+in:	p=ultoan((long)t,dot+1);
 	*p++='.';
 	strncpy(p,hostname(),end-p);
-	serial=0;
       }
      *dot=s2c[serial++];
      i=lstat(full,&filebuf);

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.92 1999/06/01 21:46:04 guenther Exp $";
+ "$Id: formail.c,v 1.93 1999/06/09 07:44:21 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/06/01 21:46:04 $";
+static /*const*/char rcsdate[]="$Date: 1999/06/09 07:44:21 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -57,10 +57,10 @@ static const struct {const char*head;int len,wrepl,werepl;}sest[]=
   sslbar(Fromm		,"*******"	,"*"		),
   sslbar(sender		,"******"	,"***"		),
   sslbar(returnpath	,"*****"	,"********"	),
-  sslbar(From_		,"****"		,"*******"	)
+  sslbar(From_		,"****"		,"*******"	),
   sslbar(errorsto	,"***"		,"******"	),
   sslbar(retreceiptto	,"**"		,"*****"	),
-  sslbar(path		,"*"		,"****"		),
+  sslbar(path		,"*"		,"****"		)
 };
 
 static struct saved rex[]=
@@ -371,7 +371,7 @@ int main(lastm,argv)int lastm;const char*const argv[];
 	    { case FM_TRUST:			 /* we always trust them now */
 		 continue;
 	      case FM_ENVELOPE:envelope=1;
-		 continue
+		 continue;
 	      case FM_REPLY:areply=1;
 		 continue;
 	      case FM_FORCE:force=1;
