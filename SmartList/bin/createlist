@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.31 1995/03/20 14:49:54 berg Exp $
+#$Id: createlist,v 1.32 1995/03/20 15:12:27 berg Exp $
 
 defaults=.etc
 
@@ -27,6 +27,7 @@ grep=grep		# /bin/grep
 lockfile=lockfile	# /usr/local/bin/lockfile
 
 bin_procmail=SedBinDir/procmail
+flist=SedBinDir/flist
 
 DEVNULL=/dev/null
 etcpasswd=/etc/passwd
@@ -178,21 +179,14 @@ $echo 1>&2
 $ls -ld $list $list/* $list/*/* 1>&2 2>$DEVNULL
 $echo 1>&2
 
-listuser=`$ls -ld $defaults | ( read a b user d; $echo $user )`
+set `./$flist -v | $sed -n -e 's/^User: //p' -e 's/^Directory: //p'`
 
-TMPF=.uniq.$$
+listuser=$1			# The SmartList user
+listdir=$2			# The SmartList directory
 
-listdir=$HOME
+$test $# = 1 && listdir=$HOME
 
-trap "$rm -f $TMPF" 1 2 3 13 15
-
-$touch $TMPF
-test -f $HOME/$TMPF || listdir=`$pwd`
-
-$rm -f $TMPF
-trap 1 2 3 13 15
-
-flist=$listdir/SedBinDir/flist
+flist=$listdir/$flist
 
 # !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 # WARNING: Do NOT create owner-$list: aliases for SmartList managed lists.
