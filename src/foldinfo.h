@@ -8,11 +8,12 @@
 #define ft_FILE		  3					/* real file */
 #define ft_DIR		  4			     /* msg.inode# directory */
 
-#define ft_lock(type)	   ((type)>ft_MAILDIR)
+#define ft_lock(type)	   ((type)>ft_MAILDIR)		   /* kernel lock fd */
 #define ft_atime(type)	   ((type)==ft_FILE)	      /* force atime < mtime */
-#define ft_dotlock(type)   ((type)==ft_FILE)
-#define ft_delim(type)	   ((type)==ft_FILE)
+#define ft_dotlock(type)   ((type)==ft_FILE)		 /* dotlock $DEFAULT */
+#define ft_delim(type)	   ((type)==ft_FILE)		   /* add MMDF delim */
 #define ft_checkcloser(type) ((type)>ft_MH)
+#define ft_forceblank(type) ((type)!=ft_MAILDIR)  /* force blank line at end */
 
 int
  foldertype Q((int type,int forcedir,mode_t*const modep,

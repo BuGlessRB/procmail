@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.98 2000/11/18 02:43:19 guenther Exp $";
+ "$Id: mailfold.c,v 1.99 2000/12/05 06:34:26 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -113,7 +113,8 @@ jin:	while(part&&(i=rwrite(s,source,BLKSIZ<part?BLKSIZ:(int)part)))
       }
      while(len);
      if(!rawnonl)
-      { if(!len&&(lastdump<2||!(source[-1]=='\n'&&source[-2]=='\n')))
+      { if(!len&&(lastdump<2||!(source[-1]=='\n'&&source[-2]=='\n'))&&
+	 ft_forceblank(type))
 	   lastdump++,rwrite(s,newline,1);     /* message always ends with a */
 	emboxseparator(s);	 /* newline and an optional custom separator */
       }

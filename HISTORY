@@ -562,6 +562,8 @@
 		 have any effect
 	       - Worked around AIX 4.3.3 xlc compiler (incorrect file-scope
 		 variable initialization)
+	       - When delivering to a maildir, don't force the message to end
+		 with an empty line
 	    Changes to autoconf:
 	       - Check for enum support
 	       - Warn people that non-ISO/ANSI C compilers might not be
