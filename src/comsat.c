@@ -9,7 +9,7 @@
 
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: comsat.c,v 1.5 2001/07/03 15:05:47 guenther Exp $";
+ "$Id: comsat.c,v 1.6 2001/09/13 09:16:31 guenther Exp $";
 #endif
 
 #include "procmail.h"
@@ -120,7 +120,7 @@ void sendcomsat(folder)const char*folder;
 { int s;const char*p;
   if(!csvalid||!buf)		  /* is comat on and set to a valid address? */
      return;
-  if(!*cslgname||strlen(cslgname)+2>linebuf)	       /* is $LOGNAME bogus? */
+  if(!cslgname||!*cslgname||strlen(cslgname)+2>linebuf)/* is $LOGNAME bogus? */
      return;
   if(!(p=folder?folder:cslastf))		     /* do we have a folder? */
      return;

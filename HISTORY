@@ -623,3 +623,6 @@
 	    More paranoia: start to use strlcpy()
 	    Generate safe temp and maildir filenames when the hostname
 	       contains / or : by mapping them to \ooo
+2001/09/13: v3.23pre
+	    Changes to procmail:
+	       - Don't coredump in comsat code if interrupted early
