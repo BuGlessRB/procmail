@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.32 1994/02/09 19:11:30 berg Exp $";
+ "$Id: regexp.c,v 1.33 1994/02/11 18:01:09 berg Exp $";
 #endif
 #include "includes.h"
 #include "robust.h"
@@ -177,7 +177,7 @@ static void psimp(e)const struct eps*const e;
      case R_ESCAPE:					  /* quote something */
 	switch(*++p)
 	 { case R_BEG_WORD:case R_END_WORD:
-	    { char*pold=p;
+	    { uchar*pold=p;
 	      p=NO_WORD_CLASS;psimp(e);p=pold+1;return;
 	    }
 	   case '\0':p--;				 /* nothing to quote */

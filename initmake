@@ -1,7 +1,15 @@
 #! /bin/sh
 :
 # Copyright (c) 1992-1994, S.R. van den Berg, The Netherlands
-#$Id: initmake,v 1.48 1994/01/28 11:56:28 berg Exp $
+#$Id: initmake,v 1.49 1994/02/11 18:00:47 berg Exp $
+
+if test -z "$IFS"
+then IFS=" \
+	\
+
+"
+  export IFS
+fi
 
 PATH=.:$PATH
 BSHELL=$1

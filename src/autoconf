@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.77 1994/02/08 16:14:38 berg Exp $
+#$Id: autoconf,v 1.78 1994/02/11 18:01:02 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -74,6 +74,14 @@
 # marked as "Ok" in the autoconf.h file.
 # Anything else indicates failure of your system to comply with either
 # the ANSI or POSIX standards (but procmail should be installable anyway).
+
+if test -z "$IFS"
+then IFS=" \
+	\
+
+"
+  export IFS
+fi
 
 SHELL=$1
 PATH=.:$PATH

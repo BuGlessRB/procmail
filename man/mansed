@@ -1,6 +1,14 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.17 1994/02/08 16:14:16 berg Exp $
+#$Id: mansed,v 1.18 1994/02/11 18:00:54 berg Exp $
+
+if test -z "$IFS"
+then IFS=" \
+	\
+
+"
+  export IFS
+fi
 
 test 5 != $# &&
  echo "Don't start this script directly, use \`make'" && exit 1

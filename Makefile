@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.45 1994/01/19 17:20:17 berg Exp $
+#$Id: Makefile,v 1.46 1994/02/11 18:00:44 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -67,6 +67,7 @@ GCC_WARNINGS = -pedantic -Wimplicit -Wreturn-type -Wunused -Wformat \
 
 # The place to put your favourite extra cc flag
 CFLAGS0 = -O #$(GCC_WARNINGS)
+CFLAGS0 = -O -Aa +w1
 LDFLAGS0= -s
 
 CFLAGS1 = $(CFLAGS0) #-posix -Xp
