@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.49 1999/02/02 06:11:45 guenther Exp $
+.Id $Id: procmailex.man,v 1.50 1999/02/27 07:43:08 guenther Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -146,7 +146,7 @@ be
 :0 @PASS_HEAD@ @CONTINUE@
 * !^FROM_DAEMON
 * !^X-Loop: your@own.mail.address
-| (formail \-@FM_REPLY@ \-@FM_ADD_ALWAYS@"Precedence: junk" \e
+| (formail \-@FM_REPLY@ \-@FM_DEL_INSERT@"Precedence: junk" \e
     \-@FM_ADD_ALWAYS@"X-Loop: your@own.mail.address" ; \e
    echo "Mail received.") | $SENDMAIL \-t
 .Ex
@@ -180,7 +180,7 @@ SHELL=/bin/sh    # for other shells, this might need adjustment
 | formail \-@FM_REPLY@@FM_DUPLICATE@ 8192 vacation.cache
 
   :0 @ERROR_DO@@PASS_HEAD@@CONTINUE@         # if the name was not in the cache
-  | (formail \-@FM_REPLY@@FM_ADD_ALWAYS@"Precedence: junk" \e
+  | (formail \-@FM_REPLY@@FM_DEL_INSERT@"Precedence: junk" \e
        \-@FM_ADD_ALWAYS@"X-Loop: your@own.mail.address" ; \e
      echo "I received your mail,"; \e
      echo "but I won't be back until Monday."; \e
