@@ -17,15 +17,15 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.40 1994/01/11 13:17:37 berg Exp $";
+ "$Id: multigram.c,v 1.41 1994/01/14 18:15:29 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/01/11 13:17:37 $";
+static /*const*/char rcsdate[]="$Date: 1994/01/14 18:15:29 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
 #include "ecommon.h"
 
-#include "targetdir.h"	  /* see ../mailinglist/install.sh2 for more details */
+#include "targetdir.h"	    /* see ../SmartList/install.sh2 for more details */
 
 #define BUFSTEP		16
 #define COPYBUF		16384

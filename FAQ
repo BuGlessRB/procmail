@@ -4,7 +4,7 @@
 
 1. How do I go about setting up a mailinglist or a mail-archive server?
 
-	Look in the mailinglist directory, start reading the INTRO file,
+	Look in the SmartList directory, start reading the INTRO file,
 	it describes it in detail and should get you started.
 
 2. I installed procmail (i.e. typed 'make install'), but how am I supposed to

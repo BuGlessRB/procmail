@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.24 1993/12/23 13:01:50 berg Exp $
+#$Id: Makefile.0,v 1.25 1994/01/14 18:15:26 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O)
@@ -47,7 +47,7 @@ autoconf.h: ../autoconf.h
 
 targetdir.h:
 	echo "You only can/need to make multigram if you are installing"
-	echo "the mailinglist scripts.	Read ../mailinglist/INSTALL for"
+	echo "the mailinglist scripts.	Read ../SmartList/INSTALL for"
 	echo "more directions."
 	exit 64
 
