@@ -1,4 +1,4 @@
-$Id: Manual,v 1.6 1993/03/02 14:40:32 berg Exp $
+$Id: Manual,v 1.7 1993/03/04 15:30:51 berg Exp $
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
@@ -8,6 +8,7 @@ Contents:
 ---------	1. Creating and removing mailinglists or archive servers
 		2. Remote maintenance of mailinglists
 		3. Customisation
+		3a.Digest processing
 		4. The archive server
 		5. The format of the dist file
 		6. Multigram and the thresholds in rc.init/rc.custom
@@ -132,6 +133,48 @@ not older than 17 minutes before delivering the mail.  So, if you create
 an rc.lock file, mails to that (or all) lists will stall for the next
 17 minutes.  If you need more time, touch the file every so often.
 You should remove the rc.lock files again after finishing your editing.
+
+
+3a.Digest processing
+   -----------------
+
+You can configure a list to send out digests of accumulated submissions.
+In order to do so, simply uncomment the appropriate assignment to
+digest_flag in rc.init or rc.custom.  Digests are then sent out
+every so often depending on size and age of the accumulated messages.
+
+The conditions for sending out a digest are checked during the arrival
+of every submission.  If however traffic on the list sometimes is very low
+(i.e. less often than the maximum age of a digest) a digest could be laying
+around for longer than the specified maximum period (3 days by default).
+
+In order to make sure that the digest gets sent out anyway, you should be
+running the .bin/flush_digests program every so often.	The recommended
+procedure is to create a cron job (under the list account) that contains
+something like the following entry:
+
+0 6 * * * /home/list/.bin/flush_digests
+
+This will ensure that at six o'clock in the morning all the overdue digests
+will be sent out.  Beware: call flush_digests with an absolute or relative
+path, do not rely on PATH to find it for you (flush_digests uses $0 to
+find the location of the lists).
+
+If you want to give your subscribers the choice of receiving digests or not.
+This is what you can do:
+
+	Create two lists.  E.g. if your list would be called "thelist", then
+	you have the `real' list called "thelist" (created and used like
+	a regular list) and the `digested' list called "thelist-d".
+
+	In the distfile of thelist you should include thelist-d as one of
+	the subscribers.  In the rc.custom file of thelist-d you should
+	edit the assignment to undigested_list to read
+	"undigested_list =	thelist@$domain".
+
+	After you've done this, you're all set.	 People that want digests
+	simply subscribe to thelist-d and people that don't subscribe to
+	thelist.
 
 
 4. The archive server

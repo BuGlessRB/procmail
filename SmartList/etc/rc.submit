@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.12 1993/03/02 14:41:02 berg Exp $
+#$Id: rc.submit,v 1.13 1993/03/04 15:31:14 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -24,7 +24,7 @@ INCLUDERC=$RC_CUSTOM
 	< $size_limit
 	$!^$X_COMMAND:
 	!^Subject:([	 ]*(archive([	 ]+((send|get)(me)?|gimme|retrieve|\
-	 mail|ls|dir(ectory)?|list|show|help|info)([	 ]|$)|[		]*$)|\
+	 mail|ls|dir(ectory)?|list|show|help|info)([	 ]|$)|[	 ]*$)|\
 	 (help|info)[	 ]*$)|[^:]*( (add .* to|remove .* from|take .* off|\
 	 put .* on) .* list|subscri(be|ption))
 	$!^X-Loop: $listaddr
@@ -32,6 +32,15 @@ INCLUDERC=$RC_CUSTOM
 METOO=	| formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 	    -xResent-Reply-To: -xResent-Sender: -xResent-From: | \
 	   multigram -b1 -m -l$submit_threshold dist
+
+#
+# Check if this is a digested mailinglist.  If yes, processing stops here
+# and the mail will be added to the digest.
+#
+
+	:1A W :tmp.lock
+	$$digest_flag
+	| digest
 
 #
 # Check if we are the first mailinglist to distribute this message, if so

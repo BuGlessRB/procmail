@@ -1,0 +1,89 @@
+#!/bin/sh
+: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+#########################################################################
+#	flush_digests	To send off digests when needed			#
+#									#
+#	You should run it daily by cron (it needs to be started with	#
+#	an absolute path, do not rely on PATH to find it).		#
+#									#
+#	Created by S.R. van den Berg, The Netherlands			#
+#########################################################################
+#$Id: flush_digests,v 1.1 1993/03/04 15:31:02 berg Exp $
+
+test=test		# /bin/test
+mkdir=mkdir		# /bin/mkdir
+sed=sed			# /bin/sed
+cat=cat			# /bin/cat
+rm=rm			# /bin/rm
+echo=echo		# /bin/echo
+dirname=dirname		# /bin/dirname
+lockfile=lockfile	# /usr/local/bin/lockfile
+
+$test $# != 1 -o $# = 1 -a .-c != ".$1" &&
+ $echo "Usage: flush_digests [-c]" 1>&2 && exit 64
+
+tmprequest=tmp.request
+tmpfrom=tmp.from
+
+if $test .-c = "$1"
+then
+  digestheader=archive/latest/digest.header
+  digestadmin=digest.admin
+  digestadmin2=archive/latest/$digestadmin
+  digestbody=archive/latest/digest.body
+  digesttrailer=archive/latest/digest.trailer
+
+  set `cat .digest.params`
+  digest_age=$1; shift
+  digest_size=$1; shift
+  archive_hist=$1; shift
+  SENDMAIL="$*"
+
+  if senddigest $digest_age $digest_size $digestbody $digesttrailer \
+   $tmprequest $tmpfrom $digestheader $digestadmin $digestadmin2
+  then
+     set dummy `$sed -n \
+      -e '1,/^\$/ s/^Subject:.*Digest V\([0-9]*\) #\([0-9]*\)/\1 \2/p' \
+      <$digestheader`
+     Volume=archive/volume$2
+     Issue=$Volume/$3
+     $test -d $Volume || $mkdir $Volume
+     $cat $digestheader >$Issue
+     $echo "" >>$Issue
+     if $test -f $digestadmin -o -f $digestadmin2
+     then
+	$echo Administrivia: >>$Issue
+	$cat $digestadmin $digestadmin2 >>$Issue 2>/dev/null
+	$echo "" >>$Issue
+     fi
+     $cat >>$Issue <<HERE
+----------------------------------------------------------------------
+
+HERE
+     $cat $digestbody $digesttrailer >>$Issue
+     $rm -f $digesttrailer $digestbody $digestadmin $digestadmin2
+     $SENDMAIL <$Issue
+     cd archive
+     $rm -f `$ls -t volume*/* | $sed -e '1,'$archive_hist' d' -e '/[^0-9]/ d' `
+  fi
+
+else
+  a=`$dirname "$0"`/..
+  cd "$a" || $echo "Can't chdir to $a" 1>&2 && exit 67
+  for a in */.digest.params dummy
+  do
+     if $test dummy != "$a"
+     then
+	list=`$dirname $a`
+	export list
+	cd $list
+	$lockfile -l3600 tmp.lock
+	trap "$rm -f tmp.lock; exit 1" 1 2 3 15
+	$cat /dev/null >$tmprequest 2>$tmpfrom
+	PATH=.:../.bin:$PATH ../.bin/flush_digests -c
+	trap "" 1 2 3 15
+	$rm -f tmp.lock
+	cd ..
+     fi
+  done
+fi

@@ -24,6 +24,11 @@ maintainer	=
 ##foreign_submit			# uncomment this line if you
 					# *don't* want to allow
 					# non-subscribers to submit
+#digest_flag	=	<0
+##digest_flag	=	>0		# uncomment this if you want digests
+#digest_age	=	262144		# maximum age of a digest in seconds
+#digest_size	=	32768		# maximum size of a digest in bytes
+undigested_list =	$list@$domain	# Reply-To: address for digests
 
 #X_COMMAND	=	X-Command
 #X_COMMAND_PASSWORD =			# put the password for

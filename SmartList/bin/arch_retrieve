@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.10 1993/03/02 14:40:35 berg Exp $
+#$Id: arch_retrieve,v 1.11 1993/03/04 15:30:57 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -32,7 +32,8 @@ esac
 $formail -k -xSubject: |
  $sed -e '/^--/,$ d' -e 's/^[	 ]*archive[	 ]//' \
   -e 's/[	 ]archive\/*/ /g' |
- ( sendhelp=no
+ ( sendhelp=""
+   ILLEGAL=""
    while read line
    do
       set dummy $line
@@ -44,7 +45,8 @@ $formail -k -xSubject: |
 	    do
 	       $echo $from "$1" >>$tmpfrom
 	       case "$1" in
-		  */../*|../*|*/..|..|[-/]*) ;;
+		  */../*|../*|*/..|..|[-/]*)
+		     $test -z "$ILLEGAL" && ILLEGAL="$1";;
 		  *)
 		   ( $formail -rt -I"Subject: archive retrieval: $1" \
 		      -i"From: $listreq" -A"X-Loop: $listaddr" \
@@ -70,7 +72,8 @@ $formail -k -xSubject: |
 	    do
 	       $echo $from "$1" ls >>$tmpfrom
 	       case "$1" in
-		  */../*|../*|*/..|..|[-/]*) ;;
+		  */../*|../*|*/..|..|[-/]*)
+		     $test -z "$ILLEGAL" && ILLEGAL="$1";;
 		  *)
 		   ( $formail -rt -I"Subject: archive retrieval: ls $1" \
 		      -i"From: $listreq" -A"X-Loop: $listaddr" \
@@ -90,15 +93,18 @@ $formail -k -xSubject: |
 	       esac
 	    done ;;
 	 "") ;;
-	 *) sendhelp=yes ;;
+	 *) $test -z "$sendhelp" && sendhelp="$1" ;;
       esac
    done
-   if $test yes = $sendhelp
+   if $test ! -z "$sendhelp" -o ! -z "$ILLEGAL"
    then
-       ( $formail -rt -I"Subject: archive retrieval: ls $1" \
+       ( $formail -rt -I"Subject: archive retrieval error" \
 	  -i"From: $listreq" -A"X-Loop: $listaddr" -I"Precedence: bulk" \
 	  <$tmprequest
 	 $test ! -z "$wrongaddress" && $echo "$wrongaddress" && wrongaddress=""
+	 $test ! -z "$sendhelp" && $echo "Unknown command $sendhelp."
+	 $test ! -z "$ILLEGAL" && $echo "Illegal filename $ILLEGAL requested."
+	 $echo ""
 	 $echo "This archive server knows the following commands:"
 	 $echo ""
 	 $echo "get filename ..."

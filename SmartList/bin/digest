@@ -1,24 +1,37 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.1 1993/03/02 14:40:41 berg Exp $
+#$Id: digest,v 1.2 1993/03/04 15:31:00 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
 ls=ls			# /bin/ls
-awk=awk			# /bin/awk
+awk=awk			# /usr/bin/awk
 cat=cat			# /bin/cat
+date=date		# /bin/date
 rm=rm			# /bin/rm
+sed=sed			# /bin/sed
+expr=expr		# /bin/expr
 formail=formail		# /usr/local/bin/formail
-lockfile=lockfile	# /usr/local/bin/lockfile
 
 $test -z "$listaddr" &&
- $echo "Don't start this script directly, it is used in rc.request" && exit 64
+ $echo "Don't start this script directly, it is used in rc.submit" && exit 64
+
+test -z "$foreign_submit$METOO" && exit 1
 
 tmprequest=tmp.request
 tmpfrom=tmp.from
 
-$awk \
-'BEGIN					{ lines=0;mode=0; }
+digestheader=archive/latest/digest.header
+digestadmin=digest.admin
+digestadmin2=archive/latest/$digestadmin
+digestbody=archive/latest/digest.body
+digesttrailer=archive/latest/digest.trailer
+
+$echo "$digest_age $digest_size $archive_hist
+$SENDMAIL $sendmailOPT $listdist" >.digest.params
+
+$awk '
+BEGIN					{ lines=0;mode=0; }
 					{ match=0; }
 /^$/					{ match=1; }
 /^[	 ][	 ]*$/			{ match=2; }
@@ -46,6 +59,8 @@ $awk \
 END { print("");print("------------------------------");print(""); }
 ' >$tmprequest
 
+flush_digests -c
+
 Date="`		$formail -X Date:	<$tmpfrom`"
 From="`		$formail -X From:	<$tmpfrom`"
 To="`		$formail -X To:		<$tmpfrom`"
@@ -62,12 +77,49 @@ do
   then
      if $test $a = Subject
      then
-	$echo "Subject:$b" >>digest.body
+	$echo "Subject:$b" >>$digestbody
      else
-	$echo "$b" >>digest.body
+	$echo "$b" >>$digestbody
      fi
   fi
 done
 
-$echo "" >>$digest.body
-$cat $tmprequest >>$digest.body
+$echo "" >>$$digestbody
+$cat $tmprequest >>$$digestbody
+
+if $test ! -f $digesttrailer
+then
+
+  Year=`$date +%y`
+  Issue=0
+
+  if $test -f $digestheader
+  then
+     set dummy `$sed -n \
+      -e '1,/^\$/ s/^Subject:.*Digest V\([0-9]*\) #\([0-9]*\)/\1 \2/p' \
+      <$digestheader`
+     $test $Year = "$2" && Issue=$3
+  fi
+
+  Issue=`$expr 1 + $Issue`
+
+  $cat >$digestheader <<HERE
+From: $listreq
+Reply-To: $undigested_list
+Subject: $list Digest V$Year #$Issue
+X-Loop: $listaddr
+Precedence: list
+To: $listaddr
+
+$list Digest				Volume $Year : Issue $Issue
+
+Today's Topics:
+HERE
+
+  $echo "End of $list Digest V$Year Issue #$Issue" >$digesttrailer
+  b=`$sed -e 's/./*/g' <$digesttrailer`
+  $echo "$b" >>$digesttrailer
+fi
+
+$echo  "	$Subject" >>$digestheader
+$cat /dev/null >$tmprequest 2>$tmpfrom

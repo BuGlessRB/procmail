@@ -15,9 +15,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.22 1993/02/10 17:08:06 berg Exp $";
+ "$Id: multigram.c,v 1.23 1993/03/04 15:31:20 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/02/10 17:08:06 $";
+static /*const*/char rcsdate[]="$Date: 1993/03/04 15:31:20 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -110,8 +110,10 @@ static void elog(a)const char*const a;
 { fputs(a,stderr);
 }
 							/* the program names */
-static const char idhash[]="idhash",flist[]="flist",dirsep[]=DIRSEP;
+static const char idhash[]="idhash",flist[]="flist",senddigest[]="senddigest",
+ dirsep[]=DIRSEP;
 static const char*progname="multigram";
+#define HARDLINKS	4			   /* four distinct programs */
 
 void nlog(a)const char*const a;		    /* log error with identification */
 { elog(progname);elog(": ");elog(a);
@@ -150,10 +152,10 @@ main(minweight,argv)char*argv[];
    { char*chp;
      if(!strcmp(chp=lastdirsep(argv[0]),flist))		 /* suid flist prog? */
       { struct stat stbuf;
-	progname=flist;*chp='\0';	    /* security check, 3 hardlinks!? */
+	progname=flist;*chp='\0';  /* security check, HARDLINKS==hardlinks!? */
 	if(!chdir(argv[0])&&!lstat(flist,&stbuf)&&S_ISREG(stbuf.st_mode)&&
-	 stbuf.st_mode&S_ISUID&&stbuf.st_uid==geteuid()&&stbuf.st_nlink==3&&
-	 !chdir(chPARDIR))
+	 stbuf.st_mode&S_ISUID&&stbuf.st_uid==geteuid()&&
+	 stbuf.st_nlink==HARDLINKS&&!chdir(chPARDIR))
 	 { static const char request[]=REQUEST,xenvlpto[]=XENVELOPETO,
 	    rcrequest[]=RCREQUEST,rcpost[]=RCPOST,list[]=LIST,
 	    *pmexec[]={PROCMAIL,RCSUBMIT,RCINIT,0,0,rcrequest,rcpost,0};
@@ -191,6 +193,30 @@ main(minweight,argv)char*argv[];
 	while(i=fgetc(stdin),!feof(stdin))		       /* hash away! */
 	   hash=hash*67067L+i;
 	printf("%lx",hash);return EX_OK;
+      }
+     if(!strcmp(chp,senddigest))		      /* senddigest program? */
+      { struct stat stbuf;unsigned long size,maxsize;time_t newt;
+	progname=senddigest;
+	if(minweight<5)
+	 { elog(
+	 "Usage: senddigest maxage maxsize bodyfile trailerfile [file] ...\n");
+	   return EX_USAGE;
+	 }
+	if(!stat(argv[3],&stbuf))
+	 { newt=stbuf.st_mtime;size=stbuf.st_size;
+	   if(!stat(argv[minweight=4],&stbuf))
+	    { if(stbuf.st_mtime+strtol(argv[1],(char**)0,10)<newt)
+		 return EX_OK;				   /* digest too old */
+	      maxsize=strtol(argv[2],(char**)0,10);goto statd;
+	      do
+	       { if(!stat(argv[minweight],&stbuf))
+statd:		    if((size+=stbuf.st_size)>maxsize)	  /* digest too big? */
+		       return EX_OK;
+	       }
+	      while(argv[++minweight]);
+	    }
+	 }
+	return 1;
       }
      minweight=SCALE_WEIGHT;best_matches=maxgram=0;
      while((chp= *++argv)&&*chp=='-')

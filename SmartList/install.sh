@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.12 1993/02/11 13:48:36 berg Exp $
+#$Id: install.sh,v 1.13 1993/03/04 15:30:54 berg Exp $
 
 test $# != 1 && echo "Usage: install.sh target-directory" && exit 1
 
@@ -47,8 +47,10 @@ cd ../mailinglist
 cp Manual "$target/.etc"
 mv -f "$target/.bin/procmail" "$target/.bin/.procmail" 2>/dev/null
 chmod 0755 $target/.bin/*
-ln -f "$target/.bin/multigram" "$target/.bin/idhash" 2>/dev/null
-ln -f "$target/.bin/multigram" "$target/.bin/flist" 2>/dev/null
+for a in flist senddigest idhash
+do
+  ln -f "$target/.bin/multigram" "$target/.bin/$a" 2>/dev/null
+done
 chmod 04755 "$target/.bin/flist"
 mv -f "$target/.bin/.procmail" "$target/.bin/procmail" 2>/dev/null
 

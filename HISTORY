@@ -204,3 +204,5 @@
 	    Refined the FROM_DAEMON macro again
 	    Allowed for the archive server of the mailinglists to be installed
 	       standalone
+	    Tuned a few of the mailinglist scripts
+	    The mailinglist scripts now support digested lists

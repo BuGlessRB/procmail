@@ -16,7 +16,7 @@
 #	Created by S.R. van den Berg, The Netherlands		#
 #	This file can be freely copied for any use.		#
 #################################################################
-#$Id: mailstat,v 1.11 1993/01/18 18:17:15 berg Exp $
+#$Id: mailstat,v 1.12 1993/03/04 15:30:46 berg Exp $
 
 #	This shell script expects the following programs to be in the
 #	PATH (paths given here are the standard locations, your mileage
@@ -28,7 +28,7 @@ expr=expr		# /bin/expr
 tty=tty			# /bin/tty
 sed=sed			# /bin/sed
 sort=sort		# /bin/sort
-awk=awk			# /bin/awk
+awk=awk			# /usr/bin/awk
 cat=cat			# /bin/cat
 mv=mv			# /bin/mv
 ls=ls			# /bin/ls
@@ -103,8 +103,9 @@ then
      then
 	if $test -f "$LOGFILE"
 	then
-	   echo No mail arrived since `$expr match "\`$ls -l \"$OLDLOGFILE\"
-	    \`" '.*[0-9] \\([A-Z][a-z][a-z] .. .....\\) [^ ]'`
+	   echo No mail arrived since \
+	    `$expr match "\`LANG= LC_TIME= $ls -l \"$OLDLOGFILE\"
+	    \`" '.*[0-9] \\([A-Z][a-z][a-z] .[^ ] .....\\) [^ ]'`
 	else
 	   echo "Can't find your LOGFILE=$LOGFILE"
 	fi
