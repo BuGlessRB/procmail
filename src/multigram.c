@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.74 1994/10/28 15:03:38 berg Exp $";
+ "$Id: multigram.c,v 1.75 1995/03/20 14:52:09 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/10/28 15:03:38 $";
+static /*const*/char rcsdate[]="$Date: 1995/03/20 14:52:09 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -70,13 +70,31 @@ static remov_delim,maxgram;
 int strnIcmp(a,b,l)const char*a,*b;size_t l;			     /* stub */
 { return strncmp(a,b,l);
 }
+
+static off_t tcoffset;
+static tcguessed;
+
+static void ctellinit P((void))
+{ tcoffset=tcguessed=0;
+}
+
+static off_t ctell(fp)FILE*fp;				  /* caching ftell() */
+{ if(tcguessed==3)			/* three good guesses for confidence */
+     return tcoffset;			       /* eliminated another lseek() */
+  ;{ off_t offset;
+     if((offset=ftell(fp))==tcoffset)
+	tcguessed++;				       /* got this one right */
+     return offset;
+   }
+}
 		    /* read a string from a file into a struct string buffer */
 static size_t readstr(file,p,linewise)FILE*const file;struct string*p;
  const int linewise;
-{ size_t len;int i,firstspc;
+{ size_t tccount,len;int i,firstspc;
   static const char rem1str[]=REMOV1_DELIM,rem2str[]=REMOV2_DELIM;
-  for(len=firstspc=0;;)
-   { switch(i=getc(file))
+  for(ctcount=len=firstspc=0;;)
+   { tccount++;
+     switch(i=getc(file))
       { case ' ':case '\t':case '\n':
 	   if(!len)				  /* only skip leading space */
 	      continue;
@@ -99,7 +117,7 @@ static size_t readstr(file,p,linewise)FILE*const file;struct string*p;
 	   continue;					   /* next character */
 	case EOF:;
       }
-     p->text[len]='\0';			 /* terminate the buffer in any case */
+     tcoffset+=tccount;p->text[len]='\0';    /* terminate buffer in any case */
      if(linewise&&len)
 	for(i=0;!remov_delim&&!i;i=1)
 	   if(!strcmp(p->text+i,rem1str)&&
@@ -155,12 +173,17 @@ static void makelow(str)register char*str;
 	*str+='a'-'A';
 }
 
+static char*findatlast(str)const char*str;
+{ const char*p;
+  while(p=strchr(str,'@'))			   /* find the last '@' sign */
+     str=p+1;
+  return (char*)p;
+}
+
 static void lowcase(str)struct string*const str;	   /* make lowercase */
 { char*p,*q;
-  if(p=strchr(str->text,'@'))
+  if(p=findatlast(str->text))
    { size_t l,l1;
-     while(q=strchr(++p,'@'))			   /* find the last '@' sign */
-	p=q;
      q=malloc((l=strlen(str->text))+1);
      *((char*)tmemmove(q,p,l1=str->text+(int)l-p)+l)='\0';
      tmemmove(q+l1,str->text,l-l1);	    /* swap the sides around the '@' */
@@ -325,8 +348,13 @@ bailout:      elog(" unknown\n");
 	      */
 	    { int error;
 	      setrgid(pass->pw_gid);error=setgid(pass->pw_gid);setruid(euid);
-	      if(setuid(pass->pw_uid)&&error)
-		 nlog("Insufficient privileges\n");
+	      if(setuid(euid)||
+		 error||
+		 getuid()!=euid||
+		 getgid()!=pass->pw_gid)
+	       { nlog("Insufficient privileges\n");
+		 return EX_NOPERM;
+	       }
 	    }
 	   endpwent();
 	   if(chdir(chp=pass->pw_dir))
@@ -399,7 +427,7 @@ nochdir: { nlog("Couldn't chdir to");logqnl(targetdir);
 	   newt=stbuf.st_mtime;size=stbuf.st_size;
 	   if(!stat(argv[argc=4],&stbuf))
 	    { off_t maxsize;
-	      if(stbuf.st_mtime+strtol(argv[1],(char**)0,10)<newt)
+	      if(stbuf.st_mtime+strtol(argv[1],(char**)0,10)-newt<=0)
 		 return EXIT_SUCCESS;			   /* digest too old */
 	      maxsize=strtol(argv[2],(char**)0,10);
 	      goto statd;
@@ -554,7 +582,9 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 	       { int bestval;
 		 cnsize=strlen(*(first=nam=revarr+n))+1+sizeof*nam;cnames=0;
 		 do
-		  { if(first-nam<minnames||rdist[n]<=bestval)
+		  { if(first-nam<minnames||
+		       bestval>=SCALE_WEIGHT/2&&rdist[n]>=SCALE_WEIGHT/2||
+		       rdist[n]<bestval)
 		       bestval=rdist[n],best=nam;
 		    cnames++;
 		  }
@@ -816,10 +846,10 @@ usg:
       }
      for(hfile=0;hfile<argc;)
       { int maxmetric=best[best_matches]->metric;
-	fseek(hardfile=hfiles[hfile++],(off_t)0,SEEK_SET);
+	fseek(hardfile=hfiles[hfile++],(off_t)0,SEEK_SET);ctellinit();
 	for(remov_delim=offs2=linentry=0;
 	 offs1=offs2,readstr(hardfile,&hardstr,1);)
-	 { offs2=ftell(hardfile);linentry++;
+	 { offs2=ctell(hardfile);linentry++;
 	   if(*hardstr.text=='(')
 	      continue;				   /* unsuitable for matches */
 	   lowcase(&hardstr);meter=matchgram(&fuzzstr,&hardstr);

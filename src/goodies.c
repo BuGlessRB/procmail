@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.35 1994/09/13 19:12:50 berg Exp $";
+ "$Id: goodies.c,v 1.36 1995/03/20 14:51:47 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -24,7 +24,8 @@ const char*Tmnate,*All_args;
 
 static const char*evalenv P((void))	/* expects the variable name in buf2 */
 { int j;
-  return (unsigned)(j=(*buf2)-'0')>9?getenv(buf2):
+  return skiprc?(const char*)0:		      /* speed this up when skipping */
+	  (unsigned)(j=(*buf2)-'0')>9?getenv(buf2):
 	  !j?argv0:
 	   j<=crestarg?restargv[j-1]:(const char*)0;
 }
@@ -65,7 +66,8 @@ ready:	   if(got!=SKIPPING_SPACE||sarg)  /* not terminated yet or sarg==2 ? */
 	case '\\':
 	   if(got==SINGLE_QUOTED)
 	      break;
-	   switch(i=fgetc())
+	   i=fgetc();
+Quoted:	   switch(i)
 	    { case EOF:
 		 goto early_eof;			  /* can't quote EOF */
 	      case '\n':
@@ -191,9 +193,10 @@ escaped:      *p++=i;
 	      case '{':						  /* ${name} */
 		 while(EOF!=(i=fgetc())&&alphanum(i))
 		    *startb++=i;
-		 *startb='\0';startb=(char*)evalenv();
+		 *startb='\0';
 		 if(numeric(*buf2)&&buf2[1])
 		    goto badsub;
+		 startb=(char*)evalenv();
 		 switch(i)
 		  { default:
 		       goto badsub;
@@ -240,12 +243,16 @@ ieofstr:	 i='\0';
 	      case '_':startb=incnamed?incnamed->ename:"";
 		 goto ibreak;
 	      case '-':startb=(char*)tgetenv(lastfolder); /* $- =$LASTFOLDER */
-ibreak:		 i='\0';break;
+ibreak:		 i='\0';
+		 break;
 	      default:
+	       { int quoted=0;
 		 if(numeric(i))			   /* $n positional argument */
 		  { *startb++=i;i='\0';
 		    goto finsb;
 		  }
+		 if(i=='\\')
+		    quoted=1,i=fgetc();
 		 if(alphanum(i))				    /* $name */
 		  { do *startb++=i;
 		    while(EOF!=(i=fgetc())&&alphanum(i));
@@ -254,10 +261,21 @@ ibreak:		 i='\0';break;
 finsb:		    *startb='\0';
 		    if(!(startb=(char*)evalenv()))
 		       startb="";
+		    if(quoted)
+		     { char*chp=buf2;
+		       chp=2+strcpy(buf,"()");	/* protect leading character */
+		       for(;*startb;*chp++= *startb++)	 /* regexp specials? */
+			  if(strchr(*startb,"(|)*?+.^$[\\"))
+			     *chp++='\\';	      /* take them literally */
+		       *chp='\0';startb=buf2;
+		     }
 		    break;
 		  }
 normchar:	 *p++='$';
+		 if(quoted)
+		    goto Quoted;		 /* pretend nothing happened */
 		 goto newchar;			       /* not a substitution */
+	       }
 	    }
 	   if(got!=DOUBLE_QUOTED)
 simplsplit: { if(sarg)

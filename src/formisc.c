@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.31 1994/09/20 19:31:56 berg Exp $";
+ "$Id: formisc.c,v 1.32 1995/03/20 14:51:44 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -16,7 +16,7 @@ static /*const*/char rcsid[]=
 #include "ecommon.h"
 #include "formisc.h"
 
-static char*skipcomment(start)char*start;
+static const char*skipcomment(start)const char*start;
 { for(;;)
      switch(*++start)
       { case '\0':start--;
@@ -28,8 +28,8 @@ static char*skipcomment(start)char*start;
 }
 
 char*skipwords(start)char*start;		 /* skips an RFC 822 address */
-{ int delim,hitspc,machref;char*target,*oldstart;
-  hitspc=machref=0;target=oldstart=start;
+{ int delim,hitspc,fat,machref,group;char*target,*oldstart;
+  group=1;hitspc=machref=0;target=oldstart=start;
   if(*start=='<')
      start++,machref=1;
   for(;;)
@@ -44,7 +44,12 @@ char*skipwords(start)char*start;		 /* skips an RFC 822 address */
 	case ' ':case '\t':case '\n':hitspc|=1;	       /* linear white space */
 inc:	   start++;
 	   continue;
-	case ',':case ';':	      /* sendmail extended RFC-822 behaviour */
+	case ';':
+	   if(group==2)
+	      start[1]='\0';			      /* terminate the group */
+	case ',':
+	   if(group==2)
+	      goto special;				/* part of the group */
 	   if(machref)		 /* allow embedded ,; in a machine reference */
 	    { machref=2;
 	      goto special;
@@ -64,7 +69,12 @@ ret:	      return start;
 	      *target++='\\',start++;
 	   hitspc=2;
 	   goto normal;					      /* normal word */
-	case '@':case ':':case '.':
+	case ':':
+	   if(group==1)
+	      group=2;						/* groupies! */
+	case '@':case '.':
+	   if(group==1)
+	      group=0;	   /* you had your chance, and you blew it, no group */
 special:   hitspc=0;
 normal:	   *target++= *start++;
 	   continue;

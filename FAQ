@@ -10,6 +10,28 @@
 2. I installed procmail (i.e. typed 'make install'), but how am I supposed to
    use it?  When I type procmail on the command line it simply does nothing.
 
+	***********************************************************************
+	There exists an excellent newbie FAQ about mailfilters (and procmail
+	in particular), it is being maintained by Nancy McGough <nancym@ii.com>
+	and can be obtained via:
+
+	World Wide Web (the nicest format for online reading!):
+http://www.cis.ohio-state.edu/hypertext/faq/usenet/mail/filtering-faq/faq.html
+
+	Anonymous FTP:
+	ftp://rtfm.mit.edu/pub/usenet/news.answers/mail/filtering-faq
+
+	Email:
+	Send mail to mail-server@rtfm.mit.edu containing the following:
+	    send usenet/news.answers/mail/filtering-faq
+
+	UUCP:
+	uunet!/archive/usenet/news.answers/mail/filtering-faq
+
+	It is also posted monthly in at least the following newsgroups:
+		comp.mail.misc, comp.answers, news.answers
+	***********************************************************************
+
 	You're not supposed to start procmail from the command line.
 	Be sure to have a .forward and a .procmailrc file in your home
 	directory (see the examples subdirectory or the man page).
@@ -71,7 +93,31 @@
 
 	Try compiling that module with optimisation turned off.
 
-7. When I send myself a testmail, the mail bounces with the message: cannot
+7. Everything installed just fine, it's just that there are several stale
+   _locktst processes which refuse to die.  How do I get rid of those?
+
+	In order to prevent things like this from happening to procmail,
+	_locktst tries to determine which kernel locking methods are
+	reliable.  Sometimes this triggers a bug in the kernel or in
+	your system-supplied lockd; this is good, because _locktst detects
+	this and makes sure that procmail will not make the same mistake.
+	A side effect is that this sometimes leaves behind some stale
+	_locktst processes that seem to be unkillable.
+
+	This usually is the result of a buggy lockdaemon.  In order to
+	get rid of the stale processes, ask your system administrator
+	to kill and restart the (rpc.)lockd (and perhaps the (rpc.)statd)
+	on both the filesystem-client (where you compiled procmail) and the
+	filesystem-server(s) (where the lockingtests took place).
+	Depending on the OS it might help if you send the offending
+	_locktst processes a kill signal before or after restarting the
+	lockd again.
+
+	In any case, _locktst just uncovered a bug in your operating system.
+	You should contact your system's vendor and ask for a bugfix for
+	your lockd.
+
+8. When I send myself a testmail, the mail bounces with the message: cannot
    execute binary file.	 What am I doing wrong?
 
 	It is very well possible that mail is processed on a different
@@ -81,7 +127,7 @@
 	get this right you might need to do some .forward file tweaking,
 	look at the examples/advanced file for some suggestions.
 
-8. Where do I look for examples about:
+9. Where do I look for examples about:
 	One home directory, several machine architectures?
 	Procmail as an integrated local mail delivery agent? (generic,
 	 sendmail, ZMailer, smail, SysV mailsurr)
@@ -94,11 +140,11 @@
 	Other examples (e.g. for autoreplies) are most likely to be found by
 	typing:		man procmailex
 
-9. How do I use procmail as a general mail filter inside sendmail?
+10. How do I use procmail as a general mail filter inside sendmail?
 
 	See EXAMPLES section of the procmail(1) man page.
 
-10. Why do I have to insert my login name after the '#' in the .forward or
+11. Why do I have to insert my login name after the '#' in the .forward or
    .maildelivery file?
 
 	Some mailers `optimise' maildelivery and take out duplicates from
@@ -108,7 +154,7 @@
 	it will make the .forward files unique, and will ensure that the mailer
 	doesn't optimise away some addresses.
 
-11. How do I view the man pages?
+12. How do I view the man pages?
 
 	If the man(1) program on your system understands the MANPATH
 	environment variable, make sure that the installation directory listed
@@ -119,14 +165,14 @@
 	them, you can view an individual man file by typing something like:
 	nroff -man procmail.1 | more
 
-12. The leading From_ line on all my arriving mail shows the wrong time.
+13. The leading From_ line on all my arriving mail shows the wrong time.
     Before putting procmail in the .forward file everything was OK.
 
 	This is a known bug in sendmail-5.65c+IDA.  The real fix would be
 	to upgrade to sendmail 6.x or later.  For a quick fix, see the
 	procmailex man page.
 
-13. When sending mail to someone with procmail in his/her .forward I sometimes
+14. When sending mail to someone with procmail in his/her .forward I sometimes
     get back an error saying: "Cannot mail directly to programs."
 
 	This is a known bug in some older sendmails that mistakenly drop
@@ -134,7 +180,7 @@
 	make sure that your sendmail always forwards to a mailserver first or
 	upgrade to sendmail 6.x or later.
 
-14. When sending mail to someone with procmail in his/her .forward I sometimes
+15. When sending mail to someone with procmail in his/her .forward I sometimes
     get back an error saying:
     "User doesn't have a valid shell for mailing to programs."
 
@@ -144,7 +190,7 @@
 	Contact your administrator to put the name of that shell in
 	/etc/shells.
 
-15. My mailtool sometimes reports that it is confused about the state of
+16. My mailtool sometimes reports that it is confused about the state of
     the mailbox, or I get "Couldn't unlock" errors from procmail now and then,
     or sometimes it simply seems to hang just when new mail arrives.
 
@@ -155,7 +201,7 @@
 	the compilation of procmail both the fcntl() and lockf() locking
 	methods are disabled (see config.h).
 
-16. I sometimes get these `Lock failure on "/usr/mail/$LOGNAME.lock"' errors
+17. I sometimes get these `Lock failure on "/usr/mail/$LOGNAME.lock"' errors
     from procmail.  What do I do about it?
 
 	The problem here is that as long as procmail has not read a
@@ -206,7 +252,7 @@
 	  and procmail use an overlapping kernel locking method.
 
 
-17. None of the above topics cover my problem.	Should I panic?
+18. None of the above topics cover my problem.	Should I panic?
 
 	Let me ask you a question :-), have you examined the CAVEATS, WARNINGS,
 	BUGS and NOTES sections of the manual pages *closely* ?

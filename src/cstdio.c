@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.28 1994/10/20 18:14:27 berg Exp $";
+ "$Id: cstdio.c,v 1.29 1995/03/20 14:51:35 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -108,7 +108,7 @@ void ungetb(x)const int x;	/* only for pushing back original characters */
      rcbufp--;							   /* backup */
 }
 
-int testb(x)const int x;	   /* fgetc that only succeeds if it matches */
+int testB(x)const int x;	   /* fgetc that only succeeds if it matches */
 { int i;
   if((i=getb())==x)
      return 1;
@@ -122,9 +122,19 @@ int sgetc P((void))				/* a fake fgetc for a string */
 
 int skipspace P((void))
 { int any=0;
-  while(testb(' ')||testb('\t'))
+  while(testB(' ')||testB('\t'))
      any=1;
   return any;
+}
+
+void skipline P((void))
+{ for(;;)					/* skip the rest of the line */
+     switch(getb())
+      { default:
+	   continue;
+	case '\n':case EOF:
+	   return;
+      }
 }
 
 void getlline(target)char*target;

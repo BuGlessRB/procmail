@@ -298,3 +298,52 @@
 	    Fixed bug in lockfile, the exitcode was not correct if
 	       you used -! (I hope this finally fixes this -! problem)
 	    Using execv() instead of execve()
+1994/11/03: v3.11
+	    Changes to procmail:
+	       - varname ?? < nnn conditions didn't have the expected effect
+	       - Regression bug since v3.06, procmail -m /etc/procmailrcs
+		 didn't allow any arguments to be passed, fixed
+	       - Eliminated a superfluous fork() when processing TRAP
+	       - "lockfile ignored" warning was generated inappropriately at
+		 times
+	       - Renamed testb() into testB() to avoid conflict with Solaris
+	       - Eliminated spurious extra / in default MAILDIR value
+	       - Whole line comments among the conditions are recognised
+	       - Embedded empty lines in a recipe are tolerated
+	       - $\name regexp safe variable expansion
+	       - Delay searching for bogus From_ lines until writeout time
+		 (speeds up filtering and writes to /dev/null)
+	       - Finally fixed this mess with transparent backup to kernel
+		 locking methods when the spool directory is not writable
+	       - Avoid the one second NFS_ATIME_HACK under heavy load
+	       - The 'r' flag had some unwanted side effects at times
+	       - Dotlocks which fail due to permissions are not retried anymore
+	       - Made the USER_TO_LOWERCASE_HACK run-time adaptable
+	       - /usr/spool/mail perm 1777, procmail setgid mail, procmail
+		 could not read .procmailrc files in 700 $HOME dirs, fixed
+	    Changes to formail:
+	       - Slightly extended the number of known header fields
+	       - Eliminated the conflict with the 4.4BSD daemon libidentifier
+	    New Makefile variable VISIBLE_BASE
+	    Added support for a parallelising make
+	    Changed manconf.c to cater for broken systems that have a 100 line
+	       limit for sed (instead of a 100 command limit)
+	    Fixed some portability problems with the Makefiles for the OSF make
+	    Changes to formail:
+	       - In an MMDF environment formail -b didn't behave correctly
+	       - Extracted another function from main() to make it smaller
+	       - Process address groups correctly
+	       - Process From_ lines with embedded commas correctly
+	    Worked around old shells not supporting negated classes
+	    Extended the FAQ
+	    Updated examples/advanced docs for meta-argument setup in
+	       a traditional v5.* sendmail setup
+	    Changes to autoconf:
+	       - Catch NeXTstep 3.2 missing DIR definition
+	       - Detect & work around Ultrix 4.3 "ANSI" C compiler
+	       - A defined DEFsendmail or SYSTEM_MBOX caused some "s to be
+		 omitted in autoconf.h
+	       - Refined preliminary setsid() checks (2.4 x86/sunpro cc
+		 managed to break it)
+	    Fixed potential memory corruption bug for machines that have
+	       sizeof(off_t)>sizeof(off_t*) (has been around for ages)

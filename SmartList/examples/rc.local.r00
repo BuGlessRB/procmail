@@ -1,0 +1,17 @@
+#$Id: rc.local.r00,v 1.1 1995/03/20 14:50:51 berg Exp $
+#
+# This file contains several examples of how you can customise SmartList
+# through the RC_LOCAL_REQUEST_00 hook.
+#
+
+#
+# Allowing X-Command fields to be placed at the start of the body:
+# (Glues the start of the body to the header, pull out the sed manual
+# if you want to understand this one :-).
+#
+
+	:0 Bfw
+	* $^^(^)*$X_COMMAND:
+	| sed -n -e '/^$/ !{p' -e b -e } \
+	   -e :empty -e '/^$/ {n' -e bempty -e } \
+	   -e :copy -e p -e n -e bcopy

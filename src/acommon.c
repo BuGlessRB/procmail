@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: acommon.c,v 1.2 1994/06/28 16:55:56 berg Exp $";
+ "$Id: acommon.c,v 1.3 1995/03/20 14:51:29 berg Exp $";
 #endif
 #include "includes.h"
 #include "acommon.h"
@@ -34,11 +34,11 @@ const char*hostname P((void))
 }
 
 char*ultoan(val,dest)unsigned long val;char*dest;     /* convert to a number */
-{ register i;				     /* within the set [0-9A-Za-z-_] */
+{ register i;				     /* within the set [A-Za-z0-9-_] */
   do
    { i=val&0x3f;			   /* collating sequence dependency! */
-     *dest++=i+(i<10?'0':i<10+26?'A'-10:i<10+26+26?'a'-10-26:
-      i==10+26+26?'-'-10-26-26:'_'-10-26-27);
+     *dest++=i+(i<26?'A':i<26+26?'a'-26:i<26+26+10?'0'-26-26:
+      i==26+26+10?'-'-26-26-10:'_'-26-26-11);
    }
   while(val>>=6);
   *dest='\0';

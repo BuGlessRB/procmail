@@ -53,7 +53,7 @@
 #		conjunction with the RC_LOCAL_* variables which can be set
 #		in rc.init or rc.custom files)
 
-#$Id: rc.init,v 1.42 1994/10/26 19:37:13 berg Exp $
+#$Id: rc.init,v 1.43 1995/03/20 14:50:31 berg Exp $
 
 DELIVERED=yes	# we're in control of the mail now, tell sendmail to go away
 
@@ -213,6 +213,9 @@ cc_requests
 cc_unsubrequests
 #cc_unsubrequests=	yes		# uncomment if you want unsubscribe
 					# requests to be Cc'd to the maintainer
+divertcheck	=	yes
+#divertcheck				# uncomment to disable the check for
+					# misfiled administrative requests
 pass_diverts
 #pass_diverts	=	yes		# uncomment to pass on administrative
 					# requests diverted from the normal

@@ -31,7 +31,7 @@ Contents:
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.45 1994/10/26 19:37:05 berg Exp $
+$Id: Manual,v 1.46 1995/03/20 14:49:41 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -314,7 +314,7 @@ searched in addition to the regular accept file.
 
 Beware that using an accept file is incompatible with having an owner- alias
 for this list (procmail administered lists do not need the owner- alias
-anyway).
+anyway, so if you've never heard of such a thing, ignore this warning).
 
 If, in addition to notifying the maintainer you want an automated reply
 to be generated to the submitter which was not in the accept file, then you
@@ -323,6 +323,12 @@ will (like the contents of the help.txt file) be returned to the submitter.
 
 This feature is not the same as a moderated list, the two features can be
 used accumulatively.
+
+On a related note, SmartList, by default, tries to identify administrative
+requests that got mailed to the submission address instead of the -request
+address and diverts them to the -request address.  If for some reason this
+is undesirable, you can uncomment the appropriate "divertcheck" variable
+assignment in rc.custom to disable this feature.
 
 
 3d.Auto subscription on first submission
@@ -391,6 +397,9 @@ rc.local files.	 Instead of directly specifying a weight and a regexp, you
 can just specify a weight.  You'll then have to make sure that the variable
 is set only when mail from your special daemons arrives.
 
+Beware that if you change this for a list that has a digested shadowlist,
+you change it for the digested version as well.
+
 
 3i.Default help text replies
    -------------------------
@@ -447,7 +456,7 @@ by uncommenting the appropriate "pass_diverts" variable in rc.custom
 then passed on to the maintainer verbatim).
 
 
-3l.Schematic overview of what goes on behind the scenes
+3m.Schematic overview of what goes on behind the scenes
    ----------------------------------------------------
 
 Suppose you have two entries in the aliases file, one for thelist@domain
@@ -721,3 +730,9 @@ you can also write to the procmail mailinglist, send your subscription
 requests to:
 
 		procmail-request@informatik.rwth-aachen.de
+
+There is a readonly announcement list to stay informed about new versions
+and official patches of both procmail & SmartList, send your subscription
+requests to:
+
+		procmail-announce-request@informatik.rwth-aachen.de

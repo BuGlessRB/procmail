@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.109 1994/10/20 18:14:40 berg Exp $";
+ "$Id: procmail.c,v 1.110 1995/03/20 14:52:13 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -325,11 +325,6 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 	if(Deliverymode)
 	   do			  /* chp should point to the first recipient */
 	    { chp2=chp;
-#ifndef NO_USER_TO_LOWERCASE_HACK
-	      for(;*chp;chp++)		  /* kludge recipient into lowercase */
-		 if((unsigned)*chp-'A'<='Z'-'A')
-		    *chp+='a'-'A';	 /* getpwnam might be case sensitive */
-#endif
 	      if(argv[++argc])			  /* more than one recipient */
 		 if(pidchild=sfork())
 		  { if(forkerr(pidchild,procmailn)||
@@ -344,11 +339,17 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 	    }
 	   while(chp=(char*)argv[argc]);
 	gargv=argv+argc;suppmunreadable=verbose; /* save it for nextrcfile() */
-	if(Deliverymode)
+	if(Deliverymode)	/* try recipient without changing case first */
 	 { if(!(pass=getpwnam(chp2)))  /* chp2 should point to the recipient */
-	    { static const char unkuser[]="Unknown user";
-	      nlog(unkuser);logqnl(chp2);syslog(LOG_ERR,slogstr,unkuser,chp2);
-	      return EX_NOUSER;
+	    { for(chp=chp2;*chp;chp++)	  /* kludge recipient into lowercase */
+		 if((unsigned)*chp-'A'<='Z'-'A')
+		    *chp+='a'-'A';	 /* getpwnam might be case sensitive */
+	      if(!(pass=getpwnam(chp2)))			/* try again */
+	       { static const char unkuser[]="Unknown user";
+		 nlog(unkuser);logqnl(chp2);
+		 syslog(LOG_ERR,slogstr,unkuser,chp2);
+		 return EX_NOUSER;		/* we don't handle strangers */
+	       }
 	    }
 	   if(enoughprivs(passinvk,euid,egid,pass->pw_uid,pass->pw_gid))
 	      goto Setuser;
@@ -397,7 +398,7 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 		       stbuf.st_uid!=ROOT_uid&&		    /* owned by root */
 			chown(buf2,ROOT_uid,stbuf.st_gid)||
 		       stbuf.st_mode&(S_IXGRP|S_IXOTH)&&   /* and accessible */
-			chmod(buf2,S_IRWXU)||		    /* to noone else */
+			chmod(buf2,S_IRWXU)||		   /* to no one else */
 #endif
 		       lstat(rcfile,&stbuf)||		/* it seems to exist */
 		       !enoughprivs(passinvk,euid,egid,stbuf.st_uid,
@@ -458,25 +459,20 @@ Setuser: { gid=pass->pw_gid;uid=pass->pw_uid;
      strcpy(chp2=strchr(strcpy(buf,chp=(char*)getenv(orgmail)),'\0'),lockext);
      defdeflock=tstrdup(buf);sgid=egid;accspooldir=3;	/* presumed innocent */
      if(mailfilter||!screenmailbox(chp,chp2,egid,Deliverymode))
-      { sputenv(orgmail);		 /* nix delivering to system mailbox */
+      { rcst_nosgid();sputenv(orgmail);	 /* nix delivering to system mailbox */
 	if(!strcmp(chp,fdefault))			/* DEFAULT the same? */
 	   free((char*)fdefault),fdefault="";			 /* so panic */
       }						/* bad news, be conservative */
      doumask(INIT_UMASK);
-     if(mailfilter!=2)		 /* special, can't be any command line specs */
-	while(chp=(char*)argv[argc])   /* interpret command line specs first */
-	  /*
-	   *	really change the uid now, since it would not be safe to
-	   *	evaluate the extra command line arguments otherwise
-	   */
-	 { setids();argc++;
-	   if(!asenvcpy(chp)&&mailfilter)
-	    { gargv= &nullp;			 /* stop at the first rcfile */
-	      for(restargv=argv+argc;restargv[crestarg];crestarg++);
-	      break;
-	    }
-	   resettmout();
+     while(chp=(char*)argv[argc])      /* interpret command line specs first */
+      { argc++;
+	if(!asenvcpy(chp)&&mailfilter)
+	 { gargv= &nullp;			 /* stop at the first rcfile */
+	   for(restargv=argv+argc;restargv[crestarg];crestarg++);
+	   break;
 	 }
+	resettmout();
+      }
    }
   ;{ int lastsucc,lastcond,prevcond;struct dyna_long ifstack;
      ifstack.filled=ifstack.tspace=0;ifstack.offs=0;
@@ -560,7 +556,8 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 	   */
 	   yell(drcfile,buf);setids();
 	   if(!didchd)			       /* have we done this already? */
-	    { *lastdirsep(pmrc2buf())='\0';
+	    { if((chp=lastdirsep(pmrc2buf()))>buf)	/* not the root dir? */
+		 chp[-1]='\0';		     /* eliminate trailing separator */
 	      if(chdir(chp=buf))      /* no, well, then try an initial chdir */
 	       { chderr(buf);
 		 if(chdir(chp=(char*)tgetenv(home)))
@@ -573,19 +570,12 @@ startrc:   lastsucc=lastcond=prevcond=0;
 	unlock(&loclock);			/* unlock any local lockfile */
 	goto commint;
 	do
-	 { for(;;)				/* skip the rest of the line */
-	    { switch(getb())
-	       { default:
-		    continue;
-		 case '\n':case EOF:;
-	       }
-	      break;
-	    }
+	 { skipline();
 commint:   do skipspace();				  /* skip whitespace */
-	   while(testb('\n'));
+	   while(testB('\n'));
 	 }
-	while(testb('#'));				   /* no comment :-) */
-	if(testb(':'))				       /* check for a recipe */
+	while(testB('#'));				   /* no comment :-) */
+	if(testB(':'))				       /* check for a recipe */
 	 { int locknext,succeed;char*startchar;long tobesent;
 	   static char flags[maxindex(exflags)];
 	   ;{ int nrcond;
@@ -632,12 +622,11 @@ commint:   do skipspace();				  /* skip whitespace */
 	   else if(flags[PASS_BODY])
 	      tobesent-=(startchar=thebody)-themail;
 	   Stdout=0;chp=strchr(strcpy(buf,sendmail),'\0');succeed=sh=0;
-	   rawnonl=flags[RAW_NONL];
 	   pwait=flags[WAIT_EXIT]|flags[WAIT_EXIT_QUIET]<<1;
 	   ignwerr=flags[IGNORE_WRITERR];skipspace();
 	   if(i)
 	      zombiecollect(),concon('\n');
-progrm:	   if(testb('!'))				 /* forward the mail */
+progrm:	   if(testB('!'))				 /* forward the mail */
 	    { if(!i)
 		 skiprc++;
 	      readparse(chp+1,getb,0);
@@ -653,7 +642,7 @@ progrm:	   if(testb('!'))				 /* forward the mail */
 	       }
 	      skiprc--;
 	    }
-	   else if(testb('|'))				    /* pipe the mail */
+	   else if(testB('|'))				    /* pipe the mail */
 	    { getlline(buf2);			 /* get the command to start */
 	      if(i)
 	       { metaparse(buf2);
@@ -685,7 +674,7 @@ forward:	 if(locknext)
 		    if(!pwait)		/* try and protect the user from his */
 		       pwait=2;			   /* blissful ignorance :-) */
 		  }
-		 inittmout(buf);asgnlastf=1;
+		 rawnonl=flags[RAW_NONL];inittmout(buf);asgnlastf=1;
 		 if(flags[FILTER])
 		  { if(startchar==themail&&tobesent!=filled)  /* if only 'h' */
 		     { if(!pipthrough(buf,startchar,tobesent))
@@ -704,7 +693,7 @@ forward:	 if(locknext)
 		 goto setlsucc;
 	       }
 	    }
-	   else if(testb(EOF))
+	   else if(testB(EOF))
 	      nlog("Incomplete recipe\n");
 	   else		   /* dump the mail into a mailbox file or directory */
 	    { int ofiltflag;
@@ -713,7 +702,7 @@ forward:	 if(locknext)
 	      if(chp=gobenv(buf))	   /* can it be an environment name? */
 	       { if(skipspace())
 		    chp++;		   /* keep pace with argument breaks */
-		 if(testb('='))		      /* is it really an assignment? */
+		 if(testB('='))		      /* is it really an assignment? */
 		  { int c;
 		    *chp++='=';*chp='\0';
 		    if(skipspace())
@@ -728,11 +717,11 @@ forward:	 if(locknext)
 		  }
 	       }		 /* find the end, start of a nesting recipe? */
 	      else if((chp=strchr(buf,'\0'))==buf&&
-		      testb('{')&&
-		      (*chp++='{',*chp='\0',testb(' ')||
-		       testb('\t')||
-		       testb('\n')))
-	       { if(locknext)
+		      testB('{')&&
+		      (*chp++='{',*chp='\0',testB(' ')||
+		       testB('\t')||
+		       testB('\n')))
+	       { if(locknext&&!flags[CONTINUE])
 		    nlog(extrns),elog("locallockfile"),elog(ignrd);
 		 app_val(&ifstack,(off_t)prevcond);	    /* push prevcond */
 		 app_val(&ifstack,(off_t)lastcond);	    /* push lastcond */
@@ -780,7 +769,7 @@ forward:	 if(locknext)
 	      if(i)
 	       { if(ofiltflag)	       /* protect who use bogus filter-flags */
 		    startchar=themail,tobesent=filled;	    /* whole message */
-tostdout:	 strcpy(buf2,buf);
+tostdout:	 strcpy(buf2,buf);rawnonl=flags[RAW_NONL];
 		 if(locknext)
 		    lcllock();		     /* write to a file or directory */
 		 inittmout(buf);	  /* to break messed-up kernel locks */
@@ -793,13 +782,14 @@ frmailed:	  { if(ifstack.offs)
 		  }
 setlsucc:	 if(succeed&&flags[CONTINUE]&&lgabstract==2)
 		    logabstract(tgetenv(lastfolder));
+		 rawnonl=0;
 jsetlsucc:	 lastsucc=succeed;lasttell= -1;		       /* for comsat */
 	       }
 	      else
 		 skiprc--;			     /* reenable subprograms */
 	    }
 	 }
-	else if(testb('}'))					/* end block */
+	else if(testB('}'))					/* end block */
 	 { if(ifstack.filled)		      /* restore lastcond from stack */
 	    { lastcond=ifstack.offs[--ifstack.filled];
 	      prevcond=ifstack.offs[--ifstack.filled];	 /* prevcond as well */
@@ -817,7 +807,7 @@ jsetlsucc:	 lastsucc=succeed;lasttell= -1;		       /* for comsat */
 	      continue;
 	    }
 	   skipspace();
-	   if(testb('='))			   /* removal or assignment? */
+	   if(testB('='))			   /* removal or assignment? */
 	      *chp='=',readparse(++chp,getb,1);
 	   else
 	      *++chp='\0';		     /* throw in a second terminator */
@@ -825,7 +815,7 @@ jsetlsucc:	 lastsucc=succeed;lasttell= -1;		       /* for comsat */
 	      chp2=(char*)sputenv(buf),chp[-1]='\0',asenv(chp2);
 	 }
       }						    /* main interpreter loop */
-     while(rc<0||!testb(EOF)||poprc()||wipetcrc());
+     while(rc<0||!testB(EOF)||poprc()||wipetcrc());
 nomore_rc:
      if(ifstack.offs)
 	free(ifstack.offs);
@@ -843,10 +833,12 @@ nomore_rc:
 	   succeed=1;
       }						       /* if all else failed */
      if(!succeed&&*(chp2=(char*)tgetenv(orgmail))&&strcmp(chp2,chp))
+      { rawnonl=0;
 	if(writefolder(chp2,(char*)0,themail,filled,0))	      /* don't panic */
 	   succeed=1;				      /* try the last resort */
+      }
      if(succeed)				     /* should we panic now? */
-mailed: retval=EXIT_SUCCESS;		  /* we're home free, mail delivered */
+mailed: rawnonl=0,retval=EXIT_SUCCESS;	  /* we're home free, mail delivered */
    }
   unlock(&loclock);Terminate();
 }

@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.30 1994/06/07 17:05:28 berg Exp $
+#$Id: createlist,v 1.31 1995/03/20 14:49:54 berg Exp $
 
 defaults=.etc
 
@@ -32,6 +32,13 @@ DEVNULL=/dev/null
 etcpasswd=/etc/passwd
 EX_USAGE=64
 EX_UNAVAILABLE=69
+
+case "$bin_procmail" in
+  SedBinDi[r]*) $echo "Please read the SmartList/INSTALL file first." 1>&2
+     $echo "You need to run install.sh to copy things into place." 1>&2
+     exit $EX_USAGE
+     ;;
+esac
 
 ( exec 2>$DEVNULL; lockfile )
 if $test $? != 64
@@ -118,7 +125,7 @@ case "$list" in
      1>&2; exit $EX_USAGE;;
 esac
 
-if $grep -i -e "^$list:" $etcpasswd >$DEVNULL
+if $grep -i "^$list:" $etcpasswd >$DEVNULL
 then
   $echo "createlist: You can't pick a listname equal to an existing username" \
    1>&2; exit $EX_USAGE
@@ -177,15 +184,24 @@ TMPF=.uniq.$$
 
 listdir=$HOME
 
-trap "$rm -f $TMPF" 1 2 3 15
+trap "$rm -f $TMPF" 1 2 3 13 15
 
 $touch $TMPF
 test -f $HOME/$TMPF || listdir=`$pwd`
 
 $rm -f $TMPF
-trap 1 2 3 15
+trap 1 2 3 13 15
 
 flist=$listdir/SedBinDir/flist
+
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# WARNING: Do NOT create owner-$list: aliases for SmartList managed lists.
+# Doing so will impair the functionality of SmartList.
+#
+# The $list-dist: alias can be omitted if you are using choplist to distribute
+# this list (and have no desire to fall back on regular sendmail :include:
+# expansion).
+#
 
 $echo "Now make the following entries in your /usr/lib/aliases file:" 1>&2
 $echo \########################################################################

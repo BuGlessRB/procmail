@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.49 1995/01/19 18:36:46 berg Exp $
+#$Id: arch_retrieve,v 1.50 1995/03/20 14:49:50 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -85,8 +85,12 @@ $formail -k -xSubject: |
  (  oldwrongaddress="$wrongaddress"
     wrongaddress="WARNING:
 	Please make sure to start the Subject: of requests to the archive-
-	server with the word archive.${wrongaddress:+
-$wrongaddress}"
+	server with the word archive."
+   if $test ! -z "$oldwrongaddress"
+   then
+      wrongaddress="$wrongaddress
+$oldwrongaddress"
+   fi
    sendhelp=""
    ILLEGAL=""
    while read line

@@ -1,4 +1,4 @@
-The following patches can be applied to the .etc/mimencap script to
+The following patches can be applied to the .bin/mimencap script to
 make them generate uuencoded files instead of the usual MIME encodings.
 
 Patch 1 is needed if your recipient can't deal with base64 encodings.

@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh3  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh3		  # we're in a buggy zsh
-#$Id: install.sh3,v 1.44 1994/10/28 15:03:25 berg Exp $
+#$Id: install.sh3,v 1.45 1995/03/20 14:49:46 berg Exp $
 
 umask 022
 
@@ -94,6 +94,9 @@ do
   do
      sed -e "s:SedBinDir:$bindir:g" -e "s:SedHomeDir:$homedir:g" \
       -e "s:SedBinMail:$binmail:g" <"$a/$b" >"$targdir/$b"
+     ( exec >/dev/null 2>&1
+       test -x "$a/$b" -a ! -x "$targdir/$b" && chmod 755 "$targdir/$b"
+     )
   done
 done
 
@@ -184,8 +187,6 @@ cp ../src/multigram "$target/$bindir"
 
 sed -e "s:/home/list/.bin:$target/$bindir:g" <Manual >"$target/.etc/Manual"
 mv -f "$target/$bindir/procmail" "$target/$bindir/.procmail" 2>/dev/null
-chmod 0755 $target/.examples/*
-chmod 0644 $target/.examples/mimencap*
 chmod 0755 $target/$bindir/* 2>/dev/null
 chmod 0644 $target/$bindir/mimencap*
 

@@ -13,7 +13,8 @@ Discusses:
 To install procmail, lockfile and formail: edit Makefile & config.h accordingly
 and type 'make install'.
 Intended configurable options in Makefile are:
-	the install-destinations and the LOCKINGTEST directories.
+	the install-destinations and the LOCKINGTEST directories (you can
+	optionally use something like 'make BASENAME=$HOME install' instead).
 Intended configurable options in config.h are:
 	MMDF support, standard environment presettings, trusted userids.
 
@@ -156,7 +157,8 @@ itself.
 
 Every user that wants to use procmail should have a .forward and a
 .procmailrc file in his HOME directory.	 For starters, you can look
-at the supplied example files in "examples".
+at the supplied example files in "examples" or the NOTES section in
+the procmail(1) man page.
 BTW, be sure to make .forward *world* readable.
 MMDF users should note that they need a .maildelivery file *instead* of the
 .forward file (see the procmail(1) man page for more information).

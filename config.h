@@ -1,7 +1,7 @@
-/*$Id: config.h,v 1.63 1994/10/26 19:36:57 berg Exp $*/
+/*$Id: config.h,v 1.64 1995/03/20 14:49:29 berg Exp $*/
 
-/*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
-/*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
+#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
+#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
 						   if your mail system uses
 	nonstandard mail separators (non sendmail or smail compatible mailers
 	like MMDF), if yours is even different, uncomment and change the
@@ -45,18 +45,14 @@
 #define TRUSTED_IDS	{"root","daemon","uucp","mail","x400","network",\
 			 "list","lists","news",0}
 
-/*#define NO_USER_TO_LOWERCASE_HACK	/* uncomment if your getpwnam() is
-					   case insensitive or if procmail
-	will always be supplied with the correct case in the explicit
-	delivery mode argument(s) */
-
 /*#define NO_fcntl_LOCK		/* uncomment any of these three if you	     */
 /*#define NO_lockf_LOCK		/* definitely do not want procmail to make   */
 /*#define NO_flock_LOCK		/* use of those kernel-locking methods	     */
 
 /*#define NO_NFS_ATIME_HACK	/* uncomment if you're definitely not using
 				   NFS mounted filesystems and can't afford
-	procmail to sleep for 1 sec. before writing a mailbox */
+	procmail to sleep for 1 sec. before writing a regular mailbox
+	(under heavy load procmail automatically suppresses this) */
 
 /*#define SYSTEM_MBOX	"$HOME/.mail"	/* uncomment and/or change if the
 					   preset default mailbox is *not*
@@ -128,13 +124,14 @@
 #define FROMDkey	"^FROM_DAEMON"		     /* matches most daemons */
 #define FROMDsubstitute "(^(Precedence:.*(junk|bulk|list)|\
 (((Resent-)?(From|Sender)|X-Envelope-From):|>?From )(.*[^(.%@a-z0-9])?(\
-Post(ma?(st(e?r)?|n)|office)|(send)?Mail(er)?|daemon|mmdf|root|n?uucp|smtp|\
-response|LISTSERV|owner|request|bounce|serv(ices?|er)|Admin(istrator)?)\
+Post(ma?(st(e?r)?|n)|office)|(send)?Mail(er)?|daemon|mmdf|n?uucp|\
+LIST(SERV|proc)|NETSERV|owner|r(e(quest|sponse)|oot)|bounce|echo|mirror|\
+s(erv(ices?|er)|mtp)|A(dmin(istrator|MMGR|utoanswer))?)\
 ([^).!:a-z0-9].*)?$[^>]))"
 #define FROMMkey	"^FROM_MAILER"	      /* matches most mailer-daemons */
 #define FROMMsubstitute "(^(((Resent-)?(From|Sender)|X-Envelope-From):|\
 >?From )(.*[^(.%@a-z0-9])?(Post(ma(st(er)?|n)|office)|(send)?Mail(er)?|daemon|\
-mmdf|root|n?uucp|smtp|response|serv(ices?|er)|Admin(istrator)?\
+mmdf|n?uucp|r(esponse|oot)|s(erv(ices?|er)|mtp)|A(dmin(istrator|MMGR))?\
 )([^).!:a-z0-9].*)?$[^>])"
 #define DEFshellmetas	"&|<>~;?*["		    /* never put '$' in here */
 #define DEFdefault	"$ORGMAIL"

@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.72 1994/10/31 18:57:21 berg Exp $
+#$Id: rc.request,v 1.73 1995/03/20 14:50:36 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -27,7 +27,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 #
 
 :0
-* < 8192
+* B ?? < 4096
 * $$daemon_bias
 * $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND:)
 * -100^0 ^FROM_DAEMON
@@ -36,11 +36,17 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 
 :0
 * -100^0 ^Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)\>)
+*  100^0 B ?? ^^([	 ]|$)*\
+	((archives?:?($|[	 ]+)|\
+	  ((un)subscribe|(send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|\
+	    list|show|search|[fe]?grep|find|maxfiles|version|help|info)\
+	   ([	 ].*)?$)([	 ]|$)*)+\
+	    ([^	 a-z].*$(.*$(.*$(.*$(.*$)?)?)?)?)?^^
 *  100^0 ^Subject:[	 ]*archive
 *    1^0
 {
   :0 whc
-  | formail -rtz -xTo: >tmp.from
+  | formail -rtzc -xTo: >tmp.from
 
 #
 # Store the whole mail in tmp.request, for later reference.
@@ -71,14 +77,13 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 
   :0 HB w
   * ^^(.+$)*Subject:[	 ]*(([(<]none[>)])?$(.+$)*(^[	 ]*)+)?\
-     (archive:?([	 ]|$)|\
+     (archives?:?([	 ]|$)|\
      ((send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|list|show|\
       search|[fe]?grep|find|maxfiles|version)([	 ]+[^	 ]*)?$)
   {
     :0 W
-    * 1^1 $${restrict_archive:+!}
-    * 2^0 ? formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
-	     -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
+    * 9876543210^0 !restrict_archive ?? y
+    * 2^0 ? formail -rt -R To: "From " -X "From " | \
 	     multigram -b1 -m -l$submit_threshold -L$domain \
 	      -x$listaddr -x$listreq accept accept2
     | arch_retrieve
@@ -95,18 +100,20 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
   * ^^(.+$)*Subject:[	 ]*([(<]none[>)])?(\
      ($(.+$)*(^[	 ]*)+((.+|$)+[,.:;]([	 ]+|$)+)?)?\
       (Could you )?(please )?\
-      (sign( [^ ]+ |-)?off|cancel|leave|delete|remove|(un|de)sub)\>|\
+      (sign( [^ ]+ |-)?off|cancel|leave|delete|remove|(un|de)-?sub)\>|\
      ($(.+$)*$(.*$)*)?(.*[^a-z])?\
-      ((un|de)(sub?)?s(cr|c|r)i|\
+      ((un|de)-?(sub?)?s(cr|c|r)i|\
       (leave|(delete|remove) .* from|(sign|take) .* off) .* [a-z-]*list\>))
    {
-     cc_unsubrequests="${cc_unsubrequests:+$maintainer}"
+     :0 fw:dist.lock
+     * auto_unsubscribe ?? y
+     | unsubscribe
 
-     :0 w:dist.lock
-     * $!${auto_unsubscribe:+!}
-     | unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from` ${cc_unsubrequests}
+	:0 Aw ${cc_unsubrequests:+c}
+	| $SENDMAIL $sendmailOPT `cat tmp.from` ;
 
-     cc_unsubrequests
+	:0 Afhw
+	| formail -A "X-Diagnostic: Processed"
    }
 
 
@@ -149,7 +156,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
      #
 
      :0 E
-     * $!${auto_subscribe:+!}
+     * auto_subscribe ?? y
       {
 	:0 W ${cc_requests:+c}:dist.lock
 	| subscribe
@@ -192,8 +199,8 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 # optional info.txt file.
 #
 
-  :0 EhB w ${cc_requests:+c}
-  * $!${auto_help:+!}
+  :0 EB
+  * auto_help ?? y
   * $!X-Loop: $listaddr
   {
     :0 hw ${cc_requests:+c}
@@ -227,13 +234,13 @@ LOGABSTRACT=yes
   :0 Ah
   * ^Subject: \
      (WARNING: message delayed|\
-      Returned mail: warning: cannot send message for|\
+      (Returned mail: )?warning: cannot send m(essage fo|ail afte)r|\
       Undeliverable (RFC822 )?mail: temporarily unable to deliver|\
       \*\*\* WARNING - Undelivered mail in mailqueue)
   /dev/null
 
   :0 Ah
-  * ^Subject: (Warning from|mail warning|Waiting Mail)
+  * ^Subject: (Warning from|mail warning| ?Waiting Mail)
   * ^(From|Sender):.*(uucp|mmdf)
   /dev/null
 
@@ -309,11 +316,11 @@ INCLUDERC=$RC_LOCAL_REQUEST_30
 #
 
 :0:
-* $${maintainer:+!}
+* !maintainer ?? .
 request
 
 :0 w
-| formail -R"From X-Envelope-From:" -iDate: -iReturn-Receipt-To: \
+| formail -R"From X-From_:" -iDate: -iReturn-Receipt-To: -iRead-Receipt-To: \
    -iAcknowledge-To: | $SENDMAIL $sendmailOPT $sendmailOPTp $maintainer
 
 :0 wfh

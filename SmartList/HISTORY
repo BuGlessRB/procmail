@@ -188,3 +188,35 @@
 	       to noise ratio for typical mail addresses
 	    Mails that did not have a Return-Path: or Reply-To: field were
 	       not replied to correctly (regression bug since v3.06), fixed
+1994/11/03: v3.11
+	    Cc_unsubrequests and cc_requests had some undesirable side-effects
+	    Procbounce reported spurious errors if badly formatted bounces
+	       were received
+	    Make use of the more readable "variable ?? y" wherever feasible
+	    New rc.custom variable "divertcheck"
+	    Flist will now bounce the mail instead of trying anyway if it has
+	       insufficient privileges
+	    Forgot to check the reject list if force_subscribe was used
+	    Changes to the arch_retrieve script:
+	       - Requests to egrep without providing at least one filename
+		 prohibited processing the rest of the commands in the mail
+	       - New command quit or exit to prohibit interpreting the rest
+		 of the mail
+	       - Eliminated the ${:+} construct, old shells complained
+	    Procbounce ignores 0xx SMTP reply codes as well now
+	    Some shells don't grok [!/], worked around this in install.sh
+	    Changed renaming From_ to X-Envelope-From: to X-From_:
+	    Made the default help.txt a bit more explicit
+	    Changes to multigram:
+	       - Eliminated lots of system calls during fuzzy matching
+		 (basically a speedup)
+	    The Solaris 2.3 grep doesn't accept -e options, caused a minor
+	       glitch in createlist
+	    Provide examples/rc.local.r00 sample for X-Command fields in the
+	       body
+	    Mask out Read-Receipt-To field on mails going through
+	    The Approved field on moderated lists was not checked strictly
+	       enough
+	    Handle addresses with embedded newlines
+	    Third party subscriptions didn't send subscribe.files to the new
+	       subscriber

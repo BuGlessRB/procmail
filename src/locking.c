@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.41 1994/08/18 13:44:59 berg Exp $";
+ "$Id: locking.c,v 1.42 1995/03/20 14:51:55 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -68,7 +68,7 @@ void lockit(name,lockp)char*name;char**const lockp;
 #ifdef EDQUOT						      /* NFS failure */
 	case EDQUOT:		      /* maybe it was a short term shortage? */
 #endif
-	case ENOENT:case ENOTDIR:case EIO:case EACCES:
+	case ENOENT:case ENOTDIR:case EIO:/*case EACCES:*/
 	   if(--permanent)
 	      goto ds;
 	   goto faillock;

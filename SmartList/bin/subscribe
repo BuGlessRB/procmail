@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands
-#$Id: subscribe,v 1.31 1994/10/07 17:06:44 berg Exp $
+#$Id: subscribe,v 1.32 1995/03/20 14:50:24 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -82,7 +82,7 @@ $formail -k -xSubject: <$tmprequest |
 
 $multigram -a "$subscraddr$NOT_METOO" dist >/dev/null
 
-sender=`$formail -rtzxTo: <$tmprequest`
+sender=`$formail -rtzcxTo: <$tmprequest`
 
 $test -z "$subscribe_log" ||
  $echo "subscribe: $subscraddr by: $sender  `$date`" >>$subscribe_log
@@ -119,10 +119,11 @@ esac
 
 if $test -f $subscribefiles
 then
-  $formail -X "" -I "Subject: archive" <$tmprequest >$tmpfrom
+  $formail -X "" -i "Reply-To: $subscraddr" -i "Subject: archive" \
+   <$tmprequest >$tmpfrom
   $cat $tmpfrom >$tmprequest
   $echo "" >>$tmprequest
   $cat $subscribefiles >>$tmprequest		# setup fake archive commands
-  $echo $sender >$tmpfrom
+  $echo $subscraddr >$tmpfrom
   exec $arch_retrieve <$tmprequest		# the point of no return
 fi

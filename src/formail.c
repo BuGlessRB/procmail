@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.73 1994/10/31 17:30:23 berg Exp $";
+ "$Id: formail.c,v 1.74 1995/03/20 14:51:41 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/10/31 17:30:23 $";
+static /*const*/char rcsdate[]="$Date: 1995/03/20 14:51:41 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -35,7 +35,7 @@ static const char
  x_[]=			"X-",				/* general extension */
  old_[]=		OLD_PREFIX,			     /* my extension */
  xloop[]=		"X-Loop:",				/* ditto ... */
- daemon[]="<>",unknown[]=UNKNOWN,re[]=" Re:",fmusage[]=FM_USAGE;
+ mdaemon[]="<>",unknown[]=UNKNOWN,re[]=" Re:",fmusage[]=FM_USAGE;
 
 static const struct {const char*hedr;int lnr;}cdigest[]=
 {
@@ -216,8 +216,8 @@ static char*getsender(namep,fldp,trust)char*namep;struct field*fldp;
 	   chp=pastad+1;		      /* skip to the last uucp >From */
 	if(pastad=strchr(chp,' '))			/* found an address? */
 	 { char*savetmp;				      /* lift it out */
-	   savetmp=malloc((j=pastad-chp)+1);tmemmove(savetmp,chp,j);
-	   savetmp[j]='\0';
+	   savetmp=malloc(1+(j=pastad-chp)+1+1);tmemmove(savetmp,chp,j);
+	   savetmp[j]='\0';				   /* make work copy */
 	   if(strchr(savetmp,'@'))			 /* domain attached? */
 	      chp=savetmp,savetmp=tmp,tmp=chp;			/* ok, ready */
 	   else					/* no domain, bang away! :-) */
@@ -244,8 +244,9 @@ static char*getsender(namep,fldp,trust)char*namep;struct field*fldp;
 		 saddr=p1;				/* continue the hunt */
 	       }
 	      strcpy(chp,savetmp);chp=tmp;	     /* attach the user part */
-	    }
-	   free(savetmp);	  /* (temporary buffers might have switched) */
+	    }			  /* (temporary buffers might have switched) */
+	   free(savetmp);savetmp=strchr(tmp,'\0');	      /* prepend '<' */
+	   tmemmove(tmp+1,tmp,savetmp-tmp);*tmp='<';savetmp[1]='\0';
 	 }
       }
      while(*(chp=skpspace(chp))=='\n')
@@ -275,7 +276,7 @@ static char*getsender(namep,fldp,trust)char*namep;struct field*fldp;
 	      goto pnewname;
 	 }
 	else if(sest[i].head==returnpath)		/* nill Return-Path: */
-	 { saddr=(char*)daemon;nowm=maxindex(sest)+2;		 /* override */
+	 { saddr=(char*)mdaemon;nowm=maxindex(sest)+2;		 /* override */
 pnewname:  lastm=nowm;saddr=strcpy(malloc(strlen(saddr)+1),saddr);
 	   if(namep)
 	      free(namep);
@@ -286,6 +287,61 @@ pnewname:  lastm=nowm;saddr=strcpy(malloc(strlen(saddr)+1),saddr);
    }					   /* save headers for later perusal */
   return namep;
 }
+			     /* lifted out of main() to reduce main()'s size */
+static void elimdups(namep,idcache,maxlen,split)const char*const namep;
+ FILE*idcache;const off_t maxlen;const int split;
+{ int dupid=0;char*key;
+  key=namep;
+  if(!areply)
+   { key=0;
+     if(msid->rexl)					/* any Message-ID: ? */
+	(key=msid->rexp)[msid->rexl-1]='\0';
+   }
+  if(key)
+   { off_t insoffs=maxlen;
+     do						/* wipe out trailing newline */
+      { int j;char*p;		  /* start reading & comparing the next word */
+	for(p=key;(j=fgetc(idcache))==*p;p++)
+	   if(!j)					     /* end of word? */
+	    { if(!quiet)
+		 nlog("Duplicate key found:"),elog(key),elog("\n");
+	      dupid=1;
+	      goto dupfound;			     /* YES! duplicate found */
+	    }
+	if(!j)						     /* end of word? */
+	 { if(p==key&&insoffs==maxlen)			 /* first character? */
+	    { insoffs=ftell(idcache)-1;			     /* found end of */
+	      goto skiprest;				  /* circular buffer */
+	    }
+	 }
+	else
+skiprest:	 for(;;)			/* skip the rest of the word */
+	    { switch(fgetc(idcache))
+	       { case EOF:
+		    goto noluck;
+		 default:
+		    continue;
+		 case '\0':;
+	       }
+	      break;
+	    }
+      }
+     while(ftell(idcache)<maxlen);			  /* past our quota? */
+noluck:
+     if(insoffs>=maxlen)				  /* past our quota? */
+	insoffs=0;				     /* start up front again */
+     fseek(idcache,insoffs,SEEK_SET);fwrite(key,1,strlen(key)+1,idcache);
+     putc('\0',idcache);			   /* mark new end of buffer */
+dupfound:
+     fseek(idcache,(off_t)0,SEEK_SET);		 /* rewind, for any next run */
+     if(!areply)
+	key[msid->rexl-1]='\n';			      /* restore the newline */
+   }
+  if(!split)				  /* not splitting?  terminate early */
+     exit(dupid?EXIT_SUCCESS:1);
+  if(dupid)				       /* duplicate? suppress output */
+     closemine(),opensink();
+}
 
 static PROGID;
 
@@ -293,7 +349,7 @@ main(lastm,argv)int lastm;const char*const argv[];
 { int i,split=0,force=0,bogus=1,every=0,trust=0,digest=0,nowait=0,keepb=0,
    minfields=(char*)progid-(char*)progid,conctenate=0,babyl=0,babylstart,
    berkeley=0,forgetclen;
-  off_t maxlen,insoffs,ctlength;FILE*idcache=0;pid_t thepid;
+  off_t maxlen,ctlength;FILE*idcache=0;pid_t thepid;
   size_t j,lnl,escaplen;char*chp,*namep,*escap=ESCAP;
   struct field*fldp,*fp2,**afldp,*fdate,*fcntlength,*fsubject,*fFrom_;
   if(lastm)			       /* sanity check, any argument at all? */
@@ -541,56 +597,7 @@ startover:
 	fldp= *(afldp= &fldp->fld_next);
       }
      if(idcache)
-      { int dupid=0;char*key;
-	key=namep;
-	if(!areply)
-	 { key=0;
-	   if(msid->rexl)				/* any Message-ID: ? */
-	      (key=msid->rexp)[msid->rexl-1]='\0';
-	 }
-	if(key)
-	 { insoffs=maxlen;
-	   do					/* wipe out trailing newline */
-	    { int j;char*p;	  /* start reading & comparing the next word */
-	      for(p=key;(j=fgetc(idcache))==*p;p++)
-		 if(!j)					     /* end of word? */
-		  { if(!quiet)
-		       nlog("Duplicate key found:"),elog(key),elog("\n");
-		    dupid=1;
-		    goto dupfound;		     /* YES! duplicate found */
-		  }
-	      if(!j)					     /* end of word? */
-	       { if(p==key&&insoffs==maxlen)		 /* first character? */
-		  { insoffs=ftell(idcache)-1;		     /* found end of */
-		    goto skiprest;			  /* circular buffer */
-		  }
-	       }
-	      else
-skiprest:	 for(;;)			/* skip the rest of the word */
-		  { switch(fgetc(idcache))
-		     { case EOF:
-			  goto noluck;
-		       default:
-			  continue;
-		       case '\0':;
-		     }
-		    break;
-		  }
-	    }
-	   while(ftell(idcache)<maxlen);		  /* past our quota? */
-noluck:	   if(insoffs>=maxlen)				  /* past our quota? */
-	      insoffs=0;			     /* start up front again */
-	   fseek(idcache,insoffs,SEEK_SET);fwrite(key,1,strlen(key)+1,idcache);
-	   putc('\0',idcache);			   /* mark new end of buffer */
-dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
-	   if(!areply)
-	      key[msid->rexl-1]='\n';		      /* restore the newline */
-	 }
-	if(!split)			  /* not splitting?  terminate early */
-	   return dupid?EXIT_SUCCESS:1;
-	if(dupid)			       /* duplicate? suppress output */
-	   closemine(),opensink();
-      }
+	elimdups(namep,idcache,maxlen,split);
      ctlength=0;
      if(!forgetclen&&(fldp=findf(fcntlength,&rdheader)))
       { *(chp=(char*)fldp->fld_text+fldp->tot_len-1)='\0';   /* terminate it */
@@ -779,10 +786,14 @@ splitit:       { if(!lnl)   /* did the previous mail end with an empty line? */
 	      goto splitit;
 	   break;
 	 }
-	else if(bogus)
+#ifdef eMAILBOX_SEPARATOR
+	if(buflast==EOF)
+	   break;
+#endif
+	if(bogus)
 	   goto putsp;				   /* escape it with a space */
       }
-     else if(!strncmp(smboxsep,buf,STRLEN(smboxsep)&&bogus))
+     else if(!strncmp(smboxsep,buf,STRLEN(smboxsep))&&bogus)
 putsp:	lputcs(' ');
 #endif /* MAILBOX_SEPARATOR */
      lnl=buffilled==1;		      /* check if we just read an empty line */

@@ -9,7 +9,7 @@
 #	This file is *not* automatically replaced during an upgrade of	#
 #	SmartList.							#
 #########################################################################
-#$Id: mimencap.local,v 1.15 1994/08/12 17:33:35 berg Exp $
+#$Id: mimencap.local,v 1.16 1995/03/20 14:50:49 berg Exp $
 
 # What we have at our disposal are:
 #
@@ -150,6 +150,10 @@
 * ^Content-ID: <"[^"]*\.g?z"%
 | $formail -fb -I "Content-Type: application/x-gzip"
 
+:0 E wfh
+* ^Content-ID: <"[^"]*\.el"%
+| $formail -fb -I "Content-Type: application/x-emacs"
+
 :0 EB wfh
 * ^^[^-ÿ][^-ÿ]³Y
 | $formail -fb -I "Content-Type: video/mpeg"
@@ -170,7 +174,7 @@
 * ^^(From .+$(>From .+$)*)?\
   [-_a-z0-9]+:.*$([	 ].*$)*\
   ([-_a-z0-9]+:.*$([	 ].*$)*)+$
-| $formail -fb -I "Content-Type: message/rfc822"
+| $formail -fb -R "From " X-From_: -I "Content-Type: message/rfc822"
 
 #
 # Simply drop off the end, to proceed with default processing.

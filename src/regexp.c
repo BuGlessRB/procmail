@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.53 1994/10/18 14:30:27 berg Exp $";
+ "$Id: regexp.c,v 1.54 1995/03/20 14:52:17 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -440,9 +440,11 @@ char*bregexec(code,text,str,len,ign_case)struct eps*code;
   static struct eps sempty={OPC_SEMPTY,&sempty};
   static const struct jump nop={OPC_FILL};
   sempty.spawn= &sempty;			      /* static initialisers */
-  ign_case=!!ign_case;eom=0;stack= &sempty;initcode=code;
+  ign_case=ign_case?~(unsigned)0:0;eom=0;stack= &sempty;initcode=code;
   th1=ioffsetof(struct chclass,pos1);ot1=ioffsetof(struct chclass,pos2);
   other=Ceps&tswitch;pend=(const char*)str+len+1;	     /* two past end */
+  if(initcode->opc==OPC_BOTEXT)
+     PC(initcode,ot1)=other,PCp(other=initcode,ot1)=pend,initcode=Ceps&nop;
   if(str--==text||*str=='\n')
      goto begofline;	      /* make sure any beginning-of-line-hooks catch */
   if(!len)
@@ -453,11 +455,10 @@ begofline:
    }
   do
    { i= *++str;				 /* get the next real-text character */
-     if(ign_case&&i-'A'<='Z'-'A')
-	i+='a'-'A';			     /* transmogrify it to lowercase */
-     th1^=XOR1;ot1^=XOR1;		     /* switch this & other pc-stack */
-setups:
-     thiss=other;other=Ceps&tswitch;reg=initcode;		 /* pop from */
+     if(i-'A'<='Z'-'A')
+	i+=ign_case&'a'-'A';		     /* transmogrify it to lowercase */
+setups:					     /* switch this & other pc-stack */
+     th1^=XOR1;ot1^=XOR1;thiss=other;other=Ceps&tswitch;reg=initcode; /* pop */
      for(;;thiss=PC(reg=thiss,th1),PC(reg,th1)=0,reg=reg->next)	 /* pc-stack */
       { for(;;reg=stack->next,stack=stack->spawn)     /* pop from work-stack */
 	   for(;;)
@@ -472,6 +473,9 @@ setups:
 		    continue;
 		 case OPC_BOM-OPB:
 		    goto foundbom;
+		 case OPC_FILL-OPB:		/* nop, nothing points at it */
+		    if(thiss==Ceps&tswitch)
+		       goto nomatch;	     /* so the stack is always empty */
 		 case OPC_SEMPTY-OPB:
 		    goto empty_stack;
 		 case OPC_TSWITCH-OPB:
@@ -491,7 +495,7 @@ setups:
 		 case OPC_DOT-OPB:			     /* dot-wildcard */
 		    if(i!='\n')
 yep:		       if(!PC(reg,ot1))		     /* state not yet pushed */
-			  PC(reg,ot1)=other,other=reg,PCp(reg,ot1)=pend;
+			  PC(reg,ot1)=other,PCp(other=reg,ot1)=pend;
 	       }
 	      break;
 	    }
@@ -504,8 +508,8 @@ pcstack_switch:;				   /* this pc-stack is empty */
   ;{ const char*start,*bom;
      do
       { i= *++str;			 /* get the next real-text character */
-	if(ign_case&&i-'A'<='Z'-'A')
-	   i+='a'-'A';			     /* transmogrify it to lowercase */
+	if(i-'A'<='Z'-'A')
+	   i+=ign_case&'a'-'A';		     /* transmogrify it to lowercase */
 	th1^=XOR1;ot1^=XOR1;start=pend;thiss=other;other=Ceps&tswitch;
 	reg=initcode;
 	for(;;							 /* pc-stack */
@@ -573,7 +577,7 @@ Pcstack_switch:;				   /* this pc-stack is empty */
      while(--len);				     /* still text to search */
 wrapup:
      switch(ign_case)
-      { case 0:case 1:ign_case=1;i='\n';		   /* just finished? */
+      { case 0:case ~(unsigned)0:ign_case=1;i='\n';	   /* just finished? */
 	case 2:ign_case++;str++;len=1;th1^=XOR1;ot1^=XOR1;start=pend;
 	   thiss=other;other=Ceps&tswitch;
 	   goto Empty_stack;			 /* check if we just matched */
@@ -599,5 +603,6 @@ setmatch:
 	yell("Matched",q);
       }
    }
+nomatch:
   return (char*)eom;						   /* match? */
 }

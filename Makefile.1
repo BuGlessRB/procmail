@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.43 1994/10/07 15:23:47 berg Exp $
+#$Id: Makefile.1,v 1.44 1995/03/20 14:49:25 berg Exp $
 
 all: bins mans recommend
 	@echo If you would like to inspect the results before running make \
@@ -13,56 +13,56 @@ make:
 help target targets:
 	sed "/^##*\*#$$/,/^##*\*#$$/ !d" <Makefile
 
-bins: config.check src/Makefile
+bins: autoconf.h config.check src/Makefile
 	cd src; $(MAKE) $(NBINS)
 
-mans: config.check man/Makefile
+mans: autoconf.h config.check man/Makefile
 	cd man; $(MAKE) $(NMANS)
 
 autoconf.h: src/Makefile src/autoconf
 	cd src; $(MAKE) ../$@
 
-procmail: config.check src/Makefile man/Makefile
+procmail: autoconf.h config.check src/Makefile man/Makefile
 	cd src; $(MAKE) ../new/$@ ../new/mailstat
 	cd man; $(MAKE) ../new/$@.1 ../new/$@rc.5 ../new/$@ex.5 ../new/$@sc.5
 
 mailstat: procmail
 
-formail lockfile: config.check src/Makefile man/Makefile
+formail lockfile: autoconf.h config.check src/Makefile man/Makefile
 	cd src; $(MAKE) ../new/$@
 	cd man; $(MAKE) ../new/$@.1
 
-setid multigram: config.check src/Makefile man/Makefile
+setid multigram: autoconf.h config.check src/Makefile man/Makefile
 	cd src; $(MAKE) $@
 
 config.check: config.h
 	echo Housekeeping file >$@
 	@-mkdir new 2>$(DEVNULL); exit 0
 	@-if $(FGREP) -n -e '`' config.h $(DEVNULL) | $(FGREP) -v EOFName ; \
-	 then \
-	 echo;echo '	^^^^^^^^^^^^^^^^^^^^ WARNING ^^^^^^^^^^^^^^^^^^^^^';\
-	      echo '	* Having backquotes in there could be unhealthy! *';\
-	 echo;fi;exit 0
+ then \
+ echo;echo '   ^^^^^^^^^^^^^^^^^^^^ WARNING ^^^^^^^^^^^^^^^^^^^^^';\
+      echo '   * Having backquotes in there could be unhealthy! *';\
+ echo;fi;exit 0
 
-recommend: src/Makefile
-	@cd src; $(MAKE) $@ >$(DEVNULL)
+recommend: autoconf.h src/Makefile
+	@cd src; $(MAKE) $@
 	@echo ================================================================\
 ===============
 	@if $(FGREP) CF_no_procmail_yet autoconf.h >$(DEVNULL); \
-	 then echo If you are a system administrator you should consider \
+ then echo If you are a system administrator you should consider \
 integrating procmail; echo into the mail-delivery system -- for advanced \
 functionality, speed AND; echo SECURITY "--.  For" more information about \
 this topic you should look in the; echo examples/advanced file.; elif \
-	 cat /usr/lib/sendmail.cf /etc/sendmail.cf 2>$(DEVNULL) | \
-	 grep 'Mlocal.*procmail.*F=[a-zA-Z]*u' >$(DEVNULL) ; then \
-	 echo The recommendation for the sendmail.cf entry of procmail has \
+ cat /usr/lib/sendmail.cf /etc/sendmail.cf 2>$(DEVNULL) | \
+ grep 'Mlocal.*procmail.*F=[a-zA-Z]*u' >$(DEVNULL) ; then \
+ echo The recommendation for the sendmail.cf entry of procmail has \
 changed.; echo I suggest you remove the '`u'"'"-flag 'like in:'; echo ; \
-	  sed -n 's/.*\(Mlocal.*procmail.*F=[a-zA-Z]*\)u/\1/p' `if test -f \
-	 /etc/sendmail.cf; then echo /etc/sendmail.cf; else \
-	 echo /usr/lib/sendmail.cf; fi`; fi
+ sed -n 's/.*\(Mlocal.*procmail.*F=[a-zA-Z]*\)u/\1/p' `if test -f \
+ /etc/sendmail.cf; then echo /etc/sendmail.cf; else \
+ echo /usr/lib/sendmail.cf; fi`; fi
 	@echo
 	@echo \
-	 "Also, HIGHLY RECOMMENDED (type 'make install-suid' to execute it):"
+ "Also, HIGHLY RECOMMENDED (type 'make install-suid' to execute it):"
 	@echo
 	@src/$@ $(BINDIR)/procmail $(BINDIR)/lockfile >suid.sh
 	@src/$@ $(BINDIR)/procmail $(BINDIR)/lockfile
@@ -91,17 +91,17 @@ install.man: $(MANS) $(BASENAME)
 	@-mkdir $(MAN5DIR) 2>$(DEVNULL); exit 0
 	@chmod 0644 $(MANS)
 	@for a in $(MANS1S); \
-	  do $(INSTALL) new/$$a.1 $(MAN1DIR)/$$a.$(MAN1SUFFIX); \
-	     if test "X$(MANCOMPRESS)" != "X"; \
-	     then $(MANCOMPRESS) <new/$$a.1 >$(MAN1DIR)/$$a.$(MAN1SUFFIX); \
-	     else :; fi; \
-	  done
+  do $(INSTALL) new/$$a.1 $(MAN1DIR)/$$a.$(MAN1SUFFIX); \
+     if test "X$(MANCOMPRESS)" != "X"; \
+     then $(MANCOMPRESS) <new/$$a.1 >$(MAN1DIR)/$$a.$(MAN1SUFFIX); \
+     else :; fi; \
+  done
 	@for a in $(MANS5S); \
-	  do $(INSTALL) new/$$a.5 $(MAN5DIR)/$$a.$(MAN5SUFFIX); \
-	     if test "X$(MANCOMPRESS)" != "X"; \
-	     then $(MANCOMPRESS) <new/$$a.5 >$(MAN5DIR)/$$a.$(MAN5SUFFIX); \
-	     else :; fi; \
-	  done
+  do $(INSTALL) new/$$a.5 $(MAN5DIR)/$$a.$(MAN5SUFFIX); \
+     if test "X$(MANCOMPRESS)" != "X"; \
+     then $(MANCOMPRESS) <new/$$a.5 >$(MAN5DIR)/$$a.$(MAN5SUFFIX); \
+     else :; fi; \
+  done
 	echo Housekeeping file >install.man
 
 install.bin: $(BINS) $(BASENAME)
@@ -132,13 +132,13 @@ clean: config.check
 	-for a in $(SUBDIRS); do cd $$a; $(MAKE) $@; cd ..; done; exit 0
 	cd SmartList; $(RM) targetdir.h targetdir.tmp install.list asked.patch
 	$(RM) $(MANS) $(BINS) install.man install.bin suid.sh _Makefile \
-	 *core* autoconf.h.tmp
+ *core* autoconf.h.tmp
 
 realclean: clean _init
 	$(RM) config.check
 	-rmdir new; exit 0
 	-for a in $(SUBDIRS); do $(MV) $$a/Makefile.init $$a/Makefile; done; \
-	 exit 0
+ exit 0
 
 veryclean clobber: realclean
 

@@ -109,18 +109,22 @@ to abuse the sgid/suid-ness.
    ------------------------------------------
 
 The following lines should take the place of the standard Mlocal definition in
-your sendmail.cf:
+your sendmail.cf (as for the fields "S=10, R=20": if your system uses others
+or none on the current Mlocal definition, use those *instead* of "S=10, R=20"):
 
 Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhPfn, S=10, R=20,
-	A=procmail -a $h -d $u
+	A=procmail -Y -a $h -d $u
 
-As for the fields "S=10, R=20": if your system uses others or none on the
-current Mlocal definition, use those instead of "S=10, R=20".
+In case you were wondering why there is no 'm' flag on this definition, you
+can add it if you want, but I recommend omitting it (it would enhance
+performance very slightly, however, if one of the multiple recipients causes
+mail to bounce, it will bounce for all recipients (since there is only
+one exitcode)).
 
 To impose a 2MB limit on mails, you could add a `Maxsize=' field like in:
 
 Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhPfn, S=10, R=20, M=2000000,
-	A=procmail -a $h -d $u
+	A=procmail -Y -a $h -d $u
 
 In order to take advantage of the optional meta argument that can be passed to
 procmail you'd have to change the sendmail.cf file to add a $#local mailer
@@ -154,6 +158,11 @@ For example:
 	In the .procmailrc file, you can now do an assignment like:
 		ARGUMENT=$1
 	which will expand to ARGUMENT=pizza.
+
+N.B. that if you do *not* have sendmail v6.* or older, or IDA-sendmail, and
+would like to make use of the meta-argument, you'll have to drop the 'l'
+flag on the Mlocal definition and make sure that *every* $#local invocation
+carries a (possibly empty) $@ host definition.
 
 Since you are editing the sendmail.cf file now anyway, you might as well setup
 an extra `procmail' mailer.  This Mprocmail can then be used as a general mail

@@ -5,16 +5,20 @@ ls directory ...
 egrep case_insensitive_regular_expression filename ...
 maxfiles nnn
 version
+quit
 
 Aliases for 'get': send, sendme, getme, gimme, retrieve, mail
 Aliases for 'ls': dir, directory, list, show
 Aliases for 'egrep': search, grep, fgrep, find
+Aliases for 'quit': exit
 
 Lines starting with a '#' are ignored.
 Multiple commands per mail are allowed.
 Setting maxfiles to zero will remove the limit (to protect you against
 yourself no more than maxfiles files will be returned per request).
 Egrep supports most common flags.
+If you append a non-standard signature, you should use the quit command
+to prevent the archive server from interpreting the signature.
 
 Examples:
 ls latest

@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.52 1994/09/27 15:03:52 berg Exp $*/
+/*$Id: manconf.c,v 1.53 1995/03/20 14:52:00 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -9,6 +9,7 @@
 #define pn(name,val)	pnr(name,(long)(val))
 
 static char pm_version[]=VERSION,ffileno[]=DEFfileno,matchvar[]=MATCHVAR;
+static int lines;
 const char dirsep[]=DIRSEP,pmrc[]=PROCMAILRC;
 char pmrc2[]=PROCMAILRC;			     /* need a writable copy */
 static const char*const keepenv[]=KEEPENV,*const prestenv[]=PRESTENV,
@@ -41,13 +42,13 @@ static void putcesc(i)
 	break;
      case '\\':i='e';
 	goto twoesc;
-     case '\1':i='\n';			    /* \1 doubles for nroff newlines */
+     case '\1':i='\n';lines--;		    /* \1 doubles for nroff newlines */
 	goto singesc;
      case '\2':i='\\';			 /* \2 doubles for nroff backslashes */
 	goto singesc;
      case '\t':i='t';
 	goto fin;
-     case '\n':i='n';
+     case '\n':i='n';lines--;
 fin:	putchar('\\');putchar('\\');
 twoesc: putchar('\\');
 singesc:
@@ -64,15 +65,24 @@ static void putsesc(a)const char*a;
 const char*const*gargv;
 
 static void pname(name)const char*const name;
-{ static cmdcount;
-  if(!cmdcount)
-     freopen(*++gargv,"w",stdout),cmdcount=64;
-  cmdcount--;putchar('s');putchar('/');putchar('@');putsesc(name);putchar('@');
+{ static unsigned filecount;
+  static char*filebuf;
+  if(!filebuf&&!(filebuf=malloc(strlen(*gargv)+1+4+1)))
+     exit(EX_OSERR);
+  if(lines<=0)
+   { sprintf(filebuf,"%s.%04d",*gargv,filecount++);freopen(filebuf,"w",stdout);
+     lines=64;				  /* POSIX says commands are limited */
+   }		      /* some !@#$%^&*() implementations limit lines instead */
+  putchar('s');putchar('/');putchar('@');putsesc(name);putchar('@');
   putchar('/');
 }
 
 static void pnr(name,value)const char*const name;const long value;
-{ pname(name);printf("%ld/g\n",value);
+{ pname(name);printf("%ld/g\n",value);lines--;
+}
+
+static void putsg P((void))
+{ puts("/g");lines--;
 }
 
 static void plist(name,preamble,list,postamble,ifno,andor)
@@ -91,20 +101,20 @@ jin:	putsesc(*list);
      while(*++list);
      putsesc(postamble);
    }
-  puts("/g");
+  putsg();
 }
 
 static void ps(name,value)const char*const name,*const value;
-{ pname(name);putsesc(value);puts("/g");
+{ pname(name);putsesc(value);putsg();
 }
 
 static void pc(name,value)const char*const name;const int value;
-{ pname(name);putcesc(value);puts("/g");
+{ pname(name);putcesc(value);putsg();
 }
 
 main(argc,argv)const char*const argv[];
 { char*p,*q;
-  gargv=argv;
+  gargv=argv+1;
 #ifdef CF_no_procmail_yet
   ps("CF_procmail","If procmail is\1\
 .I not\1\
@@ -117,17 +127,17 @@ yourself.");
 #endif
 #ifndef MAILBOX_SEPARATOR
   ps("DOT_FORWARD",".forward");
-  ps("FW_content","\"|IFS=' '&&exec /usr/local/bin/procmail -f-||\
+  ps("FW_content","\"|IFS=' '&&p=@BINDIR@/procmail&&test -f $p&&exec $p -Yf-||\
 exit 75 \2fB#\2fP\2fIYOUR_USERNAME\2fP\"");
 #else
   ps("DOT_FORWARD",".maildelivery");
-  ps("FW_content","* - | ? \"IFS=' '&&exec /usr/local/bin/procmail -f-||\
-exit 75 \2fB#\2fP\2fIYOUR_USERNAME\2fP\"");
+  ps("FW_content","* - | ? \"IFS=' '&&p=@BINDIR@/procmail&&test -f $p&&\
+exec $p||exit 75 \2fB#\2fP\2fIYOUR_USERNAME\2fP\"");
 #endif
   plist("PRESTENV",
    "\1.na\1.PP\1Other cleared or preset environment variables are ",
    prestenv,".\1.ad",""," and ");
-  plist("KEEPENV",", except for the values of ",keepenv,"",""," and ");
+  plist("KEEPENV",", except for the value of ",keepenv,"",""," and ");
   plist("TRUSTED_IDS",
   "  If procmail is not invoked with one of the following user or group ids: ",
    trusted_ids,", but still has to generate or accept a new `@FROM@' line,\1\
@@ -199,7 +209,7 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
   ps("console","sender");
   ps("aconsole",".");
 #endif
-  pname("INIT_UMASK");printf("0%lo/g\n",(unsigned long)INIT_UMASK);
+  pname("INIT_UMASK");printf("0%lo/g\n",(unsigned long)INIT_UMASK);lines--;
   pn("DEFlinebuf",DEFlinebuf);
   ps("BOGUSprefix",BOGUSprefix);
   ps("FAKE_FIELD",FAKE_FIELD);

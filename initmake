@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1992-1994, S.R. van den Berg, The Netherlands
-#$Id: initmake,v 1.61 1994/09/27 15:03:16 berg Exp $
+#$Id: initmake,v 1.62 1995/03/20 14:49:32 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -104,13 +104,18 @@ then
   exit 2
 fi
 
+case a in
+  [!a]) classok=no ;;		# This shell is *very* old
+  *) classok=yes ;;
+esac
+
 if test ! -z "$LD_LIBRARY_PATH"
 then
   echo '***************************** WARNING *********************************'
   echo '* You seem to have set the LD_LIBRARY_PATH variable, this might cause *'
-  echo '* some trouble during the execution of this autoconf script.  If the  *'
-  echo '* the make does not finish by itself, do a: "make clean",	      *'
-  echo '* clear LD_LIBRARY_PATH from the environment, and start over.	      *'
+  echo '* some trouble during the compilation of this package.	If the make   *'
+  echo '* does not finish by itself, do a: "make clean", clear		      *'
+  echo '* LD_LIBRARY_PATH from the environment, and start over.		      *'
   echo '***************************** WARNING *********************************'
 fi
 
@@ -203,7 +208,7 @@ else
 fi
 $cc $CFLAGS1 $CFLAGS _autotst.$O -o _autotst $LDFLAGS1 -lc >_autotst.rrr 2>&1 \
  && if grep "[\"']c['\"]" _autotst.rrr >$DEVNULL ||
-   fgrep libc _autotst.rrr >$DEVNULL
+   $FGREP libc _autotst.rrr >$DEVNULL
   then
   :
   else
@@ -231,10 +236,25 @@ do
 	 ( exec <_autotst.rrr
 	   while read b
 	   do
-	      case ":$b:" in
-		 *$cc*_autotst.$O*) ;;
-		 *lib$lib[!a-z_]*|*$a[!a-z_]*|*[!a-z]$lib[!a-z_]*) exit 1;;
-	      esac
+	      if test $classok = yes
+	      then
+		 case ":$b:" in
+		    *$cc*_autotst.$O*) ;;
+		    *lib$lib[!a-z_]*|*$a[!a-z_]*|*[!a-z]$lib[!a-z_]*) exit 1;;
+		 esac
+	      else
+		 case ":$b:" in
+		    *$cc*_autotst.$O*) ;;
+		    *) for c in $b
+		       do
+			  case ":$c:" in
+			     *lib$lib[a-z_]*|*$a[a-z_]*|\
+			      *[a-z]$lib*|*$lib[a-z_]*) ;;
+			     *$a*|*$lib*) exit 1;;
+			  esac
+		       done ;;
+		 esac
+	      fi
 	   done
 	   exit 0
 	 )

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: lockfile.man,v 1.12 1994/08/04 17:05:05 berg Exp $
+.Id $Id: lockfile.man,v 1.13 1995/03/20 14:51:11 berg Exp $
 .TH LOCKFILE 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -56,7 +56,7 @@ All flags can be specified anywhere on the command line, they will be
 processed when encountered.  The command line is simply parsed from
 left to right.
 .PP
-All files created by lockfile will have access permission 0, and therefore
+All files created by lockfile will be read-only, and therefore
 will have to be removed with
 .B rm
 .BR \-f .
@@ -64,7 +64,7 @@ will have to be removed with
 If you specify a
 .I locktimeout
 then a lockfile will be removed by force after locktimeout seconds have
-passed since the lockfile was last modified/created (most probably by some
+passed since the lockfile was last modified/created (most likely by some
 other program that unexpectedly died a long time ago, and hence could not clean
 up any leftover lockfiles).  Lockfile is clock skew immune.  After a lockfile
 has been removed by force, a suspension of

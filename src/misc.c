@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.66 1994/10/20 18:14:36 berg Exp $";
+ "$Id: misc.c,v 1.67 1995/03/20 14:52:03 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -290,7 +290,7 @@ void app_val(sp,val)struct dyna_long*const sp;const off_t val;
 { if(sp->filled==sp->tspace)			    /* growth limit reached? */
    { if(!sp->offs)
 	sp->offs=malloc(1);
-     sp->offs=realloc(sp->offs,(sp->tspace+=4)*sizeof sp->offs);   /* expand */
+     sp->offs=realloc(sp->offs,(sp->tspace+=4)*sizeof*sp->offs);   /* expand */
    }
   sp->offs[sp->filled++]=val;				     /* append to it */
 }
@@ -407,9 +407,13 @@ char*gobenv(chp)char*chp;
 }
 
 int asenvcpy(src)char*src;
-{ strcpy(buf,src);
-  if(src=strchr(buf,'='))			     /* is it an assignment? */
-   { const char*chp;
+{ const char*chp;
+  if(chp=strchr(src,'='))			     /* is it an assignment? */
+    /*
+     *	really change the uid now, since it would not be safe to
+     *	evaluate the extra command line arguments otherwise
+     */
+   { setids();strcpy(buf,src);src=buf+(chp-src);
      strcpy((char*)(sgetcp=buf2),++src);readparse(src,sgetc,2);
      chp=sputenv(buf);src[-1]='\0';asenv(chp);
      return 1;
@@ -585,6 +589,11 @@ const char*newdynstring(adrp,chp)struct dynstring**const adrp;
   tmemmove(curr->ename,chp,len);curr->enext= *adrp;*adrp=curr;
   return curr->ename;
 }
+
+void rcst_nosgid P((void))
+{ if(!rcstate)
+     rcstate=rc_NOSGID;
+}
 			     /* lifted out of main() to reduce main()'s size */
 int screenmailbox(chp,chp2,egid,Deliverymode)
  char*chp;char*const chp2;const gid_t egid;const int Deliverymode;
@@ -594,12 +603,16 @@ int screenmailbox(chp,chp2,egid,Deliverymode)
   */
   *chp2='\0';buf[i=lastdirsep(chp)-chp]='\0';sgid=gid;
   if(!stat(buf,&stbuf))
-   { accspooldir=!!(stbuf.st_mode&(S_IWGRP|S_IWOTH))<<1|uid==stbuf.st_uid;
-     if((uid!=stbuf.st_uid&&
-	  stbuf.st_gid==egid||
-	 (rcstate=rc_NOSGID,0))&&
-	(stbuf.st_mode&S_ISGID||
-	 (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH))==(S_IWGRP|S_IXGRP)))
+   { unsigned wwsdir;
+     if(!(accspooldir=(wwsdir=			/* world writable spool dir? */
+	     (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH|S_IXOTH))==
+	     (S_IWGRP|S_IXGRP|S_IWOTH|S_IXOTH))
+	    <<1|					 /* note it in bit 1 */
+	   uid==stbuf.st_uid))	   /* we own the spool dir, note it in bit 0 */
+	rcst_nosgid();			     /* we don't *need* setgid privs */
+     if(uid!=stbuf.st_uid&&		 /* we don't own the spool directory */
+	stbuf.st_gid==egid&&			 /* but we have setgid privs */
+	(stbuf.st_mode&S_ISGID||!wwsdir))	  /* it's not world writable */
       { doumask(GROUPW_UMASK);			   /* make it group-writable */
 	goto keepgid;
       }
@@ -729,11 +742,22 @@ noconcat:
    if(flags[ALSO_NEXT_RECIPE])
       i=i&&lastcond;
    Stdout=0;
-   while(skipspace(),nrcond--,testb('*')||nrcond>=0)
-    { skipspace();getlline(buf2);		    /* any conditions (left) */
+   for(;;)
+    { skipspace();--nrcond;
+      if(!testB('*'))			    /* marks a condition, new syntax */
+	 if(nrcond<0)		/* keep counting, for backward compatibility */
+	  { if(testB('#'))		      /* line starts with a comment? */
+	     { skipline();				    /* skip the line */
+	       continue;
+	     }
+	    if(testB('\n'))				 /* skip empty lines */
+	       continue;
+	    break;		     /* no more conditions, time for action! */
+	  }
+      skipspace();getlline(buf2);
       if(i)					 /* check out all conditions */
        { int negate,scoreany;double weight,xponent,lscore;
-	 char*lstartchar=startchar;long ltobesent=tobesent;
+	 char*lstartchar=startchar;long ltobesent=tobesent,sizecheck=filled;
 	 for(chp=strchr(buf2,'\0');--chp>=buf2;)
 	  { switch(*chp)		  /* strip off whitespace at the end */
 	     { case ' ':case '\t':*chp='\0';
@@ -785,7 +809,7 @@ docon:			   concon(' ');
 			   goto partition;
 			 }
 			ltobesent=strlen(lstartchar=(char*)tgetenv(chp));
-partition:		chp2=skpspace(chp3+2);chp++;
+partition:		chp2=skpspace(chp3+2);chp++;sizecheck=ltobesent;
 			goto copyrest;
 		      }
 		   }
@@ -888,19 +912,20 @@ copyrest:	  strcpy(buf,chp2);
 		  if(scoreany)
 		   { double f;
 		     if((*buf=='<')^negate)
-			if(filled)
-			   f=(double)pivot/filled;
+			if(sizecheck)
+			   f=(double)pivot/sizecheck;
 			else if(pivot>0)
 			   goto plusinfty;
 			else
 			   goto mininfty;
 		     else if(pivot)
-			f=(double)filled/pivot;
+			f=(double)sizecheck/pivot;
 		     else
 			goto plusinfty;
 		     score+=weight*tpow(f,xponent);
 		   }
-		  else if(!((*buf=='<'?filled<pivot:filled>pivot)^negate))
+		  else if(!((*buf=='<'?sizecheck<pivot:sizecheck>pivot)^
+		   negate))
 		     i=0;
 		}
 	     }

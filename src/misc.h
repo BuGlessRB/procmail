@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.32 1994/09/29 18:43:52 berg Exp $*/
+/*$Id: misc.h,v 1.33 1995/03/20 14:52:06 berg Exp $*/
 
 struct dyna_long{size_t filled,tspace;off_t*offs;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -37,7 +37,8 @@ void
  asenv P((const char*const chp)),
  concatenate P((char*p)),
  squeeze P((char*target)),
- initdefenv P((void));
+ initdefenv P((void)),
+ rcst_nosgid P((void));
 int
  forkerr Q((const pid_t pid,const char*const a)),
  nextrcfile P((void)),

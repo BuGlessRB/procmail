@@ -12,7 +12,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #	This script will not be automatically overwritten by the next	#
 #	upgrade.							#
 #########################################################################
-#$Id: cronlist,v 1.5 1994/10/07 15:24:20 berg Exp $
+#$Id: cronlist,v 1.6 1995/03/20 14:50:43 berg Exp $
 
 test=test			# /bin/test
 echo=echo			# /bin/echo
@@ -22,14 +22,21 @@ PATH=SedHomeDir/SedBinDir:SedHomeDir/.bin:$PATH:/usr/local/bin
 	# make sure that the PATH provided here finds all standard utilities
 	# AND formail and lockfile.
 
-export PATH
+cronlist=yes			# Needed to tell flush_digests it is being
+				# run from cronlist.
+export PATH cronlist
 a=`$dirname $0`/..
+
+#
+# Change directory to where our lists are located
+#
+
 cd $a
 
 #
-# Put all commands to be run for this list on a regular basis below here
+# Put all commands to be run for these lists on a regular basis below here
 #
 
-cronlist=yes flush_digests
+flush_digests
 
 exit 0

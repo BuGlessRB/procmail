@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.36 1994/09/29 18:43:46 berg Exp $*/
+/*$Id: header.h,v 1.37 1995/03/20 14:51:49 berg Exp $*/
 
 X(returnpath,		"Return-Path:")				  /* RFC 822 */
 X(received,		"Received:")				/* ditto ... */
@@ -62,6 +62,7 @@ X(language,		"Language:")
 X(latdeliverytime,	"Latest-Delivery-Time:")
 X(msgtype,		"Message-Type:")
 X(obsoletes,		"Obsoletes:")
+X(supersedes,		"Supersedes:")			      /* depreciated */
 X(orgencodedinfts,	"Original-Encoded-Information-Types:")
 X(orgnreturnaddress,	"Originator-Return-Address:")
 X(priority,		"Priority:")
@@ -73,8 +74,13 @@ X(x400mtsidentifier,	"X400-MTS-Identifier:")
 X(x400originator,	"X400-Originator:")
 X(x400received,		"X400-Received:")
 X(x400rcipients,	"X400-Recipients:")
-X(altrecipient,		"Alternate-Recipient:")				/* ? */
-X(ppwarning,		"Pp-Warning:")					/* ? */
+X(altrecipient,		"Alternate-Recipient:")
+X(prevnondeliveryrep,	"Prevent-Nondelivery-Report:")
+X(gendeliveryrep,	"Generate-Delivery-Report:")
+X(discloserecipients,	"Disclose-Recipients:")
+X(cntreturn,		"Content-Return:")
+X(autsubmitted,		"Auto-Submitted:")
+X(ppwarning,		"PP-Warning:")					/* ? */
 X(fcc,			"Fcc:")				   /* Mush extension */
 X(resent,		"Resent:")			     /* MH extension */
 X(forwarded,		"Forwarded:")				/* ditto ... */
@@ -133,6 +139,7 @@ X(orgaforwfrom,		"Original-Auto-Forwarded-From:")
 X(orgdate,		"Original-Date:")
 X(notdeliveredto,	"Not-Delivered-To:")
 X(reportversion,	"Report-Version:")
+X(orgreceived,		"Original-Received:")				/* ? */
 X(status,		"Status:")			 /* mailer extension */
 X(mailfrom,		"Mail-from:")		    /* emacs BABYL extension */
 X(readreceiptto,	"Read-Receipt-To:")	  /* miscellaneous extension */

@@ -8,9 +8,15 @@ address can be inferred from this to be: "thelist-request@some.domain".
 To subscribe to a mailinglist, simply send a message with the word "subscribe"
 in the Subject: field to the -request address of that list.
 
+As in:		To: thelist-request@some.domain
+		Subject: subscribe
+
 To unsubscribe from a mailinglist, simply send a message with the word (you
 guessed it :-) "unsubscribe" in the Subject: field to the -request address of
 that list.
+
+As in:		To: thelist-request@some.domain
+		Subject: unsubscribe
 
 In the event of an address change, it would probably be the wisest to first
 send an unsubscribe for the old address (this can be done from the new

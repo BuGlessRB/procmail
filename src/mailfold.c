@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.61 1995/02/07 16:14:58 berg Exp $";
+ "$Id: mailfold.c,v 1.62 1995/03/20 14:51:57 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -26,21 +26,29 @@ off_t lasttell;
 static long lastdump;
 static volatile mailread;	/* if the mail is completely read in already */
 static struct dyna_long escFrom_,confield;	  /* escapes, concatenations */
+static const char*realstart,*restbody;
+static const char from_expr[]=FROM_EXPR;
+
+static const char*fifrom(fromw,lbound,ubound)
+ const char*fromw,*const lbound;char*const ubound;
+{ int i;					   /* terminate & scan block */
+  i= *ubound;*ubound='\0';fromw=strstr(mx(fromw,lbound),from_expr);*ubound=i;
+  return fromw;
+}
 			       /* inserts escape characters on outgoing mail */
 static long getchunk(s,fromw,len)const int s;const char*fromw;const long len;
-{ long dist,dif;int i;static const char esc[]=ESCAP;
-  dist=fromw-themail;			/* where are we now in transmitting? */
-  for(dif=len,i=0;i<escFrom_.filled;)	    /* let's see if we can find this */
-     if(!(dif=escFrom_.offs[i++]-dist))			 /* this exact spot? */
-      { rwrite(s,esc,STRLEN(esc));lastdump++;			/* escape it */
-	if(i>=escFrom_.filled)				      /* last block? */
-	   return len;				/* yes, give all what's left */
-	dif=escFrom_.offs[i]-dist;		     /* the whole next block */
-	break;
-      }
-     else if(dif>0)				/* passed this spot already? */
-	break;
-  return dif<len?dif:len;
+{ static const char esc[]=ESCAP;static int doesc;const char*ffrom;char*endp;
+  if(doesc)		       /* still something to escape since last time? */
+     doesc=0,rwrite(s,esc,STRLEN(esc)),lastdump++;		/* escape it */
+  ffrom=0;					 /* start with a clean slate */
+  if(fromw<thebody)			   /* are we writing the header now? */
+     ffrom=fifrom(fromw,realstart,thebody);		      /* scan header */
+  if(!ffrom&&(endp=fromw+len)>restbody)	       /* nothing yet? but in range? */
+   { if((endp+=STRLEN(from_expr)-1)>(ffrom=themail+filled))	/* add slack */
+	endp=(char*)ffrom;		  /* make sure we stay within bounds */
+     ffrom=fifrom(fromw,restbody,endp);			  /* scan body block */
+   }
+  return ffrom?(doesc=1,(ffrom-fromw)+1):len;	 /* +1 to write out the '\n' */
 }
 
 long dump(s,source,len)const int s;const char*source;long len;
@@ -53,9 +61,13 @@ long dump(s,source,len)const int s;const char*source;long len;
      lasttell=lseek(s,(off_t)0,SEEK_END);
      if(!rawnonl)
       { smboxseparator(s);			       /* optional separator */
-#ifndef NO_NFS_ATIME_HACK
-	if(part&&tofile)	       /* if it is a file, trick NFS into an */
-	   len--,part--,rwrite(s,source++,1),ssleep(1);	    /* a_time<m_time */
+#ifndef NO_NFS_ATIME_HACK	       /* if it is a file, trick NFS into an */
+	if(part&&tofile)				    /* a_time<m_time */
+	 { struct stat stbuf;
+	   rwrite(s,source++,1);len--;part--;		     /* set the trap */
+	   if(fstat(s,&stbuf)||stbuf.st_mtime==stbuf.st_atime)	  /* needed? */
+	      ssleep(1);  /* ...what a difference this (tea) second makes... */
+	 }
 #endif
       }
      goto jin;
@@ -75,7 +87,6 @@ jin:	while(part&&(i=rwrite(s,source,BLKSIZ<part?BLKSIZ:(int)part)))
       }
 writefin:
      ;{ int serrno=errno;		       /* save any error information */
-	rawnonl=0;		       /* only allow rawnonl once per recipe */
 	if(tofile&&fdunlock())
 	   nlog("Kernel-unlock failed\n");
 	SETerrno(serrno);
@@ -204,15 +215,13 @@ makefile:
 int writefolder(boxname,linkfolder,source,len,ignwerr)char*boxname,*linkfolder;
  const char*source;const long len;const int ignwerr;
 { if(dump(deliver(boxname,linkfolder),source,len)&&!ignwerr)
-   {
-     switch(errno)
-      {
+   { switch(errno)
+      { case ENOSPC:nlog("No space left to finish writing"),logqnl(buf);
+	   break;
 #ifdef EDQUOT
 	case EDQUOT:nlog("Quota exceeded while writing"),logqnl(buf);
 	   break;
 #endif
-	case ENOSPC:nlog("No space left to finish writing"),logqnl(buf);
-	   break;
 	default:writeerr(buf);
       }
      if(lasttell>=0&&!truncate(boxname,lasttell)&&(logopened||verbose))
@@ -265,20 +274,14 @@ void concon(ch)const int ch;   /* flip between concatenated and split fields */
    }
 }
 
-static void ffrom(chp)const char*chp;
-{ while(chp=strstr(chp,FROM_EXPR))
-     app_val(&escFrom_,(off_t)(++chp-themail));	       /* bogus From_ found! */
-}
-
 void readmail(rhead,tobesent)const long tobesent;
-{ char*chp,*pastend,*realstart;static size_t contlengthoffset;
+{ char*chp,*pastend;static size_t contlengthoffset;
   ;{ long dfilled;
      if(rhead)					/* only read in a new header */
       { dfilled=mailread=0;chp=readdyn(malloc(1),&dfilled);filled-=tobesent;
 	if(tobesent<dfilled)		   /* adjust buffer size (grow only) */
-	 { realstart=themail;
-	   thebody=(themail=realloc(themail,dfilled+filled))+
-	    (thebody-realstart);
+	 { char*oldp=themail;
+	   thebody=(themail=realloc(themail,dfilled+filled))+(thebody-oldp);
 	 }
 	tmemmove(themail+dfilled,thebody,filled);tmemmove(themail,chp,dfilled);
 	free(chp);themail=realloc(themail,1+(filled+=dfilled));
@@ -311,10 +314,6 @@ eofheader:
      else			       /* no new header read, keep it simple */
 	thebody=themail+dfilled; /* that means we know where the body starts */
    }		      /* to make sure that the first From_ line is uninjured */
-  escFrom_.filled=0;
-  ;{ int i;				    /* eradicate From_ in the header */
-     i= *thebody;*thebody='\0';ffrom(realstart);*thebody=i;
-   }
   if((chp=thebody)>themail)
      chp--;
   if(contlengthoffset)
@@ -341,7 +340,7 @@ eofheader:
 	tmemmove(themail+contlengthoffset,num,places),actcntlen=cntlen;
      chp=thebody+actcntlen;		  /* skip the actual no we specified */
    }
-  ffrom(chp);mailread=1;	  /* eradicate From_ in the rest of the body */
+  restbody=chp;mailread=1;
 }
 			  /* tries to locate the timestamp on the From_ line */
 char*findtstamp(start,end)const char*start,*end;

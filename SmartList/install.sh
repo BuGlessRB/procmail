@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.53 1994/10/07 15:24:01 berg Exp $
+#$Id: install.sh,v 1.54 1995/03/20 14:49:43 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -62,14 +62,18 @@ if binmail=`procmail -m DEFAULT=/dev/null 'LOG=$SENDMAIL' /dev/null \
   </dev/null 2>&1`
 then
   case "$binmail" in
-     ""|[!/]*|*procmail:*)
+     /*) ;;		# some !@#$%^&*() shells don't grok [!/]
+     *) binmail="";;
+  esac
+  case "$binmail" in
+     ""|*procmail:*)
 	 echo "Failed in extracting the value of SENDMAIL from procmail"
 	 echo \
 	"Please make sure that the NEW version of procmail has been installed"
 	 echo \
        'If you already have, make sure that "console" is undefined in config.h'
 	 echo "This is what I'm seeing:"
-	 procmail -v | sed -e 1q
+	 procmail -v 2>&1 | sed -e 1q
 	 exit 64 ;;
   esac
 else
@@ -108,9 +112,19 @@ then
   fi
 fi
 
+if test ! -z "$LD_LIBRARY_PATH"
+then
+  echo '***************************** WARNING *********************************'
+  echo '* You seem to have set the LD_LIBRARY_PATH variable, this might cause *'
+  echo '* some trouble during the installation of this package.		      *'
+  echo '* If install.sh does not finish successfully, clear		      *'
+  echo '* LD_LIBRARY_PATH from the environment, and start over.		      *'
+  echo '***************************** WARNING *********************************'
+fi
+
 TMPF=/tmp/list.id.$$
 
-trap "/bin/rm -f $TMPF; exit 1" 1 2 3 15
+trap "/bin/rm -f $TMPF; exit 1" 1 2 3 13 15
 
 /bin/rm -f $TMPF
 
@@ -148,7 +162,7 @@ else
    sed -e 's/^[^ ]* *[0-9][0-9]*[^0-9] *\([^ ]*\) .*$/\1/'`
 fi
 
-trap "" 1 2 3 15
+trap "" 1 2 3 13 15
 
 export listid
 

@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.30 1994/10/14 18:43:30 berg Exp $";
+ "$Id: lockfile.c,v 1.31 1995/03/20 14:51:52 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/10/14 18:43:30 $";
+static /*const*/char rcsdate[]="$Date: 1995/03/20 14:51:52 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -231,7 +231,7 @@ outofmem:	 retval=EX_OSERR,nlog("Out of memory");
 #ifdef EDQUOT
 	      case EDQUOT:
 #endif
-	      case ENOENT:case ENOTDIR:case EIO:case EACCES:
+	      case ENOENT:case ENOTDIR:case EIO:/*case EACCES:*/
 		 if(!--permanent)	 /* NFS sporadically generates these */
 		  { sleep(sleepsec);	/* unwarranted, so ignore them first */
 		    continue;

@@ -69,6 +69,9 @@ maintainer	=
 #cc_unsubrequests
 ##cc_unsubrequests=	yes		# uncomment if you want unsubscribe
 					# requests to be Cc'd to the maintainer
+#divertcheck	=	yes
+##divertcheck				# uncomment to disable the check for
+					# misfiled administrative requests
 #pass_diverts
 ##pass_diverts	=	yes		# uncomment to pass on administrative
 					# requests diverted from the normal

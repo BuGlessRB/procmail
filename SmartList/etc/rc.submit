@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.74 1994/10/26 19:37:20 berg Exp $
+#$Id: rc.submit,v 1.75 1995/03/20 14:50:38 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -22,54 +22,60 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 
 :0
 * < $size_limit
-* $$daemon_bias
 * !$^($X_COMMAND:|X-Loop: $listaddr)
-* -100^0 ^FROM_MAILER
+* $$daemon_bias
+* -100^0 ^FROM_MAILER|\
+	 ^(((Resent-)?(From|Sender)|X-Envelope-From):|\
+	  >?From )(.*[^(.%@a-z0-9])?(\
+	   LIST(SERV|proc)|NETSERV|bounce|autoanswer|echo|mirror|\
+	  )([^).!:a-z0-9].*)?$[^>])
 * 1^0
+{
+
+:0
+* B ?? >640
+* 9876543210^0
 { }
 
 #
 # Does it look like a regular submission?
 # Or perhaps more like an administrative request?
-#
-
-:0 A
-* 9876543210^0 ^\
-      (Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)\>)|\
-      X-Diagnostic:)
-* -100^0 ^\
-      Subject:([	 ]*(archive:?([	 ]+(\
-	  (send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|\
-	  list|show|search|[fe]?grep|find|maxfiles|version|help|info)\
-	 ([	 ]|$)|[	 ]*$)|\
-	(Could you )?(please )?\
-	(help|info|join|leave|cancel(( my)? subscription)?|add|\
-	 sign( [^ ]+ |-)?o(n|ff)|(un|de)?sub)[	 ]*$)|\
-       .*( (join|leave|add .* to|(delete|remove) .* from|\
-	 (take|sign) .* off|(put|sign) .* on) .* [a-z-]*list|\
-	 (un|de|sub?)s(cr|c|r)i(be|ption))\>)
-* -50^0 ^Subject:[	 ]*[(<]none[>)]$
-*  50^0 ^Subject:.*[a-z]
-*  25^2 >2048
-{
-
-#
 # Look at the start of the body, and see if this could be an administrative
 # request, pass it on to rc.request in that case.
 #
 
-:0 B
-* $$=^0
-* -25^0 ^^([	 ]*$)*\
-      ([	 ]*(archive:?([	 ]+(\
+:0
+* $=^0
+* 9876543210^0 !divertcheck ?? y
+* 9876543210^0 B ?? ^^.*$.*$.*$.*$.*$.*$.*$.*$.*$
+* $${maintainer:+9876543210^0 ^From[: ](.*\<)?$maintainer\>}
+* 9876543210^0 ^(Subject:(.*\<)?(Re:|magazine)\>)|X-(Diagnostic|Mailing-List):)
+* -25^0 ^\
+      Subject:([	 ]*(archives?:?([	 ]+(\
 	  (send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|\
 	  list|show|search|[fe]?grep|find|maxfiles|version|help|info)\
 	 ([	 ]|$)|[	 ]*$)|\
-	(help|info)[	 ]*$|\
-	(add|join|leave|sign( [^ ]+ |-)?o(n|ff)|(un|de)?sub)\>)|\
+	help|info|join|leave|\
+	(Could you )?(please )?\
+	(cancel(( my)? subscription)?|add|\
+	 sign( [^ ]+ |-)?o(n|ff)|(un|de)?-?sub)[	 ]*$)|\
        .*( (join|leave|add .* to|(delete|remove) .* from|\
 	 (take|sign) .* off|(put|sign) .* on) .* [a-z-]*list|\
-	 (un|de|sub?)scri(be|ption))\>)
+	 ((un|de)-?|sub?)s(cr|c|r)i(be|ption))\>)
+* -50^0 ^Subject:[	 ]*[(<]none[>)]$
+*  50^0 ^Subject:.*[a-z]
+* -100^0 B ?? ^^([	 ]|$)*\
+      ((((archives?:?($|[	 ]+)|\
+	  ((send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|\
+	    list|show|search|[fe]?grep|find|maxfiles|version|help|info)\
+	   ([	 ].*)?$)([	 ]|$)*)+\
+	    ([^	 a-z].*$(.*$(.*$(.*$(.*$)?)?)?)?)?^^|\
+	(help|info)[	 ]*$|\
+	(add|join|leave|sign( [^ ]+ |-)?o(n|ff)|(un|de)?-?sub)\>)|\
+       .*( (join|leave|add .* to|(delete|remove) .* from|\
+	 (take|sign) .* off|(put|sign) .* on) .* [a-z-]*list|\
+	 ((un|de)-?|sub?)scri(be|ption))\>|\
+       ^^)
 {
   #
   # Then check to see if the sender is on the accept list (if foreign_submit
@@ -77,7 +83,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
   #
 
   :0
-  * 1^1 !$${foreign_submit:+!}
+  * 9876543210^0 foreign_submit ?? y
   * 2^0 ? formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 	   -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
 	   multigram -b1 -m -l$submit_threshold -L$domain \
@@ -87,35 +93,51 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      INCLUDERC=$RC_LOCAL_SUBMIT_10
 
      :0
-     * $!${moderated_flag:+!}
-     * !^Approved:
-     * !? formail -xApproved: | \
-	   multigram -b1 -m -l$reject_threshold moderators
+     * moderated_flag ?? y
+     * 9876543210^0 !^Approved:
+     *		0^1 ? formail -xApproved: | \
+			multigram -b1 -m -l$reject_threshold moderators
      | formail -R"From X-Envelope-From:" -uDate: -iReturn-Receipt-To: \
-	-iAcknowledge-To: | $SENDMAIL $sendmailOPT `cat moderators`
+	-iRead-Receipt-To: -iAcknowledge-To: | \
+	$SENDMAIL $sendmailOPT `cat moderators`
 
      #
      # Eliminate duplicate submissions by checking the Message-ID: field.
      #
 
      :0 Wh :msgid.lock
-     | formail -D $idcache_size msgid.cache
+     | formail -q- -D $idcache_size msgid.cache
 
      #
      # Check if we need to autosubscribe anyone not on the dist list.
      #
 
      :0
-     * $!${force_subscribe:+!}
+     * force_subscribe ?? y
      * !? formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 	   -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
 	    multigram -b1 -m -l$submit_threshold -L$domain \
 	     -x$listaddr -x$listreq dist
      {
+
+       #
+       # Yes, well, then check if the person isn't on the reject list.
+       #
+
+       :0
+       * ? multigram -b1 -l$reject_threshold reject
+       {
+	  :0 wfh
+	  | formail -A "X-Diagnostic: Found on the reject list" \
+	     -A "X-Diagnostic: `multigram -b1 -l$reject_threshold reject`"
+
+	  HOST=continue_with_rc.request
+       }
+
        LOCKFILE=tmp.lock
 
        :0 whc
-       | formail -rtz -xTo: >tmp.from
+       | formail -rtzc -xTo: >tmp.from
 
        :0 Wc :dist.lock
        | sed -e '/^$/,/^-- $/ d' | formail -I "Subject: auto subscribe" \
@@ -131,7 +153,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      #
 
      :0
-     * $!${digest_flag:+!}
+     * digest_flag ?? y
       {
 	#
 	# Forward the article back to the undigested list, if it hasn't
@@ -139,7 +161,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 	#
 
 	:0 c
-	* $!${undigested_list:+!}
+	* undigested_list ?? y
 	* $!^X-Loop: $undigested_list
 	! $sendmailOPT $undigested_list
 
@@ -159,7 +181,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      #
 
      :0
-     * $$archive_hist^0
+     * archive_hist ?? [1-9]
      * !^X-Mailing-List:
       {
 	:0 c
@@ -185,8 +207,8 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 						# do this one by itself.
      :0 wfh
      | formail -b -IFrom\  -IReceived: -IReturn-Receipt-To: -IErrors-To: \
-	-IX-Pmrqc: -IAcknowledge-To: -IX-Diagnostic: -iStatus: \
-	-iReturn-Path: -iX-Envelope-To: -iX-Envelope-From: \
+	-IX-Pmrqc: -IAcknowledge-To: -IRead-Receipt-To: -IX-Diagnostic: \
+	-iStatus: -iReturn-Path: -iX-Envelope-To: -iX-Envelope-From: \
 	-I"Precedence: list" -I"Resent-Sender: $listreq" \
 	-uDate: -aMessage-ID: -aResent-Message-ID: \
 	-a"To: $listaddr" -a"Resent-From: $listaddr" -A"X-Loop: $listaddr" \
@@ -204,7 +226,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      #
 
      :0 w: dist.lock
-     * $${alt_sendmail:+!}
+     * !alt_sendmail ?? .
      ! $sendmailOPT $listdist
 
      #
@@ -237,7 +259,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 } }
 
 :0 fhw
-* $!${pass_diverts:+!}
+* pass_diverts ?? y
 * !^X-Diagnostic:
 | formail -A "X-Diagnostic: Diverted & unprocessed"
 

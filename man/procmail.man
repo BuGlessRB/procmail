@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.64 1994/10/20 18:14:22 berg Exp $
+.Id $Id: procmail.man,v 1.65 1995/03/20 14:51:15 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -9,6 +9,7 @@ procmail \- autonomous mail processor
 .B procmail
 .RB [ \-@PRESERVOPT@@TEMPFAILOPT@@OVERRIDEOPT@@BERKELEYOPT@ ]
 .RB [ "\-@FROMWHOPT@ \fIfromwhom\fP" ]
+.if n .ti +0.5i
 .RI [ "parameter\fB=\fPvalue " | " rcfile" ]
 \&.\|.\|.
 .br
@@ -16,6 +17,7 @@ procmail \- autonomous mail processor
 .RB [ \-@TEMPFAILOPT@@OVERRIDEOPT@@BERKELEYOPT@ ]
 .RB [ "\-@FROMWHOPT@ \fIfromwhom\fP" ]
 .RB [ "\-@ARGUMENTOPT@ \fIargument\fP" ]
+.if n .ti +0.5i
 .B \-@DELIVEROPT@
 .I recipient
 \&.\|.\|.
@@ -151,10 +153,9 @@ This turns on explicit delivery mode, delivery will be to the local user
 .IR recipient .
 This, of course, only is possible if procmail has root
 privileges@SETRUID@.
-Procmail will setuid to the intended recipients and shall
-.I only
-read the recipient's @PROCMAILRC@ file (if present, if not, delivery is like
-ordinary mail).  This option is incompatible with
+Procmail will setuid to the intended recipients and delivers the mail as
+if it were invoked by the recipient with no arguments (i.e. if no rcfile
+is found, delivery is like ordinary mail).  This option is incompatible with
 .BR \-@PRESERVOPT@ .
 .TP
 .B \-@MAILFILTOPT@
@@ -548,17 +549,17 @@ If there is an existing
 .B Content-Length:
 field in the header of the mail and the
 .B \-@BERKELEYOPT@
-flag is not specified, procmail will trim the field to report the correct
+option is not specified, procmail will trim the field to report the correct
 size.  Procmail does not change the fieldwidth.
 .PP
 If there is no
 .B Content-Length:
 field or the
 .B \-@BERKELEYOPT@
-has been specified and procmail appends to regular mailfolders, any lines in
-the body of the message that look like postmarks are prepended with `@ESCAP@'
-(disarms bogus mailheaders).  The regular expression that is used to search
-for these postmarks is:
+option has been specified and procmail appends to regular mailfolders, any
+lines in the body of the message that look like postmarks are prepended with
+`@ESCAP@' (disarms bogus mailheaders).  The regular expression that is used
+to search for these postmarks is:
 .RS
 `@FROM_EXPR@'
 .RE
@@ -632,6 +633,14 @@ Procmail is NFS-resistant and eight-bit clean.
 Calling up procmail with the \-@HELPOPT1@ or \-@HELPOPT2@ options will cause
 it to display a command-line help and recipe flag quick-reference page.
 .PP
+There exists an excellent newbie FAQ about mailfilters (and procmail
+in particular), it is being maintained by Nancy McGough <nancym@ii.com>
+and can be obtained by sending a mail to mail-server@rtfm.mit.edu with
+the following in the body:
+.RS
+send usenet/news.answers/mail/filtering-faq
+.RE
+.PP
 @CF_procmail@
 In this case your $HOME/@DOT_FORWARD@ (beware, it
 .B has
@@ -664,11 +673,11 @@ ORGMAIL=@SYSTEM_MBOX@
 
 if cd $HOME &&
  test \-s $ORGMAIL &&
- lockfile \-r0 \-l3600 .newmail.lock 2>/dev/null
+ lockfile \-r0 \-l@DEFlocktimeout@ .newmail.lock 2>/dev/null
 then
   trap "rm \-f .newmail.lock" 1 2 3 15
   umask 077
-  lockfile \-l3600 \-ml
+  lockfile \-l@DEFlocktimeout@ \-ml
   cat $ORGMAIL >>.newmail &&
    cat /dev/null >$ORGMAIL
   lockfile \-mu

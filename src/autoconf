@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.102 1994/10/18 14:30:01 berg Exp $
+#$Id: autoconf,v 1.103 1995/03/20 14:51:31 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -140,13 +140,13 @@ HERE
   trap "kill \`cat _locktst.pid\` 2>$DEVNULL;cp $ACONF $ACONF.tmp
    test ! -z \"\$OLDTESTDIRS\" && $RM -r \$OLDTESTDIRS \$OLDTESTDIRS 2>$DEVNULL
    test ! -z \"\$tailpid\" && kill \$tailpid 2>$DEVNULL
-   kill \`cat _locktst.pid\` 2>$DEVNULL; exit 1" 1 2 3 15
+   kill \`cat _locktst.pid\` 2>$DEVNULL; exit 1" 1 2 3 13 15
 else
   trap "kill \`cat _locktst.pid\` 2>$DEVNULL;$RM -r $ACONF.tmp
    test ! -z \"\$OLDTESTDIRS\" && $RM -r \$OLDTESTDIRS \$OLDTESTDIRS 2>$DEVNULL
    mv $ACONF $ACONF.tmp 2>$DEVNULL
    test ! -z \"\$tailpid\" && kill \$tailpid 2>$DEVNULL
-   kill \`cat _locktst.pid\` 2>$DEVNULL; exit 1" 1 2 3 15
+   kill \`cat _locktst.pid\` 2>$DEVNULL; exit 1" 1 2 3 13 15
 fi
 
 nocore=yes
@@ -167,7 +167,7 @@ more information about this, READ PARAGRAPH TWO in INSTALL).  To suppress this
 prompt you can set the LOCKINGTEST variable in the Makefile.
 
 Please add writable directories to the list.  You should only add directories
-that reside on filesystems that have unique characterics.  E.g. if you have
+that reside on filesystems that have unique characteristics.  E.g. if you have
 several remote NFS partitions, pick some unique client-server pairs, there is
 little use in picking the same server twice from the same client-machine.
 An excellent candidate would be a remotely mounted mail spool directory.
@@ -177,7 +177,7 @@ HERE
 testdirs="/tmp ."
 
 case "$LOCKINGTEST" in
-  ""|*[!0-9]*) b=dummy;;
+  ""|*[a-zA-Z/]*) b=dummy ;;
   *) b=""; testdirs=$LOCKINGTEST; LOCKINGTEST=dummy ;;
 esac
 
@@ -253,24 +253,25 @@ main(){int i=0;char*p="t";
  {off_t voff_t;i+=voff_t=1;}
  return !vvoid+!i;}
 #include <unistd.h>
-struct {char a;char b;} setsid;
+empty()
+{ setsid();
+}
 HERE
 
 if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
  test -f _autotst.$O
 then
-  echo "#define setsid()" >>_locktst.h
+  $MAKE _autotst >$DEVNULL 2>&1 || echo "#define setsid()" >>_locktst.h
 else
   grepfor void '#define void char'
   grepfor time_t 'typedef long time_t;'
   grepfor off_t 'typedef long off_t;'
-  if $FGREP setsid _autotst.rrr >$DEVNULL 2>&1
+  if $MAKE _autotst.$O >$DEVNULL 2>&1
   then
-  :
+     $MAKE _autotst >$DEVNULL 2>&1 || echo "#define setsid()" >>_locktst.h
   else
+     echo "#define UNISTD_H_MISSING" >>$ACONF
      echo "#define setsid()" >>_locktst.h
-     $MAKE _autotst.$O >$DEVNULL 2>&1
-     test -f _autotst.$O || echo "#define UNISTD_H_MISSING" >>$ACONF
   fi
 fi
 
@@ -658,7 +659,7 @@ echo "" >_locktst.pid
 $MV _autotst _locktst
 
 case "$testdirs" in
-  *[!0-9]*)
+  *[a-zA-Z/]*)
      for b in $TESTDIRS
      do
 	for a in 0 1 2 3
@@ -685,23 +686,39 @@ main()
   static struct{const int a;int b;}c[2];
   --(c+1)->b;				 /* AIX 3.1.5 machines can't do this */
   p= &q;
-  if(!*d&&c[1].b)		      /* some magic to confuse the optimiser */
-     d=(const char*const*)p;		  /* so that it can't complain about */
-  else				    /* about the uselessness of this program */
-     execvp(q,p); /* IRIX 4.0.1 system-include files are wrong on this point */
+  ;{ int pip[2];
+     pipe(pip);
+     if(fork())		       /* this should hide core dumps from the shell */
+      { close(pip[1]);				    /* close the writing end */
+	return 1==read(pip[0],r,1)?0:1;		   /* wait for the rendevouz */
+      }
+     close(pip[0]);				    /* close the writing end */
+     if(!*d&&c[1].b)		      /* some magic to confuse the optimiser */
+	d=(const char*const*)p;		     /* core dumps Ultrix 4.3 ANSI C */
+     else /* so that it can't complain about the uselessness of this program */
+	execvp(q,p);   /* IRIX 4.0.1 system-includes are wrong on this point */
+     if(write(pip[1],r,1)!=1)		      /* notify mam that we survived */
+	return 1;				   /* oops, lost mam somehow */
+   }
   return r==s;		    /* Domain/OS warns here, not about "r==s" though */
 }
 HERE
 
 echo 'Testing for const'
 if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
- test -f _autotst.$O
+  test -f _autotst.$O && $MAKE _autotst >$DEVNULL 2>&1 && _autotst
 then
   grepfor const '#define NO_const'
 else
   echo '#define NO_const' >>$ACONF
+  set dummy *core*
+  if test -f $2 -a $nocore = yes
+  then
+     echo "Removing core file (bogus readonly segment)"
+     $RM *core*
+  fi
 fi
-$RM _autotst.$O
+$RM _autotst.$O _autotst
 
 cat >_autotst.c <<HERE
 main(){volatile int i;return (i=0);}
@@ -740,7 +757,7 @@ cat >_autotst.c <<HERE
 #include "includes.h"
 int a;
 #ifndef SYS_DIRENT_H_MISSING
-DIR*vDIR;
+DIR vDIR;
 #endif
 HERE
 
@@ -1064,7 +1081,7 @@ main(argc,argv)int argc;const char*argv[];
 /* Your system's strstr() is %.2f times %sER than my C-routine */\n",
 	 syscnt>=iter?(double)syscnt/iter:(double)iter/syscnt,
 	 syscnt>=iter?"SLOW":"FAST");
-	if(syscnt>=iter&&syscnt>1)
+	if(syscnt>iter+iter/16)		  /* if at least 1.0625 times slower */
 	   printf("\
 #define SLOWstrstr\t\t\t      /* using my substitute instead */\n");
       }
@@ -1122,13 +1139,13 @@ main(argc,argv)int argc;const char*argv[];
    }
 #ifdef SYSTEM_MBOX
   if(argc==2)
-   { printf("#define SYSTEM_MAILBOX %s\n",SYSTEM_MBOX);
+   { printf("#define SYSTEM_MAILBOX \"%s\"\n",SYSTEM_MBOX);
      return 1;
    }
 #endif
 #ifdef DEFsendmail
   if(argc==3)
-   { printf("#define SENDMAIL %s\n",DEFsendmail);
+   { printf("#define SENDMAIL \"%s\"\n",DEFsendmail);
      return 1;
    }
 #endif
