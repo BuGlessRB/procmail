@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.51 1993/06/04 13:49:24 berg Exp $
+#$Id: autoconf,v 1.52 1993/06/07 12:37:12 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -917,7 +917,7 @@ found=no
 for a in /usr/spool/mail /usr/mail /var/spool/mail /var/mail /spool/mail
 do
   test -d $a -a $found != yes &&
-   echo '#define SYSTEM_MAILBOX "$a/$LOGNAME"' >>$ACONF && found=yes
+   echo '#define SYSTEM_MAILBOX "'$a'/$LOGNAME"' >>$ACONF && found=yes
 done
 if test $found != yes && _autotst 2 >>$ACONF
 then

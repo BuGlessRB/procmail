@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: x_command,v 1.7 1993/06/02 15:30:55 berg Exp $
+#$Id: x_command,v 1.8 1993/06/07 12:37:03 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -8,6 +8,7 @@ cat=cat			# /bin/cat
 formail=formail		# /usr/local/bin/formail
 subscribe=subscribe	# ../SedBinDir/subscribe
 unsubscribe=unsubscribe # ../SedBinDir/unsubscribe
+multigram=multigram	# ../SedBinDir/multigram
 
 tmprequest=tmp.request
 tmpfrom=tmp.from
@@ -17,15 +18,16 @@ log=log
 $test -z "$listaddr" &&
  $echo "Don't start this script directly, it is used in rc.request" && exit 64
 
-$formail -R$X_COMMAND: X-Processed:
-
 X_ENVELOPE_TO=$list-request	# to convince (un)subscribe we used the right
 export X_ENVELOPE_TO		# address
+
+$formail -R$X_COMMAND: X-Processed:
 
 while $test $# != 0
 do
   case "_$1" in
      _subscribe)
+	 $echo="X-Diagnostic: `$echo $2 | $multigram -b1 -l-32767 dist`"
 	 $echo "From $2 " >$tmprequest
 	 $echo "From: $listreq" >>$tmprequest
 	 $echo "Reply-To: $2" >>$tmprequest
@@ -37,6 +39,7 @@ do
 	 $subscribe <$tmprequest | $SENDMAIL $sendmailOPT -t
 	 shift ;;
      _unsubscribe)
+	 $echo="X-Diagnostic: `$echo $2 | $multigram -b1 -l-32767 dist`"
 	 $echo "From $2 " >$tmprequest
 	 $echo "From: $listreq" >>$tmprequest
 	 $echo "Reply-To: $2" >>$tmprequest

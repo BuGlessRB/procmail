@@ -93,12 +93,12 @@ to abuse the sgid/suid-ness.
    ------------------------------------------
 
 The following line should take the place of the standard
-Mlocal rule in your sendmail.cf (this way sendmail will start up procmail with
-root priv, procmail will immediately setuid itself to the recipient's uid):
+Mlocal rule in your sendmail.cf:
 
-Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhP, S=10, R=20, A=procmail -d $u
+Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhPfn, S=10, R=20, A=procmail -d $u
 
-As for the remaining flags "S=10, R=20", if your system uses others or
+The `f' and the `n' flags can be omitted (if your sendmail generates correct
+From_ lines).  As for the options "S=10, R=20": if your system uses others or
 none on the current Mlocal rule, use those instead of "S=10, R=20".
 
 				---

@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.29 1993/06/04 13:49:29 berg Exp $";
+ "$Id: multigram.c,v 1.30 1993/06/07 12:37:18 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/06/04 13:49:29 $";
+static /*const*/char rcsdate[]="$Date: 1993/06/07 12:37:18 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -154,7 +154,7 @@ const struct string*const fuzzstr;struct string*const hardstr;
      gramsize=maxgram;
   maxweight=SCALE_WEIGHT/(gramsize+1);
   meter=(int)((unsigned long)SCALE_WEIGHT/2*minlen/maxlen)-SCALE_WEIGHT/2;
-  do				    /* reset local multigram counter */
+  do					    /* reset local multigram counter */
    { register lmeter=0;size_t cmaxlen=maxlen;
      ;{ register const char*fzz,*hrd;
 	fzz=fuzzstr->itext;
@@ -342,9 +342,9 @@ lastopt:
      if(!chp||*++argv||renam+remov+!!addit>1)
 	goto usg;
      if(excstr.text)
-      { excstr.textlen=strlen(excstr.text),lowcase(excstr);
+      { excstr.textlen=strlen(excstr.text);lowcase(&excstr);
 	if(exc2str.text)
-	   exc2str.textlen=strlen(exc2str.text),lowcase(exc2str);
+	   exc2str.textlen=strlen(exc2str.text),lowcase(&exc2str);
       }
      if(!(hardfile=fopen(chp,remov||renam||addit?"r+":"r")))
       { nlog("Couldn't open \"");elog(chp);elog("\"\n");return EX_IOERR;
@@ -423,10 +423,13 @@ shftleft:     tmemmove(chp,chp+1,strlen(chp));
 	if(*(chp=fuzzstr.text)=='<'&&*(echp=strchr(chp,'\0')-1)=='>'
 	 &&!strchr(chp,','))			      /* strip '<' and '>' ? */
 	   *echp='\0',tmemmove(chp,chp+1,echp-chp);
-	if(!(fuzzstr.textlen=strlen(chp))||
-	 excstr.text&&matchgram(&fuzzstr,&excstr)>=EXCL_THRESHOLD||
-	 exc2str.text&&matchgram(&fuzzstr,&exc2str)>=EXCL_THRESHOLD)
+	if(!(fuzzstr.textlen=strlen(chp)))
 	   continue;
+	lowcase(&fuzzstr);
+	if(excstr.text&&matchgram(&fuzzstr,&excstr)>=EXCL_THRESHOLD||
+	 exc2str.text&&matchgram(&fuzzstr,&exc2str)>=EXCL_THRESHOLD)
+	 { free(fuzzstr.itext);continue;
+	 }
 	;{ int i=0;
 	   do
 	    { if(best[i]->metric==-SCALE_WEIGHT&&!strcmp(best[i]->fuzz,chp))
@@ -441,8 +444,7 @@ shftleft:     tmemmove(chp,chp+1,strlen(chp));
 	curmatch->fuzz=tstrdup(chp);curmatch->hard=malloc(1);
 	curmatch->metric= -SCALE_WEIGHT;
       }
-     lowcase(&fuzzstr);fseek(hardfile,(off_t)0,SEEK_SET);
-     maxmetric=best[best_matches]->metric;
+     fseek(hardfile,(off_t)0,SEEK_SET);maxmetric=best[best_matches]->metric;
      for(remov_delim=offs2=linentry=0;
       offs1=offs2,readstr(hardfile,&hardstr,1);)
       { offs2=ftell(hardfile);linentry++;
