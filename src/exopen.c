@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.21 1994/05/26 14:12:35 berg Exp $";
+ "$Id: exopen.c,v 1.22 1994/06/10 15:13:15 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -20,7 +20,7 @@ int unique(full,p,mode,verbos,chownit)const char*const full;char*p;
 { unsigned long retry=mrotbSERIAL;int i;struct stat filebuf;
   int nicediff,didnice=0;
   if(chownit&doCHOWN)		  /* semi-critical, try raising the priority */
-   { nicediff=nice(0);errno=0;nicediff-=nice(-NICE_RANGE);
+   { nicediff=nice(0);SETerrno(0);nicediff-=nice(-NICE_RANGE);
      if(!errno)
 	didnice=1;
    }
@@ -65,13 +65,13 @@ ret0:	return 0;
 				     /* rename MUST fail if already existent */
 int myrename(old,newn)const char*const old,*const newn;
 { int i,serrno;
-  i=hlink(old,newn);serrno=errno;unlink(old);errno=serrno;return i;
+  i=hlink(old,newn);serrno=errno;unlink(old);SETerrno(serrno);return i;
 }
 		 /* hardlink with fallback for systems that don't support it */
 int hlink(old,newn)const char*const old,*const newn;
 { if(link(old,newn))				      /* try a real hardlink */
    { int i,serrno;struct stat stbuf;
-     serrno=errno;i=lstat(old,&stbuf);errno=serrno;
+     serrno=errno;i=lstat(old,&stbuf);SETerrno(serrno);
      if(i&&S_ISLNK(stbuf.st_mode))		/* no stat or symbolic link? */
 	goto retfail;				     /* yuk, don't accept it */
      if(stbuf.st_nlink!=2)

@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.41 1994/06/01 17:22:23 berg Exp $*/
+/*$Id: includes.h,v 1.42 1994/06/10 15:13:18 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -410,6 +410,8 @@ extern void*memmove();
 #ifndef offsetof
 #define offsetof(s,m) ((char*)&(((s*)sizeof(s))->m)-(char*)sizeof(s))
 #endif
+
+#define SETerrno(v)	(errno=(v))	       /* multi-threading errno hook */
 
 #define PROGID		/*const*/char progid[]="Stephen R. van den Berg"
 #define maxindex(x)	(sizeof(x)/sizeof((x)[0])-1)
