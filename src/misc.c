@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.57 1994/08/02 17:41:26 berg Exp $";
+ "$Id: misc.c,v 1.58 1994/08/12 17:34:11 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -34,7 +34,7 @@ struct varstr strenstr[]={{"SHELLMETAS",DEFshellmetas},{"LOCKEXT",DEFlockext},
 #define MAXvarvals	 maxindex(strenvvar)
 #define MAXvarstrs	 maxindex(strenstr)
 
-const char lastfolder[]="LASTFOLDER";
+const char lastfolder[]="LASTFOLDER",maildir[]="MAILDIR";
 int didchd;
 char*globlock;
 static time_t oldtime;
@@ -82,7 +82,7 @@ void setids P((void))
 	setgid(gid);	   /* sets the saved gid as well; we can't use that! */
      setruid(uid);setuid(uid);setegid(gid);rcstate=rc_NORMAL;
 #if !DEFverbose
-     verbose=0;
+     verbose=0;			/* to avoid peeking in rcfiles using SIGUSR1 */
 #endif
    }
 }
@@ -101,11 +101,8 @@ int forkerr(pid,a)const pid_t pid;const char*const a;
 
 void progerr(line,xitcode)const char*const line;int xitcode;
 { charNUM(num,thepid);
-  nlog("Program failure (");
-  if(xitcode<0)
-     xitcode= -xitcode,elog("-");
-  ultstr(0,(unsigned long)xitcode,num);elog(num);
-  elog(") of");logqnl(line);
+  nlog("Program failure (");ltstr(0,(long)xitcode,num);elog(num);elog(") of");
+  logqnl(line);
 }
 
 void chderr(dir)const char*const dir;
@@ -244,16 +241,15 @@ int alphanum(c)const unsigned c;
 { return numeric(c)||c-'a'<='z'-'a'||c-'A'<='Z'-'A'||c=='_';
 }
 
-void firstchd P((void))
-{ if(!didchd)				       /* have we been here already? */
-   { const char*p;
-     didchd=1;			      /* no, well, then try an initial chdir */
-     if(chdir(p=tgetenv(maildir)))
-      { chderr(p);
-	if(chdir(p=tgetenv(home)))
-	   chderr(p);
-      }
-   }
+char*pmrc2buf P((void))
+{ sgetcp=pmrc;readparse(buf,sgetc,2);
+  return buf;
+}
+
+void setmaildir(newdir)const char*const newdir;		    /* destroys buf2 */
+{ char*chp;
+  didchd=1;*(chp=strcpy(buf2,maildir)+STRLEN(maildir))='=';
+  strcpy(++chp,newdir);sputenv(buf2);
 }
 
 void srequeue P((void))
@@ -400,10 +396,9 @@ void asenv(chp)const char*const chp;
    }
   else if(!strcmp(buf,dropprivs))			  /* drop privileges */
    { if(renvint(0L,chp))
-      { unsigned saveverbose;
-	if(saveverbose=verbose)
-	   nlog("Assuming identity of the recipient\n");
-	setids(),verbose=saveverbose;
+      { if(verbose)
+	   nlog("Assuming identity of the recipient, VERBOSE=off\n");
+	setids();
       }
    }
   else if(!strcmp(buf,sdelivered))			    /* fake delivery */

@@ -9,7 +9,7 @@
 #	This file is *not* automatically replaced during an upgrade of	#
 #	SmartList.							#
 #########################################################################
-#$Id: mimencap.local,v 1.14 1994/07/19 14:45:10 berg Exp $
+#$Id: mimencap.local,v 1.15 1994/08/12 17:33:35 berg Exp $
 
 # What we have at our disposal are:
 #
@@ -171,36 +171,6 @@
   [-_a-z0-9]+:.*$([	 ].*$)*\
   ([-_a-z0-9]+:.*$([	 ].*$)*)+$
 | $formail -fb -I "Content-Type: message/rfc822"
-
-#########################################################
-# If any of them matched, encode and output the message #
-#########################################################
-
-:0
-* ^Content-Type:
-{
-  :0
-  * !^Content-Transfer-Encoding:
-  {
-    :0 B
-    * [^- -~-]
-    {
-      :0 wfb
-      | $mimencode -b
-
-      :0 wfh
-      | $formail -fb -I "Content-Transfer-Encoding: base64"
-    }
-  }
-
-  :0 wfh
-  | $formail -fb -a "MIME-Version: 1.0" | \
-    $sed -e 's"^\(Content-Type: .*\)$"\1;\
-	directory=\"'$dir'\"; name=\"'$name'\""'
-
-  :0
-  |
-}
 
 #
 # Simply drop off the end, to proceed with default processing.

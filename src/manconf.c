@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.44 1994/08/02 14:31:41 berg Exp $*/
+/*$Id: manconf.c,v 1.45 1994/08/12 17:34:09 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -9,19 +9,27 @@
 
 static char pm_version[]=VERSION,ffileno[]=DEFfileno;
 const char dirsep[]=DIRSEP;
+char pmrc[]=PROCMAILRC;
 static const char*const keepenv[]=KEEPENV,*const prestenv[]=PRESTENV,
  *const trusted_ids[]=TRUSTED_IDS,*const etcrc=ETCRC,
  *const krnllocks[]={
 #ifndef NOfcntl_lock
-  "fcntl(2)",
+  "\1.BR fcntl (2)",
 #endif
 #ifdef USElockf
-  "lockf(3)",
+  "\1.BR lockf (3)",
 #endif
 #ifdef USEflock
-  "flock(2)",
+  "\1.BR flock (2)",
 #endif
   0};
+				     /* following routine lifted from misc.c */
+char*lastdirsep(filename)const char*filename;	 /* finds the next character */
+{ const char*p;					/* following the last DIRSEP */
+  while(p=strpbrk(filename,dirsep))
+     filename=p+1;
+  return (char*)filename;
+}
 
 static char*skltmark(nl,current)char**current;
 { char*from= *current,*p;
@@ -39,9 +47,9 @@ static void putcesc(i)
 	break;
      case '\\':i='e';
 	goto twoesc;
-     case '\1':i='\n';
+     case '\1':i='\n';			    /* \1 doubles for nroff newlines */
 	goto singesc;
-     case '\2':i='\\';
+     case '\2':i='\\';			 /* \2 doubles for nroff backslashes */
 	goto singesc;
      case '\t':i='t';
 	goto fin;
@@ -132,8 +140,8 @@ exit 75 \2fB#\2fP\2fIYOUR_USERNAME\2fP\"");
 it will generate an additional `@FAKE_FIELD@' line to help distinguish\1\
 fake mails.",""," or ");
   plist("KERNEL_LOCKING",
-   "consistently uses the following kernel locking strategies: ",krnllocks,"",
-   "doesn't use any additional kernel locking strategies"," and ");
+   "consistently uses the following kernel locking strategies:",krnllocks,"",
+   "\1doesn't use any additional kernel locking strategies","\1and");
 #ifdef LD_ENV_FIX
   ps("LD_ENV_FIX","\1.PP\1For security reasons, procmail will wipe out all\
  environment variables starting with LD_ upon startup.");
@@ -151,10 +159,10 @@ is case sensitive, and some users have login names with uppercase letters in\
   ps("SYSTEM_MBOX",SYSTEM_MBOX);
   ps("ETCRC_desc",etcrc?"\1.PP\1If no rcfiles and no\1.B \2-@PRESERVOPT@\1have\
  been specified on the command line, procmail will, prior to reading\
- $HOME/@PROCMAILRC@, interpret commands from\1.B @ETCRC@\1(if present).\1\
+ @PROCMAILRC@, interpret commands from\1.B @ETCRC@\1(if present).\1\
 Care must be taken when creating @ETCRC@, because, if circumstances\
  permit, it will be executed with root privileges (contrary to the\
- $HOME/@PROCMAILRC@ file of course).":"");
+ @PROCMAILRC@ file of course).":"");
   ps("ETCRC_files",etcrc?"\1.TP\1.B @ETCRC@\1initial global rcfile":"");
   ps("DROPPRIVS",etcrc?"\1.TP\1.B DROPPRIVS\1If set to `yes' procmail\
  will drop all privileges it might have had (suid or sgid).  This is\
@@ -198,7 +206,7 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
   pn("DEFlinebuf",DEFlinebuf);
   ps("BOGUSprefix",BOGUSprefix);
   ps("FAKE_FIELD",FAKE_FIELD);
-  ps("PROCMAILRC",PROCMAILRC);
+  ps("PROCMAILRC",pmrc);*lastdirsep(pmrc)='\0';
   pn("HOSTNAMElen",HOSTNAMElen);
   pn("DEFsuspend",DEFsuspend);
   pn("DEFlocksleep",DEFlocksleep);
@@ -209,7 +217,7 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
   ps("FROMMkey",FROMMkey);
   ps("FROMMsubstitute",FROMMsubstitute);
   ps("DEFshellmetas",DEFshellmetas);
-  ps("DEFmaildir",DEFmaildir);
+  ps("DEFmaildir",pmrc);
   ps("DEFdefault",DEFdefault);
   ps("DEFmsgprefix",DEFmsgprefix);
   ps("DEFsendmail",DEFsendmail);

@@ -2,7 +2,7 @@
  *	recommend	Analyses the installation, and makes		*
  *			recommendations about suid/sgid modes		*
  ************************************************************************/
-/*$Id: recommend.c,v 1.10 1994/07/26 17:35:45 berg Exp $*/
+/*$Id: recommend.c,v 1.11 1994/08/12 17:34:27 berg Exp $*/
 #include "includes.h"
 
 #ifndef SYSTEM_MBOX
@@ -38,10 +38,13 @@ main(argc,argv)const int argc;const char*const argv[];
 	break;
       }
   if(!stat(systm_mbox,&stbuf)&&!(stbuf.st_mode&S_IWOTH))
-   { sgid=S_ISGID;gid=stbuf.st_gid;
-     if(!(stbuf.st_mode&S_IWGRP))
-	chmdir=1;
-   }
+     if(stbuf.st_mode&S_ISVTX)
+	chmdir=2;
+     else
+      { if(!(stbuf.st_mode&S_IWGRP))
+	   chmdir=1;
+	sgid=S_ISGID;gid=stbuf.st_gid;
+      }
   if(gid!=stbuf.st_gid)
      sgid=0;
   printf("chown root %s\n",argv[1]);
@@ -49,12 +52,14 @@ main(argc,argv)const int argc;const char*const argv[];
      if(grp=getgrgid(gid))
 	printf("chgrp %s %s %s\n",grp->gr_name,argv[1],argv[2]);
      else
-	printf("chgrp %u %s %s\n",(int)gid,argv[1],argv[2]);
+	printf("chgrp %u %s %s\n",(unsigned)gid,argv[1],argv[2]);
   printf("chmod %o %s\n",sgid|S_ISUID|PERMIS,argv[1]);
   if(sgid)
-   { printf("chmod %o %s\n",sgid|PERMIS,argv[2]);
-     if(chmdir)
-	printf("chmod g+w %s.\n",systm_mbox);
-   }
+     printf("chmod %o %s\n",sgid|PERMIS,argv[2]);
+  else if(chmdir==1)
+     goto nogchmod;
+  if(chmdir)
+     printf("chmod %c+w %s.\n",chmdir==1?'g':'a',systm_mbox);
+nogchmod:
   return EXIT_SUCCESS;
 }

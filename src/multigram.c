@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.58 1994/07/26 17:35:36 berg Exp $";
+ "$Id: multigram.c,v 1.59 1994/08/12 17:34:16 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/07/26 17:35:36 $";
+static /*const*/char rcsdate[]="$Date: 1994/08/12 17:34:16 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -151,7 +151,7 @@ static void revstr(p)register char*p;		       /* reverse the string */
 
 static void makelow(str)register char*str;
 { for(;*str;str++)
-     if((unsigned)*str-'A'<'Z'-'A')
+     if((unsigned)*str-'A'<='Z'-'A')
 	*str+='a'-'A';
 }
 
@@ -828,16 +828,17 @@ remv:	 { char*buf;off_t offs1,offs2;size_t readin;
 	   printf("Removed: %s\n",mp->hard);
 	   if(renam)
 	      fputs(worse->fuzz,hardfile),printf("Added: %s\n",worse->fuzz);
-	   do putc('\n',hardfile);			   /* erase the tail */
-	   while(ftell(hardfile)<offs2);
+	   fflush(hardfile);			 /* flush before we truncate */
+	   if(ftruncate(fileno(hardfile),ftell(hardfile)))
+	      do putc('\n',hardfile);	  /* truncate failed, erase the tail */
+	      while(ftell(hardfile)<offs2);			  /* by hand */
 	   fclose(hardfile);
 	 }
 	return EXIT_SUCCESS;
       }
    }
   if(remov||renam)
-   { nlog("Couldn't even find a single address\n");
-   }
+     nlog("Couldn't even find a single address\n");
 norenam:
   return 1;
 }

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.21 1994/05/26 14:12:03 berg Exp $
+#$Id: mansed,v 1.22 1994/08/12 17:33:38 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -26,6 +26,7 @@ then
 fi
 
 (cat <<\HERE
+.TH STUPID groff mandoc hack
 .\"if n .pl +(135i-\n(.pu)
 .de Id
 .ds Rv \\$3

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.56 1994/08/04 17:05:08 berg Exp $
+.Id $Id: procmail.man,v 1.57 1994/08/12 17:33:41 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -49,8 +49,8 @@ When invoked, it first sets some environment variables to default values,
 reads the mail message from stdin until an EOF, separates the body from the
 header, and then, if no command line arguments are present, it starts to look
 for a file named
-.B @PROCMAILRC@
-in your home directory.  According to the processing recipes in this file,
+.BR @PROCMAILRC@ .
+According to the processing recipes in this file,
 the mail message that just arrived gets distributed into the right folder
 (and more).  If no rcfile is found, or processing of the rcfile falls off
 the end, procmail will store the mail in the default system
@@ -185,7 +185,7 @@ command line.  The following ones will only be parsed if the preceding ones
 have a not matching HOST-directive entry, or in case they should not exist.
 .PP
 If no rcfiles are specified, it looks for
-.BR $HOME/@PROCMAILRC@ .
+.BR @PROCMAILRC@ .
 If not even that can be found, processing will continue according to
 the default settings of the environment variables and the ones specified
 on the command line.
@@ -242,7 +242,7 @@ system mailbox; both the system mailbox and the immediate directory
 it is in will be created everytime procmail starts and either one is
 not present@ETCRC_files@@ETCRCS_files@
 .TP
-.B $HOME/@PROCMAILRC@
+.B @PROCMAILRC@
 default rcfile
 .TP
 .B @SYSTEM_MBOX@@DEFlockext@
@@ -454,8 +454,8 @@ Procmail now tries to kernel-lock the most recently opened file(descriptor).
 Assigning "x"
 Environment variable assignment.
 .TP
-Assuming identity of the recipient
-Dropping all privileges (if any).
+Assuming identity of the recipient, VERBOSE=off
+Dropping all privileges (if any), implicitly turns off extended diagnostics.
 .TP
 Bypassed locking "x"
 The mail spool directory was not accessible to procmail, it relied solely

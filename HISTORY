@@ -32,58 +32,20 @@
 	       command line help (called up by -h or -?)
 1993/02/04: v2.80
 	    Started using CVS to manage the source (god's gift to programmers)
-	    Changes to formail:
-	       - formail does *NOT* CONCATENATE continued header-fields by
-		 default now anymore, specify the -c option for this
-	       - fixed the sender-determination-code, v2.71 didn't comply
-		 with RFC-822 on some points
-	    Changes to procmail:
-	       - procmail does *NOT* CONCATENATE continued header-fields
-		 anymore, filter through "formail -c" for this
-	       - procmail only escapes bogus From_ lines now when writing a
-		 regular mailfolder (otherwise it's unchanged)
-	       - changed the method for turning on extended diagnostics, the
-		 preceding colon is not supported anymore, use VERBOSE=on
-	       - comsat/biff is fully supported now
 	    Changes to the installation scripts:
 	       - the autoconf script now performs a reliability test on kernel
 		 locking support
 	       - reached the doubtful milestone of consistently crashing the
 		 kernel on a Convex by running the locktst program
 1993/02/19: v2.81
-	    Procmail now uses saved-gids if available (allows for system-
-	       mailbox locking from within an rcfile on systems that did not
-	       have world-writable /usr/mail directories)
 1993/06/02: v2.82 (never really released, was only available as prerelease 4)
-	    Made the regexp lib faster again (worst case performance improved)
-	    Procmail can now deliver to multiple directories (using hardlinks)
-	    If the umask permits o+x, this bit will be set on any mailbox
-	       procmail delivers to directly
 	    Worked my way around the !@#$%^&*() POSIX setgid() semantics (if
 	       your OS supports setrgid() or setregid())
 1993/07/01: v2.90
 	    Condition lines in recipes can now be started with a leading `*',
 	       there is no longer a need to count condition lines, simply
 	       set the number to zero, and let procmail find out by itself
-	    Added the -a and -m options to procmail, for enhanced interfacing
-	       to sendmail
-	    Updated the recommended sendmail.cf mailer entry docs in
-	       examples/advanced
-	    Fixed a race condition when the recipient mailbox did not exist
-	       and two procmails simultaneously tried to create it
-	    Cleaned up main() in procmail.c (localised variables)
-	    When procmail gobbles up the leading From_ line, it reads in 2KB
-	       blocks now (instead of character wise; saves a few system calls)
 1993/07/02: v2.91
-	    Fixed a race condition in autoconf that caused problems on machines
-	       that didn't have memmove(3) and were too fast (make got confused
-	       about the modification time of an object file)
-	    Fixed a typo in the regex library (introduced in v2.82pre4),
-	       caused some valid matches not to be found if the regular
-	       expression starts with an epsilon transition
-	    Fixed a few typos in the man pages
-	    Made sure the logfile was flushed before procmail exits
-	    Forgot to redirect output of a test in autoconf to /dev/null
 	    Reached the doubtful milestone to sometimes crash an Ultrix
 	       machine (due to the lockingtests, not procmail itself)
 1994/06/14: v3.00
@@ -267,3 +229,17 @@
 	    Procmail sometimes didn't reliably count the number of matches on
 	       a weighted recipe, fixed
 	    Some minor manpage adaptations
+1994/08/04: v3.06
+	    Groff -mandoc macros managed to display the man pages incorrectly,
+	       hacked my way around the .TH dependency to fix it
+	    Split up string constant FM_HELP, it exceeded some compiler limits
+	    Changes to procmail:
+	       - Fixed a bug which was present since v2.30: 'z' was always
+		 handled case sensitive (seems like not many people use
+		 that letter :-) in regular expression conditions
+	       - The ^^ anchor can now also be used to anchor the end of
+		 a regular expression
+	       - The -m flag will now unset ORGMAIL and will make
+		 procmail omit the check for a system mailbox
+	       - Allow easy reconfiguration of the default rcfile location
+	       - Extend the list of internals displayed with -v

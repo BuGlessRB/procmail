@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.56 1994/08/02 14:31:04 berg Exp $*/
+/*$Id: config.h,v 1.57 1994/08/12 17:33:17 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -18,6 +18,11 @@
  */
 #define KEEPENV		{"TZ",0}
 
+/*#define DEFPATH	"PATH=$HOME/bin:/bin:/usr/bin"	/* uncomment and/or
+							   change if you
+	do not want the autoconf generated defPATH setting to be used in
+	PRESTENV below. */
+
 /* every environment variable appearing in PRESTENV will be set or wiped
  * out of the environment (variables without an '=' sign will be thrown
  * out), e.g. you could define PRESTENV as follows:
@@ -25,8 +30,7 @@
  * any side effects (like setting the umask after an assignment to UMASK) will
  * *not* take place
  */
-#define PRESTENV	{"IFS","ENV","PWD","PATH=$HOME/bin:/bin:/usr/bin", \
-			 "USER=$LOGNAME",0}
+#define PRESTENV	{"IFS","ENV","PWD",DEFPATH,"USER=$LOGNAME",0}
 
 /************************************************************************
  * Only edit below this line if you have viewed/edited this file before *
@@ -63,6 +67,11 @@
 /*#define DEFsendmail	"/bin/mail"	/* uncomment and/or change if the
 					   autoconfigured default SENDMAIL is
 	not suitable */
+
+#define PROCMAILRC	"$HOME/.procmailrc"	/* default rcfile for every
+						   recipient;  if this file
+	is not found, maildelivery will proceed as normal to the default
+	system mailbox. */
 
 #define ETCRC	"/etc/procmailrc"	/* optional global procmailrc startup
 					   file (will only be read if procmail
@@ -110,7 +119,6 @@
 #define FAKE_FIELD	">From "
 #define HOSTNAMElen	9	  /* determines hostname-ID-len on tempfiles */
 #define BOGUSprefix	"BOGUS."	     /* prepended to bogus mailboxes */
-#define PROCMAILRC	".procmailrc"
 #define DEFsuspend	16		 /* multi-purpose 'idle loop' period */
 #define DEFlocksleep	8
 #define TOkey		"^TO"
@@ -127,7 +135,6 @@ LISTSERV|owner|request|bounce|serv(ices?|er)|Admin(istrator)?)\
 >?From )(.*[^(.%@a-z0-9])?(Post(ma(st(er)?|n)|office)|(send)?Mail(er)?|daemon|\
 mmdf|root|n?uucp|serv(ices?|er)|Admin(istrator)?)([^).!:a-z0-9].*)?$[^>])"
 #define DEFshellmetas	"&|<>~;?*["		    /* never put '$' in here */
-#define DEFmaildir	"$HOME"
 #define DEFdefault	"$ORGMAIL"
 #define DEFmsgprefix	"msg."
 #define DEFlockext	".lock"
@@ -273,7 +280,7 @@ Usage: formail [-bcfrktqY] [-D nnn idcache] [-p prefix] [-l folder]\n\
 \t[-xXaAiIuU field] [-R ofield nfield]\n\
    Or: formail [+nnn] [-nnn] [-bcfrktnedqBY] [-D nnn idcache] [-p prefix]\n\
 \t[-m nnn] [-l folder] [-xXaAiIuU field] [-R ofield nfield]\n\
-\t-s [prg [arg ...]]\n"
+\t-s [prg [arg ...]]\n"	    /* split up FM_HELP, token too long for some ccs */
 #define FM_HELP		\
  " -b\t\tdon't escape bogus mailbox headers\
 \n -Y\t\tBerkeley format mailbox, disregard Content-Length:\
@@ -284,8 +291,9 @@ Usage: formail [-bcfrktqY] [-D nnn idcache] [-p prefix] [-l folder]\n\
 \n -t\t\ttrust the sender for his return address\
 \n -l folder\tgenerate a procmail-compatible log summary\
 \n -D nnn idcache\tdetect duplicates with an idcache of length nnn\
-\n -s prg arg\tsplit the mail, startup prg for every message\
-\n +nnn\t\tskip the first nnn\t-nnn\toutput at most nnn messages\
+\n -s prg arg\tsplit the mail, startup prg for every message\n"
+#define FM_HELP2	\
+ " +nnn\t\tskip the first nnn\t-nnn\toutput at most nnn messages\
 \n -n\t\tdon't serialise splits\t-e\tempty lines are optional\
 \n -d\t\taccept digest format\t-B\texpect BABYL rmail format\
 \n -q\t\tbe quiet\t\t-p prefix\tquotation prefix\

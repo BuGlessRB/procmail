@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.60 1994/08/04 17:05:29 berg Exp $";
+ "$Id: formail.c,v 1.61 1994/08/12 17:33:59 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/08/04 17:05:29 $";
+static /*const*/char rcsdate[]="$Date: 1994/08/12 17:33:59 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -244,6 +244,7 @@ main(lastm,argv)int lastm;const char*const argv[];
 		  }
 		 goto usg;
 	      case HELPOPT1:case HELPOPT2:elog(fmusage);elog(FM_HELP);
+		 elog(FM_HELP2); /* had to split up FM_HELP, compiler limits */
 		 goto xusg;
 	      case FM_DUPLICATE:case FM_MINFIELDS:Qnext_arg();chp++;
 	      default:chp--;

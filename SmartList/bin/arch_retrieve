@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.38 1994/06/17 16:41:06 berg Exp $
+#$Id: arch_retrieve,v 1.39 1994/08/12 17:33:28 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -60,7 +60,7 @@ export tmprequest archivedir wrongaddress	# for mimesend
 # Check if mimencode is available
 #
 
-case `( exec 2>&1; exec $mimencode -)` in
+case "`( exec 2>&1; exec $mimencode -)`" in
    Usage:*) ;;
    *) mimencode="";;
 esac
@@ -125,7 +125,7 @@ $wrongaddress}"
 			cd $archivedir
 			if $test -f "./$1"
 			then
-			   case `$sed -e 1q <"./$1"` in
+			   case "`$sed -e 1q <\"./$1\"`" in
 			      Content-[Tt]ype:*) $cat "./$1" ;;
 			      *) $echo ""
 				 $echo "File: $1"

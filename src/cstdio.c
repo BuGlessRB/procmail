@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.26 1994/06/28 16:56:03 berg Exp $";
+ "$Id: cstdio.c,v 1.27 1994/08/12 17:33:57 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -28,19 +28,19 @@ void pushrc(name)const char*const name;		      /* open include rcfile */
    }
 }
 
-void duprcs P((void))
+void duprcs P((void))		/* `duplicate' all the fds of opened rcfiles */
 { size_t i;struct dynstring*dp;
   dp=incnamed;rclose(rc);
-  if(0>(rc=ropen(dp->ename,O_RDONLY,0)))
+  if(0>(rc=ropen(dp->ename,O_RDONLY,0)))     /* first reopen the current one */
      goto dupfailed;
-  lseek(rc,blasttell+STDBUF,SEEK_SET);
+  lseek(rc,blasttell+STDBUF,SEEK_SET);	 /* you'll never know the difference */
   for(i=inced.filled;dp=dp->enext,i;i-=2)
    { int fd;
      rclose(inced.offs[--i]);
-     if(0>(fd=ropen(dp->ename,O_RDONLY,0)))
-dupfailed:
-	nlog("Lost"),logqnl(dp->ename),exit(EX_NOINPUT);
-     inced.offs[i]=fd;
+     if(0>(fd=ropen(dp->ename,O_RDONLY,0)))    /* reopen all (nested) others */
+dupfailed:					   /* oops, file disappeared */
+	nlog("Lost"),logqnl(dp->ename),exit(EX_NOINPUT);	    /* panic */
+     inced.offs[i]=fd; /* new & improved fd, decoupled from fd in the parent */
    }
 }
 

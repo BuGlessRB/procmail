@@ -168,7 +168,8 @@ MMDF users should note that they need a .maildelivery file *instead* of the
 
 If you are a system administrator you can decide to install procmail
 globally (i.e. as a more robust drop-in replacement for the local-
-maildelivery-capabilities of /bin/mail), this has the advantage that users do
+maildelivery-capabilities of /bin/mail, this also gets rid of the known
+security holes in some /bin/mails), this has the advantage that users do
 not need to have a .forward file anymore that calls up procmail.  Simply
 having a .procmailrc file in the HOME directory will suffice.  Operation is
 transparent in this case (i.e. if no .procmailrc file is present in the HOME

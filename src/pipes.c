@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.34 1994/07/26 17:35:39 berg Exp $";
+ "$Id: pipes.c,v 1.35 1994/08/12 17:34:19 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -256,9 +256,7 @@ jumpback:;
   pidchild=0;					/* child must be gone by now */
   if(!(pwait&2))
      pipw=0;				    /* keep quiet about any failures */
-  if(!*filled)
-     return realloc(bf,1);		     /* +1 for housekeeping purposes */
-  return realloc(bf,*filled+1);			/* minimise the buffer space */
+  return realloc(bf,*filled+1);	     /* minimise+1 for housekeeping purposes */
 }
 
 char*fromprog(name,dest,max)char*name;char*const dest;size_t max;

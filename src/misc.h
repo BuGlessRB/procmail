@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.28 1994/05/26 14:13:12 berg Exp $*/
+/*$Id: misc.h,v 1.29 1994/08/12 17:34:14 berg Exp $*/
 
 struct dyna_long{size_t filled,tspace;off_t*offs;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -26,7 +26,7 @@ void
  Terminate P((void)),
  suspend P((void)),
  app_val P((struct dyna_long*const sp,const off_t val)),
- firstchd P((void)),
+ setmaildir P((const char*const newdir)),
  srequeue P((void)),
  slose P((void)),
  sbounce P((void)),
@@ -49,6 +49,7 @@ char
  *lastdirsep P((const char*filename)),
  *cat P((const char*const a,const char*const b)),
  *tstrdup P((const char*const a)),
+ *pmrc2buf P((void)),
  *cstr P((char*const a,const char*const b)),
  *gobenv P((char*chp)),
  *egrepin P((char*expr,const char*source,const long len,int casesens));
@@ -60,6 +61,6 @@ long
 const struct passwd
  *savepass Q((struct passwd*const spass,const uid_t uid));
 
-extern const char lastfolder[];
+extern const char lastfolder[],maildir[];
 extern int didchd;
 extern char*globlock;

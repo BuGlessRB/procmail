@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.23 1994/08/02 14:31:15 berg Exp $
+#$Id: digest,v 1.24 1994/08/12 17:33:30 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -15,8 +15,6 @@ formail=formail		# /usr/local/bin/formail
 
 $test -z "$listaddr" &&
  $echo "Don't start this script directly, it is used in rc.submit" && exit 64
-
-test -z "$foreign_submit$METOO" && exit 1
 
 tmprequest=tmp.request
 tmpfrom=tmp.from

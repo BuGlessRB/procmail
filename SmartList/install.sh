@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.48 1994/07/20 17:33:19 berg Exp $
+#$Id: install.sh,v 1.49 1994/08/12 17:33:24 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -57,7 +57,7 @@ else
   exit 64
 fi
 
-if expr "X$bindir" : X.bin >/dev/null
+if expr "X$bindir" : 'X\.bin' >/dev/null
 then
 :
 else

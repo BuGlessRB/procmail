@@ -1,12 +1,12 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.43 1994/08/04 17:05:13 berg Exp $
+.Id $Id: procmailrc.man,v 1.44 1994/08/12 17:33:46 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
 procmailrc \- procmail rcfile
 .SH SYNOPSIS
-.B $HOME/@PROCMAILRC@
+.B @PROCMAILRC@
 .ad
 .SH DESCRIPTION
 For a quick start, see
@@ -243,6 +243,8 @@ Your (the recipient's) defaults
 .TP
 .BR ORGMAIL
 \&@SYSTEM_MBOX@
+.br
+(Unless \-@MAILFILTOPT@ has been specified, in which case it is unset)
 .TP
 .B MAILDIR
 \&@DEFmaildir@
@@ -588,6 +590,8 @@ matches.
 .PP
 When the regular expression starts with `^^' it will anchor the match
 at the very start of the text.
+When the regular expression ends with `^^' it will anchor the match
+at the very end of the text.
 .PP
 The start and end of a word can be matched by `\e<' and `\e>'.  They
 are merely a shorthand for `[^a-zA-Z0-9_]', but can also match newlines.

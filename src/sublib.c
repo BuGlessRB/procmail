@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: sublib.c,v 1.13 1994/06/28 16:56:49 berg Exp $";
+ "$Id: sublib.c,v 1.14 1994/08/12 17:34:32 berg Exp $";
 #endif
 #include "includes.h"
 #include "sublib.h"
@@ -161,7 +161,7 @@ jumpin:
      if((i=(unsigned)*str-'0')<10);
      else if(i-'A'+'0'<='Z'-'A')
 	i-='A'-10-'0';			   /* collating sequence dependency! */
-     else if(i-'a'+'0'<'z'-'a')
+     else if(i-'a'+'0'<='z'-'a')
 	i-='a'-10-'0';			   /* collating sequence dependency! */
      else
 	break;						/* not of this world */
