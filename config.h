@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.55 1994/07/26 17:34:40 berg Exp $*/
+/*$Id: config.h,v 1.56 1994/08/02 14:31:04 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -166,19 +166,21 @@ mmdf|root|n?uucp|serv(ices?|er)|Admin(istrator)?)([^).!:a-z0-9].*)?$[^>])"
 #define REFRESH_TIME	'-'		     /* when given as argument to -f */
 #define ALTFROMWHOPT	'r'		/* alternate and obsolete form of -f */
 #define OVERRIDEOPT	'o'		     /* do not generate >From_ lines */
+#define BERKELEYOPT	'Y'    /* Berkeley format, disregard Content-Length: */
 #define ARGUMENTOPT	'a'					   /* set $1 */
 #define DELIVEROPT	'd'		  /* deliver mail to named recipient */
 #define PM_USAGE	\
- "Usage: procmail [-vpto] [-f fromwhom] [parameter=value | rcfile] ...\
-\n   Or: procmail [-to] [-f fromwhom] [-a argument] -d recipient ...\
-\n   Or: procmail [-pt] -m [parameter=value] ... rcfile mail_from rcpt_to ...\
+ "Usage: procmail [-vptoY] [-f fromwhom] [parameter=value | rcfile] ...\
+\n   Or: procmail [-toY] [-f fromwhom] [-a argument] -d recipient ...\
+\n   Or: procmail [-ptY] -m [parameter=value] ... rcfile mail_from rcpt_to ...\
 \n"
 #define PM_HELP		\
  "\t-v\t\tdisplay the version number and exit\
 \n\t-p\t\tpreserve (most of) the environment upon startup\
 \n\t-t\t\tfail softly if mail is undeliverable\
 \n\t-f fromwhom\t(re)generate the leading 'From ' line\
-\n\t-o override the leading 'From ' line if necessary\
+\n\t-o\t\toverride the leading 'From ' line if necessary\
+\n\t-Y\t\tBerkeley format mailbox, disregard Content-Length:\
 \n\t-a argument\twill set $1\
 \n\t-d recipient\texplicit delivery mode\
 \n\t-m\t\tact as a general purpose mail filter\n"
@@ -240,6 +242,7 @@ mmdf|root|n?uucp|serv(ices?|er)|Admin(istrator)?)([^).!:a-z0-9].*)?$[^>])"
 #define FM_SKIP		'+'		      /* skip the first nnn messages */
 #define FM_TOTAL	'-'	    /* only spit out a total of nnn messages */
 #define FM_BOGUS	'b'			 /* leave bogus Froms intact */
+#define FM_BERKELEY	BERKELEYOPT   /* Berkeley format, no Content-Length: */
 #define FM_QPREFIX	'p'			  /* define quotation prefix */
 #define FM_CONCATENATE	'c'	      /* concatenate continued header-fields */
 #define FM_FORCE	'f'   /* force formail to accept an arbitrary format */
@@ -266,13 +269,14 @@ mmdf|root|n?uucp|serv(ices?|er)|Admin(istrator)?)([^).!:a-z0-9].*)?$[^>])"
 #define FM_LAST_UNIQ	'U'		     /* preserve the last occurrence */
 #define FM_ReNAME	'R'				   /* rename a field */
 #define FM_USAGE	"\
-Usage: formail [-bcfrktq] [-D nnn idcache] [-p prefix] [-l folder]\n\
+Usage: formail [-bcfrktqY] [-D nnn idcache] [-p prefix] [-l folder]\n\
 \t[-xXaAiIuU field] [-R ofield nfield]\n\
-   Or: formail [+nnn] [-nnn] [-bcfrktnedqB] [-D nnn idcache] [-p prefix]\n\
+   Or: formail [+nnn] [-nnn] [-bcfrktnedqBY] [-D nnn idcache] [-p prefix]\n\
 \t[-m nnn] [-l folder] [-xXaAiIuU field] [-R ofield nfield]\n\
 \t-s [prg [arg ...]]\n"
 #define FM_HELP		\
  " -b\t\tdon't escape bogus mailbox headers\
+\n -Y\t\tBerkeley format mailbox, disregard Content-Length:\
 \n -c\t\tconcatenate continued header-fields\
 \n -f\t\tforce formail to pass along any non-mailbox format\
 \n -r\t\tgenerate an auto-reply header, preserve fields with -i\

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.51 1994/07/26 17:35:28 berg Exp $";
+ "$Id: mailfold.c,v 1.52 1994/08/02 14:31:39 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -326,8 +326,9 @@ void readmail(rhead,tobesent)const long tobesent;
 	    }
 	thebody=pastend;      /* provide a default, in case there is no body */
 eofheader:
-	contlengthoffset=0;
-	if(chp=egrepin("^Content-Length:",themail,(long)(thebody-themail),0))
+	contlengthoffset=0;		      /* traditional Berkeley format */
+	if(!berkeley&&				  /* ignores Content-Length: */
+	   (chp=egrepin("^Content-Length:",themail,(long)(thebody-themail),0)))
 	   contlengthoffset=chp-themail;
       }
      else			       /* no new header read, keep it simple */

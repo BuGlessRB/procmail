@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1992-1994, S.R. van den Berg, The Netherlands
-#$Id: initmake,v 1.54 1994/07/19 14:44:47 berg Exp $
+#$Id: initmake,v 1.55 1994/08/02 14:31:06 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -147,9 +147,9 @@ if test -z "$cc"
 then
   echo 2>&1 "Whoeaaa!  There's something fishy going on here."
   echo 2>&1 "You have a look and see if you detect anything uncanny:"
-  echo 2>&1 "-------------------------------------------------------"
+  echo 2>&1 "*******************************************************"
   cat 2>&1 _autotst.rrr
-  echo 2>&1 "-------------------------------------------------------"
+  echo 2>&1 "*******************************************************"
   echo 2>&1 "I suggest you take a look at the definition of CFLAGS* and CC"
   echo 2>&1 "in the Makefile before you try make again."
   exit 1
@@ -183,7 +183,23 @@ esac
 
 LDFLAGSC=""
 
-test -f _autotst.$O || $cc -c $CFLAGS1 $CFLAGS _autotst.c >$DEVNULL 2>&1
+if test -f _autotst.$O || $cc -c $CFLAGS1 $CFLAGS _autotst.c >_autotst.rrr 2>&1
+then
+:
+else
+  echo 2>&1 "Whoeaaa!  There's something fishy going on here."
+  echo 2>&1 "You have a look and see if you detect anything uncanny:"
+  echo 2>&1 "*******************************************************"
+  cat 2>&1 _autotst.rrr
+  echo 2>&1 "*******************************************************"
+  echo 2>&1 "I suggest you take a look at the definition of CC and CFLAGS*"
+  echo 2>&1 "in the Makefile before you try make again."
+  echo 2>&1 "Also: write me a mail showing the errorlog you just generated."
+  echo 2>&1 "The errorlog can still be found in src/_autotst.rrr"
+  echo 2>&1 "It would be helpful if you could mention what machine and OS"
+  echo 2>&1 "you are trying to compile this on (uname -a).  Thanks."
+  exit 1
+fi
 $cc $CFLAGS1 $CFLAGS _autotst.$O -o _autotst $LDFLAGS1 -lc >_autotst.rrr 2>&1 \
  && if grep "[\"']c['\"]" _autotst.rrr >$DEVNULL ||
    fgrep libc _autotst.rrr >$DEVNULL

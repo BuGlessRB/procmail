@@ -16,9 +16,12 @@ In order to make sure that SmartList works reliably for both remote and
 local mail, it has to be run under someone's account.
 The recommended procedure would be to create a new account and group named
 "list" that is only going to be used to manage SmartList mailinglists.
+
 You are of course free to choose any name you'd like instead of "list".
 Common names would be "list" or "lists".  Do not pick "smartlist" because that
 name is nine characters long.  The maximum for most systems is eight.
+Also, DO NOT create an account name equal to the name of a mailinglist you'd
+like to create later on.
 
 If you are unable/unwilling to create a new user just for SmartList,
 then it should be installed in a separate subdirectory.	 The owner of this
@@ -72,7 +75,10 @@ copied into /home/list/.bin.
 	the /home/.bin/flist program.  It contains both the name of the user
 	that owns the lists ("list" in this case) and the absolute path to
 	the mailinglist directory (/home/list in this case).  This is
-	needed for security reasons.
+	needed for security reasons.  If the mailinglist directory can
+	be found in the home directory tree of the "list" user, the stored
+	path will not be absolute, but relative to the home directory
+	of the "list" user instead.
 
 	This means that if either the name of the user or the name
 	of the directory changes, you'll have to reinstall the mailinglist
@@ -151,6 +157,13 @@ You can simply use the install.sh script again to install directly over
 the old installation IF you customised ONLY the master rc.init and rc.custom
 files.	Once you ran the install.sh script, you'll have to merge the changes
 you made to the old rc.init file (still there) into the rc.init.new file.
+If, during the installation, the diff and patch programs were available,
+an attempt is made to carry over all changes from the old rc.init file
+into the rc.init.new file (even if this has been done, you must still
+cat it back over the rc.init file).  The rc.init.dist file will contain
+a copy of the rc.init file as it came with the distribution.  Do not
+change this file, a future upgrade uses this file to generate the necessary
+diffs.
 
 Since the install.sh script will create the .etc/rc.lock file for you,
 you have 17 minutes to do that.	 If it should take longer, touch the rc.lock
@@ -191,9 +204,9 @@ b.Copy the tree to the new location.  Be sure to preserve hard and
 	cd olddir; tar cf - . | (cd newdir; tar xvf -)
 
   If you are moving the tree instead, make sure you create a symbolic link
-  from the old location to the new immediately after moving the tree (there
-  is a race condition here, mail arriving after having moved, but before having
-  created the symbolic link will bounce).
+  from the old location to the new immediately after having moved the tree
+  (there is a race condition here, mail arriving after having moved, but
+  before having created the symbolic link will bounce).
 c.Create a symbolic link to the new location with (if your filesystem does not
   support symbolic links, see below):
 

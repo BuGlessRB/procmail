@@ -1,19 +1,19 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.53 1994/07/26 17:35:02 berg Exp $
+.Id $Id: procmail.man,v 1.54 1994/08/02 14:31:27 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
 procmail \- autonomous mail processor
 .SH SYNOPSIS
 .B procmail
-.RB [ \-@PRESERVOPT@@TEMPFAILOPT@@OVERRIDEOPT@ ]
+.RB [ \-@PRESERVOPT@@TEMPFAILOPT@@OVERRIDEOPT@@BERKELEYOPT@ ]
 .RB [ "\-@FROMWHOPT@ \fIfromwhom\fP" ]
 .RI [ "parameter\fB=\fPvalue " | " rcfile" ]
 \&.\|.\|.
 .br
 .B procmail
-.RB [ \-@TEMPFAILOPT@@OVERRIDEOPT@ ]
+.RB [ \-@TEMPFAILOPT@@OVERRIDEOPT@@BERKELEYOPT@ ]
 .RB [ "\-@FROMWHOPT@ \fIfromwhom\fP" ]
 .RB [ "\-@ARGUMENTOPT@ \fIargument\fP" ]
 .B \-@DELIVEROPT@
@@ -21,7 +21,7 @@ procmail \- autonomous mail processor
 \&.\|.\|.
 .br
 .B procmail
-.RB [ \-@PRESERVOPT@@TEMPFAILOPT@ ]
+.RB [ \-@PRESERVOPT@@TEMPFAILOPT@@BERKELEYOPT@ ]
 .B \-@MAILFILTOPT@
 .RI [ "parameter\fB=\fPvalue" ]
 \&.\|.\|.
@@ -134,6 +134,11 @@ generate a new one).
 .B \-@OVERRIDEOPT@
 Instead of allowing anyone to generate `@FROM@' lines, simply override
 the fakes.
+.TP
+.B \-@BERKELEYOPT@
+Assume traditional Berkeley mailbox format, ignore any
+.B Content-Length:
+fields.
 .TP
 .I "\fB\-@ARGUMENTOPT@\fP argument"
 This will set $1 to be equal to
@@ -525,8 +530,10 @@ field is not handled correctly.
 .SH MISCELLANEOUS
 If there is an existing
 .B Content-Length:
-field in the header of the mail procmail will trim it to report the right
-size.  Procmail does not extend the field in length.
+field in the header of the mail and the
+.B \-@BERKELEYOPT@
+flag is not specified, procmail will trim the field to report the correct
+size.  Procmail does not change the fieldwidth.
 .PP
 If there is no
 .B Content-Length:

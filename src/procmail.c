@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.88 1994/07/26 17:35:42 berg Exp $";
+ "$Id: procmail.c,v 1.89 1994/08/02 14:31:45 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -48,7 +48,7 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rcstate,rc= -1,
  ignwerr,lexitcode=EXIT_SUCCESS,asgnlastf,accspooldir,crestarg,skiprc,
- savstdout;
+ savstdout,berkeley;
 size_t linebuf=mx(DEFlinebuf+XTRAlinebuf,STRLEN(systm_mbox)<<1);
 volatile int nextexit;			       /* if termination is imminent */
 pid_t thepid;
@@ -86,6 +86,17 @@ main(argc,argv)const char*const argv[];
 	   for(;;)				       /* processing options */
 	    { switch(*++chp2)
 	       { case VERSIONOPT:elog(VERSION);
+		    elog("\nLocking strategies: dotlocking");
+#ifndef NOfcntl_lock
+		    elog(", fcntl()");		    /* a peek under the hood */
+#endif
+#ifdef USElockf
+		    elog(", lockf()");
+#endif
+#ifdef USEflock
+		    elog(", flock()"):
+#endif
+		    elog(newline);
 		    return EXIT_SUCCESS;
 		 case HELPOPT1:case HELPOPT2:elog(pmusage);elog(PM_HELP);
 		    elog(PM_QREFERENCE);
@@ -95,6 +106,8 @@ main(argc,argv)const char*const argv[];
 		 case MAILFILTOPT:mailfilter=1;
 		    continue;
 		 case OVERRIDEOPT:override=1;
+		    continue;
+		 case BERKELEYOPT:berkeley=1;
 		    continue;
 		 case TEMPFAILOPT:retval=EX_TEMPFAIL;
 		    continue;

@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.46 1994/07/26 17:35:24 berg Exp $*/
+/*$Id: includes.h,v 1.47 1994/08/02 14:31:37 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -57,7 +57,7 @@
 #endif
 #ifndef SYS_WAIT_H_MISSING
 #include <sys/wait.h>		/* wait() waitpid() WIFEXITED() WIFSTOPPED()
-				/* WEXITSTATUS() WTERMSIG() */
+				/* WEXITSTATUS() WTERMSIG() WNOHANG */
 #else
 #undef SYS_WAIT_H_MISSING
 #endif
@@ -414,6 +414,13 @@ extern void*memmove();
 #ifdef NOwaitpid
 #undef NOwaitpid
 #define waitpid(pid,stat_loc,options)	0
+#else
+#ifndef WNOHANG
+#ifdef waitpid
+#undef waitpid
+#endif
+#define waitpid(pid,stat_loc,options)	0
+#endif
 #endif
 
 #ifdef NOmemmove

@@ -237,6 +237,7 @@
 	       - Truncate folders to their former length if delivery was not
 		 successful
 	       - Fine-tuned the ^FROM_MAILER and ^FROM_DAEMON macros again
+	       - The -v option lists the locking strategies employed
 	    Forgot to define closelog() away if syslog support is missing
 	    Worked around the old syslog() interface
 	    Worked around a compiler bug old HP compilers (pointer-unsigned),
@@ -250,6 +251,11 @@
 	       - Allow wildcard -i when autoreplying
 	       - Renaming short fields to longer fields didn't always work
 	       - Renaming with a wildcard source/destination is possible now
+	       - -rk didn't behave correctly if a Content-Length: field was
+		 present
 	    Extended the sendmail directions in examples/advanced, it includes
 	       a direct example on how to make use of the -a feature
 	    Using EXIT_SUCCESS instead of EX_OK
+	    Both procmail and formail take the -Y option, for traditional
+	       Berkeley format mailboxes (ignoring Content-Length:)
+	    Some NCR machines didn't have WNOHANG defined
