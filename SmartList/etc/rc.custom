@@ -76,6 +76,11 @@ maintainer	=
 #X_COMMAND_PASSWORD =			# put the password for
 					# X-Command mails here
 
+#daemon_bias='100^0 ^From:.*daemon@ok'	# You could set "daemon_bias" to
+					# positively discriminate some
+ # mail address not to be from a daemon.  Either with a regexp as demonstrated
+ # or with more complicated recipes that simply set it to '100^0' or nothing.
+
 #RC_LOCAL_SUBMIT_00	= rc.local.s00	# Uncomment (and change) these to
 #RC_LOCAL_SUBMIT_10	= rc.local.s10	# call up customised local scripts
 #RC_LOCAL_SUBMIT_20	= rc.local.s20	# at predefined points.

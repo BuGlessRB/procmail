@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.61 1994/06/30 12:01:40 berg Exp $
+#$Id: rc.request,v 1.62 1994/07/19 14:45:05 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -26,13 +26,18 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 # If everything matches, we extract the sender address into tmp.from
 #
 
-:0 wh
+:0
 * < 8192
 * $$daemon_bias
-* $!^((X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND:)|\
-     Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)\>))
+* $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND:)
 * -100^0 ^FROM_DAEMON
-* 1^0
+*    1^0
+{
+
+:0
+* -100^0 ^Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)\>)
+*  100^0 ^Subject:[	 ]*archive
+*    1^0
 {
   :0 whc
   | formail -rt -xTo: >tmp.from
@@ -83,7 +88,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
       (Could you )?(please )?\
       (sign( [^ ]+ |-)?off|leave|delete|remove|unsub)\>|\
      ($(.+$)*$(.*$)*)?(.*[^a-z])?\
-      (un(sub?)?scri|\
+      (un(sub?)?s(cr|c|r)i|\
       (leave|(delete|remove) .* from|(sign|take) .* off) .* [a-z-]*list\>))
   | unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from` ${cc_unsubrequests}
 
@@ -100,7 +105,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
       (Could you )?(please )?\
       (sign( [^ ]+ |-)?on|add|join|sub)\>|\
      ($(.+$)*$(.*$)*)?(.*[^a-z])?\
-      (sub?scri.*|(join|add .* to|(sign|put) .* on) .* [a-z-]*list\>))
+      (sub?s(cr|c|r)i.*|(join|add .* to|(sign|put) .* on) .* [a-z-]*list\>))
    {
      #
      # Yes, well, then check if the person subscribing isn't on the reject
@@ -178,6 +183,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
   | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
      cat help.txt info.txt 2>/dev/null ) | $SENDMAIL $sendmailOPT -t
 
+}
 }
 
 LOGABSTRACT=yes

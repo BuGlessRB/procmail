@@ -122,3 +122,12 @@
 		files)
 	      - propagate the SHELL variable to any sub-procmails we run
 	    Updated some misleading comments in rc.submit
+1994/07/19: v3.04
+	    Changes to mimencap.local:
+	       - Added support for the most recent MIME types
+	       - Change the format of the Content-ID field to be RFC822
+		 conforming
+	    Arch_trunc didn't work quite as expected (somewhere around
+	       v2.92pre10 this went wrong), and didn't truncate the archive
+	       at all
+	    Install.sh3 now prompts before overwriting mimencap.local

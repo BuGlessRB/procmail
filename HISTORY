@@ -227,3 +227,21 @@
 	    Procmail always defaulting the umask to 077 for deliverymode broke
 	       some systems, reverting back to the old method of allowing group
 	       access on the system mailbox if necessary
+1994/07/19: v3.04
+	    Changes to procmail:
+	       - Support some non-BSD compatible syslog() implementations
+	       - Even if the Content-Length is zero, write it out (some
+		 programs can't deal with the empty field)
+	       - Truncate folders to their former length if delivery was not
+		 successful
+	    Forgot to define closelog() away if syslog support is missing
+	    Worked around a compiler bug old HP compilers (pointer-unsigned),
+	       caused the Content-Length: field to be mangled on some older
+	       HP/UX systems (not on every mail)
+	    Worked around compilation problems on SCO
+	    Some fixes to the man pages
+	    Updated the ^FROM_DAEMON and ^FROM_MAILER macros
+	    Changes to formail:
+	       - Mistakenly turned X-Loop: fields into Old-X-Loop: when
+		 autoreplying
+	       - Allow wildcard -i when autoreplying

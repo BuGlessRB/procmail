@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1992-1994, S.R. van den Berg, The Netherlands
-#$Id: initmake,v 1.53 1994/05/26 14:10:48 berg Exp $
+#$Id: initmake,v 1.54 1994/07/19 14:44:47 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -199,7 +199,7 @@ checkpath=no
 
 while $RM _autotst
  $cc $CFLAGS1 $CFLAGS _autotst.$O -o _autotst $LDFLAGS1 $LDFLAGS \
-  $LDFLAGSC >_autotst.rrr 2>&1
+  $LDFLAGSC >_autotst.rrr 2>&1 || firstrun=yes
  test $firstrun = yes -o ! -f _autotst
 do
   set dummy $LDFLAGS
@@ -215,7 +215,7 @@ do
 	   while read b
 	   do
 	      case ":$b:" in
-		 *_autotst.$O*) ;;
+		 *$cc*_autotst.$O*) ;;
 		 *lib$lib[!a-z_]*|*$a[!a-z_]*|*[!a-z]$lib[!a-z_]*) exit 1;;
 	      esac
 	   done

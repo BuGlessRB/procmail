@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh3  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh3		  # we're in a buggy zsh
-#$Id: install.sh3,v 1.39 1994/06/17 18:04:26 berg Exp $
+#$Id: install.sh3,v 1.40 1994/07/19 14:44:56 berg Exp $
 
 umask 022
 
@@ -98,6 +98,16 @@ done
 
 for a in $OPTIONAL
 do
+  if test -f "$target/$bindir/$a" -a cronlist != $a
+  then
+     echo "*****************************************************************"
+     echo "$target/$bindir/$a already exists, replace it? [y]"
+     read b
+     case "X$b" in
+	X[yY]|X) echo "Replacing old $a."
+	   rm -f "$target/$bindir/$a" ;;
+     esac
+  fi
   if test -f "$target/$bindir/$a"
   then
      echo "Skipped: $bindir/$a"

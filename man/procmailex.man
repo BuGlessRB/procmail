@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.31 1994/06/14 12:03:19 berg Exp $
+.Id $Id: procmailex.man,v 1.32 1994/07/19 14:45:20 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -60,10 +60,10 @@ An equivalent, but slightly slower solution that accomplishes the same:
 * ^Subject:.*compilers
 ! william@somewhere.edu
 
-   :0
-   * ^From.*peter
-   * ^Subject:.*compilers
-   petcompil
+:0
+* ^From.*peter
+* ^Subject:.*compilers
+petcompil
 .Ex
 If your system doesn't generate or generates incorrect leading `From '
 lines on every mail, you can fix this by calling up procmail with
@@ -177,7 +177,7 @@ in this case, so we won't.
 texmail
 .Ex
 The same as above, except now we store the mails in numbered files (MH mail
-folder), again the texmail directory should exist already.
+folder).
 .Sx 3
 :0
 * (^TO|^Subject:.*)TeX[^t]
@@ -339,8 +339,9 @@ loops.
 | (formail \-@FM_REPLY@ ; cat info_file) | $SENDMAIL \-oi \-t
 .Ex
 Now follows an example for a very simple fileserver accessible by mail.
-For more demanding applications, I suggest you take a look at the mailinglist
-package included with the procmail source distribution.  The most notable
+For more demanding applications, I suggest you take a look at
+.B SmartList
+(available from the same place as the procmail distribution).  The most notable
 deficiency of the `fileserver' you see below is that it doesn't do any
 access checking.  It simply looks at the Subject: field in the header and
 extracts the names mentioned after the word `request'.  These names are
@@ -357,7 +358,7 @@ script to take care of the more complicated checks and operations.
   MAILDIR=$HOME/fileserver   # chdir to the fileserver directory
 
   :0 @PASS_HEAD@             # extract the requested filename(s)
-  FILES=| sed \-n \-e 's/^Subject:.*request \(.*\)/\1/p'
+  FILES=| sed \-n \-e 's/^Subject:.*request \e(.*\e)/\e1/p'
 
   :0 @FILTER@                # reverse the mailheader
   | formail \-@FM_REPLY@@FM_ADD_ALWAYS@ "X-Loop: yourname@your.main.mail.address"
@@ -368,22 +369,23 @@ script to take care of the more complicated checks and operations.
 .Ex
 The following example preconverts all plain-text mail arriving in certain
 encoded MIME formats into a more compact 8-bit format which can be used
-and displayed more easily by most programs.  The mmencode program is part
-of Nathaniel Borenstein's metamail package.
+and displayed more easily by most programs.  The
+.BR mimencode (1)
+program is part of Nathaniel Borenstein's metamail package.
 .Sx 17
 :0
 * ^Content-Type: *text/plain
 {
   :0 @FILTER@@PASS_BODY@@WAIT_EXIT@
   * ^Content-Transfer-Encoding: *quoted-printable
-  | mmencode \-u \-q
+  | mimencode \-u \-q
 
      :0 @ALSO_NEXT_RECIPE@@FILTER@@PASS_HEAD@@WAIT_EXIT@
      | formail \-@FM_DEL_INSERT@ "Content-Transfer-Encoding: 8bit"
 
   :0 @FILTER@@PASS_BODY@@WAIT_EXIT@
   * ^Content-Transfer-Encoding: *base64
-  | mmencode \-u \-b
+  | mimencode \-u \-b
 
      :0 @ALSO_NEXT_RECIPE@@FILTER@@PASS_HEAD@@WAIT_EXIT@
      | formail \-@FM_DEL_INSERT@ "Content-Transfer-Encoding: 8bit"
@@ -400,7 +402,7 @@ increase LINEBUF if necessary):
 URGMATCH=`cat $HOME/.urgent`
 
 :0 @BODY_GREP@:
-* $^From.*${URGMATCH}.*
+* $^From.*${URGMATCH}
 urgent
 .Ex
 An entirely different application for procmail would be to conditionally
@@ -420,7 +422,7 @@ DEFAULT=|     # pipe to stdout instead of
               # delivering mail as usual
 :0 @BODY_GREP@@FILTER@@PASS_BODY@@WAIT_EXIT@
 * [=0x80=-=0xff=]
-| mmencode -q
+| mimencode -q
 
   :0 @ALSO_NEXT_RECIPE@@FILTER@@PASS_HEAD@@WAIT_EXIT@
   | formail \-I 'MIME-Version: 1.0' \e
@@ -445,6 +447,7 @@ DEFAULT=|     # pipe to stdout instead of
 .BR grep (1),
 .BR biff (1),
 .BR comsat (8),
+.BR mimencode (1),
 .BR lockfile (1),
 .BR formail (1)
 .hy

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.51 1994/06/28 14:49:23 berg Exp $
+.Id $Id: procmail.man,v 1.52 1994/07/19 14:45:17 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -52,7 +52,9 @@ for a file named
 .B @PROCMAILRC@
 in your home directory.  According to the processing recipes in this file,
 the mail message that just arrived gets distributed into the right folder
-(and more).@ETCRC_desc@
+(and more).  If no rcfile is found, or processing of the rcfile falls off
+the end, procmail will store the mail in the default system
+mailbox.@ETCRC_desc@
 .PP
 If running suid root or with root privileges, procmail will be able to
 perform as a functionally enhanced, backwards compatible mail delivery agent.
@@ -411,6 +413,10 @@ Timeout, was waiting for "x"
 Timeout has occurred on program, filter or file "x".  If it was a program or
 filter, then it didn't seem to be running anymore.
 .TP
+Truncated file to former size
+The file could not be delivered to successfully, so the file was truncated
+to its former size.
+.TP
 Truncating "x" and retrying lock
 "x" does not seem to be a valid filename or the file is not empty.
 .TP
@@ -625,15 +631,17 @@ or whenever you start reading mail):
 .Sx 17
 #!/bin/sh
 
+ORGMAIL=@SYSTEM_MBOX@
+
 if cd $HOME &&
- test \-s @SYSTEM_MBOX@ &&
+ test \-s $ORGMAIL &&
  lockfile \-r0 \-l3600 .newmail.lock 2>/dev/null
 then
   trap "rm \-f .newmail.lock" 1 2 3 15
   umask 077
   lockfile \-l3600 \-ml
-  cat @SYSTEM_MBOX@ >>.newmail &&
-   cat /dev/null >@SYSTEM_MBOX@
+  cat $ORGMAIL >>.newmail &&
+   cat /dev/null >$ORGMAIL
   lockfile \-mu
   formail \-@FM_SPLIT@ procmail <.newmail &&
    rm \-f .newmail

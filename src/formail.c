@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.53 1994/06/28 16:56:10 berg Exp $";
+ "$Id: formail.c,v 1.54 1994/07/19 14:45:32 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/06/28 16:56:10 $";
+static /*const*/char rcsdate[]="$Date: 1994/07/19 14:45:32 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -590,7 +590,7 @@ delfld:	    { fldp=delfield(afldp);
 	 }
 	if(fp2=findf(fldp,&Rheader))		  /* explicitly rename field */
 	   renfield(afldp,lnl,(char*)fp2->fld_text+lnl,fp2->tot_len-lnl);
-	else if((fp2=findf(fldp,&iheader))&&!(areply&&lnl==fp2->tot_len-1))
+	else if((fp2=findf(fldp,&iheader))&&!(areply&&lnl>=fp2->tot_len-1))
 	   renfield(afldp,(size_t)0,old_,STRLEN(old_)); /* implicitly rename */
 	fldp= *(afldp= &(*afldp)->fld_next);
       }					/* restore the saved contents of buf */

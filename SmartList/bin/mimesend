@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: mimesend,v 1.9 1994/06/30 16:06:37 berg Exp $
+#$Id: mimesend,v 1.10 1994/07/19 14:45:00 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -39,7 +39,7 @@ export name dir filename archivedir mimencode formail sed	# for mimencap
 
 ( $formail -rt -I"Subject: archive retrieval: $1" \
    -i"From: $listreq" -A"X-Loop: $listaddr" \
-   -i"Content-ID: <$filename%$listreq>" \
+   -i"Content-ID: <\"$filename\"%$listreq>" \
    -I"Precedence: bulk" -X "" <$tmprequest
   $test ! -z "$wrongaddress" && $echo "$wrongaddress"
   cd $archivedir

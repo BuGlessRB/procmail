@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.86 1994/06/30 13:52:34 berg Exp $";
+ "$Id: procmail.c,v 1.87 1994/07/19 14:45:40 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -77,7 +77,7 @@ main(argc,argv)const char*const argv[];
   ;{ int presenviron,Deliverymode,override;char*fromwhom=0;
      const char*idhint=0;gid_t egid=getegid();
      Deliverymode=mailfilter=override=0;
-     openlog(procmailn,LOG_PID,LOG_MAIL);		  /* for the syslogd */
+     Openlog(procmailn,LOG_PID,LOG_MAIL);		  /* for the syslogd */
      if(argc)			       /* sanity check, any argument at all? */
       { Deliverymode=strncmp(lastdirsep(argv0=argv[0]),procmailn,
 	 STRLEN(procmailn));

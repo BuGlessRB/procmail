@@ -9,7 +9,7 @@
 #	This file is *not* automatically replaced during an upgrade of	#
 #	SmartList.							#
 #########################################################################
-#$Id: mimencap.local,v 1.13 1994/06/30 14:22:11 berg Exp $
+#$Id: mimencap.local,v 1.14 1994/07/19 14:45:10 berg Exp $
 
 # What we have at our disposal are:
 #
@@ -17,7 +17,7 @@
 #			We could set the current directory to this.
 #	$filename	The name of the file, relative to the archive base.
 #
-#	Content-ID: <$filename%$listreq>
+#	Content-ID: <"$filename"%$listreq>
 #			In the header of the mail (so we can egrep for the
 #			name).
 
@@ -31,115 +31,123 @@
 #
 
 :0 wfh
-* ^Content-ID: <[^%]*\.rtf%
+* ^Content-ID: <"[^"]*\.rtf"%
 | $formail -fb -I "Content-Type: text/richtext"
 
 :0 wfh
-* ^Content-ID: <[^%]*\.ps%
+* ^Content-ID: <"[^"]*\.ps"%
 | $formail -fb -I "Content-Type: application/PostScript"
 
 :0 wfh
-* ^Content-ID: <[^%]*\.txt%
+* ^Content-ID: <"[^"]*\.txt"%
 | $formail -fb -I "Content-Type: text/plain"
 
+:0 wfh
+* ^Content-ID: <"[^"]*\.pdf"%
+| $formail -fb -I "Content-Type: application/pdf"
+
+:0 wfh
+* ^Content-ID: <"[^"]*\.tsv"%
+| $formail -fb -I "Content-Type: text/tsv"
+
 :0 E wfh
-* ^Content-ID: <[^%]*\.TeX%
+* ^Content-ID: <"[^"]*\.TeX"%
 | $formail -fb -I "Content-Type: text/x-TeX"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.dvi%
+* ^Content-ID: <"[^"]*\.dvi"%
 | $formail -fb -I "Content-Type: image/x-dvi"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.xw?d%
+* ^Content-ID: <"[^"]*\.xw?d"%
 | $formail -fb -I "Content-Type: image/x-xwd"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.tiff?%
-| $formail -fb -I "Content-Type: image/x-tiff"
+* ^Content-ID: <"[^"]*\.tiff?"%
+| $formail -fb -I "Content-Type: image/tiff"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.eps%
+* ^Content-ID: <"[^"]*\.eps"%
 | $formail -fb -I "Content-Type: image/x-eps"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.pcl%
+* ^Content-ID: <"[^"]*\.pcl"%
 | $formail -fb -I "Content-Type: image/x-pcl"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.gif%
+* ^Content-ID: <"[^"]*\.gif"%
 | $formail -fb -I "Content-Type: image/gif"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.jpe?g%
+* ^Content-ID: <"[^"]*\.jpe?g"%
 | $formail -fb -I "Content-Type: image/jpeg"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.x?pm%
+* ^Content-ID: <"[^"]*\.x?pm"%
 | $formail -fb -I "Content-Type: image/x-xpm"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.x?bm%
+* ^Content-ID: <"[^"]*\.x?bm"%
 | $formail -fb -I "Content-Type: image/x-xbitmap"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.bmf%
+* ^Content-ID: <"[^"]*\.bmf"%
 | $formail -fb -I "Content-Type: image/x-bmf"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.au%
+* ^Content-ID: <"[^"]*\.au"%
 | $formail -fb -I "Content-Type: audio/basic"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.l16%
+* ^Content-ID: <"[^"]*\.l16"%
 | $formail -fb -I "Content-Type: audio/x-Linear16"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.l8%
+* ^Content-ID: <"[^"]*\.l8"%
 | $formail -fb -I "Content-Type: audio/x-Linear8"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.lo8%
+* ^Content-ID: <"[^"]*\.lo8"%
 | $formail -fb -I "Content-Type: audio/x-Linear-8Offset"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.wav%
+* ^Content-ID: <"[^"]*\.wav"%
 | $formail -fb -I "Content-Type: audio/x-microsoft-RIFF"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.snd%
+* ^Content-ID: <"[^"]*\.snd"%
 | $formail -fb -I "Content-Type: audio/x-NeXT"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.u%
+* ^Content-ID: <"[^"]*\.u"%
 | $formail -fb -I "Content-Type: audio/x-MuLaw"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.al%
+* ^Content-ID: <"[^"]*\.al"%
 | $formail -fb -I "Content-Type: audio/x-ALaw"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.tar%
+* ^Content-ID: <"[^"]*\.tar"%
 | $formail -fb -I "Content-Type: application/x-tar"
 
 :0 E wfh D
-* ^Content-ID: <[^%]*\.tar.Z%
+* ^Content-ID: <"[^"]*\.tar.Z"%
 | $formail -fb -I "Content-Type: application/x-tar-compress"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.tar\.g?z(ip)?%
+* ^Content-ID: <"[^"]*\.tar\.g?z(ip)?"%
 | $formail -fb -I "Content-Type: application/x-tar-gzip"
 
 :0 E wfh D
-* ^Content-ID: <[^%]*\.Z%
+* ^Content-ID: <"[^"]*\.Z"%
 | $formail -fb -I "Content-Type: application/x-compress"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.zip%
-| $formail -fb -I "Content-Type: application/x-zip"
+* ^Content-ID: <"[^"]*\.zip"%
+| $formail -fb -I "Content-Type: application/zip"
 
 :0 E wfh
-* ^Content-ID: <[^%]*\.g?z%
+* ^Content-ID: <"[^"]*\.g?z"%
 | $formail -fb -I "Content-Type: application/x-gzip"
 
 :0 EB wfh

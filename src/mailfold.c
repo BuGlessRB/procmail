@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.49 1994/06/28 16:56:26 berg Exp $";
+ "$Id: mailfold.c,v 1.50 1994/07/19 14:45:37 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -74,6 +74,8 @@ jin:	while(part&&(i=rwrite(s,source,BLKSIZ<part?BLKSIZ:(int)part)))
 writefin:
      if(tofile&&fdunlock())
 	nlog("Kernel-unlock failed\n");
+     if(tofile==to_FOLDER&&len&&lasttell>=0&&!ftruncate(s,lasttell))
+	nlog("Truncated file to former size\n");    /* undo appended garbage */
      i=rclose(s);
    }			   /* return an error even if nothing was to be sent */
   tofile=0;
@@ -340,8 +342,7 @@ eofheader:
   if(contlengthoffset)
    { unsigned places;long cntlen,actcntlen;	    /* minus one, for safety */
      chp=themail+contlengthoffset;cntlen=filled-(thebody-themail)-1;
-     for(actcntlen=places=0;;
-	 *chp++=cntlen>0?(actcntlen=actcntlen*10+9,'9'):' ',places++)
+     for(actcntlen=places=0;;*chp++='9',places++,actcntlen=actcntlen*10+9)
       { switch(*chp)
 	 { default:					/* fill'r up, please */
 	      continue;
@@ -349,11 +350,12 @@ eofheader:
 	 }
 	break;
       }
-     if(cntlen>0)			       /* any Content-Length at all? */
-      { charNUM(num,cntlen);
+     if(cntlen<=0)			       /* any Content-Length at all? */
+	cntlen=0;
+     ;{ charNUM(num,cntlen);
 	ultstr(places,cntlen,num);		       /* our preferred size */
 	if(!num[places])	       /* does it fit in the existing space? */
-	   tmemmove(chp-places,num,places),actcntlen=cntlen;	      /* yup */
+	   tmemmove(chp-(int)places,num,places),actcntlen=cntlen;     /* yup */
 	chp=thebody+actcntlen;		  /* skip the actual no we specified */
       }
    }

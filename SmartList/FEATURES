@@ -21,7 +21,7 @@ Summary of what SmartList provides:
 	+ MIME-compliant auto-digest-generation (configurable per list)
 	+ Joint management of several mailinglists possible
 	+ Customisation per mailinglist or mailinglist group possible (simply
-	  remove or create the desired hardlinks)
+	  remove or create the desired links)
 	+ A listmaintainer can be assigned per list;  miscellaneous requests
 	  that couldn't be handled by the list automatically are then
 	  forwarded to his mail address (instead of being accumulated in
@@ -35,6 +35,7 @@ Summary of what SmartList provides:
 	+ Automatically eliminates duplicate submissions
 	+ You can set up a mailinglist to function as a standalone mail
 	  archive server
-	+ Extended MIME support (autorecognition of well known file formats)
+	+ Extended MIME support (autorecognition, encapsulation and suitable
+	  encoding of well known (and unknown) file formats)
 	+ The archive server can send arbitrarily long (even binary) files
 	  in MIME-multipart mails

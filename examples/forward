@@ -1,1 +1,1 @@
-"|IFS=' ';exec /usr/local/bin/procmail -f- #YOUR_LOGIN_NAME"
+"|IFS=' ' && exec /usr/local/bin/procmail -f- || exit 75 #YOUR_LOGIN_NAME"

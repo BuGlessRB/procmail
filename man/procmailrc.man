@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.41 1994/05/26 14:12:11 berg Exp $
+.Id $Id: procmailrc.man,v 1.42 1994/07/19 14:45:23 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -24,7 +24,9 @@ that matches is used to determine where the mail has to go (usually a file).
 If a matching recipe does not specify any special flags (like `@FILTER@' or
 `@CONTINUE@') and the recipe is successful (i.e. no write failures or other
 calamities), then processing of the rcfile will cease at this point, and
-procmail will consider the mail to have been delivered.
+procmail will consider the mail to have been delivered.  If processing falls
+off the end of the rcfile, procmail will deliver the mail to
+.BR $DEFAULT .
 .PP
 This enables you to presort your mail extremely straightforward into several
 mailfolders.  Bear in mind though that the mail can arrive concurrently in
@@ -138,8 +140,10 @@ Consider the pipe as a filter.
 .TP
 .B @CONTINUE@
 Continue processing the rcfile even if this recipe matches (not needed
-when `@FILTER@' is specified).  On nesting blocks this will clone the
-running procmail process (lockfiles can not be inherited).
+when procmail has to read back the output (e.g. from a filter), nor on the
+start of a nesting block).  If you do specify it on a nesting block this will
+clone the running procmail process (lockfiles will not be inherited), whereas
+the clone will proceed as usual and the parent will jump across the block.
 .TP
 .B @WAIT_EXIT@
 Wait for the filter or program to finish and check its exitcode (normally
@@ -208,6 +212,13 @@ pipe the mail to stdout.
 Followed by at least one space, tab or newline will mark the start of a
 nesting block.  Everything up till the next closing brace will depend on
 the conditions specified for this recipe.  Unlimited nesting is permitted.
+The closing brace exists merely to delimit the block, it will
+.I not
+cause procmail to terminate in any way.  If the end of a block is reached
+processing will continue as usual after the block.
+On a nesting block, the flags `@HEAD_GREP@' and `@BODY_GREP@' only affect
+the conditions leading up to the block, the flags `@PASS_HEAD@' and
+`@PASS_BODY@' have no effect whatsoever.
 .PP
 Anything else will be taken as a mailbox name (either a filename or a
 directory, absolute or relative to the current directory (see MAILDIR)).

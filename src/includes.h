@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.44 1994/06/24 10:44:57 berg Exp $*/
+/*$Id: includes.h,v 1.45 1994/07/19 14:45:35 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -29,7 +29,7 @@
 				/* fork() getuid() geteuid() getgid() getegid()
 				   getpid() execve() execvp() sleep() setuid()
 				   setgid() setruid() setrgid() setegid()
-				   chown() nice() */
+				   chown() nice() ftruncate() */
 #else
 #undef UNISTD_H_MISSING
 #endif
@@ -300,12 +300,19 @@ extern int errno;
 
 #ifdef SYSLOG_H_MISSING
 #undef SYSLOG_H_MISSING
-#define openlog(ident,logopt,facility)	0
+#define Openlog(ident,logopt,facility)	0
 #define syslog				(void)
+#define closelog()
 #define LOG_EMERG			0
 #define LOG_ALERT			0
 #define LOG_ERR				0
 #define LOG_NOTICE			0
+#else
+#ifdef LOG_MAIL
+#define Openlog(ident,logopt,facility)	openlog(ident,logopt,facility)
+#else
+#define Openlog(ident,logopt,facility)	openlog(ident,logopt)
+#endif
 #endif
 
 #ifndef NOuname
@@ -395,6 +402,11 @@ extern void*memmove();
 #ifdef NOmkdir
 #undef NOmkdir
 #define mkdir(dir,mode) (-1)
+#endif
+
+#ifdef NOftruncate
+#undef NOftruncate
+#define ftruncate(fildes,length)	(-1)
 #endif
 
 #ifdef NOwaitpid

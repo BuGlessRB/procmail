@@ -26,7 +26,7 @@ sparc and sun3 architectures):
 
 or alternatively:
 
-"|IFS=' '&& exec /home/berg/bin.`/usr/bin/arch`/procmail ||exit 75 #YOUR_USERNAME"
+"|IFS=' ' && export IFS && exec /home/berg/bin.`/usr/bin/arch`/procmail || exit 75 #YOUR_USERNAME"
 
 Please note, in the .forward file there can NOT be any newlines between
 the doublequotes, i.e. the former example *has* to be typed in as one long
