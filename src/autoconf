@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.28 1993/01/26 12:30:38 berg Exp $
+#$Id: autoconf,v 1.29 1993/01/26 14:49:49 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -741,7 +741,19 @@ HERE
 
 echo 'Determining the most applicable block size'
 
-$MAKE _autotst >$DEVNULL 2>&1
+if $MAKE _autotst >_autotst.rrr 2>&1
+then
+:
+else
+  echo 2>&1 "Whoeaaa!  There's something fishy going on here."
+  echo 2>&1 "You have a look and see if you detect anything uncanny:"
+  echo 2>&1 "-------------------------------------------------------"
+  cat 2>&1 _autotst.rrr
+  echo 2>&1 "-------------------------------------------------------"
+  echo 2>&1 "It seems that your network-support include files"
+  echo 2>&1 "are messed up (see procmail/src/network.h)."
+  kill -15 $$
+fi
 _autotst >>$ACONF
 
 found=no

@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.11 1993/01/22 13:42:35 berg Exp $*/
+/*$Id: header.h,v 1.12 1993/01/26 14:49:52 berg Exp $*/
 
 static const char
  returnpath[]=		"Return-Path:",				  /* RFC 822 */
@@ -39,6 +39,9 @@ static const char
  errorsto[]=		"Errors-To:",		       /* sendmail extension */
  retreceiptto[]=	"Return-Receipt-To:",			/* ditto ... */
  precedence[]=		"Precedence:",
+ fullname[]=		"Full-Name:",
+ postddate[]=		"Posted-Date:",
+ recvddate[]=		"Received-Date:",
  mssage[]=		"Message:",
  text[]=		"Text:",
  via[]=			"Via:",
@@ -79,12 +82,12 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
   bsl(to),bsl(res_to),bsl(cc),bsl(res_cc),bsl(bcc),bsl(res_bcc),bsl(messageid),
   bsl(res_messageid),bsl(inreplyto),bsl(references),bsl(keywords),bsl(subject),
   bsl(scomments),bsl(ncrypted),bsl(errorsto),bsl(retreceiptto),
-  bsl(precedence),bsl(mssage),bsl(text),bsl(via),bsl(priority),bsl(fcc),
-  bsl(article),bsl(path),bsl(summary),bsl(organisation),bsl(aorganization),
-  bsl(newsgroups),bsl(followupto),bsl(approved),bsl(lines),bsl(expires),
-  bsl(control),bsl(distribution),bsl(xref),bsl(originator),
-  bsl(nntppostinghost),bsl(title),bsl(aRticleid),bsl(posted),bsl(cnttype),
-  bsl(encoding),bsl(mimeversion),bsl(cnttransferenc),bsl(cntid),
-  bsl(cntdescription),bsl(transportoptions),bsl(defltoptions),bsl(cntlength),
-  bsl(status)
+  bsl(precedence),bsl(fullname),bsl(postddate),bsl(recvddate),bsl(mssage),
+  bsl(text),bsl(via),bsl(priority),bsl(fcc),bsl(article),bsl(path),
+  bsl(summary),bsl(organisation),bsl(aorganization),bsl(newsgroups),
+  bsl(followupto),bsl(approved),bsl(lines),bsl(expires),bsl(control),
+  bsl(distribution),bsl(xref),bsl(originator),bsl(nntppostinghost),bsl(title),
+  bsl(aRticleid),bsl(posted),bsl(cnttype),bsl(encoding),bsl(mimeversion),
+  bsl(cnttransferenc),bsl(cntid),bsl(cntdescription),bsl(transportoptions),
+  bsl(defltoptions),bsl(cntlength),bsl(status)
 };
