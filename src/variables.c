@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.2 2000/10/24 00:16:51 guenther Exp $";
+ "$Id: variables.c,v 1.3 2000/10/28 08:47:29 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -391,10 +391,10 @@ long renvint(i,env)const long i;const char*const env;
 	 { case ' ':case '\t':case '\n':case '\v':case '\f':case '\r':
 	      continue;				  /* skip leading whitespace */
 	   case 'o':case 'O':
-	      if(!strnIcmp(p+1,"n",(size_t)1))
+	      if(!strncasecmp(p+1,"n",(size_t)1))
 	   case 'y':case 'Y':case 't':case 'T':case 'e':case 'E':
 		 t=1;
-	      else if(!strnIcmp(p+1,"ff",(size_t)2))
+	      else if(!strncasecmp(p+1,"ff",(size_t)2))
 	   case 'n':case 'N':case 'f':case 'F':case 'd':case 'D':
 		 t=0;
 	      else

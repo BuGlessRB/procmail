@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: fields.c,v 1.29 2000/09/28 01:23:19 guenther Exp $";
+ "$Id: fields.c,v 1.30 2000/10/28 08:47:22 guenther Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -21,7 +21,7 @@ struct field*findf(p,ah)const struct field*const p;register struct field**ah;
 { size_t i;int uhead;char*chp;register struct field*h;
   uhead=ah==&uheader||ah==&Uheader;
   for(i=p->id_len,chp=(char*)p->fld_text,h= *ah;h;h= *(ah= &h->fld_next))
-     if(i>=h->id_len&&!strnIcmp(chp,h->fld_text,h->id_len))
+     if(i>=h->id_len&&!strncasecmp(chp,h->fld_text,h->id_len))
       { if(i>h->id_len&&uhead)			     /* finalise the header? */
 	   *ah=0,(*(ah=addfield(ah,chp,i)))->fld_next=h,(h= *ah)->fld_ref=0;
 	return h;

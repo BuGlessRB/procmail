@@ -10,9 +10,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.98 2000/09/28 01:23:21 guenther Exp $";
+ "$Id: formail.c,v 1.99 2000/10/28 08:47:23 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 2000/09/28 01:23:21 $";
+static /*const*/char rcsdate[]="$Date: 2000/10/28 08:47:23 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -198,9 +198,9 @@ static int digheadr P((void))
   i=maxindex(cdigest);chp=fp->fld_text;j=fp->id_len;
   while(chp[j-2]==' '||chp[j-2]=='\t')	     /* whitespace before the colon? */
      j--;
-  while((cdigest[i].lnr!=j||strnIcmp(cdigest[i].hedr,chp,j-1))&&i--);
-  return i>=0||j>STRLEN(old_)&&!strnIcmp(old_,chp,STRLEN(old_))||
-   j>STRLEN(x_)&&!strnIcmp(x_,chp,STRLEN(x_));
+  while((cdigest[i].lnr!=j||strncasecmp(cdigest[i].hedr,chp,j-1))&&i--);
+  return i>=0||j>STRLEN(old_)&&!strncasecmp(old_,chp,STRLEN(old_))||
+   j>STRLEN(x_)&&!strncasecmp(x_,chp,STRLEN(x_));
 }
 
 static int artheadr P((void))	     /* could it be the start of an article? */
@@ -215,7 +215,7 @@ static char*getsender(namep,fldp,headreply)char*namep;struct field*fldp;
  const int headreply;
 { char*chp;int i,nowm;size_t j;static int lastm;
   chp=fldp->fld_text;j=fldp->id_len;i=maxindex(sest);
-  while((sest[i].len!=j||strnIcmp(sest[i].head,chp,j))&&i--);
+  while((sest[i].len!=j||strncasecmp(sest[i].head,chp,j))&&i--);
   if(i>=0&&(i!=maxindex(sest)||fldp==rdheader))		  /* found anything? */
    { char*saddr;char*tmp;			     /* determine the weight */
      nowm=areply&&headreply?headreply==1?sest[i].wrepl:sest[i].wrrepl:i;chp+=j;
@@ -453,7 +453,7 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		       if(i>0)
 			  break;
 		       if(i!=-STRLEN(Resent_)||-i!=lnl|| /* the only partial */
-			strnIcmp(chp,Resent_,STRLEN(Resent_)+1))    /* field */
+			strncasecmp(chp,Resent_,STRLEN(Resent_)+1)) /* field */
 			  goto invfield;       /* allowed with -a is Resent- */
 		       headreply|=2;
 		       goto nextarg;		    /* don't add to the list */
@@ -627,7 +627,7 @@ startover:
 	   concatenate(fldp);		    /* save fields for later perusal */
 	namep=getsender(namep,fldp,headreply);
 	i=maxindex(rex);chp=fldp->fld_text;j=fldp->id_len;
-	while((rex[i].lenr!=j||strnIcmp(rex[i].headr,chp,j))&&i--);
+	while((rex[i].lenr!=j||strncasecmp(rex[i].headr,chp,j))&&i--);
 	chp+=j;
 	if(i>=0&&(j=fldp->Tot_len-j)>1)			  /* found anything? */
 	 { tmemmove(rex[i].rexp=realloc(rex[i].rexp,(rex[i].rexl=j)+1),chp,j);
@@ -659,7 +659,7 @@ startover:
 	loadchar('\n');addbuf();		       /* add it to rdheader */
 	if(subj->rexl)				      /* any Subject: found? */
 	 { loadbuf(subject,STRLEN(subject));	  /* sure, check for leading */
-	   if(strnIcmp(skpspace(chp=subj->rexp),Re,STRLEN(Re)))	      /* Re: */
+	   if(strncasecmp(skpspace(chp=subj->rexp),Re,STRLEN(Re)))    /* Re: */
 	      loadbuf(re,STRLEN(re));	       /* no Re: , add one ourselves */
 	   loadsaved(subj);addbuf();
 	 }
@@ -703,9 +703,10 @@ startover:
 	if(!findf(fldp,&rdheader))	       /* only add what didn't exist */
 	   if(fldp->id_len+1>=fldp->Tot_len&&		  /* field name only */
 	      (fldp->id_len==STRLEN(messageid)&&
-	       !strnIcmp(fldp->fld_text,messageid,STRLEN(messageid))||
+	       !strncasecmp(fldp->fld_text,messageid,STRLEN(messageid))||
 	       fldp->id_len==STRLEN(res_messageid)&&
-	       !strnIcmp(fldp->fld_text,res_messageid,STRLEN(res_messageid))))
+	       !strncasecmp(fldp->fld_text,res_messageid,STRLEN(res_messageid))
+	      ))
 	    { char*p;const char*name;unsigned long h1,h2,h3;
 	      static unsigned long h4; /* conjure up a `unique' msg-id field */
 	      h1=time((time_t*)0);h2=thepid;h3=rhash;

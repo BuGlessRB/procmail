@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: common.c,v 1.26 1999/11/02 03:51:00 guenther Exp $";
+ "$Id: common.c,v 1.27 2000/10/28 08:47:20 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -79,7 +79,8 @@ int waitfor(pid)const pid_t pid;	      /* wait for a specific process */
   return lexitcode=WIFEXITED(i)?WEXITSTATUS(i):-WTERMSIG(i);
 }
 
-int strnIcmp(a,b,l)register const char*a,*b;register size_t l;
+#ifdef NOstrncasecmp
+int strncasecmp(a,b,l)register const char*a,*b;register size_t l;
 { unsigned i,j;
   if(l)						 /* case insensitive strncmp */
      do
@@ -97,3 +98,4 @@ int strnIcmp(a,b,l)register const char*a,*b;register size_t l;
      while(i&&j&&--l);
   return 0;
 }
+#endif

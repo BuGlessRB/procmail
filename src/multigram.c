@@ -19,9 +19,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.94 2000/06/12 04:52:36 guenther Exp $";
+ "$Id: multigram.c,v 1.95 2000/10/28 08:47:26 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 2000/06/12 04:52:36 $";
+static /*const*/char rcsdate[]="$Date: 2000/10/28 08:47:26 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -70,9 +70,11 @@ struct string{char*text,*itext;size_t textlen,buflen;};
 const char dirsep[]=DIRSEP;
 static remov_delim,maxgram;
 
-int strnIcmp(a,b,l)const char*a,*b;size_t l;			     /* stub */
+#ifdef NOstrncasecmp
+int strncasecmp(a,b,l)const char*a,*b;size_t l;			     /* stub */
 { return strncmp(a,b,l);
 }
+#endif
 
 static off_t tcoffset;
 static tcguessed;

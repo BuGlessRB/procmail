@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.66 2000/10/24 00:16:47 guenther Exp $";
+ "$Id: pipes.c,v 1.67 2000/10/28 08:47:28 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -310,6 +310,7 @@ char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
    }
   else
      rclose(PRDI);
+  resettmout();
   pidchild=0;*p='\0';
   return p;
 }
@@ -334,5 +335,6 @@ void exectrap(tp)const char*const tp;
       }
      else
 	rclose(PWRO);
+     resettmout();
    }
 }

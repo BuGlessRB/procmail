@@ -1,4 +1,4 @@
-/*$Id: common.h,v 1.11 2000/09/28 01:23:14 guenther Exp $*/
+/*$Id: common.h,v 1.12 2000/10/28 08:47:21 guenther Exp $*/
 
 void
  shexec P((const char*const*argv)),
@@ -7,12 +7,16 @@ void
 char
  *skpspace P((const char*chp));
 int
- waitfor Q((const pid_t pid)),
- strnIcmp Q((const char*a,const char*b,size_t l));
+ waitfor Q((const pid_t pid));
 
 #ifdef NOstrcspn
 int
  strcspn P((const char*const whole,const char*const sub));
+#endif
+
+#ifdef NOstrncasecmp
+int
+ strncasecmp Q((const char*a,const char*b,size_t l));
 #endif
 
 #define LENoffset	(TABWIDTH*LENtSTOP)
