@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.70 1994/01/11 13:16:53 berg Exp $
+#$Id: autoconf,v 1.71 1994/01/11 13:24:46 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -794,7 +794,7 @@ main(){char a[2];
  endpwent();endgrent();memmove(a,"0",1);bcopy("0",a,1);strcspn(a,"0");
  strtol("0",(char**)0,10);strchr("0",'0');strpbrk(a,"0");rename(a,"0");
  setrgid(0);setregid(0,0);setresgid(0,0,0);opendir("0");initgroups("0",0);
- strstr("0","0");mkdir("0",0);pow(0.);clock();
+ strstr("0","0");mkdir("0",0);pow(0.,0.);clock();
 #ifndef NOuname
  {struct utsname b;uname(&b);}
 #endif
@@ -918,7 +918,7 @@ unsigned long dobench(strstr,iter,haystack)char*(*const strstr)();
  unsigned long iter;const char*const haystack;
 { unsigned long to;
   to=(unsigned long)clock();
-  do (*strstr)(haystack,"\nFrom ");
+  do (*strstr)(haystack,FROM_EXPR);
   while(--iter);
   return (unsigned long)clock()-to;
 }
@@ -1031,7 +1031,7 @@ done
 if test $found != yes && _autotst 2 >>$ACONF
 then
  echo '#define SYSTEM_MAILBOX "$HOME/.mail"' >>$ACONF
- echo Could not find the system-mailbox directory, supplied substitute
+ echo Could not find the system-mailbox directory, supplied substitute.
 fi
 
 cat >lookfor <<HERE

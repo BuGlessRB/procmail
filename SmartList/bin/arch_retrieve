@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.23 1993/12/08 17:33:37 berg Exp $
+#$Id: arch_retrieve,v 1.24 1994/01/11 13:24:36 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -173,6 +173,7 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 	 $echo "Aliases for 'egrep': search, grep, fgrep, find"
 	 $echo ""
 	 $echo "Lines starting with a '#' are ignored."
+	 $echo "Multiple commands per mail are allowed."
 	 $echo "Setting maxfiles to zero will remove the limit."
 	 $echo ""
 	 $echo "Examples:"

@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.20 1993/12/23 13:02:16 berg Exp $*/
+/*$Id: procmail.h,v 1.21 1994/01/11 13:25:14 berg Exp $*/
 
 #include "includes.h"
 
@@ -46,8 +46,6 @@ extern struct varval{const char*const name;long val;}strenvvar[];
 #define timeoutv	(strenvvar[4].val)
 #define verbose		(*(volatile long*)&strenvvar[5].val)
 #define lgabstract	(strenvvar[6].val)
-
-struct dyna_long{size_t filled,tspace;off_t*offs;};
 
 int
  eqFrom_ P((const char*const a));

@@ -1,4 +1,6 @@
-/*$Id: misc.h,v 1.20 1994/01/11 13:17:33 berg Exp $*/
+/*$Id: misc.h,v 1.21 1994/01/11 13:24:59 berg Exp $*/
+
+struct dyna_long{size_t filled,tspace;off_t*offs;};
 
 void
  elog P((const char*const newt)),
@@ -28,7 +30,8 @@ void
  metaparse P((const char*p)),
  setlastfolder P((const char*const folder)),
  asenv P((const char*const chp)),
- concatenate P((char*p));
+ concatenate P((char*p)),
+ squeeze P((char*target));
 int
  forkerr Q((const pid_t pid,const char*const a)),
  nextrcfile P((void)),

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.59 1994/01/11 13:17:46 berg Exp $";
+ "$Id: procmail.c,v 1.60 1994/01/11 13:25:09 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -598,25 +598,7 @@ copydone:	     { switch(*(sgetcp=buf2))
 				 {FROMMkey,FROMMsubstitute},
 				 {0,0}
 			       };
-			     ;{ char*tg;
-				for(or_nocase=0,tg=chp2=chp;;tg++,chp2++)
-				 { switch(*tg= *chp2)
-				    { case '\n':
-					 if(or_nocase==1)
-					    tg-=2;   /* throw out \ \n pairs */
-					 or_nocase=2;continue;
-				      case '\\':or_nocase=1;continue;
-				      case ' ':case '\t':
-					 if(or_nocase==2)    /* skip leading */
-					  { tg--;continue;     /* whitespace */
-					  }
-				      default:or_nocase=0;continue;
-				      case '\0':;
-				    }
-				   break;
-				 }
-			      }
-			     or_nocase=0;goto jinregs;
+			     squeeze(chp);or_nocase=0;goto jinregs;
 			     do		   /* find special keyword in regexp */
 				if((chp2=strstr(chp,regsp->regkey))&&
 				 (chp2==buf2||chp2[-1]!='\\'))	 /* escaped? */
@@ -673,7 +655,7 @@ jinregs:			   regsp=regs;	/* start over and look again */
 			      }
 			     break;
 			   }
-			  case '$':*buf2='"';readparse(buf,sgetc,2);
+			  case '$':*buf2='"';squeeze(chp);readparse(buf,sgetc,2);
 			     strcpy(buf2,skpspace(buf));goto copydone;
 			  case '!':negate^=1;chp2=skpspace(chp);
 copyrest:		     strcpy(buf,chp2);continue;

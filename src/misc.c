@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.39 1994/01/11 13:17:30 berg Exp $";
+ "$Id: misc.c,v 1.40 1994/01/11 13:24:52 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -412,6 +412,26 @@ long renvint(i,env)const long i;const char*const env;
 	t=0;
    }
   return t;
+}
+
+void squeeze(target)char*target;
+{ int state;char*src;
+  for(state=0,src=target;;target++,src++)
+   { switch(*target= *src)
+      { case '\n':
+	   if(state==1)
+	      target-=2;			     /* throw out \ \n pairs */
+	   state=2;continue;
+	case '\\':state=1;continue;
+	case ' ':case '\t':
+	   if(state==2)					     /* skip leading */
+	    { target--;continue;			       /* whitespace */
+	    }
+	default:state=0;continue;
+	case '\0':;
+      }
+     break;
+   }
 }
 
 char*egrepin(expr,source,len,casesens)char*expr;const char*source;
