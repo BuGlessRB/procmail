@@ -210,6 +210,7 @@
 	    Changes to multigram:
 	       - Eliminated lots of system calls during fuzzy matching
 		 (basically a speedup)
+	       - Account for compilers with sizeof(off_t)>sizeof(long)
 	    The Solaris 2.3 grep doesn't accept -e options, caused a minor
 	       glitch in createlist
 	    Provide examples/rc.local.r00 sample for X-Command fields in the
