@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.73 1996/12/27 02:53:21 srb Exp $*/
+/*$Id: config.h,v 1.74 1997/04/02 03:15:33 srb Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -54,11 +54,9 @@
 	procmail to sleep for 1 sec. before writing a regular mailbox
 	(under heavy load procmail automatically suppresses this) */
 
-/*#define SYSTEM_MBOX	"$HOME/.mail"	/* uncomment and/or change if the
-					   preset default mailbox is *not*
-	suitable or if you want standard mail delivery to take place in a
-	different file from the normal mail-spool-file.
-	(it will supersede the value of SYSTEM_MAILBOX in autoconf.h) */
+/* This usually allowed you define SYSTEM_MBOX.	 This has changed.
+   If you want mail delivery to custom mail-spool-files, edit the
+   authenticate.c file and change the content of:  auth_mailboxname() */
 
 /*#define DEFsendmail	"/bin/mail"	/* uncomment and/or change if the
 					   autoconfigured default SENDMAIL is

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.60 1996/12/21 03:28:18 srb Exp $
+.Id $Id: procmailrc.man,v 1.61 1997/04/02 03:15:34 srb Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -231,7 +231,10 @@ of the characters $SHELLMETAS are spotted.  You can optionally prepend this
 pipe symbol with
 .IR variable= ,
 which will cause stdout of the program to be captured in the environment
-.IR variable .
+.I variable
+(procmail will
+.B not
+terminate processing the rcfile at this point).
 If you specify just this pipe symbol, without any program, then procmail will
 pipe the mail to stdout.
 .TP

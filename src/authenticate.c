@@ -11,12 +11,14 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: authenticate.c,v 1.1 1997/01/01 14:52:51 srb Exp $";
+ "$Id: authenticate.c,v 1.2 1997/04/02 03:15:36 srb Exp $";
 #endif
 
 #ifdef PROCMAIL
 #include "includes.h"
+#include "robust.h"
 #include "shell.h"
+#include "misc.h"
 #else
 #include "config.h"
 
@@ -39,12 +41,13 @@ static /*const*/char rcsid[]=
 
 #define STRLEN(x)	(sizeof(x)-1)
 
-static struct auth_identity
+struct auth_identity
 { const struct passwd*pw;
   char*mbox;
   int sock;
-} auth_identity authi;			      /* reuse copy, only one active */
+};
 
+static auth_identity authi;		      /* reuse copy, only one active */
 
 static void castlower(str)register char*str;
 { for(;*str;str++)
@@ -61,7 +64,7 @@ static const struct passwd*cgetpwuid(uid,sock)const uid_t uid;const int sock;
 { return getpwuid(uid);
 }
 
-const auth_identity*auth_finduser(user,sock)char*const user;const int sock;
+/*const*/auth_identity*auth_finduser(user,sock)char*const user;const int sock;
 { if(!(authi.pw=cgetpwnam(user,sock)))		  /* /etc/passwd user lookup */
    { char*p;
      if(p=strchr(user,'@'))		  /* does the username contain an @? */
@@ -76,7 +79,7 @@ const auth_identity*auth_finduser(user,sock)char*const user;const int sock;
   return &authi;					       /* user found */
 }
 
-const auth_identity*auth_finduid(uid,sock)const uid_t uid;const int sock;
+/*const*/auth_identity*auth_finduid(uid,sock)const uid_t uid;const int sock;
 { if(!(authi.pw=cgetpwuid(uid,sock)))		  /* /etc/passwd user lookup */
      return 0;							     /* nada */
   authi.sock=sock;
@@ -103,6 +106,39 @@ int auth_checkpassword(pass,pw,allowemptypw)const auth_identity*const pass;
 
 const char*auth_getsecret(pass)const auth_identity*const pass;
 { return 0;	       /* no standard way to get a secret, add function here */
+}
+#else /* PROCMAIL */
+auth_identity*auth_newid P((void))
+{ auth_identity*pass;
+  (pass=malloc(sizeof*pass))->pw=0;pass->mbox=0;
+}
+
+void auth_copyid(newpass,oldpass)auth_identity*newpass;
+ const auth_identity*oldpass;
+{ struct passwd*np;const struct passwd*op;
+  if(newpass->mbox)
+     free(newpass->mbox),newpass->mbox=0;
+  newpass->sock=oldpass->sock;
+  if(!(np=(struct passwd*)newpass->pw))
+   { np=(struct passwd*)newpass->pw=malloc(sizeof*np);
+     np->pw_name=np->pw_dir=np->pw_shell=0;
+   }
+  np->pw_uid=(op=oldpass->pw)->pw_uid;np->pw_gid=op->pw_gid;
+  np->pw_name=cstr(np->pw_name,op->pw_name);
+  np->pw_dir=cstr(np->pw_dir,op->pw_dir);
+  np->pw_shell=cstr(np->pw_shell,op->pw_shell);
+}
+
+void auth_freeid(pass)auth_identity*pass;
+{ struct passwd*p;
+  if(p=(struct passwd*)pass->pw)
+     free(p->pw_name),free(p->pw_dir),free(p->pw_shell),free(p);
+  if(pass->mbox)
+     free(pass->mbox);
+}
+
+int auth_filledid(pass)const auth_identity*pass;
+{ return !!pass->pw;
 }
 #endif /* PROCMAIL */
 
@@ -132,6 +168,10 @@ uid_t auth_whatgid(pass)const auth_identity*const pass;
 
 const char*auth_homedir(pass)const auth_identity*const pass;
 { return pass->pw->pw_dir;
+}
+
+const char*auth_shell(pass)const auth_identity*const pass;
+{ return pass->pw->pw_shell;
 }
 
 const char*auth_username(pass)const auth_identity*const pass;

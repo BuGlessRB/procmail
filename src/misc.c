@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.74 1996/12/27 02:53:25 srb Exp $";
+ "$Id: misc.c,v 1.75 1997/04/02 03:15:41 srb Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -553,21 +553,6 @@ char*egrepin(expr,source,len,casesens)char*expr;const char*source;
      free(expr);
    }
   return (char*)source;
-}
-
-const struct passwd*savepass(spass,uid)struct passwd*const spass;
- const uid_t uid;
-{ struct passwd*tpass;
-  if(spass->pw_name&&spass->pw_uid==uid)
-     goto ret;
-  if(tpass=getpwuid(uid))				  /* save by copying */
-   { spass->pw_uid=tpass->pw_uid;spass->pw_gid=tpass->pw_gid;
-     spass->pw_name=cstr(spass->pw_name,tpass->pw_name);
-     spass->pw_dir=cstr(spass->pw_dir,tpass->pw_dir);
-     spass->pw_shell=cstr(spass->pw_shell,tpass->pw_shell);
-ret: return spass;
-   }
-  return (const struct passwd*)0;
 }
 
 int enoughprivs(passinvk,euid,egid,uid,gid)const struct passwd*const passinvk;

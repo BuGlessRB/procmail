@@ -2,9 +2,8 @@
  *	recommend	Analyses the installation, and makes		*
  *			recommendations about suid/sgid modes		*
  ************************************************************************/
-/*$Id: recommend.c,v 1.12 1994/08/18 13:45:20 berg Exp $*/
+/*$Id: recommend.c,v 1.13 1997/04/02 03:15:45 srb Exp $*/
 #include "includes.h"
-#include "lastdirsep.h"
 
 #ifndef SYSTEM_MBOX
 #define SYSTEM_MBOX	SYSTEM_MAILBOX
@@ -12,7 +11,7 @@
 
 #define PERMIS	(S_IRWXU|S_IRWXG&~S_IWGRP|S_IRWXO&~S_IWOTH)
 
-char systm_mbox[]=SYSTEM_MBOX;
+char mailspooldir[]=MAILSPOOLDIR;
 const char dirsep[]=DIRSEP,
  *const checkf[]={"/bin/mail","/bin/lmail","/usr/lib/sendmail",
  "/usr/lib/smail",0};
@@ -24,14 +23,14 @@ main(argc,argv)const int argc;const char*const argv[];
    { fprintf(stderr,"Please run this program via 'make recommend'\n");
      return EX_USAGE;
    }
-  *lastdirsep(systm_mbox)='\0';
+  strchr(mailspooldir,'\0')[-1]='\0';		     /* strip last character */
   for(p=checkf;*p;p++)
      if(!stat(*p,&stbuf)&&stbuf.st_mode&S_ISGID)
       { if(stbuf.st_mode&S_ISGID)
 	   sgid=S_ISGID,gid=stbuf.st_gid;
 	break;
       }
-  if(!stat(systm_mbox,&stbuf)&&!(stbuf.st_mode&S_IWOTH))
+  if(!stat(mailspooldir,&stbuf)&&!(stbuf.st_mode&S_IWOTH))
      if(stbuf.st_mode&S_ISVTX)
 	chmdir=2;
      else
@@ -53,7 +52,7 @@ main(argc,argv)const int argc;const char*const argv[];
   else if(chmdir==1)
      goto nogchmod;
   if(chmdir)
-     printf("chmod %c+w %s.\n",chmdir==1?'g':'a',systm_mbox);
+     printf("chmod %c+w %s.\n",chmdir==1?'g':'a',mailspooldir);
 nogchmod:
   return EXIT_SUCCESS;
 }

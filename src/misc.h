@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.33 1995/03/20 14:52:06 berg Exp $*/
+/*$Id: misc.h,v 1.34 1997/04/02 03:15:41 srb Exp $*/
 
 struct dyna_long{size_t filled,tspace;off_t*offs;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -62,8 +62,6 @@ const char
  *newdynstring P((struct dynstring**const adrp,const char*const chp));
 long
  renvint P((const long i,const char*const env));
-const struct passwd
- *savepass Q((struct passwd*const spass,const uid_t uid));
 
 extern const char lastfolder[],maildir[];
 extern int didchd;

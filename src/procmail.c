@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.116 1996/12/27 02:53:26 srb Exp $";
+ "$Id: procmail.c,v 1.117 1997/04/02 03:15:43 srb Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -31,12 +31,14 @@ static /*const*/char rcsid[]=
 #include "locking.h"
 #include "mailfold.h"
 #include "lastdirsep.h"
+#include "authenticate.h"
 
 static const char*const nullp,From_[]=FROM,exflags[]=RECFLAGS,
- drcfile[]="Rcfile:",systm_mbox[]=SYSTEM_MBOX,pmusage[]=PM_USAGE,
- *etcrc=ETCRC,misrecpt[]="Missing recipient\n",extrns[]="Extraneous ",
- ignrd[]=" ignored\n",pardir[]=chPARDIR,curdir[]={chCURDIR,'\0'},
- insufprivs[]="Insufficient privileges\n";
+ drcfile[]="Rcfile:",pmusage[]=PM_USAGE,*etcrc=ETCRC,
+ misrecpt[]="Missing recipient\n",extrns[]="Extraneous ",ignrd[]=" ignored\n",
+ pardir[]=chPARDIR,curdir[]={chCURDIR,'\0'},
+ insufprivs[]="Insufficient privileges\n",
+ attemptst[]="Attempt to fake stamp by";
 char*buf,*buf2,*loclock,*tolock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*const*restargv= &nullp,*sgetcp,
@@ -49,13 +51,25 @@ char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rcstate,rc= -1,
  ignwerr,lexitcode=EXIT_SUCCESS,asgnlastf,accspooldir,crestarg,skiprc,
  savstdout,berkeley;
-size_t linebuf=mx(DEFlinebuf+XTRAlinebuf,STRLEN(systm_mbox)<<1);
+size_t linebuf=mx(DEFlinebuf+XTRAlinebuf,1024/*STRLEN(systm_mbox)<<1*/);
 volatile int nextexit;			       /* if termination is imminent */
 pid_t thepid;
 long filled,lastscore;	       /* the length of the mail, and the last score */
 char*themail,*thebody;			    /* the head and body of the mail */
 uid_t uid;
 gid_t gid,sgid;
+
+auth_identity*savepass(spass,uid)auth_identity*const spass;
+ const uid_t uid;
+{ const auth_identity*tpass;
+  if(auth_filledid(spass)&&auth_whatuid(spass)==uid)
+     goto ret;
+  if(tpass=auth_finduid(uid,0))				  /* save by copying */
+   { auth_copyid(spass,tpass);
+ret: return spass;
+   }
+  return (auth_identity*)0;
+}
 
 #if 0
 #define wipetcrc()	(etcrc&&(etcrc=0,closerc(),1))
@@ -97,7 +111,8 @@ main(argc,argv)const char*const argv[];
 		    elog(", flock()");
 #endif
 		    elog("\nDefault rcfile:\t\t");elog(pmrc);
-		    elog("\nSystem mailbox:\t\t");elog(systm_mbox);
+		    elog("\nSystem mailbox:\t\t");
+		    elog(auth_mailboxname(auth_finduid(getuid(),0)));
 		    elog(newline);
 		    return EXIT_SUCCESS;
 		 case HELPOPT1:case HELPOPT2:elog(pmusage);elog(PM_HELP);
@@ -184,25 +199,28 @@ conflopt:  nlog(conflicting),elog("options\n"),elog(pmusage);
       }
 #ifdef LD_ENV_FIX
      ;{ const char**emax=(const char**)environ,**ep;
-	static const char ld_[]="LD_",rld[]="_RLD",libpath[]="LIBPATH=",
-	 elfld[]="ELF_LD_",aoutld[]="AOUT_LD_";
-#define CHECKLD(str)	(!strncmp(str,*ep,STRLEN(str)))
+	static const char*ld_[]=
+	 {"LD_","_RLD","LIBPATH=","ELF_LD_","AOUT_LD_",0};
 	for(ep=emax;*emax;emax++);	  /* find the end of the environment */
 	for(;*ep;ep++)
-	   if(CHECKLD(ld_)||CHECKLD(rld)||CHECKLD(libpath)||CHECKLD(elfld)||
-	    CHECKLD(aoutld))	       /* if it starts with LD_ (or similar) */
-	      *ep--= *--emax,*emax=0;			/* copy from the end */
+	 { const char**ldp,*p;
+	   for(ldp=ld_;p= *ldp++;)
+	      if(!strncmp(*ep,p,strlen(p)))	/* if it starts with LD_ (or */
+	       { *ep--= *--emax;*emax=0;       /* similar) copy from the end */
+		 break;
+	       }
+	 }
       }
 #endif /* LD_ENV_FIX */
-     ;{ const struct passwd*pass,*passinvk;struct passwd spassinvk;int privs;
+     ;{ auth_identity*pass,*passinvk;auth_identity*spassinvk;int privs;
 	uid_t euid=geteuid();
-	spassinvk.pw_name=spassinvk.pw_dir=spassinvk.pw_shell=0;
-	passinvk=savepass(&spassinvk,uid=getuid());privs=1;gid=getgid();
+	spassinvk=auth_newid();passinvk=savepass(spassinvk,uid=getuid());
+	privs=1;gid=getgid();
 	;{ static const char*const trusted_ids[]=TRUSTED_IDS;
 	   if(Deliverymode&&*trusted_ids&&uid!=euid)
 	    { struct group*grp;const char*const*kp;
 	      if(passinvk)		      /* check out the invoker's uid */
-		 for(chp2=passinvk->pw_name,kp=trusted_ids;*kp;)
+		 for(chp2=(char*)auth_username(passinvk),kp=trusted_ids;*kp;)
 		    if(!strcmp(chp2,*kp++)) /* is it amongst the privileged? */
 		       goto privileged;
 	      if(grp=getgrgid(gid))	      /* check out the invoker's gid */
@@ -240,8 +258,9 @@ privileged:				       /* move stdout out of the way */
 	signal(SIGPIPE,SIG_IGN);qsignal(SIGTERM,srequeue);
 	qsignal(SIGINT,sbounce);qsignal(SIGHUP,sbounce);
 	qsignal(SIGQUIT,slose);signal(SIGALRM,(void(*)())ftimeout);
-	ultstr(0,(unsigned long)uid,buf);
-	chp2=!passinvk||!*passinvk->pw_name?buf:passinvk->pw_name;filled=0;
+	ultstr(0,(unsigned long)uid,buf);filled=0;
+	if(!passinvk||!(chp2=(char*)auth_username(passinvk)))
+	   chp2=buf;
 	;{ const char*fwhom;size_t lfr,linv;int tstamp;
 	   tstamp=fromwhom&&*fromwhom==REFRESH_TIME&&!fromwhom[1];fwhom=chp2;
 	   if(fromwhom&&!tstamp)
@@ -249,8 +268,8 @@ privileged:				       /* move stdout out of the way */
 		 privs=1; /* if -f user is the same as the invoker, allow it */
 	      if(!privs&&fromwhom&&override)
 	       { if(verbose)
-		    nlog(insufprivs);
-		 fromwhom=0;			      /* ignore the bogus -f */
+		    nlog(insufprivs);		      /* ignore the bogus -f */
+		 syslog(LOG_ERR,slogstr,attemptst,fwhom);fromwhom=0;
 	       }
 	      else
 		 fwhom=fromwhom;
@@ -289,6 +308,7 @@ privileged:				       /* move stdout out of the way */
 		    if(Deliverymode&&override&&!privs)
 		     { if(verbose)		  /* discard the bogus From_ */
 			  nlog(insufprivs);
+		       syslog(LOG_ERR,slogstr,attemptst,fwhom);
 		       goto no_from;
 		     }
 		    if(tstamp)
@@ -346,18 +366,13 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 	   while(chp=(char*)argv[argc]);
 	gargv=argv+argc;suppmunreadable=verbose; /* save it for nextrcfile() */
 	if(Deliverymode)	/* try recipient without changing case first */
-	 { if(!(pass=getpwnam(chp2)))  /* chp2 should point to the recipient */
-	    { for(chp=chp2;*chp;chp++)	  /* kludge recipient into lowercase */
-		 if((unsigned)*chp-'A'<='Z'-'A')
-		    *chp+='a'-'A';	 /* getpwnam might be case sensitive */
-	      if(!(pass=getpwnam(chp2)))			/* try again */
-	       { static const char unkuser[]="Unknown user";
-		 nlog(unkuser);logqnl(chp2);
-		 syslog(LOG_ERR,slogstr,unkuser,chp2);
-		 return EX_NOUSER;		/* we don't handle strangers */
-	       }
+	 { if(!(pass=auth_finduser(chp2,-1)))	    /* chp2 is the recipient */
+	    { static const char unkuser[]="Unknown user";
+	      nlog(unkuser);logqnl(chp2);syslog(LOG_ERR,slogstr,unkuser,chp2);
+	      return EX_NOUSER;			/* we don't handle strangers */
 	    }
-	   if(enoughprivs(passinvk,euid,egid,pass->pw_uid,pass->pw_gid))
+	   if(enoughprivs(passinvk,euid,egid,auth_whatuid(pass),
+	    auth_whatgid(pass)))
 	      goto Setuser;
 	   nlog(insufprivs);
 	   syslog(LOG_CRIT,"Insufficient privileges to deliver to \"%s\"\n",
@@ -413,7 +428,7 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 		       !enoughprivs(passinvk,euid,egid,stbuf.st_uid,
 			stbuf.st_gid)||		   /* can we do this at all? */
 		       S_ISDIR(stbuf.st_mode)||		  /* no directories! */
-		       !savepass(&spassinvk,stbuf.st_uid)    /* user exists? */
+		       !savepass(spassinvk,stbuf.st_uid)     /* user exists? */
 		      )
 nospecial:	     { static const char densppr[]=
 			"Denying special privileges for";
@@ -421,39 +436,38 @@ nospecial:	     { static const char densppr[]=
 		       syslog(LOG_ALERT,slogstr,densppr,rcfile);
 		     }
 		    else			    /* no security violation */
-		       mailfilter=2,passinvk= &spassinvk;
+		       mailfilter=2,passinvk=spassinvk;
 		  }				      /* accept new identity */
 	       }
 #endif
 	    }
 	 }
-	if(idhint&&(pass=getpwnam(idhint))&&
-	    passinvk&&passinvk->pw_uid==pass->pw_uid||
+	if(idhint&&(pass=auth_finduser((char*)idhint,0))&&
+	    passinvk&&auth_whatuid(passinvk)==auth_whatuid(pass)||
 	   (pass=passinvk))
 	  /*
 	   *	set preferred uid to the intended recipient
 	   */
-Setuser: { gid=pass->pw_gid;uid=pass->pw_uid;
-	   setdef(lgname,chp= *pass->pw_name?pass->pw_name:buf);
-	   setdef(home,pass->pw_dir);
+Setuser: { gid=auth_whatuid(pass);uid=auth_whatgid(pass);
+	   if(!*(chp=(char*)auth_username(pass)))
+	      chp=buf;
+	   setdef(lgname,chp);setdef(home,auth_homedir(pass));
 	   if(euid==ROOT_uid)
 	      initgroups(chp,gid);
-	   endgrent();setdef(shell,*pass->pw_shell?pass->pw_shell:binsh);
+	   endgrent();
+	   if(!*(chp=(char*)auth_shell(pass)))
+	      chp=(char*)binsh;
+	   setdef(shell,chp);setdef(orgmail,auth_mailboxname(pass));
 	 }
 	else		 /* user could not be found, set reasonable defaults */
 	  /*
 	   *	to prevent security holes, drop any privileges now
 	   */
 	 { setdef(lgname,buf);setdef(home,RootDir);setdef(shell,binsh);
-	   setids();
+	   setdef(orgmail,"/tmp/dead.letter");setids();
 	 }
-	endpwent();
-	if(passinvk)
-	 { free(spassinvk.pw_name);free(spassinvk.pw_dir);
-	   free(spassinvk.pw_shell);
-	 }
+	endpwent();auth_freeid(spassinvk);
       }
-     setdef(orgmail,systm_mbox);
      if(!presenviron||!mailfilter)	  /* by default override environment */
       { setdef(host,hostname());sputenv(lastfolder);sputenv(exitcode);
 	initdefenv();

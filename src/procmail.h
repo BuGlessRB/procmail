@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.31 1995/10/30 02:09:26 srb Exp $*/
+/*$Id: procmail.h,v 1.32 1997/04/02 03:15:45 srb Exp $*/
 
 #include "includes.h"
 
@@ -17,10 +17,6 @@
 
 #ifndef DEFPATH
 #define DEFPATH		defPATH
-#endif
-
-#ifndef SYSTEM_MBOX
-#define SYSTEM_MBOX	SYSTEM_MAILBOX
 #endif
 
 #ifndef ETCRC

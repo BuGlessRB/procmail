@@ -1,4 +1,4 @@
-#$Id: Makefile.0,v 1.45 1997/01/01 14:52:51 srb Exp $
+#$Id: Makefile.0,v 1.46 1997/04/02 03:15:36 srb Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O) \
@@ -53,7 +53,8 @@ targetdir.h:
 
 acommon.$(O): ../autoconf.h ../config.h includes.h acommon.h robust.h shell.h
 
-authenticate.$(O): ../autoconf.h ../config.h includes.h shell.h authenticate.h
+authenticate.$(O): ../autoconf.h ../config.h includes.h robust.h shell.h
+authenticate.$(O): misc.h authenticate.h
 	$(CC) -c -DPROCMAIL $(CFLAGS) $*.c
 
 common.$(O): ../autoconf.h ../config.h includes.h procmail.h sublib.h robust.h
@@ -84,6 +85,7 @@ hsort.$(O): ../autoconf.h ../config.h includes.h hsort.h
 lastdirsep.$(O): ../autoconf.h ../config.h includes.h lastdirsep.h
 
 lockfile.$(O): ../autoconf.h ../config.h includes.h sublib.h exopen.h mcommon.h
+lockfile.$(O): authenticate.h
 
 locking.$(O): ../autoconf.h ../config.h includes.h procmail.h robust.h shell.h
 locking.$(O): misc.h pipes.h exopen.h locking.h lastdirsep.h
@@ -108,7 +110,7 @@ pipes.$(O): mailfold.h
 procmail.$(O): ../patchlevel.h ../autoconf.h ../config.h includes.h procmail.h
 procmail.$(O): acommon.h sublib.h robust.h shell.h misc.h pipes.h common.h
 procmail.$(O): cstdio.h exopen.h regexp.h mcommon.h goodies.h locking.h
-procmail.$(O): mailfold.h lastdirsep.h
+procmail.$(O): mailfold.h lastdirsep.h authenticate.h
 
 regexp.$(O): ../autoconf.h ../config.h includes.h procmail.h sublib.h robust.h
 regexp.$(O): shell.h misc.h regexp.h goodies.h

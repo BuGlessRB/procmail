@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.31 1996/12/21 03:28:21 srb Exp $";
+ "$Id: cstdio.c,v 1.32 1997/04/02 03:15:38 srb Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -20,10 +20,11 @@ struct dynstring*incnamed;
 
 void pushrc(name)const char*const name;		      /* open include rcfile */
 { struct stat stbuf;					   /* only if size>0 */
+  stbuf.st_mode=0;
   if(*name&&(stat(name,&stbuf)||!S_ISREG(stbuf.st_mode)||stbuf.st_size))
    { app_val(&inced,rcbufp?(off_t)(rcbufp-rcbuf):(off_t)0);	 /* save old */
      app_val(&inced,blasttell);app_val(&inced,(off_t)rc);   /* position & fd */
-     if(bopen(name)<0)			      /* and try to open the new one */
+     if(S_ISDIR(stbuf.st_mode)||bopen(name)<0)	  /* try to open the new one */
 	readerr(name),poprc();		       /* we couldn't, so restore rc */
    }
 }

@@ -344,6 +344,9 @@
 	       - Kernel lockf() method doesn't change the position of the
 		 filepointer anymore (results in more accurate lockingtests)
 	       - Multiple directory folders are assigned to LASTFOLDER
+	       - Don't strip trailing \n in a $MATCH
+	       - Refuse to open directories for INCLUDERC files
+	       - Syslog failed -o attempts
 	    Changes to formail:
 	       - Slightly extended the number of known header fields
 	       - Eliminated the conflict with the 4.4BSD daemon libidentifier
@@ -351,6 +354,7 @@
 	    Added support for a parallelising make
 	    Changed manconf.c to cater for broken systems that have a 100 line
 	       limit for sed (instead of a 100 command limit)
+	    Worked around an nroff-coredumping problem with IRIX
 	    Fixed some portability problems with the Makefiles for the OSF make
 	    Changes to formail:
 	       - In an MMDF environment formail -b didn't behave correctly
@@ -363,6 +367,8 @@
 	       - When splitting and a maximum number of message was being
 		 specified, formail erroneously returned EX_IOERR
 	       - Avoid splitting empty messages
+	       - Skip leading spaces when checking for duplicates (will break
+		 checks with old id-databases)
 	    Worked around old shells not supporting negated classes
 	    Extended the FAQ
 	    Updated examples/advanced docs for meta-argument setup in

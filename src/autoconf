@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1996, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.108 1996/12/21 03:28:20 srb Exp $
+#$Id: autoconf,v 1.109 1997/04/02 03:15:37 srb Exp $
 
 # All possible entries in autoconf.h:
 
@@ -77,7 +77,7 @@
 #	#define NOfcntl_lock
 #Ok	#define USElockf
 #Ok	#define USEflock
-#Ok	#define SYSTEM_MAILBOX "/var/spool/mail/$LOGNAME"
+#Ok	#define MAILSPOOLDIR "/var/spool/mail/"
 #Ok	#define SENDMAIL "/usr/sbin/sendmail"
 #	#define buggy_SENDMAIL
 #	#define DEFflagsendmail ""
@@ -1173,7 +1173,7 @@ skipsetrgid:;
    }
 #ifdef SYSTEM_MBOX
   if(argc==2)
-   { printf("#define SYSTEM_MAILBOX \"%s\"\n",SYSTEM_MBOX);
+   { printf("#define MAILSPOOLDIR \"%s\"\n",SYSTEM_MBOX);
      return 1;
    }
 #endif
@@ -1279,12 +1279,12 @@ _autotst 2 >>$ACONF || found=yes
 for a in /var/spool/mail /usr/spool/mail /var/mail /usr/mail /spool/mail
 do
   test -d $a -a $found != yes &&
-   echo '#define SYSTEM_MAILBOX "'$a'/$LOGNAME"' >>$ACONF && found=yes
+   echo '#define MAILSPOOLDIR "'$a'/"' >>$ACONF && found=yes
 done
 if test $found != yes
 then
- echo '#define SYSTEM_MAILBOX "$HOME/.mail"' >>$ACONF
- echo Could not find the system-mailbox directory, supplied substitute.
+ echo '#define MAILSPOOLDIR "/var/spool/mail/"' >>$ACONF
+ echo Could not find the system-mailbox directory, supplied default.
 fi
 
 cat >lookfor <<HERE

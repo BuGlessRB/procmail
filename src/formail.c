@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.78 1996/12/21 03:28:24 srb Exp $";
+ "$Id: formail.c,v 1.79 1997/04/02 03:15:39 srb Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1996/12/21 03:28:24 $";
+static /*const*/char rcsdate[]="$Date: 1997/04/02 03:15:39 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -295,16 +295,18 @@ pnewname:  lastm=nowm;saddr=strcpy(malloc(strlen(saddr)+1),saddr);
 			     /* lifted out of main() to reduce main()'s size */
 static void elimdups(namep,idcache,maxlen,split)const char*const namep;
  FILE*idcache;const off_t maxlen;const int split;
-{ int dupid=0;char*key;
+{ int dupid=0;char*key,*oldnewl;
   key=(char*)namep;		  /* not to worry, no change will be noticed */
   if(!areply)
    { key=0;
      if(msid->rexl)					/* any Message-ID: ? */
-	(key=msid->rexp)[msid->rexl-1]='\0';
-   }
+	*(oldnewl=(key=msid->rexp)+msid->rexl-1)='\0';
+   }						/* wipe out trailing newline */
   if(key)
    { off_t insoffs=maxlen;
-     do						/* wipe out trailing newline */
+     while(*key==' ')				     /* strip leading spaces */
+	key++;
+     do
       { int j;char*p;		  /* start reading & comparing the next word */
 	for(p=key;(j=fgetc(idcache))==*p;p++)
 	   if(!j)					     /* end of word? */
@@ -320,7 +322,7 @@ static void elimdups(namep,idcache,maxlen,split)const char*const namep;
 	    }
 	 }
 	else
-skiprest:	 for(;;)			/* skip the rest of the word */
+skiprest:  for(;;)				/* skip the rest of the word */
 	    { switch(fgetc(idcache))
 	       { case EOF:
 		    goto noluck;
@@ -340,7 +342,7 @@ noluck:
 dupfound:
      fseek(idcache,(off_t)0,SEEK_SET);		 /* rewind, for any next run */
      if(!areply)
-	key[msid->rexl-1]='\n';			      /* restore the newline */
+	*oldnewl='\n';				      /* restore the newline */
    }
   if(!split)				  /* not splitting?  terminate early */
      exit(dupid?EXIT_SUCCESS:1);

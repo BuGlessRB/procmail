@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.55 1996/12/21 03:28:26 srb Exp $*/
+/*$Id: includes.h,v 1.56 1997/04/02 03:15:39 srb Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -495,7 +495,3 @@ typedef unsigned char uschar;	     /* sometimes uchar is already typedef'd */
 #undef uchar
 #endif
 #define uchar uschar
-
-#ifdef NO_const
-#undef NO_const
-#endif
