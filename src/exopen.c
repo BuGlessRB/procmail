@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.30 1999/02/21 04:13:27 guenther Exp $";
+ "$Id: exopen.c,v 1.31 1999/02/21 19:37:12 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -71,28 +71,39 @@ int myrename(old,newn)const char*const old,*const newn;
   i=hlink(old,newn);serrno=errno;unlink(old);SETerrno(serrno);
   return i;
 }
-		 /* hardlink with fallback for systems that don't support it */
-int hlink(old,newn)const char*const old,*const newn;
-{ if(link(old,newn))				      /* try a real hardlink */
-   { int serrno;struct stat stbuf,stbuf2;
-     serrno=errno;
-     if(lstat(old,&stbuf)||S_ISLNK(stbuf.st_mode))    /* no stat or symlink? */
-	goto retfail;				     /* yuk, don't accept it */
+
+						     /* NFS-resistant link() */
+int rlink(old,newn,st)const char*const old,*const newn;struct stat*st;
+{ if(link(old,newn))
+   { register int serrno,ret;struct stat sto,stn;
+     serrno=errno;ret= -1;
 #undef NEQ			       /* compare files to see if the link() */
-#define NEQ(what)	(stbuf.what!=stbuf2.what)      /* actually succeeded */
-     if(stbuf.st_nlink!=2||lstat(newn,&stbuf2)||NEQ(st_dev)||NEQ(st_ino))
-      { int fd;
-	if(serrno!=EXDEV)		       /* failure due to filesystem? */
-	   goto retfail;		     /* try it by conventional means */
-#ifdef O_CREAT
-	if(0>(fd=ropen(newn,O_WRONLY|O_CREAT|O_EXCL,stbuf.st_mode)))
-#endif
-retfail: { SETerrno(serrno);
-	   return -1;
-	 }
-	rclose(fd);
+#define NEQ(what)	(sto.what!=stn.what)	       /* actually succeeded */
+     if(lstat(old,&sto)||(ret=1,lstat(newn,&stn)||
+	NEQ(st_dev)||NEQ(st_ino)||NEQ(st_uid)||NEQ(st_gid)||
+	S_ISLNK(sto.st_mode)))			    /* symlinks are also bad */
+      { SETerrno(serrno);
+	if(st&&ret>0)
+	   *st=sto;				       /* save the stat data */
+	return ret;				    /* it was a real failure */
       }
-     SETerrno(serrno);
+     /*SETerrno(serrno);*/   /* we really succeeded, don't bother with errno */
    }
   return 0;
+}
+		 /* hardlink with fallback for systems that don't support it */
+int hlink(old,newn)const char*const old,*const newn;
+{ int ret;struct stat stbuf;
+  if(0<(ret=rlink(old,newn,&stbuf)))		      /* try a real hardlink */
+   { int fd;
+#ifdef O_CREAT				       /* failure due to filesystem? */
+     if(stbuf.st_nlink<2&&errno==EXDEV&&     /* try it by conventional means */
+	0<=(fd=ropen(newn,O_WRONLY|O_CREAT|O_EXCL,stbuf.st_mode)))
+      { rclose(fd);
+	return 0;
+      }
+#endif
+     return -1;
+   }
+  return ret;				 /* success, or the stat failed also */
 }

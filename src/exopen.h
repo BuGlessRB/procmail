@@ -1,9 +1,10 @@
-/*$Id: exopen.h,v 1.13 1999/02/02 17:00:47 guenther Exp $*/
+/*$Id: exopen.h,v 1.14 1999/02/21 19:37:13 guenther Exp $*/
 
 int
  unique Q((const char*const full,char*p,const mode_t mode,const verbos,
   const chownit)),
  myrename P((const char*const old,const char*const newn)),
+ rlink P((const char*const old,const char*const newn,struct stat*st)),
  hlink P((const char*const old,const char*const newn));
 
 #define charsSERIAL	4

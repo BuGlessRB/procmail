@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.75 1999/02/16 21:13:41 guenther Exp $";
+ "$Id: mailfold.c,v 1.76 1999/02/21 19:37:15 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -122,7 +122,7 @@ exlb: { nlog(exceededlb);setoverflow();
       }
      ;{ int ok;
 	do ultstr(0,++i,chp);		       /* find first empty MH folder */
-	while((ok=linkonly?link(buf2,buf):hlink(buf2,buf))&&errno==EEXIST);
+	while((ok=linkonly?rlink(buf2,buf,0):hlink(buf2,buf))&&errno==EEXIST);
 	if(linkonly)
 	 { yell(lkingto,buf);
 	   if(ok)
@@ -143,7 +143,7 @@ exlb: { nlog(exceededlb);setoverflow();
    }
   if(linkonly)
    { yell(lkingto,buf);
-     if(link(buf2,buf))	   /* hardlink the new file, it's a directory folder */
+     if(rlink(buf2,buf,0)) /* hardlink the new file, it's a directory folder */
 nolnk:	nlog("Couldn't make link to"),logqnl(buf);
      else
 didlnk:
