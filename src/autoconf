@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.55 1993/06/23 12:55:56 berg Exp $
+#$Id: autoconf,v 1.56 1993/06/23 14:35:13 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -572,7 +572,7 @@ main()
   --(c+1)->b;				 /* AIX 3.1.5 machines can't do this */
   p= &q;
   execvp(q,p);	  /* IRIX 4.0.1 system-include files are wrong on this point */
-  return s==r;
+  return r==s;		    /* Domain/OS warns here, not about "s==r" though */
 }
 HERE
 

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.36 1993/06/23 12:55:34 berg Exp $
+#$Id: initmake,v 1.37 1993/06/23 14:35:06 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -20,6 +20,7 @@ shift; BINSS="$1"
 shift; MANS1S="$1"
 shift; MANS5S="$1"
 shift; SUBDIRS="$1"
+shift; BINDIR="$1"
 
 test 1 != $# &&
  echo "Don't start this script directly, use \`make init'" && exit 1
@@ -259,6 +260,8 @@ do
   sed -e '1,/^# Makefile.0 - mark/ d' <_Makefile >$a/_Makefile
   cat $a/Makefile.0 >>$a/_Makefile
 done
+
+echo "BINDIR=$BINDIR"					>>src/_Makefile
 
 for a in $BINSS
 do

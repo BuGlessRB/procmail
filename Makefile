@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.30 1993/06/23 12:55:25 berg Exp $
+#$Id: Makefile,v 1.31 1993/06/23 14:35:02 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -97,7 +97,8 @@ init:
 	 "$(LIBPATHS)" \
 	 $(DEVNULL) "$(HIDEMAKE)" $(O) \
 	 "$(CC)" "$(CFLAGS1)" "$(LDFLAGS1)" "$(BINSS)" \
-	 "$(MANS1S)" "$(MANS5S)" "$(SUBDIRS)"
+	 "$(MANS1S)" "$(MANS5S)" "$(SUBDIRS)" \
+	 "$(BINDIR)"
 
 makefiles makefile Makefiles Makefile: init
 
