@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.32 1994/06/01 18:52:09 berg Exp $
+#$Id: arch_retrieve,v 1.33 1994/06/10 18:07:22 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -194,6 +194,14 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 		  $echo "END-----------------cut here------------------"
 		) | $SENDMAIL $sendmailOPT -t ;;
 	    esac ;;
+	 version|VERSION)
+		( $formail -rt -I"Subject: archive retrieval: $line" \
+		   -i"From: $listreq" -A"X-Loop: $listaddr" \
+		   <$tmprequest
+		  $test ! -z "$wrongaddress" && $echo "$wrongaddress"
+		  flist -v 2>&1
+		  procmail -v 2>&1
+		) | $SENDMAIL $sendmailOPT -t ;;
 	 ""|\#*) ;;
 	 *) $test -z "$sendhelp" && sendhelp="$1" ;;
       esac

@@ -97,3 +97,4 @@
 	    Allow for unsubscription assistance
 	    Full blown MIME support for the archive server (binary files,
 	       arbitrary length, autosplitting, full MIME-encapsulation)
+	    The archive server understands the "version" command

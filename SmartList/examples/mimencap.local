@@ -6,10 +6,10 @@
 #	Created by S.R. van den Berg, The Netherlands			#
 #									#
 #	Customise to taste.						#
-#	This file is not automatically replaced during an upgrade of	#
+#	This file is *not* automatically replaced during an upgrade of	#
 #	SmartList.							#
 #########################################################################
-#$Id: mimencap.local,v 1.7 1994/06/07 17:05:38 berg Exp $
+#$Id: mimencap.local,v 1.8 1994/06/10 18:07:31 berg Exp $
 
 # What we have at our disposal are:
 #
@@ -26,29 +26,129 @@
 #
 # Note that some types are mere conjectures, i.e. there is no such official
 # type yet.
+# Also note that this file contains some characters which have their 7th bit
+# set (your editor might not be eight bit clean).
 #
 
 :0 wfh
 * ^Content-ID: <[^%]*\.rtf%
 | $formail -fb -I "Content-Type: text/richtext"
 
+:0 wfh
+* ^Content-ID: <[^%]*\.ps%
+| $formail -fb -I "Content-Type: application/PostScript"
+
+:0 wfh
+* ^Content-ID: <[^%]*\.txt%
+| $formail -fb -I "Content-Type: text/plain"
+
 :0 E wfh
 * ^Content-ID: <[^%]*\.TeX%
-| $formail -fb -I "Content-Type: text/TeX"
+| $formail -fb -I "Content-Type: text/x-TeX"
 
 :0 E wfh
 * ^Content-ID: <[^%]*\.dvi%
-| $formail -fb -I "Content-Type: text/dvi"
+| $formail -fb -I "Content-Type: image/x-dvi"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.xw?d%
+| $formail -fb -I "Content-Type: image/x-xwd"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.tiff?%
+| $formail -fb -I "Content-Type: image/x-tiff"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.eps%
+| $formail -fb -I "Content-Type: image/x-eps"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.pcl%
+| $formail -fb -I "Content-Type: image/x-pcl"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.gif%
+| $formail -fb -I "Content-Type: image/gif"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.jpe?g%
+| $formail -fb -I "Content-Type: image/jpeg"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.x?pm%
+| $formail -fb -I "Content-Type: image/x-xpm"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.x?bm%
+| $formail -fb -I "Content-Type: image/x-xbitmap"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.bmf%
+| $formail -fb -I "Content-Type: image/x-bmf"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.au%
+| $formail -fb -I "Content-Type: audio/basic"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.l16%
+| $formail -fb -I "Content-Type: audio/x-Linear16"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.l8%
+| $formail -fb -I "Content-Type: audio/x-Linear8"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.lo8%
+| $formail -fb -I "Content-Type: audio/x-Linear-8Offset"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.wav%
+| $formail -fb -I "Content-Type: audio/x-microsoft-RIFF"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.snd%
+| $formail -fb -I "Content-Type: audio/x-NeXT"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.u%
+| $formail -fb -I "Content-Type: audio/x-MuLaw"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.al%
+| $formail -fb -I "Content-Type: audio/x-ALaw"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.tar%
+| $formail -fb -I "Content-Type: application/x-tar"
+
+:0 E wfh D
+* ^Content-ID: <[^%]*\.tar.Z%
+| $formail -fb -I "Content-Type: application/x-tar_compress"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.tar\.g?z(ip)?%
+| $formail -fb -I "Content-Type: application/x-tar_gzip"
+
+:0 E wfh D
+* ^Content-ID: <[^%]*\.Z%
+| $formail -fb -I "Content-Type: application/x-compress"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.zip%
+| $formail -fb -I "Content-Type: application/x-zip"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.g?z%
+| $formail -fb -I "Content-Type: application/x-gzip"
 
 :0 EB wfh
-* ^^(From .+$(>From .+$)*)?\
-  [-_a-z0-9]+:.*$([	 ].*$)*\
-  [-_a-z0-9]+:.*$([	 ].*$)*
-| $formail -fb -I "Content-Type: message/rfc822"
+* ^^[^-ÿ][^-ÿ]³Y
+| $formail -fb -I "Content-Type: video/mpeg"
 
 :0 EB wfh
 * ^^%!
-| $formail -fb -I "Content-Type: application/postscript"
+| $formail -fb -I "Content-Type: application/PostScript"
 
 :0 EB wfh
 * ^^GIF
@@ -59,24 +159,10 @@
 | $formail -fb -I "Content-Type: image/jpeg"
 
 :0 EB wfh
-* ^^[^-ÿ][^-ÿ]³Y
-| $formail -fb -I "Content-Type: video/mpeg"
-
-:0 E wfh
-* ^Content-ID: <[^%]*\.tar%
-| $formail -fb -I "Content-Type: application/tar"
-
-:0 E wfh
-* ^Content-ID: <[^%]*\.zip%
-| $formail -fb -I "Content-Type: application/zip"
-
-:0 E wfh
-* ^Content-ID: <[^%]*\.tar\.gz%
-| $formail -fb -I "Content-Type: application/tar_gzip"
-
-:0 E wfh
-* ^Content-ID: <[^%]*\.gz%
-| $formail -fb -I "Content-Type: application/gzip"
+* ^^(From .+$(>From .+$)*)?\
+  [-_a-z0-9]+:.*$([	 ].*$)*\
+  [-_a-z0-9]+:.*$([	 ].*$)*
+| $formail -fb -I "Content-Type: message/rfc822"
 
 #########################################################
 # If any of them matched, encode and output the message #
@@ -92,7 +178,7 @@
     * [^- -~-]
     {
       :0 wfb
-      | $mimencode
+      | $mimencode -b
 
       :0 wfh
       | $formail -fb -I "Content-Transfer-Encoding: base64"

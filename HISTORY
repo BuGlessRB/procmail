@@ -180,6 +180,7 @@
 	       - Honour Content-Length: fields, also speeds up processing of
 		 lengthy messages
 	       - Clean up zombies more often
+	       - Handle bangpath reconstruction
 	    Miscellaneous changes:
 	       - Detecting and dodging buggy zshs everywhere
 	       - Slightly adjusted autoconf for the new non-standard 386BSD
