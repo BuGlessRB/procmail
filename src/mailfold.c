@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.103 2001/06/26 08:43:52 guenther Exp $";
+ "$Id: mailfold.c,v 1.104 2001/08/04 07:16:26 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -166,7 +166,7 @@ exlb: { nlog(exceededlb);setoverflow();
    { if(!unique(buf,chp,linebuf,NORMperm,verbose,doMAILDIR))
 	goto ret;
      unlink(buf);			 /* found a name, remove file in tmp */
-     strncpy(chp-MAILDIRLEN-1,maildirnew,MAILDIRLEN);	/* but link directly */
+     memcpy(chp-MAILDIRLEN-1,maildirnew,MAILDIRLEN);	/* but link directly */
    }								 /* into new */
   else								   /* ft_DIR */
    { size_t mpl=strlen(msgprefix);
@@ -352,8 +352,8 @@ void logabstract(lstfolder)const char*const lstfolder;
 	   elog(" ");elog(buf);elog(newline);
 	 }
       }
-     elog(sfolder);i=strlen(strncpy(buf,lstfolder,MAXfoldlen))+STRLEN(sfolder);
-     buf[MAXfoldlen]='\0';detab(buf);elog(buf);i-=i%TABWIDTH;	/* last dump */
+     elog(sfolder);strlcpy(buf,lstfolder,MAXfoldlen);detab(buf);elog(buf);
+     i=strlen(buf)+STRLEN(sfolder);i-=i%TABWIDTH;		/* last dump */
      do elog(TABCHAR);
      while((i+=TABWIDTH)<LENoffset);
      ultstr(7,lastdump,buf);elog(buf);elog(newline);
