@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.49 1994/10/18 14:30:14 berg Exp $*/
+/*$Id: includes.h,v 1.50 1994/10/20 18:14:29 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -29,7 +29,7 @@
 				/* fork() getuid() geteuid() getgid() getegid()
 				   getpid() execv() execvp() sleep() setuid()
 				   setgid() setruid() setrgid() setegid()
-				   chown() nice() ftruncate() */
+				   chown() nice() ftruncate() truncate() */
 #else
 #undef UNISTD_H_MISSING
 #endif
@@ -83,6 +83,7 @@
 				   LOG_MAIL */
 #endif
 #include <errno.h>		/* EINTR EEXIST ENFILE EACCES EAGAIN EXDEV */
+				/* EDQUOT ENOSPC */
 #ifndef SYSEXITS_H_MISSING
 #include <sysexits.h>		/* EX_USAGE EX_NOINPUT EX_NOUSER EX_UNAVAILABLE
 				   EX_OSERR EX_OSFILE EX_CANTCREAT EX_IOERR
@@ -410,6 +411,7 @@ extern void*memmove();
 #ifdef NOftruncate
 #undef NOftruncate
 #define ftruncate(fildes,length)	(-1)
+#define truncate(file,length)		(-1)
 #endif
 
 #ifdef NOwaitpid

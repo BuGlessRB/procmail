@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.108 1994/10/14 18:43:46 berg Exp $";
+ "$Id: procmail.c,v 1.109 1994/10/20 18:14:40 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -784,10 +784,9 @@ tostdout:	 strcpy(buf2,buf);
 		 if(locknext)
 		    lcllock();		     /* write to a file or directory */
 		 inittmout(buf);	  /* to break messed-up kernel locks */
-		 if(dump(deliver(buf,strchr(buf,'\0')+1),startchar,tobesent)
-		  &&!ignwerr)
-		    writeerr(buf);
-		 else if(succeed=1,!flags[CONTINUE])
+		 if(writefolder(buf,strchr(buf,'\0')+1,startchar,tobesent,
+		     ignwerr)&&
+		    (succeed=1,!flags[CONTINUE]))
 frmailed:	  { if(ifstack.offs)
 		       free(ifstack.offs);
 		    goto mailed;
@@ -840,16 +839,12 @@ nomore_rc:
 	   if(!globlock||strcmp(buf,globlock))		  /* already locked? */
 	      lockit(buf,&loclock);			    /* implicit lock */
 	 }
-	if(dump(deliver(chp,(char*)0),themail,filled))		  /* default */
-	   writeerr(buf);
-	else
+	if(writefolder(chp,(char*)0,themail,filled,0))		  /* default */
 	   succeed=1;
       }						       /* if all else failed */
      if(!succeed&&*(chp2=(char*)tgetenv(orgmail))&&strcmp(chp2,chp))
-	if(dump(deliver(chp2,(char*)0),themail,filled))	      /* don't panic */
-	   writeerr(buf);			      /* try the last resort */
-	else
-	   succeed=1;
+	if(writefolder(chp2,(char*)0,themail,filled,0))	      /* don't panic */
+	   succeed=1;				      /* try the last resort */
      if(succeed)				     /* should we panic now? */
 mailed: retval=EXIT_SUCCESS;		  /* we're home free, mail delivered */
    }

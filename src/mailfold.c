@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.59 1994/10/14 18:43:33 berg Exp $";
+ "$Id: mailfold.c,v 1.60 1994/10/20 18:14:31 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -21,7 +21,7 @@ static /*const*/char rcsid[]=
 #include "locking.h"
 #include "mailfold.h"
 
-int logopened,tofile,rawnonl,dumperr;
+int logopened,tofile,rawnonl;
 off_t lasttell;
 static long lastdump;
 static volatile mailread;	/* if the mail is completely read in already */
@@ -45,7 +45,7 @@ static long getchunk(s,fromw,len)const int s;const char*fromw;const long len;
 
 long dump(s,source,len)const int s;const char*source;long len;
 { int i;long part;
-  lasttell=i= -1;
+  lasttell=i= -1;SETerrno(EBADF);
   if(s>=0)
    { if(tofile&&(lseek(s,(off_t)0,SEEK_END),fdlock(s)))
 	nlog("Kernel-lock failed\n");
@@ -73,12 +73,13 @@ jin:	while(part&&(i=rwrite(s,source,BLKSIZ<part?BLKSIZ:(int)part)))
 	   lastdump++,rwrite(s,newline,1);     /* message always ends with a */
 	emboxseparator(s);	 /* newline and an optional custom separator */
       }
-writefin:				       /* save any error information */
-     dumperr=errno;rawnonl=0;	       /* only allow rawnonl once per recipe */
-     if(tofile&&fdunlock())
-	nlog("Kernel-unlock failed\n");
-     if(tofile==to_FOLDER&&len&&lasttell>=0&&!ftruncate(s,lasttell)&&logopened)
-	nlog("Truncated file to former size\n");    /* undo appended garbage */
+writefin:
+     ;{ int serrno=errno;		       /* save any error information */
+	rawnonl=0;		       /* only allow rawnonl once per recipe */
+	if(tofile&&fdunlock())
+	   nlog("Kernel-unlock failed\n");
+	SETerrno(serrno);
+      }
      i=rclose(s);
    }			   /* return an error even if nothing was to be sent */
   tofile=0;
@@ -138,7 +139,7 @@ static int ismhdir(chp)char*const chp;
   return 0;
 }
 				       /* open file or new file in directory */
-int deliver(boxname,linkfolder)char*boxname,*linkfolder;
+static int deliver(boxname,linkfolder)char*boxname,*linkfolder;
 { struct stat stbuf;char*chp;int mhdir;mode_t numask;
   asgnlastf=1;
   if(*boxname=='|'&&(!linkfolder||linkfolder==Tmnate))
@@ -200,8 +201,30 @@ makefile:
    }
 }
 
+int writefolder(boxname,linkfolder,source,len,ignwerr)char*boxname,*linkfolder;
+ const char*source;const long len;const int ignwerr;
+{ if(dump(deliver(boxname,linkfolder),source,len)&&!ignwerr)
+   {
+     switch(errno)
+      {
+#ifdef EDQUOT
+	case EDQUOT:nlog("Quota exceeded while writing"),logqnl(buf);
+	   break;
+#endif
+	case ENOSPC:nlog("No space left to finish writing"),logqnl(buf);
+	   break;
+	default:writeerr(buf);
+      }
+     if(lasttell>=0&&!truncate(boxname,lasttell)&&(logopened||verbose))
+	nlog("Truncated file to former size\n");    /* undo appended garbage */
+     return 0;
+   }
+  return 1;
+}
+
+
 void logabstract(lstfolder)const char*const lstfolder;
-{ if(lgabstract>0||logopened&&lgabstract)  /* don't mail it back unrequested */
+{ if(lgabstract>0||(logopened||verbose)&&lgabstract)  /* don't mail it back? */
    { char*chp,*chp2;int i;static const char sfolder[]=FOLDER;
      if(mailread)			  /* is the mail completely read in? */
       { i= *thebody;*thebody='\0';     /* terminate the header, just in case */

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.63 1994/10/18 14:29:50 berg Exp $
+.Id $Id: procmail.man,v 1.64 1994/10/20 18:14:22 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -389,6 +389,10 @@ rcfile as argument.
 Missing recipient
 You specified the \-@DELIVEROPT@ option or called procmail under a different
 name, it expects one or more recipients as arguments.
+.TP
+No space left to finish writing "x"
+The filesystem containing "x" does not have enough free space to permit
+delivery of the message to the file.
 .TP
 Out of memory
 The system is out of swap space (and NORESRETRY has been exhausted).

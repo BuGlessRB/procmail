@@ -154,7 +154,7 @@
 	       on the accept list
 	    Improved fuzzy search for explicit mail addresses in the
 	       subscription request
-1994/10/19: v3.10pre6
+1994/10/20: v3.10
 	    Changes to rc.submit:
 	       - Moved the accept.txt in front of the body of the mail
 	       - The initial submission of force subscribed people was lost,
