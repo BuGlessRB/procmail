@@ -6,7 +6,7 @@
 # shortly before writing out the new version of this file (remove the lockfile
 # afterwards of course)
 
-#$Id: rc.request,v 1.6 1993/01/20 15:10:42 berg Exp $
+#$Id: rc.request,v 1.7 1993/02/02 15:26:57 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -71,8 +71,8 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 
 	:1A
 	^Subject:(.*[^a-z.])?(help|info((rm)?ation)?)([^a-z]|$)
-	| (formail -i"Sender: $listreq" -i"From: $listaddr" \
-	   -rtA"X-Loop: $listaddr"; cat help.txt) | $SENDMAIL $sendmailOPT -t
+	| (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
+	   cat help.txt) | $SENDMAIL $sendmailOPT -t
 
 #
 # Could it be a bounce message from a daemon?  Hand it down to procbounce

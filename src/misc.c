@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.17 1993/01/26 12:30:48 berg Exp $";
+ "$Id: misc.c,v 1.18 1993/02/02 15:27:13 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -196,9 +196,9 @@ void sbounce P((void))
 { retval=EX_CANTCREAT;sterminate();
 }
 
-void catlim(dest,src,lim)register char*dest;register const char*src;
- register size_t lim;
-{ while(lim&&*dest)
+void catlim(src)register const char*src;
+{ register char*dest=buf;register size_t lim=linebuf;
+  while(lim&&*dest)
      dest++,lim--;
   if(lim)
    { while(--lim&&(*dest++= *src++));

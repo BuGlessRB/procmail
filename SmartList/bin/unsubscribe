@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: unsubscribe,v 1.5 1993/01/15 15:10:59 berg Exp $
+#$Id: unsubscribe,v 1.6 1993/02/02 15:26:54 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -16,8 +16,8 @@ tmprequest=tmp.request
 tmpfrom=tmp.from
 dist=dist
 
-$formail -i"Sender: $listreq" -i"From: $listaddr" -rtA"X-Loop: $listaddr" \
- -I"Precedence: bulk" <$tmprequest
+$formail -i"From: $listreq" -rtA"X-Loop: $listaddr" -I"Precedence: junk" \
+ <$tmprequest
 
 fromaddr="`$cat $tmpfrom`"
 

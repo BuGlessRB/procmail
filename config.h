@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.16 1993/01/28 14:29:09 berg Exp $*/
+/*$Id: config.h,v 1.17 1993/02/02 15:26:42 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -100,7 +100,7 @@
 #define TOsubstitute	\
  "^((Resent-)?(To|Cc|Bcc)|(X-Envelope|Apparently)-To):(.*[^a-zA-Z])?"
 #define FROMDkey	"^FROM_DAEMON"
-#define FROMDsubstitute "^(Precedence:.*(bulk|junk)|\
+#define FROMDsubstitute "^(Precedence:.*(junk|bulk|list)|\
 (((Resent-)?(From|Sender)|X-Envelope-From):|From )(.*[^.a-z])?(\
 Post(ma(st(er)?|n)|office)|Mailer|daemon|mmdf|root|uucp|LISTSERV|owner|\
 request|bounce|serv(ices?|er))([^.a-z]|$))" /* matches most kinds of daemons */

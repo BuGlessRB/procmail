@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.24 1993/01/22 13:42:50 berg Exp $";
+ "$Id: procmail.c,v 1.25 1993/02/02 15:27:23 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -241,16 +241,18 @@ Setuser:
   strcpy(buf2,strcpy(buf,chp=(char*)getenv(orgmail)));
   buf[i=lastdirsep(chp)-chp]='\0';		   /* strip off the basename */
   ;{ struct stat stbuf;
+     sgid=gid;						/* presumed innocent */
     /*
      *	do we need sgidness to access the mail-spool directory/files?
      */
-     if(!stat(buf,&stbuf)&&
-      ((uid!=stbuf.st_uid&&(sgid=stbuf.st_gid)==getegid()||(rc=rc_NOSGID,0))&&
-      (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH))==(S_IWGRP|S_IXGRP)||
-      stbuf.st_mode&S_ISGID))
-	umask(INIT_UMASK&~S_IRWXG);			     /* keep the gid */
-     else
-	sgid=gid;			      /* no special treatment needed */
+     if(!stat(buf,&stbuf))
+      { if((uid!=stbuf.st_uid&&stbuf.st_gid==getegid()||(rc=rc_NOSGID,0))&&
+	 (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH))==(S_IWGRP|S_IXGRP))
+	 { umask(INIT_UMASK&~S_IRWXG);goto keepgid;	  /* group-writeable */
+	 }
+	else if(stbuf.st_mode&S_ISGID)
+keepgid:   sgid=stbuf.st_gid;	   /* keep the gid from the parent directory */
+      }
     /*
      *	check if the default-mailbox-lockfile is owned by the recipient, if
      *	not, mark it for further investigation, it might need to be removed

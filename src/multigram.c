@@ -15,9 +15,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.20 1993/01/28 15:18:37 berg Exp $";
+ "$Id: multigram.c,v 1.21 1993/02/02 15:27:19 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/28 15:18:37 $";
+static /*const*/char rcsdate[]="$Date: 1993/02/02 15:27:19 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -33,6 +33,7 @@ static /*const*/char rcsdate[]="$Date: 1993/01/28 15:18:37 $";
 #define DEFbest_matches 2
 
 #define PROCMAIL	"../.bin/procmail"	  /* some configurable paths */
+#define DEFAULTS_DIR	".etc"
 #define GLOCKFILE	"../.etc/rc.lock"
 #define RCMAIN		"./.etc/rc.main"
 #define LLOCKFILE	"rc.lock"
@@ -167,7 +168,7 @@ main(minweight,argv)char*argv[];
 	   else
 	      chp=0;
 	   if(chdir(arg))		     /* goto the list's subdirectory */
-	      pmexec[1]=RCMAIN,Endpmexec(2)=0;	   /* oops, nonexistant list */
+	      pmexec[1]=RCMAIN,Endpmexec(2)=0,chdir(DEFAULTS_DIR);
 	   Endpmexec(4)=argstr(list,arg);	    /* pass on the list name */
 	   if(chp)				  /* was it a -request list? */
 	      *chp= *request;		     /* then restore the leading '-' */
@@ -326,27 +327,27 @@ shftleft:     tmemmove(chp,chp+1,strlen(chp));
      maxmetric=best[best_matches]->metric;
      for(remov_delim=offs2=linentry=0;
       offs1=offs2,readstr(hardfile,&hardstr,1);)
-      { size_t minlen,hardlen;register size_t gramsize;
+      { size_t minlen,hardlen,maxlen;register size_t gramsize;
 	offs2=ftell(hardfile);linentry++;
 	if(*hardstr.text=='(')
 	   continue;				   /* unsuitable for matches */
 	lowcase(&hardstr);
-	if((minlen=hardlen=strlen(hardstr.text))>fuzzlen)
-	   minlen=fuzzlen;
+	if((minlen=hardlen=strlen(hardstr.text))>(maxlen=fuzzlen))
+	   minlen=fuzzlen,maxlen=hardlen;
 	if((gramsize=minlen-1)>maxgram)
 	   gramsize=maxgram;
 	maxweight=SCALE_WEIGHT/(gramsize+1);
-	meter=(int)((unsigned long)SCALE_WEIGHT/2*minlen/
-	 (hardlen==minlen?fuzzlen:hardlen))-SCALE_WEIGHT/2;
+	meter=(int)((unsigned long)SCALE_WEIGHT/2*minlen/maxlen)-
+	 SCALE_WEIGHT/2;
 	do				    /* reset local multigram counter */
-	 { register lmeter=0;size_t cminlen=minlen;
+	 { register lmeter=0;size_t cmaxlen=maxlen;
 	   ;{ register const char*fzz,*hrd;
 	      fzz=fuzzstr.itext;
 	      do
 	       { for(hrd=fzz+1;hrd=strchr(hrd,*fzz);)	 /* is it present in */
 		    if(!strncmp(++hrd,fzz+1,gramsize))	      /* own string? */
-		     { if(cminlen>gramsize+1)
-			  cminlen--;
+		     { if(cmaxlen>gramsize+1)
+			  cmaxlen--;
 		       goto dble_gram;		     /* skip until it's last */
 		     }
 		 for(hrd=hardstr.itext;hrd=strchr(hrd,*fzz);)	/* otherwise */
@@ -358,10 +359,12 @@ dble_gram:;    }
 	    }
 	   if(lmeter)
 	    { unsigned weight;
-	      meter+=lmeter*(weight=maxweight/(unsigned)(cminlen-gramsize));
+	      if(cmaxlen>minlen)
+		 cmaxlen=minlen;
+	      meter+=lmeter*(weight=maxweight/(unsigned)(cmaxlen-gramsize));
 	      meter-=weight*
-	       (unsigned long)((lmeter+=gramsize-cminlen)<0?-lmeter:lmeter)/
-	       cminlen;
+	       (unsigned long)((lmeter+=gramsize-cmaxlen)<0?-lmeter:lmeter)/
+	       cmaxlen;
 	    }
 	 }
 	while(gramsize--);		 /* search all gramsizes down to one */

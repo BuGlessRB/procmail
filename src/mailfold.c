@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.17 1993/01/27 12:53:20 berg Exp $";
+ "$Id: mailfold.c,v 1.18 1993/02/02 15:27:10 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -150,14 +150,11 @@ void logabstract P((void))
 	addr.sin_port=htons((short)s);			    /* network order */
      cat(tgetenv(lgname),"@");			 /* should always fit in buf */
      if(lasttell>=0)					   /* was it a file? */
-	ultstr(0,lasttell,buf2),catlim(buf,buf2,(size_t)linebuf);     /* yep */
-     catlim(buf,COMSATxtrsep,(size_t)linebuf);		 /* custom seperator */
+	ultstr(0,lasttell,buf2),catlim(buf2);			      /* yep */
+     catlim(COMSATxtrsep);				 /* custom seperator */
      if(lasttell>=0&&!strchr(dirsep,*lastfolder))      /* relative filename? */
-      { catlim(buf,tgetenv(maildir),(size_t)linebuf); /* prepend current dir */
-	catlim(buf,_MCDIRSEP,(size_t)linebuf);
-      }				     /* no need to bind() for one UDP-packet */
-     catlim(buf,lastfolder,linebuf);
-     s=socket(AF_INET,SOCK_DGRAM,UDP_protocolno);
+	catlim(tgetenv(maildir)),catlim(_MCDIRSEP);   /* prepend current dir */
+     catlim(lastfolder);s=socket(AF_INET,SOCK_DGRAM,UDP_protocolno);
      sendto(s,buf,strlen(buf),0,&addr,sizeof(addr));rclose(s);
      yell("Notified comsat:",buf);
    }

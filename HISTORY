@@ -78,7 +78,7 @@
 	       demand (examples/mailstat)
 	    Gave procmail, formail, lockfile and mailstat a more verbose
 	       command line help (called up by -h or -?)
-1993/01/19: v2.80
+1993/02/01: v2.80
 	    Started using CVS to manage the source (god's gift to programmers)
 	    In procmail, lockfile and formail I built in a sanity check now,
 	       in case they would be called with argc==0

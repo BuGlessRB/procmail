@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.9 1993/01/22 13:42:43 berg Exp $*/
+/*$Id: misc.h,v 1.10 1993/02/02 15:27:15 berg Exp $*/
 
 void
  elog P((const char*const newt)),
@@ -19,7 +19,7 @@ void
  srequeue P((void)),
  slose P((void)),
  sbounce P((void)),
- catlim Q((char*dest,const char*src,size_t lim)),
+ catlim P((const char*src)),
  setdef P((const char*const name,const char*const contents)),
  metaparse P((const char*p)),
  asenvcpy P((char*src)),

@@ -6,7 +6,7 @@
 # shortly before writing out the new version of this file (remove the lockfile
 # afterwards of course)
 
-#$Id: rc.submit,v 1.9 1993/01/27 20:33:02 berg Exp $
+#$Id: rc.submit,v 1.10 1993/02/02 15:26:59 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -29,7 +29,9 @@ INCLUDERC=$RC_CUSTOM
     (add .* to|remove .* from|take .* off|put .* on) .* list|subscri(be|ption))
 	$!^X-Loop: $listaddr
 	$!$FROM_MAILER_DAEMON
-METOO=	| multigram -b1 -m -l$submit_threshold dist
+METOO=	| formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
+	    -xResent-Reply-To: -xResent-Sender: -xResent-From: | \
+	   multigram -b1 -m -l$submit_threshold dist
 
 #
 # Check if we are the first mailinglist to distribute this message, if so
@@ -56,8 +58,8 @@ METOO=	| multigram -b1 -m -l$submit_threshold dist
 	: A wfh
 	| formail -b -IReceived: -IReturn-Receipt-To: -IErrors-To: \
 	   -iReturn-Path: -iX-Envelope-To: -iX-Envelope-From: \
-	   -I"Precedence: bulk" -i"Resent-Sender: $listreq" \
-	   -i"Resent-From: $listaddr" -A"X-Loop: $listaddr" \
+	   -I"Precedence: list" -I"Resent-Sender: $listreq" \
+	   -a"Resent-From: $listaddr" -A"X-Loop: $listaddr" \
 	   -a"Subject: Unidentified subject!" \
 	   -a"X-Mailing-List: <$listaddr> $ARCHIVE"
 

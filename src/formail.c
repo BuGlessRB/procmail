@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.20 1993/01/26 12:30:41 berg Exp $";
+ "$Id: formail.c,v 1.21 1993/02/02 15:27:07 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/26 12:30:41 $";
+static /*const*/char rcsdate[]="$Date: 1993/02/02 15:27:07 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -26,17 +26,29 @@ static const char unknown[]=UNKNOWN,re[]=" Re:",fmusage[]=FM_USAGE,
  Article_[]=		"Article ",		   /* USENET 'Article ' line */
  x_[]=			"X-",				/* general extension */
  old_[]=		OLD_PREFIX;			     /* my extension */
-#define ssl(str)	str,STRLEN(str)
-#define bsl(str)	{ssl(str)}
+#define ssl(str)		str,STRLEN(str)
+#define bsl(str)		{ssl(str)}
+#define sslbar(str,bar1,bar2)	{ssl(str),STRLEN(bar1)-1,STRLEN(bar2)-1}
 #include "header.h"
 /*
  *	sender determination fields in order of importance/reliability
- *	reply-address determination fields (wrepl specifies the weight)
+ *	reply-address determination fields (wrepl specifies the weight for
+ *	for regular replies, wtrepl specifies the weight for trusted users)
+ *
+ *	I bet this is the first time you see a bar graph in C-source-code :-)
  */
-static const struct {const char*head;int len,wrepl;}sest[]=
-{ {ssl(res_sender),8},{ssl(res_replyto),10},{ssl(res_from),9},
-  {ssl(errorsto),6},{ssl(retreceiptto),7},{ssl(sender),0},{ssl(replyto),5},
-  {ssl(Fromm),2},{ssl(path),4},{ssl(returnpath),1}
+static const struct {const char*head;int len,wrepl,wtrepl;}sest[]=
+{ sslbar(replyto	,"******"	,"********"	),
+  sslbar(Fromm		,"*"		,"****"		),
+  sslbar(retreceiptto	,"********"	,"*******"	),
+  sslbar(sender		,"*****"	,"******"	),
+  sslbar(res_replyto	,"***********"	,"***********"	),
+  sslbar(res_from	,"***foo***"	,"***bar***"	),
+  sslbar(res_sender	,"**********"	,"**********"	),
+  sslbar(errorsto	,"*******"	,"*****"	),
+  sslbar(path		,"**"		,"*"		),
+  sslbar(returnpath	,"***"		,"***"		),
+  sslbar(From_		,"****"		,"**"		)
 };
 
 static struct saved rex[]=
@@ -166,7 +178,7 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 			}
 		       break;
 		     }				   /* second field attached? */
-		    if(i=breakfield(chp,namep-chp))	    /* squeeze it on */
+		    if(i=breakfield(chp,(size_t)(namep-chp)))  /* squeeze on */
 		       tmemmove(fldp->fld_text+lnl,chp,i),copied=1;
 		    else if(!(chp=(char*)*++argv)||	 /* look at next arg */
 		     !(i=breakfield(chp,strlen(chp))))		/* no field? */
@@ -224,19 +236,14 @@ startover:
      while(i--);				 /* all state has been reset */
      for(fldp=rdheader;fldp;fldp=fldp->fld_next)    /* go through the linked */
       { int nowm;				    /* list of header-fields */
-	chp=fldp->fld_text;
-	if((j=fldp->id_len)==STRLEN(From_)&&fldp==rdheader&&eqFrom_(chp))
-	 { nowm=trust?1:3/*wreply*/;goto foundfrom;	    /* leading From_ */
-	 }
 	if(conctenate)
-	   concatenate(fldp);
-	i=maxindex(sest);		   /* look for other "sender" fields */
+	   concatenate(fldp);			 /* look for `sender' fields */
+	chp=fldp->fld_text;j=fldp->id_len;i=maxindex(sest);
 	while((sest[i].len!=j||strnIcmp(sest[i].head,chp,j))&&i--);
-	if(i>=0)					  /* found anything? */
-	 { char*saddr;char*tmp;
-	   nowm=areply?trust&&sest[i].head==replyto? /* determine the weight */
-	    maxindex(sest)+1:sest[i].wrepl:trust&&sest[i].head==path?-1:i;
-foundfrom: chp+=j;saddr=tmp=malloc(j=fldp->tot_len-j);tmemmove(tmp,chp,j);
+	if(i>=0&&(i!=maxindex(sest)||fldp==rdheader))	  /* found anything? */
+	 { char*saddr;char*tmp;			     /* determine the weight */
+	   nowm=trust?sest[i].wtrepl:areply?i:sest[i].wrepl;chp+=j;
+	   saddr=tmp=malloc(j=fldp->tot_len-j);tmemmove(tmp,chp,j);
 	   tmp[j-1]='\0';chp=pstrspn(tmp," \t\n");
 	   for(saddr=0;;chp=skipwords(chp))		/* skip RFC 822 wise */
 	    { switch(*chp)
@@ -252,11 +259,11 @@ foundfrom: chp+=j;saddr=tmp=malloc(j=fldp->tot_len-j);tmemmove(tmp,chp,j);
 	   if(saddr)			    /* any useful mailaddress found? */
 	    { if(*saddr)			  /* did it have any length? */
 	       { if(strstr(saddr,".UUCP"))
-		    nowm-=maxindex(sest)*3;    /* depreciate .UUCP addresses */
+		    nowm-=(maxindex(sest)+2)*3;	 /* depreciate .UUCP address */
 		 else if(!strpbrk(saddr,"@!/"))
-		    nowm-=maxindex(sest)*2;		/* depreciate "user" */
+		    nowm-=(maxindex(sest)+2)*2;		/* depreciate "user" */
 		 else if(strchr(saddr,'@')&&!strchr(saddr,'.'))
-		    nowm-=maxindex(sest);	     /* depreciate user@host */
+		    nowm-=maxindex(sest)+2;	     /* depreciate user@host */
 		 if(!namep||nowm>lastm)		/* better than previous ones */
 		  { saddr=strcpy(malloc(strlen(saddr)+1),saddr);lastm=nowm;
 		    goto newnamep;

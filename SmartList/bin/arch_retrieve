@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: arch_retrieve,v 1.5 1993/01/26 12:30:21 berg Exp $
+#$Id: arch_retrieve,v 1.6 1993/02/02 15:26:48 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -38,8 +38,8 @@ $formail -k -xSubject: |
 		  */../*|../*|*/..|..|[-/]*) ;;
 		  *)
 		   ( $formail -rt -I"Subject: archive retrieval: $1" \
-		      -i"Sender: $listreq" -i"From: $listaddr" \
-		      -A"X-Loop: $listaddr" -I"Precedence: bulk" <$tmprequest
+		      -i"From: $listreq" -A"X-Loop: $listaddr" \
+		      -I"Precedence: bulk" <$tmprequest
 		     if $test -f "./$1"
 		     then
 			$echo "File: $1"
@@ -62,8 +62,8 @@ $formail -k -xSubject: |
 		  */../*|../*|*/..|..|[-/]*) ;;
 		  *)
 		   ( $formail -rt -I"Subject: archive retrieval: ls $1" \
-		      -i"Sender: $listreq" -i"From: $listaddr" \
-		      -A"X-Loop: $listaddr" -I"Precedence: bulk" <$tmprequest
+		      -i"From: $listreq" -A"X-Loop: $listaddr" \
+		      -I"Precedence: bulk" <$tmprequest
 		     if $test -r "./$1"
 		     then
 			$echo "ls -l $1"
@@ -83,19 +83,19 @@ $formail -k -xSubject: |
    if $test yes = $sendhelp
    then
        ( $formail -rt -I"Subject: archive retrieval: ls $1" \
-	  -i"Sender: $listreq" -i"From: $listaddr" \
-	  -A"X-Loop: $listaddr" -I"Precedence: bulk" <$tmprequest
-	  $echo "This archive server knows the following commands:"
-	  $echo ""
-	  $echo "get filename ..."
-	  $echo "ls directory ..."
-	  $echo ""
+	  -i"From: $listreq" -A"X-Loop: $listaddr" -I"Precedence: bulk" \
+	  <$tmprequest
+	 $echo "This archive server knows the following commands:"
+	 $echo ""
+	 $echo "get filename ..."
+	 $echo "ls directory ..."
+	 $echo ""
 	 $echo "Aliases for 'get': send, sendme, getme, gimme, retrieve, mail"
 	 $echo "Aliases for 'ls': dir, directory, list, show"
-	  $echo ""
-	  $echo "Examples:"
-	  $echo "ls latest"
-	  $echo "get latest/12"
+	 $echo ""
+	 $echo "Examples:"
+	 $echo "ls latest"
+	 $echo "get latest/12"
        ) | $SENDMAIL $sendmailOPT -t
    fi
  )
