@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.44 1999/11/19 05:59:42 guenther Exp $";
+ "$Id: cstdio.c,v 1.45 1999/11/19 07:24:43 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -27,6 +27,7 @@ void pushrc(name)const char*const name;		      /* open include rcfile */
       { app_vali(inced,rcbufp?rcbufp-rcbuf:0);			 /* save old */
 	app_valo(inced,blasttell);app_vali(inced,ifdepth);/* position, brace */
 	app_vali(inced,rc);				       /* depth & fd */
+	ifdepth=ifstack.filled;				  /* new stack depth */
 	if(bopen(name)<0)			  /* try to open the new one */
 	 { poprc();			       /* we couldn't, so restore rc */
 rerr:	   readerr(name);
