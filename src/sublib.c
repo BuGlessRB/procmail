@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: sublib.c,v 1.12 1994/05/26 14:13:43 berg Exp $";
+ "$Id: sublib.c,v 1.13 1994/06/28 16:56:49 berg Exp $";
 #endif
 #include "includes.h"
 #include "sublib.h"
@@ -25,7 +25,8 @@ jiasc:;
      while(--count);
    }
   else
-   { to+=count;from+=count;goto jidesc;
+   { to+=count;from+=count;
+     goto jidesc;
      do
       { *--to= *--from;					  /* copy from below */
 jidesc:;
@@ -34,7 +35,8 @@ jidesc:;
    }
   return To/*old*/;
 #else
-{ bcopy(From,To,count);return To;
+{ bcopy(From,To,count);
+  return To;
 #endif /* NObcopy */
 }
 #endif /* NOmemmove */
@@ -80,7 +82,8 @@ char*sstrstr(phaystack,pneedle)const char*const phaystack;
      while(c!=b);
      if(!(c= *++needle))
 	goto foundneedle;
-     ++needle;goto jin;
+     ++needle;
+     goto jin;
      for(;;)
       { ;{ register chartype a;
 	   do
@@ -130,7 +133,8 @@ long strtol(start,ptr,base)const char*start,**const ptr;
      goto fault;
   for(;;str++)					  /* skip leading whitespace */
    { switch(*str)
-      { case '\t':case '\n':case '\v':case '\f':case '\r':case ' ':continue;
+      { case '\t':case '\n':case '\v':case '\f':case '\r':case ' ':
+	   continue;
       }
      break;
    }

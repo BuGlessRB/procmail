@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.19 1994/06/24 10:45:10 berg Exp $";
+ "$Id: robust.c,v 1.20 1994/06/28 16:56:45 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -20,8 +20,11 @@ mode_t cumask;
 #define nomemretry	noresretry
 #define noforkretry	noresretry
 		       /* set nextexit to prevent elog() from using malloc() */
-static void nomemerr P((void))
-{ nextexit=2;nlog("Out of memory\n");
+static void nomemerr(len)const size_t len;
+{ static const char outofmem[]="Out of memory");
+  nextexit=2;nlog(outofmem);elog("\n");
+  syslog(LOG_NOTICE,"%s as I tried to allocate %ld bytes\n",outofmem,
+   (long)len);
   if(buf2)
    { buf[linebuf-1]=buf2[linebuf-1]='\0';elog("buffer 0:");logqnl(buf);
      elog("buffer 1:");logqnl(buf2);
@@ -42,10 +45,11 @@ void*tmalloc(len)const size_t len;    /* this malloc can survive a temporary */
   for(i=nomemretry;i<0||i--;)
    { suspend();		     /* problems?  don't panic, wait a few secs till */
      if(p=malloc(len))	     /* some other process has paniced (and died 8-) */
-ret:  { lcking&=~(lck_MEMORY|lck_ALLOCLIB);return p;
+ret:  { lcking&=~(lck_MEMORY|lck_ALLOCLIB);
+	return p;
       }
    }
-  nomemerr();
+  nomemerr(len);
 }
 
 void*trealloc(old,len)void*const old;const size_t len;
@@ -59,10 +63,11 @@ void*trealloc(old,len)void*const old;const size_t len;
   for(i=nomemretry;i<0||i--;)
    { suspend();
      if(p=realloc(old,len))
-ret:  { lcking&=~(lck_MEMORY|lck_ALLOCLIB);return p;
+ret:  { lcking&=~(lck_MEMORY|lck_ALLOCLIB);
+	return p;
       }
    }
-  nomemerr();
+  nomemerr(len);
 }
 
 void tfree(p)void*const p;
@@ -81,7 +86,8 @@ pid_t sfork P((void))			/* this fork can survive a temporary */
      if(waitfor((pid_t)0)==NO_PROCESS)
 	suspend();
    }
-  lcking&=~lck_FORK;return i;
+  lcking&=~lck_FORK;
+  return i;
 }
 
 void opnlog(file)const char*file;
@@ -112,16 +118,19 @@ int ropen(name,mode,mask)const char*const name;const int mode;
   for(r=noresretry,lcking|=lck_FILDES;0>(i=open(name,mode,mask));)
      if(errno!=EINTR&&!(errno==ENFILE&&(r<0||r--)))
 	break;		 /* survives a temporary "file table full" condition */
-  lcking&=~lck_FILDES;return i;
+  lcking&=~lck_FILDES;
+  return i;
 }
 
 int rpipe(fd)int fd[2];
 { int i,r;					  /* catch "file table full" */
   for(r=noresretry,lcking|=lck_FILDES;0>(i=pipe(fd));)
      if(!(errno==ENFILE&&(r<0||r--)))
-      { *fd=fd[1]= -1;break;
+      { *fd=fd[1]= -1;
+	break;
       }
-  lcking&=~lck_FILDES;return i;
+  lcking&=~lck_FILDES;
+  return i;
 }
 
 int rdup(p)const int p;
@@ -129,7 +138,8 @@ int rdup(p)const int p;
   for(r=noresretry,lcking|=lck_FILDES;0>(i=dup(p));)
      if(!(errno==ENFILE&&(r<0||r--)))
 	break;
-  lcking&=~lck_FILDES;return i;
+  lcking&=~lck_FILDES;
+  return i;
 }
 
 int rclose(fd)const int fd;	      /* a SysV secure close (signal immune) */

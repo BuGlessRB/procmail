@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.27 1994/06/22 19:05:30 berg Exp $";
+ "$Id: lockfile.c,v 1.28 1994/06/28 16:56:21 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/06/22 19:05:30 $";
+static /*const*/char rcsdate[]="$Date: 1994/06/28 16:56:21 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -46,7 +46,8 @@ static int xcreat(name,tim)const char*const name;time_t*const tim;
   strncpy(p,name,i);
   if(unique(p,p+i,LOCKperm,0,doCHECK|doLOCK))
      stat(p,&stbuf),*tim=stbuf.st_mtime,j=myrename(p,name);
-  free(p);return j;
+  free(p);
+  return j;
 }
 
 void elog(a)const char*const a;
@@ -73,18 +74,22 @@ static size_t parsecopy(dest,org,pass)char*const dest;const char*org;
 	      goto capac;
 	   if(p)
 	      p+=strlen(strcpy(p,chp));			      /* paste it in */
-	   len+=strlen(chp);continue;
+	   len+=strlen(chp);
+	   continue;
 	default:
 	   if(p)
 	      *p++= *org;		      /* simply copy everything else */
-	   len++;org++;continue;      /* except suspicous looking characters */
-	case '\'':case '`':case '"':case '\\':case '{':goto capac;
+	   len++;org++;
+	   continue;		     /* except suspicious looking characters */
+	case '\'':case '`':case '"':case '\\':case '{':
+	   goto capac;
 	case '\0':;
       }
      if(p)
       { if(p==dest||!strchr(dirsep,*dest))	     /* absolute path wanted */
 capac:	 { nlog("Sorry, but turning this mess into a useable mailbox \
-exceeds my humble\ncapacities");return 0;
+exceeds my humble\ncapacities");
+	   return 0;
 	 }
 	strcpy(p,lockext);
       }
@@ -111,18 +116,22 @@ again:
 	for(cp++;;)
 	 { char*cp2=cp;int i;
 	   switch(*cp++)
-	    { case '!':invert^=1;continue;	      /* invert the exitcode */
+	    { case '!':invert^=1;		      /* invert the exitcode */
+		 continue;
 	      case 'r':case 'l':case 's':
 		 if(!*cp&&(cp=(char*)*++p,!--argc)) /* concatenated/seperate */
 		    goto eusg;
 		 i=strtol(cp,&cp,10);
 		 switch(*cp2)
-		  { case 'r':retries=i;goto checkrdec;
-		    case 'l':force=i;goto checkrdec;
+		  { case 'r':retries=i;
+		       goto checkrdec;
+		    case 'l':force=i;
+		       goto checkrdec;
 		    default:
 		       if(i<0)			    /* suspend should be >=0 */
 			  goto eusg;
-		       suspend=i;goto checkrdec;
+		       suspend=i;
+		       goto checkrdec;
 		  }
 	      case HELPOPT1:case HELPOPT2:elog(usage);
 		 elog(
@@ -132,14 +141,16 @@ again:
 \n\t-s nnn\tsuspend nnn seconds after a locktimeout occurred\
 \n\t-!\tinvert the exit code of lockfile\
 \n\t-ml\tlock your system mail-spool file\
-\n\t-mu\tunlock your system mail-spool file\n");goto xusg;
+\n\t-mu\tunlock your system mail-spool file\n");
+		 goto xusg;
 	      default:
 		 if(sleepsec>=0)	    /* is this still the first pass? */
 		  { if((sleepsec=strtol(cp2,&cp,10))<0)
 		       goto eusg;
 checkrdec:	    if(cp2==cp)
 eusg:		     { elog(usage);		    /* regular usage message */
-xusg:		       retval=EX_USAGE;goto nfailure;
+xusg:		       retval=EX_USAGE;
+		       goto nfailure;
 		     }
 		  }
 		 else		      /* no second pass, so leave sleepsec<0 */
@@ -156,17 +167,20 @@ xusg:		       retval=EX_USAGE;goto nfailure;
 		       goto nfailure;	 /* panic, you're not in /etc/passwd */
 		     }
 		    if(!(alen=parsecopy((char*)0,systm_mbox,pass)))
-		     { cp=systm_mbox;goto lfailure;	  /* couldn't digest */
+		     { cp=systm_mbox;
+		       goto lfailure;			  /* couldn't digest */
 		     }						  /* mailbox */
 		    if(!(ma=malloc(alen)))	       /* ok, make some room */
 		       goto outofmem;
 		    parsecopy(ma,systm_mbox,pass);	  /* and fill her up */
 		  }
 		 switch(*cp)
-		  { default:goto eusg;		    /* somebody goofed again */
+		  { default:
+		       goto eusg;		    /* somebody goofed again */
 		    case 'l':				 /* lock the mailbox */
 		       if(sleepsec>=0)			      /* first pass? */
-			{ cp=ma;goto stilv;		    /* yes, lock it! */
+			{ cp=ma;
+			  goto stilv;			    /* yes, lock it! */
 			}
 		    case 'u':			       /* unlock the mailbox */
 		       if(unlink(ma))
@@ -219,8 +233,9 @@ outofmem:	 retval=EX_OSERR,nlog("Out of memory");
 #endif
 	      case ENOENT:case ENOTDIR:case EIO:case EACCES:
 		 if(!--permanent)	 /* NFS sporadically generates these */
-		  { sleep(sleepsec);continue;		      /* unwarranted */
-		  }				     /* so ignore them first */
+		  { sleep(sleepsec);	/* unwarranted, so ignore them first */
+		    continue;
+		  }
 	      default:		     /* but, it seems to persist, so give up */
 		 nlog("Try praying");retval=EX_UNAVAILABLE;
 #ifdef ENAMETOOLONG
@@ -229,12 +244,14 @@ outofmem:	 retval=EX_OSERR,nlog("Out of memory");
 		 if(0<(permanent=strlen(cp)-1)&&      /* can we truncate it? */
 		  !strchr(dirsep,cp[permanent-1]))
 		  { nlog("Truncating \"");elog(cp);	      /* then try it */
-		    elog("\" and retrying lock\n");cp[permanent]='\0';break;
+		    elog("\" and retrying lock\n");cp[permanent]='\0';
+		    break;
 		  }				     /* otherwise, forget it */
 		 nlog("Filename too long");retval=EX_UNAVAILABLE;
 #endif
 lfailure:	 elog(", giving up on \"");elog(cp);elog("\"\n");
-nfailure:	 sleepsec= -1;argc=lastf-argv+1;goto again; /* mark sleepsec */
+nfailure:	 sleepsec= -1;argc=lastf-argv+1;	    /* mark sleepsec */
+		 goto again;
 	    }  /* for second pass, and adjust argc to the no. of args parsed */
 	   permanent=nfsTRY;	       /* refresh the NFS-error-ignore count */
 	 }
@@ -242,12 +259,15 @@ nfailure:	 sleepsec= -1;argc=lastf-argv+1;goto again; /* mark sleepsec */
       }
   if(retval==EX_OK&&virgin)		 /* any errors?	 did we do anything? */
 usg:
-   { elog(usage);return EX_USAGE;
+   { elog(usage);
+     return EX_USAGE;
    }
   if(invert)
      switch(retval)			 /* we only invert the regular cases */
-      { case EX_OK:return EX_CANTCREAT;
-	case EX_CANTCREAT:return EX_OK;
+      { case EX_OK:
+	   return EX_CANTCREAT;
+	case EX_CANTCREAT:
+	   return EX_OK;
       }
   return retval;			       /* all other exitcodes remain */
 }

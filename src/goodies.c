@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.33 1994/06/03 18:25:27 berg Exp $";
+ "$Id: goodies.c,v 1.34 1994/06/28 16:56:17 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -50,7 +50,8 @@ void readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
 loop:
    { i=fgetc();
      if(buf+linebuf-3<p)	    /* doesn't catch everything, just a hint */
-      { nlog("Exceeded LINEBUF\n");p=buf+linebuf-3;goto ready;
+      { nlog("Exceeded LINEBUF\n");p=buf+linebuf-3;
+	goto ready;
       }
 newchar:
      switch(i)
@@ -59,20 +60,24 @@ newchar:
 early_eof:    nlog(unexpeof);
 ready:	   if(got!=SKIPPING_SPACE||sarg)  /* not terminated yet or sarg==2 ? */
 	      *p++='\0';
-	   Tmnate=p;return;
+	   Tmnate=p;
+	   return;
 	case '\\':
 	   if(got==SINGLE_QUOTED)
 	      break;
 	   switch(i=fgetc())
-	    { case EOF:goto early_eof;			  /* can't quote EOF */
-	      case '\n':continue;			/* concatenate lines */
+	    { case EOF:
+		 goto early_eof;			  /* can't quote EOF */
+	      case '\n':
+		 continue;				/* concatenate lines */
 	      case '#':
 		 if(got>SKIPPING_SPACE) /* escaped comment at start of word? */
 		    goto noesc;			/* apparently not, literally */
 	      case ' ':case '\t':case '\'':
 		 if(got==DOUBLE_QUOTED)
 		    goto noesc;
-	      case '"':case '\\':case '$':case '`':goto nodelim;
+	      case '"':case '\\':case '$':case '`':
+		 goto nodelim;
 	      case '}':
 		 if(got<=NORMAL_TEXT&&bracelev||
 		    got==DOUBLE_QUOTED&&bracelev>qbracelev)
@@ -110,19 +115,24 @@ forcebquote:	 case EOF:case '`':
 		       sh=osh;				       /* restore sh */
 		     }
 		    if(got!=DOUBLE_QUOTED)
-		     { i=0;startb=p;goto simplsplit;	      /* split it up */
+		     { i=0;startb=p;
+		       goto simplsplit;			      /* split it up */
 		     }
 		    if(i=='"'||got<=SKIPPING_SPACE)   /* missing closing ` ? */
 		       got=NORMAL_TEXT;
-		    p=startb;goto loop;
+		    p=startb;
+		    goto loop;
 		 case '\\':
 		    switch(i=fgetc())
-		     { case EOF:nlog(unexpeof);goto forcebquote;
-		       case '\n':continue;
+		     { case EOF:nlog(unexpeof);
+			  goto forcebquote;
+		       case '\n':
+			  continue;
 		       case '"':
 			  if(got!=DOUBLE_QUOTED)
 			     break;
-		       case '\\':case '$':case '`':goto escaped;
+		       case '\\':case '$':case '`':
+			  goto escaped;
 		     }
 		    *p++='\\';
 	       }
@@ -134,22 +144,28 @@ escaped:      *p++=i;
 		 if(qbracelev<bracelev)		   /* still inside a ${...}? */
 	      case SINGLE_QUOTED:
 		    goto nodelim;				 /* nonsense */
-		 got=NORMAL_TEXT;continue;			/* closing " */
+		 got=NORMAL_TEXT;
+		 continue;					/* closing " */
 	    }
-	   qbracelev=bracelev;got=DOUBLE_QUOTED;continue;	/* opening " */
+	   qbracelev=bracelev;got=DOUBLE_QUOTED;
+	   continue;						/* opening " */
 	case '\'':
 	   switch(got)
-	    { case DOUBLE_QUOTED:goto nodelim;
-	      case SINGLE_QUOTED:got=NORMAL_TEXT;continue;	/* closing ' */
+	    { case DOUBLE_QUOTED:
+		 goto nodelim;
+	      case SINGLE_QUOTED:got=NORMAL_TEXT;
+		 continue;					/* closing ' */
 	    }
-	   got=SINGLE_QUOTED;continue;				/* opening ' */
+	   got=SINGLE_QUOTED;
+	   continue;						/* opening ' */
 	case '}':
 	   if(got<=NORMAL_TEXT&&bracelev||
 	      got==DOUBLE_QUOTED&&bracelev>qbracelev)
 	    { bracelev--;
 	      if(skipback&&bracelev==skipbracelev)
 	       { skiprc--;p=skipback;skipback=0;startb=(char*)oldstartb;
-		 got=bracegot;goto closebrace;
+		 got=bracegot;
+		 goto closebrace;
 	       }
 	      continue;
 	    }
@@ -164,7 +180,8 @@ escaped:      *p++=i;
 	      break;
 	   startb=buf2;
 	   switch(i=fgetc())
-	    { case EOF:*p++='$';goto ready;
+	    { case EOF:*p++='$';
+		 goto ready;
 	      case '@':
 		 if(got!=DOUBLE_QUOTED)
 		    goto normchar;
@@ -178,11 +195,13 @@ escaped:      *p++=i;
 		 if(numeric(*buf2)&&buf2[1])
 		    goto badsub;
 		 switch(i)
-		  { default:goto badsub;
+		  { default:
+		       goto badsub;
 		    case ':':
 		       switch(i=fgetc())
 			{ default:
-badsub:			     nlog("Bad substitution of");logqnl(buf2);continue;
+badsub:			     nlog("Bad substitution of");logqnl(buf2);
+			     continue;
 			  case '-':
 			     if(startb&&*startb)
 				goto noalt;
@@ -202,23 +221,30 @@ noalt:			  if(!skiprc)
 			   { skiprc++;skipback=p;skipbracelev=bracelev;
 			     oldstartb=startb;bracegot=got;
 			   }
-doalt:		       bracelev++;continue;
+doalt:		       bracelev++;
+		       continue;
 		    case '}':
 closebrace:	       if(!startb)
 			  startb="";
 		  }
 		 goto ibreak;					  /* $$ =pid */
-	      case '$':ultstr(0,(unsigned long)thepid,p);goto ieofstr;
-	      case '?':ltstr(0,(long)lexitcode,p);goto ieofstr;
-	      case '#':ultstr(0,(unsigned long)crestarg,p);goto ieofstr;
+	      case '$':ultstr(0,(unsigned long)thepid,p);
+		 goto ieofstr;
+	      case '?':ltstr(0,(long)lexitcode,p);
+		 goto ieofstr;
+	      case '#':ultstr(0,(unsigned long)crestarg,p);
+		 goto ieofstr;
 	      case '=':ltstr(0,lastscore,p);
-ieofstr:	 i='\0';goto eofstr;
-	      case '_':startb=incnamed?incnamed->ename:"";goto ibreak;
+ieofstr:	 i='\0';
+		 goto eofstr;
+	      case '_':startb=incnamed?incnamed->ename:"";
+		 goto ibreak;
 	      case '-':startb=(char*)tgetenv(lastfolder); /* $- =$LASTFOLDER */
 ibreak:		 i='\0';break;
 	      default:
 		 if(numeric(i))			   /* $n positional argument */
-		  { *startb++=i;i='\0';goto finsb;
+		  { *startb++=i;i='\0';
+		    goto finsb;
 		  }
 		 if(alphanum(i))				    /* $name */
 		  { do *startb++=i;
@@ -230,7 +256,8 @@ finsb:		    *startb='\0';
 		       startb="";
 		    break;
 		  }
-normchar:	 *p++='$';goto newchar;		       /* not a substitution */
+normchar:	 *p++='$';
+		 goto newchar;			       /* not a substitution */
 	    }
 	   if(got!=DOUBLE_QUOTED)
 simplsplit: { if(sarg)
@@ -240,8 +267,10 @@ simplsplit: { if(sarg)
 		  { case ' ':case '\t':case '\n':
 		       if(got<=SKIPPING_SPACE)
 			  continue;
-		       *p++='\0';got=SKIPPING_SPACE;continue;
-		    case '\0':goto eeofstr;
+		       *p++='\0';got=SKIPPING_SPACE;
+		       continue;
+		    case '\0':
+		       goto eeofstr;
 		  }
 		 *p++= *startb;got=NORMAL_TEXT;
 	       }
@@ -261,7 +290,8 @@ eeofstr:   if(i)			     /* already read next character? */
 		 if(sarg==1)
 		    goto ready;		/* already fetched a single argument */
 		 got=SKIPPING_SPACE;*p++=sarg?' ':'\0';	 /* space or \0 sep. */
-	      case NOTHING_YET:case SKIPPING_SPACE:continue;   /* skip space */
+	      case NOTHING_YET:case SKIPPING_SPACE:
+		 continue;				       /* skip space */
 	    }
 	case '\n':
 	   if(got<=NORMAL_TEXT)

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.48 1994/06/28 14:49:28 berg Exp $";
+ "$Id: mailfold.c,v 1.49 1994/06/28 16:56:26 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -38,7 +38,8 @@ static long getchunk(s,fromw,len)const int s;const char*fromw;const long len;
       { rwrite(s,esc,STRLEN(esc));lastdump++;			/* escape it */
 	if(i>=escFrom_.filled)				      /* last block? */
 	   return len;				/* yes, give all what's left */
-	dif=escFrom_.offs[i]-dist;break;	     /* the whole next block */
+	dif=escFrom_.offs[i]-dist;		     /* the whole next block */
+	break;
       }
      else if(dif>0)				/* passed this spot already? */
 	break;
@@ -75,7 +76,8 @@ writefin:
 	nlog("Kernel-unlock failed\n");
      i=rclose(s);
    }			   /* return an error even if nothing was to be sent */
-  tofile=0;return i&&!len?-1:len;
+  tofile=0;
+  return i&&!len?-1:len;
 }
 
 static int dirfile(chp,linkonly)char*const chp;const int linkonly;
@@ -103,7 +105,8 @@ static int dirfile(chp,linkonly)char*const chp;const int linkonly;
 	   goto ret;
 	 }
       }
-     unlink(buf2);goto opn;
+     unlink(buf2);
+     goto opn;
    }
   ;{ struct stat stbuf;
      stat(buf2,&stbuf);
@@ -124,7 +127,8 @@ ret:
 
 static int ismhdir(chp)char*const chp;
 { if(chp-1>=buf&&chp[-1]==*MCDIRSEP_&&*chp==chCURDIR)
-   { chp[-1]='\0';return 1;
+   { chp[-1]='\0';
+     return 1;
    }
   return 0;
 }
@@ -133,7 +137,8 @@ int deliver(boxname,linkfolder)char*boxname,*linkfolder;
 { struct stat stbuf;char*chp;int mhdir;mode_t numask;
   asgnlastf=1;
   if(*boxname=='|'&&(!linkfolder||linkfolder==Tmnate))
-   { setlastfolder(boxname);return rdup(savstdout);
+   { setlastfolder(boxname);
+     return rdup(savstdout);
    }
   numask=UPDATE_MASK&~cumask;tofile=to_FILE;
   if(boxname!=buf)
@@ -151,7 +156,8 @@ int deliver(boxname,linkfolder)char*boxname,*linkfolder;
 makefile:
    { if(linkfolder)	  /* any leftovers?  Now is the time to display them */
 	concatenate(linkfolder),skipped(linkfolder);
-     tofile=strcmp(devnull,buf)?to_FOLDER:0;return opena(boxname);
+     tofile=strcmp(devnull,buf)?to_FOLDER:0;
+     return opena(boxname);
    }
   if(linkfolder)		    /* any additional directories specified? */
    { size_t blen;
@@ -236,7 +242,8 @@ void logabstract(lstfolder)const char*const lstfolder;
 #endif /* IP_localhost */
       { const struct hostent*host;	      /* what host?  paranoid checks */
 	if(!(host=gethostbyname(chad))||!host->h_0addr_list)
-	 { endhostent();return;		     /* host can't be found, too bad */
+	 { endhostent();		     /* host can't be found, too bad */
+	   return;
 	 }
 	addr.sin_family=host->h_addrtype;	     /* address number found */
 	tmemmove(&addr.sin_addr,host->h_0addr_list,host->h_length);
@@ -248,7 +255,8 @@ void logabstract(lstfolder)const char*const lstfolder;
      if(chp==chad)			       /* the service is not numeric */
       { const struct servent*serv;
 	if(!(serv=getservbyname(chp,COMSATprotocol)))	   /* so get its no. */
-	 { endservent();return;
+	 { endservent();
+	   return;
 	 }
 	addr.sin_port=serv->s_port;endservent();
       }
@@ -309,8 +317,10 @@ void readmail(rhead,tobesent)const long tobesent;
 	while(thebody=strchr(thebody,'\n'))
 	   switch(*++thebody)			  /* mark continuated fields */
 	    { case '\t':case ' ':app_val(&confield,(off_t)(thebody-1-themail));
-	      default:continue;		   /* empty line marks end of header */
-	      case '\n':thebody++;goto eofheader;
+	      default:
+		 continue;		   /* empty line marks end of header */
+	      case '\n':thebody++;
+		 goto eofheader;
 	    }
 	thebody=pastend;      /* provide a default, in case there is no body */
 eofheader:
@@ -328,23 +338,24 @@ eofheader:
   if((chp=thebody)>themail)
      chp--;
   if(contlengthoffset)
-   { unsigned places;long cntlen;long actcntlen;
+   { unsigned places;long cntlen,actcntlen;	    /* minus one, for safety */
      chp=themail+contlengthoffset;cntlen=filled-(thebody-themail)-1;
      for(actcntlen=places=0;;
 	 *chp++=cntlen>0?(actcntlen=actcntlen*10+9,'9'):' ',places++)
       { switch(*chp)
-	 { default:continue;
-	   case '\n':case '\0':;
+	 { default:					/* fill'r up, please */
+	      continue;
+	   case '\n':case '\0':;		      /* ok, end of the line */
 	 }
 	break;
       }
-     if(cntlen>0)
+     if(cntlen>0)			       /* any Content-Length at all? */
       { charNUM(num,cntlen);
-	ultstr(places,cntlen,num);
-	if(!num[places])
-	   tmemmove(chp-places,num,places),actcntlen=cntlen;
+	ultstr(places,cntlen,num);		       /* our preferred size */
+	if(!num[places])	       /* does it fit in the existing space? */
+	   tmemmove(chp-places,num,places),actcntlen=cntlen;	      /* yup */
+	chp=thebody+actcntlen;		  /* skip the actual no we specified */
       }
-     chp+=actcntlen;
    }
   ffrom(chp);mailread=1;	  /* eradicate From_ in the rest of the body */
 }
@@ -357,7 +368,8 @@ char*findtstamp(start,end)const char*start,*end;
   ;{ int spc=0;
      while(end-->start)
       { switch(*end)
-	 { case ' ':case '\t':spc=1;continue;
+	 { case ' ':case '\t':spc=1;
+	      continue;
 	 }
 	if(!spc)
 	   continue;

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.83 1994/06/24 10:45:05 berg Exp $";
+ "$Id: procmail.c,v 1.84 1994/06/28 16:56:39 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -72,13 +72,19 @@ main(argc,argv)const char*const argv[];
 	for(presenviron=argc=0;(chp2=(char*)argv[++argc])&&*chp2=='-';)
 	   for(;;)				       /* processing options */
 	    { switch(*++chp2)
-	       { case VERSIONOPT:elog(VERSION);return EX_OK;
+	       { case VERSIONOPT:elog(VERSION);
+		    return EX_OK;
 		 case HELPOPT1:case HELPOPT2:elog(pmusage);elog(PM_HELP);
-		    elog(PM_QREFERENCE);return EX_USAGE;
-		 case PRESERVOPT:presenviron=1;continue;
-		 case MAILFILTOPT:mailfilter=1;continue;
-		 case OVERRIDEOPT:override=1;continue;
-		 case TEMPFAILOPT:retval=EX_TEMPFAIL;continue;
+		    elog(PM_QREFERENCE);
+		    return EX_USAGE;
+		 case PRESERVOPT:presenviron=1;
+		    continue;
+		 case MAILFILTOPT:mailfilter=1;
+		    continue;
+		 case OVERRIDEOPT:override=1;
+		    continue;
+		 case TEMPFAILOPT:retval=EX_TEMPFAIL;
+		    continue;
 		 case FROMWHOPT:case ALTFROMWHOPT:
 		    if(*++chp2)
 		       fromwhom=chp2;
@@ -101,14 +107,17 @@ setarg:		       *argv1=chp2;restargv=argv1;crestarg=1;
 		  }
 		 case DELIVEROPT:
 		    if(!*(chp= ++chp2)&&!(chp=(char*)argv[++argc]))
-		     { nlog(misrecpt);break;
+		     { nlog(misrecpt);
+		       break;
 		     }
 		    else
-		     { Deliverymode=1;goto last_option;
+		     { Deliverymode=1;
+		       goto last_option;
 		     }
 		 case '-':
 		    if(!*chp2)
-		     { argc++;goto last_option;
+		     { argc++;
+		       goto last_option;
 		     }
 		 default:nlog("Unrecognised options:");logqnl(chp2);
 		    elog(pmusage);elog("Processing continued\n");
@@ -121,11 +130,13 @@ setarg:		       *argv1=chp2;restargv=argv1;crestarg=1;
 	nlog(misrecpt),Deliverymode=0;
 last_option:
      if(Deliverymode&&presenviron)
-      { presenviron=0;goto conflopt;			   /* -d disables -p */
+      { presenviron=0;					   /* -d disables -p */
+	goto conflopt;
       }
      if(mailfilter)
       { if(Deliverymode)				 /* -d supersedes -m */
-	 { mailfilter=0;goto conflopt;
+	 { mailfilter=0;
+	   goto conflopt;
 	 }
 	if(crestarg)				     /* -m will supersede -a */
 conflopt:  nlog(conflicting),elog("options\n"),elog(pmusage);
@@ -138,7 +149,8 @@ conflopt:  nlog(conflicting),elog("options\n"),elog(pmusage);
 	for(kp=keepenv;*kp;kp++)		     /* preserve a happy few */
 	   for(i=strlen(*kp),ep=emax;chp2=(char*)*ep;ep++)
 	      if(!strncmp(*kp,chp2,(size_t)i)&&(chp2[i]=='='||chp2[i-1]=='_'))
-	       { *emax++=chp2;break;
+	       { *emax++=chp2;
+		 break;
 	       }
 	*emax=0;					    /* drop the rest */
       }
@@ -161,7 +173,7 @@ conflopt:  nlog(conflicting),elog("options\n"),elog(pmusage);
 	      if(passinvk)		      /* check out the invoker's uid */
 		 for(chp2=passinvk->pw_name,kp=trusted_ids;*kp;)
 		    if(!strcmp(chp2,*kp++)) /* is it amongst the privileged? */
-		      goto privileged;
+		       goto privileged;
 	      if(grp=getgrgid(gid))	      /* check out the invoker's gid */
 		 for(chp2=grp->gr_name,kp=trusted_ids;*kp;)
 		    if(!strcmp(chp2,*kp++))   /* is it among the privileged? */
@@ -230,7 +242,8 @@ privileged:				       /* move stdout out of the way */
 		       themail[i]='\0';		  /* terminate it for strchr */
 		     }
 		    while(!(rstart=strchr(themail,'\n')));
-		    i=rstart?i-(++rstart-themail):0;goto no_from;
+		    i=rstart?i-(++rstart-themail):0;
+		    goto no_from;
 		  }
 		 ;{ size_t tfrl;
 		    i-=tfrl= ++rstart-themail;	     /* demarcate From_ line */
@@ -306,7 +319,8 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 	 { if(!(pass=getpwnam(chp2)))  /* chp2 should point to the recipient */
 	    { static const char unkuser[]="Unknown user";
 	      nlog(unkuser);logqnl(chp2);
-	      syslog(LOG_ERR,slogstr,unkuser,chp2);return EX_NOUSER;
+	      syslog(LOG_ERR,slogstr,unkuser,chp2);
+	      return EX_NOUSER;
 	    }
 	   if(enoughprivs(passinvk,euid,egid,pass->pw_uid,pass->pw_gid))
 	      goto Setuser;
@@ -320,7 +334,8 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 	      etcrc=0,scomsat=DEFcomsat;	  /* forget etcrc and comsat */
 	   if(mailfilter)
 	    { if(!suppmunreadable)
-	       { nlog("Missing rcfile\n");return EX_NOINPUT;
+	       { nlog("Missing rcfile\n");
+		 return EX_NOINPUT;
 	       }
 #ifdef ETCRCS
 	      ;{ static const char etcrcs[]=ETCRCS;
@@ -443,7 +458,8 @@ keepgid:      sgid=stbuf.st_gid;   /* keep the gid from the parent directory */
 		 *	the recipient
 		 */
 		 if(lstat(chp,&stbuf))			 /* stat the mailbox */
-		  { mboxstat= -(errno==EACCES);goto boglock;
+		  { mboxstat= -(errno==EACCES);
+		    goto boglock;
 		  }				/* lockfile unrightful owner */
 		 else
 		  { mboxstat=1;
@@ -467,13 +483,15 @@ bogusbox:	  { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
 		    nlog("Renaming bogus mailbox \"");elog(chp);
 		    elog("\" into");logqnl(buf);
 		    if(rename(chp,buf))	   /* try and move it out of the way */
-		     { syslog(LOG_EMERG,renfbogus,chp,buf);goto fishy;
-		     }		    /* rename failed, something's fishy here */
+		     { syslog(LOG_EMERG,renfbogus,chp,buf);
+		       goto fishy;  /* rename failed, something's fishy here */
+		     }
 		    else
 		       syslog(LOG_ALERT,renbogus,chp,buf);
 		  }				/* SysV type autoforwarding? */
 		 else if(Deliverymode&&stbuf.st_mode&(S_ISGID|S_ISUID))
-		  { nlog("Autoforwarding mailbox found\n");return EX_NOUSER;
+		  { nlog("Autoforwarding mailbox found\n");
+		    return EX_NOUSER;
 		  }
 		 else
 		  { if(!(stbuf.st_mode&OVERRIDE_MASK)&&stbuf.st_mode&cumask)
@@ -544,7 +562,8 @@ fishy:	    { nlog("Couldn't create");logqnl(chp);sputenv(orgmail);
 	    { if(suppmunreadable)	  /* should we supress this message? */
 fake_rc:	 readerr(buf);
 	      if(!nextrcfile())		      /* not available? try the next */
-	       { skiprc=0;goto nomore_rc;
+	       { skiprc=0;
+		 goto nomore_rc;
 	       }
 	      suppmunreadable=0;
 findrc:	      i=0;		    /* should we keep the current directory? */
@@ -582,7 +601,8 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 		    !(stbuf.st_mode&S_ISVTX))))
 	       { static const char susprcf[]="Suspicious rcfile";
 		 *chp=i;closerc();nlog(susprcf);logqnl(buf);
-		 syslog(LOG_ALERT,slogstr,susprcf,buf);goto fake_rc;
+		 syslog(LOG_ALERT,slogstr,susprcf,buf);
+		 goto fake_rc;
 	       }
 	      *chp=i;
 	    }
@@ -594,11 +614,13 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 	   yell(drcfile,buf);setids();firstchd();
 startrc:   succeed=lastcond=prevcond=0;
 	 }
-	unlock(&loclock);goto commint;		/* unlock any local lockfile */
+	unlock(&loclock);			/* unlock any local lockfile */
+	goto commint;
 	do
 	 { for(;;)				/* skip the rest of the line */
 	    { switch(getb())
-	       { default:continue;
+	       { default:
+		    continue;
 		 case '\n':case EOF:;
 	       }
 	      break;
@@ -626,7 +648,8 @@ commint:   do skipspace();				  /* skip whitespace */
 		 switch(i= *chp++)
 		  { default:
 		       if(!(chp2=strchr(exflags,i)))	    /* a valid flag? */
-			{ chp--;break;
+			{ chp--;
+			  break;
 			}
 		       flags[chp2-exflags]=1;		     /* set the flag */
 		    case '\0':
@@ -637,7 +660,8 @@ commint:   do skipspace();				  /* skip whitespace */
 		       if(*chp||++chp!=Tmnate)
 			  tolock=tstrdup(chp),chp=strchr(chp,'\0')+1;
 		  }
-		 concatenate(chp);skipped(chp);break;	/* display leftovers */
+		 concatenate(chp);skipped(chp);		/* display leftovers */
+		 break;
 	       }
 	      if(flags[ERROR_DO]&&flags[ELSE_DO])
 		 nlog(conflicting),elog("else-if-flag"),elog(suppressed);
@@ -653,7 +677,8 @@ commint:   do skipspace();				  /* skip whitespace */
 		 if(flags[HEAD_GREP])
 		    tobesent=filled;
 		 else
-		  { startchar=thebody;tobesent=filled-tobesent;goto noconcat;
+		  { startchar=thebody;tobesent=filled-tobesent;
+		    goto noconcat;
 		  }
 	      if(!skiprc)
 		 concon(' ');
@@ -667,7 +692,8 @@ noconcat:     i=flags[ERROR_DO]?prevcond&&!succeed:
 	       { skipspace();getlline(buf2);	    /* any conditions (left) */
 		 for(chp=strchr(buf2,'\0');--chp>=buf2;)
 		  { switch(*chp)	  /* strip off whitespace at the end */
-		     { case ' ':case '\t':*chp='\0';continue;
+		     { case ' ':case '\t':*chp='\0';
+			  continue;
 		     }
 		    break;
 		  }
@@ -688,7 +714,8 @@ copydone:	     { switch(*(sgetcp=buf2))
 				 { if(score>=MAX32)
 				      goto skiptrue;
 				   chp2=skpspace(chp3);xponent=x;weight=w;
-				   scored=scoreany=1;goto copyrest;
+				   scored=scoreany=1;
+				   goto copyrest;
 				 }
 			      }
 			   }
@@ -702,7 +729,8 @@ copydone:	     { switch(*(sgetcp=buf2))
 				 {FROMMkey,FROMMsubstitute},
 				 {0,0}
 			       };
-			     squeeze(chp);or_nocase=0;goto jinregs;
+			     squeeze(chp);or_nocase=0;
+			     goto jinregs;
 			     do		   /* find special keyword in regexp */
 				if((chp2=strstr(chp,regsp->regkey))&&
 				 (chp2==buf2||chp2[-1]!='\\'))	 /* escaped? */
@@ -769,7 +797,8 @@ jinregs:			   regsp=regs;	/* start over and look again */
 			     readparse(buf,sgetc,2);strcpy(buf2,skpspace(buf));
 			     goto copydone;
 			  case '!':negate^=1;chp2=skpspace(chp);
-copyrest:		     strcpy(buf,chp2);continue;
+copyrest:		     strcpy(buf,chp2);
+			     continue;
 			  case '?':pwait=2;metaparse(chp);inittmout(buf);
 			      ignwerr=1;pipin(buf,startchar,tobesent);
 			      if(scoreany&&lexitcode>=0)
@@ -784,7 +813,8 @@ copyrest:		     strcpy(buf,chp2);continue;
 			       }
 			      else if(!!lexitcode^negate)
 				 i=0;
-			      strcpy(buf2,buf);break;
+			      strcpy(buf2,buf);
+			      break;
 			  case '>':case '<':readparse(buf,sgetc,2);
 			   { long pivot;
 			      ;{ char*chp3;
@@ -881,7 +911,8 @@ progrm:	   if(testb('!'))				 /* forward the mail */
 	      if(i)
 	       { metaparse(buf2);
 		 if(!sh&&buf+1==Tmnate)		      /* just a pipe symbol? */
-		  { *buf='|';*(char*)(Tmnate++)='\0';goto tostdout;
+		  { *buf='|';*(char*)(Tmnate++)='\0';
+		    goto tostdout;
 		  }						  /* fake it */
 forward:	 if(locknext)
 		  { if(!tolock)	   /* an explicit lockfile specified already */
@@ -1031,7 +1062,8 @@ frmailed:	  { if(ifstack.offs)
 	 { if(!(chp=gobenv(buf)))
 	    { if(!*buf)					/* skip a word first */
 		 getbl(buf);				      /* then a line */
-	      skipped(buf);continue;			/* display leftovers */
+	      skipped(buf);				/* display leftovers */
+	      continue;
 	    }
 	   skipspace();
 	   if(testb('='))			   /* removal or assignment? */

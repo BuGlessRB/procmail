@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.41 1994/05/26 14:13:08 berg Exp $*/
+/*$Id: manconf.c,v 1.42 1994/06/28 16:56:28 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -29,16 +29,22 @@ static char*skltmark(nl,current)char**current;
      from=strchr(from,'\n')+1;
   while(*from=='\t')
      from++;
-  *(p=strchr(from,'\n'))='\0';*current=p+1;return from;
+  *(p=strchr(from,'\n'))='\0';*current=p+1;
+  return from;
 }
 
 static void putcesc(i)
 { switch(i)
-   { case '|':printf("\\\\h'-\\\\w' 'u' ");break;
-     case '\\':i='e';goto twoesc;
-     case '\1':i='\n';goto singesc;
-     case '\2':i='\\';goto singesc;
-     case '\t':i='t';goto fin;
+   { case '|':printf("\\\\h'-\\\\w' 'u' ");
+	break;
+     case '\\':i='e';
+	goto twoesc;
+     case '\1':i='\n';
+	goto singesc;
+     case '\2':i='\\';
+	goto singesc;
+     case '\t':i='t';
+	goto fin;
      case '\n':i='n';
 fin:	putchar('\\');putchar('\\');
 twoesc: putchar('\\');
@@ -74,7 +80,8 @@ static void plist(name,preamble,list,postamble,ifno,andor)
   if(!*list)
      putsesc(ifno);
   else
-   { putsesc(preamble);goto jin;
+   { putsesc(preamble);
+     goto jin;
      do
       { putsesc(list[1]?", ":andor);
 jin:	putsesc(*list);

@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.56 1994/06/16 16:37:24 berg Exp $";
+ "$Id: multigram.c,v 1.57 1994/06/28 16:56:34 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/06/16 16:37:24 $";
+static /*const*/char rcsdate[]="$Date: 1994/06/28 16:56:34 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -195,7 +195,8 @@ static int rclock(file,stbuf)const char*const file;struct stat*const stbuf;
 static char*argstr(first,last)const char*first,*last;		/* construct */
 { char*chp;size_t i;				   /* an argument assignment */
   strcpy(chp=malloc((i=strlen(first))+strlen(last)+1),first);
-  strcpy(chp+i,last);return chp;
+  strcpy(chp+i,last);
+  return chp;
 }
 
 static void checkparens(pleft,pright,str,echp)int pleft,pright;
@@ -205,7 +206,8 @@ static void checkparens(pleft,pright,str,echp)int pleft,pright;
   for(chp=str;chp=strchr(chp,pright);chp++,parens--);
   if(*(chp=str)==pleft)				       /* any opening paren? */
    { if(!parens&&*echp==pright)		    /* parens matched and enclosing? */
-      { *echp='\0';goto shftleft;
+      { *echp='\0';
+	goto shftleft;
       }
      if(parens>0)			/* more opening than closing parens? */
 shftleft:
@@ -240,7 +242,8 @@ const struct string*const fuzzstr;struct string*const hardstr;
 	       }
 	   for(hrd=hardstr->itext;hrd=strchr(hrd,*fzz);)	/* otherwise */
 	       if(!strncmp(++hrd,fzz+1,gramsize))	 /* search it in the */
-		{ lmeter++;break;			       /* dist entry */
+		{ lmeter++;				       /* dist entry */
+		  break;
 		}
 dble_gram:;
 	 }
@@ -295,7 +298,8 @@ Usage: flist listname[-request]\n\
 	;{ uid_t euid;
 	   if((euid=geteuid())==ROOT_uid)
 	    { if(!(pass=getpwnam(listid)))
-	       { nlog("User \"");elog(listid);elog("\"");goto bailout;
+	       { nlog("User \"");elog(listid);elog("\"");
+		 goto bailout;
 	       }
 	     /*
 	      * continue as the compile-time-determined list maintainer
@@ -305,7 +309,8 @@ Usage: flist listname[-request]\n\
 	    }
 	   else if(!(pass=getpwuid(euid)))
 	    { nlog("Euid");
-bailout:      elog(" unknown\n");return EX_NOUSER;
+bailout:      elog(" unknown\n");
+	      return EX_NOUSER;
 	    }
 	   else
 	     /*
@@ -322,7 +327,8 @@ bailout:      elog(" unknown\n");return EX_NOUSER;
 	      goto nochdir;
 	 }
 	if(*(chp=(char*)targetdir)&&chdir(chp))
-nochdir: { nlog("Couldn't chdir to");logqnl(targetdir);return EX_NOPERM;
+nochdir: { nlog("Couldn't chdir to");logqnl(targetdir);
+	   return EX_NOPERM;
 	 }
 	if(stat(defdir,&stbuf))
 	 { nlog("Can't find \"");elog(defdir);elog("\" in");logqnl(targetdir);
@@ -336,7 +342,8 @@ nochdir: { nlog("Couldn't chdir to");logqnl(targetdir);return EX_NOPERM;
 	else
 	   chp=0;
 	if(!strcmp(arg,chPARDIR)||strpbrk(arg,dirsep))
-	 { nlog("Bogus listname\n");return EX_NOPERM;
+	 { nlog("Bogus listname\n");
+	   return EX_NOPERM;
 	 }
 	;{ int foundlock;
 	   do
@@ -354,7 +361,8 @@ nochdir: { nlog("Couldn't chdir to");logqnl(targetdir);return EX_NOPERM;
 	   *chp= *request;		     /* then restore the leading '-' */
 	Endpmexec(3)=argstr(XENVELOPETO,arg);
 	execve(pmexec[0],(char*const*)pmexec,environ);nlog("Couldn't exec");
-	logqnl(pmexec[0]);return EX_UNAVAILABLE;		    /* panic */
+	logqnl(pmexec[0]);
+	return EX_UNAVAILABLE;					    /* panic */
       }
     /*
      *	revoke any suid permissions now, since we're not flist
@@ -364,11 +372,13 @@ nochdir: { nlog("Couldn't chdir to");logqnl(targetdir);return EX_NOPERM;
       { unsigned long hash=0;int i;
 	progname=idhash;
 	if(argc!=1)
-	 { elog("Usage: idhash\n");return EX_USAGE;
+	 { elog("Usage: idhash\n");
+	   return EX_USAGE;
 	 }
 	while(i=fgetc(stdin),!feof(stdin))		       /* hash away! */
 	   hash=hash*67067L+i;
-	printf("%lx",hash);return EX_OK;
+	printf("%lx",hash);
+	return EX_OK;
       }
      if(ISPROGRAM(chp,senddigest))		      /* senddigest program? */
       { struct stat stbuf;
@@ -385,7 +395,8 @@ nochdir: { nlog("Couldn't chdir to");logqnl(targetdir);return EX_NOPERM;
 	    { off_t maxsize;
 	      if(stbuf.st_mtime+strtol(argv[1],(char**)0,10)<newt)
 		 return EX_OK;				   /* digest too old */
-	      maxsize=strtol(argv[2],(char**)0,10);goto statd;
+	      maxsize=strtol(argv[2],(char**)0,10);
+	      goto statd;
 	      do
 	       { if(!stat(argv[argc],&stbuf))
 statd:		    if((size+=stbuf.st_size)>maxsize)	  /* digest too big? */
@@ -430,7 +441,8 @@ statd:		    if((size+=stbuf.st_size)>maxsize)	  /* digest too big? */
 	   return EX_CANTCREAT;
 	 }
 	;{ char*buf;int i;unsigned long totsize=0;
-	   buf=malloc(COPYBUF);goto jin;
+	   buf=malloc(COPYBUF);
+	   goto jin;
 	   do
 	    { char*a=buf;size_t len;
 	      totsize+=(len=i);
@@ -461,14 +473,16 @@ jin:	      while(0>(i=read(STDIN,buf,(size_t)COPYBUF))&&errno==EINTR);
 	    { int i=strchr((chp=strchr(hardstr.text,'\0'))+1,'\0')[-1];
 	      if(*hardstr.text!='(')
 		 switch(i)
-		  { default:goto invaddr;
+		  { default:
+		       goto invaddr;
 		    case ')':case '\0':;
 		  }
 	      else					     /* comment line */
 		 switch(i)
 invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 		       logqnl(hardstr.text);
-		    case ')':case '\0':continue;
+		    case ')':case '\0':
+		       continue;
 		  }
 	      if(revfilled==revlen)			  /* watch our space */
 		 revarr=realloc(revarr,(revlen+=ADDR_INCR)*sizeof*revarr);
@@ -546,7 +560,8 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 		       case 0:
 			  execve(nargv[0],nargv,environ);
 			  kill(getppid(),SIGTERM);nlog("Couldn't exec");
-			  logqnl(nargv[0]);return EX_UNAVAILABLE;
+			  logqnl(nargv[0]);
+			  return EX_UNAVAILABLE;
 		     }
 		    break;
 		  }
@@ -562,15 +577,21 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 	for(chp++;;)
 	 { int c;
 	   switch(c= *chp++)
-	    { case 'c':charoffs=1;continue;
-	      case 'd':remov=1;continue;
-	      case 'i':incomplete=1;continue;
-	      case 'r':renam=1;continue;
-	      case 'm':chkmetoo=1;continue;
+	    { case 'c':charoffs=1;
+		 continue;
+	      case 'd':remov=1;
+		 continue;
+	      case 'i':incomplete=1;
+		 continue;
+	      case 'r':renam=1;
+		 continue;
+	      case 'm':chkmetoo=1;
+		 continue;
 	      case 'a':
 		 if(!*chp&&!(chp= *++argv))
 		    goto usg;
-		 addit=chp;break;
+		 addit=chp;
+		 break;
 	      case 'x':
 		 if(!*chp&&!(chp= *++argv))
 		    goto usg;
@@ -587,9 +608,12 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 		       goto usg;
 		  }
 		 switch(c)
-		  { case 'b':best_matches=i;continue;
-		    case 'l':minweight=i;continue;
-		    case 'w':maxgram=i;continue;
+		  { case 'b':best_matches=i;
+		       continue;
+		    case 'l':minweight=i;
+		       continue;
+		    case 'w':maxgram=i;
+		       continue;
 		  }
 	       }
 	      case HELPOPT1:case HELPOPT2:elog(usage);
@@ -603,12 +627,15 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 \n\t-l nnn\t\tlower bound metric\
 \n\t-r\t\trename address on list\
 \n\t-x address\texclude this address from the search (max. 2)\
-\n\t-w nnn\t\twindow width used when matching\n");return EX_USAGE;
+\n\t-w nnn\t\twindow width used when matching\n");
+		 return EX_USAGE;
 	      case '-':
 		 if(!*chp)
-		  { chp= *++argv;goto lastopt;
+		  { chp= *++argv;
+		    goto lastopt;
 		  }
-	      default:goto usg;
+	      default:
+		 goto usg;
 	      case '\0':;
 	    }
 	   break;
@@ -622,7 +649,8 @@ lastopt:
 	   exc2str.textlen=strlen(exc2str.text),lowcase(&exc2str);
       }
      if(!(hardfile=fopen(chp,remov||renam||addit?"r+":"r")))
-      { nlog(cldntopen);logqnl(chp);return EX_IOERR;
+      { nlog(cldntopen);logqnl(chp);
+	return EX_IOERR;
       }
 #ifdef SPEEDBUF				   /* allocate a bigger stdio buffer */
      setvbuf(hardfile,malloc(SPEEDBUF),_IOFBF,(size_t)SPEEDBUF);
@@ -630,7 +658,8 @@ lastopt:
    }
   else
 usg:
-   { elog(usage);return EX_USAGE;
+   { elog(usage);
+     return EX_USAGE;
    }
   if(addit)			      /* special subfunction, to add entries */
    { int lnl;off_t lasttell;				 /* to the dist file */
@@ -640,13 +669,15 @@ usg:
 	      if(!lnl)			    /* looking for trailing newlines */
 		 lnl=1,lasttell=ftell(hardfile);
 	      continue;
-	   default:lnl=0;continue;
+	   default:lnl=0;
+	      continue;
 	   case EOF:;				   /* or the end of the file */
 	 }
 	break;
       }				     /* go back there, and add the new entry */
      fseek(hardfile,lasttell,SEEK_SET);fprintf(hardfile,"%s\n",addit);
-     printf("Added: %s\n",addit);fclose(hardfile);return EX_OK;
+     printf("Added: %s\n",addit);fclose(hardfile);
+     return EX_OK;
    }
   if(!maxgram)
      maxgram=DEFmaxgram;
@@ -710,7 +741,8 @@ usg:
 	lowcase(&fuzzstr);			   /* cast it into lowercase */
 	if(excstr.text&&matchgram(&fuzzstr,&excstr)>=EXCL_THRESHOLD||
 	 exc2str.text&&matchgram(&fuzzstr,&exc2str)>=EXCL_THRESHOLD)
-	 { free(fuzzstr.itext);continue;
+	 { free(fuzzstr.itext);
+	   continue;
 	 }
 	;{ int i=0;
 	   do
@@ -772,13 +804,14 @@ dupl_addr:;
 	   for(i=1,line=mp->lentry,w1=mp->metric,worse=0;
 	    i<=best_matches&&(mp=best[i++])->metric>=minweight;)
 	      if(mp->lentry==line&&mp->metric+maxweight<w1)
-	       { goto remv1;
-	       }
+		 goto remv1;
 	   for(i=1;i<=best_matches&&(mp=best[i++])->metric>=minweight;)
 	      if(mp->metric+maxweight<w1)
-remv1:	       { worse=mp;mp= *best;goto remv;
+remv1:	       { worse=mp;mp= *best;
+		 goto remv;
 	       }
-	   nlog("Couldn't find a proper address pair\n");goto norenam;
+	   nlog("Couldn't find a proper address pair\n");
+	   goto norenam;
 	 }
 	if(remov)
 remv:	 { char*buf;off_t offs1,offs2;size_t readin;

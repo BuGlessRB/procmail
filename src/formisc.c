@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.27 1994/06/14 13:49:11 berg Exp $";
+ "$Id: formisc.c,v 1.28 1994/06/28 16:56:13 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -21,7 +21,8 @@ static char*skipcomment(start)char*start;
      switch(*++start)
       { case '\0':start--;
 	case ')':return start;
-	case '\\':start++;break;
+	case '\\':start++;
+	   break;
 	case '(':start=skipcomment(start);
       }
 }
@@ -35,15 +36,18 @@ char*skipwords(start)char*start;
    { switch(*start)
       { case '<':					/* machine reference */
 	   if(machref)					/* can not be nested */
-	    { target=oldstart;hitspc=0;goto inc;	    /* so start over */
+	    { target=oldstart;hitspc=0;			    /* so start over */
+	      goto inc;
 	    }
 	   goto ret;
 	case '(':start=skipcomment(start);			  /* comment */
 	case ' ':case '\t':case '\n':hitspc|=1;	       /* linear white space */
-inc:	   start++;continue;
+inc:	   start++;
+	   continue;
 	case ',':case ';':	      /* sendmail extended RFC-822 behaviour */
 	   if(machref)
-	    { machref=2;goto special;
+	    { machref=2;
+	      goto special;
 	    }
 	   goto retz;
 	default:
@@ -58,11 +62,14 @@ ret:	      return start;
 	    }
 	   if(*start=='\\')
 	      *target++='\\',start++;
-	   hitspc=2;goto normal;			      /* normal word */
+	   hitspc=2;
+	   goto normal;					      /* normal word */
 	case '@':case ':':case '.':
 special:   hitspc=0;
-normal:	   *target++= *start++;continue;
-	case '[':delim=']';break;			   /* domain-literal */
+normal:	   *target++= *start++;
+	   continue;
+	case '[':delim=']';				   /* domain-literal */
+	   break;
 	case '"':*target++=delim='"';start++;
       }
      ;{ int i;

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.25 1994/06/01 18:52:18 berg Exp $";
+ "$Id: cstdio.c,v 1.26 1994/06/28 16:56:03 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -57,7 +57,8 @@ int poprc P((void))
   if(!inced.filled)				  /* include stack is empty? */
      return 0;	      /* restore rc, seekpos, prime rcbuf and restore rcbufp */
   rc=inced.offs[--inced.filled];lseek(rc,inced.offs[--inced.filled],SEEK_SET);
-  rcbufp=rcbufend;getb();rcbufp=rcbuf+inced.offs[--inced.filled];return 1;
+  rcbufp=rcbufend;getb();rcbufp=rcbuf+inced.offs[--inced.filled];
+  return 1;
 }
 
 void closerc P((void))					/* {while(poprc());} */
@@ -84,8 +85,8 @@ int getbl(p)char*p;						  /* my gets */
 { int i;char*q;
   for(q=p;;)
    { switch(i=getb())
-      { case '\n':case EOF:
-	   *q='\0';return p!=q;		     /* did we read anything at all? */
+      { case '\n':case EOF:*q='\0';
+	   return p!=q;			     /* did we read anything at all? */
       }
      *q++=i;
    }
@@ -109,7 +110,8 @@ int testb(x)const int x;	   /* fgetc that only succeeds if it matches */
 { int i;
   if((i=getb())==x)
      return 1;
-  ungetb(i);return 0;
+  ungetb(i);
+  return 0;
 }
 
 int sgetc P((void))				/* a fake fgetc for a string */

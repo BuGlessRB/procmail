@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: fields.c,v 1.16 1994/05/26 14:12:38 berg Exp $";
+ "$Id: fields.c,v 1.17 1994/06/28 16:56:07 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -40,12 +40,14 @@ struct field**addfield(pointer,text,totlen)struct field**pointer;
   for(pp=pointer;*pp;pp= &(*pp)->fld_next);   /* skip to the end of the list */
   (*pp=p=malloc(FLD_HEADSIZ+totlen))->fld_next=0;idlen=breakfield(text,totlen);
   p->id_len=idlen>0?idlen:pp==&rdheader?0:-idlen;	    /* copy contents */
-  tmemmove(p->fld_text,text,p->tot_len=totlen);return pp;
+  tmemmove(p->fld_text,text,p->tot_len=totlen);
+  return pp;
 }
 
 struct field*delfield(pointer)struct field**pointer;
 { struct field*fldp;
-  *pointer=(fldp= *pointer)->fld_next;free(fldp);return *pointer;
+  *pointer=(fldp= *pointer)->fld_next;free(fldp);
+  return *pointer;
 }
 
 void concatenate(fldp)struct field*const fldp;
@@ -68,7 +70,8 @@ void renfield(pointer,oldl,newname,newl)struct field**const pointer;
 static void extractfield(p)register struct field*p;
 { if(xheader||Xheader)					 /* extracting only? */
    { if(findf(p,&xheader))			   /* extract field contents */
-      { putssn((char*)p->fld_text+p->id_len,p->tot_len-p->id_len);return;
+      { putssn((char*)p->fld_text+p->id_len,p->tot_len-p->id_len);
+	return;
       }
      if(!findf(p,&Xheader))				   /* extract fields */
 	return;
@@ -100,12 +103,14 @@ int readhead P((void))
 	return 0;
      for(;;getline())		      /* get the rest of the continued field */
       { switch(buflast)			     /* will this line be continued? */
-	 { case ' ':case '\t':continue;			  /* yep, it sure is */
+	 { case ' ':case '\t':				  /* yep, it sure is */
+	      continue;
 	 }
 	break;
       }
    }
-  addbuf();return 1;		  /* phew, got the field, add it to rdheader */
+  addbuf();			  /* phew, got the field, add it to rdheader */
+  return 1;
 }
 
 void addbuf P((void))

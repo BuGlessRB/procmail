@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.22 1994/06/10 15:13:15 berg Exp $";
+ "$Id: exopen.c,v 1.23 1994/06/28 16:56:05 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -60,12 +60,14 @@ ret0:	return 0;
    }
   if(chownit&doLOCK)
      rwrite(i,"0",1);			   /* pid 0, `works' across networks */
-  rclose(i);return 1;
+  rclose(i);
+  return 1;
 }
 				     /* rename MUST fail if already existent */
 int myrename(old,newn)const char*const old,*const newn;
 { int i,serrno;
-  i=hlink(old,newn);serrno=errno;unlink(old);SETerrno(serrno);return i;
+  i=hlink(old,newn);serrno=errno;unlink(old);SETerrno(serrno);
+  return i;
 }
 		 /* hardlink with fallback for systems that don't support it */
 int hlink(old,newn)const char*const old,*const newn;

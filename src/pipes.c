@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.32 1994/06/03 18:25:32 berg Exp $";
+ "$Id: pipes.c,v 1.33 1994/06/28 16:56:36 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -81,7 +81,8 @@ static void callnewprog(newname)const char*const newname;
   ;{ register const char*p;int argc;
      argc=1;p=newname;	     /* If no shell, chop up the arguments ourselves */
      if(verbose)
-      { nlog(executing);elog(oquote);goto no_1st_comma;
+      { nlog(executing);elog(oquote);
+	goto no_1st_comma;
       }
      do					     /* show chopped up command line */
       { if(verbose)
@@ -161,7 +162,8 @@ perr:	      progerr(line,excode);	      /* I'm going to tell my mommy! */
   if(forkerr(pidchild,procmailn))
      return -1;
   if(Stdout)
-   { retStdout(readdyn(Stdout,&Stdfilled));return pipw;
+   { retStdout(readdyn(Stdout,&Stdfilled));
+     return pipw;
    }
   return 0;		    /* we stay behind to read back the filtered text */
 }
@@ -217,12 +219,14 @@ long pipin(line,source,len)char*const line;char*source;long len;
 builtin:
   if(!sh)
      concatenate(line);
-  setlastfolder(line);return len;
+  setlastfolder(line);
+  return len;
 }
 
 char*readdyn(bf,filled)char*bf;long*const filled;
 { int i;long oldsize;
-  oldsize= *filled;goto jumpin;
+  oldsize= *filled;
+  goto jumpin;
   do
    { *filled+=i;				/* change listed buffer size */
 jumpin:
@@ -242,7 +246,8 @@ jumpback:;
 	   pipw=NO_PROCESS;
 	   if(pwait)
 	      pipw=waitfor(pidchild);
-	   pidchild=0;goto jumpback;	       /* filter goofed, rescue data */
+	   pidchild=0;
+	   goto jumpback;		       /* filter goofed, rescue data */
 	 }
       }
      if(pwait)
@@ -280,7 +285,8 @@ char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
    }
   else
      rclose(PRDI);
-  pidchild=0;*p='\0';return p;
+  pidchild=0;*p='\0';
+  return p;
 }
 
 void exectrap(tp)const char*const tp;

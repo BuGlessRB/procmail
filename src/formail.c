@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.52 1994/06/16 16:37:21 berg Exp $";
+ "$Id: formail.c,v 1.53 1994/06/28 16:56:10 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/06/16 16:37:21 $";
+static /*const*/char rcsdate[]="$Date: 1994/06/28 16:56:10 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -126,7 +126,8 @@ static int digheadr P((void))
 
 static int artheadr P((void))	     /* could it be the start of an article? */
 { if(!rdheader&&!strncmp(buf,Article_,STRLEN(Article_)))
-   { addbuf();rdheader->id_len=STRLEN(Article_);return 1;
+   { addbuf();rdheader->id_len=STRLEN(Article_);
+     return 1;
    }
   return 0;
 }
@@ -149,15 +150,23 @@ main(lastm,argv)int lastm;const char*const argv[];
 	   goto usg;
 	for(;;)
 	 { switch(lastm= *chp++)
-	    { case FM_TRUST:trust=1;continue;
-	      case FM_REPLY:areply=1;continue;
-	      case FM_FORCE:force=1;continue;
-	      case FM_EVERY:every=1;continue;
+	    { case FM_TRUST:trust=1;
+		 continue;
+	      case FM_REPLY:areply=1;
+		 continue;
+	      case FM_FORCE:force=1;
+		 continue;
+	      case FM_EVERY:every=1;
+		 continue;
 	      case FM_BABYL:babyl=every=1;
-	      case FM_DIGEST:digest=1;continue;
-	      case FM_NOWAIT:nowait=1;continue;
-	      case FM_KEEPB:keepb=1;continue;
-	      case FM_CONCATENATE:conctenate=1;continue;
+	      case FM_DIGEST:digest=1;
+		 continue;
+	      case FM_NOWAIT:nowait=1;
+		 continue;
+	      case FM_KEEPB:keepb=1;
+		 continue;
+	      case FM_CONCATENATE:conctenate=1;
+		 continue;
 	      case FM_QUIET:quiet=1;
 		 if(*chp=='-')
 		    chp++,quiet=0;
@@ -165,10 +174,12 @@ main(lastm,argv)int lastm;const char*const argv[];
 	      case FM_LOGSUMMARY:Qnext_arg();
 		 if(strlen(logsummary=chp)>MAXfoldlen)
 		    chp[MAXfoldlen]='\0';
-		 detab(chp);break;
+		 detab(chp);
+		 break;
 	      case FM_SPLIT:split=1;
 		 if(!*chp)
-		  { ++argv;goto parsedoptions;
+		  { ++argv;
+		    goto parsedoptions;
 		  }
 		 goto usg;
 	      case HELPOPT1:case HELPOPT2:elog(fmusage);elog(FM_HELP);
@@ -179,7 +190,8 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		    goto usg;
 		 i=strtol(chp,&chp,10);
 		 switch(lastm)			/* where does the number go? */
-		  { case FM_SKIP:nrskip=i;break;
+		  { case FM_SKIP:nrskip=i;
+		       break;
 		    case FM_DUPLICATE:maxlen=i;Qnext_arg();
 		       if(!(idcache=fopen(chp,"r+b"))&&	  /* existing cache? */
 			  !(idcache=fopen(chp,"w+b")))	    /* create cache? */
@@ -187,12 +199,15 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 			  return EX_CANTCREAT;
 			}
 		       goto nextarg;
-		    case FM_MINFIELDS:minfields=i;break;
+		    case FM_MINFIELDS:minfields=i;
+		       break;
 		    default:nrtotal=i;
 		  }
 		 continue;
-	      case FM_BOGUS:bogus=0;continue;
-	      case FM_QPREFIX:Qnext_arg();escap=chp;break;
+	      case FM_BOGUS:bogus=0;
+		 continue;
+	      case FM_QPREFIX:Qnext_arg();escap=chp;
+		 break;
 	      case FM_ADD_IFNOT:case FM_ADD_ALWAYS:case FM_REN_INSERT:
 	      case FM_DEL_INSERT:case FM_EXTRACT:case FM_EXTRC_KEEP:
 	      case FM_FIRST_UNIQ:case FM_LAST_UNIQ:case FM_ReNAME:Qnext_arg();
@@ -217,7 +232,8 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		    for(namep=(chp=(fldp= *afldp)->fld_text)+lnl,
 		     chp+=lnl=fldp->id_len;chp<namep;++chp)
 		     { switch(*chp)			  /* skip whitespace */
-			{ case ' ':case '\t':case '\n':continue;
+			{ case ' ':case '\t':case '\n':
+			     continue;
 			}
 		       break;
 		     }				   /* second field attached? */
@@ -296,7 +312,8 @@ xusg:
    {
 #ifdef sMAILBOX_SEPARATOR			      /* check for a leading */
      if(!strncmp(smboxsep,buf,STRLEN(smboxsep)))	/* mailbox separator */
-      { buffilled=0;goto startover;				  /* skip it */
+      { buffilled=0;						  /* skip it */
+	goto startover;
       }
 #endif
      if(digest&&artheadr())
@@ -364,7 +381,8 @@ startover:
 			  p1+=STRLEN(remf);
 		       for(;;)				     /* copy it over */
 			{ switch(c= *p1++)
-			   { default:*chp++=c;continue;
+			   { default:*chp++=c;
+				continue;
 			     case '\0':case '\n':*chp++='!'; /* for the buck */
 			   }
 			  break;
@@ -431,18 +449,22 @@ newnamep:	 if(namep)
 		 if(!j)					     /* end of word? */
 		  { if(!quiet)
 		       nlog("Duplicate ID found:"),elog(msid->rexp),elog("\n");
-		    dupid=1;goto dupfound;	     /* YES! duplicate found */
+		    dupid=1;
+		    goto dupfound;		     /* YES! duplicate found */
 		  }
 	      if(!j)					     /* end of word? */
 	       { if(p==msid->rexp&&insoffs==maxlen)	 /* first character? */
-		  { insoffs=ftell(idcache)-1;goto skiprest;	    /* found */
-		  }				   /* end of circular buffer */
+		  { insoffs=ftell(idcache)-1;		     /* found end of */
+		    goto skiprest;			  /* circular buffer */
+		  }
 	       }
 	      else
 skiprest:	 for(;;)			/* skip the rest of the word */
 		  { switch(fgetc(idcache))
-		     { case EOF:goto noluck;
-		       default:continue;
+		     { case EOF:
+			  goto noluck;
+		       default:
+			  continue;
 		       case '\0':;
 		     }
 		    break;
@@ -562,7 +584,8 @@ dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
 	      fp2->fld_ref=afldp;			/* keep last Uheader */
 	    }
 	   else if(uf)			    /* delete all following uheaders */
-delfld:	    { fldp=delfield(afldp);continue;
+delfld:	    { fldp=delfield(afldp);
+	      continue;
 	    }
 	 }
 	if(fp2=findf(fldp,&Rheader))		  /* explicitly rename field */
@@ -643,12 +666,14 @@ splitit:       { if(!lnl)   /* did the previous mail end with an empty line? */
 		  }
 		 if(!nrtotal)
 		    goto onlyhead;
-		 startprog((const char*Const*)argv);goto startover;
+		 startprog((const char*Const*)argv);
+		 goto startover;
 	       }				    /* and there we go again */
 	    }
 	 }
 	else if(eqFrom_(buf))			 /* special case, From_ line */
-	 { addbuf();goto fromanyway;   /* add it manually, readhead() didn't */
+	 { addbuf();		       /* add it manually, readhead() didn't */
+	   goto fromanyway;
 	 }
 	else if(split&&digest&&(lnl||every)&&artheadr())
 	   goto accuhdr;
@@ -724,8 +749,10 @@ int breakfield(line,len)const char*const line;size_t len;  /* look where the */
      return STRLEN(From_);
   while(len&&!iscntrl(*p))		    /* no control characters allowed */
    { switch(*p++)
-      { default:len--;continue;
-	case HEAD_DELIMITER:len=p-line;return len==1?0:len;	  /* eureka! */
+      { default:len--;
+	   continue;
+	case HEAD_DELIMITER:len=p-line;
+	   return len==1?0:len;					  /* eureka! */
 	case ' ':p--;					/* no spaces allowed */
       }
      break;

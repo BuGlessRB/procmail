@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: acommon.c,v 1.1 1994/04/05 15:34:04 berg Exp $";
+ "$Id: acommon.c,v 1.2 1994/06/28 16:55:56 berg Exp $";
 #endif
 #include "includes.h"
 #include "acommon.h"
@@ -41,5 +41,6 @@ char*ultoan(val,dest)unsigned long val;char*dest;     /* convert to a number */
       i==10+26+26?'-'-10-26-26:'_'-10-26-27);
    }
   while(val>>=6);
-  *dest='\0';return dest;
+  *dest='\0';
+  return dest;
 }

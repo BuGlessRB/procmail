@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.39 1994/06/22 19:05:32 berg Exp $";
+ "$Id: locking.c,v 1.40 1994/06/28 16:56:23 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -30,7 +30,8 @@ void lockit(name,lockp)char*name;char**const lockp;
    { locktype=doCHECK|doLOCK;
 #ifndef fdlock
      if(!accspooldir)
-      { yell("Bypassed locking",name);return;
+      { yell("Bypassed locking",name);
+	return;
       }
      else
 #endif
@@ -40,7 +41,8 @@ void lockit(name,lockp)char*name;char**const lockp;
   for(lcking|=lck_LOCKFILE;;)
    { yell("Locking",name);	    /* in order to cater for clock skew: get */
      if(!xcreat(name,LOCKperm,&t,locktype))    /* time t from the filesystem */
-      { *lockp=name;break;			   /* lock acquired, hurray! */
+      { *lockp=name;				   /* lock acquired, hurray! */
+	break;
       }
      switch(errno)
       { case EEXIST:		   /* check if it's time for a lock override */
@@ -54,7 +56,8 @@ void lockit(name,lockp)char*name;char**const lockp;
 	      if(S_ISDIR(stbuf.st_mode)||unlink(name))
 		 triedforce=1,nlog("Forced unlock denied on"),logqnl(name);
 	      else
-	       { nlog("Forcing lock on");logqnl(name);suspend();goto ce;
+	       { nlog("Forcing lock on");logqnl(name);suspend();
+		 goto ce;
 	       }
 	    }
 	   else
@@ -73,17 +76,20 @@ void lockit(name,lockp)char*name;char**const lockp;
 	 { int i;
 	   if(0<(i=strlen(name)-1)&&!strchr(dirsep,name[i-1]))
 	    { nlog("Truncating");logqnl(name);elog(" and retrying lock\n");
-	      name[i]='\0';permanent=nfsTRY;goto ce;
+	      name[i]='\0';permanent=nfsTRY;
+	      goto ce;
 	    }
 	 }
 #endif
 	default:
-faillock:  nlog("Lock failure on");logqnl(name);goto term;
+faillock:  nlog("Lock failure on");logqnl(name);
+	   goto term;
       }
      permanent=nfsTRY;
 ds:  ssleep((unsigned)locksleep);
 ce:  if(nextexit)
-term: { free(name);break;		     /* drop the preallocated buffer */
+term: { free(name);			     /* drop the preallocated buffer */
+	break;
       }
    }
   if(rcstate==rc_NORMAL)			   /* we already set our ids */
@@ -132,7 +138,8 @@ int xcreat(name,mode,tim,chownit)const char*const name;const mode_t mode;
       }
      j=myrename(p,name);
    }
-  free(p);return j;
+  free(p);
+  return j;
 }
 	/* if you've ever wondered what conditional compilation was good for */
 #ifndef fdlock						/* watch closely :-) */
@@ -181,19 +188,22 @@ int fdlock(fd)
      if((ret|=lockf(fd,F_TLOCK,(off_t)0))&&(errno==EAGAIN||errno==EACCES||
       errno==EWOULDBLOCK))
 ufcntl:
-      { flck.l_type=F_UNLCK;fcntl(fd,F_SETLK,&flck);continue;
+      { flck.l_type=F_UNLCK;fcntl(fd,F_SETLK,&flck);
+	continue;
       }
 #ifdef USEflock
      if((ret|=flock(fd,LOCK_EX|LOCK_NB))&&(errno==EAGAIN||errno==EACCES||
       errno==EWOULDBLOCK))
-      { lockf(fd,F_ULOCK,(off_t)0);goto ufcntl;
+      { lockf(fd,F_ULOCK,(off_t)0);
+	goto ufcntl;
       }
 #endif /* USEflock */
 #else /* USElockf */
 #ifdef USEflock
      if((ret|=flock(fd,LOCK_EX|LOCK_NB))&&(errno==EAGAIN||errno==EACCES||
       errno==EWOULDBLOCK))
-      { flck.l_type=F_UNLCK;fcntl(fd,F_SETLK,&flck);continue;
+      { flck.l_type=F_UNLCK;fcntl(fd,F_SETLK,&flck);
+	continue;
       }
 #endif /* USEflock */
 #endif /* USElockf */
@@ -203,7 +213,8 @@ ufcntl:
 #ifdef USEflock
      if((ret|=flock(fd,LOCK_EX|LOCK_NB))&&(errno==EAGAIN||errno==EACCES||
       errno==EWOULDBLOCK))
-      { lockf(fd,F_ULOCK,(off_t)0);continue;
+      { lockf(fd,F_ULOCK,(off_t)0);
+	continue;
       }
 #endif /* USEflock */
 #else /* USElockf */
@@ -212,7 +223,8 @@ ufcntl:
 #endif /* USEflock */
 #endif /* USElockf */
 #endif /* NOfcntl_lock */
-     oldfdlock=fd;lcking&=~lck_KERNEL;return ret;
+     oldfdlock=fd;lcking&=~lck_KERNEL;
+     return ret;
    }
 }
 
@@ -230,6 +242,7 @@ int fdunlock P((void))
 #ifndef NOfcntl_lock
   flck.l_type=F_UNLCK;i|=fcntl(oldfdlock,F_SETLK,&flck);
 #endif
-  oldfdlock= -1;return i;
+  oldfdlock= -1;
+  return i;
 }
 #endif /* fdlock */

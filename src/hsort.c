@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: hsort.c,v 1.3 1994/05/26 14:12:56 berg Exp $";
+ "$Id: hsort.c,v 1.4 1994/06/28 16:56:19 berg Exp $";
 #endif
 #include "includes.h"
 #include "hsort.h"
@@ -45,7 +45,8 @@ void hsort(base,nelem,width,fcmp)void*base;size_t nelem,width;
 	    { if(fpcmp(child,child+width)<0)	     /* pick highest sibling */
 		 child+=width;
 docmp:	      if(fpcmp(parent,child)<0)		 /* parent lower than child? */
-	       { swap(parent,child,width);parent=child;continue;
+	       { swap(parent,child,width);parent=child;
+		 continue;
 	       }					    /* delve deeper! */
 	    }
 	   else if(childoffset==leafoffset)		      /* no sibling? */

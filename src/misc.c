@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.54 1994/06/24 10:45:02 berg Exp $";
+ "$Id: misc.c,v 1.55 1994/06/28 16:56:31 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -93,7 +93,8 @@ void writeerr(line)const char*const line;
 
 int forkerr(pid,a)const pid_t pid;const char*const a;
 { if(pid==-1)
-   { nlog("Failed forking");logqnl(a);return 1;
+   { nlog("Failed forking");logqnl(a);
+     return 1;
    }
   return 0;
 }
@@ -168,7 +169,8 @@ int nextrcfile P((void))	/* next rcfile specified on the command line */
   while(p= *gargv)
    { gargv++;
      if(!strchr(p,'='))
-      { rcfile=p;return rval;
+      { rcfile=p;
+	return rval;
       }
      rval=1;			       /* not the first argument encountered */
    }
@@ -318,7 +320,8 @@ char*cat(a,b)const char*const a,*const b;
 
 char*tstrdup(a)const char*const a;
 { int i;
-  i=strlen(a)+1;return tmemmove(malloc(i),a,i);
+  i=strlen(a)+1;
+  return tmemmove(malloc(i),a,i);
 }
 
 const char*tgetenv(a)const char*const a;
@@ -361,7 +364,8 @@ int asenvcpy(src)char*src;
   if(src=strchr(buf,'='))			     /* is it an assignment? */
    { const char*chp;
      strcpy((char*)(sgetcp=buf2),++src);readparse(src,sgetc,2);
-     chp=sputenv(buf);src[-1]='\0';asenv(chp);return 1;
+     chp=sputenv(buf);src[-1]='\0';asenv(chp);
+     return 1;
    }
   return 0;
 }
@@ -443,7 +447,8 @@ long renvint(i,env)const long i;const char*const env;
   if(p==env)
    { for(;;p++)					  /* skip leading whitespace */
       { switch(*p)
-	 { case '\t':case ' ':continue;
+	 { case '\t':case ' ':
+	      continue;
 	 }
 	break;
       }
@@ -465,13 +470,17 @@ void squeeze(target)char*target;
       { case '\n':
 	   if(state==1)
 	      target-=2;			     /* throw out \ \n pairs */
-	   state=2;continue;
-	case '\\':state=1;continue;
+	   state=2;
+	   continue;
+	case '\\':state=1;
+	   continue;
 	case ' ':case '\t':
 	   if(state==2)					     /* skip leading */
-	    { target--;continue;			       /* whitespace */
+	    { target--;					       /* whitespace */
+	      continue;
 	    }
-	default:state=0;continue;
+	default:state=0;
+	   continue;
 	case '\0':;
       }
      break;

@@ -3,14 +3,15 @@
  *			of the list user.				*
  *	This program is used by the SmartList installation script only. *
  ************************************************************************/
-/*$Id: gethome.c,v 1.4 1994/06/13 18:08:51 berg Exp $*/
+/*$Id: gethome.c,v 1.5 1994/06/28 16:56:15 berg Exp $*/
 #include "includes.h"
 
 main(argc,argv)const int argc;const char*const argv[];
 { struct stat homest;
   ;{ struct passwd*p;
      if(argc!=3||!(p=getpwnam(argv[1])))
-      { fprintf(stderr,"Usage: subhome user directory\n");return EX_USAGE;
+      { fprintf(stderr,"Usage: subhome user directory\n");
+	return EX_USAGE;
       }
      endpwent();
      if(stat(p->pw_dir,&homest))
