@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.66 1998/12/15 17:19:31 guenther Exp $
+.Id $Id: procmailrc.man,v 1.67 1999/02/12 07:12:09 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -472,7 +472,7 @@ should not exceed $LINEBUF characters before and after expansion.  If not
 specified, it defaults to @DEFlinebuf@.  This limit, of course, does
 .I not
 apply to the mail itself, which can have arbitrary line lengths, or could
-be a binary file for that matter.
+be a binary file for that matter.  See also PROCMAIL_OVERFLOW.
 .TP
 .B DELIVERED
 If set to `yes' procmail will pretend (to the mail agent) the mail
@@ -523,6 +523,12 @@ permitted.
 .TP
 .B PROCMAIL_VERSION
 The version number of the running procmail binary.
+.TP
+.B PROCMAIL_OVERFLOW
+This variable will be set to a non-empty value if procmail detects a
+buffer overflow.  See the
+.B BUGS
+section below for other details of operation when overflow occurs.
 .TP
 .B COMSAT
 .BR Comsat (8)/ biff (1)
@@ -681,7 +687,11 @@ Procmail does not support the expansion of `~'.
 .PP
 A line buffer of length $LINEBUF is used when processing the
 .IR rcfile ,
-any expansions that don't fit within this limit will be truncated.
+any expansions that don't fit within this limit will be truncated and
+PROCMAIL_OVERFLOW will be set.  If the overflowing line is a condition
+or an action line, then it will be considered failed and procmail will
+continue processing.  If it is a variable assignment or recipe start
+line then procmail will abort the entire rcfile.
 .PP
 If the global lockfile has a
 .I relative

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.72 1998/11/06 05:35:27 guenther Exp $
+.Id $Id: procmail.man,v 1.73 1999/02/12 07:12:07 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -321,7 +321,8 @@ Error while writing to "x"
 Nonexistent subdirectory, no write permission, pipe died or disk full.
 .TP
 Exceeded LINEBUF
-Buffer overflow detected, LINEBUF was too small, memory might be corrupted.
+Buffer overflow detected, LINEBUF was too small, PROCMAIL_OVERFLOW has
+been set.
 .TP
 Excessive output quenched from "x"
 The program or filter "x" tried to produce too much output for the current
