@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.8 1992/11/11 16:35:13 berg Exp $";
+ "$Id: formisc.c,v 1.9 1992/11/13 12:58:06 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -43,7 +43,7 @@ machref:
 	if((i= *start++)==delim)		 /* corresponding delimiter? */
 	   break;
 	else if(i=='\\'&&*start)		    /* skip quoted character */
-	   ++start;
+	   start++;
      while(start<end);						/* anything? */
     }
    }
@@ -101,7 +101,7 @@ void ltputssn(a,l)const char*a;size_t l;
 
 void lputcs(i)const int i;
 { if(logsummary)
-     ++totallen;
+     totallen++;
   else
      putcs(i);
 }
@@ -111,12 +111,12 @@ void startprog(argv)const char*const*const argv;
   if(!nrtotal)					/* no more mails to display? */
      goto squelch;
   if(nrskip)				  /* should we still skip this mail? */
-   { --nrskip;							 /* count it */
+   { nrskip--;							 /* count it */
 squelch:
      opensink();return;
    }
   if(nrtotal>0)
-     --nrtotal;							 /* count it */
+     nrtotal--;							 /* count it */
   dup(oldstdout);pipe(poutfd);
   if(!(child=fork()))	/* DON'T fclose(stdin) here, provokes a bug on HP/UX */
    { close(STDIN);close(oldstdout);close(PWRO);dup(PRDO);close(PRDO);

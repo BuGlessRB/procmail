@@ -2,7 +2,7 @@
  *	recommend	Analyses the installation, and makes		*
  *			recommendations about suid/sgid modes		*
  ************************************************************************/
-/*$Id: recommend.c,v 1.3 1992/11/11 14:00:42 berg Exp $*/
+/*$Id: recommend.c,v 1.4 1992/11/13 12:58:32 berg Exp $*/
 #include "includes.h"				       /* also for fprintf() */
 
 #ifndef SYSTEM_MBOX
@@ -31,7 +31,7 @@ main(argc,argv)const int argc;const char*const argv[];
      return EX_USAGE;
    }
   *lastdirsep(systm_mbox)='\0';
-  for(p=checkf;*p;++p)
+  for(p=checkf;*p;p++)
      if(!stat(*p,&stbuf)&&stbuf.st_mode&S_ISGID)
       { if(stbuf.st_mode&S_ISGID)
 	   sgid=S_ISGID,gid=stbuf.st_gid;

@@ -1,7 +1,7 @@
 #! /bin/sh
 : || exec /bin/sh ./autoconf $argv:q # we're in a csh, feed myself to sh
 
-#$Id: autoconf,v 1.14 1992/11/12 11:38:15 berg Exp $
+#$Id: autoconf,v 1.15 1992/11/13 12:57:54 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -291,7 +291,7 @@ main()
 	   write(pip[1],&lockflag,1);
 	   fprintf(stderr,"%2x%02x",i,childno>>SHIFT_childno);
 	   lseek(fd,0L,SEEK_END);write(fd,&lockflag,1);
-	   for(i=SLEEP_loop;i;--i,time((char*)0),sleep(SLEEP_delay));
+	   for(i=SLEEP_loop;i;i--,time((char*)0),sleep(SLEEP_delay));
 	   lockflag&=~1;write(pip[1],&lockflag,1);
 	   if(fdunlock()||close(fd))
 	    { write(pip[1],&lockflag,1);fprintf(stderr,"XX%02x",lockflag);
@@ -641,7 +641,7 @@ cat >_autotst.c <<HERE
 #endif
 main(argc)
 { unsigned long s=(size_t)~0;int i;
-  for(i=1;s>>=1;++i);
+  for(i=1;s>>=1;i++);
   if(argc==1)
    {
 #ifndef NO_COMSAT

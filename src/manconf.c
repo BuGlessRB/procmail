@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.9 1992/11/11 14:00:18 berg Exp $*/
+/*$Id: manconf.c,v 1.10 1992/11/13 12:58:16 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -17,7 +17,7 @@ static char*skltmark(nl,current)char**current;
   while(nl--)					 /* skip some newlines first */
      from=strchr(from,'\n')+1;
   while(*from=='\t')
-     ++from;
+     from++;
   *(p=strchr(from,'\n'))='\0';*current=p+1;return from;
 }
 
@@ -206,7 +206,7 @@ is case sensitive, and some users have login names with uppercase letters in\
   pc("FM_DEL_INSERT",FM_DEL_INSERT);
   pc("FM_ReNAME",FM_ReNAME);
   pn("EX_OK",EX_OK);
-  *(p=strchr(strchr(q=strchr(pm_version,' ')+1,' ')+1,' '))='\0';++p;
+  *(p=strchr(strchr(q=strchr(pm_version,' ')+1,' ')+1,' '))='\0';p++;
   ps("PM_VERSION",q);
   ps("MY_MAIL_ADDR",skltmark(1,&p));
   ps("MY_ALT_MAIL_ADDR",skltmark(0,&p));

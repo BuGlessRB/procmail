@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.11 1992/11/13 11:20:02 berg Exp $";
+ "$Id: mailfold.c,v 1.12 1992/11/13 12:58:13 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -33,7 +33,7 @@ static long getchunk(s,fromw,len)const int s;const char*fromw;const long len;
   dist=fromw-themail;			/* where are we now in transmitting? */
   for(dif=len,i=0;i<escFrom_.filled;)	    /* let's see if we can find this */
      if(!(dif=escFrom_.offs[i++]-dist))			 /* this exact spot? */
-      { rwrite(s,esc,sizeof esc);++lastdump;			/* escape it */
+      { rwrite(s,esc,sizeof esc);lastdump++;			/* escape it */
 	if(i>=escFrom_.filled)				      /* last block? */
 	   return len;				/* yes, give all what's left */
 	dif=escFrom_.offs[i]-dist;break;	     /* the whole next block */
@@ -53,7 +53,7 @@ long dump(s,source,len)const int s;const char*source;long len;
      lasttell=lseek(s,0L,SEEK_END);smboxseparator(s);  /* optional separator */
 #ifndef NO_NFS_ATIME_HACK
      if(part&&tofile)		       /* if it is a file, trick NFS into an */
-	--len,--part,rwrite(s,source++,1),sleep(1);	    /* a_time<m_time */
+	len--,part--,rwrite(s,source++,1),sleep(1);	    /* a_time<m_time */
 #endif
      goto jin;
      do
@@ -67,7 +67,7 @@ jin:	while(part&&(i=rwrite(s,source,BLKSIZ<part?BLKSIZ:(int)part)))
       }
      while(len);
      if(!len&&(lastdump<2||!(source[-1]=='\n'&&source[-2]=='\n')))
-	++lastdump,rwrite(s,newline,1);	       /* message always ends with a */
+	lastdump++,rwrite(s,newline,1);	       /* message always ends with a */
      emboxseparator(s);		 /* newline and an optional custom separator */
 writefin:
      if(tofile&&fdunlock())
@@ -208,7 +208,7 @@ eofheader:;
   f1stchar= *realstart;*(chp=realstart)='\0';escFrom_.filled=0;
   while(chp=egrepin(FROM_EXPR,chp,(long)(pastend-chp),1))
    { while(*--chp!='\n');		       /* where did this line start? */
-     app_val(&escFrom_,(long)(++chp-themail));++chp;		   /* bogus! */
+     app_val(&escFrom_,(long)(++chp-themail));chp++;		   /* bogus! */
    }
   *realstart=f1stchar;mailread=1;
  }

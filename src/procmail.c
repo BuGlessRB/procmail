@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.14 1992/11/13 11:20:08 berg Exp $";
+ "$Id: procmail.c,v 1.15 1992/11/13 12:58:28 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -73,11 +73,11 @@ main(argc,argv)const char*const argv[];
 		 if(*++chp)
 		    fromwhom=chp;
 		 else if(chp=(char*)argv[argc+1])
-		    ++argc,fromwhom=chp;
+		    argc++,fromwhom=chp;
 		 else
 		    nlog("Missing name\n");
 		 break;
-	      case DELIVEROPT:Deliverymode=1;++chp;goto last_option;
+	      case DELIVEROPT:Deliverymode=1;chp++;goto last_option;
 	      default:nlog("Unrecognised options:");logqnl(chp);
 		 elog(pmusage);elog("Processing continued\n");
 	      case '\0':;
@@ -88,8 +88,8 @@ main(argc,argv)const char*const argv[];
 last_option:
   if(!Presenviron)				     /* drop the environment */
    { const char**emax=(const char**)environ,*const*ep,*const*kp;
-     for(kp=keepenv;*kp;++kp)			     /* preserve a happy few */
-	for(i=strlen(*kp),ep=emax;chp2=(char*)*ep;++ep)
+     for(kp=keepenv;*kp;kp++)			     /* preserve a happy few */
+	for(i=strlen(*kp),ep=emax;chp2=(char*)*ep;ep++)
 	   if(!strncmp(*kp,chp2,i)&&chp2[i]=='=')
 	    { *emax++=chp2;break;
 	    }
@@ -97,7 +97,7 @@ last_option:
    }
 #ifdef LD_ENV_FIX
  {const char**emax=(const char**)environ,**ep;static const char ld_[]="LD_";
-  for(ep=emax;*emax;++emax);		  /* find the end of the environment */
+  for(ep=emax;*emax;emax++);		  /* find the end of the environment */
   while(*ep)
      if(!strncmp(ld_,*ep++,STRLEN(ld_)))	       /* it starts with LD_ */
 	*--ep= *--emax,*emax=0;				/* copy from the end */
@@ -302,7 +302,7 @@ notfishy:
      */
    { setgid(gid);setuid(uid);suppmunreadable=nextrcfile();
      while(chp=(char*)argv[argc])      /* interpret command line specs first */
-	++argc,asenvcpy(chp);
+	argc++,asenvcpy(chp);
    }
   do					     /* main rcfile interpreter loop */
    { alarm((unsigned)(alrmtime=0));			    /* reset timeout */
@@ -372,7 +372,7 @@ findrc:	  suppmunreadable=i=0;	    /* should we keep the current directory? */
 	   switch(i= *chp++)
 	    { default:
 		 if(!(chp2=strchr(exflags,i)))	   /* check for a valid flag */
-		  { --chp;break;
+		  { chp--;break;
 		  }
 		 flags[chp2-exflags]=1;			     /* set the flag */
 	      case '\0':
@@ -411,7 +411,7 @@ noconcat:
 	    { int negate=0;
 	      for(chp=buf2+1;;strcpy(buf2,buf))
 	       { switch(*(sgetcp=buf2))
-		  { default:--chp;	     /* no special character, backup */
+		  { default:chp--;	     /* no special character, backup */
 		    case '\\':
 		     { int or_nocase;		/* case-distinction override */
 		       static const struct {const char*regkey,*regsubst;}
@@ -484,7 +484,7 @@ progrm: if(testb('!'))					 /* forward the mail */
 	 { for(chp=buf2;getbl(chp2=chp)&&*(chp=strchr(chp,'\0')-1)=='\\';
 	    *chp++='\n')		       /* read the command line-wise */
 	      if(chp2!=chp)				  /* non-empty line? */
-		 ++chp;			      /* then preserve the backslash */
+		 chp++;			      /* then preserve the backslash */
 	   if(i)
 	    { metaparse(buf2);
 forward:      if(locknext)
@@ -534,12 +534,12 @@ forward:      if(locknext)
 	      flags[FILTER]=0,nlog("Extraneous filter-flag ignored\n");
 	   if(chp=gobenv(buf))		   /* can it be an environment name? */
 	    { if(skipspace())
-		 ++chp;			   /* keep pace with argument breaks */
+		 chp++;			   /* keep pace with argument breaks */
 	      if(testb('='))		      /* is it really an assignment? */
 	       { int c;
 		 *chp++='=';*chp='\0';
 		 if(skipspace())
-		    ++chp;
+		    chp++;
 		 ungetb(c=getb());
 		 switch(c)
 		  { case '!':case '|':			  /* ok, it's a pipe */

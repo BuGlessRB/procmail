@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.9 1992/11/11 16:35:16 berg Exp $";
+ "$Id: goodies.c,v 1.10 1992/11/13 12:58:08 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -221,14 +221,14 @@ void sputenv(a)const char*const a;
   for(curr= *(last= &myenv);curr;curr= *(last= &curr->enext))	/* is it one */
      if(!strncmp(a,curr->ename,i)&&curr->ename[i]=='=')	  /* I made earlier? */
       { split=curr->ename;*last=curr->enext;free(curr);
-	for(preenv=environ;*preenv!=split;++preenv);
+	for(preenv=environ;*preenv!=split;preenv++);
 	goto wipenv;
       }
-  for(preenv=environ;*preenv;++preenv)		    /* is it in the standard */
+  for(preenv=environ;*preenv;preenv++)		    /* is it in the standard */
      if(!strncmp(a,*preenv,i)&&(*preenv)[i]=='=')	     /* environment? */
 wipenv:
       { while(*preenv=preenv[1])   /* wipe this entry out of the environment */
-	   ++preenv;
+	   preenv++;
 	break;
       }
   i=(preenv-environ+2)*sizeof*environ;
@@ -237,7 +237,7 @@ wipenv:
   else
      alloced=1,environ=tmemmove(malloc(i),environ,i-sizeof*environ);
   if(!remove)		  /* if not remove, then add it to both environments */
-   { for(preenv=environ;*preenv;++preenv);
+   { for(preenv=environ;*preenv;preenv++);
      curr=malloc(ioffsetof(struct lienv,ename[0])+(i=strlen(a)+1));
      tmemmove(*(lastenv=preenv)=curr->ename,a,i);preenv[1]=0;curr->enext=myenv;
      myenv=curr;
@@ -254,7 +254,7 @@ void primeStdout P((void))	    /* *no* environment changes are allowed! */
 
 void retStdout(newmyenv)char*newmyenv;		/* see note on primeStdout() */
 { if(newmyenv[Stdfilled-1]=='\n')	       /* strip one trailing newline */
-     --Stdfilled;
+     Stdfilled--;
   newmyenv[Stdfilled]='\0';*lastenv=(myenv=(struct lienv*)newmyenv)->ename;
   Stdout=0;
 }

@@ -1,4 +1,4 @@
-/*$Id: sublib.c,v 1.5 1992/11/12 12:28:01 berg Exp $*/
+/*$Id: sublib.c,v 1.6 1992/11/13 12:58:37 berg Exp $*/
 #include "includes.h"
 #include "sublib.h"
 
@@ -6,7 +6,7 @@
 void*smemmove(To,From,count)void*To;const void*From;register size_t count;
 #ifdef NObcopy
 { register char*to=To,*from=From;/*void*old;*/	  /* silly compromise, throw */
-  /*old=to;*/count++;--to;--from;  /* away space to be syntactically correct */
+  /*old=to;*/count++;to--;from--;  /* away space to be syntactically correct */
   if(to<=from)
    { goto jiasc;
      do
@@ -58,10 +58,10 @@ long strtol(start,ptr,base)const char*start,**const ptr;
      case '+':str++;
    }
   if(*str=='0')						 /* leading zero(s)? */
-   { ++start;
+   { start++;
      if((i= *++str)=='x'||i=='X')			/* leading 0x or 0X? */
 	if(!base||base==16)
-	   base=16,++str;			    /* hexadecimal all right */
+	   base=16,str++;			    /* hexadecimal all right */
 	else
 	   goto fault;
      else if(!base)
@@ -71,7 +71,7 @@ long strtol(start,ptr,base)const char*start,**const ptr;
      base=10;						  /* or else decimal */
   goto jumpin;
   do
-   { found=1;result=result*base+i;++str;		 /* start converting */
+   { found=1;result=result*base+i;str++;		 /* start converting */
 jumpin:
      if((i= *str-'0')<10);
      else if(i-'A'+'0'<='Z'-'A')

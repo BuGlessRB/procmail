@@ -11,9 +11,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.6 1992/11/11 16:35:31 berg Exp $";
+ "$Id: multigram.c,v 1.7 1992/11/13 12:58:22 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1992/11/11 16:35:31 $";
+static /*const*/char rcsdate[]="$Date: 1992/11/13 12:58:22 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -57,7 +57,7 @@ static char*tstrdup(p)const char*const p;
 
 static void lowcase(str)struct string*const str;
 { register char*p;
-  for(p=str->itext=tstrdup(str->text);*p;++p)
+  for(p=str->itext=tstrdup(str->text);*p;p++)
      if((unsigned)*p-'A'<'Z'-'A')
 	*p+='a'-'A';
 }
@@ -83,7 +83,7 @@ main(minweight,argv)const char*argv[];
    { const char*chp;
      minweight=SCALE_WEIGHT;best_matches=maxgram=0;
      while((chp= *++argv)&&*chp=='-')
-	for(++chp;;)
+	for(chp++;;)
 	 { int c;
 	   switch(c= *chp++)
 	    { case 'c':charoffs=1;continue;
@@ -148,7 +148,7 @@ usg:
    }
   if(!maxgram)
      maxgram=DEFmaxgram;
-  --maxgram;
+  maxgram--;
   if(minweight==SCALE_WEIGHT)
      minweight=DEFminweight;
   if(!best_matches)
@@ -172,8 +172,8 @@ usg:
      if(!strchr(chp,'@')&&(!strchr(chp,'!')||strchr(chp,'|')||strchr(chp,',')||
       mystrstr(chp,"..",chp+strlen(chp))))
 	continue;			  /* apparently not an email address */
-     for(parens=0;chp=strchr(chp,'(');++chp,++parens);
-     for(chp=fuzzstr.text;chp=strchr(chp,')');++chp,--parens);
+     for(parens=0;chp=strchr(chp,'(');chp++,parens++);
+     for(chp=fuzzstr.text;chp=strchr(chp,')');chp++,parens--);
      if(*(chp=fuzzstr.text)=='(')
       { if(!parens&&*echp==')')
 	 { *echp='\0';goto shftleft;
@@ -195,7 +195,7 @@ shftleft:  tmemmove(chp,chp+1,strlen(chp));
      for(offs2=linentry=0;offs1=offs2,readstr(hardfile,&hardstr);)
       { size_t minlen;register size_t gramsize;
        {size_t hardlen;
-	offs2=ftell(hardfile);++linentry;lowcase(&hardstr);
+	offs2=ftell(hardfile);linentry++;lowcase(&hardstr);
 	if((minlen=hardlen=strlen(hardstr.text))>fuzzlen)
 	   minlen=fuzzlen;
 	if((gramsize=minlen-1)>maxgram)
@@ -211,7 +211,7 @@ shftleft:  tmemmove(chp,chp+1,strlen(chp));
 	   do
 	      for(hrd=hardstr.itext;hrd=strchr(hrd,*fzz);)
 		 if(!strncmp(++hrd,fzz+1,gramsize))
-		  { ++lmeter;break;
+		  { lmeter++;break;
 		  }
 	   while(*(++fzz+gramsize));
 	  }
@@ -270,7 +270,7 @@ remv: { char*buf;long offs1,offs2;size_t readin;
 	 { offs2=ftell(hardfile);fseek(hardfile,offs1,SEEK_SET);
 	   if(buf[readin-1]=='\n')	  /* try and remove some empty lines */
 	      while(readin>1&&buf[readin-2]=='\n')	/* at the end, since */
-		 --readin;		     /* every time could be the last */
+		 readin--;		     /* every time could be the last */
 	   fwrite(buf,1,readin,hardfile);offs1=ftell(hardfile);
 	 }
 	free(buf);fseek(hardfile,offs1,SEEK_SET);

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.7 1992/11/11 16:35:01 berg Exp $";
+ "$Id: cstdio.c,v 1.8 1992/11/13 12:58:01 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -60,7 +60,7 @@ getb P((void))							 /* my fgetc */
 
 void ungetb(x)const int x;	/* only for pushing back original characters */
 { if(x!=EOF)
-     --rcbufp;							   /* backup */
+     rcbufp--;							   /* backup */
 }
 
 testb(x)const int x;		   /* fgetc that only succeeds if it matches */

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.4 1992/11/11 16:35:41 berg Exp $";
+ "$Id: regexp.c,v 1.5 1992/11/13 12:58:34 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -91,7 +91,7 @@ static void por P((const struct eps*const e));
 
 static void psimp(e)const struct eps*const e;
 { switch(*p)
-   { case R_BEG_GROUP:++p;por(e);return;	  /* not so simple after all */
+   { case R_BEG_GROUP:p++;por(e);return;	  /* not so simple after all */
      case R_BEG_CLASS:					   /* a simple class */
       { unsigned i,j=R_NOT_CLASS==*++p;
 	if(e)
@@ -101,23 +101,23 @@ static void psimp(e)const struct eps*const e;
 	   while(i--);
 	 }
 	if(j)					  /* skip the 'not' modifier */
-	 { ++p;
+	 { p++;
 	   if(e)
 	      bit_toggle(rAc,'\n');
 	 }
 	if(*p==R_END_CLASS)	  /* right at the start, cannot mean the end */
-	 { ++p;
+	 { p++;
 	   if(e)
 	      i=R_END_CLASS,bit_toggle(rAc,R_END_CLASS);
 	 }
 	else if(*p==R_RANGE)				/* take it literally */
-	 { ++p;
+	 { p++;
 	   if(e)
 	      i=R_RANGE,bit_toggle(rAc,R_RANGE);
 	 }
-	for(;;++p)
+	for(;;p++)
 	 { switch(*p)
-	    { case R_END_CLASS:++p;
+	    { case R_END_CLASS:p++;
 	      case '\0':r=epso(r,SZ(chclass));return;
 	      case R_RANGE:
 		 switch(*++p)
@@ -126,7 +126,7 @@ static void psimp(e)const struct eps*const e;
 			  while(++i<*p)		    /* mark all in the range */
 			     bseti(i,!j);
 		       break;
-		    case '\0':case R_END_CLASS:--p;		/* literally */
+		    case '\0':case R_END_CLASS:p--;		/* literally */
 		  }
 	    }
 	   if(e)
@@ -146,7 +146,7 @@ static void psimp(e)const struct eps*const e;
 	goto fine2;
      case R_ESCAPE:					  /* quote something */
 	if(!*++p)					 /* nothing to quote */
-	   --p;
+	   p--;
    }
   if(e)						      /* a regular character */
    { r->opc=ignore_case&&(unsigned)*p-'A'<'Z'-'A'?*p+'a'-'A':*p;
@@ -154,7 +154,7 @@ fine:
      r->next=Ceps e;r->spawn=r->stack=0;
    }
 fine2:
-  ++p;++r;
+  p++;r++;
 }
 
 #define EOS(x)	(jjp?jjp:(x))
@@ -167,15 +167,15 @@ static void pnorm(e)const struct eps*const e;
      if(e)
 	p=pold,pold=r;
      switch(ii)			   /* check for any of the postfix operators */
-      { case R_0_OR_MORE:++r;
+      { case R_0_OR_MORE:r++;
 	   if(e)			  /* first an epsilon, then the rest */
 	      putneps(rold,EOS(r)),r=rold+1,psimp(rold);
 	   goto incagoon;
 	case R_1_OR_MORE:				   /* first the rest */
 	   if(e)				      /* and then an epsilon */
 	      puteps(r,rold,EOS(r+1)),r=rold,psimp(Ceps pold);
-	   ++r;goto incagoon;
-	case R_0_OR_1:++r;
+	   r++;goto incagoon;
+	case R_0_OR_1:r++;
 	   if(e)			  /* first an epsilon, then the rest */
 	      putneps(rold,r=EOS(r)),pold=r,r=rold+1,psimp(Ceps pold);
 incagoon:  switch(*++p)			/* at the end of this group already? */
@@ -203,14 +203,14 @@ static void por(e)const struct eps*const e;
 	      if(p==pold)				 /* empty 'or' group */
 	       { if(e)
 		    puteps(r,e,e);	       /* misused epsilon as branch, */
-		 ++r;		/* let the optimiser (fillout()) take it out */
+		 r++;		/* let the optimiser (fillout()) take it out */
 	       }
 	      else
 		 p=pold,pnorm(e);			/* normal last group */
 	      if(*p)
-		 ++p;
+		 p++;
 	      return;
-	   case R_OR:++r;
+	   case R_OR:r++;
 	      if(p==pold)				 /* empty 'or' group */
 	       { if(e)
 		    putneps(rold,e);			  /* special epsilon */
@@ -220,7 +220,7 @@ static void por(e)const struct eps*const e;
 		 if(e)				   /* epsilon, then the rest */
 		    putneps(rold,r);
 	       }
-	      ++p;
+	      p++;
 	 }
 	break;
       }
@@ -236,7 +236,7 @@ static void findandrep(old,newv)register struct eps**const old;
 	i->spawn=newv;
      switch(i->opc)
       { case OPC_CLASS:i=epso(i,SZ(chclass));break;
-	default:++i;
+	default:i++;
       }
    }
   *old=t;
@@ -274,7 +274,7 @@ struct eps*bregcomp(a,ign_case)const char*a;
       { case OPC_FIN:return r;					 /* finished */
 	case OPC_CLASS:st=epso(st,SZ(chclass));break;		     /* skip */
 	case OPC_EPS:p=(uchar*)st;fillout(&st);		       /* check tree */
-	default:++st;						 /* skip too */
+	default:st++;						 /* skip too */
       }
 }
 
@@ -286,9 +286,9 @@ char*bregexec(code,text,len,ign_case)struct eps*code;const uchar*text;
  size_t len;
 { register struct eps*reg,*t,*stack,*other,*thiss;unsigned i,th1,ot1;
   if(code[1].opc==OPC_EPS)
-     ++code;		   /* two epsilons at the start would be superfluous */
+     code++;		   /* two epsilons at the start would be superfluous */
   (thiss=code)->stack=0;th1=ioffsetof(struct eps,spawn);
-  ot1=ioffsetof(struct eps,stack);--text;++len;
+  ot1=ioffsetof(struct eps,stack);text--;len++;
   i='\n';goto setups;	      /* make sure any beginning-of-line-hooks catch */
   do
    { i= *++text;			 /* get the next real-text character */
@@ -327,7 +327,7 @@ yep:		    if(!PC(reg,ot1))		     /* state not yet pushed */
    }
   while(--len);					     /* still text to search */
   if(ign_case!=2)					      /* out of text */
-   { ign_case=2;len=1;++text;goto lastrun;	 /* check if we just matched */
+   { ign_case=2;len=1;text++;goto lastrun;	 /* check if we just matched */
    }
   return 0;							 /* no match */
 }

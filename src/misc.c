@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.12 1992/11/13 11:20:05 berg Exp $";
+ "$Id: misc.c,v 1.13 1992/11/13 12:58:19 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -103,7 +103,7 @@ void skipped(x)const char*const x;
 nextrcfile P((void))		/* next rcfile specified on the command line */
 { const char*p;
   while(p= *gargv)
-   { ++gargv;
+   { gargv++;
      if(!strchr(p,'='))
       { rcfile=p;return 1;
       }
@@ -123,7 +123,7 @@ void sterminate P((void))
       { register unsigned i,j;
 	if(i=(lcking&~(lck_ALLOCLIB|lck_LOCKFILE))>>1)
 	 { elog(whilstwfor);
-	   for(j=0;!((i>>=1)&1);++j);
+	   for(j=0;!((i>>=1)&1);j++);
 	   elog(msg[j]);
 	 }
 	elog(newline);terminate();
@@ -207,7 +207,7 @@ char*pstrstr(whole,part)const char*whole,*const part;
 void catlim(dest,src,lim)register char*dest;register const char*src;
  register size_t lim;
 { while(lim&&*dest)
-     ++dest,--lim;
+     dest++,lim--;
   if(lim)
    { while(--lim&&(*dest++= *src++));
      *dest='\0';
@@ -262,7 +262,7 @@ char*cstr(a,b)char*const a;const char*const b;	/* dynamic buffer management */
 }
 
 char*skpspace(chp)const char*chp;
-{ for(;;++chp)
+{ for(;;chp++)
      switch(*chp)
       { case ' ':case '\t':continue;
 	default:return(char*)chp;
@@ -347,7 +347,7 @@ long renvint(i,env)const long i;const char*const env;
 { const char*p;long t;
   t=strtol(env,(char**)&p,10);			  /* parse like a decimal nr */
   if(p==env)
-   { for(;;++p)					  /* skip leading whitespace */
+   { for(;;p++)					  /* skip leading whitespace */
       { switch(*p)
 	 { case '\t':case ' ':continue;
 	 }

@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.8 1992/11/13 11:19:57 berg Exp $";
+ "$Id: lockfile.c,v 1.9 1992/11/13 12:58:11 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1992/11/13 11:19:57 $";
+static /*const*/char rcsdate[]="$Date: 1992/11/13 12:58:11 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -74,7 +74,7 @@ static size_t parsecopy(dest,org,pass)char*const dest;const char*org;
 	default:
 	   if(p)
 	      *p++= *org;		      /* simply copy everything else */
-	   ++len;++org;continue;      /* except suspicous looking characters */
+	   len++;org++;continue;      /* except suspicous looking characters */
 	case '\'':case '`':case '"':case '\\':case '{':goto capac;
 	case '\0':;
       }
@@ -105,7 +105,7 @@ again:
   signal(SIGQUIT,(void(*)())failure);signal(SIGTERM,(void(*)())failure);
   for(lastf=p=argv;--argc;)
      if(*(cp=(char*)*++p)=='-')
-	for(++cp;;)
+	for(cp++;;)
 	 { char*cp2=cp+1;int i;
 	   switch(*cp++)
 	    { case '!':invert^=1;continue;	      /* invert the exitcode */
@@ -208,7 +208,7 @@ outofmem:	 retval=EX_OSERR,nlog("Out of memory");
 		    switch(retries)    /* await your turn like everyone else */
 		     { case 0:nlog("Sorry");retval=EX_CANTCREAT;
 			  goto lfailure;      /* patience exhausted, give up */
-		       default:--retries;		      /* count sheep */
+		       default:retries--;		      /* count sheep */
 		       case -1:sleep(sleepsec);		     /* wait and see */
 		     }
 		 break;
