@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.116 2001/06/26 08:44:34 guenther Exp $";
+ "$Id: misc.c,v 1.117 2001/06/26 08:46:48 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -39,7 +39,7 @@ void elog(newt)const char*const newt;
   i=lold+(lnew=strlen(newt));	   /* calculate additional and total lengths */
   if(lnew&&				/* if this is not a forced flush and */
    (lmax>=i||		      /* either we have enough room in the buffer or */
-    (MAXlogbu>=if&&			 /* the buffer won't get too big and */
+    (MAXlogbuf>=i&&			 /* the buffer won't get too big and */
      !nextexit)))	    /* we're not in a signal handler, then it's safe */
    { if(i>lmax)				      /* to use or expand the buffer */
       { char*p;size_t newmax=lmax*2;	 /* exponential expansion by default */
