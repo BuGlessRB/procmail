@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.38 1999/04/13 06:35:44 guenther Exp $";
+ "$Id: cstdio.c,v 1.39 1999/06/17 06:12:58 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -36,14 +36,16 @@ rerr:	   readerr(name);
 
 void changerc(name)const char*const name;		    /* change rcfile */
 { if(*name&&strcmp(name,devnull))
-   { struct stat stbuf;off_t obt;int orc;
+   { struct stat stbuf;int orc;uchar*orbp,*orbe;
      if(stat(name,&stbuf)||!S_ISREG(stbuf.st_mode))   /* skip irregularities */
 	goto rerr;
-     if(stbuf.st_size)					   /* only if size>0 */
-      { if(obt=blasttell,orc=rc,bopen(name)<0)	  /* try to open the new one */
-	 { blasttell=obt;rc=orc;	       /* we couldn't, so restore rc */
+     if(stbuf.st_size)		  /* only if size>0, try to open the new one */
+      { if(orbp=rcbufp,orbe=rcbufend,orc=rc,bopen(name)<0)
+	 { rcbufp=orbp;rcbufend=orbe;rc=orc;   /* we couldn't, so restore rc */
 rerr:	   readerr(name);
 	 }
+	else
+	   rclose(orc);
 	goto ret;
       }
    }
@@ -74,14 +76,19 @@ static void closeonerc P((void))
      rclose(rc),rc= -1,last=incnamed,incnamed=last->enext,free(last);
 }
 
+static void refill(offset)const int offset;
+{ rcbufp=rcbuf+(rcbuf==(rcbufend=rcbuf+rread(rc,rcbuf,STDBUF))?1:offset);
+}
+
 int poprc P((void))
 { closeonerc();					     /* close it in any case */
   if(skiprc)
      skiprc=0,nlog("Missing closing brace\n");
   if(!inced.filled)				  /* include stack is empty? */
      return 0;	      /* restore rc, seekpos, prime rcbuf and restore rcbufp */
-  rc=inced.offs[--inced.filled];lseek(rc,inced.offs[--inced.filled],SEEK_SET);
-  rcbufp=rcbufend;getb();rcbufp=rcbuf+inced.offs[--inced.filled];
+  rc=inced.offs[--inced.filled];
+  blasttell=lseek(rc,inced.offs[--inced.filled],SEEK_SET);
+  refill(inced.offs[--inced.filled]);
   return 1;
 }
 
@@ -122,10 +129,7 @@ int getbl(p,end)char*p,*end;					  /* my gets */
 
 int getb P((void))						 /* my fgetc */
 { if(rcbufp==rcbufend)						   /* refill */
-   { blasttell=tell(rc);rcbufend=rcbuf+rread(rc,rcbufp=rcbuf,STDBUF);
-     if(rcbufp==rcbufend)
-	rcbufp++;
-   }
+     blasttell=tell(rc),refill(0);
   return rcbufp<rcbufend?(int)*rcbufp++:EOF;
 }
 
