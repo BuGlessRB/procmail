@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.19 1993/11/24 19:46:28 berg Exp $";
+ "$Id: goodies.c,v 1.20 1993/11/25 11:53:53 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -178,11 +178,15 @@ badsub:			{ nlog("Bad substitution of");logqnl(buf2);continue;
 		    case '-':
 		       if(!startb)
 doalt:			  startb=p;
+		       else
+			  skiprc++;
 		       ;{ const char*sall_args;
 			  sall_args=All_args;readparse(p,sgetc,3);
 			  if(!All_args)	       /* only one can be remembered */
 			     All_args=sall_args;	    /* this is a bug */
 			}
+			if(startb!=p)
+			   skiprc--;
 		    case '}':
 		       if(!startb)
 			  startb="";
