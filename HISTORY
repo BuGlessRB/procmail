@@ -418,8 +418,9 @@
 	       - Tempfile names would grow on retry
 	       - Open or reopen rcfiles as the user to prevent peeking when
 		 not in privileged mailfilter mode
-	       - Don't use a .procmailrc if it's group-writable or in a
-		 group-writable directory
+	       - Don't use $HOME/.procmailrc if it's group-writable or in a
+		 group-writable directory, unless if the user's default group
+		 and GROUP_PER_USER is set in config.h
 	       - hardlink in a an NFS-resistant manner
 	    Worked around a compiler bug old HP compilers (pointer-unsigned),
 	       caused the Content-Length: field to be mangled on some older
