@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.27 1993/06/30 16:14:06 berg Exp $";
+ "$Id: regexp.c,v 1.28 1993/07/02 15:36:24 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -376,7 +376,7 @@ char*bregexec(code,text,len,ign_case)struct eps*code;const uchar*const text;
   static struct eps sempty={OPC_SEMPTY,&sempty};
   sempty.spawn=initstack= &sempty;
   if((initcode=code)->opc==OPC_EPS)
-     initcode=(initstack=code)->next,code->spawn= &sempty;
+     initcode=(initstack=code)+1,code->spawn= &sempty;
   thiss=Ceps&tswitch;th1=ioffsetof(struct chclass,pos1);
   ot1=ioffsetof(struct chclass,pos2);str=text-1;len++;i='\n';goto setups;
   do			      /* make sure any beginning-of-line-hooks catch */

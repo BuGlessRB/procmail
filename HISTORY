@@ -222,4 +222,7 @@
 	    Corrected the SHELL=/bin/shell assignment in mailinglist/install.sh
 	    Made the mailinglist/install.sh script independent of procmail
 	       compiled with or without "#define console"
+	    Fixed a typo in the regex library (introduced in v2.82pre4),
+	       caused some valid matches not to be found if the regular
+	       expression starts with an epsilon transition
 	    Fixed a few typos in the man pages
