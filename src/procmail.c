@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.41 1993/07/19 15:43:20 berg Exp $";
+ "$Id: procmail.c,v 1.42 1993/07/21 18:59:46 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -662,27 +662,26 @@ forward:	 if(locknext)
 		 app_val(&ifstack,(off_t)lastcond);	    /* push lastcond */
 		 if(!i)						/* no match? */
 		    skiprc++;		      /* increase the skipping level */
+		 continue;
+	       }
+	      if(!i)						/* no match? */
+		 skiprc++;		  /* temporarily disable subprograms */
+	      readparse(chp,getb,0);
+	      if(i)
+	       { strcpy(buf2,buf);
+		 if(locknext)
+		    lcllock();		     /* write to a file or directory */
+		 if(dump(deliver(buf,strchr(buf,'\0')+1),startchar,tobesent)
+		  &&!ignwerr)
+		    writeerr(buf);
+		 else if(succeed=1,!flags[CONTINUE])
+frmailed:	  { if(ifstack.offs)
+		       free(ifstack.offs);
+		    goto mailed;
+		  }
 	       }
 	      else
-	       { if(!i)						/* no match? */
-		    skiprc++;		  /* temporarily disable subprograms */
-		 readparse(chp,getb,0);
-		 if(i)
-		  { strcpy(buf2,buf);
-		    if(locknext)
-		       lcllock();	     /* write to a file or directory */
-		    if(dump(deliver(buf,strchr(buf,'\0')+1),startchar,tobesent)
-		     &&!ignwerr)
-		       writeerr(buf);
-		    else if(succeed=1,!flags[CONTINUE])
-frmailed:	     { if(ifstack.offs)
-			  free(ifstack.offs);
-		       goto mailed;
-		     }
-		  }
-		 else
-		    skiprc--;			     /* reenable subprograms */
-	       }
+		 skiprc--;			     /* reenable subprograms */
 	    }
 	 }
 	else if(testb('}'))

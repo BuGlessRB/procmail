@@ -147,7 +147,7 @@
 	       through the mailinglist
 	    Reached the doubtful milestone to sometimes crash an Ultrix
 	       machine (due to the lockingtests, not procmail itself)
-1993/07/19: v2.92
+1993/07/21: v2.92
 	    Fixed a formail sender-determination-weight problem, it mixed up
 	       the weights when autoreplying and when regenerating the From_
 	       line (and thus didn't always pick the optimal field)
@@ -175,3 +175,5 @@
 	       searching for regexps
 	    v2.91 archive server logged into the wrong file (../log), fixed
 	    Tightened the loop when skipping comments in rcfiles
+	    Updated the crontab script recommendation in the procmail man page
+	    Fixed the "procmail"-mailer definition in the procmail man page
