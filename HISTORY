@@ -376,6 +376,7 @@
 	       - Skip leading spaces when checking for duplicates (will break
 		 checks with old id-databases)
 	       - Generated Message-IDs don't contain "s anymore
+	       - -z option allows for leading tab instead of space
 	    Worked around old shells not supporting negated classes
 	    Extended the FAQ
 	    Updated examples/advanced docs for meta-argument setup in

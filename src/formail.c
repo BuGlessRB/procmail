@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.82 1998/11/06 05:35:30 guenther Exp $";
+ "$Id: formail.c,v 1.83 1998/11/09 21:48:14 srb Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1998/11/06 05:35:30 $";
+static /*const*/char rcsdate[]="$Date: 1998/11/09 21:48:14 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -587,7 +587,7 @@ startover:
       { if(zap)		      /* go through the linked list of header-fields */
 	 { chp=fldp->fld_text+(j=fldp->id_len);
 	   if(chp[-1]==HEAD_DELIMITER)
-	      if(*chp!=' '&&fldp->Tot_len>j+1)
+	      if((*chp!=' '&&*chp!='\t')&&fldp->Tot_len>j+1)
 	       { chp=j+(*afldp=fldp=
 		  realloc(fldp,FLD_HEADSIZ+(i=fldp->Tot_len++)+1))->fld_text;
 		 tmemmove(chp+1,chp,i-j);*chp=' ';
