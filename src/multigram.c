@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.69 1994/10/07 17:06:51 berg Exp $";
+ "$Id: multigram.c,v 1.70 1994/10/07 18:00:54 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/10/07 17:06:51 $";
+static /*const*/char rcsdate[]="$Date: 1994/10/07 18:00:54 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -101,12 +101,10 @@ static size_t readstr(file,p,linewise)FILE*const file;struct string*p;
       }
      p->text[len]='\0';			 /* terminate the buffer in any case */
      if(linewise&&len)
-      { int i=0;
 	for(i=0;!remov_delim&&!i;i=1)
 	   if(!strcmp(p->text+i,rem1str)&&
 	    !strcmp(p->text+sizeof rem1str+i,rem2str)) /* special delimiter? */
 	      remov_delim=1;
-      }
      return len;
    }
 }
@@ -832,7 +830,7 @@ dupl_addr:;
      if((mp= *best)->metric>=minweight)
       { struct match*worse;
 	if(renam)
-	 { long line;int i,w1;unsigned maxweight;
+	 { long line;int w1;unsigned maxweight;
 	   maxweight=SCALE_WEIGHT/(maxgram+1)>>1;;
 	   for(i=1,line=mp->lentry,w1=mp->metric,worse=0;
 	    i<=best_matches&&(mp=best[i++])->metric>=minweight;)
