@@ -179,11 +179,12 @@
 		 time cache for trivial get*byname() calls
 	       - reached the doubtful milestone of consistently crashing the
 		 kernel on a Convex by running the locktst program
-1993/02/10: v2.81
+1993/02/11: v2.81
 	    Fixed a major inconvenience when generating the Makefiles in
 	       initmake
 	    Loosened the formats accepted for (un)subscription requests (some
 	       got rejected, but were valid)
+	    Redirected archive requests away from the regular list address
 	    Sharpened the FROM_MAIL_DAEMON detection
 	    Flist, idhash and multigram now use the correct name on error
 	       reports
