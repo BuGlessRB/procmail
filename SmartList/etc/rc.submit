@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.25 1993/07/19 12:40:58 berg Exp $
+#$Id: rc.submit,v 1.26 1993/07/19 15:43:12 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -20,7 +20,7 @@ INCLUDERC=$RC_CUSTOM
 # doing so, also check if this subscriber wants to receive copies.
 #
 
-:0 Wh
+:0 Wch i
 * < $size_limit
 * $!^$X_COMMAND:
 * !^Subject:([	 ]*(archive([	 ]+((send|get)(me)?|gimme|retrieve|\
@@ -30,7 +30,7 @@ INCLUDERC=$RC_CUSTOM
    take .* off|put .* on) .* [a-z-]*list|subscri(be|ption))
 * $!^X-Loop: $listaddr
 * !^Precedence:.*junk|^FROM_MAILER
-| test yes != "$foreign_submit" && exit 0; \
+| test yes = "$foreign_submit" && exit 0; \
   formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
    -xResent-Reply-To: -xResent-Sender: | \
     multigram -b1 -m -l$submit_threshold accept

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.40 1993/07/19 12:42:23 berg Exp $";
+ "$Id: procmail.c,v 1.41 1993/07/19 15:43:20 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -419,9 +419,19 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 	   *chp=i;yell("Rcfile:",buf);succeed=lastcond=0;setids(uid,gid);
 	   firstchd();
 	 }
-	unlock(&loclock);			/* unlock any local lockfile */
-	do skipspace();					  /* skip whitespace */
-	while(testb('\n'));
+	unlock(&loclock);goto commint;		/* unlock any local lockfile */
+	do
+	 { for(;;)				/* skip the rest of the line */
+	    { switch(getb())
+	       { default:continue;
+		 case '\n':case EOF:;
+	       }
+	      break;
+	    }
+commint:   do skipspace();				  /* skip whitespace */
+	   while(testb('\n'));
+	 }
+	while(testb('#'));				   /* no comment :-) */
 	if(testb(':'))				       /* check for a recipe */
 	 { int locknext;long tobesent;char*startchar;
 	   static char flags[maxindex(exflags)];
@@ -683,8 +693,6 @@ frmailed:	     { if(ifstack.offs)
 	   else
 	      nlog("Closing brace unexpected\n");
 	 }
-	else if(testb('#'))				   /* no comment :-) */
-	   getbl(buf);
 	else				    /* then it must be an assignment */
 	 { if(!(chp=gobenv(buf)))
 	    { if(!*buf)					/* skip a word first */

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: subscribe,v 1.16 1993/06/04 13:49:09 berg Exp $
+#$Id: subscribe,v 1.17 1993/07/19 15:43:09 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -40,7 +40,13 @@ address=`$formail -k -xSubject: |
 
 for a in $address ""
 do
-  $test -z "$subscraddr" && subscraddr=$a
+  if $test -z "$subscraddr"
+  then
+     case $a in
+      $listreq|$listaddr) ;;
+      *) subscraddr=$a ;;
+     esac
+  fi
 done
 
 if $test -z "$subscraddr"

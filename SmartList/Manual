@@ -1,4 +1,4 @@
-$Id: Manual,v 1.13 1993/07/19 12:40:30 berg Exp $
+$Id: Manual,v 1.14 1993/07/19 15:43:03 berg Exp $
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
@@ -234,9 +234,10 @@ used accumulatively.
 3d.Moderated lists
    ---------------
 
-First create a file named "moderators", it should contain the mail
-addresses of all the moderators for this list.	Then uncomment the appropriate
-"moderated_flag" line in rc.custom.
+First create a file named "moderators", it should contain the fully
+qualified mail addresses of all the moderators for this list (i.e. just
+local usernames are not sufficient, at least include an @host or host! ).
+Then uncomment the appropriate "moderated_flag" line in rc.custom.
 
 From then on all mail that does not contain an
 "Approved: the_address_of_one_of_the_moderators" field is forwarded to

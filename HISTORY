@@ -173,3 +173,5 @@
 	    Extended the procmailex man page (again)
 	    Taught the embedded archive server in the mailinglists to allow
 	       searching for regexps
+	    v2.91 archive server logged into the wrong file (../log), fixed
+	    Tightened the loop when skipping comments in rcfiles

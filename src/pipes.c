@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.15 1993/06/21 14:24:46 berg Exp $";
+ "$Id: pipes.c,v 1.16 1993/07/19 15:43:17 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -134,9 +134,12 @@ pipthrough(line,source,len)char*line,*source;const long len;
      if(pwait&&waitfor(pidfilt)!=EX_OK)	 /* check the exitcode of the filter */
       { pidfilt=0;
 	if(pwait&2)				  /* do we put it on report? */
-	   pwait=4;			     /* no, we'll look the other way */
+	 { pwait=4;			     /* no, we'll look the other way */
+	   if(verbose)
+	      goto perr;
+	 }
 	else
-	   progerr(line);		      /* I'm going to tell my mommy! */
+perr:	   progerr(line);		      /* I'm going to tell my mommy! */
 	stermchild();
       }
      rclose(PWRB);exit(EX_OK);			  /* allow parent to proceed */
@@ -163,7 +166,7 @@ long pipin(line,source,len)char*const line;char*source;long len;
   if((len=dump(PWRO,source,len))&&(!ignwerr||(len=0)))
      writeerr(line);		       /* pipe was shut in our face, get mad */
   if(pwait&&waitfor(pidchild)!=EX_OK)	    /* optionally check the exitcode */
-   { if(!(pwait&2))				  /* do we put it on report? */
+   { if(!(pwait&2)||verbose)			  /* do we put it on report? */
 	progerr(line);
      len=1;
    }

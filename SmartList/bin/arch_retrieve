@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.17 1993/07/19 12:40:36 berg Exp $
+#$Id: arch_retrieve,v 1.18 1993/07/19 15:43:07 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -45,7 +45,7 @@ $wrongaddress"
    ILLEGAL=""
    while read line
    do
-      set dummy $line
+      set `cd $archivedir; echo dummy $line`
       shift
       case "$1" in
 	 archive|ARCHIVE) shift
@@ -107,24 +107,24 @@ $wrongaddress"
 		   ) | $SENDMAIL $sendmailOPT -t ;;
 	       esac
 	    done ;;
-	 search|grep|egrep|fgrep|find\
+	 search|grep|egrep|fgrep|find|\
 	 SEARCH|GREP|EGREP|FGREP|FIND)
-	    $echo $from egrep "$line" >>$tmpfrom
-	    regxp="$1"; shift
+	    $echo $from "$line" >>$tmpfrom
+	    shift; regxp="$1"; shift
 	    case "$*" in
 	       */../*|../*|*/..|..|[-/]*)
 		  $test -z "$ILLEGAL" && ILLEGAL="$line";;
 	       *)
-		( $formail -rt -I"Subject: archive retrieval: egrep $line" \
+		( $formail -rt -I"Subject: archive retrieval: $line" \
 		   -i"From: $listreq" -A"X-Loop: $listaddr" \
 		   -I"Precedence: bulk" <$tmprequest
 		  $test ! -z "$wrongaddress" && $echo "$wrongaddress" &&
 		   wrongaddress=""
 		  cd $archivedir
-		  $echo "egrep -n -i -e $line"
+		  $echo "$line"
 		  $echo "BEGIN---------------cut here------------------"
 		  $nice $egrep -n -i -e $regxp $* 2>&1 |
-		   $sed -e 'a\
+		   $sed -e $breakoff_search'a\
 Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 		  $echo "END-----------------cut here------------------"
 		) | $SENDMAIL $sendmailOPT -t ;;
@@ -162,5 +162,5 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 
 if $test ! -z "$archive_log"
 then
-  $cat $tmpfrom >>../$archive_log
+  $cat $tmpfrom >>$archive_log
 fi
