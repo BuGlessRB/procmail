@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.33 1994/04/08 15:22:28 berg Exp $";
+ "$Id: locking.c,v 1.34 1994/04/12 13:21:51 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -17,7 +17,7 @@ static /*const*/char rcsid[]=
 #include "locking.h"
 
 void lockit(name,lockp)char*name;char**const lockp;
-{ int permanent=nfsTRY,triedforce=0;struct stat stbuf;time_t t;
+{ int permanent=nfsTRY,triedforce=0,locktype=doLOCK;struct stat stbuf;time_t t;
   if(*lockp)
    { if(!strcmp(name,*lockp))	/* compare the previous lockfile to this one */
 	return;			 /* they're equal, save yourself some effort */
@@ -26,6 +26,7 @@ void lockit(name,lockp)char*name;char**const lockp;
   if(!*name)
      return;
   if(!strcmp(name,defdeflock))	       /* is it the system mailbox lockfile? */
+   { locktype=doCHECK|doLOCK;
 #ifndef fdlock
      if(!accspooldir)
       { yell("Bypassed locking",name);return;
@@ -33,10 +34,11 @@ void lockit(name,lockp)char*name;char**const lockp;
      else
 #endif
 	setegid(sgid);		       /* try and get some extra permissions */
+   }
   name=tstrdup(name); /* allocate now, so we won't hang on memory *and* lock */
   for(lcking|=lck_LOCKFILE;;)
    { yell("Locking",name);	    /* in order to cater for clock skew: get */
-     if(!xcreat(name,LOCKperm,&t,0))	       /* time t from the filesystem */
+     if(!xcreat(name,LOCKperm,&t,locktype))    /* time t from the filesystem */
       { *lockp=name;break;			   /* lock acquired, hurray! */
       }
      switch(errno)

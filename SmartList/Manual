@@ -22,7 +22,7 @@ Contents:
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.28 1994/04/05 15:32:57 berg Exp $
+$Id: Manual,v 1.29 1994/04/12 13:20:47 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -205,16 +205,21 @@ of every submission.  If, however, traffic on the list sometimes is very low
 around for longer than the specified maximum period (3 days by default).
 
 In order to make sure that the digest gets sent out anyway, you should be
-running the .bin/flush_digests program every so often.	The recommended
+running the .bin/cronlist program every so often.  The recommended
 procedure is to create a cron job (under the list account) that contains
 something like the following entry:
 
-0 6 * * * /home/list/.bin/flush_digests
+0 6 * * * /home/list/.bin/cronlist
 
-This will ensure that at six o'clock in the morning all the overdue digests
-will be sent out.  Beware: call flush_digests with an absolute or relative
-path, do not rely on PATH to find it for you (flush_digests uses $0 to
-find the location of the lists).
+The cronlist script can be customised to taste (maybe you'll need to
+adjust the setting of the PATH variable).
+Beware: call cronlist with an absolute or relative path, do not rely on
+PATH to find it for you (cronlist uses $0 to find the location of the
+lists it is responsible for).
+
+By default, cronlist will run the flush_digests program.
+By using the above listed crontab entry, you will ensure that at six o'clock
+in the morning all the overdue digests will be sent out.
 
 Flush_digests normally checks the age of the digest and does not send it
 out until it is overdue.  If you want to force flush_digests to send out

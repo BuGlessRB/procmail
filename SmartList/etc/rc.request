@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.44 1994/04/05 15:33:30 berg Exp $
+#$Id: rc.request,v 1.45 1994/04/12 13:21:04 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -123,6 +123,8 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
   INCLUDERC=$RC_LOCAL_REQUEST_20
 }
 
+LOGABSTRACT=yes
+
 #
 # Could it be a bounce message from a daemon?  Hand it down to procbounce
 # which will evaluate it.
@@ -133,6 +135,14 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
      X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND:)
 * ^FROM_DAEMON
 | sed -e $cutoff_bounce' q' >tmp.request
+
+  #
+  # Sink all messages we can recognise to be queue warnings
+  #
+
+  :0 Ah
+  * ^Subject: WARNING: message delayed
+  /dev/null
 
   :0 Ahfw
   | procbounce
@@ -202,8 +212,6 @@ INCLUDERC=$RC_LOCAL_REQUEST_30
 # If this list does not have a maintainer e-mail address, drop things in
 # the file request.
 #
-
-LOGABSTRACT=yes
 
 :0:
 * ?test -z "$maintainer"

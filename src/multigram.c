@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.47 1994/04/08 15:22:36 berg Exp $";
+ "$Id: multigram.c,v 1.48 1994/04/12 13:21:54 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/04/08 15:22:36 $";
+static /*const*/char rcsdate[]="$Date: 1994/04/12 13:21:54 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -436,7 +436,7 @@ jin:	      while(0>(i=read(STDIN,buf,(size_t)COPYBUF))&&errno==EINTR);
 	;{ size_t revlen;
 	   revarr=malloc((revlen=ADDR_INCR)*sizeof*revarr);revfilled=0;
 	   while(readstr(hardfile,&hardstr,1))
-	    { i=strchr((chp=strchr(hardstr.text,'\0'))+1,'\0')[-1];
+	    { int i=strchr((chp=strchr(hardstr.text,'\0'))+1,'\0')[-1];
 	      if(*hardstr.text!='(')
 		 switch(i)
 		  { default:goto invaddr;
@@ -456,7 +456,7 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 	free(hardstr.text);fclose(hardfile);
 	if(!revfilled)
 	   retval=EX_OK,sterminate();	    /* oops, no recipients, finished */
-	if(fork()>0)					   /* loose our tail */
+	if(fork()>0)					    /* lose our tail */
 	   return EX_OK;	  /* causes procmail to release the lockfile */
 	revarr=realloc(revarr,revfilled*sizeof*revarr);		/* be modest */
 	hsort(revarr,revfilled,sizeof*revarr,pstrIcmp);		  /* sort'em */
@@ -669,9 +669,12 @@ usg:
 	lastfrom=0;tmemmove(fuzzstr.text,chp,echp-chp+1);
 	checkparens('(',')',fuzzstr.text,echp);
 	checkparens('[',']',fuzzstr.text,strchr(fuzzstr.text,'\0'));
-	if(*(chp=fuzzstr.text)=='<'&&*(echp=strchr(chp,'\0')-1)=='>'
-	 &&!strchr(chp,','))			      /* strip '<' and '>' ? */
-	   *echp='\0',tmemmove(chp,chp+1,echp-chp);
+	if(*(chp=fuzzstr.text)=='<'&&*(echp=strchr(chp,'\0')-1)=='>')
+	 { if(chp=strstr(chp,">,<"))		/* take the first of a dense */
+	      (echp=chp)[1]='\0';			/* list of addresses */
+	   if(!strchr(chp=fuzzstr.text,','))	      /* strip '<' and '>' ? */
+	      *echp='\0',tmemmove(chp,chp+1,echp-chp);
+	 }
 	if(!(fuzzstr.textlen=strlen(chp)))	    /* still something left? */
 	   continue;			      /* it's gone, next word please */
 	lowcase(&fuzzstr);			   /* cast it into lowercase */

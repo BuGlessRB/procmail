@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.51 1994/04/08 15:21:52 berg Exp $
+#$Id: Makefile,v 1.52 1994/04/12 13:20:29 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -55,7 +55,7 @@ LOCKINGTEST=__defaults__
 # Only edit below this line if you *think* you know what you are doing #
 ########################################################################
 
-LOCKINGTEST=100 # Uncomment (and change) if you think you know
+#LOCKINGTEST=100	# Uncomment (and change) if you think you know
 #			it better than the autoconf lockingtests.
 #			This will cause the lockingtests to be hotwired.
 #			100	to enable fcntl()

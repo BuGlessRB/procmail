@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.31 1994/03/10 17:15:03 berg Exp $
+#$Id: Makefile.1,v 1.32 1994/04/12 13:20:32 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -97,7 +97,8 @@ install.bin: $(BINS) $(BASENAME)
 	@-dirname / >$(DEVNULL) || $(INSTALL) examples/dirname $(BINDIR)
 	@echo Housekeeping file >install.bin
 
-install: install.man install.bin
+install: install.man install.bin	# to avoid too many recursions
+	@$(MAKE) install.man install.bin
 	@echo
 	@cd $(BINDIR); echo Installed in $(BINDIR); ls -l $(BINSS)
 	@cd $(MAN1DIR); echo Installed in $(MAN1DIR); ls -l $(MANS1)

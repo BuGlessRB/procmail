@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.16 1994/04/08 15:22:22 berg Exp $";
+ "$Id: exopen.c,v 1.17 1994/04/12 13:21:28 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -19,7 +19,7 @@ unique(full,p,mode,verbos,chownit)const char*const full;char*p;
  const mode_t mode;const int verbos,chownit;
 { unsigned long retry=mrotbSERIAL;int i;struct stat filebuf;
   int nicediff,didnice=0;
-  if(chownit==doCHOWN)		  /* semi-critical, try raising the priority */
+  if(chownit&doCHOWN)		  /* semi-critical, try raising the priority */
    { nicediff=nice(0);errno=0;nicediff-=nice(-NICE_RANGE);
      if(errno!=EPERM)
 	didnice=1;
@@ -42,26 +42,26 @@ unique(full,p,mode,verbos,chownit)const char*const full;char*p;
      goto ret0;
    }
 #ifdef NOfstat
-  if(chownit==doCHOWN)
-   { rclose(i);
-     if(
+  if(chownit&doCHOWN)
+   { if(
 #else
-  if(chownit)
+  if(chownit&doCHECK)
    { struct stat fdbuf;
-     fstat(i,&fdbuf);rclose(i);		/* match between the file descriptor */
+     fstat(i,&fdbuf);			/* match between the file descriptor */
 #define NEQ(what)	(fdbuf.what!=filebuf.what)	    /* and the file? */
      if(lstat(full,&filebuf)||fdbuf.st_nlink!=1||filebuf.st_nlink!=1||
-	NEQ(st_ino)||NEQ(st_mode)||NEQ(st_uid)||NEQ(st_gid)||
-	 chownit==doCHOWN&&
+	fdbuf.st_size||filebuf.st_size||NEQ(st_ino)||NEQ(st_mode)||
+	NEQ(st_uid)||NEQ(st_gid)||
+	 chownit&doCHOWN&&
 #endif
 	 chown(full,uid,sgid))
-      { unlink(full);				 /* forget it, no permission */
+      { rclose(i);unlink(full);			 /* forget it, no permission */
 ret0:	return 0;
       }
    }
-  else
-     rclose(i);
-  return 1;
+  if(chownit&doLOCK)
+     rwrite(i,"0",1);
+  rclose(i);return 1;
 }
 				     /* rename MUST fail if already existent */
 myrename(old,newn)const char*const old,*const newn;

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.40 1994/04/05 15:34:29 berg Exp $";
+ "$Id: formail.c,v 1.41 1994/04/12 13:21:38 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/04/05 15:34:29 $";
+static /*const*/char rcsdate[]="$Date: 1994/04/12 13:21:38 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -346,10 +346,10 @@ startover:
 	    }
 	   if(saddr)			    /* any useful mailaddress found? */
 	    { if(*saddr)			  /* did it have any length? */
-	       { if(strstr(saddr,".UUCP"))
-		    nowm-=(maxindex(sest)+2)*3;	 /* depreciate .UUCP address */
-		 else if(!strpbrk(saddr,"@!/"))
-		    nowm-=(maxindex(sest)+2)*2;		/* depreciate "user" */
+	       { if(!strpbrk(saddr,"@!/"))
+		    nowm-=(maxindex(sest)+2)*3;		/* depreciate "user" */
+		 else if(strstr(saddr,".UUCP"))
+		    nowm-=(maxindex(sest)+2)*2;	 /* depreciate .UUCP address */
 		 else if(strchr(saddr,'@')&&!strchr(saddr,'.'))
 		    nowm-=maxindex(sest)+2;	     /* depreciate user@host */
 		 if(!namep||nowm>lastm)		/* better than previous ones */

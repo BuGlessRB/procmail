@@ -75,3 +75,5 @@
 	       with those "inexplicable" installation problems)
 	    Weed out duplicate Date: fields before resending mails
 	    Created choplist, the dist-file expander
+	    Created cronlist, the new recommended script to put in the
+	       crontab entry (instead of flush_digests directly)

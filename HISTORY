@@ -170,6 +170,7 @@
 	       - -a Message-ID: and -a Resent-Message-ID: to make it generate
 		 new ones
 	       - Keep the X-Loop: field when generating autoreplies
+	       - Lowered the negative weight for .UUCP reply addresses
 	    Miscellaneous changes:
 	       - Detecting and dodging buggy zshs everywhere
 	       - Slightly adjusted autoconf for the new non-standard 386BSD

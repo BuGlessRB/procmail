@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.27 1994/02/22 17:25:05 berg Exp $*/
+/*$Id: header.h,v 1.28 1994/04/12 13:21:43 berg Exp $*/
 
 X(returnpath,		"Return-Path:")				  /* RFC 822 */
 X(received,		"Received:")				/* ditto ... */
@@ -74,6 +74,8 @@ X(title,		"Title:")	      /* antiquated USENET extension */
 X(aRticleid,		"Article-I.D.:")			/* ditto ... */
 X(posted,		"Posted:")
 X(relayversion,		"Relay-Version:")
+X(reportversion,	"Report-Version:")		   /* UUCP extension */
+X(notdeliveredto,	"Not-Delivered-To:")			/* ditto ... */
 X(cnttype,		"Content-Type:")	       /* Internet extension */
 X(encoding,		"Encoding:")				/* ditto ... */
 X(cntmd5,		"Content-MD5:")

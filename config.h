@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.45 1994/04/05 15:32:45 berg Exp $*/
+/*$Id: config.h,v 1.46 1994/04/12 13:20:35 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -92,8 +92,9 @@
 #define NORMperm	\
  (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH|UPDATE_MASK)
 	     /* == 0667, normal mode bits used to create files, before umask */
+#define READperm	(S_IRUSR|S_IRGRP|S_IROTH)		  /* == 0444 */
 #define NORMdirperm	(S_IRWXU|S_IRWXG|S_IRWXO)		  /* == 0777 */
-#define LOCKperm	0	  /* mode bits used while creating lockfiles */
+#define LOCKperm	READperm  /* mode bits used while creating lockfiles */
 #define MAX_locksize	16	  /* lockfiles are expected not to be longer */
 #ifndef SMALLHEAP
 #define DEFlinebuf	2048		 /* default max expanded line length */

@@ -8,8 +8,6 @@ Discusses:
 		2d.Special directions for sites with SysV /etc/mail/mailsurr
 		3. Changing the mail spool directory to $HOME for all users
 		4. Security considerations (when installing procmail suid root)
-		5. Some exorbitant examples of rcfile formats
-		6. Some advanced examples of the use of the 'A' flag
 
 				---
 
@@ -137,7 +135,9 @@ filter.	 For more information, see EXAMPLES section the procmail(1) man page.
 2b.Special directions for sites with ZMailer
    -----------------------------------------
 
-...
+The following line should be inserted into (or take the place of any previous
+local definition in) your sm.conf file for the Transport Agent:
+
 local	sSPfn	/usr/local/bin/procmail		procmail -a $h -d $u
 
 				---
@@ -225,76 +225,5 @@ procmail will always have the uid of the person whose commands it is executing.
 To summarise, procmail will only behave better if made suid/sgid something, in
 fact, making procmail suid/sgid something will *improve* security on systems
 which have dynamically linked libraries.
-
-				---
-
-5. Some exorbitant examples of rcfile formats
-   ------------------------------------------
-
-# Now follows an example of what you can do in a procmailrc file
-HELLO=oneword
-HELLO="two words"
-HELLO='two words'	HELLO  =	one\
-word
-HELLO=two\ words
-HELLO=two\ `echo words`
-HELLO=			# empty
-HELLO			# This will wipe "HELLO" from the environment
-HELLO	 =    "three words"\ yes
-HELLO	=	"$HELLO `cat somefile`	"	# Trailing blanks
-HELLO = "wheeee`date`${HELLO} this works too"	 HELLO = 'But so does this!'
-
-# As you can see, every trick in the book of /bin/sh programming can be used
-# (and more).
-
-LOCALLOCKFILE = llf
-
-  :0:$LOCALLOCKFILE
-  * grep for this
- |$HELLO		# calls up a program named "But" with 3 arguments
-
-:0: "test ing"		# lockfilename with a space in it
-  * grep for this
-  |$HELLO
-
-:0
-* or for this
-|"$HELLO"		# tries to call up a program named "But so does this!"
-
-:0
-* and this
-|$HELLO \
-there		# action lines can be continued
-
-				---
-
-6. Some advanced examples of the use of the 'A' flag
-   -------------------------------------------------
-
-:0c		# Specify the 'c' otherwise we never arrive at the next recipe
-* ^From Myfriend
-every_message_from_my_friend		# Mailbox for everything he/she writes
-
-:0 Ac			# Note the 'c' again
-! my_other_friend      # Forward everything Myfriend writes to my_other_friend
-
-:0 Ac
-* ^Subject:.*jokes
-! my_third_friend	# Forward everything Myfriend writes about jokes
-			# to my_third_friend
-
-:0 A
-* ^Subject:.*parties
-* !beach
-! my_fourth_friend	# Forward everything Myfriend writes about parties,
-			# except beach parties, to my_fourth_friend
-
-:0 A			# Provide a mail sink, in order to fake procmail into
-/dev/null		# believing that the mail was absorbed/delivered,
-			# even if the mail was about beach parties :-).
-		# This is not the best solution though, better would be to
-		# rearrange these last five recipes so that the current
-		# number one or two is last, the current number five can be
-		# omitted then.
 
 				---

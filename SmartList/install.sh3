@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh3  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh3		  # we're in a buggy zsh
-#$Id: install.sh3,v 1.30 1994/04/05 15:33:04 berg Exp $
+#$Id: install.sh3,v 1.31 1994/04/12 13:20:52 berg Exp $
 
 umask 022
 
@@ -90,6 +90,14 @@ do
       -e "s:SedBinMail:$binmail:g" <"$a/$b" >"$targdir/$b"
   done
 done
+
+if test ! -f "$target/$bindir/cronlist"
+then
+  sed -e "s:SedBinDir:$bindir:g" -e "s:SedHomeDir:$target:g" \
+   -e "s:SedBinMail:$binmail:g" <"examples/cronlist" \
+   >"$target/$bindir/cronlist"
+  chmod 0755 "$target/$bindir/cronlist"
+fi
 
 chmod 0640 "$target/.etc/rc.custom" "$target/.etc/rc.init"
 

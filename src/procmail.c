@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.73 1994/04/08 15:23:32 berg Exp $";
+ "$Id: procmail.c,v 1.74 1994/04/12 13:21:59 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -327,11 +327,11 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 		    *	references which would allow it to escape the secure
 		    *	tree; look for /../ sequences
 		    */
-		    for(chp=(char*)rcfile+STRLEN(etcrcs);
+		    for(chp=(char*)rcfile+STRLEN(etcrcs)-1;
 			chp;		       /* any devious embedded /../? */
 			chp=strpbrk(chp,dirsep))
-		       if(strncmp(pardir,++chp,STRLEN(pardir))&&
-			  (chp+=STRLEN(dirsep),!*chp||strchr(dirsep,*chp)))
+		       if(!strncmp(pardir,++chp,STRLEN(pardir))&&
+			  (chp+=STRLEN(pardir),strchr(dirsep,*chp)))
 			  goto nospecial;	  /* yes, security violation */
 		   /*
 		    *	so far, so good, now verify the credentials down to the
@@ -460,13 +460,13 @@ bogusbox:	  { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
 		    break;			  /* everything is just fine */
 	    }
 	   if(!(accspooldir&1))	     /* recipient does not own the spool dir */
-	    { if(!xcreat(chp,NORMperm,(time_t*)0,doCHOWN)) /* create mailbox */
-		 break;			      /* yes we could, fine, proceed */
+	    { if(!xcreat(chp,NORMperm,(time_t*)0,doCHOWN|doCHECK)) /* create */
+		 break;		   /* mailbox... yes we could, fine, proceed */
 	      if(!lstat(chp,&stbuf))		     /* anything in the way? */
 		 continue;		       /* check if it could be valid */
 	    }
 	   setids();					   /* try some magic */
-	   if(!xcreat(chp,NORMperm,(time_t*)0,noCHOWN))		/* try again */
+	   if(!xcreat(chp,NORMperm,(time_t*)0,doCHECK))		/* try again */
 	      break;
 	   if(lstat(chp,&stbuf))		      /* nothing in the way? */
 fishy:	    { nlog("Couldn't create");logqnl(chp);sputenv(orgmail);

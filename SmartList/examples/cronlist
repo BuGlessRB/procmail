@@ -1,0 +1,32 @@
+#! /bin/sh
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
+#########################################################################
+#	cronlist	Script called by cron at regular intervals	#
+#			that performs various housekeeping tasks	#
+#			related to the mailinglists			#
+#									#
+#	Created by S.R. van den Berg, The Netherlands			#
+#									#
+#	Customise to taste.						#
+#########################################################################
+#$Id: cronlist,v 1.1 1994/04/12 13:21:07 berg Exp $
+
+test=test			# /bin/test
+echo=echo			# /bin/echo
+dirname=dirname			# /bin/dirname
+
+PATH=SedBinDir:SedHomeDir/.bin:$PATH:/usr/local/bin
+	# make sure that the PATH provided here finds all standard utilities
+	# AND formail and lockfile.
+
+a=`$dirname $0`/..
+cd $a
+
+#
+# Put all commands to be run for this list on a regular basis below here
+#
+
+cronlist=yes flush_digests
+
+exit 0
