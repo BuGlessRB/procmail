@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.37 1994/05/26 14:13:01 berg Exp $";
+ "$Id: locking.c,v 1.38 1994/06/06 17:33:38 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -18,6 +18,7 @@ static /*const*/char rcsid[]=
 
 void lockit(name,lockp)char*name;char**const lockp;
 { int permanent=nfsTRY,triedforce=0,locktype=doLOCK;struct stat stbuf;time_t t;
+  zombiecollect();
   if(*lockp)
    { if(!strcmp(name,*lockp))	/* compare the previous lockfile to this one */
 	return;			 /* they're equal, save yourself some effort */
@@ -165,7 +166,7 @@ int fdlock(fd)
   for(;!toutflag;verbose&&(nlog("Reiterating kernel-lock\n"),0),
    ssleep((unsigned)locksleep))
 #endif
-   {
+   { zombiecollect();
 #ifndef NOfcntl_lock
      flck.l_type=F_WRLCK;flck.l_whence=SEEK_SET;flck.l_len=0;
      flck.l_start=tell(fd);

@@ -86,7 +86,7 @@
 	    Forgot to redirect output of a test in autoconf to /dev/null
 	    Reached the doubtful milestone to sometimes crash an Ultrix
 	       machine (due to the lockingtests, not procmail itself)
-1994/05/05: v3.00
+1994/06/06: v3.00
 	    Changes to procmail:
 	       - Changed the semantics of the TRAP keyword.  In order to
 		 make procmail accept the exitcode it returns, you now have
@@ -203,4 +203,4 @@
 	       - Avoiding i/o-redirection on subshells
 	       - Provided for the ability to hotwire the lockingtests
 	       - Autoconf asks if you'd like to use the existing autoconf.h
-	       - Autoconf determines MAX_argc
+	       - Autoconf determines MAX_argc (for choplist)

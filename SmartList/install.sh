@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.46 1994/06/01 17:21:34 berg Exp $
+#$Id: install.sh,v 1.47 1994/06/06 17:33:26 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -111,6 +111,9 @@ trap "" 1 2 3 15
 
 export listid
 
+date >install.list
+chmod 0666 install.list
+
 if test $AM_ROOT = yes
 then
   if test ! -f $setid
@@ -147,6 +150,8 @@ else
   exec 4>&-
   . ./install.sh3
 fi
+
+chmod 0644 install.list
 
 echo '**********************************************************************'
 echo "Finished installing, now you should:"

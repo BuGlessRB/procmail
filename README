@@ -28,14 +28,12 @@ Any *NIX-alike (or POSIX compliant) system.
 Sendmail, ZMailer, smail, MMDF, mailsurr or compatible mailers (in effect any
 mailer that can process RFC-822 compliant mails).
 
-The most important system calls that need to be supported (among others):
-dup(),wait(),getpwnam(),fork(),pipe()
-
-For a more complete list of all library references see "src/includes.h"
+For a fairly complete list of all C-library references done in the programs
+see "src/includes.h".
 
 ------------------------------ DESCRIPTION -----------------------------------
 
-The procmail mail processing program. (v3.00 1994/05/05)
+The procmail mail processing program. (v3.00 1994/06/06)
 
 Can be used to create mail-servers, mailing lists, sort your incoming mail
 into separate folders/files (real convenient when subscribing to one or more

@@ -9,7 +9,7 @@
 #	This file is not automatically replaced during an upgrade of	#
 #	SmartList.							#
 #########################################################################
-#$Id: mimencap.local,v 1.5 1994/05/26 14:11:48 berg Exp $
+#$Id: mimencap.local,v 1.6 1994/06/06 17:33:32 berg Exp $
 
 # What we have at our disposal are:
 #
@@ -69,6 +69,10 @@
 :0 E wfh
 * ^Content-ID: <[^%]*\.zip%
 | $formail -I "Content-Type: application/zip"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.tar\.gz%
+| $formail -I "Content-Type: application/tar_gzip"
 
 :0 E wfh
 * ^Content-ID: <[^%]*\.gz%
