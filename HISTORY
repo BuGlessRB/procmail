@@ -609,9 +609,11 @@
 		 succeeding when support for multiple -a options was added
 2001/08/24: v3.22pre
 	    Changes to procmail:
-	       - Version 3.20 broke compilation with K&R compilers
-	       - Regression bug: procmail -p -m was overridding PATH
-	       - Version 3.20 broke maildir delivery
+	       - Regression bugs from 3.20:
+		  - Broke compilation with K&R compilers
+		  - procmail -p -m was overridding PATH
+		  - maildir delivery included garbage in filenames
+		  - Mismatched HOST in last rcfile didn't discard the message
 	       - Catch overly long command line variable assignments
 	    Some fixes to the man pages
 	    More paranoia: start to use strlcpy()
