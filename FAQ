@@ -85,9 +85,10 @@
 	One home directory, several machine architectures?
 	Procmail as an integrated local mail delivery agent? (generic,
 	 sendmail, smail, SysV mail)
+	Changing the mail spool directory to $HOME for all users
 	Security considerations (when installing procmail suid root)
 	Exorbitant rcfile formats?
-	The 'A' flag?
+	The `A' flag?
 
 	Well, this probably is your lucky day :-), all these topics are covered
 	in the examples/advanced file.

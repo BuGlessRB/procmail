@@ -5,9 +5,10 @@ Discusses:
 		2a.Special directions for sites with sendmail
 		2b.Special directions for sites with smail
 		2c.Special directions for sites with SysV /etc/mail/mailsurr
-		3. Security considerations (when installing procmail suid root)
-		4. Some exorbitant examples of rcfile formats
-		5. Some advanced examples of the use of the 'A' flag
+		3. Changing the mail spool directory to $HOME for all users
+		4. Security considerations (when installing procmail suid root)
+		5. Some exorbitant examples of rcfile formats
+		6. Some advanced examples of the use of the 'A' flag
 
 				---
 
@@ -134,7 +135,39 @@ procmail with mailsurr the following two lines should be inserted in the
 
 				---
 
-3. Security considerations (when installing procmail suid root)
+3. Changing the mail spool directory to $HOME for all users
+   --------------------------------------------------------
+
+There are many different reasons why more and more sites decide not to
+store mail in /usr/spool/mail or /usr/mail anymore.
+Some of the obvious advantages when storing mail in the recipient's home
+directory are:
+	- Mail is automatically subject to his quota limitations.
+	- Often there is more room on the home partitions than on that
+	  one /usr/mail partition.
+
+The quota limitations also apply to /usr/spool/mail or /usr/mail if procmail
+does the delivery.  This quota limitation often does not work with the
+regular /bin/mail since it often writes the mailbox with root permissions
+(eluding the quota restrictions).
+
+However, if you are going to install procmail as the integrated local
+delivery agent, and you want mail to be delivered to, say, $HOME/.mail
+by default, this is what you have to do:
+	Edit the procmail/config.h file.   Uncomment and possibly change
+	the SYSTEM_MBOX define.	 Procmail now delivers there by default.
+
+	In order to make sure that normal mailtools can find the new
+	system mailboxes, you should make sure that every user has the
+	MAIL environment variable set to be equal to whatever you
+	defined SYSTEM_MBOX to be.  Some braindamaged mail programs
+	do not pick up the MAIL environment variable, these either
+	have to be patched/recompiled or you have to create symbolic
+	links in /usr/mail to every person's new mailbox.
+
+				---
+
+4. Security considerations (when installing procmail suid root)
    -------------------------------------------------------------
 
 If in EXPLICIT DELIVERY mode (typically when called from within sendmail)
@@ -155,7 +188,7 @@ which have dynamically linked libraries.
 
 				---
 
-4. Some exorbitant examples of rcfile formats
+5. Some exorbitant examples of rcfile formats
    ------------------------------------------
 
 # Now follows an example of what you can do in a procmailrc file
@@ -195,7 +228,7 @@ there		# action lines can be continued
 
 				---
 
-5. Some advanced examples of the use of the 'A' flag
+6. Some advanced examples of the use of the 'A' flag
    -------------------------------------------------
 
 :c		# Specify the 'c' otherwise we never arrive at the next recipe
