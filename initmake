@@ -1,5 +1,5 @@
 
-#$Id: initmake,v 1.2 1992/09/30 17:55:14 berg Exp $
+#$Id: initmake,v 1.3 1992/10/02 14:38:43 berg Exp $
 
 SHELL=/bin/sh || exec /bin/sh ./initmake $* # we're in a csh, feed myself to sh
 
@@ -20,8 +20,8 @@ shift; SUBDIRS="$1"
 test 1 != $# &&
  echo "Don't start this script directly, use \`make init'" && exit 1
 
-FGREP="fgrep"
-if echo hello | grep -F hello >$DEVNULL 2>&1	# POSIX, or not POSIX, that ...
+FGREP="fgrep"		# POSIX, or not POSIX, that is the question...
+if test \^hello = "`echo '^hello' | grep -F '^hello' 2>&1`"
 then FGREP="grep -F"				# and POSIX it is!
 fi
 
@@ -42,9 +42,9 @@ HERE
 $RM src/_autotst.$O src/_autotst.rrr
 for a in "$CC" cc gcc
 do
-  echo $a $CFLAGS1 -o src/autotst.$O src/_autotst.c >>src/_autotst.rrr
+  echo $a -c $CFLAGS1 src/_autotst.c >>src/_autotst.rrr
   test -z "$cc" -a ! -z "$a" &&
-   ($a $CFLAGS1 -o src/_autotst.$O src/_autotst.c) >>src/_autotst.rrr 2>&1 &&
+   ($a -c $CFLAGS1 src/_autotst.c) >>src/_autotst.rrr 2>&1 &&
    cc="$a"
   echo "::::" >>src/_autotst.rrr
 done
@@ -59,7 +59,7 @@ then
   echo 2>&1 "in the Makefile before you try make again."
   exit 1
 fi
-$RM src/_autotst.c src/_autotst.$O src/_autotst.rrr
+$RM src/_autotst.c src/_autotst.rrr _autotst.$O src/_autotst.$O
 
 for a in $SUBDIRS
 do

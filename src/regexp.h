@@ -1,4 +1,4 @@
-/*$Id: regexp.h,v 1.1 1992/09/28 14:27:58 berg Exp $*/
+/*$Id: regexp.h,v 1.2 1992/10/02 14:41:07 berg Exp $*/
 
 struct eps{unsigned opc;struct eps*stack,*spawn,*next;}*
  bregcomp P((const char*a,int ign_case));

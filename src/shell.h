@@ -1,4 +1,4 @@
-/*$Id: shell.h,v 1.1 1992/09/28 14:27:59 berg Exp $*/
+/*$Id: shell.h,v 1.2 1992/10/02 14:41:14 berg Exp $*/
 
 #define malloc(n)	tmalloc((size_t)(n))
 #define realloc(p,n)	trealloc(p,(size_t)(n))

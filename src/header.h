@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.2 1992/09/30 17:55:48 berg Exp $*/
+/*$Id: header.h,v 1.3 1992/10/02 14:40:17 berg Exp $*/
 
 static const char
  returnpath[]=		"Return-Path:",				  /* RFC 822 */

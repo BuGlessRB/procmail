@@ -7,6 +7,7 @@ Feature summary for procmail:
 	+ Is event driven (i.e. gets invoked automagically when mail arrives)
 	+ Does not use *any* temporary files
 	+ Uses standard egrep regular expressions
+	+ It poses a very low impact on your system's resources
 	+ Allows for very-easy-to-use yes-no decisions on where the mail
 	  should go (can take the size of the mail into consideration)
 	+ Filters, delivers and forwards mail *reliably*
@@ -35,9 +36,10 @@ Feature summary for procmail:
 	  as memory permits), or the use of any character (any 8-bit character,
 	  including '\0' is allowed) in the mail
 	+ It has man pages (boy, does *it* have man pages)
-	+ Procmail can be used as a local delivery agent (a completely
-	  integrated substitute for /bin/mail), in which case it can heal
-	  your system mailbox, if something messes up the permissions
+	+ Procmail can be used as a local delivery agent with comsat/biff
+	  support (*fully* downwards compatible with /bin/mail); in which case
+	  it can heal your system mailbox, if something messes up the
+	  permissions
 	+ It runs on virtually all (old and future) operating systems which
 	  names start with a 'U' or end in an 'X' :-) (i.e. extremely portable
 	  code; POSIX, ANSI C and K&R conforming)

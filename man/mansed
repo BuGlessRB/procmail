@@ -1,5 +1,5 @@
 
-#$Id: mansed,v 1.1 1992/09/28 14:27:56 berg Exp $
+#$Id: mansed,v 1.2 1992/10/02 14:39:09 berg Exp $
 
 SHELL=/bin/sh || exec /bin/sh ./mansed $* # we're in a csh, feed myself to sh
 

@@ -1,4 +1,4 @@
-/*$Id: sublib.c,v 1.1 1992/09/28 14:28:03 berg Exp $*/
+/*$Id: sublib.c,v 1.2 1992/10/02 14:41:18 berg Exp $*/
 #include "includes.h"
 #include "sublib.h"
 

@@ -11,7 +11,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: procmail.c,v 1.3 1992/09/30 17:56:06 berg Exp $";
+static char rcsid[]="$Id: procmail.c,v 1.4 1992/10/02 14:40:56 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -257,7 +257,7 @@ Setuser:
   *	original/default mailbox file, and chown it to the recipient
   */
   if(lstat(chp,&stbuf))					 /* stat the mailbox */
-   { succeed=-(errno==EACCES);goto boglock;
+   { succeed= -(errno==EACCES);goto boglock;
    }
   if(!Privileged&&!(stbuf.st_mode&S_IWGRP))   /* lockfile unrightfully owned */
    { succeed=1;

@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.2 1992/09/30 17:55:11 berg Exp $
+#$Id: Makefile,v 1.3 1992/10/02 14:38:35 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -8,8 +8,8 @@ BASENAME = /usr/local
 
 BINDIR	  = $(BASENAME)/bin$(ARCHITECTURE)
 MANDIR	  = $(BASENAME)/man
-MAN1SUFFIX= 1
-MAN5SUFFIX= 5
+MAN1SUFFIX= 1				# regular utility manuals
+MAN5SUFFIX= 5				# file-format descriptions
 MAN1DIR	  = $(MANDIR)/man$(MAN1SUFFIX)
 MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 
@@ -43,13 +43,13 @@ MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 # Directory for the standard include files
 USRINCLUDE = /usr/include
 
-CFLAGS0 = -O2 -ansi -pedantic -Wid-clash-6 -Wall
+CFLAGS0 = -O #-ansi -pedantic -Wid-clash-6
 LDFLAGS0= -s
 
 CFLAGS1 = $(CFLAGS0) #-D_POSIX_SOURCE
 LDFLAGS1= $(LDFLAGS0) #-lcposix
 
-CC	= gcc # gcc
+####CC	= cc # gcc
 O	= o
 RM	= /bin/rm -f
 INSTALL = cp
@@ -65,15 +65,18 @@ MANS5S	= procmailrc procmailex
 HIDEMAKE=$(MAKE)
 
 all: init
-	$(HIDEMAKE) $@
+	$(HIDEMAKE) make $@
+
+make:
+	@/bin/sh -c "exit 0"
 
 init:
 	/bin/sh ./initmake "$(SHELL)" "$(RM)" $(USRINCLUDE) $(DEVNULL) \
-	 "$(MAKE)" $(O) "$(CC)" "$(CFLAGS1)" "$(LDFLAGS1)" "$(BINSS)" \
+	 "$(HIDEMAKE)" $(O) "$(CC)" "$(CFLAGS1)" "$(LDFLAGS1)" "$(BINSS)" \
 	 "$(MANS1S)" "$(MANS5S)" "$(SUBDIRS)"
 
 makefiles makefile Makefiles Makefile: init
 
 bins mans install.bin install.man recommend suid clean realclean \
 deinstall autoconf.h procmail formail lockfile: init
-	$(HIDEMAKE) $@
+	$(HIDEMAKE) make $@

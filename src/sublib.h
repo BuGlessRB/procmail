@@ -1,4 +1,4 @@
-/*$Id: sublib.h,v 1.1 1992/09/28 14:28:00 berg Exp $*/
+/*$Id: sublib.h,v 1.2 1992/10/02 14:41:20 berg Exp $*/
 
 #ifdef NOmemmove
 void

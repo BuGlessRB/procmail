@@ -121,5 +121,29 @@
 	       - taught procmail about $? (see sh(1))
 	       - added the INCLUDERC keyword, to permit unlimited nesting
 		 of included rcfiles
-	       -
-	       -
+	       - any program started in backquotes by procmail now has the
+		 complete mail on its stdin
+	       - all diagnostics logged by procmail will now be preceded by
+		 a "procmail: " for easy identification
+	       - as long as no LOGFILE has been specified, all diagnostics
+		 will be mailed back to the sender (instead of /dev/null)
+	       - when a program is specified on an action line, you can
+		 precede the line by an environment variable name and an
+		 equal sign;  this will read in the (unlimited length) text
+		 from stdout into this variable
+	       - backslash-newline pairs on continued program-action lines
+		 will be simply passed on now;	unless the backslash-newline
+		 pair is on an otherwise empty line, in which case only the
+		 newline remains
+	       - comsat/biff is fully supported now
+	    Changes to the installation scripts:
+	       - preset values for $(MAKE), $(CC) and $(SHELL) are respected
+		 in Makefiles now
+	       - a POSIX conforming grep is recognised and used
+	       - the need for any -D_POSIX_SOURCE is recognised automatically
+	       - to make sure that all this is possible, the Makefiles are
+		 created in a two step-process now (make init)
+	       - the autoconf script now does performs reliability test on
+		 kernel locking support
+	       - also, network support for comsat tries to build up a compile
+		 time cache for trivial get*byname() calls

@@ -7,9 +7,9 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: formail.c,v 1.2 1992/09/30 16:24:01 berg Exp $";
+static char rcsid[]="$Id: formail.c,v 1.3 1992/10/02 14:39:59 berg Exp $";
 #endif
-static char rcsdate[]="$Date: 1992/09/30 16:24:01 $";
+static char rcsdate[]="$Date: 1992/10/02 14:39:59 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -330,7 +330,6 @@ foundfrom:
   tmemmove(buf,parkedbuf,buffilled=lenparkedbuf);free(parkedbuf);
  }
   if(xheader)				     /* we're just extracting fields */
-clearthem:
      clearfield(&rdheader),clearfield(&nheader);	    /* throw it away */
   else			     /* otherwise, display the new & improved header */
    { flushfield(&rdheader);flushfield(&nheader);dispfield(Aheader);

@@ -4,10 +4,8 @@ Discusses:
 		2a.Special directions for sites with sendmail
 		2b.Special directions for sites with smail
 		3. Security considerations (when installing procmail suid root)
-		4. How to generate autoreplies
-		4a.`Vacation' functionality
-		5. Some exorbitant examples of rcfile formats
-		6. Some advanced examples of the use of the 'A' flag
+		4. Some exorbitant examples of rcfile formats
+		5. Some advanced examples of the use of the 'A' flag
 
 				---
 
@@ -175,58 +173,7 @@ which have dynamically linked libraries.
 
 				---
 
-4. How to generate autoreplies
-   ---------------------------
-
-Using a recipe like the following, you can generate autoreplies to mail
-received by you:
-
-: 2 h c
-!^From +[^ ]*(postmaster|Mailer)
-!^From +YOUR_LOGIN_NAME
-| (formail -r ; echo "Mail received.") | $SENDMAIL -t
-
-As you can see, I made sure that neither bouncing mail (from postmaster or the
-mailer-daemon), nor mail coming from yourself will be autoreplied.  If this
-precaution would not be taken, disaster could result ("ringing" mail).
-The abovementioned recipe should be inserted before all other recipes in
-your rcfile, however, it is advisable to put it *after* any recipes that
-process mailinglist subscriptions;  it generally is not a good idea to
-generate autoreplies to mailinglists.
-
-				---
-
-4a.`Vacation' functionality
-   ------------------------
-
-SHELL=/bin/sh			# for other shells, this might need adjustment
-ALREADYSENT=$MAILDIR/vacation			# the vacation database
-
-: 2 hWc:				# the lockfile is important
-!^From +[^ ]*(postmaster|Mailer)
-!^From +YOUR_LOGIN_NAME
-| FROM="`formail -rx To:`" ;\
-  if fgrep -e "$FROM" <$ALREADYSENT ;\
-  then exit 1 ;\
-  else echo "$FROM" >>$ALREADYSENT ;\
-  fi
-
-	:ahc
-	| (formail -r ; echo "Mail received.") | $SENDMAIL -t
-
-This example is based on the same principles as before (sort out bounced mail
-and mail coming from oneself).	In addition to that however, it maintains a
-vacation database by extracting the name of the sender and appending it
-to $ALREADYSENT if the name is *not* already in there.	If the name was new,
-an autoreply will be sent (using the "a" flag functionality, see the man
-page of procmail for more info).  To reliably extract the name of the sender,
-I let formail generate an autoreply header (thereby making it figure out the
-most appropriate sender address), and then telling it to extract the value
-of the "To:" field.
-
-				---
-
-5. Some exorbitant examples of rcfile formats
+4. Some exorbitant examples of rcfile formats
    ------------------------------------------
 
 # Now follows an example of what you can do in a procmailrc file
@@ -266,7 +213,7 @@ there		# action lines can be continued
 
 				---
 
-6. Some advanced examples of the use of the 'A' flag
+5. Some advanced examples of the use of the 'A' flag
    -------------------------------------------------
 
 :c		# Specify the 'c' otherwise we never arrive at the next recipe

@@ -1,4 +1,4 @@
-/*$Id: formail.h,v 1.1 1992/09/28 14:28:08 berg Exp $*/
+/*$Id: formail.h,v 1.2 1992/10/02 14:40:01 berg Exp $*/
 
 #define BSIZE		128
 

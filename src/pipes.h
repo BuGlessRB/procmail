@@ -1,4 +1,4 @@
-/*$Id: pipes.h,v 1.1 1992/09/28 14:27:59 berg Exp $*/
+/*$Id: pipes.h,v 1.2 1992/10/02 14:40:54 berg Exp $*/
 
 void
  inittmout P((const char*const progname)),

@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: common.c,v 1.4 1992/09/30 17:55:30 berg Exp $";
+static char rcsid[]="$Id: common.c,v 1.5 1992/10/02 14:39:35 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -13,7 +13,7 @@ static char rcsid[]="$Id: common.c,v 1.4 1992/09/30 17:55:30 berg Exp $";
 #include "misc.h"
 #include "common.h"
 
-void shexec(argv)char*const*argv;
+void shexec(argv)const char*const*argv;
 { int i;char**newargv;const char**p;
 #ifdef SIGXCPU
   signal(SIGXCPU,SIG_DFL);signal(SIGXFSZ,SIG_DFL);

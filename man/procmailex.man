@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.1 1992/09/28 14:27:57 berg Exp $
+.Id $Id: procmailex.man,v 1.2 1992/10/02 14:39:15 berg Exp $
 .de Sx
 .PP
 .ne \\$1
@@ -84,32 +84,34 @@ Store everything coming from the postmaster or mailer-daemon (like bounced
 mail) into the file postm, using postm.lock as the locallockfile.
 .Sx 3
 ::
-^From +[^ ]*(postmaster|Mailer)
+^From[ :].*(postmaster|Mailer)
 postm
 .Ex
-A simple autoreply recipe.  It makes sure that neither bouncing mail (from
-postmaster or the mailer-daemon), nor mail coming from yourself will be
-autoreplied.  If this precaution would not be taken, disaster could result
-("ringing" mail).  In order for this recipe to autoreply to all the incoming
-mail, you should of course insert it before all other recipes in your rcfile.
-However, it is advisable to put it
+A simple autoreply recipe.  It makes sure that neither mail from any daemon
+(like bouncing mail or mail from mailing-lists), nor mail coming from yourself
+will be autoreplied.  If this precaution would not be taken, disaster could
+result (`ringing' mail).  In order for this recipe to autoreply to all the
+incoming mail, you should of course insert it before all other recipes in your
+rcfile.  However, it is advisable to put it
 .I after
 any recipes that process the mails from subscribed mailinglists; it generally
-is not a good idea to generate autoreplies to mailinglists.
+is not a good idea to generate autoreplies to mailinglists (yes, the
+!^FROM_DAEMON regexp should already catch those, but if the mailinglist
+doesn't follow accepted conventions, this might not be enough).
 .Sx 4
-: 3 +PASS_HEAD+ +CONTINUE+
-!^From +[^ ]*(postmaster|Mailer)
+: 2 +PASS_HEAD+ +CONTINUE+
+!^FROM_DAEMON
 !^From +YOUR_LOGIN_NAME
-!^Precedence:.*bulk
-| (formail \-+FM_REPLY+ ; echo "Mail received.") | $SENDMAIL \-t
+| (formail \-+FM_REPLY+ \-+FM_ADD_ALWAYS+"Precedence: junk";\\
+   echo "Mail received.") | $SENDMAIL \-t
 .Ex
-A more complicated autoreply recipe, that implements the functional equivalent
+A more complicated autoreply recipe that implements the functional equivalent
 of the well known
 .BR vacation (1)
 program.  This recipe is based on the same principles as the last one (prevent
-"ringing" mail).  In addition to that however, it maintains a vacation database
-by extracting the name of the sender and appending it the file $ALREADYSENT, if
-the name is
+`ringing' mail).  In addition to that however, it maintains a vacation database
+by extracting the name of the sender and appending it to the file
+$ALREADYSENT, if the name is
 .B not
 already in there.  If the name was new, an autoreply will be sent (using the
 `+ALSO_N_IF_SUCC+' flag functionality).  To reliably extract the name of the
@@ -120,10 +122,9 @@ value of the `To:' field.
 SHELL=/bin/sh    # for other shells, this might need adjustment
 ALREADYSENT=$MAILDIR/vacation     # the vacation database
 
-: 3 +PASS_HEAD++WAIT_EXIT_QUIET++CONTINUE+:                          # the lockfile is important
+: 2 +PASS_HEAD++WAIT_EXIT_QUIET++CONTINUE+:                          # the lockfile is important
 !^FROM_DAEMON
 !^From +YOUR_LOGIN_NAME
-!^Precedence:.*bulk
 | FROM="`formail \-+FM_REPLY++FM_EXTRACT+ To:`" ;\\
   if fgrep \-e "$FROM" <$ALREADYSENT ;\\
   then exit 1 ;\\
@@ -131,7 +132,8 @@ ALREADYSENT=$MAILDIR/vacation     # the vacation database
   fi
 
    :+ALSO_N_IF_SUCC++PASS_HEAD++CONTINUE+
-   | (formail \-+FM_REPLY+ ; echo "Mail received.") | $SENDMAIL \-t
+   | (formail \-+FM_REPLY++FM_ADD_ALWAYS+"Precedence: junk";\\
+      echo "Mail received.") | $SENDMAIL \-t
 .Ex
 Store all messages concerning TeX in separate, unique filenames, in a directory
 named texmail (this directory has to exist); there is no need to use lockfiles

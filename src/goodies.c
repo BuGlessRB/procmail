@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: goodies.c,v 1.3 1992/09/30 17:55:46 berg Exp $";
+static char rcsid[]="$Id: goodies.c,v 1.4 1992/10/02 14:40:08 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -208,7 +208,7 @@ waitfor(pid)const pid_t pid;		      /* wait for a specific process */
   return lexitcode=WIFEXITED(i)?WEXITSTATUS(i):-1;
 }
 
-static struct lienv{struct lienv*next;char name[255];}*myenv;
+static struct lienv{struct lienv*enext;char ename[255];}*myenv;
 static char**lastenv;
 			      /* smart putenv, the way it was supposed to be */
 void sputenv(a)const char*const a;
@@ -217,9 +217,9 @@ void sputenv(a)const char*const a;
   if(!(split=strchr(a,'=')))			   /* assignment or removal? */
      remove=1,split=strchr(a,'\0');
   i=split-a;
-  for(curr= *(last= &myenv);curr;curr= *(last= &curr->next))	/* is it one */
-     if(!strncmp(a,curr->name,i)&&curr->name[i]=='=')  /* I created earlier? */
-      { split=curr->name;*last=curr->next;free(curr);
+  for(curr= *(last= &myenv);curr;curr= *(last= &curr->enext))	/* is it one */
+     if(!strncmp(a,curr->ename,i)&&curr->ename[i]=='=')	  /* I made earlier? */
+      { split=curr->ename;*last=curr->enext;free(curr);
 	for(preenv=environ;*preenv!=split;++preenv);
 	goto wipenv;
       }
@@ -237,8 +237,8 @@ wipenv:
      alloced=1,environ=tmemmove(malloc(i),environ,i-sizeof*environ);
   if(!remove)		  /* if not remove, then add it to both environments */
    { for(preenv=environ;*preenv;++preenv);
-     curr=malloc(ioffsetof(struct lienv,name[0])+(i=strlen(a)+1));
-     tmemmove(*(lastenv=preenv)=curr->name,a,i);preenv[1]=0;curr->next=myenv;
+     curr=malloc(ioffsetof(struct lienv,ename[0])+(i=strlen(a)+1));
+     tmemmove(*(lastenv=preenv)=curr->ename,a,i);preenv[1]=0;curr->enext=myenv;
      myenv=curr;
    }
 }
@@ -248,10 +248,10 @@ void primeStdout()		    /* *no* environment changes are allowed! */
   if((p=strchr(buf,'\0'))[-1]!='=')		   /* does it end in an '='? */
      *p='=',p[1]='\0';					/* make sure it does */
   sputenv(buf);Stdout=(char*)myenv;
-  Stdfilled=ioffsetof(struct lienv,name[0])+strlen(myenv->name);
+  Stdfilled=ioffsetof(struct lienv,ename[0])+strlen(myenv->ename);
 }
 
 void retStdout(newmyenv)char*const newmyenv;	/* see note on primeStdout() */
-{ newmyenv[Stdfilled]='\0';*lastenv=(myenv=(struct lienv*)newmyenv)->name;
+{ newmyenv[Stdfilled]='\0';*lastenv=(myenv=(struct lienv*)newmyenv)->ename;
   Stdout=0;
 }

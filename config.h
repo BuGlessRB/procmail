@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.1 1992/09/28 14:27:50 berg Exp $*/
+/*$Id: config.h,v 1.2 1992/10/02 14:38:40 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -41,9 +41,9 @@
 	will always be supplied with the correct case in the explicit
 	delivery mode argument(s) */
 
-/*#define NO_fnctl_LOCK		/* uncomment any of these three if you	    */
-/*#define NO_lockf_LOCK		/* definitely do not want procmail to make  */
-/*#define NO_flock_LOCK		/* make use of those kernel-locking methods */
+/*#define NO_fnctl_LOCK		/* uncomment any of these three if you	     */
+/*#define NO_lockf_LOCK		/* definitely do not want procmail to make   */
+/*#define NO_flock_LOCK		/* make use of those kernel-locking methods  */
 
 /*#define NO_NFS_ATIME_HACK	/* uncomment if you're definitely not using
 				   NFS mounted filesystems and can't afford

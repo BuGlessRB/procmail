@@ -1,4 +1,4 @@
-/*$Id: formisc.h,v 1.2 1992/09/30 17:55:43 berg Exp $*/
+/*$Id: formisc.h,v 1.3 1992/10/02 14:40:06 berg Exp $*/
 
 void
  *tmalloc Q((const size_t len)),

@@ -1,5 +1,5 @@
 
-#$Id: autoconf,v 1.3 1992/09/30 17:55:25 berg Exp $
+#$Id: autoconf,v 1.4 1992/10/02 14:39:31 berg Exp $
 
 SHELL=/bin/sh || exec /bin/sh ./autoconf $* # we're in a csh, feed myself to sh
 
@@ -110,7 +110,7 @@ test -f $USRINC/stddef.h || echo "#define STDDEF_H_MISSING" >>$ACONF
 test -f $USRINC/stdlib.h || echo "#define STDLIB_H_MISSING" >>$ACONF
 if test ! -f $USRINC/dirent.h
 then echo "#define DIRENT_H_MISSING" >>$ACONF
-  if test -f $USRINC/ndir.h
+  if test ! -f $USRINC/ndir.h
   then echo "#define NDIR_H_MISSING" >>$ACONF
      if test ! -f $USRINC/sys/dir.h
      then echo "#define SYS_DIR_H_MISSING" >>$ACONF
@@ -132,7 +132,15 @@ $FGREP setsid $USRINC/sys/unistd.h >$DEVNULL 2>&1 ||
 $RM _autotst.$O _autotst
 
 cat >_autotst.c <<HERE
-#include "includes.h"
+#include "$ACONF"
+#include <sys/types.h>
+#ifndef UNISTD_H_MISSING
+#include <unistd.h>
+#endif
+#include <fcntl.h>
+#ifndef SYS_FILE_H_MISSING
+#include <sys/file.h>
+#endif
 main(){
 #ifdef F_SETLKW
  fcntl(0,F_SETLKW,0);
@@ -168,11 +176,23 @@ $FGREP -e lockf _autotst.rrr >$DEVNULL && echo "#undef F_LOCK" >>_locktst.h
 $FGREP -e flock _autotst.rrr >$DEVNULL && echo "#undef LOCK_EX" >>_locktst.h
 
 cat >_autotst.c <<HERE
+#include "$ACONF"
 #include "../config.h"
-#include "includes.h"
+#include <sys/types.h>
+#ifndef UNISTD_H_MISSING
+#include <unistd.h>
+#endif
+#include <stdio.h>
+#include <time.h>
+#include <signal.h>
+#define EX_OK	0
 #include "_locktst.h"
 #ifndef SYS_FILE_H_MISSING
 #include <sys/file.h>
+#endif
+#ifndef SEEK_SET
+#define SEEK_SET	1
+#define SEEK_END	2
 #endif
 
 #define MIN_locks	128	  /* minimum of consecutive successful locks */
@@ -389,7 +409,8 @@ main()
 HERE
 
 echo 'Testing for const'
-if $MAKE _autotst.$O >_autotst.rrr 2>&1 && test -f _autotst.$O
+if $MAKE _autotst.$O 2>&1 | $FGREP -v /include/ >_autotst.rrr &&
+ test -f _autotst.$O
 then
  grepfor const '#define const'
 else
@@ -444,7 +465,7 @@ main(){int i;char*p="t";
 HERE
 
 echo 'Testing for void*,size_t,pid_t,time_t,mode_t,uid_t,gid_t'
-$MAKE _autotst.$O >_autotst.rrr 2>&1
+$MAKE _autotst.$O 2>&1 | $FGREP -v /include/  >_autotst.rrr
 $RM _autotst.$O
 
 grepfor void '#define void char'
@@ -467,7 +488,7 @@ main(){int i;i=1;
 HERE
 
 echo 'Testing for WIFEXITED(), WIFSTOPPED() & WEXITSTATUS()'
-if $MAKE _autotst.$O >_autotst.rrr 2>&1
+if $MAKE _autotst.$O 2>&1 | $FGREP -v /include/	 >_autotst.rrr
 then
    grepfor struct '#define WMACROS_NON_POSIX' ||
     grepfor union '#define WMACROS_NON_POSIX'
@@ -495,7 +516,8 @@ main(){char a[2];
 HERE
 
 echo 'Testing for memmove, strchr, strpbrk, strcspn, strtol & opendir'
-$MAKE _autotst >_autotst.rrr 2>&1
+$MAKE _autotst.$O >$DEVNULL 2>&1
+$MAKE _autotst 2>&1 | $FGREP -v /include/  >_autotst.rrr
 $RM _autotst _autotst.$O
 
 grepfor strcspn '#define NOstrcspn'
@@ -571,7 +593,6 @@ $FGREP -e LD_ /bin/ld >/dev/null 2>&1 && echo "#define LD_ENV_FIX" >>$ACONF
 
 cat >_autotst.c <<HERE
 #include "includes.h"
-#include "../config.h"
 #ifndef NO_COMSAT
 #include "network.h"					 /* also for ntohs() */
 #endif
