@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.62 1999/04/13 04:26:49 guenther Exp $*/
+/*$Id: includes.h,v 1.63 1999/11/04 23:11:42 guenther Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -142,8 +142,8 @@ double pow();
 #endif
 #ifdef SYSEXITS_H_MISSING
 #undef SYSEXITS_H_MISSING
-		/* Standard exit codes, original list maintained
-		   by Eric Allman (eric@berkeley.edu) */
+		/* Standard exitcodes, original list maintained
+		   by Eric Allman (eric@Sendmail.COM) */
 #define EX_USAGE	64
 #define EX_DATAERR	65
 #define EX_NOINPUT	66

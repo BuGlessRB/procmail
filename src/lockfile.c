@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.41 1999/10/20 04:42:46 guenther Exp $";
+ "$Id: lockfile.c,v 1.42 1999/11/04 23:11:43 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/10/20 04:42:46 $";
+static /*const*/char rcsdate[]="$Date: 1999/11/04 23:11:43 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -100,7 +100,7 @@ again:
 \n\t-r nnn\tmake at most nnn retries before giving up on a lock\
 \n\t-l nnn\tset locktimeout to nnn seconds\
 \n\t-s nnn\tsuspend nnn seconds after a locktimeout occurred\
-\n\t-!\tinvert the exit code of lockfile\
+\n\t-!\tinvert the exitcode of lockfile\
 \n\t-ml\tlock your system mail-spool file\
 \n\t-mu\tunlock your system mail-spool file\n");
 		 goto xusg;
