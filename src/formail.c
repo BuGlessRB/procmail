@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.25 1993/07/16 14:52:32 berg Exp $";
+ "$Id: formail.c,v 1.26 1993/07/19 12:41:13 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/07/16 14:52:32 $";
+static /*const*/char rcsdate[]="$Date: 1993/07/19 12:41:13 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -164,7 +164,11 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 	      case FM_DEL_INSERT:case FM_EXTRACT:case FM_EXTRC_KEEP:
 	      case FM_ReNAME:Qnext_arg();
 		 if(!breakfield(chp,lnl=strlen(chp)))
-		    goto invfield;
+		    if(lnl||chp!=*argv)
+		       goto invfield;
+		    else
+		     { free(fldp);*afldp=0;break;	 /* silently drop it */
+		     }
 		 chp[lnl]='\n';			       /* terminate the line */
 		 afldp=addfield(lastm==FM_REN_INSERT?&iheader:
 		  lastm==FM_DEL_INSERT?&Iheader:lastm==FM_ADD_IFNOT?&aheader:
@@ -183,10 +187,7 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		       tmemmove(fldp->fld_text+lnl,chp,i),copied=1;
 		    else if(!(chp=(char*)*++argv)||	 /* look at next arg */
 		     !(i=breakfield(chp,strlen(chp))))		/* no field? */
-		     { if(chp&&!*chp)		    /* empty field, silently */
-			{ free(fldp);*afldp=0;break;		  /* drop it */
-			}
-invfield:	       nlog("Invalid field-name:");logqnl(chp?chp:"");
+invfield:	     { nlog("Invalid field-name:");logqnl(chp?chp:"");
 		       goto usg;
 		     }
 		    *afldp=fldp=
@@ -329,8 +330,9 @@ newnamep:	 if(namep)
 	if(namep)			  /* we found a valid return address */
 	   loadbuf(namep,strlen(namep));
 	else
-	   loadbuf(unknown,STRLEN(unknown));			    /* Date: */
-	if(!hdate->rexl||!findf(fdate,aheader))
+	   loadbuf(unknown,STRLEN(unknown));
+	loadchar(' ');				   /* insert one extra blank */
+	if(!hdate->rexl||!findf(fdate,aheader))			    /* Date: */
 	   loadchar(' '),chp=ctime(&t),loadbuf(chp,strlen(chp)); /* no Date: */
 	else					 /* we generate it ourselves */
 	   loadsaved(hdate);	      /* yes, found Date:, then copy from it */

@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.24 1993/07/16 14:52:03 berg Exp $
+#$Id: rc.submit,v 1.25 1993/07/19 12:40:58 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -21,98 +21,102 @@ INCLUDERC=$RC_CUSTOM
 #
 
 :0 Wh
-	* < $size_limit
-	* $!^$X_COMMAND:
-	* !^Subject:([	 ]*(archive([	 ]+((send|get)(me)?|gimme|retrieve|\
-	   mail|ls|dir(ectory)?|list|show|help|info)([	 ]|$))|[	 ]*$)|\
-	   (help|info)[	 ]*$)|[^:]*( (add .* to|(delete|remove) .* from|\
-	   take .* off|put .* on) .* [a-z-]*list|subscri(be|ption))
-	* $!^X-Loop: $listaddr
-	* !^Precedence:.*junk|^FROM_MAILER
-METOO=	| formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
-	    -xResent-Reply-To: -xResent-Sender: | \
-	   multigram -b1 -m -l$submit_threshold accept
+* < $size_limit
+* $!^$X_COMMAND:
+* !^Subject:([	 ]*(archive([	 ]+((send|get)(me)?|gimme|retrieve|\
+   mail|ls|dir(ectory)?|list|show|search|[fe]?grep|find|help|info)\
+   ([	 ]|$))|[	 ]*$)|\
+   (help|info)[	 ]*$)|[^:]*( (add .* to|(delete|remove) .* from|\
+   take .* off|put .* on) .* [a-z-]*list|subscri(be|ption))
+* $!^X-Loop: $listaddr
+* !^Precedence:.*junk|^FROM_MAILER
+| test yes != "$foreign_submit" && exit 0; \
+  formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
+   -xResent-Reply-To: -xResent-Sender: | \
+    multigram -b1 -m -l$submit_threshold accept
 
-	:0 A
-	* $$moderated_flag
-	* !Approved:
-	* !? formail -xApproved: | \
-	      multigram -b1 -m -l$reject_threshold moderators
-	| formail -R"From X-Envelope-From:" -IReturn-Receipt-To: \
-	  | $SENDMAIL $sendmailOPT `cat moderators`
+  :0 a
+   {
 
-#
-# Eliminate duplicate submissions by checking the Message-ID: field.
-#
+     :0
+     * $$moderated_flag
+     * !Approved:
+     * !? formail -xApproved: | \
+	   multigram -b1 -m -l$reject_threshold moderators
+     | formail -R"From X-Envelope-From:" -IReturn-Receipt-To: \
+	| $SENDMAIL $sendmailOPT `cat moderators`
 
-	:0 A Wh:msgid.lock
-	| formail -xMessage-ID: | idcheck $idcache_size msgid.cache
+     #
+     # Eliminate duplicate submissions by checking the Message-ID: field.
+     #
 
-#
-# Check if this is a digested mailinglist.  If yes, processing stops here
-# and the mail will be added to the digest.
-#
+     :0 Wh :msgid.lock
+     | formail -xMessage-ID: | idcheck $idcache_size msgid.cache
 
-	:0 A W :tmp.lock
-	* $$digest_flag
-	| digest
+     #
+     # Check if this is a digested mailinglist.	 If yes, processing stops
+     # here and the mail will be added to the digest.
+     #
 
-	ARCHIVE				# Wipe ARCHIVE from the environment
+     :0 W :tmp.lock
+     * $$digest_flag
+     | digest
 
-#
-# Check if we are the first mailinglist to distribute this message, if so
-# archive the message.
-#
+     ARCHIVE				# Wipe ARCHIVE from the environment
 
-	:0 A
-	* !^X-Mailing-List:
-	{
-		:0 c
-		archive/latest/.
+     #
+     # Check if we are the first mailinglist to distribute this message, if so
+     # archive the message.
+     #
 
-		ARCHIVE=$LASTFOLDER	# Remember where it was archived
+     :0
+     * !^X-Mailing-List:
+      {
+	:0 c
+	archive/latest/.
 
-		#
-		# Truncate the archive to the correct number of files (and
-		# possibly other housekeeping chores to keep the archive
-		# current).
-		#
+	ARCHIVE=$LASTFOLDER		# Remember where it was archived
 
-		:0 c hi
-		| arch_trunc
-	}
+	#
+	# Truncate the archive to the correct number of files (and
+	# possibly other housekeeping chores to keep the archive
+	# current).
+	#
 
-#
-# Main header munger for submissions passing through this list.
-#
+	:0 c hi
+	| arch_trunc
+      }
 
-	:0 A wfh
-	| formail -b -IFrom\  -IReceived: -IReturn-Receipt-To: -IErrors-To: \
-	   -iReturn-Path: -iX-Envelope-To: -iX-Envelope-From: \
-	   -I"Precedence: list" -I"Resent-Sender: $listreq" \
-	   -a"Resent-From: $listaddr" -A"X-Loop: $listaddr" \
-	   -a"Subject: Unidentified subject!" -a "$reply_to" \
-	   -a"X-Mailing-List: <$listaddr> $ARCHIVE"
+     #
+     # Main header munger for submissions passing through this list.
+     #
 
-#
-# The following recipe will distribute the message to the subscribers.
-#
+     :0 wfh
+     | formail -b -IFrom\  -IReceived: -IReturn-Receipt-To: -IErrors-To: \
+	-iReturn-Path: -iX-Envelope-To: -iX-Envelope-From: \
+	-I"Precedence: list" -I"Resent-Sender: $listreq" \
+	-a"Resent-From: $listaddr" -A"X-Loop: $listaddr" \
+	-a"Subject: Unidentified subject!" -a "$reply_to" \
+	-a"X-Mailing-List: <$listaddr> $ARCHIVE"
 
-	:0 A w: dist.lock
-	* !? test -z "$foreign_submit$METOO"
-	! $sendmailOPT $METOO $listdist
+     #
+     # The following recipe will distribute the message to the subscribers.
+     #
 
-       #! $sendmailOPT $METOO `sed -e '/^(.*)$/ d' dist` ;
-	# alternate sendmail call (if you don't have file-including aliases)
+     :0 w: dist.lock
+     ! $sendmailOPT $listdist
 
-result=$?
+     #! $sendmailOPT `sed -e '/^(.*)$/ d' dist` ;
+     # alternate sendmail call (if you don't have file-including aliases)
 
-	:0 A wfh
-	* ? test 0 != $result
-	| formail -A "X-Diagnostic: $SENDMAIL $listdist failed"
 
-	:0 A wfh
-	* ? test -z "$foreign_submit$METOO"
-	| formail -A "X-Diagnostic: Not on the subscriber list"
+     :0 wfh
+     | formail -A "X-Diagnostic: $SENDMAIL $listdist failed"
+
+     HOST=continue_with_rc.request
+   }
+
+  :0 A wfh
+  | formail -A "X-Diagnostic: Not on the accept list"
 
 HOST=continue_with_rc.request

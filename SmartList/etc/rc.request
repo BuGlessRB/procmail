@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.22 1993/07/16 14:51:59 berg Exp $
+#$Id: rc.request,v 1.23 1993/07/19 12:40:53 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -59,8 +59,8 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 	:0 HBA w
 	* ^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
 	   ((archive([	 ]|$))|(archive[	 ]+)?\
-	   ((send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|list|show)\
-	   ([	 ]|$))
+	   ((send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|list|show|\
+	    search|[fe]?grep|find)([	 ]|$))
 	| arch_retrieve
 
 #
@@ -68,7 +68,8 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 #
 
 	:0 HBA w:dist.lock
-	* ^^(.+$)*Subject:[	 ]*(($(.+$)*(^[	 ]*)+)?(delete|remove|unsub)|\
+	* ^^(.+$)*Subject:[	 ]*(($(.+$)*(^[	 ]*)+)?\
+	   (signoff|delete|remove|unsub)|\
 	   ($(.*$)*)?(.*[^a-z])?(unsubscri|\
 	   ((delete|remove) .* from|take .* off) .* [a-z-]*list([^a-z]|$)))
 	| unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from`
@@ -82,7 +83,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 	:0 HBA w $cc_requests:dist.lock
 	* $$auto_subscribe
 	* ^^(.+$)*Subject:[	 ]*(\
-	   ($(.+$)*(^[	 ]*)+)?(add|sub(scri|[	 ]|$)?)|\
+	   ($(.+$)*(^[	 ]*)+)?(signon|add|sub(scri|[	 ]|$)?)|\
 	   ($(.*$)*)?(.*[^a-z])?(subscri|(add .* to|put .* on) .* [a-z-]*list\
 	   ([^a-z]|$)))
 	* !?multigram -b1 -l$reject_threshold reject
@@ -146,23 +147,22 @@ LOCKFILE				# we don't need the lockfile anymore
 :0
 * !^X-(Diagnostic|Processed):
 {
+  :0 wfh
+  * $^$X_COMMAND:
+  | formail -A "X-Diagnostic: Suspicious $X_COMMAND format"
 
-	:0 wfh
-	* $^$X_COMMAND:
-	| formail -A "X-Diagnostic: Suspicious $X_COMMAND format"
+  :0 HB wfh
+  * ?multigram -b1 -l$reject_threshold reject
+  | formail -A "X-Diagnostic: Found on the reject list" \
+     -A "X-Diagnostic: `multigram -b1 -l$reject_threshold reject`"
 
-	:0 HB wfh
-	* ?multigram -b1 -l$reject_threshold reject
-	| formail -A "X-Diagnostic: Found on the reject list" \
-	   -A "X-Diagnostic: `multigram -b1 -l$reject_threshold reject`"
-
-	:0 HB wfh
-	* ^((Subject:)?[a-z,.	 ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
-				      (add .* to|put .* on) .* list)([^a-z]|$))
-	* ?multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
-	| formail -A "X-Diagnostic: Already on the subscriber list" \
-	   -A "X-Diagnostic: `multigram -b1 -x$listreq -x$listaddr \
-	    -l$reject_threshold dist`"
+  :0 HB wfh
+  * ^((Subject:)?[a-z,.	 ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
+			      (add .* to|put .* on) .* list)([^a-z]|$))
+  * ?multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
+  | formail -A "X-Diagnostic: Already on the subscriber list" \
+     -A "X-Diagnostic: `multigram -b1 -x$listreq -x$listaddr \
+     -l$reject_threshold dist`"
 }
 
 :0 wfh

@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.17 1993/07/16 14:52:12 berg Exp $
+.Id $Id: procmailex.man,v 1.18 1993/07/19 12:41:05 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -268,14 +268,40 @@ If someone sends you a mail with the word `retrieve' in the subject, the
 following will automatically send back the contents of info_file to the
 sender.  Like in all recipes where we send mail, we watch out for mail
 loops.
-.Sx 7
-:0 @CONTINUE@@FILTER@@PASS_HEAD@
-* !^X-Loop: yourname@your.main.mail.address
+.Sx 9
+:0 @CONTINUE@@FILTER@
+* !^From +YOUR_LOGIN_NAME
+* !^Subject:.*Re:
+* !^FROM_DAEMON
 * ^Subject:.*retrieve
-| formail -r -A"X-Loop: yourname@your.main.mail.address"
+| formail \-@FM_REPLY@
 
-  :0 A
-  | (cat ; cat info_file ) | $SENDMAIL -oi -t
+  :0 @ALSO_NEXT_RECIPE@
+  | (cat ; cat info_file) | $SENDMAIL \-oi \-t
+.Ex
+Now follows an example for a very simple fileserver accessible by mail.
+For more demanding applications, I suggest you take a look at the mailinglist
+package included with the procmail source distribution.  The most notable
+deficiency of the `fileserver' you see below is that it doesn't do any
+access checking.
+.Sx 17
+:0
+* !^X-Loop: yourname@your.main.mail.address
+* !^Subject:.*Re:
+* !^FROM_DAEMON
+* ^Subject:.*request
+{
+  MAILDIR=$HOME/fileserver              # chdir to the fileserver directory
+
+  :0 @PASS_HEAD@                        # extract the requested filename(s)
+  FILES=| sed \-n \-e 's/^Subject:.*request \(.*\)/\1/p'
+
+  :0 @FILTER@                           # reverse the mailheader
+  | formail \-@FM_REPLY@@FM_ADD_ALWAYS@ "X-Loop: yourname@your.main.mail.address"
+
+  :0
+  | (cat; cat $FILES) | $SENDMAIL \-oi \-t
+}
 .Ex
 The following one is rather exotic, but it only serves to demonstrate a
 feature.  Suppose you have a file in your HOME directory called ".urgent",
@@ -290,7 +316,7 @@ URGMATCH=`cat $HOME/.urgent`
 :0 @BODY_GREP@:
 * $^From.*${URGMATCH}.*
 urgent
-.Re
+.Ex
 .Sh "SEE ALSO"
 .na
 .nh

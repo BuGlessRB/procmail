@@ -1,4 +1,4 @@
-$Id: Manual,v 1.12 1993/07/16 14:51:09 berg Exp $
+$Id: Manual,v 1.13 1993/07/19 12:40:30 berg Exp $
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
@@ -42,20 +42,24 @@ it creates an archive server.
 
 The fourth command removes all traces of the "testing" mailinglist again.
 
-There are two other convenience-utilitis that can be used:
+There are three other convenience-utilitis that can be used:
 	delink
 		It will unlink a file from its hardlinked counterpart(s)
 		(without deleting it).
 	showlink
 		It will display what groups of files are linked together.
+	donatelist
+		It will put a list under complete and exclusive control
+		of the maintainer (a local user).  See below.
 
 If you are running several lists maintained by separate maintainers, you
 can give a maintainer complete and sole control over his or her own list
 without the need for them to have user list or group list rights.
-For this to work, you simply have to "chown -R the_maintainer his_list"
+For this to work, you simply have to "donatelist the_maintainer his_list"
 the whole tree that contains his list to him (her).  Make sure that the
-group id of all files in the tree are still group-writeable by "list",
-because that's the access privilege the mailinglist will be running under.
+group id of all necessary files in the tree are still group-writeable by
+"list", because that's the access privilege the mailinglist will be running
+under.
 
 The maintainer has to be careful to use an umask of 007 while editing in
 his mailinglist directory.  This allows the mailinglist-programs to function
@@ -263,8 +267,15 @@ Then, if it was a regular submission to thelist@domain:
 	- flist execs procmail with rcfile rc.submit
 		- pulls in rc.init that sets up the defaults
 		- pulls in rc.custom that overrides some defaults (if any)
-		- checks the submission format and fires of sendmail to
-		  send the mail to thelist-dist@domain
+		- checks the submission format
+			- if needed it now checks:
+				- the accept list
+				- the moderators list (Approved:)
+			- checks the msgid cache for duplicate submissions
+			- if needed does digest processing (and stop)
+		- archives the mail
+		- munges the header of the mail to taste
+		- fires of sendmail to send the mail to thelist-dist@domain
 	- If the mail was an administrative request, it does not get
 	  passed on to the list, instead, procmail pulls in rc.request
 
@@ -306,10 +317,11 @@ to the -request address with the following Subject:
 
 The body of the mail or the rest of the subject line can then be
 filed with requests to the archive server.  It basically understands
-three commands:
+four commands:
 
 	get file ...
 	ls directory ...
+	egrep case_insensitive_regular_expression file ...
 	help
 
 The archive server does a thorough check on the commands and the files

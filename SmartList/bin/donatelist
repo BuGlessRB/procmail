@@ -1,0 +1,91 @@
+#! /bin/sh
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
+#########################################################################
+#	donatelist	To give a local user exclusive rights to a	#
+#			 mailinglist					#
+#									#
+#	Created by S.R. van den Berg, The Netherlands			#
+#########################################################################
+#$Id: donatelist,v 1.1 1993/07/19 12:40:43 berg Exp $
+
+defaults=.etc
+
+test=test		# /bin/test
+ls=ls			# /bin/ls
+pwd=pwd			# /bin/pwd
+echo=echo		# /bin/echo
+touch=touch		# /bin/touch
+chown=chown		# /bin/chown
+chmod=chmod		# /bin/chmod
+mkdir=mkdir		# /bin/mkdir
+
+EX_USAGE=64
+EX_UNAVAILABLE=69
+
+if $test ! -d $defaults
+then
+  if $test -d list
+  then cd ./list
+  else cd ..
+     $test -d $defaults || cd ..
+  fi
+fi
+if $test ! -d $defaults
+then
+  $echo "donatelist: You should be near the main list directory to do this" \
+   1>&2
+  exit $EX_USAGE
+fi
+
+if $test $# != 2
+then $echo "Usage: donatelist username listname" 1>&2; exit $EX_USAGE
+fi
+
+user="$1"
+list="$2"
+
+case "$list" in
+  ../*|*/..|*/../*|*/*) $echo "donatelist: Suspicious listname specified" 1>&2
+     exit $EX_USAGE;;
+  *[@!]*) $echo "donatelist: Specify listname without domain name appended" \
+     1>&2; exit $EX_USAGE;;
+esac
+
+if test ! -d "$list"
+then $echo "donatelist: \"$list\" doesn't exist" 1>&2
+  $echo 1>&2
+  $echo "Existing mailinglists:" 1>&2
+  $echo 1>&2
+  $ls 1>&2
+  $echo 1>&2
+  exit $EX_USAGE
+fi
+
+fragilef="log tmp.from tmp.request msgid.cache request"
+fragiled="bounce"
+miscf="dist accept"
+
+if $chown $user $list
+then
+:
+else
+  $echo 2>&1 "donatelist: Can't chown files"; exit $EX_UNAVAILABLE
+fi
+
+cd $list
+
+$chmod g+w dist archive
+
+( umask 0
+  $touch $fragilef
+  $mkdir $fragiled 2>/dev/null
+)
+$chown $user $fragilef $fragiled $miscf archive
+$chmod 0660 $fragilef
+$chmod 0770 $fragiled
+
+$chmod -R g+w archive/latest archive/volume* 2>/dev/null
+$chown -R $user archive/latest archive/volume* 2>/dev/null
+
+$ls -la

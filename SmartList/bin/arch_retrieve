@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.16 1993/07/16 14:51:20 berg Exp $
+#$Id: arch_retrieve,v 1.17 1993/07/19 12:40:36 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -8,10 +8,14 @@ ls=ls			# /bin/ls
 rm=rm			# /bin/rm
 sed=sed			# /bin/sed
 cat=cat			# /bin/cat
+egrep=egrep		# /bin/egrep
+nice=nice		# /bin/nice
 formail=formail		# /usr/local/bin/formail
 
 $test -z "$listaddr" &&
  $echo "Don't start this script directly, it is used in rc.request" && exit 64
+
+breakoff_search=64		# the maximum number of matches returned
 
 tmprequest=tmp.request
 tmpfrom=tmp.from
@@ -80,7 +84,7 @@ $wrongaddress"
 	    $test $# = 1 && set dummy .
 	    while shift; $test $# != 0
 	    do
-	       $echo $from "$1" ls >>$tmpfrom
+	       $echo $from ls "$1" >>$tmpfrom
 	       case "$1" in
 		  */../*|../*|*/..|..|[-/]*)
 		     $test -z "$ILLEGAL" && ILLEGAL="$1";;
@@ -103,6 +107,28 @@ $wrongaddress"
 		   ) | $SENDMAIL $sendmailOPT -t ;;
 	       esac
 	    done ;;
+	 search|grep|egrep|fgrep|find\
+	 SEARCH|GREP|EGREP|FGREP|FIND)
+	    $echo $from egrep "$line" >>$tmpfrom
+	    regxp="$1"; shift
+	    case "$*" in
+	       */../*|../*|*/..|..|[-/]*)
+		  $test -z "$ILLEGAL" && ILLEGAL="$line";;
+	       *)
+		( $formail -rt -I"Subject: archive retrieval: egrep $line" \
+		   -i"From: $listreq" -A"X-Loop: $listaddr" \
+		   -I"Precedence: bulk" <$tmprequest
+		  $test ! -z "$wrongaddress" && $echo "$wrongaddress" &&
+		   wrongaddress=""
+		  cd $archivedir
+		  $echo "egrep -n -i -e $line"
+		  $echo "BEGIN---------------cut here------------------"
+		  $nice $egrep -n -i -e $regxp $* 2>&1 |
+		   $sed -e 'a\
+Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
+		  $echo "END-----------------cut here------------------"
+		) | $SENDMAIL $sendmailOPT -t ;;
+	    esac ;;
 	 "") ;;
 	 *) $test -z "$sendhelp" && sendhelp="$1" ;;
       esac
@@ -120,13 +146,16 @@ $wrongaddress"
 	 $echo ""
 	 $echo "get filename ..."
 	 $echo "ls directory ..."
+	 $echo "egrep case_insensitive_regular_expression filename ..."
 	 $echo ""
 	 $echo "Aliases for 'get': send, sendme, getme, gimme, retrieve, mail"
 	 $echo "Aliases for 'ls': dir, directory, list, show"
+	 $echo "Aliases for 'egrep': search, grep, fgrep, find"
 	 $echo ""
 	 $echo "Examples:"
 	 $echo "ls latest"
 	 $echo "get latest/12"
+	 $echo "egrep some.word latest/*"
        ) | $SENDMAIL $sendmailOPT -t
    fi
  )

@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.31 1993/07/16 14:52:43 berg Exp $";
+ "$Id: multigram.c,v 1.32 1993/07/19 12:41:18 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/07/16 14:52:43 $";
+static /*const*/char rcsdate[]="$Date: 1993/07/19 12:41:18 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -289,7 +289,7 @@ idcusg:		  { elog(idcusage);return EX_USAGE;
 	      if(++k==buflen-1)			      /* keep one char slack */
 		 buf=realloc(buf,buflen+=BUFSTEP);
 	   if(!k)					      /* empty input */
-	      return EX_OK;				/* no duplicate then */
+	      return 1;					/* no duplicate then */
 	   buf[k]='\0';
 	 }
 	;{ int i;char*p;
@@ -298,7 +298,7 @@ idcusg:		  { elog(idcusage);return EX_USAGE;
 		 if(!i)					     /* end of word? */
 		  { if(!quiet)
 		       nlog("Duplicate ID found:"),elog(buf);
-		    return 1;			     /* YES! duplicate found */
+		    return EX_OK;		     /* YES! duplicate found */
 		  }
 	      if(!i)					     /* end of word? */
 	       { if(p==buf&&insoffs==maxlen)		 /* first character? */
@@ -320,7 +320,7 @@ skiprest:	 for(;;)			/* skip the rest of the word */
 noluck: if(insoffs>=maxlen)				  /* past our quota? */
 	   insoffs=0;				     /* start up front again */
 	fseek(cache,insoffs,SEEK_SET);buf[++k]='\0';fwrite(buf,1,k+1,cache);
-	fclose(cache);return EX_OK;	     /* clean up and report mismatch */
+	fclose(cache);return 1;		     /* clean up and report mismatch */
       }
      if(!strcmp(chp,senddigest))		      /* senddigest program? */
       { struct stat stbuf;

@@ -1,4 +1,4 @@
-#!/bin/sh
+#! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #########################################################################
@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.17 1993/07/16 14:51:26 berg Exp $
+#$Id: createlist,v 1.18 1993/07/19 12:40:39 berg Exp $
 
 defaults=.etc
 

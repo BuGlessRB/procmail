@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.38 1993/07/16 14:52:47 berg Exp $";
+ "$Id: procmail.c,v 1.39 1993/07/19 12:41:24 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -177,7 +177,7 @@ privileged:
 	;{ time_t t;char*chp3;
 	   t=time((time_t*)0);chp3=ctime(&t);		 /* the current time */
 	   strncpy(buf2,chp2,i=linebuf-strlen(chp3)-2);buf2[i]='\0';
-	   strcat(strcat(buf2," "),chp3);
+	   strcat(strcat(buf2,"	 "),chp3);
 	 }
 	;{ size_t already;
 	   thebody=themail=
