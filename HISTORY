@@ -102,13 +102,13 @@
 	    Changes to formail:
 	       - formail does *NOT* CONCATENATE continued header-fields by
 		 default now anymore, specify the -c option for this
-	       - fixed the sender-determination-code (in v2.71 one source-line
-		 mysteriously vanished :-), didn't cause any serious problems
-		 unless someone used an awkward mail address
+	       - fixed the sender-determination-code, v2.71 didn't comply
+		 with RFC-822 on some points
+	       - the sender-determination-code now minimises the mailaddress
 	       - taught formail about some more headers, previously formail
 		 would refuse to split some mail-articles because it didn't
 		 recognise the second field
-	       - made it strip the <> when not strictly needed
+	       - made it strip the <> on generated mail addresses
 	       - reorganised the known header-fields into the header.h file
 		 (to allow convenient additions)
 	       - introduced the -l option, for generating procmail-alike
