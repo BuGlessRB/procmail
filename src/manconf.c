@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.34 1994/02/08 16:14:49 berg Exp $*/
+/*$Id: manconf.c,v 1.35 1994/02/11 19:08:40 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -247,6 +247,7 @@ See also:\1.BR DROPPRIVS .":"");
   pc("FM_MINFIELDS",FM_MINFIELDS);
   pn("DEFminfields",DEFminfields);
   pc("FM_DIGEST",FM_DIGEST);
+  pc("FM_BABYL",FM_BABYL);
   pc("FM_QUIET",FM_QUIET);
   pc("FM_EXTRACT",FM_EXTRACT);
   pc("FM_EXTRC_KEEP",FM_EXTRC_KEEP);
