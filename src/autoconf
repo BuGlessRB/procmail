@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.19 1992/12/09 12:59:21 berg Exp $
+#$Id: autoconf,v 1.20 1992/12/10 12:15:50 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -95,6 +95,18 @@ then
   echo '* irregularities, stop the make, do a: "make clean",		      *'
   echo '* clear LD_LIBRARY_PATH from the environment, and start over.	      *'
   echo '***************************** WARNING *********************************'
+fi
+
+echo hi | $FGREP hi >$DEVNULL
+t=$?
+echo ho | $FGREP hi >$DEVNULL
+f=$?
+if test 0 != $t -o 0 = $f
+then
+  echo "Your \"$FGREP\" program seems to be uncapable of returning a proper"
+  echo "exitvalue depending on the success of the search.  This script can"
+  echo "not work without it."
+  exit 2
 fi
 
 nocore=yes

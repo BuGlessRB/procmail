@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.14 1992/12/03 14:15:14 berg Exp $";
+ "$Id: formail.c,v 1.15 1992/12/10 12:15:58 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1992/12/03 14:15:14 $";
+static /*const*/char rcsdate[]="$Date: 1992/12/10 12:15:58 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -70,8 +70,8 @@ size_t nrskip,nrtotal= -1,buflen,buffilled;
 long totallen;
 char*buf,*logsummary;
 struct field*rdheader;
-static struct field*iheader,*Iheader,*aheader,*Aheader,*xheader,*Rheader,
- *nheader;
+static struct field*iheader,*Iheader,*aheader,*Aheader,*xheader,*Xheader,
+ *Rheader,*nheader;
 
 static void logfolder P((void))	 /* estimate the no. of characters needed to */
 { size_t i;char num[8*sizeof totallen*4/10+1];	       /* represent totallen */
@@ -148,14 +148,15 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		 continue;
 	      case FM_BOGUS:bogus=0;continue;
 	      case FM_ADD_IFNOT:case FM_ADD_ALWAYS:case FM_REN_INSERT:
-	      case FM_DEL_INSERT:case FM_EXTRACT:case FM_ReNAME:Qnext_arg();
+	      case FM_DEL_INSERT:case FM_EXTRACT:case FM_EXTRC_KEEP:
+	      case FM_ReNAME:Qnext_arg();
 		 if(!breakfield(chp,lnl=strlen(chp)))
 		    goto invfield;
 		 chp[lnl]='\n';			       /* terminate the line */
 		 afldp=addfield(lastm==FM_REN_INSERT?&iheader:
 		  lastm==FM_DEL_INSERT?&Iheader:lastm==FM_ADD_IFNOT?&aheader:
 		  lastm==FM_ADD_ALWAYS?&Aheader:lastm==FM_EXTRACT?&xheader:
-		  &Rheader,chp,++lnl);
+		  lastm==FM_EXTRC_KEEP?&Xheader:&Rheader,chp,++lnl);
 		 if(lastm==FM_ReNAME)	      /* then we need a second field */
 		  { int copied=0;
 		    for(namep=(chp=(fldp= *afldp)->fld_text)+lnl,
@@ -191,9 +192,9 @@ parsedoptions:
    }
   else if(every||digest||minfields)	      /* these combinations are only */
      goto usg;				  /* valid in combination with split */
-  if(xheader&&logsummary||keepb&&!(areply||xheader)) /* options sanity check */
-usg:							   /* impossible mix */
-   { elog(fmusage);
+  if((xheader||Xheader)&&logsummary||keepb&&!(areply||xheader))
+usg:						     /* options sanity check */
+   { elog(fmusage);					   /* impossible mix */
 xusg:
      return EX_USAGE;
    }
@@ -325,8 +326,10 @@ foundfrom:
 	   putssn(chp,i>=MAXSUBJECTSHOW?MAXSUBJECTSHOW:i);putcs('\n');
 	 }
       }
-     else if(findf(fldp,xheader))			   /* extract fields */
+     else if(findf(fldp,xheader))		   /* extract field contents */
 	putssn(chp+lnl,fldp->tot_len-lnl);
+     else if(findf(fldp,Xheader))			   /* extract fields */
+	putssn(chp,fldp->tot_len);
      if(findf(fldp,Iheader))				    /* delete fields */
       { *afldp=fldp->fld_next,free(fldp);fldp= *afldp;continue;
       }
@@ -338,14 +341,14 @@ foundfrom:
    }					/* restore the saved contents of buf */
   tmemmove(buf,parkedbuf,buffilled=lenparkedbuf);free(parkedbuf);
  }
-  if(xheader)				     /* we're just extracting fields */
+  if(xheader||Xheader)			     /* we're just extracting fields */
      clearfield(&rdheader),clearfield(&nheader);	    /* throw it away */
   else			     /* otherwise, display the new & improved header */
    { flushfield(&rdheader);flushfield(&nheader);dispfield(Aheader);
      dispfield(iheader);dispfield(Iheader);lputcs('\n');  /* make sure it is */
    }						/* followed by an empty line */
-  if(!keepb&&(areply||xheader))	      /* decision time, do we keep the rest? */
-   { logfolder();
+  if(!keepb&&(areply||xheader||Xheader))		    /* decision time */
+   { logfolder();				   /* we throw away the rest */
      if(split)
 	closemine();
      opensink();					 /* discard the body */

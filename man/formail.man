@@ -1,4 +1,4 @@
-.Id $Id: formail.man,v 1.5 1992/11/11 13:58:13 berg Exp $
+.Id $Id: formail.man,v 1.6 1992/12/10 12:15:43 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .SH NAME
 .na
@@ -13,20 +13,22 @@ formail \- mail (re)formatter
 .if n .ti +0.5i
 .RB [ \-+FM_EXTRACT+
 .IR "header field" ]
+.RB [ \-+FM_EXTRC_KEEP+
+.IR "header field" ]
+.if n .ti +0.5i
 .RB [ \-+FM_ADD_IFNOT+
 .IR "header field" ]
-.if n .ti +0.5i
 .RB [ \-+FM_ADD_ALWAYS+
 .IR "header field" ]
+.if n .ti +0.5i
 .RB [ \-+FM_REN_INSERT+
 .IR "header field" ]
-.if n .ti +0.5i
 .RB [ \-+FM_DEL_INSERT+
 .IR "header field" ]
+.if n .ti +0.5i
 .RB [ \-+FM_ReNAME+
 .I "oldfield"
 .IR "newfield" ]
-.if n .ti +0.5i
 .RB [ \-+FM_SPLIT+
 .I command
 .I arg
@@ -108,9 +110,14 @@ before it decides it found the start of a new message, it defaults to
 Tells formail to ignore any write errors on stdout.
 .Tp
 .I "\fB\-+FM_EXTRACT+\fP header field"
-Extract this
+Extract the contents of this
 .I header field
 from the header, display it as a single line.
+.Tp
+.I "\fB\-+FM_EXTRC_KEEP+\fP header field"
+Same as
+.BR \-+FM_EXTRACT+ ,
+but also preserves the field name.
 .Tp
 .I "\fB\-+FM_ADD_IFNOT+\fP header field"
 Append a custom

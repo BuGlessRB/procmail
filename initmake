@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.13 1992/12/07 20:03:01 berg Exp $
+#$Id: initmake,v 1.14 1992/12/10 12:15:30 berg Exp $
 
 PATH=:$PATH
 BSHELL=$1
@@ -136,6 +136,7 @@ test ! -f $USRINC/dirent.h -a ! -f $USRINC/ndir.h -a -f $USRINC/sys/ndir.h ||
  LDFLAGS=`checklib dir`
 LDFLAGS=`checklib x`
 LDFLAGS=`checklib net`
+LDFLAGS=`checklib inet`
 LDFLAGS=`checklib nsl_s`
 LDFLAGS=`checklib nsl`
 LDFLAGS=`checklib gen`

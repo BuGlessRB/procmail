@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.9 1992/12/07 17:43:11 berg Exp $*/
+/*$Id: includes.h,v 1.10 1992/12/10 12:16:06 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -27,8 +27,8 @@
 #include <time.h>		/* time() ctime() time_t */
 #include <fcntl.h>		/* fcntl() struct flock O_RDONLY O_WRONLY
 				   O_APPEND O_CREAT O_EXCL */
-#include <pwd.h>		/* getpwuid() getpwnam() struct passwd */
 #include <grp.h>		/* getgrgid() struct group */
+#include <pwd.h>		/* getpwuid() getpwnam() struct passwd */
 #ifndef DIRENT_H_MISSING
 #include <dirent.h>		/* opendir() readdir() closedir() DIR
 				   struct dirent */

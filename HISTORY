@@ -78,7 +78,7 @@
 	       demand (examples/mailstat)
 	    Gave procmail, formail, lockfile and mailstat a more verbose
 	       command line help (called up by -h or -?)
-1992/12/01: v2.80
+1992/12/10: v2.80
 	    Started using CVS to manage the source (god's gift to programmers)
 	    In procmail, lockfile and formail I built in a sanity check now,
 	       in case they would be called with argc==0
@@ -108,13 +108,14 @@
 		 (to allow convenient additions)
 	       - introduced the -l option, for generating procmail-alike
 		 summaries
-	       - introduced the -R option for renaming header-fields (to make
-		 the toolset complete)
+	       - introduced the -R option for renaming header-fields
 	       - taught it about the Resent- fields when looking for a reply
 		 address
 	       - made sure that it does not generate an extra empty line at
 		 the end of a mail with no body
 	       - fixed the '-nnn' option, somehow this got broken
+	       - added the -X option for extracting complete fields (to make
+		 the toolset complete)
 	    Changes to procmail:
 	       - procmail does *NOT* CONCATENATE continued header-fields
 		 anymore, filter through "formail -c" for this

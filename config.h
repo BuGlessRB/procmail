@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.12 1992/12/07 17:42:53 berg Exp $*/
+/*$Id: config.h,v 1.13 1992/12/10 12:15:26 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -211,14 +211,15 @@ serv(ices?|er))([^.a-z]|$))"	       /* should match most kinds of daemons */
 #define FM_DIGEST	'd'				 /* split up digests */
 #define FM_QUIET	'q'		    /* ignore write errors on stdout */
 #define FM_EXTRACT	'x'			   /* extract field contents */
+#define FM_EXTRC_KEEP	'X'				    /* extract field */
 #define FM_ADD_IFNOT	'a'		 /* add a field if not already there */
 #define FM_ADD_ALWAYS	'A'		       /* add this field in any case */
 #define FM_REN_INSERT	'i'			/* rename and insert a field */
 #define FM_DEL_INSERT	'I'			/* delete and insert a field */
 #define FM_ReNAME	'R'				   /* rename a field */
 #define FM_USAGE	"\
-Usage: formail [+nnn] [-nnn] [-bcfrktnedq] [-m nnn] [-l folder] [-xaAiI field]\
-\n\t[-R ofield nfield] [-s prg arg ...]\n"
+Usage: formail [+nnn] [-nnn] [-bcfrktnedq] [-m nnn] [-l folder]\
+ [-xXaAiI field]\n\t[-R ofield nfield] [-s prg arg ...]\n"
 #define FM_HELP		\
  "\t-b\tdon't escape bogus mailbox headers\
 \n\t-c\tconcatenate continued header-fields\
@@ -235,9 +236,7 @@ Usage: formail [+nnn] [-nnn] [-bcfrktnedq] [-m nnn] [-l folder] [-xaAiI field]\
 \n\t-m nnn\tmin fields threshold (default 2) for start of message\
 \n\t+nnn\tskip the first nnn messages while splitting\
 \n\t-nnn\toutput at most nnn messages while splitting\
-\n\t-x field\t\textract\
-\n\t-a field\t\tadd if not present\
-\n\t-A field\t\tadd in any case\
-\n\t-i field\t\trename and insert\
-\n\t-I field\t\tdelete and insert\
+\n\t-x field   extract contents\t-X field   extract fully\
+\n\t-a field   add if not present\t-A field   add in any case\
+\n\t-i field   rename and insert\t-I field   delete and insert\
 \n\t-R oldfield newfield\trename\n"
