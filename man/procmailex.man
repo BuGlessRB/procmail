@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.36 1994/08/30 16:15:48 berg Exp $
+.Id $Id: procmailex.man,v 1.37 1994/09/09 12:39:35 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -153,7 +153,7 @@ SHELL=/bin/sh    # for other shells, this might need adjustment
 * !^FROM_DAEMON
 * !^X-Loop: your@own.mail.address
 {
-  FROM=`formail \-@FM_REPLY@@FM_EXTRACT@ To:`
+  FROM=`formail \-@FM_REPLY@@FM_SKIPWHITE@@FM_EXTRACT@ To:`
   ALREADYSENT=$HOME/vacation     # the vacation database
 
   :0 @CONTINUE@:                       # the lockfile is important
