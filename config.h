@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.93 2000/11/18 06:49:01 guenther Exp $*/
+/*$Id: config.h,v 1.94 2001/01/28 01:13:38 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -59,6 +59,12 @@
 	completely in memory.  MMAP_DIR specifies where the temp files
 	will be placed. */
 
+/* This file previously allowed you to define SYSTEM_MBOX.  This has
+   changed.  If you want mail delivery to custom mail-spool-files, edit the
+   src/authenticate.c file and change the content of:  auth_mailboxname()
+   (either directly, or through changing the definitions in the same file
+   of MAILSPOOLDIR, MAILSPOOLSUFFIX, MAILSPOOLHASH or MAILSPOOLHOME) */
+
 /************************************************************************
  * Only edit below this line if you have viewed/edited this file before *
  ************************************************************************/
@@ -87,15 +93,14 @@
 	procmail to sleep for 1 sec. before writing a regular mailbox
 	(under heavy load procmail automatically suppresses this) */
 
-/* This previously allowed you to define SYSTEM_MBOX.  This has changed.
-   If you want mail delivery to custom mail-spool-files, edit the
-   src/authenticate.c file and change the content of:  auth_mailboxname()
-   (either directly, or through changing the definitions in the same file
-   of MAILSPOOLDIR, MAILSPOOLSUFFIX, MAILSPOOLHASH or MAILSPOOLHOME) */
-
 /*#define DEFsendmail	"/bin/mail"	/* uncomment and/or change if the
 					   autoconfigured default SENDMAIL is
-	not suitable */
+	not suitable.  This program should quack like a sendmail: it should
+	accept the -oi flag (to tell it to _not_ treat a line containing just
+	a period as EOF) and then a list of recipients.	 If the -t flag is
+	given, it should instead extract the recipients from the To:, Cc:,
+	and Bcc: header fields.	 If it can't do this, many standard recipes
+	will not work. */
 
 #define DEFmaildir	"$HOME"	     /* default value for the MAILDIR variable;
 					this must be an absolute path */
