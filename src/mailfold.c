@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.55 1994/08/23 12:16:12 berg Exp $";
+ "$Id: mailfold.c,v 1.56 1994/09/08 16:12:02 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -20,9 +20,6 @@ static /*const*/char rcsid[]=
 #include "goodies.h"
 #include "locking.h"
 #include "mailfold.h"
-#ifndef NO_COMSAT
-#include "network.h"
-#endif
 
 int logopened,tofile;
 off_t lasttell;
@@ -226,57 +223,6 @@ void logabstract(lstfolder)const char*const lstfolder;
      while((i+=TABWIDTH)<LENoffset);
      ultstr(7,lastdump,buf);elog(buf);elog(newline);
    }
-#ifndef NO_COMSAT
-  ;{ int s;struct sockaddr_in addr;char*chp,*chad;	     /* @ seperator? */
-     if(chad=strchr(chp=(char*)scomsat,SERV_ADDRsep))
-	*chad++='\0';		      /* split it up in service and hostname */
-     else if(!renvint(-1L,chp))			/* or is it a false boolean? */
-	return;					       /* ok, no comsat then */
-     else
-	chp="";				  /* set to yes, so take the default */
-     if(!chad||!*chad)						  /* no host */
-#ifndef IP_localhost
-	chad=COMSAThost;				      /* use default */
-#else /* IP_localhost */
-      { static const unsigned char ip_localhost[]=IP_localhost;
-	addr.sin_family=AF_INET;
-	tmemmove(&addr.sin_addr,ip_localhost,sizeof ip_localhost);
-      }
-     else
-#endif /* IP_localhost */
-      { const struct hostent*host;	      /* what host?  paranoid checks */
-	if(!(host=gethostbyname(chad))||!host->h_0addr_list)
-	 { endhostent();		     /* host can't be found, too bad */
-	   return;
-	 }
-	addr.sin_family=host->h_addrtype;	     /* address number found */
-	tmemmove(&addr.sin_addr,host->h_0addr_list,host->h_length);
-	endhostent();
-      }
-     if(!*chp)						       /* no service */
-	chp=BIFF_serviceport;				      /* use default */
-     s=strtol(chp,&chad,10);
-     if(chp==chad)			       /* the service is not numeric */
-      { const struct servent*serv;
-	if(!(serv=getservbyname(chp,COMSATprotocol)))	   /* so get its no. */
-	 { endservent();
-	   return;
-	 }
-	addr.sin_port=serv->s_port;endservent();
-      }
-     else
-	addr.sin_port=htons((short)s);			    /* network order */
-     cat(tgetenv(lgname),"@");			 /* should always fit in buf */
-     if(lasttell>=0)					   /* was it a file? */
-	ultstr(0,(unsigned long)lasttell,buf2),catlim(buf2);	      /* yep */
-     catlim(COMSATxtrsep);				 /* custom seperator */
-     if(lasttell>=0&&!strchr(dirsep,*lstfolder))       /* relative filename? */
-	catlim(tgetenv(maildir)),catlim(MCDIRSEP_);   /* prepend current dir */
-     catlim(lstfolder);s=socket(AF_INET,SOCK_DGRAM,UDP_protocolno);
-     sendto(s,buf,strlen(buf),0,(const void*)&addr,sizeof(addr));rclose(s);
-     yell("Notified comsat:",buf);
-   }
-#endif /* NO_COMSAT */
 }
 
 static int concnd;				 /* last concatenation value */

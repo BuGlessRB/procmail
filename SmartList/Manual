@@ -29,7 +29,7 @@ Contents:
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.38 1994/08/25 19:00:26 berg Exp $
+$Id: Manual,v 1.39 1994/09/08 16:11:44 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -589,7 +589,7 @@ The rc.init and rc.custom scripts define some threshold values:
 These values are fed to multigram as a cut-off value with which to decide
 if a certain mail address is on a list.
 The higher the threshold, the better the match must be.	 The thresholds
-have a scale from -16383 to 32767.  This means that, for instance a threshold
+have a scale from -16383 to 32766.  This means that, for instance a threshold
 of 30730 can be used to find only mailaddresses that are almost verbatim
 on the list.  A value of 24476 on the other hand allows for some error
 (like mailaddresses munged by gateways etc.) in finding matches to the

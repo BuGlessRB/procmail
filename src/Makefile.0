@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.36 1994/08/24 18:52:05 berg Exp $
+#$Id: Makefile.0,v 1.37 1994/09/08 16:11:56 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O) \
@@ -88,13 +88,13 @@ locking.$(O): misc.h pipes.h exopen.h locking.h lastdirsep.h
 
 mailfold.$(O): ../autoconf.h ../config.h includes.h procmail.h acommon.h
 mailfold.$(O): sublib.h robust.h shell.h misc.h pipes.h common.h exopen.h
-mailfold.$(O): goodies.h locking.h mailfold.h network.h
+mailfold.$(O): goodies.h locking.h mailfold.h
 
 mcommon.$(O): ../autoconf.h ../config.h includes.h mcommon.h
 
 misc.$(O): ../autoconf.h ../config.h includes.h procmail.h acommon.h sublib.h
 misc.$(O): robust.h shell.h misc.h pipes.h common.h cstdio.h exopen.h regexp.h
-misc.$(O): mcommon.h goodies.h locking.h mailfold.h
+misc.$(O): mcommon.h goodies.h locking.h network.h mailfold.h
 
 multigram.$(O): ../autoconf.h ../config.h includes.h sublib.h hsort.h shell.h
 multigram.$(O): ecommon.h mcommon.h lastdirsep.h targetdir.h

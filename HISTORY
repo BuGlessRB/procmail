@@ -253,3 +253,11 @@
 	    Sharpened the autoconf const check, AIX 3.2.3 managed to slip past
 	       it again
 	    Made sure that "make -n" with any make works as expected
+1994/08/30: v3.07
+	    Changes to procmail:
+	       - Minor corrections to the semantics of the 'a' and 'e' flags
+	       - Slight regular expression engine speedup
+	       - Regexp matching of environment variables is possible now
+	       - Due to popular demand: LOGABSTRACT=all logs *all* successful
+		 recipes executed
+	       - Enforce secure permissions on /etc/procmailrcs if used

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.43 1994/08/24 17:27:17 berg Exp $";
+ "$Id: regexp.c,v 1.44 1994/09/08 16:12:12 berg Exp $";
 #endif
 #include "includes.h"
 #include "robust.h"
@@ -407,33 +407,33 @@ static void cleantail(thiss,th1)register struct eps*thiss;const unsigned th1;
 char*bregexec(code,text,str,len,ign_case)struct eps*code;
  const uchar*const text;const uchar*str;size_t len;unsigned ign_case;
 { register struct eps*reg,*stack,*other,*thiss;unsigned i,th1,ot1;
-  struct eps*initstack,*initcode;
+  struct eps*initcode;
   static struct mchar tswitch={OPC_TSWITCH,Ceps&tswitch};
   static struct eps sempty={OPC_SEMPTY,&sempty};
-  sempty.spawn=initstack= &sempty;ign_case=!!ign_case;		/* normalise */
+  sempty.spawn=stack= &sempty;ign_case=!!ign_case;		/* normalise */
   if((initcode=code)->opc==OPC_EPS)
-     initcode=(initstack=code)+1,code->spawn= &sempty;
+     initcode=(stack=code)+1,code->spawn= &sempty;
   th1=ioffsetof(struct chclass,pos1);ot1=ioffsetof(struct chclass,pos2);
-  if(str--==text||*str=='\n') /* make sure any beginning-of-line-hooks catch */
-   { thiss=Ceps&tswitch;len++;i='\n';
+  other=Ceps&tswitch;
+  if(str--==text||*str=='\n')
+     goto begofline;	      /* make sure any beginning-of-line-hooks catch */
+  if(!len)
+   { str++;
+begofline:
+     i='\n';len++;
      goto setups;
    }
-  other=Ceps&tswitch;
   do
    { i= *++str;				 /* get the next real-text character */
      if(ign_case&&i-'A'<='Z'-'A')
 	i+='a'-'A';			     /* transmogrify it to lowercase */
-lastrun:				     /* switch this & other pc-stack */
-     th1^=XOR1;ot1^=XOR1;thiss=other;
+     th1^=XOR1;ot1^=XOR1;		     /* switch this & other pc-stack */
 setups:
-     other=Ceps&tswitch;stack=initstack;reg=initcode;
-     goto nostack;
-     for(;;)				 /* pop next entry off this pc-stack */
-      { thiss=PC(reg=thiss,th1);PC(reg,th1)=0;reg=reg->next;
-	goto nostack;
-	for(;;)				/* pop next entry off the work-stack */
-	   for(reg=stack->next,stack=stack->spawn;;)
-nostack:    { switch(reg->opc-OPB)
+     thiss=other;other=Ceps&tswitch;reg=initcode;		 /* pop from */
+     for(;;thiss=PC(reg=thiss,th1),PC(reg,th1)=0,reg=reg->next)	 /* pc-stack */
+      { for(;;reg=stack->next,stack=stack->spawn)     /* pop from work-stack */
+	   for(;;)
+	    { switch(reg->opc-OPB)
 	       { default:
 		    if(i==reg->opc)		  /* regular character match */
 		       goto yep;
@@ -474,8 +474,9 @@ pcstack_switch:;				   /* this pc-stack is empty */
   while(--len);					     /* still text to search */
   switch(ign_case)
    { case 0:case 1:ign_case=1;i='\n';			   /* just finished? */
-     case 2:ign_case++;str++;len=1;
-	goto lastrun;				 /* check if we just matched */
+     case 2:ign_case++;str++;len=1;th1^=XOR1;ot1^=XOR1;thiss=other;
+	other=Ceps&tswitch;
+	goto empty_stack;			 /* check if we just matched */
    }
   return 0;							 /* no match */
 }

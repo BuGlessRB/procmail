@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.59 1994/08/18 13:45:06 berg Exp $";
+ "$Id: misc.c,v 1.60 1994/09/08 16:12:05 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -21,6 +21,9 @@ static /*const*/char rcsid[]=
 #include "mcommon.h"
 #include "goodies.h"
 #include "locking.h"
+#ifndef NO_COMSAT
+#include "network.h"
+#endif
 #include "mailfold.h"
 
 struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
@@ -209,13 +212,66 @@ void Terminate P((void))
   if(retvl2!=EXIT_SUCCESS)
      fakedelivery=0,retval=retvl2;
   if(getpid()==thepid)
-   { if(retval!=EXIT_SUCCESS)
+   { const char*lstfolder;
+     if(retval!=EXIT_SUCCESS)
       { tofile=0;lasttell= -1;			  /* mark it for logabstract */
-	logabstract(fakedelivery?"**Lost**":
-	 retval==EX_TEMPFAIL?"**Requeued**":"**Bounced**");
+	lstfolder=fakedelivery?"**Lost**":
+	 retval==EX_TEMPFAIL?"**Requeued**":"**Bounced**";
       }
      else
-	logabstract(tgetenv(lastfolder));
+	lstfolder=tgetenv(lastfolder);
+     logabstract(lstfolder);
+#ifndef NO_COMSAT
+     ;{ int s;struct sockaddr_in addr;char*chp,*chad;	     /* @ seperator? */
+	if(chad=strchr(chp=(char*)scomsat,SERV_ADDRsep))
+	   *chad++='\0';	      /* split it up in service and hostname */
+	else if(!renvint(-1L,chp))		/* or is it a false boolean? */
+	   return;				       /* ok, no comsat then */
+	else
+	   chp="";			  /* set to yes, so take the default */
+	if(!chad||!*chad)					  /* no host */
+#ifndef IP_localhost
+	   chad=COMSAThost;				      /* use default */
+#else /* IP_localhost */
+	 { static const unsigned char ip_localhost[]=IP_localhost;
+	   addr.sin_family=AF_INET;
+	   tmemmove(&addr.sin_addr,ip_localhost,sizeof ip_localhost);
+	 }
+	else
+#endif /* IP_localhost */
+	 { const struct hostent*host;	      /* what host?  paranoid checks */
+	   if(!(host=gethostbyname(chad))||!host->h_0addr_list)
+	    { endhostent();		     /* host can't be found, too bad */
+	      return;
+	    }
+	   addr.sin_family=host->h_addrtype;	     /* address number found */
+	   tmemmove(&addr.sin_addr,host->h_0addr_list,host->h_length);
+	   endhostent();
+	 }
+	if(!*chp)					       /* no service */
+	   chp=BIFF_serviceport;			/* new balls please! */
+	s=strtol(chp,&chad,10);
+	if(chp==chad)			       /* the service is not numeric */
+	 { const struct servent*serv;
+	   if(!(serv=getservbyname(chp,COMSATprotocol)))   /* so get its no. */
+	    { endservent();
+	      return;
+	    }
+	   addr.sin_port=serv->s_port;endservent();
+	 }
+	else
+	   addr.sin_port=htons((short)s);		    /* network order */
+	cat(tgetenv(lgname),"@");		 /* should always fit in buf */
+	if(lasttell>=0)					   /* was it a file? */
+	   ultstr(0,(unsigned long)lasttell,buf2),catlim(buf2);	      /* yep */
+	catlim(COMSATxtrsep);				 /* custom seperator */
+	if(lasttell>=0&&!strchr(dirsep,*lstfolder))    /* relative filename? */
+	   catlim(tgetenv(maildir)),catlim(MCDIRSEP_);	   /* prepend curdir */
+	catlim(lstfolder);s=socket(AF_INET,SOCK_DGRAM,UDP_protocolno);
+	sendto(s,buf,strlen(buf),0,(const void*)&addr,sizeof(addr));rclose(s);
+	yell("Notified comsat:",buf);
+      }
+#endif /* NO_COMSAT */
      shutdesc();
      if(!(lcking&lck_ALLOCLIB))			/* don't reenter malloc/free */
 	exectrap(traps);
@@ -445,7 +501,9 @@ long renvint(i,env)const long i;const char*const env;
 	break;
       }
      t=i;
-     if(!strnIcmp(p,"on",(size_t)2)||!strnIcmp(p,"y",(size_t)1)||
+     if(!strnIcmp(p,"a",(size_t)1))
+	t=2;
+     else if(!strnIcmp(p,"on",(size_t)2)||!strnIcmp(p,"y",(size_t)1)||
       !strnIcmp(p,"t",(size_t)1)||!strnIcmp(p,"e",(size_t)1))
 	t=1;
      else if(!strnIcmp(p,"off",(size_t)3)||!strnIcmp(p,"n",(size_t)1)||

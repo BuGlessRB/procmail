@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.41 1994/08/25 11:50:59 berg Exp $
+#$Id: Makefile.1,v 1.42 1994/09/08 16:11:33 berg Exp $
 
 all: bins mans recommend
 	@echo If you would like to inspect the results before running make \
@@ -85,7 +85,9 @@ $(BASENAME):
 
 install.man: $(MANS) $(BASENAME)
 	@-mkdir $(MANDIR) 2>$(DEVNULL); exit 0
+	@-test -d $(MAN1DIR) || $(RM) $(MAN1DIR); exit 0
 	@-mkdir $(MAN1DIR) 2>$(DEVNULL); exit 0
+	@-test -d $(MAN5DIR) || $(RM) $(MAN5DIR); exit 0
 	@-mkdir $(MAN5DIR) 2>$(DEVNULL); exit 0
 	@chmod 0644 $(MANS)
 	@for a in $(MANS1S); \

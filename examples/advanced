@@ -119,7 +119,7 @@ current Mlocal definition, use those instead of "S=10, R=20".
 
 To impose a 2MB limit on mails, you could add a `Maxsize=' field like in:
 
-Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhPfn, S=10, R=20, M=2000000
+Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhPfn, S=10, R=20, M=2000000,
 	A=procmail -a $h -d $u
 
 In order to take advantage of the optional meta argument that can be passed to
@@ -154,6 +154,10 @@ page.
 N.B. Do NOT create the extra rules mentioned in the EXAMPLES section of the
      procmail(1) man page, unless you already have an application demanding
      those.  Only create the completely optional Mprocmail mailer.
+
+After having edited the sendmail.cf file you'll have to kill (terminate)
+the running sendmail daemon.  Then restart it.	It will *not* suffice to
+send sendmail a SIGHUP.
 
 				---
 

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.99 1994/08/29 17:15:25 berg Exp $";
+ "$Id: procmail.c,v 1.100 1994/09/08 16:12:09 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -381,17 +381,30 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 		       if(!strncmp(pardir,++chp,STRLEN(pardir))&&
 			  (chp+=STRLEN(pardir),strchr(dirsep,*chp)))
 			  goto nospecial;	  /* yes, security violation */
+#ifdef CAN_chown
+		    *(chp=strcpy(buf2,etcrcs)+STRLEN(etcrcs))=chCURDIR;
+		    *++chp='\0';
+#endif
 		   /*
 		    *	so far, so good, now verify the credentials down to the
 		    *	last bit
 		    */
 		    if(presenviron||			  /* -p is dangerous */
 		       suppmunreadable!=2||   /* so are variable assignments */
+#ifdef CAN_chown		  /* anyone can chown in this filesystem so: */
+		       stat(buf2)||		     /* the /etc/procmailrcs */
+		       !S_ISDIR(stbuf.st_mode)||	/* directory must be */
+		       stbuf.st_uid!=ROOT_uid&&		    /* owned by root */
+			chown(buf2,ROOT_uid,stbuf.st_gid)||
+		       stbuf.st_mode&(S_IXGRP|S_IXOTH)&&   /* and accessible */
+			chmod(buf2,S_IRWXU)||		    /* to noone else */
+#endif
 		       lstat(rcfile,&stbuf)||		/* it seems to exist */
 		       !enoughprivs(passinvk,euid,egid,stbuf.st_uid,
 			stbuf.st_gid)||		   /* can we do this at all? */
 		       S_ISDIR(stbuf.st_mode)||		  /* no directories! */
-		       !savepass(&spassinvk,stbuf.st_uid))   /* user exists? */
+		       !savepass(&spassinvk,stbuf.st_uid)    /* user exists? */
+		      )
 nospecial:	     { static const char densppr[]=
 			"Denying special privileges for";
 		       nlog(densppr);logqnl(rcfile);
@@ -569,7 +582,7 @@ no_mbox:      sputenv(orgmail);
 	   resettmout();
 	 }
    }
-  ;{ int succeed,lastcond,prevcond;struct dyna_long ifstack;
+  ;{ int lastsucc,lastcond,prevcond;struct dyna_long ifstack;
      ifstack.filled=ifstack.tspace=0;ifstack.offs=0;
      if(etcrc)		  /* do we start with an /etc/procmailrc file first? */
       { if(0<=bopen(etcrc))
@@ -659,7 +672,7 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 	       }
 	      setmaildir(chp);
 	    }
-startrc:   succeed=lastcond=prevcond=0;
+startrc:   lastsucc=lastcond=prevcond=0;
 	 }
 	unlock(&loclock);			/* unlock any local lockfile */
 	goto commint;
@@ -677,7 +690,7 @@ commint:   do skipspace();				  /* skip whitespace */
 	 }
 	while(testb('#'));				   /* no comment :-) */
 	if(testb(':'))				       /* check for a recipe */
-	 { int locknext;long tobesent;char*startchar;
+	 { int locknext,succeed;long tobesent;char*startchar;
 	   static char flags[maxindex(exflags)];
 	   ;{ int nrcond,scored;double score;
 	      score=scored=0;
@@ -729,23 +742,27 @@ commint:   do skipspace();				  /* skip whitespace */
 		  }
 	      if(!skiprc)
 		 concon(' ');
-noconcat:     i=flags[ERROR_DO]?prevcond&&!succeed:
-		flags[ELSE_DO]?!prevcond:
-		flags[ALSO_N_IF_SUCC]?lastcond&&succeed:
-		flags[ALSO_NEXT_RECIPE]?lastcond:1;	  /* init test value */
-	      if(skiprc)
-		 i=0;
+noconcat:     i=!skiprc;				  /* init test value */
+	      if(flags[ERROR_DO])
+		 i&=prevcond&&!lastsucc;
+	      if(flags[ELSE_DO])
+		 i&=!prevcond;
+	      if(flags[ALSO_N_IF_SUCC])
+		 i&=lastcond&&lastsucc;
+	      if(flags[ALSO_NEXT_RECIPE])
+		 i=i&&lastcond;
 	      while(skipspace(),nrcond--,testb('*')||nrcond>=0)
 	       { skipspace();getlline(buf2);	    /* any conditions (left) */
-		 for(chp=strchr(buf2,'\0');--chp>=buf2;)
-		  { switch(*chp)	  /* strip off whitespace at the end */
-		     { case ' ':case '\t':*chp='\0';
-			  continue;
-		     }
-		    break;
-		  }
 		 if(i)				 /* check out all conditions */
 		  { int negate,scoreany;double weight,xponent,lscore;
+		    char*lstartchar=startchar;long ltobesent=tobesent;
+		    for(chp=strchr(buf2,'\0');--chp>=buf2;)
+		     { switch(*chp)	  /* strip off whitespace at the end */
+			{ case ' ':case '\t':*chp='\0';
+			     continue;
+			}
+		       break;
+		     }
 		    negate=scoreany=0;lscore=score;
 		    for(chp=buf2+1;;strcpy(buf2,buf))
 copydone:	     { switch(*(sgetcp=buf2))
@@ -760,15 +777,45 @@ copydone:	     { switch(*(sgetcp=buf2))
 				if(chp3>chp2+1)
 				 { if(score>=MAX32)
 				      goto skiptrue;
-				   chp2=skpspace(chp3);xponent=x;weight=w;
-				   scored=scoreany=1;
+				   xponent=x;weight=w;scored=scoreany=1;
+				   chp2=skpspace(chp3);
+				   goto copyrest;
+				 }
+			      }
+			     chp--;
+			     goto normalregexp;
+			   }
+			  default:chp--;     /* no special character, backup */
+			   { if(alphanum(*(chp2=chp)))
+			      { char*chp3;
+				while(alphanum(*++chp2));
+				if(!strncmp(chp3=skpspace(chp2),"??",2))
+				 { *chp2='\0';lstartchar=themail;
+				   if(!chp[1])
+				    { ltobesent=thebody-themail;
+				      switch(*chp)
+				       { case 'B':lstartchar=thebody;
+					    ltobesent=filled-ltobesent;
+					    goto partition;
+					 case 'H':
+					    goto docon;
+				       }
+				    }
+				   else if(!strcmp("HB",chp)||
+				    !strcmp("BH",chp))
+				    { ltobesent=filled;
+docon:				      concon(' ');
+				      goto partition;
+				    }
+				   ltobesent=
+				    strlen(lstartchar=(char*)tgetenv(chp));
+partition:			   chp2=skpspace(chp3+2);chp++;
 				   goto copyrest;
 				 }
 			      }
 			   }
-			  default:chp--;     /* no special character, backup */
 			  case '\\':
-			   { int or_nocase;	/* case-distinction override */
+normalregexp:		   { int or_nocase;	/* case-distinction override */
 			     static const struct {const char*regkey,*regsubst;}
 			      *regsp,regs[]=
 			       { {FROMDkey,FROMDsubstitute},
@@ -797,13 +844,13 @@ jinregs:			   regsp=regs;	/* start over and look again */
 			     ;{ int igncase;
 				igncase=or_nocase||!flags[DISTINGUISH_CASE];
 				if(scoreany)
-				 { struct eps*re;long rest;
+				 { struct eps*re;
 				   re=bregcomp(chp,igncase);
-				   chp=startchar;rest=tobesent;
+				   chp=lstartchar;
 				   if(negate)
 				    { if(weight&&!bregexec(re,
 				       (const uchar*)chp,(const uchar*)chp,
-				       (size_t)rest,igncase))
+				       (size_t)ltobesent,igncase))
 					 score+=weight;
 				    }
 				   else
@@ -811,10 +858,10 @@ jinregs:			   regsp=regs;	/* start over and look again */
 				      while(weight!=0&&
 					    MIN32<score&&
 					    score<MAX32&&
-					    rest>=0&&
+					    ltobesent>=0&&
 					    (chp2=
-				       bregexec(re,(const uchar*)startchar,
-					(const uchar*)chp,(size_t)rest,
+				       bregexec(re,(const uchar*)lstartchar,
+					(const uchar*)chp,(size_t)ltobesent,
 					igncase)))
 				       { score+=weight;weight*=xponent;
 					 if(chp>=chp2)	  /* break off empty */
@@ -830,13 +877,13 @@ jinregs:			   regsp=regs;	/* start over and look again */
 					       break;
 					    oweight=nweight;
 					  }
-					 rest-=chp2-chp;chp=chp2;
+					 ltobesent-=chp2-chp;chp=chp2;
 				       }
 				    }
 				   free(re);
 				 }
 				else			     /* egrep for it */
-				   i=!!egrepin(chp,startchar,tobesent,
+				   i=!!egrepin(chp,lstartchar,ltobesent,
 				    !igncase)^negate;
 			      }
 			     break;
@@ -848,7 +895,7 @@ jinregs:			   regsp=regs;	/* start over and look again */
 copyrest:		     strcpy(buf,chp2);
 			     continue;
 			  case '?':pwait=2;metaparse(chp);inittmout(buf);
-			      ignwerr=1;pipin(buf,startchar,tobesent);
+			      ignwerr=1;pipin(buf,lstartchar,ltobesent);
 			      if(scoreany&&lexitcode>=0)
 			       { int j=lexitcode;
 				 if(negate)
@@ -1002,6 +1049,7 @@ forward:	 if(locknext)
 		 else if(!pipin(buf,startchar,tobesent)&& /* regular program */
 		  (succeed=1,!flags[CONTINUE]))
 		    goto frmailed;
+		 goto setlsucc;
 	       }
 	    }
 	   else if(testb(EOF))
@@ -1032,7 +1080,7 @@ forward:	 if(locknext)
 		      (*chp++='{',*chp='\0',testb(' ')||
 		       testb('\t')||
 		       testb('\n')))
-	       {  if(locknext)
+	       { if(locknext)
 		    nlog(extrns),elog("locallockfile"),elog(ignrd);
 		 app_val(&ifstack,(off_t)prevcond);	    /* push prevcond */
 		 app_val(&ifstack,(off_t)lastcond);	    /* push lastcond */
@@ -1044,7 +1092,7 @@ forward:	 if(locknext)
 		       if(!pwait)	/* try and protect the user from his */
 			  pwait=2;		   /* blissful ignorance :-) */
 		     }
-		    inittmout(procmailn);
+		    succeed=1;inittmout(procmailn);
 		    if(flags[CONTINUE])
 		     { yell("Forking",procmailn);onguard();
 		       if(!(pidchild=sfork()))		   /* clone yourself */
@@ -1057,10 +1105,9 @@ forward:	 if(locknext)
 		       else
 			{ offguard();
 			  if(forkerr(pidchild,procmailn))
-			     succeed=0;	       /* Tsk, tsk, no cloning today */
+			     succeed=0;	       /* tsk, tsk, no cloning today */
 			  else
-			   { int excode;
-			     succeed=1;	  /* wait for our significant other? */
+			   { int excode;  /* wait for our significant other? */
 			     if(pwait&&
 				(excode=waitfor(pidchild))!=EXIT_SUCCESS)
 			      { if(!(pwait&2)||verbose)	 /* do we report it? */
@@ -1071,30 +1118,35 @@ forward:	 if(locknext)
 			   }
 			}
 		     }
-		  }
-		 continue;
-	       }
-	      if(!i)						/* no match? */
-		 skiprc++;		  /* temporarily disable subprograms */
-	      readparse(chp,getb,0);
-	      if(i)
-	       { if(ofiltflag)	 /* protect those who use bogus filter-flags */
-		    startchar=themail,tobesent=filled; /* save whole message */
-tostdout:	 strcpy(buf2,buf);
-		 if(locknext)
-		    lcllock();		     /* write to a file or directory */
-		 inittmout(buf);	  /* to break messed-up kernel locks */
-		 if(dump(deliver(buf,strchr(buf,'\0')+1),startchar,tobesent)
-		  &&!ignwerr)
-		    writeerr(buf);
-		 else if(succeed=1,!flags[CONTINUE])
-frmailed:	  { if(ifstack.offs)
-		       free(ifstack.offs);
-		    goto mailed;
+		    goto jsetlsucc;		/* definitely no logabstract */
 		  }
 	       }
 	      else
-		 skiprc--;			     /* reenable subprograms */
+	       { if(!i)						/* no match? */
+		    skiprc++;		  /* temporarily disable subprograms */
+		 readparse(chp,getb,0);
+		 if(i)
+		  { if(ofiltflag)      /* protect who use bogus filter-flags */
+		       startchar=themail,tobesent=filled;   /* whole message */
+tostdout:	    strcpy(buf2,buf);
+		    if(locknext)
+		       lcllock();	     /* write to a file or directory */
+		    inittmout(buf);	  /* to break messed-up kernel locks */
+		    if(dump(deliver(buf,strchr(buf,'\0')+1),startchar,tobesent)
+		     &&!ignwerr)
+		       writeerr(buf);
+		    else if(succeed=1,!flags[CONTINUE])
+frmailed:	     { if(ifstack.offs)
+			  free(ifstack.offs);
+		       goto mailed;
+		     }
+setlsucc:	    if(succeed&&lgabstract==2)
+		       logabstract(tgetenv(lastfolder));
+jsetlsucc:	    lastsucc=succeed;
+		  }
+		 else
+		    skiprc--;			     /* reenable subprograms */
+	       }
 	    }
 	 }
 	else if(testb('}'))					/* end block */
@@ -1153,6 +1205,6 @@ mailed: retval=EXIT_SUCCESS;		  /* we're home free, mail delivered */
   unlock(&loclock);Terminate();
 }
 
-eqFrom_(a)const char*const a;
+int eqFrom_(a)const char*const a;
 { return !strncmp(a,From_,STRLEN(From_));
 }

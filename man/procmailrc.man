@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.47 1994/08/23 14:47:25 berg Exp $
+.Id $Id: procmailrc.man,v 1.48 1994/09/08 16:11:51 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -148,7 +148,8 @@ following recipes with the '@ELSE_DO@' flag.  This allows you to specify
 The number of conditions that are expected to follow default to none.
 .Tp
 .B @ERROR_DO@
-This recipe only executes if the immediately preceding recipe failed.
+This recipe only executes if the immediately preceding recipe
+.IR failed .
 This allows you to specify `error' actions.
 The number of conditions that are expected to follow default to none.
 .TP
@@ -182,8 +183,7 @@ Ignore any write errors on this recipe (i.e. usually due to an early closed
 pipe).
 .PP
 There are some special conditions you can use that are not straight regular
-expressions.  To select them, the first character of the condition must
-be a:
+expressions.  To select them, the condition must start with:
 .TP 0.5i
 .B !
 Invert the condition.
@@ -203,6 +203,11 @@ decimal) number of bytes.
 .TP
 .B >
 Analogous to '<'.
+.TP
+.B "variablename \fI??\fP"
+Match the remainder against the value of this environment variable.  Special
+cases are `B', `H', `HB' and `BH', which merely override the default
+header/body search area defined for this recipe.
 .TP
 .B \e
 To quote any of the above at the start of the line.
@@ -328,7 +333,9 @@ or `off'.
 Just before procmail exits it logs an abstract of the delivered message in
 $LOGFILE showing the `@FROM@' and `Subject:' fields of the header, what folder
 it finally went to and how long (in bytes) the message was.  By setting this
-variable to `no', generation of this abstract is suppressed.
+variable to `no', generation of this abstract is suppressed.  If you set
+it to `all', procmail will log an abstract for every successful recipe it
+processes.
 .TP
 .B LOG
 Anything assigned to this variable will be appended to $LOGFILE.

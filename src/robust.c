@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.21 1994/06/28 17:03:36 berg Exp $";
+ "$Id: robust.c,v 1.22 1994/09/08 16:12:16 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -34,14 +34,19 @@ static void nomemerr(len)const size_t len;
   Terminate();
 }
 
+static void heapdefrag P((void))
+{ register void*p;
+  lcking|=lck_MEMORY;
+  if(p=malloc(1))
+     free(p);			   /* works on some systems with latent free */
+}
+
 void*tmalloc(len)const size_t len;    /* this malloc can survive a temporary */
 { void*p;int i;				    /* "out of swap space" condition */
   lcking|=lck_ALLOCLIB;
   if(p=malloc(len))
      goto ret;
-  lcking|=lck_MEMORY;
-  if(p=malloc(1))
-     free(p);			   /* works on some systems with latent free */
+  heapdefrag();heapdefrag();				   /* try some magic */
   for(i=nomemretry;i<0||i--;)
    { suspend();		     /* problems?  don't panic, wait a few secs till */
      if(p=malloc(len))	     /* some other process has paniced (and died 8-) */
@@ -57,9 +62,7 @@ void*trealloc(old,len)void*const old;const size_t len;
   lcking|=lck_ALLOCLIB;
   if(p=realloc(old,len))
      goto ret;				    /* for comment see tmalloc above */
-  lcking|=lck_MEMORY;
-  if(p=malloc(1))
-    free(p);
+  heapdefrag();heapdefrag();
   for(i=nomemretry;i<0||i--;)
    { suspend();
      if(p=realloc(old,len))

@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.96 1994/08/26 12:32:36 berg Exp $
+#$Id: autoconf,v 1.97 1994/09/08 16:11:59 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -50,6 +50,7 @@
 #	#define NOwaitpid
 #Ok	#define NOftruncate
 #	#define SLOWstrstr
+#Ok	#define CAN_chown
 #	#define strchr(s,c) index(s,c)
 #	#define initgroups(n,g)
 #Ok	#define endpwent()
@@ -994,7 +995,7 @@ HERE
 
  if _autotst
  then
-   echo 'Sorry, incompetent bcopy'
+   echo 'Sorry, incompetent bcopy, using substitute instead'
    echo '#define NObcopy' >>$ACONF
  fi
  $RM _autotst.$O _autotst
@@ -1097,7 +1098,8 @@ main(argc,argv)int argc;const char*argv[];
      ;{ unsigned long s=(size_t)~0;int bits;
 	for(bits=1;s>>=1;bits++);
 	if(bits<=16)
-	 { puts("#define SMALLHEAP");return 0;
+	 { puts("#define SMALLHEAP");
+	   return 0;
 	 }
       }
 #ifdef _GUID_T						      /* ISC cc hack */
@@ -1110,15 +1112,23 @@ main(argc,argv)int argc;const char*argv[];
    }
 #ifdef SYSTEM_MBOX
   if(argc==2)
-   { printf("#define SYSTEM_MAILBOX %s\n",SYSTEM_MBOX);return 1;
+   { printf("#define SYSTEM_MAILBOX %s\n",SYSTEM_MBOX);
+     return 1;
    }
 #endif
 #ifdef DEFsendmail
   if(argc==3)
-   { printf("#define SENDMAIL %s\n",DEFsendmail);return 1;
+   { printf("#define SENDMAIL %s\n",DEFsendmail);
+     return 1;
    }
 #endif
-  if(argc>3)
+  if(argc==4)
+   { FILE*fp;
+     setuid(2);fp=fopen(argv[1],"w");fclose(fp);
+     if(!chown(argv[1],geteuid()==3?4:3,getegid()))
+	printf("#define CAN_chown\n");
+   }
+  if(argc>4)
 #define MAX_ENVMEM	2048			 /* typical environment size */
 #define MAX_ARGMEM	(2048*1024L)	       /* upper limit arguments size */
    { static const char arg[]="e%04u=6789012345";unsigned diff;
@@ -1157,7 +1167,7 @@ main(argc,argv)int argc;const char*argv[];
      for(;;diff>>=1)
       { unsigned newdiff=diff>>1;	    /* take a small step for mankind */
 	if(argc==diff)				    /* or shall we boldly go */
-	   newdiff=(unsigned)argc<<1;	     /* where no man has gone before */
+	   newdiff=(unsigned)argc<<1;	    /* where no man has gone before? */
 	;{ unsigned maxdiff=MAXT(unsigned)-argc;
 	   if(newdiff>maxdiff)			 /* that would overflow argc */
 	      newdiff=maxdiff;	 /* and we wouldn't want that, would we now? */
@@ -1177,7 +1187,8 @@ HERE
 echo "Determining the maximum number of 16 byte arguments execve() takes"
 
 if $MAKE _autotst >$DEVNULL 2>_autotst.rrr &&
-   _autotst 0 012345678901234 012345678901234 >>$ACONF 2>>_autotst.rrr
+   _autotst 0 012345678901234 012345678901234 012345678901234 \
+    >>$ACONF 2>>_autotst.rrr
 then
 :
 else
@@ -1235,6 +1246,13 @@ then
  read a
  echo "#define SENDMAIL \"$a\"" >>$ACONF
 fi
+
+a=/tmp/_chowntst.$$
+$RM -r $a
+OLDTESTDIRS="$a $OLDTESTDIRS"
+mkdir $a
+
+_autotst 2 3 $a/_$$_
 
 cat /usr/lib/sendmail.cf /etc/sendmail.cf /etc/mail/sendmail.cf 2>$DEVNULL |
  grep 'Mlocal.*procmail' >$DEVNULL ||
