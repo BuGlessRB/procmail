@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.92 1999/04/06 02:36:20 guenther Exp $";
+ "$Id: misc.c,v 1.93 1999/04/13 06:32:08 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -460,7 +460,7 @@ void mallocbuffers(linebuf,setenv)size_t linebuf;int setenv;
 void asenv(chp)const char*const chp;
 { static const char logfile[]="LOGFILE",Log[]="LOG",sdelivered[]="DELIVERED",
    includerc[]="INCLUDERC",eumask[]="UMASK",dropprivs[]="DROPPRIVS",
-   shift[]="SHIFT";
+   shift[]="SHIFT",switchrc[]="SWITCHRC";
   if(!strcmp(buf,slinebuf))
    { if((linebuf=renvint(0L,chp)+XTRAlinebuf)<MINlinebuf+XTRAlinebuf)
 	linebuf=MINlinebuf+XTRAlinebuf;		       /* check minimum size */
@@ -508,6 +508,8 @@ void asenv(chp)const char*const chp;
      doumask((mode_t)strtol(chp,(char**)0,8));
   else if(!strcmp(buf,includerc))
      pushrc(chp);
+  else if(!strcmp(buf,switchrc))
+     changerc(chp);
   else if(!strcmp(buf,host))
    { const char*name;
      if(strcmp(chp,name=hostname()))

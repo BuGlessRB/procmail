@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.36 1999/02/16 21:13:34 guenther Exp $";
+ "$Id: cstdio.c,v 1.37 1999/04/13 06:32:06 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -19,14 +19,37 @@ static struct dyna_long inced;				  /* includerc stack */
 struct dynstring*incnamed;
 
 void pushrc(name)const char*const name;		      /* open include rcfile */
-{ struct stat stbuf;					   /* only if size>0 */
-  stbuf.st_mode=0;
-  if(*name&&(stat(name,&stbuf)||!S_ISREG(stbuf.st_mode)||stbuf.st_size))
-   { app_val(&inced,rcbufp?(off_t)(rcbufp-rcbuf):(off_t)0);	 /* save old */
-     app_val(&inced,blasttell);app_val(&inced,(off_t)rc);   /* position & fd */
-     if(S_ISDIR(stbuf.st_mode)||bopen(name)<0)	  /* try to open the new one */
-	readerr(name),poprc();		       /* we couldn't, so restore rc */
+{ if(*name&&strcmp(name,devnull))
+   { struct stat stbuf;
+     if(stat(name,&stbuf)||!S_ISREG(stbuf.st_mode))
+	goto rerr;
+     if(stbuf.st_size)					   /* only if size>0 */
+      { app_val(&inced,rcbufp?(off_t)(rcbufp-rcbuf):(off_t)0);	 /* save old */
+	app_val(&inced,blasttell);app_val(&inced,(off_t)rc);/* position & fd */
+	if(bopen(name)<0)			  /* try to open the new one */
+	 { poprc();			       /* we couldn't, so restore rc */
+rerr:	   readerr(name);
+	 }
+      }
    }
+}
+
+void changerc(name)const char*const name;		    /* change rcfile */
+{ if(*name&&strcmp(name,devnull))
+   { struct stat stbuf;off_t obt;int orc;
+     if(stat(name,&stbuf)||!S_ISREG(stbuf.st_mode))   /* skip irregularities */
+	goto rerr;
+     if(stbuf.st_size)					   /* only if size>0 */
+      { if(obt=blasttell,orc=rc,bopen(name)<0)	  /* try to open the new one */
+	 { blasttell=obt;rc=orc;	       /* we couldn't, so restore rc */
+rerr:	   readerr(name);
+	 }
+	goto ret;
+      }
+   }
+  skiprc=0;						  /* bye bye braces! */
+  poprc();		 /* drop the current rcfile and restore the previous */
+ret:
 }
 
 void duprcs P((void))		/* `duplicate' all the fds of opened rcfiles */

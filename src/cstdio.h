@@ -1,7 +1,8 @@
-/*$Id: cstdio.h,v 1.10 1999/01/29 22:04:55 guenther Exp $*/
+/*$Id: cstdio.h,v 1.11 1999/04/13 06:32:07 guenther Exp $*/
 
 void
  pushrc P((const char*const name)),
+ changerc P((const char*const name)),
  duprcs P((void)),
  closerc P((void)),
  ungetb P((const x)),
