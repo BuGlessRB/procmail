@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.43 1994/09/09 11:12:51 berg Exp $
+#$Id: arch_retrieve,v 1.44 1994/09/12 16:10:12 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -11,6 +11,7 @@ sed=sed			# /bin/sed
 cat=cat			# /bin/cat
 egrep=egrep		# /bin/egrep
 nice=nice		# /bin/nice
+date=date		# /bin/date
 mimesend=mimesend	# SedHomeDir/.bin/mimesend
 sleep=sleep		# /bin/sleep
 mimencode=mimencode	# /usr/local/bin/mimencode	# metamail MIME package
@@ -44,8 +45,8 @@ archivedir=archive
 
 standalone=$1
 
-from="arch_retrieve: `$cat $tmpfrom` requested"
-$cat /dev/null >$tmpfrom
+from="arch_retrieve:  requesting"
+$echo "arch_retrieve: processing for `$cat $tmpfrom`  `$date`" >$tmpfrom
 
 case "$X_ENVELOPE_TO" in
   *$list-request*) wrongaddress="" ;;
@@ -114,9 +115,9 @@ $wrongaddress}"
 	       do
 		  case "$1" in
 		     */../*|../*|*/..|..|[-/]*)
-			$echo $from ILLEGAL "$1" >>$tmpfrom
+			$echo "$from ILLEGAL $1" >>$tmpfrom
 			$test -z "$ILLEGAL" && ILLEGAL="$1";;
-		     *) $echo $from "$1" >>$tmpfrom
+		     *) $echo "$from $1" >>$tmpfrom
 			if $test -z "$mimencode"
 			then
 		      ( $formail -rt -I"Subject: archive retrieval: $1" \
@@ -172,10 +173,10 @@ $wrongaddress}"
 	    shift
 	    case "$*" in
 	       *[/\ ]..[/\ ]*|..[/\ ]*|*[/\ ]..|..|[-/]*|*\ /*)
-		  $echo $from ILLEGAL ls "$line" >>$tmpfrom
+		  $echo "$from ILLEGAL ls $line" >>$tmpfrom
 		  $test -z "$ILLEGAL" && ILLEGAL="$line";;
 	       *)
-		  $echo $from ls "$line" >>$tmpfrom
+		  $echo "$from ls $line" >>$tmpfrom
 		   ( $formail -rt -I"Subject: archive retrieval: ls $1" \
 		      -i"From: $listreq" -A"X-Loop: $listaddr" \
  -i"Reply-To: Please.write.a.new.mail.instead.of.replying@FIRST.WORD.archive" \
@@ -209,9 +210,9 @@ Truncating after '$breakoff_ls' names...' -e ${breakoff_ls}q
 	    shift
 	    case "$*" in
 	       *[/\ ]..[/\ ]*|..[/\ ]*|*[/\ ]..|..|[-/]*|*\ /*)
-		  $echo $from ILLEGAL "$line" >>$tmpfrom
+		  $echo "$from ILLEGAL $line" >>$tmpfrom
 		  $test -z "$ILLEGAL" && ILLEGAL="$line";;
-	       *) $echo $from "$line" >>$tmpfrom
+	       *) $echo "$from $line" >>$tmpfrom
 		( $formail -rt -I"Subject: archive retrieval: $line" \
 		   -i"From: $listreq" -A"X-Loop: $listaddr" \
  -i"Reply-To: Please.write.a.new.mail.instead.of.replying@FIRST.WORD.archive" \
@@ -251,7 +252,8 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 	 $test ! -z "$wrongaddress" && $echo "$wrongaddress"
 	 case "X$sendhelp" in
 	    X[Hh][Ee][Ll][Pp]|X[Ii][Nn][Ff][Oo]|X) ;;
-	    *) $echo "Unknown command $sendhelp." ;;
+	    *) $echo "$from unknown command $sendhelp." >>$tmpfrom
+	       $echo "Unknown command $sendhelp." ;;
 	 esac
 	 $test ! -z "$ILLEGAL" && $echo "Illegal filename $ILLEGAL requested."
 	 $echo ""

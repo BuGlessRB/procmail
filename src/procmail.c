@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.100 1994/09/08 16:12:09 berg Exp $";
+ "$Id: procmail.c,v 1.101 1994/09/12 16:10:28 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -1120,33 +1120,32 @@ forward:	 if(locknext)
 		     }
 		    goto jsetlsucc;		/* definitely no logabstract */
 		  }
+		 continue;
+	       }
+	      if(!i)						/* no match? */
+		 skiprc++;		  /* temporarily disable subprograms */
+	      readparse(chp,getb,0);
+	      if(i)
+	       { if(ofiltflag)	       /* protect who use bogus filter-flags */
+		    startchar=themail,tobesent=filled;	    /* whole message */
+tostdout:	 strcpy(buf2,buf);
+		 if(locknext)
+		    lcllock();		     /* write to a file or directory */
+		 inittmout(buf);	  /* to break messed-up kernel locks */
+		 if(dump(deliver(buf,strchr(buf,'\0')+1),startchar,tobesent)
+		  &&!ignwerr)
+		    writeerr(buf);
+		 else if(succeed=1,!flags[CONTINUE])
+frmailed:	  { if(ifstack.offs)
+		       free(ifstack.offs);
+		    goto mailed;
+		  }
+setlsucc:	 if(succeed&&lgabstract==2)
+		    logabstract(tgetenv(lastfolder));
+jsetlsucc:	 lastsucc=succeed;
 	       }
 	      else
-	       { if(!i)						/* no match? */
-		    skiprc++;		  /* temporarily disable subprograms */
-		 readparse(chp,getb,0);
-		 if(i)
-		  { if(ofiltflag)      /* protect who use bogus filter-flags */
-		       startchar=themail,tobesent=filled;   /* whole message */
-tostdout:	    strcpy(buf2,buf);
-		    if(locknext)
-		       lcllock();	     /* write to a file or directory */
-		    inittmout(buf);	  /* to break messed-up kernel locks */
-		    if(dump(deliver(buf,strchr(buf,'\0')+1),startchar,tobesent)
-		     &&!ignwerr)
-		       writeerr(buf);
-		    else if(succeed=1,!flags[CONTINUE])
-frmailed:	     { if(ifstack.offs)
-			  free(ifstack.offs);
-		       goto mailed;
-		     }
-setlsucc:	    if(succeed&&lgabstract==2)
-		       logabstract(tgetenv(lastfolder));
-jsetlsucc:	    lastsucc=succeed;
-		  }
-		 else
-		    skiprc--;			     /* reenable subprograms */
-	       }
+		 skiprc--;			     /* reenable subprograms */
 	    }
 	 }
 	else if(testb('}'))					/* end block */

@@ -1,13 +1,14 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands
-#$Id: unsubscribe,v 1.25 1994/06/28 14:49:16 berg Exp $
+#$Id: unsubscribe,v 1.26 1994/09/12 16:10:17 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
 cat=cat			# /bin/cat
 sed=sed			# /bin/sed
 expr=expr		# /bin/expr
+date=date		# /bin/date
 formail=formail		# /usr/local/bin/formail
 multigram=multigram	# ../SedBinDir/multigram
 
@@ -61,10 +62,11 @@ if $test ! -z "$subscribe_log"
 then
   if $expr "X$remtext" : ".*You have been removed" >/dev/null
   then
-     $echo "unsubscribe: `$echo \"$remtext\" | $sed -e '2,$d'` by:$fromaddr"
+     $echo "unsubscribe: `$echo \"$remtext\" |
+      $sed -e '2,$d'` by: $fromaddr  `$date`"
   else
      $echo "unsubscribe: attempt `$multigram -b1 -l0 -x$listreq -x$listaddr \
-      $dist <$tmprequest` by:$fromaddr"
+      $dist <$tmprequest` by: $fromaddr	 `$date`"
   fi >>$subscribe_log
 fi
 

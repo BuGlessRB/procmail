@@ -1,13 +1,14 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands
-#$Id: subscribe,v 1.28 1994/09/09 11:12:54 berg Exp $
+#$Id: subscribe,v 1.29 1994/09/12 16:10:15 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
 cat=cat			# /bin/cat
 sed=sed			# /bin/sed
 grep=grep		# /bin/grep
+date=date		# /bin/date
 formail=formail		# /usr/local/bin/formail
 multigram=multigram	# ../SedBinDir/multigram
 arch_retrieve=arch_retrieve	# ../.bin/arch_retrieve
@@ -84,7 +85,7 @@ $multigram -a "$subscraddr$NOT_METOO" dist >/dev/null
 sender=`$formail -rtzxTo: <$tmprequest`
 
 $test -z "$subscribe_log" ||
- $echo "subscribe: $subscraddr by: $sender" >>$subscribe_log
+ $echo "subscribe: $subscraddr by: $sender  `$date`" >>$subscribe_log
 
 case $subscraddr in
    *$sender*) sender="$subscraddr" ;;

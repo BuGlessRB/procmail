@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.59 1994/09/09 11:12:44 berg Exp $*/
+/*$Id: config.h,v 1.60 1994/09/12 16:10:08 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -180,7 +180,8 @@ mmdf|root|n?uucp|response|serv(ices?|er)|Admin(istrator)?\
 #define PM_USAGE	\
  "Usage: procmail [-vptoY] [-f fromwhom] [parameter=value | rcfile] ...\
 \n   Or: procmail [-toY] [-f fromwhom] [-a argument] -d recipient ...\
-\n   Or: procmail [-ptY] -m [parameter=value] ... rcfile mail_from rcpt_to ...\
+\n\
+   Or: procmail [-ptY] [-f fromwhom] -m [parameter=value] ... rcfile [arg] ...\
 \n"
 #define PM_HELP		\
  "\t-v\t\tdisplay the version number and exit\

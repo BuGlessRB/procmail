@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.48 1994/09/08 16:11:51 berg Exp $
+.Id $Id: procmailrc.man,v 1.49 1994/09/12 16:10:20 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -81,7 +81,8 @@ will have the entire mail at its stdin.
 .PP
 .SS Comments
 A word beginning with # and all the following characters up to a NEWLINE
-are ignored.
+are ignored.  This does not apply to condition lines, which cannot be
+commented.
 .SS Recipes
 .PP
 A line starting with ':' marks the beginning of a recipe.  It has the
