@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.42 1994/07/19 14:45:23 berg Exp $
+.Id $Id: procmailrc.man,v 1.43 1994/08/04 17:05:13 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -45,7 +45,7 @@ want by specifying a new
 .BR MAILDIR ,
 switch lockfiles by specifying a new
 .BR LOCKFILE ,
-change the umask at any time, etc., the possibilities are endless :-).
+change the umask at any time, etc., the possibilities are endless :\-).
 .PP
 The assignments and substitutions of these environment variables are handled
 exactly like in
@@ -287,7 +287,7 @@ to this mailbox.
 .TP
 .B LOGFILE
 This file will also contain any error or diagnostic messages from procmail
-(normally none :-) or any other programs started by procmail.  If this file
+(normally none :\-) or any other programs started by procmail.  If this file
 is not specified, any diagnostics or error messages will
 @pconsole@@console@@aconsole@
 See also
@@ -312,7 +312,7 @@ Anything assigned to this variable will be appended to $LOGFILE.
 Usually the system mailbox (\fBOR\fPi\fBG\fPinal \fBMAIL\fPbox).  If, for
 some obscure reason (like `\fBfilesystem full\fP') the mail could not be
 delivered, then this mailbox will be the last resort.  If procmail
-fails to save the mail in here (deep, deep trouble :-), then the mail
+fails to save the mail in here (deep, deep trouble :\-), then the mail
 will bounce back to the sender.
 .TP
 .B LOCKFILE
@@ -369,7 +369,7 @@ are exhausted, the program will terminate, but will not generate an error
 (i.e. to the mailer it will seem that the mail has been delivered).
 .TP
 .B UMASK
-The name says it all (if it doesn't, then forget about this one :-).
+The name says it all (if it doesn't, then forget about this one :\-).
 Anything assigned to UMASK is taken as an
 .B octal
 number.  If not specified, the umask defaults to @INIT_UMASK@.  If the umask
@@ -608,7 +608,7 @@ substituted by
 .nh
 `\fB@FROMDsubstitute@\fP',
 which should catch mails coming from most daemons (how's that for a regular
-expression :-).
+expression :\-).
 .hy
 .ad
 .PP

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailsc.man,v 1.8 1994/07/26 17:35:05 berg Exp $
+.Id $Id: procmailsc.man,v 1.9 1994/08/04 17:05:16 berg Exp $
 .TH PROCMAILSC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -29,7 +29,7 @@ Whereas both
 .B w
 and
 .B x
-are real numbers between -2147483647.0 and 2147483647.0.
+are real numbers between \-2147483647.0 and 2147483647.0.
 
 .SH "Weighted regular expression conditions"
 The first time the regular expression is found, it will add
@@ -45,9 +45,9 @@ will be added.  And so forth.
 This can be described by the following concise formula:
 .Sx 4
                      n
-     n   k-1        x - 1
-w * Sum x    = w * -------
-    k=1             x - 1
+     n   k\-1        x \- 1
+w * Sum x    = w * \-\-\-\-\-\-\-
+    k=1             x \- 1
 .Ex
 It represents the total added score for this condition if
 .B n
@@ -105,7 +105,7 @@ will generate an additional score of:
 .Sx 4
            @POW@
     /  M  \e
-w * | --- |
+w * | \-\-\- |
     \e  L  /
 .Ex
 And:
@@ -116,7 +116,7 @@ will generate an additional score of:
 .Sx 4
            @POW@
     /  L  \e
-w * | --- |
+w * | \-\-\- |
     \e  M  /
 .Ex
 .PP
@@ -142,7 +142,7 @@ up the previous negative offset we gave (one point per line).  In the end,
 the score will only be positive if the mail contained more than 150 lines.
 .Sx 5
 :0 @BODY_GREP@@PASS_HEAD@
-* -150^0
+* \-150^0
 *    1^1  ^.*$
 /dev/null
 .Ex
@@ -152,13 +152,13 @@ The first condition is a regular one, i.e. it doesn't contribute to the
 score, but simply has to be satisfied.  The other conditions describe things
 like: john and claire usually have something important to say, meetings
 are usually important, replies are favoured a bit, mails about Elvis
-(this is merely an example :-) are favoured (the more he is mentioned, the
-more the mails is favoured, but the maximum extra score due to Elvis will
+(this is merely an example :\-) are favoured (the more he is mentioned, the
+more the mail is favoured, but the maximum extra score due to Elvis will
 be 4000, no matter how often he is mentioned), lots of quoted lines are
 disliked, smileys are appreciated (the score for those will reach a maximum
 of 3500), those three people usually don't send
 interesting mails, the mails should preferably be small (e.g. 2000 bytes long
-mails will score -100, 4000 bytes long mails do -800).
+mails will score \-100, 4000 bytes long mails do \-800).
 As you see, if some of the uninteresting people send mail, then the mail
 still has a chance of landing in the priority folder, e.g. if it is about
 a meeting, or if it contains at least two smileys.
@@ -169,10 +169,10 @@ a meeting, or if it contains at least two smileys.
 * 2000^0   ^Subject:.*meeting
 *  300^0   ^Subject:.*Re:
 * 1000^.75 elvis|presley
-* -100^1   ^>
+* \-100^1   ^>
 *  350^.9  :\-\e)
-* -500^0   ^From:.*(boss|jane|henry)@work
-* -100^3   > 2000
+* \-500^0   ^From:.*(boss|jane|henry)@work
+* \-100^3   > 2000
 priority_folder
 .Ex
 If you are subscribed to a mailinglist, and just would like to read
@@ -185,7 +185,7 @@ to original lines is at most 1:2.  If it exceeds that, ditch the mail.
 Everything that survived the previous test, is filed.
 .Sx 15
 :0
-^From mailinglist-request@some.where
+^@FROM@mailinglist-request@some.where
 {
   :0:
   * ^(From:.*(paula|bill)|Subject:.*skiing)
@@ -193,7 +193,7 @@ Everything that survived the previous test, is filed.
 
   :0 @BODY_GREP@@PASS_HEAD@
   *  20^1 ^>
-  * -10^1 ^[^>]
+  * \-10^1 ^[^>]
   /dev/null
 
   :0:
@@ -240,21 +240,21 @@ As soon as `plus infinity' (2147483647) is reached, any subsequent
 .I weighted
 conditions will simply be skipped.
 .PP
-As soon as `minus infinity' (-2147483647) is reached, the condition will
+As soon as `minus infinity' (\-2147483647) is reached, the condition will
 be considered as `no match' and the recipe will terminate early.
 .SH NOTES
-If in the regular expression weighted formula
+If in a regular expression weighted formula
 .BR 0<x<1 ,
 the total added score for this condition will asymptotically approach:
 .Sx 3
    w
--------
- 1 - x
+\-\-\-\-\-\-\-
+ 1 \- x
 .Ex
 In order to reach half the maximum value you need
 .Sx 3
-     - ln 2
-n = --------
+     \- ln 2
+n = \-\-\-\-\-\-\-\-
        ln x
 .Ex
 matches.

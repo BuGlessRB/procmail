@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.59 1994/08/02 18:20:02 berg Exp $";
+ "$Id: formail.c,v 1.60 1994/08/04 17:05:29 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/08/02 18:20:02 $";
+static /*const*/char rcsdate[]="$Date: 1994/08/04 17:05:29 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -201,7 +201,7 @@ main(lastm,argv)int lastm;const char*const argv[];
    berkeley=0,forgetclen;
   off_t maxlen,insoffs,ctlength;FILE*idcache=0;pid_t thepid;
   size_t j,lnl,escaplen;char*chp,*namep,*escap=ESCAP;
-  struct field*fldp,*fp2,**afldp,*fdate,*fcntlength,*fsubject;
+  struct field*fldp,*fp2,**afldp,*fdate,*fcntlength,*fsubject,*fFrom_;
   if(lastm)			       /* sanity check, any argument at all? */
 #define Qnext_arg()	if(!*chp&&!(chp=(char*)*++argv))goto usg
      while(chp=(char*)*++argv)
@@ -368,6 +368,7 @@ xusg:
   while(i--);
   fdate=0;addfield(&fdate,date,STRLEN(date)); /* fdate is only for searching */
   fcntlength=0;addfield(&fcntlength,cntlength,STRLEN(cntlength));   /* ditto */
+  fFrom_=0;addfield(&fFrom_,From_,STRLEN(From_));
   fsubject=0;addfield(&fsubject,subject,STRLEN(subject));	 /* likewise */
   forgetclen=digest||		      /* forget Content-Length: for a digest */
 	     berkeley||				      /* for Berkeley format */
@@ -397,7 +398,7 @@ xusg:
   else
 startover:
      while(readhead());				 /* read in the whole header */
-  ;{ size_t lenparkedbuf;void*parkedbuf;
+  ;{ size_t lenparkedbuf;void*parkedbuf;int wasafrom_;
      if(rdheader)
       { char*tmp,*tmp2;
 	if(!strncmp(tmp=(char*)rdheader->fld_text,Article_,STRLEN(Article_)))
@@ -413,7 +414,8 @@ startover:
      namep=0;totallen=0;i=maxindex(rex);
      do rex[i].rexl=0;
      while(i--);			      /* reset all state information */
-     clear_uhead(uheader);clear_uhead(Uheader);procfields();
+     clear_uhead(uheader);clear_uhead(Uheader);
+     wasafrom_=!force&&rdheader&&eqFrom_(rdheader->fld_text);procfields();
      for(fldp=rdheader;fldp;fldp=fldp->fld_next)    /* go through the linked */
       { int nowm;				    /* list of header-fields */
 	if(conctenate)
@@ -598,8 +600,14 @@ dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
 	if(msid->rexl)			 /* do we add an In-Reply-To: field? */
 	   loadbuf(inreplyto,STRLEN(inreplyto)),loadsaved(msid),addbuf();
 	procfields();
-      }				       /* are we allowed to add From_ lines? */
-     else if(!force&&(!rdheader||!eqFrom_(rdheader->fld_text)))	 /* missing? */
+      }
+     else if(!force&&		       /* are we allowed to add From_ lines? */
+	     (!rdheader||!eqFrom_(rdheader->fld_text))&&   /* is it missing? */
+	     ((fldp=findf(fFrom_,&aheader))&&STRLEN(From_)+1>=fldp->tot_len||
+	      !wasafrom_&&			    /* if there was no From_ */
+	      !findf(fFrom_,&iheader)&&		   /* and From_ is not being */
+	      !findf(fFrom_,&Iheader)&&				/* supressed */
+	      !findf(fFrom_,&Rheader)))
       { struct field*old;time_t t;	     /* insert a From_ line up front */
 	t=time((time_t*)0);old=rdheader;rdheader=0;
 	loadbuf(From_,STRLEN(From_));

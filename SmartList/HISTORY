@@ -136,3 +136,8 @@
 	    Allow submissions with "Precedence: junk"
 	    Inserted the missing newline for reply_to in digests
 	    Put the contents of a digest in an extra MIME message
+1994/08/04: v3.05
+	    No real changes, just to synchronise versions with procmail
+	    Most notably, formail v3.04 could cause problems on some machines
+	       where sendmail does not remove the leading From_ line on
+	       mail being forwarded

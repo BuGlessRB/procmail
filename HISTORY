@@ -238,6 +238,8 @@
 		 successful
 	       - Fine-tuned the ^FROM_MAILER and ^FROM_DAEMON macros again
 	       - The -v option lists the locking strategies employed
+	       - Will create the last member of the mail spool directory if
+		 found missing
 	    Forgot to define closelog() away if syslog support is missing
 	    Worked around the old syslog() interface
 	    Worked around a compiler bug old HP compilers (pointer-unsigned),
@@ -259,3 +261,9 @@
 	    Both procmail and formail take the -Y option, for traditional
 	       Berkeley format mailboxes (ignoring Content-Length:)
 	    Some NCR machines didn't have WNOHANG defined
+1994/08/04: v3.05
+	    Formail v3.04 didn't remove the From_ line if given the -I 'From '
+	       option, changed that back, allowing for -a 'From '
+	    Procmail sometimes didn't reliably count the number of matches on
+	       a weighted recipe, fixed
+	    Some minor manpage adaptations

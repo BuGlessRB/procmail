@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.39 1994/06/28 16:56:43 berg Exp $";
+ "$Id: regexp.c,v 1.40 1994/08/04 17:05:32 berg Exp $";
 #endif
 #include "includes.h"
 #include "robust.h"
@@ -397,6 +397,12 @@ struct eps*bregcomp(a,ign_case)const char*const a;
  (ioffsetof(struct chclass,pos1)^ioffsetof(struct chclass,pos2))
 #define PC(this,t)	(*(struct eps**)((char*)(this)+(t)))
 
+static void cleantail(thiss,th1)register struct eps*thiss;const unsigned th1;
+{ register struct eps*reg;
+  while(thiss=PC(reg=thiss,th1))		   /* wipe out list till you */
+     PC(reg,th1)=0,reg=reg->next;			    /* reach tswitch */
+}
+
 char*bregexec(code,text,str,len,ign_case)struct eps*code;
  const uchar*const text;const uchar*str;size_t len;int ign_case;
 { register struct eps*reg,*stack,*other,*thiss;unsigned i,th1,ot1;
@@ -435,7 +441,8 @@ nostack:    { switch(reg->opc-OPB)
 		    continue;
 		 case OPC_JUMP-OPB:reg=reg->next;
 		    continue;
-		 case OPC_FIN-OPB:
+		 case OPC_FIN-OPB:		      /* reset the automaton */
+		    cleantail(thiss,th1);cleantail(other,ot1);
 		    return (char*)str;		       /* one past the match */
 		 case OPC_SEMPTY-OPB:
 		    goto empty_stack;

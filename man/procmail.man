@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.55 1994/08/02 17:41:16 berg Exp $
+.Id $Id: procmail.man,v 1.56 1994/08/04 17:05:08 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -510,7 +510,7 @@ or global) you specified in your rcfile).
 In the unlikely event that you absolutely need to kill procmail before it has
 finished, first try and use the regular kill command (i.e.
 .I not
-kill -9, see the subsection
+kill \-9, see the subsection
 .I Signals
 for suggestions), otherwise some
 .I lockfiles
