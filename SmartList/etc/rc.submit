@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.87 1999/12/17 07:04:52 guenther Exp $
+#$Id: rc.submit,v 1.88 2000/05/09 06:36:34 guenther Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -115,7 +115,8 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 	* !$^Approved:.*$moderator_PASSWORD
 	| formail -R"From X-Envelope-From:" -uDate: -iReturn-Receipt-To: \
 	   -iRead-Receipt-To: -iAcknowledge-To: | \
-	   $SENDMAIL $sendmailOPT `cat moderators`
+	   $SENDMAIL $sendmailOPT \
+	    `cat moderators || echo "${maintainer:-$listmaster}"`
 
 	:0 fhw
 	| formail -IApproved:

@@ -251,9 +251,9 @@
 1999/12/17: v3.14 (never really released, was only available as prerelease)
 	    If no Message-ID could be recovered from a bounced message,
 	       procbounce always picked the same hashkey (this time I mean it)
-	    Strip List-* headers from incoming messages
-	    Add List-Subscriber: and List-Unsubscribe: headers with mailto:
-	       URLs for the request address
+	    Strip List-* header fields from incoming messages and add
+	       List-Subscribe: and List-Unsubscribe: with mailto: URLs for
+	       the request address
 	    Automatic cross-posting of messages sent to a digested list over
 	       to the undigested list only worked if the latter contained
 	       the letter 'y'
@@ -269,7 +269,12 @@
 	    Reject attempts to subscribe someone twice with an X-Command mail
 	    Recognize DSNs and enable some primitive parsing of them
 	    Mention online FAQ in SmartList Manual
-1999/12/17: v3.15pre
-	    Let the location of the "latest" archive be set from rc.submit
-	    Add List-Help: and List-Post: headers with mailto: URLs for the
-	       request address
+2000/01/27: v3.15pre
+	    Let the location of the "latest" archive be set from rc.custom
+	    Add List-Help: and List-Post: header fields with mailto: URLs for
+	       the request address and correct format of other List-* header
+	       fields
+	    "Wrong address" archive retrieval warnings could end up in the
+	       header
+	    Send submitted messages to maintainer if moderators file is
+	       needed but missing
