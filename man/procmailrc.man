@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.21 1993/06/07 15:08:39 berg Exp $
+.Id $Id: procmailrc.man,v 1.22 1993/06/14 13:13:13 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -445,6 +445,15 @@ override the ones that were already defined.  If you really want to
 override the defaults, you either have to put them in the
 .B rcfile
 or on the command line as arguments.
+.PP
+Environment variables set
+.B inside
+the action part of a recipe will
+.B not
+retain their value after the recipe has finished since they are set in a
+subshell of procmail.  To make sure the value of an environment variable is
+retained you have to put the assignment to the variable before the leading `|'
+of a recipe, so that it can capture stdout of the program.
 .PP
 If you specify only a `@PASS_HEAD@' or a `@PASS_BODY@' flag on a recipe,
 and the recipe matches, then, unless a `@FILTER@' or `@CONTINUE@' flag is

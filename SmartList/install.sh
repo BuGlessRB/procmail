@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.19 1993/05/18 13:05:12 berg Exp $
+#$Id: install.sh,v 1.20 1993/06/14 13:13:06 berg Exp $
 
 test $# != 1 -a $# != 2 && echo "Usage: install.sh target-directory [.bin]" &&
  exit 64
@@ -22,7 +22,10 @@ else
   exit 64
 fi
 
-export target bindir
+cd "`dirname $0`"
+PATH=.:$PATH
+
+export target bindir PATH
 
 TMPF=/tmp/list.id.$$
 

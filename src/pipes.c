@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.13 1993/04/02 12:39:13 berg Exp $";
+ "$Id: pipes.c,v 1.14 1993/06/14 13:13:23 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -42,11 +42,11 @@ static void stermchild P((void))
 { if(pidfilt>0)		    /* don't kill what is not ours, we might be root */
      kill(pidfilt,SIGTERM);
   if(!Stdout)
-   { nlog("Rescue of unfiltered data ");
+   { static const char rescdata[]="Rescue of unfiltered data ";
      if(dump(PWRB,backblock,backlen))	  /* pump data back via the backpipe */
-	elog("failed\n");
-     else
-	elog("succeeded\n");
+	nlog(rescdata),elog("failed\n");
+     else if(pwait!=4)			/* are we not looking the other way? */
+	nlog(rescdata),elog("succeeded\n");
    }
   exit(lexitcode);
 }
@@ -114,8 +114,10 @@ pipthrough(line,source,len)char*line,*source;const long len;
 	writeerr(line),lexitcode=EX_IOERR,stermchild();
      if(pwait&&waitfor(pidfilt)!=EX_OK)	 /* check the exitcode of the filter */
       { pidfilt=0;
-	if(!(pwait&2))				  /* do we put it on report? */
-	   progerr(line);
+	if(pwait&2)				  /* do we put it on report? */
+	   pwait=4;			     /* no, we'll look the other way */
+	else
+	   progerr(line);		      /* I'm going to tell my mommy! */
 	stermchild();
       }
      rclose(PWRB);exit(EX_OK);			  /* allow parent to proceed */

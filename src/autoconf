@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.53 1993/06/09 11:35:04 berg Exp $
+#$Id: autoconf,v 1.54 1993/06/14 13:13:20 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -177,6 +177,7 @@ echo >_locktst.h
 $RM _autotst.$O
 
 cat >_autotst.c <<HERE
+#include "$ACONF"
 #include <sys/types.h>
 #include <time.h>
 void*vvoid;
@@ -185,8 +186,8 @@ main(){int i;char*p="t";
  {off_t voff_t;i=voff_t=1;}
  vvoid=p;
  return !vvoid;}
-struct {char a;char b;} setsid;
 #include <unistd.h>
+struct {char a;char b;} setsid;
 HERE
 
 if $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
@@ -202,7 +203,8 @@ else
   :
   else
      echo "#define setsid()" >>_locktst.h
-     echo "#define UNISTD_H_MISSING" >>$ACONF
+     $MAKE _autotst.$O 2>&1 >$DEVNULL
+     test -f _autotst.$O || echo "#define UNISTD_H_MISSING" >>$ACONF
   fi
 fi
 
@@ -271,7 +273,7 @@ cat >_autotst.c <<HERE
 #include "../config.h"
 #include <sys/types.h>
 #ifndef UNISTD_H_MISSING
-#include <unistd.h>		/* getppid() */
+#include <unistd.h>		/* getpid() getppid() */
 #endif
 #include <stdio.h>
 #include <time.h>
