@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.87 1999/02/19 07:24:38 guenther Exp $";
+ "$Id: misc.c,v 1.88 1999/03/27 17:19:03 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -911,8 +911,8 @@ jinregs:		regsp=regs;		/* start over and look again */
 				    score+=weight<0?MIN32:MAX32;
 				 break;			    /* matches early */
 			       }
-			      ;{ double nweight;
-				 if((nweight=weight*weight)<oweight&&oweight<1)
+			      ;{ double nweight=weight*weight;
+				 if(nweight<oweight&&oweight<1)
 				    break;
 				 oweight=nweight;
 			       }
