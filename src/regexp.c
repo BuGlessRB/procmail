@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.21 1993/05/19 16:47:39 berg Exp $";
+ "$Id: regexp.c,v 1.22 1993/05/28 14:40:13 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -33,16 +33,21 @@ static /*const*/char rcsid[]=
 
 #define BITS_P_CHAR		8
 #define OPB			(1<<BITS_P_CHAR)
+#define DONE_NODE		(OPB<<1)
+#define DONE_MASK		(DONE_NODE-1)
+#define LOOPL_NODE		(OPB<<2)
+#define LOOPR_NODE		(OPB<<3)
+#define LOOP_MASK		(LOOPL_NODE-1)
 #define OPC_SEMPTY		OPB
 #define OPC_TSWITCH		(OPB+1)
-#define OPC_EPS			(OPB+2)
-#define OPC_JUMP		(OPB+3)
-#define OPC_CLASS		(OPB+4)
-#define OPC_DOT			(OPB+5)
-#define OPC_BOTEXT		(OPB+6)
+#define OPC_DOT			(OPB+2)
+#define OPC_BOTEXT		(OPB+3)
+#define OPC_EPS			(OPB+4)
+#define OPC_JUMP		(OPB+5)
+#define OPC_CLASS		(OPB+6)
 #define OPC_FIN			(OPB+7)
 #define OPC_FILL		(OPB+8)
-
+		  /* Don't change any opcode above without checking skplen[] */
 #define bit_type		unsigned
 #define bit_bits		(sizeof(bit_type)*8)
 #define bit_index(which)	((unsigned)(which)/bit_bits)
@@ -58,11 +63,12 @@ static /*const*/char rcsid[]=
 #define Ceps		(struct eps*)
 #define epso(to,add)	(Ceps((char*)(to)+(add)))
 #define ii		(aleps.topc)
-#define jjp		(aleps.tnext)
+#define jj		(aleps.au.jju)
+#define jjp		(aleps.au.tnext)
 #define spawn		sp.awn
 
 static struct eps*r;
-static struct{unsigned topc;struct eps*tnext;}aleps;
+static struct{unsigned topc;union{struct eps*tnext;unsigned jju;}au;}aleps;
 static uchar*p,*cachea,*cachep;
 static size_t cacher;
 static case_ignore,errorno;
@@ -71,9 +77,12 @@ struct jump {unsigned opcj_;struct eps*nextj;};
 struct mchar {unsigned opcc_;struct eps*next1_,*p1_,*p2_;};
 struct chclass {unsigned opc_;struct eps*next_,*pos1,*pos2;
  bit_field(c,OPB);};
+					  /* length array, used by skiplen() */
+static const char skplen[]=
+ {SZ(eps),SZ(jump),SZ(chclass),0,SZ(eps)-offsetof(struct eps,sp)};
 						       /* epsilon transition */
 static void puteps(spot,to)struct eps*const spot;const struct eps*const to;
-{ spot->opc=OPC_EPS;spot->next=0;spot->spawn=Ceps to;
+{ spot->opc=OPC_EPS;spot->next=Ceps to;spot->spawn=0;
 }
 
 #define Cc(p,memb)	(((struct chclass*)(p))->memb)
@@ -89,6 +98,11 @@ static void bseti(i,j)unsigned i;const int j;
      else return;						  /* no case */
      bit_set(rAc,i,j);
    }
+}
+					   /* general purpose length routine */
+static struct eps*skiplen(ep)const struct eps*const ep;
+{ return epso(ep,(ep->opc&DONE_MASK)<OPC_EPS?
+   SZ(mchar):skplen[(ep->opc&DONE_MASK)-OPC_EPS]);
 }
 
 static por P((const struct eps*const e));
@@ -170,13 +184,13 @@ fine2:
   p++;r=epso(r,SZ(mchar));
 }
 
-#define EOS(x)	(jjp?jjp:(x))
+#define EOS(x)	(jj?Ceps e:(x))
 
 static void pnorm(e)const struct eps*const e;
 { void*pold;struct eps*rold;
   for(;;)
    { pold=p;rold=r;psimp(Ceps 0);ii= *p;		    /* skip it first */
-     jjp=p[1]==R_OR||p[1]==R_END_GROUP||!p[1]?Ceps e:Ceps 0;
+     jj=p[1]==R_OR||p[1]==R_END_GROUP||!p[1];
      if(e)
 	p=pold,pold=r;
      switch(ii)			   /* check for any of the postfix operators */
@@ -187,12 +201,12 @@ static void pnorm(e)const struct eps*const e;
 	case R_1_OR_MORE:				   /* first the rest */
 	   if(e)				      /* and then an epsilon */
 	    { puteps(r,rold);
-	      if(jjp)
-		 (r+1)->opc=OPC_JUMP,(r+1)->next=jjp;
+	      if(jj)
+		 (r+1)->opc=OPC_JUMP,(r+1)->next=Ceps e;
 	      r=rold;psimp(Ceps pold);
 	    }
 	   r++;
-	   if(jjp)
+	   if(p[1]==R_OR||p[1]==R_END_GROUP||!p[1])
 	      r=epso(r,SZ(jump));
 	   goto incagoon;
 	case R_0_OR_1:r++;
@@ -228,7 +242,7 @@ static por(e)const struct eps*const e;
 	   case '\0':case R_END_GROUP:	       /* found the end of the group */
 	      if(p==pold)				 /* empty 'or' group */
 	       { if(e)
-		    r->opc=OPC_JUMP,r->next=e;
+		    r->opc=OPC_JUMP,r->next=Ceps e;
 		 r=epso(r,SZ(jump));
 	       }
 	      else
@@ -259,48 +273,94 @@ ret0:		 return 0;
       }
    }
 }
-    /* break up any closed epsilon circles, otherwise they can't be executed */
-static fillout(stack)struct eps*stack;
-{ for(;;)
-     switch(stack->opc)
-      { case OPC_JUMP:stack=stack->next;continue;
-	case OPC_EPS:
-	   if(stack->next==Ceps p)
-	      return 1;
-	   if(!stack->next)
-	    { stack->next=Ceps p;		    /* mark this one as used */
-	      if(fillout(stack->spawn))
-	       { stack->opc=OPC_JUMP;stack->next=stack+1;
-		 stack->sp.sopc=OPC_FILL;continue;
-	       }
-	      if(fillout(stack+1))
-	       { stack->opc=OPC_JUMP;stack->next=stack->spawn;
-		 stack->sp.sopc=OPC_FILL;
-	       }
-	    }
-	default:return 0;
+
+static struct eps*maxback(down)struct eps*down;
+{ jj=0;
+  for(;;)
+   { switch(down->opc&LOOP_MASK)
+      { default:goto ret0;
+	case OPC_JUMP:down->opc=OPC_JUMP|DONE_NODE;
+	case OPC_JUMP|DONE_NODE:down=down->next;continue;
+	case OPC_EPS|DONE_NODE:jj=1;
+	   return down->spawn==Ceps&aleps?down:down->spawn;
+	case OPC_EPS:break;
       }
+     break;
+   }
+  if(!down->spawn)
+   { struct eps*left;
+     down->opc=OPC_EPS|DONE_NODE;down->spawn=Ceps&aleps;
+     left=maxback(down->next);
+     if(jj)
+	down->opc|=LOOPL_NODE;
+     ;{ struct eps*right;
+	if((right=maxback(down+1))&&(char*)left>(char*)right)
+	   left=right;
+      }
+     if(jj)
+      { down->opc|=LOOPR_NODE;
+	if(!(down->opc&LOOPL_NODE))
+	   jj=0;
+      }
+     if(!left)
+      { down->spawn=down;goto ret0;
+      }
+     if((down->spawn=left)!=down)
+	return left;
+   }
+ret0:
+  return 0;
 }
 
 struct eps*bregcomp(a,ign_case)const char*const a;
 { struct eps*st;size_t i;      /* first a trial run, determine memory needed */
   errorno=0;p=(uchar*)a;case_ignore=ign_case;r=Ceps&aleps;cachea=0;por(Ceps 0);
   st=r=
-   malloc((i=(char*)r-(char*)&aleps)+ioffsetof(struct eps,next)+sizeof r);
+   malloc((i=(char*)r-(char*)&aleps)+sizeof r->opc);
   p=(uchar*)a;
   if(!por(epso(st,i)))					   /* really compile */
      errorno=1;
-  r->opc=OPC_FIN;r->next=0;
+  r->opc=OPC_FIN;
   if(errorno)
      nlog("Invalid regexp"),logqnl(a);
-  for(r=st;;)				 /* simplify the compiled code (i.e. */
+  for(r=st;;st=skiplen(st))		 /* simplify the compiled code (i.e. */
      switch(st->opc)		      /* take out cyclic epsilon references) */
       { case OPC_FIN:return r;					 /* finished */
-	case OPC_CLASS:st=epso(st,SZ(chclass));break;		     /* skip */
-	case OPC_EPS:fillout(Ceps(p=(uchar*)st));st++;break;   /* check tree */
-	case OPC_JUMP:st=epso(st,SZ(jump));break;
-	case OPC_FILL:st=epso(st,SZ(eps)-offsetof(struct eps,sp));break;
-	default:st=epso(st,SZ(mchar));				 /* skip too */
+	case OPC_EPS:		     /* check for any closed epsilon circles */
+	   if(!st->spawn)			   /* they can't be executed */
+	    { maxback(st);
+	      ;{ register struct eps*i;
+		 for(i=r;;i=skiplen(i))
+		  { switch(i->opc&LOOP_MASK)
+		     { default:
+			{ register struct eps*f;
+			  if(((f=i->next)->opc&DONE_MASK)==OPC_EPS&&f->spawn)
+			   { for(;f->spawn!=f;f=f->spawn);
+			     i->next=f;
+			   }
+			}
+		       case OPC_EPS|DONE_NODE:case OPC_JUMP|DONE_NODE:
+		       case OPC_FILL:continue;
+		       case OPC_FIN:;
+		     }
+		    break;
+		  }
+	       }
+	      ;{ register struct eps*i;
+		 for(i=r;;i=skiplen(i))
+		  { switch(i->opc)
+		     { case OPC_EPS|DONE_NODE|LOOPL_NODE:i->next=i+1;
+		       case OPC_EPS|DONE_NODE|LOOPR_NODE:i->sp.sopc=OPC_FILL;
+		       case OPC_JUMP|DONE_NODE:i->opc=OPC_JUMP;continue;
+		       case OPC_EPS|DONE_NODE|LOOPL_NODE|LOOPR_NODE:
+		       case OPC_EPS|DONE_NODE:i->opc=OPC_EPS;
+		       default:continue;
+		       case OPC_FIN:;
+		     }
+		    break;
+		  }
+	       }
+	    }
       }
 }
 
@@ -312,12 +372,12 @@ char*bregexec(code,text,len,ign_case)struct eps*code;const uchar*const text;
  size_t len;
 { register struct eps*reg,*stack,*other,*thiss;unsigned i,th1,ot1;
   const uchar*str;struct eps*initstack,*initcode;
-  static struct mchar tswitch={OPC_TSWITCH,&tswitch};
+  static struct mchar tswitch={OPC_TSWITCH,Ceps&tswitch};
   static struct eps sempty={OPC_SEMPTY,&sempty};
   sempty.spawn=initstack= &sempty;
   if((initcode=code)->opc==OPC_EPS)
-     initcode=(initstack=code)->spawn,code->next= &sempty;
-  thiss= &tswitch;th1=ioffsetof(struct chclass,pos1);
+     initcode=(initstack=code)->next,code->spawn= &sempty;
+  thiss=Ceps&tswitch;th1=ioffsetof(struct chclass,pos1);
   ot1=ioffsetof(struct chclass,pos2);str=text-1;len++;i='\n';goto setups;
   do			      /* make sure any beginning-of-line-hooks catch */
    { i= *++str;				 /* get the next real-text character */
@@ -326,21 +386,19 @@ char*bregexec(code,text,len,ign_case)struct eps*code;const uchar*const text;
 lastrun:				     /* switch this & other pc-stack */
      th1^=XOR1;ot1^=XOR1;thiss=other;
 setups:
-     other= &tswitch;stack=initstack;reg=initcode;goto nostack;
+     other=Ceps&tswitch;stack=initstack;reg=initcode;goto nostack;
      for(;;)				 /* pop next entry off this pc-stack */
       { thiss=PC(reg=thiss,th1);PC(reg,th1)=0;reg=reg->next;goto nostack;
 	for(;;)				/* pop next entry off the work-stack */
-	 { for(reg=stack->spawn,stack=stack->next;;)
+	   for(reg=stack->next,stack=stack->spawn;;)
 nostack:    { switch(reg->opc-OPB)
 	       { default:
 		    if(i==reg->opc)		  /* regular character match */
 		       goto yep;
 		    break;	    /* push spawned branch on the work-stack */
-		 case OPC_EPS-OPB:reg->next=stack;reg=(stack=reg)+1;
-		    continue;
+		 case OPC_EPS-OPB:reg->spawn=stack;reg=(stack=reg)+1;continue;
 		 case OPC_JUMP-OPB:reg=reg->next;continue;
-		 case OPC_FIN-OPB:	   /* hurray!  complete regexp match */
-		    return(char*)str;		/* return one past the match */
+		 case OPC_FIN-OPB:return(char*)str;    /* one past the match */
 		 case OPC_SEMPTY-OPB:goto empty_stack;
 		 case OPC_TSWITCH-OPB:goto pcstack_switch;
 		 case OPC_BOTEXT-OPB:
@@ -358,7 +416,6 @@ yep:		       if(!PC(reg,ot1))		     /* state not yet pushed */
 	       }					   /* other pc-stack */
 	      break;
 	    }
-	 }
 empty_stack:;					  /* the work-stack is empty */
       }
 pcstack_switch:;				   /* this pc-stack is empty */
