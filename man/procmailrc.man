@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.17 1993/04/21 15:02:29 berg Exp $
+.Id $Id: procmailrc.man,v 1.18 1993/04/27 12:15:24 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -272,7 +272,7 @@ it finally went to and how long (in bytes) the message was.  By setting this
 variable to `no', generation of this abstract is suppressed.
 .Tp
 .B LOG
-Anything assigned to this variable will be echoed in $LOGFILE.
+Anything assigned to this variable will be appended to $LOGFILE.
 .Tp
 .B ORGMAIL
 Usually the system mailbox (\fBOR\fPi\fBG\fPinal \fBMAIL\fPbox).  If, for
