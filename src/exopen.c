@@ -1,12 +1,14 @@
 /************************************************************************
  *	Collection of NFS resistant exclusive creat routines		*
  *									*
- *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1999-2001, Philip Guenther, The United States	*
+ *							of America	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.38 1999/12/12 08:50:51 guenther Exp $";
+ "$Id: exopen.c,v 1.39 2001/01/28 00:48:04 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -15,12 +17,12 @@ static /*const*/char rcsid[]=
 #include "exopen.h"
 #include "lastdirsep.h"
 
-int unique(full,p,len,mode,verbos,chownit)char*const full;char*p;
- const size_t len;const mode_t mode;const int verbos,chownit;
+int unique(full,p,len,mode,verbos,flags)char*const full;char*p;
+ const size_t len;const mode_t mode;const int verbos,flags;
 { static const char s2c[]=".,+%";static int serial=STRLEN(s2c);
   static time_t t;char*dot,*end=full+len,*op,*ldp;struct stat filebuf;
   int nicediff,i,didnice,retry=RETRYunique;
-  if(chownit&doCHOWN)		  /* semi-critical, try raising the priority */
+  if(flags&doCHOWN)		  /* semi-critical, try raising the priority */
    { nicediff=nice(0);SETerrno(0);nicediff-=nice(-NICE_RANGE);
      didnice=errno;
    }
@@ -62,7 +64,7 @@ in:	p=ultoan((long)t,dot+1);
   while((!i||errno!=ENOENT||	      /* casually check if it already exists */
 	 (0>(i=ropen(full,O_WRONLY|O_CREAT|O_EXCL,mode))&&errno==EEXIST))&&
 	(i= -1,retry--));
-  if(chownit&doCHOWN&&didnice)
+  if(flags&doCHOWN&&didnice)
      nice(nicediff);		   /* put back the priority to the old level */
   if(i<0)
    { if(verbos)			      /* this error message can be confusing */
@@ -70,25 +72,25 @@ in:	p=ultoan((long)t,dot+1);
      goto ret0;
    }
 #ifdef NOfstat
-  if(chownit&doCHOWN)
+  if(flags&doCHOWN)
    { if(
 #else
-  if(chownit&doCHECK)
+  if(flags&doCHECK)
    { struct stat fdbuf;
      fstat(i,&fdbuf);			/* match between the file descriptor */
 #define NEQ(what)	(fdbuf.what!=filebuf.what)	    /* and the file? */
      if(lstat(full,&filebuf)||filebuf.st_nlink!=1||filebuf.st_size||
 	NEQ(st_dev)||NEQ(st_ino)||NEQ(st_uid)||NEQ(st_gid)||
-	 chownit&doCHOWN&&
+	 flags&doCHOWN&&
 #endif
 	 chown(full,uid,sgid))
       { rclose(i);unlink(full);			 /* forget it, no permission */
-ret0:	return chownit&doFD?-1:0;
+ret0:	return flags&doFD?-1:0;
       }
    }
-  if(chownit&doLOCK)
+  if(flags&doLOCK)
      rwrite(i,"0",1);			   /* pid 0, `works' across networks */
-  if(chownit&doFD)
+  if(flags&doFD)
      return i;
   rclose(i);
   return 1;
