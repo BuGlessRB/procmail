@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.111 2001/06/06 04:34:11 guenther Exp $";
+ "$Id: misc.c,v 1.112 2001/06/07 21:03:46 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -248,7 +248,7 @@ void onguard P((void))
 void offguard P((void))
 { lcking&=~lck_LOCKFILE;
   if(nextexit==1)	  /* make sure we are not inside Terminate() already */
-     elog(newline),Terminate();
+     elog(newline),Terminate(0);
 }
 
 void sterminate P((void))
@@ -266,14 +266,14 @@ void sterminate P((void))
 	   for(j=0;!((i>>=1)&1);j++);
 	   elog(msg[j]);
 	 }
-	elog(newline);Terminate();
+	elog(newline);Terminate(1);
       }
    }
 }
 
 int fakedelivery;
 
-void Terminate P((void))
+void Terminate(fromsig)int fromsig;
 { const char*chp;
   ignoreterm();
   if(retvl2!=EXIT_SUCCESS)
@@ -287,11 +287,12 @@ void Terminate P((void))
       }
      else
 	lstfolder=tgetenv(lastfolder);
-     logabstract(lstfolder);
+     if(!fromsig)
+	logabstract(lstfolder);
 #ifndef NO_COMSAT
-     if(strlen(chp=tgetenv(lgname))+2<=linebuf)	  /* first pass length check */
+     if(strlen(lgnameval)+2<=linebuf)		  /* first pass length check */
       { int s;struct sockaddr_in addr;char*chad;	     /* @ seperator? */
-	strcpy(buf,chp);
+	strcpy(buf,lgnameval);
 	strcat(buf,"@");		     /* start setting up the message */
 	if(chad=strchr(chp=(char*)scomsat,SERV_ADDRsep))
 	   *chad++='\0';	      /* split it up in service and hostname */
@@ -624,7 +625,7 @@ jinregs:		regsp=regs;		/* start over and look again */
 copyrest:	  strcpy(buf,chp2);
 		  continue;
 	       case '?':pwait=2;metaparse(chp);inittmout(buf);ignwerr=1;
-		   pipin(buf,lstartchar,ltobesent);
+		   pipin(buf,lstartchar,ltobesent,0);
 		   resettmout();
 		   if(scoreany&&lexitcode>=0)
 		    { int j=lexitcode;

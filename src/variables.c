@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.12 2001/06/06 04:34:12 guenther Exp $";
+ "$Id: variables.c,v 1.13 2001/06/07 21:03:55 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -29,7 +29,8 @@ struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
 struct varstr strenstr[]={{"SHELLMETAS",DEFshellmetas},{"LOCKEXT",DEFlockext},
  {"MSGPREFIX",DEFmsgprefix},{"COMSAT",empty},{"TRAP",empty},
  {"SHELLFLAGS",DEFshellflags},{"DEFAULT",DEFdefault},{"SENDMAIL",DEFsendmail},
- {"SENDMAILFLAGS",DEFflagsendmail},{"PROCMAIL_VERSION",PM_VERSION}};
+ {"SENDMAILFLAGS",DEFflagsendmail},{"PROCMAIL_VERSION",PM_VERSION},
+ {"LOGNAME",empty}};
 
 #define MAXvarvals	 maxindex(strenvvar)
 #define MAXvarstrs	 maxindex(strenstr)
@@ -37,6 +38,7 @@ struct varstr strenstr[]={{"SHELLMETAS",DEFshellmetas},{"LOCKEXT",DEFlockext},
 const char lastfolder[]="LASTFOLDER",maildir[]="MAILDIR";
 int didchd;
 long Stdfilled;
+char *cslastf;		  /* ComSat LASTFolder: full path for comsat message */
 
 static const char slinebuf[]="LINEBUF",pmoverflow[]="PROCMAIL_OVERFLOW=yes",
  exitcode[]="EXITCODE";
@@ -187,6 +189,7 @@ void initdefenv(pass,fallback,do_presets)auth_identity*pass;
    { setdef(lgname,fallback);setdef(shell,binsh);
      setdef(home,ROOT_DIR);setdef(orgmail,DEAD_LETTER);
    }
+  lgnameval=tgetenv(lgname);			       /* kludge a safe copy */
   if(do_presets)
    { static const char*const prestenv[]=PRESTENV;
      const char*const*pp;
@@ -230,13 +233,28 @@ void setmaildir(newdir)const char*const newdir;		    /* destroys buf2 */
 }
 
 void setlastfolder(folder)const char*const folder;
-{ if(asgnlastf)
-   { char*chp;
-     asgnlastf=0;
-     strcpy(chp=malloc(STRLEN(lastfolder)+1+strlen(folder)+1),lastfolder);
-     chp[STRLEN(lastfolder)]='=';strcpy(chp+STRLEN(lastfolder)+1,folder);
-     sputenv(chp);free(chp);
+{ char*chp,*p;int abspath;size_t len,dlen,flen=strlen(folder);
+  if((abspath=strchr(dirsep,*folder))||			   /* absolute path? */
+   (len=dlen=strlen(tgetenv(maildir)))<STRLEN(lastfolder)) /* short MAILDIR? */
+     len=STRLEN(lastfolder);		       /* make room for "LASTFOLDER" */
+  chp=malloc(len+1+len+1);		    /* +1 for '=' or '/', +1 for NUL */
+  strcpy(chp,lastfolder);
+  chp[STRLEN(lastfolder)]='=';strcpy(chp+STRLEN(lastfolder)+1,folder);
+  sputenv(chp);						  /* set environment */
+#ifndef NO_COMSAT		 /* setup full path of lastfolder for comsat */
+  if(!abspath)				  /* so that it has the correct path */
+   { strcpy(chp,maildir);		    /* (MAILDIR might change...) and */
+     p=chp+dlen;			  /* to make the Terminate() routine */
+     *p++=MCDIRSEP_;			/* safe to call from signal handlers */
    }
+  else
+     p=chp;
+  strcpy(p,folder);
+  p=cslastf;			       /* swap global cslastf with new value */
+  cslastf=chp;
+  chp=p;
+#endif
+  free(chp);
 }
 
 int setexitcode(trapisset)int trapisset;
@@ -374,7 +392,7 @@ void asenv(chp)const char*const chp;
      if(strcmp(chp,name=hostname()))
       { yell("HOST mismatched",name);
 	if(rc<0)				  /* if no rcfile opened yet */
-	   retval=EXIT_SUCCESS,Terminate();	  /* exit gracefully as well */
+	   retval=EXIT_SUCCESS,Terminate(0);	  /* exit gracefully as well */
 	closerc();
       }
    }

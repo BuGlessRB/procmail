@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.51 2001/06/03 21:57:10 guenther Exp $*/
+/*$Id: procmail.h,v 1.52 2001/06/07 21:03:53 guenther Exp $*/
 
 #include "includes.h"
 
@@ -85,16 +85,18 @@ extern struct varstr{const char*const sname,*sval;}strenstr[];
 #define sendmail	(strenstr[7].sval)
 #define flagsendmail	(strenstr[8].sval)
 /* #define PM_version	(strenstr[9].sval) */
+#define lgname		(strenstr[10].sname)		/* this is the name! */
+#define lgnameval	(strenstr[10].sval)
 
 
 extern char*buf,*buf2,*loclock,*Stdout,*thebody;
 extern const char shell[],lockfile[],newline[],binsh[],unexpeof[],*const*gargv,
- *const*restargv,*sgetcp,pmrc[],*rcfile,dirsep[],devnull[],empty[],lgname[],
+ *const*restargv,*sgetcp,pmrc[],*rcfile,dirsep[],devnull[],empty[],
  executing[],oquote[],cquote[],whilstwfor[],procmailn[],Mail[],home[],host[],
  *defdeflock,*argv0,exceededlb[],curdir[],slogstr[],conflicting[],orgmail[],
  insufprivs[],errwwriting[],Version[];
 extern long filled,lastscore;
-extern int sh,pwait,retval,retvl2,lcking,rc,asgnlastf,privileged,ignwerr,
+extern int sh,pwait,retval,retvl2,lcking,rc,privileged,ignwerr,
  lexitcode,accspooldir,crestarg,savstdout,berkeley,mailfilter,erestrict,
  Deliverymode,ifdepth;
 extern struct dyna_array ifstack;

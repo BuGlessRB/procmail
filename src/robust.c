@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.30 2000/11/18 03:43:33 guenther Exp $";
+ "$Id: robust.c,v 1.31 2001/06/07 21:03:54 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -31,7 +31,7 @@ void nomemerr(len)const size_t len;
    }
   if(retval!=EX_TEMPFAIL)
      retval=EX_OSERR;
-  Terminate();
+  Terminate(0);
 }
 
 static void heapdefrag P((void))

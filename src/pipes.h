@@ -1,4 +1,4 @@
-/*$Id: pipes.h,v 1.13 2000/10/24 00:16:48 guenther Exp $*/
+/*$Id: pipes.h,v 1.14 2001/06/07 21:03:51 guenther Exp $*/
 
 struct memblk;					       /* predeclare the tag */
 void
@@ -9,7 +9,7 @@ void
 int
  pipthrough P((char*line,char*source,const long len));
 long
- pipin P((char*const line,char*source,long len));
+ pipin P((char*const line,char*source,long len,int asgnlastf));
 char
  *readdyn P((struct memblk*const mb,long*const filled,long oldfilled)),
  *fromprog Q((char*name,char*const dest,size_t max));

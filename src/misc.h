@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.52 2000/11/27 07:09:24 guenther Exp $*/
+/*$Id: misc.h,v 1.53 2001/06/07 21:03:48 guenther Exp $*/
 
 struct dyna_array{int filled,tspace;char*vals;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -36,7 +36,7 @@ void
  onguard P((void)),
  offguard P((void)),
  sterminate P((void)),
- Terminate P((void)) __attribute__((noreturn)),
+ Terminate P((int fromsig)) __attribute__((noreturn)),
  suspend P((void)),
  *app_val_ P((struct dyna_array*const sp,int size)),
  setupsigs P((void));

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.68 2000/11/18 03:45:25 guenther Exp $";
+ "$Id: pipes.c,v 1.69 2001/06/07 21:03:50 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -195,7 +195,8 @@ perr:	      progerr(line,excode,pwait==4);  /* I'm going to tell my mommy! */
   return 0;		    /* we stay behind to read back the filtered text */
 }
 
-long pipin(line,source,len)char*const line;char*source;long len;
+long pipin(line,source,len,asgnlastf)char*const line;char*source;long len;
+ int asgnlastf;
 { int poutfd[2];
 #if 0						     /* not supported (yet?) */
   if(!sh)					/* shortcut builtin commands */
@@ -248,7 +249,8 @@ long pipin(line,source,len)char*const line;char*source;long len;
 builtin:
   if(!sh)
      concatenate(line);
-  setlastfolder(line);
+  if(asgnlastf)
+     setlastfolder(line);
   return len;
 }
 

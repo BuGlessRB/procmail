@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: memblk.c,v 1.3 2001/02/20 10:43:26 guenther Exp $"
+ "$Id: memblk.c,v 1.4 2001/06/07 21:03:45 guenther Exp $"
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -107,7 +107,7 @@ mmap:	if((mb->p=mmap(0,len+1,P_RW,MAP_PRIVATE,mb->fd,(off_t)0))==MAP_FAILED)
 	   syslog(LOG_NOTICE,"%s of %ld bytes\n",mmapfailed,len);
 	   if(retval!=EX_TEMPFAIL)
 	      retval=EX_OSERR;
-	   Terminate();
+	   Terminate(0);
 	 }
       }
      mb->len=len;

@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.172 2001/06/06 04:36:08 guenther Exp $";
+ "$Id: procmail.c,v 1.173 2001/06/07 21:03:52 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -47,7 +47,7 @@ char*buf,*buf2,*loclock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*const*restargv= &nullp,*sgetcp,
  pmrc[]=PROCMAILRC,*rcfile,dirsep[]=DIRSEP,devnull[]=DevNull,empty[]="",
- lgname[]="LOGNAME",executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",
+ executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",
  procmailn[]="procmail",whilstwfor[]=" whilst waiting for ",home[]="HOME",
  host[]="HOST",*defdeflock=empty,*argv0=empty,curdir[]={chCURDIR,'\0'},
  slogstr[]="%s \"%s\"",conflicting[]="Conflicting ",orgmail[]="ORGMAIL",
@@ -55,7 +55,7 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  exceededlb[]="Exceeded LINEBUF\n",errwwriting[]="Error while writing to",
  Version[]=VERSION;
 char*Stdout;
-int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rc= -1,asgnlastf,
+int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rc= -1,
  privileged=priv_START,lexitcode=EXIT_SUCCESS,ignwerr,crestarg,savstdout,
  berkeley,mailfilter,erestrict,Deliverymode,ifdepth;   /* depth of outermost */
 struct dyna_array ifstack;
@@ -198,6 +198,8 @@ confldopt:  { presenviron=mailfilter=0;		    /* -d disables -p and -m */
 	      goto conflopt;
 	    }
 	   break;
+	default:				       /* this cannot happen */
+	   abort();
       }
      cleanupenv(presenviron);
      ;{ auth_identity*pass,*passinvk;auth_identity*spassinvk;
@@ -493,7 +495,7 @@ nomore_rc:
      if(succeed)				     /* should we panic now? */
 mailed: retval=EXIT_SUCCESS;		  /* we're home free, mail delivered */
    }
-  unlock(&loclock);Terminate();
+  unlock(&loclock);Terminate(0);
 }
 
 static void usage P((void))
@@ -740,7 +742,7 @@ nolock:		     { nlog("Couldn't determine implicit lockfile from");
 		 if(!pwait)		/* try and protect the user from his */
 		    pwait=2;			   /* blissful ignorance :-) */
 	       }
-	      rawnonl=flags[RAW_NONL];asgnlastf=1;
+	      rawnonl=flags[RAW_NONL];
 	      if(flags[CONTINUE]&&(flags[FILTER]||Stdout))
 		 nlog(extrns),elog("copy-flag"),elog(ignrd);
 	      inittmout(buf);
@@ -759,7 +761,7 @@ nolock:		     { nlog("Couldn't determine implicit lockfile from");
 	       { if(!pipthrough(buf,startchar,tobesent))
 		    succeed=1,postStdout();	  /* only parse if no errors */
 	       }
-	      else if(!pipin(buf,startchar,tobesent))	  /* regular program */
+	      else if(!pipin(buf,startchar,tobesent,1))	  /* regular program */
 	       { succeed=1;
 		 if(flags[CONTINUE])
 		    goto logsetlsucc;

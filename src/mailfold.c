@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.99 2000/12/05 06:34:26 guenther Exp $";
+ "$Id: mailfold.c,v 1.100 2001/06/07 21:03:44 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -206,7 +206,6 @@ ret:
 int writefolder(boxname,linkfolder,source,len,ignwerr,dolock)
  char*boxname,*linkfolder;const char*source;long len;const int ignwerr,dolock;
 { char*chp,*chp2;mode_t mode;int fd,type;
-  asgnlastf=1;
   if(*boxname=='|'&&(!linkfolder||linkfolder==Tmnate))
    { setlastfolder(boxname);
      fd=rdup(Deliverymode==2?STDOUT:savstdout);

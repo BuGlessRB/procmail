@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.71 2001/02/20 09:35:21 guenther Exp $*/
+/*$Id: includes.h,v 1.72 2001/06/07 21:03:42 guenther Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -46,7 +46,7 @@
 #endif
 #ifndef STDLIB_H_MISSING
 #include <stdlib.h>		/* getenv() malloc() realloc() free()
-				/* strtol() exit() EXIT_SUCCESS */
+				/* strtol() strtod() exit() EXIT_SUCCESS */
 #endif
 #include <time.h>		/* time() ctime() time_t */
 #include <fcntl.h>		/* fcntl() struct flock O_RDONLY O_WRONLY
@@ -73,7 +73,8 @@
 #ifndef STRING_H_MISSING
 #include <string.h>		/* strcpy() strncpy() strcat() strlen()
 				/* strspn() strcspn() strchr() strcmp()
-				   strncmp() strpbrk() strstr() memmove() */
+				   strncmp() strpbrk() strstr() memmove()
+				   strncasecmp() memset() */
 #endif
 #ifndef MATH_H_MISSING
 #include <math.h>		/* pow() */
@@ -84,7 +85,7 @@
 				   LOG_PID LOG_MAIL */
 #endif
 #include <errno.h>		/* EINTR EEXIST ENFILE EACCES EAGAIN EXDEV */
-				/* EDQUOT ENOSPC */
+				/* EDQUOT ENOSPC strerror() */
 #ifndef SYSEXITS_H_MISSING
 #include <sysexits.h>		/* EX_USAGE EX_DATAERR EX_NOINPUT EX_NOUSER
 				   EX_UNAVAILABLE EX_OSERR EX_OSFILE
@@ -160,6 +161,10 @@ double pow();
 
 #ifndef EXIT_SUCCESS
 #define EXIT_SUCCESS	0
+#endif
+
+#ifdef NO_exit
+#define _exit(sig)	exit(sig)
 #endif
 
 #if O_SYNC

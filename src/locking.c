@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.59 2001/06/03 21:56:10 guenther Exp $";
+ "$Id: locking.c,v 1.60 2001/06/07 21:03:43 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -101,7 +101,7 @@ term: { free(name);			     /* drop the preallocated buffer */
      setegid(gid);		      /* we put back our regular permissions */
   lcking&=~lck_LOCKFILE;
   if(nextexit)
-     elog(whilstwfor),elog("lockfile"),logqnl(name),Terminate();
+     elog(whilstwfor),elog("lockfile"),logqnl(name),Terminate(0);
   return !!*lockp;
 }
 

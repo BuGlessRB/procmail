@@ -21,9 +21,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.97 2001/02/20 10:14:08 guenther Exp $";
+ "$Id: multigram.c,v 1.98 2001/06/07 21:03:49 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 2001/02/20 10:14:08 $";
+static /*const*/char rcsdate[]="$Date: 2001/06/07 21:03:49 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -148,8 +148,12 @@ static char*tstrdup(p)const char*const p;
 static const char*mailfile;
 static int retval=EX_UNAVAILABLE;
 
-static void sterminate P((void))
-{ unlink(mailfile);exit(retval);
+static void sterminate(sig)int sig;
+{ unlink(mailfile);
+  if(sig)
+     _exit(retval);		      /* can't call exit from signal handler */
+  else
+     exit(retval);
 }
 
 static int strIcmp(s1,s2)const char*const s1,*const s2;
@@ -504,7 +508,7 @@ statd:		    if((size+=stbuf.st_size)>maxsize)	  /* digest too big? */
 	       { while(0>(i=write(mailfd,buf,(size_t)len))&&errno==EINTR);
 		 if(i<0)
 		  { nlog("Can't write temporary file");logqnl(mailfile);
-		    retval=EX_IOERR;sterminate();
+		    retval=EX_IOERR;sterminate(0);
 		  }
 		 a+=i;
 	       }
@@ -513,14 +517,14 @@ jin:	      while(0>(i=read(STDIN,buf,(size_t)COPYBUF))&&errno==EINTR);
 	    }
 	   while(i>0);
 	   if(!totsize)
-	      nlog("Can't find the mail\n"),retval=EX_NOINPUT,sterminate();
+	      nlog("Can't find the mail\n"),retval=EX_NOINPUT,sterminate(0);
 	   free(buf);totsize=(maxsize+totsize-1)/totsize;
 	   if(maxsize&&(!maxsplits||totsize<maxsplits))
 	      maxsplits=totsize?totsize:1;
 	 }
 	fclose(stdin);close(STDIN);
 	if(!(hardfile=fopen(chp=distfile,"r")))
-	   nlog(cldntopen),logqnl(distfile),retval=EX_IOERR,sterminate();
+	   nlog(cldntopen),logqnl(distfile),retval=EX_IOERR,sterminate(0);
 	;{ size_t revlen;
 	   revarr=malloc((revlen=ADDR_INCR)*sizeof*revarr);revfilled=0;
 	   while(readstr(hardfile,&hardstr,1))
@@ -546,7 +550,7 @@ invaddr:	       nlog("Skipping invalid address entry:");*chp=' ';
 	 }
 	free(hardstr.text);fclose(hardfile);
 	if(!revfilled)
-	   retval=EXIT_SUCCESS,sterminate();	  /* no recipients, finished */
+	   retval=EXIT_SUCCESS,sterminate(0);	  /* no recipients, finished */
 	if(fork()>0)					    /* lose our tail */
 	   return EXIT_SUCCESS;	  /* causes procmail to release the lockfile */
 	revarr=realloc(revarr,revfilled*sizeof*revarr);		/* be modest */
@@ -619,7 +623,7 @@ invaddr:	       nlog("Skipping invalid address entry:");*chp=' ';
 		 tmemmove(nam,first,bestval*sizeof*argv);nam[bestval]=0;
 		 if(STDIN!=open(mailfile,O_RDONLY))
 		  { nlog("Lost");logqnl(mailfile);retval=EX_NOINPUT;
-		    sterminate();
+		    sterminate(0);
 		  }
 		 for(;;)
 		  { switch(fork())
@@ -640,7 +644,7 @@ invaddr:	       nlog("Skipping invalid address entry:");*chp=' ';
 	      while((n=best-revarr+1)<revfilled);
 	    }
 	 }
-	retval=EXIT_SUCCESS;sterminate();
+	retval=EXIT_SUCCESS;sterminate(0);
       }
      minweight=SCALE_WEIGHT;best_matches=maxgram=0;exc2str.text=excstr.text=0;
      nargv=argv;
