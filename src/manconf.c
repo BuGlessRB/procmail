@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.62 1998/11/16 16:28:53 guenther Exp $*/
+/*$Id: manconf.c,v 1.63 1998/11/18 11:36:21 srb Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -118,7 +118,7 @@ static void pc(name,value)const char*const name;const int value;
 }
 
 main(argc,argv)const char*const argv[];
-{ char*p,*q;
+{ char*p;
   gargv=argv+1;
 #ifdef CF_no_procmail_yet
   ps("CF_procmail","If procmail is\1\
@@ -328,9 +328,8 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
   pc("FM_LAST_UNIQ",FM_LAST_UNIQ);
   pc("FM_ReNAME",FM_ReNAME);
   pn("EX_OK",EXIT_SUCCESS);
-  ps("VERSIONNUMBER",VERSIONNUMBER);
-  *(p=strchr(strchr(q=strchr(pm_version,' ')+1,' ')+1,' '))='\0';p++;
-  ps("PM_VERSION",q);
+  *(p=strchr(strchr(strchr(pm_version,' ')+1,' ')+1,' '))='\0';p++;
+  ps("PM_VERSION",PM_VERSION);
   ps("MY_MAIL_ADDR",skltmark(1,&p));
 #if 0
   ps("MY_ALT_MAIL_ADDR",skltmark(0,&p));

@@ -9,7 +9,4 @@ And of course, subscription and information requests for this list to:\n\
 \t<procmail-users-request@procmail.org>\n"
 
 /* If the formatting or number of newlines of VERSION substantially changes,
-   src/manconf.c needs to be changed as well */
-
-/* change to whatever the procmail version is */
-#define VERSIONNUMBER "3.11pre8"
+   src/autoconf and src/manconf.c need to be changed as well */

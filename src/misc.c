@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.79 1998/11/13 14:52:26 guenther Exp $";
+ "$Id: misc.c,v 1.80 1998/11/18 11:36:22 srb Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -36,7 +36,7 @@ struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
 struct varstr strenstr[]={{"SHELLMETAS",DEFshellmetas},{"LOCKEXT",DEFlockext},
  {"MSGPREFIX",DEFmsgprefix},{"COMSAT",""},{"TRAP",""},
  {"SHELLFLAGS",DEFshellflags},{"DEFAULT",DEFdefault},{"SENDMAIL",DEFsendmail},
- {"SENDMAILFLAGS",DEFflagsendmail},{"PROCMAIL_VERSION",VERSIONNUMBER}};
+ {"SENDMAILFLAGS",DEFflagsendmail},{"PROCMAIL_VERSION",PM_VERSION}};
 
 #define MAXvarvals	 maxindex(strenvvar)
 #define MAXvarstrs	 maxindex(strenstr)
