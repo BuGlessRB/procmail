@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.8 2000/11/27 07:09:27 guenther Exp $";
+ "$Id: variables.c,v 1.9 2001/01/28 00:50:08 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -152,21 +152,20 @@ void cleanupenv(preserve)int preserve;
 	emax++;
    }
   ep=(const char**)environ;
-  while(*ep)
-   { p=strchr(*ep,'=');				      /* check for malformed */
-     if(!p)				    /* (no = ) and duplicate entries */
-	goto drop;
+  while(*ep)					   /* check for evil entries */
+   { p=strchr(*ep,'=');
+     if(!p)					      /* malformed (no '=')? */
+drop: { *ep= *--emax;*emax=0;				/* copy from the end */
+	continue;				  /* check the swapped entry */
+      }
      len=p-*ep+1;			 /* mark how long the actual name is */
-     for(pp=(const char*const*)environ;pp!=ep;pp++)
+     for(pp=(const char*const*)environ;pp!=ep;pp++)	 /* duplicate entry? */
 	if(!strncmp(*ep,*pp,len))
 	   goto drop;
-     for(pp=ld_;p= *pp;pp++)
-	if(!strncmp(*ep,p,strlen(p)))	 /* if it starts with LD_ or similar */
-drop:	 { *ep= *--emax;*emax=0;			/* copy from the end */
-	   goto recheck;			  /* check the swapped entry */
-	 }
+     for(pp=ld_;p= *pp;pp++)	       /* does it start with LD_ or similar? */
+	if(!strncmp(*ep,p,strlen(p)))
+	   goto drop;
      ep++;
-recheck:;
    }
 }
 
