@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.96 1994/08/29 16:47:22 berg Exp $";
+ "$Id: procmail.c,v 1.97 1994/08/29 16:52:17 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -610,8 +610,9 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 		 *buf='\0';		/* do not put anything in front then */
 	      else		     /* prepend default procmailrc directory */
 		 lastdirsep(pmrc2buf())[1]='\0';
+	      strcat(buf,rcfile);			/* append the rcfile */
 	      if(mailfilter!=2&&			 /* nothing special? */
-		 stat(strcat(buf,rcfile),&stbuf)?	      /* accessible? */
+		 stat(buf,&stbuf)?			      /* accessible? */
 		  rcstate==rc_NOSGID:stbuf.st_mode&S_IRUSR)	/* readable? */
 		 setids();				/* then transmogrify */
 	    }
