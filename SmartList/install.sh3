@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh install.sh3 # we're in a csh, feed myself to sh
-#$Id: install.sh3,v 1.7 1993/05/05 14:07:45 berg Exp $
+#$Id: install.sh3,v 1.8 1993/06/28 16:23:00 berg Exp $
 
 test -z "$bindir" && echo "Call install.sh instead" && exit 64
 
@@ -20,18 +20,19 @@ done
 
 echo Installing...
 
-mkdir "$target/$bindir" 2>/dev/null
-cd bin; a=`echo *`
-cd ..
-for b in $a
+for a in bin $DIRS
 do
-   sed -e "s/SedBinDir/$bindir/g" <"bin/$b" >"$target/$bindir/$b"
-done
-
-for a in $DIRS
-do
-  mkdir "$target/.$a" 2>/dev/null
-  cp $a/* "$target/.$a"
+  targdir="$target/.$a"
+  test $a = bin && targdir="$target/$bindir"
+  mkdir "$targdir" 2>/dev/null
+  cd $a
+  c=`echo *`
+  cd ..
+  for b in $c
+  do
+     sed -e "s:SedBinDir:$bindir:g" -e "s:SedHomeDir:$target:g" \
+      -e "s:SedBinMail:$binmail:g" <"$a/$b" >"$targdir/$b"
+  done
 done
 
 chmod 0640 "$target/.etc/rc.custom" "$target/.etc/rc.init"

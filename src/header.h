@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.21 1993/06/25 11:09:36 berg Exp $*/
+/*$Id: header.h,v 1.22 1993/06/28 16:23:21 berg Exp $*/
 
 static const char
  returnpath[]=		"Return-Path:",				  /* RFC 822 */
@@ -70,6 +70,7 @@ static const char
  title[]=		"Title:",	      /* antiquated USENET extension */
  aRticleid[]=		"Article-I.D.:",			/* ditto ... */
  posted[]=		"Posted:",
+ relayversion[]=	"Relay-Version:",
  cnttype[]=		"Content-Type:",	       /* Internet extension */
  encoding[]=		"Encoding:",				/* ditto ... */
  cntmd5[]=		"Content-MD5:",
@@ -105,10 +106,11 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
   bsl(organisation),bsl(aorganization),bsl(newsgroups),bsl(followupto),
   bsl(approved),bsl(lines),bsl(expires),bsl(control),bsl(distribution),
   bsl(xref),bsl(originator),bsl(nntppostinghost),bsl(submittedby),bsl(title),
-  bsl(aRticleid),bsl(posted),bsl(cnttype),bsl(encoding),bsl(cntmd5),
-  bsl(mimeversion),bsl(cnttransferenc),bsl(cntid),bsl(cntdescription),
-  bsl(cntdisposition),bsl(transportoptions),bsl(defltoptions),bsl(cntlength),
-  bsl(rference),bsl(msgtype),bsl(autoforwardedfrom),bsl(autofcount),
-  bsl(endofheader),bsl(orgaforwfrom),bsl(orgdate),bsl(notdeliveredto),
-  bsl(reportversion),bsl(status),bsl(readreceiptto)
+  bsl(aRticleid),bsl(posted),bsl(relayversion),bsl(cnttype),bsl(encoding),
+  bsl(cntmd5),bsl(mimeversion),bsl(cnttransferenc),bsl(cntid),
+  bsl(cntdescription),bsl(cntdisposition),bsl(transportoptions),
+  bsl(defltoptions),bsl(cntlength),bsl(rference),bsl(msgtype),
+  bsl(autoforwardedfrom),bsl(autofcount),bsl(endofheader),bsl(orgaforwfrom),
+  bsl(orgdate),bsl(notdeliveredto),bsl(reportversion),bsl(status),
+  bsl(readreceiptto)
 };

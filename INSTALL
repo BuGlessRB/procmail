@@ -84,10 +84,10 @@ used to perform the tests.  If you haven't defined LOCKINGTEST in the Makefile
 to enter any additional directories (preferably on distinct filesystems)
 you want it to run the tests on.
 
-When specifying directories to test it would probably be advisable to
+When specifying directories to test, it would probably be advisable to
 pick exactly those directories which belong to a unique fileserver-fileclient
 pair.  I.e. one local file system will suffice.	 Only if you have remote
-filesystems you might have to specify several.
+filesystems, you might have to specify several.
 This makes sure that the locking tests will properly reflect the (lowest common
 denominator) locking capabilities on all filesystems available.
 
@@ -110,7 +110,8 @@ lockd's (of perhaps different version and patchlevel)) however, it might
 be hard to determine if all the lockd's are equally reliable.  In such a
 case (typically on SunOS :-), you might consider uncommenting both
 NO_fcntl_LOCK and NO_lockf_LOCK (NO_flock_LOCK normally doesn't rely on the
-infamous lockd, so you can leave it commented out).
+infamous lockd, so you can leave it commented out).  But, only do so if you
+think you know it better than autoconf.
 
 				---
 
@@ -132,7 +133,7 @@ following assignment at the top of your rcfile:
 Therefore a suggested command line for your first trial run (no rcfiles
 needed) would be:
 
-	procmail VERBOSE=on LOGFILE=/dev/tty
+	procmail VERBOSE=on
 
 (now type in a pseudo mail-message)
 
@@ -143,8 +144,8 @@ after your troubles have been solved.
 
 If you run procmail by hand and pipe in some sample mail, then make
 sure that if you kill procmail, you use "kill pid" and NOT "kill -9 pid".
-Should procmail seem to hang, check if the $LOCKFILE is still present.
-If you kill procmail with "kill pid" it will clean up the $LOCKFILE
+Should procmail seem to hang, check if any lockfiles are still present.
+If you kill procmail with "kill pid" it will clean up any lockfiles it created
 itself.
 
 				---
@@ -184,4 +185,4 @@ To obtain specific instructions on the best installation, type "make recommend"
 
 				---
 
-For more info about the program, see the man page or the FAQ list.
+For more info about the program, see the man pages or the FAQ list.

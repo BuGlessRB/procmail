@@ -3,12 +3,12 @@
 #########################################################################
 #	sendmails	Poor man's sendmail.				#
 #									#
-#	If you only have /bin/mail and lack a sendmail compatible	#
-#	mailer.								#
+#	If you only have /bin/[r]mail and lack a sendmail compatible	#
+#	mailer (i.e. a mailer that understands the -t option).		#
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: sendmails,v 1.1 1993/05/05 13:05:40 berg Exp $
+#$Id: sendmails,v 1.2 1993/06/28 16:23:03 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -16,7 +16,7 @@ sed=sed			# /bin/sed
 rm=rm			# /bin/rm
 formail=formail		# /usr/local/bin/formail
 
-sendmail=/bin/mail		# Your substitute sendmail
+sendmail=SedBinMail		# Your substitute sendmail
 
 SMparseheader=no
 

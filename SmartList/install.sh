@@ -1,6 +1,9 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.21 1993/06/23 12:55:43 berg Exp $
+#$Id: install.sh,v 1.22 1993/06/28 16:22:57 berg Exp $
+
+SHELL=/bin/shell
+export SHELL
 
 test $# != 1 -a $# != 2 && echo "Usage: install.sh target-directory [.bin]" &&
  exit 64
@@ -12,6 +15,15 @@ test -z "$bindir" && bindir=.bin
 
 test ! -d "$target" && echo "Please create the target directory first" &&
  exit 2
+
+if
+ binmail=`procmail /dev/null DEFAULT=/dev/null LOG=\$SENDMAIL </dev/null 2>&1`
+then
+:
+else
+  echo "Please make sure that procmail is on our PATH"
+  exit 64
+fi
 
 if expr "X$bindir" : X.bin >/dev/null
 then
@@ -25,7 +37,7 @@ fi
 cd "`dirname $0`"
 PATH=.:$PATH
 
-export target bindir PATH
+export target bindir binmail PATH
 
 TMPF=/tmp/list.id.$$
 

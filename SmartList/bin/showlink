@@ -8,7 +8,7 @@
 #	If you can figure out and understand everything in this script, #
 #	you can consider yourself an awk guru!				#
 #########################################################################
-#$Id: showlink,v 1.3 1993/06/02 15:30:50 berg Exp $
+#$Id: showlink,v 1.4 1993/06/28 16:23:06 berg Exp $
 
 defaults=.etc
 
@@ -18,7 +18,7 @@ ls=ls			# /bin/ls
 awk=awk			# /usr/bin/awk
 dirname=dirname		# /bin/dirname
 basename=basename	# /bin/basename
-showlink=showlink	# /home/list/.bin/showlink
+showlink=showlink	# SedHomeDir/.bin/showlink
 
 EX_USAGE=64
 

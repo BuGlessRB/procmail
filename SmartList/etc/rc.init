@@ -33,7 +33,7 @@
 # rc.request	rcfile used when processing requests
 # rc.custom	rcfile that contains all the customisations per list
 
-#$Id: rc.init,v 1.15 1993/06/02 15:31:01 berg Exp $
+#$Id: rc.init,v 1.16 1993/06/28 16:23:10 berg Exp $
 
 PATH=.:$PATH:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises
@@ -97,12 +97,12 @@ sendmailOPTp=-oep
 # -oep	print error messages
 ########################
 #
-# If you only have /bin/mail and not some sendmail compatible mailer,
-# then you have to uncomment *and* CORRECT in following lines:
+# If you only have /bin/mail and not some sendmail compatible mailer that
+# understands the -t option of sendmail, then you have to uncomment the
+# following line:
 #
-#SENDMAIL=/home/list/.bin/sendmails
-#sendmailOPT
-#sendmailOPTp
+#sendmailOPT sendmailOPTp SENDMAIL=SedHomeDir/.bin/sendmails
+#
 ########################
 
 size_limit	=	524288		# sanity cutoff value for submissions

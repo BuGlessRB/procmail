@@ -2,7 +2,7 @@
 ---------------------- Frequently Asked Questions ----------------------------
 ------------------------------------------------------------------------------
 
-1. How do I go about setting up a mailinglist?
+1. How do I go about setting up a mailinglist or a mail-archive server?
 
 	Look in the mailinglist directory, start reading the INTRO file,
 	it describes it in detail and should get you started.
@@ -164,10 +164,11 @@
 	  your home directory as your default mailbox.
 	- Or, you could still use /usr/mail/$LOGNAME as the mailbox, but
 	  simply instruct procmail to use a different lockfile.	 This can
-	  be achieved by putting following assignment at the bottom of
+	  be achieved by putting following recipe at the bottom of
 	  your .procmailrc file:
 
-		LOCKFILE=$HOME/.lockmail
+		:0:$HOME/.lockmail
+		$DEFAULT
 
 	  You have to make sure that all other programs that update your
 	  system mailbox will be using the same lockfile of course.
