@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.71 2001/06/03 22:11:26 guenther Exp $*/
+/*$Id: manconf.c,v 1.72 2001/06/28 22:43:09 guenther Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -220,6 +220,19 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
   ps("pconsole","be mailed back to the ");
   ps("console","sender");
   ps("aconsole",".");
+#endif
+#ifdef LMTP
+  ps("LMTPusage","\1.br\1.B procmail\1.RB [ \
+ \2-@TEMPFAILOPT@@OVERRIDEOPT@@BERKELEYOPT@ ]\1.RB [ \"\2-@ARGUMENTOPT@ \
+ \2fIargument\2fP\" ]\1.B \2-@LMTPOPT@\1");
+  ps("LMTPOPTdesc","\1.TP\1.B \2-@LMTPOPT@\1This turns on LMTP mode, wherein\
+ procmail acts as an RFC2033 LMTP server.\1Delivery takes place in the same \
+ manner and under the same restrictions as\1the delivery mode enabled \
+ with\1.BR \2-@DELIVEROPT@ .\1This option is incompatible with\1.B \
+ \2-@PRESERVOPT@\1and\1.BR \2-@FROMWHOPT@ .\1");
+  pc("LMTPOPT",LMTPOPT);
+#else
+  ps("LMTPOPTdesc","");ps("LMTPusage","");
 #endif
   pname("INIT_UMASK",0);printf("0%lo/g\n",(unsigned long)INIT_UMASK);lines--;
   pn("DEFlinebuf",DEFlinebuf);

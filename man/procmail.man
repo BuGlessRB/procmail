@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.88 2001/06/23 08:22:26 guenther Exp $
+.Id $Id: procmail.man,v 1.89 2001/06/28 22:43:08 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -31,8 +31,7 @@ procmail \- autonomous mail processor
 .I rcfile
 .if n .ti +0.5i
 .RI [ argument ]
-\&.\|.\|.
-.br
+\&.\|.\|.@LMTPusage@.br
 .B procmail
 .B \-@VERSIONOPT@
 .ad
@@ -167,8 +166,7 @@ must be specified on the command line.  After the rcfile, procmail will
 accept an unlimited number of arguments.@ETCRCS_desc@
 For some advanced usage of this option you should look in the
 .B EXAMPLES
-section below.
-.SH ARGUMENTS
+section below.@LMTPOPTdesc@.SH ARGUMENTS
 Any arguments containing an '=' are considered to be environment variable
 assignments, they will
 .I all
