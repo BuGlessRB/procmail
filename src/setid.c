@@ -3,7 +3,7 @@
  *			uid/gid (can only be executed by root)		*
  *	This program is used by the SmartList installation script only. *
  ************************************************************************/
-/*$Id: setid.c,v 1.8 1994/10/14 18:43:49 berg Exp $*/
+/*$Id: setid.c,v 1.9 1994/10/18 14:30:30 berg Exp $*/
 #include "includes.h"
 
 #define CHECK_FILE	"install.sh"
@@ -20,7 +20,7 @@ main(argc,argv)const int argc;const char*const argv[];
      if(argc==2)
 	goto nodir;
      if(stat(argv[2],&stbuf)||(stbuf.st_mode&S_IRWXU)!=S_IRWXU)
-	fprintf(stderr,"Can't access %s, please create it first\n",argv[2]);
+	fprintf(stderr,"Can't access %s, are you sure it's there?\n",argv[2]);
      else if(stbuf.st_uid!=p->pw_uid)
 	fprintf(stderr,"%s is owned by uid %ld!=%s, please fix this first\n",
 	 (long)stbuf.st_uid,p->pw_name);
@@ -28,7 +28,7 @@ main(argc,argv)const int argc;const char*const argv[];
 	fprintf(stderr,"%s is owned by gid %ld!=%ld, please fix this first\n",
 	 (long)stbuf.st_gid,(long)p->pw_gid);
      else
-nodir:	nargv[0]=getenv("SHELL"),nargv[1]=0,execve(nargv[0],nargv,environ);
+nodir:	nargv[0]=getenv("SHELL"),nargv[1]=0,execv(nargv[0],nargv);
    }
   else
      fprintf(stderr,

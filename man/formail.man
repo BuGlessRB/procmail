@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.34 1994/09/28 19:58:30 berg Exp $
+.Id $Id: formail.man,v 1.35 1994/10/18 14:29:47 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -316,9 +316,9 @@ formail sent to it; this diagnostic can be suppressed by the
 .B \-@FM_QUIET@
 option.
 .TP
-Duplicate ID found: x
-The Message-ID x in this message was found in the idcache; this diagnostic can
-be suppressed by the
+Duplicate key found: x
+The Message-ID or sender x in this message was found in the idcache; this
+diagnostic can be suppressed by the
 .B \-@FM_QUIET@
 option.
 .TP

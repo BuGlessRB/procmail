@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.52 1994/10/07 13:56:19 berg Exp $";
+ "$Id: regexp.c,v 1.53 1994/10/18 14:30:27 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -440,9 +440,7 @@ char*bregexec(code,text,str,len,ign_case)struct eps*code;
   static struct eps sempty={OPC_SEMPTY,&sempty};
   static const struct jump nop={OPC_FILL};
   sempty.spawn= &sempty;			      /* static initialisers */
-  eom=0;stack= &sempty;ign_case=!!ign_case;			/* normalise */
-  if((initcode=code)->opc==OPC_EPS)
-     initcode=(stack=code)+1,code->spawn= &sempty,code=initcode;
+  ign_case=!!ign_case;eom=0;stack= &sempty;initcode=code;
   th1=ioffsetof(struct chclass,pos1);ot1=ioffsetof(struct chclass,pos2);
   other=Ceps&tswitch;pend=(const char*)str+len+1;	     /* two past end */
   if(str--==text||*str=='\n')

@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.48 1994/08/12 17:34:04 berg Exp $*/
+/*$Id: includes.h,v 1.49 1994/10/18 14:30:14 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -27,7 +27,7 @@
 #ifndef UNISTD_H_MISSING
 #include <unistd.h>		/* open() read() write() close() dup() pipe()
 				/* fork() getuid() geteuid() getgid() getegid()
-				   getpid() execve() execvp() sleep() setuid()
+				   getpid() execv() execvp() sleep() setuid()
 				   setgid() setruid() setrgid() setegid()
 				   chown() nice() ftruncate() */
 #else
@@ -35,8 +35,9 @@
 #endif
 #include <stdio.h>		/* setbuf() fclose() stdin stdout stderr
 				/* fopen() fread() fwrite() fgetc() getc()
-				   fdopen() putc() fputs() printf() sprintf()
-				   fprintf() sscanf() FILE EOF fileno() */
+				   getchar() fdopen() putc() fputs() printf()
+				   sprintf() fprintf() sscanf() FILE EOF
+				   fileno() */
 #ifndef STDDEF_H_MISSING
 #include <stddef.h>		/* ptrdiff_t size_t */
 #else

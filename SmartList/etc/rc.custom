@@ -65,6 +65,11 @@ maintainer	=
 #cc_unsubrequests
 ##cc_unsubrequests=	yes		# uncomment if you want unsubscribe
 					# requests to be Cc'd to the maintainer
+#pass_diverts
+##pass_diverts	=	yes		# uncomment to pass on administrative
+					# requests diverted from the normal
+					# list to the maintainer unprocessed
+					# (instead of trying to handle them)
 #reply_to
 ##reply_to	= "Resent-Reply-To: $listaddr" # uncomment (and perhaps change
 					# it to "Reply-To") to force replies

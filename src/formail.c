@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.70 1994/10/07 17:25:17 berg Exp $";
+ "$Id: formail.c,v 1.71 1994/10/18 14:30:09 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/10/07 17:25:17 $";
+static /*const*/char rcsdate[]="$Date: 1994/10/18 14:30:09 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -579,6 +579,7 @@ skiprest:	 for(;;)			/* skip the rest of the word */
 noluck:	   if(insoffs>=maxlen)				  /* past our quota? */
 	      insoffs=0;			     /* start up front again */
 	   fseek(idcache,insoffs,SEEK_SET);fwrite(key,1,strlen(key)+1,idcache);
+	   putc('\0',idcache);			   /* mark new end of buffer */
 dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
 	   if(!areply)
 	      key[msid->rexl-1]='\n';		      /* restore the newline */

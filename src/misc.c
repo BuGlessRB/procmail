@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.64 1994/10/14 18:43:37 berg Exp $";
+ "$Id: misc.c,v 1.65 1994/10/18 14:30:18 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -606,7 +606,7 @@ int screenmailbox(chp,chp2,egid,Deliverymode)
 	 (rcstate=rc_NOSGID,0))&&
 	(stbuf.st_mode&S_ISGID||
 	 (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH))==(S_IWGRP|S_IXGRP)))
-      { doumask(INIT_UMASK&~S_IRWXG);		   /* make it group-writable */
+      { doumask(GROUPW_UMASK);			   /* make it group-writable */
 	goto keepgid;
       }
      else if(stbuf.st_mode&S_ISGID)

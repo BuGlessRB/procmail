@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.39 1994/09/27 15:03:39 berg Exp $
+.Id $Id: procmailex.man,v 1.40 1994/10/18 14:29:53 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -138,34 +138,26 @@ of the well known
 .BR vacation (1)
 program.  This recipe is based on the same principles as the last one (prevent
 `ringing' mail).  In addition to that however, it maintains a vacation database
-by extracting the name of the sender and appending it to the file
-$ALREADYSENT, if the name is
-.B not
-already in there.  If the name was new, it's name will be appended to the
-database and an autoreply will be sent.  To reliably extract the name of the
-sender, I let formail generate an autoreply header (thereby making it figure
-out the most appropriate sender address), and then telling it to extract the
-value of the `To:' field.
-.Sx 19
+by extracting the name of the sender and inserting it in the vacation.cache
+file if the name was new (the vacation.cache file is maintained by formail
+which will make sure that it always contains the most recent names, the size
+of the file is limited to a maximum of aproximately 8192 bytes).  If the name
+was new, an autoreply will be sent.
+.Sx 14
 SHELL=/bin/sh    # for other shells, this might need adjustment
 
-:0
+:0 @WAIT_EXIT_QUIET@@PASS_HEAD@@CONTINUE@: vacation.lock
 * !^FROM_DAEMON
 * !^X-Loop: your@own.mail.address
-{
-  FROM=`formail \-@FM_REPLY@@FM_SKIPWHITE@@FM_EXTRACT@ To:`
-  ALREADYSENT=$HOME/vacation     # the vacation database
+| formail \-@FM_REPLY@@FM_DUPLICATE@ 8192 vacation.cache
 
-  :0 @CONTINUE@:                       # the lockfile is important
-  * !? fgrep \-e "$FROM" $ALREADYSENT
-  | echo "$FROM" >>$ALREADYSENT; \e
-    (formail \-@FM_REPLY@@FM_ADD_ALWAYS@"Precedence: junk" \e
+  :0 @ALSO_N_IF_SUCC@
+  | (formail \-@FM_REPLY@@FM_ADD_ALWAYS@"Precedence: junk" \e
        \-@FM_ADD_ALWAYS@"X-Loop: your@own.mail.address" ; \e
      echo "I received your mail,"; \e
      echo "but I won't be back until Monday."; \e
      echo "-- "; cat $HOME/.signature \e
     ) | $SENDMAIL \-oi \-t
-}
 .Ex
 Store all messages concerning TeX in separate, unique filenames, in a directory
 named texmail (this directory has to exist); there is no need to use lockfiles

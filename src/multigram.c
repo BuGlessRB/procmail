@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.71 1994/10/14 18:43:40 berg Exp $";
+ "$Id: multigram.c,v 1.72 1994/10/18 14:30:22 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/10/14 18:43:40 $";
+static /*const*/char rcsdate[]="$Date: 1994/10/18 14:30:22 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -156,7 +156,18 @@ static void makelow(str)register char*str;
 }
 
 static void lowcase(str)struct string*const str;	   /* make lowercase */
-{ makelow(str->itext=tstrdup(str->text));
+{ char*p,*q;
+  if(p=strchr(str->text,'@'))
+   { size_t l,l1;
+     while(q=strchr(++p,'@'))			   /* find the last '@' sign */
+	p=q;
+     q=malloc((l=strlen(str->text))+1);
+     *((char*)tmemmove(q,p,l1=str->text+(int)l-p)+l)='\0';
+     tmemmove(q+l1,str->text,l-l1);	    /* swap the sides around the '@' */
+   }				     /* this improves the boundary behaviour */
+  else
+     q=tstrdup(str->text);
+  makelow(str->itext=q);
 }
 
 static void elog(a)const char*const a;
@@ -220,7 +231,7 @@ const struct string*const fuzzstr;struct string*const hardstr;
      minlen=fuzzstr->textlen,maxlen=hardstr->textlen;
   if((gramsize=minlen-1)>maxgram)
      gramsize=maxgram;
-  maxweight=SCALE_WEIGHT/(gramsize+1);
+  maxweight=SCALE_WEIGHT/(gramsize?gramsize:1);		/* distribute weight */
   meter=(int)((unsigned long)SCALE_WEIGHT/2*minlen/maxlen)-SCALE_WEIGHT/2;
   do					    /* reset local multigram counter */
    { register lmeter=0;size_t cmaxlen=maxlen;
@@ -251,7 +262,7 @@ dble_gram:;
 	 (unsigned long)((lmeter+=gramsize-cmaxlen)<0?-lmeter:lmeter)/cmaxlen;
       }
    }
-  while(gramsize--);			 /* search all gramsizes down to one */
+  while(1<gramsize--);			 /* search all gramsizes down to two */
   return meter;
 }
 
@@ -355,7 +366,7 @@ nochdir: { nlog("Couldn't chdir to");logqnl(targetdir);
 	if(chp)					  /* was it a -request list? */
 	   *chp= *request;		     /* then restore the leading '-' */
 	Endpmexec(3)=argstr(XENVELOPETO,arg);
-	execve(pmexec[0],(char*const*)pmexec,environ);nlog("Couldn't exec");
+	execv(pmexec[0],(char*const*)pmexec);nlog("Couldn't exec");
 	logqnl(pmexec[0]);
 	return EX_UNAVAILABLE;					    /* panic */
       }
@@ -565,9 +576,8 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 			  if(wait((int*)0)==-1)
 			     sleep(DEFsuspend);
 			  continue;
-		       case 0:
-			  execve(nargv[1],nargv+1,environ);
-			  execve(nargv[0],nargv,environ);  /* maybe a script */
+		       case 0:				  /* may be a script */
+			  execv(nargv[1],nargv+1);execv(nargv[0],nargv);
 			  kill(getppid(),SIGTERM);nlog("Couldn't exec");
 			  logqnl(nargv[0]);
 			  return EX_UNAVAILABLE;
@@ -596,7 +606,7 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 		 continue;
 	      case 'r':renam=1;
 		 continue;
-	      case 'm':
+	      case 'm':multiple=1;
 		 continue;
 	      case 'a':
 		 if(!*chp&&!(chp= *++nargv))
@@ -780,7 +790,7 @@ usg:
 	    { dodomain=0;fuzzstr.text=chp=realloc(chp,len+lldomain+1);
 	      chp[len]='@';strcpy(chp+len+1,ldomain);len+=lldomain;
 	    }
-	   else if(ldomain&&!strprbk(chp,"@!/"))      /* no domain attached? */
+	   else if(ldomain&&!strpbrk(chp,"@!/"))      /* no domain attached? */
 	      dodomain=1;			 /* mark it for the next run */
 	   fuzzstr.textlen=len;
 	 }
@@ -864,7 +874,7 @@ dupl_addr:;
       { struct match*worse;
 	if(renam)
 	 { long line;int w1;unsigned maxweight;
-	   maxweight=SCALE_WEIGHT/(maxgram+1)>>1;;
+	   maxweight=SCALE_WEIGHT/(maxgram?maxgram:1)>>1;;
 	   for(i=1,line=mp->lentry,w1=mp->metric,worse=0;
 	    i<=best_matches&&(mp=best[i++])->metric>=minweight;)
 	      if(mp->lentry==line&&mp->metric+maxweight<w1)

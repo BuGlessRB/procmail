@@ -53,7 +53,7 @@
 #		conjunction with the RC_LOCAL_* variables which can be set
 #		in rc.init or rc.custom files)
 
-#$Id: rc.init,v 1.40 1994/09/22 17:13:11 berg Exp $
+#$Id: rc.init,v 1.41 1994/10/18 14:29:40 berg Exp $
 
 DELIVERED=yes	# we're in control of the mail now, tell sendmail to go away
 
@@ -209,6 +209,11 @@ cc_requests
 cc_unsubrequests
 #cc_unsubrequests=	yes		# uncomment if you want unsubscribe
 					# requests to be Cc'd to the maintainer
+pass_diverts
+#pass_diverts	=	yes		# uncomment to pass on administrative
+					# requests diverted from the normal
+					# list to the maintainer unprocessed
+					# (instead of trying to handle them)
 reply_to
 #reply_to	= "Resent-Reply-To: $listaddr" # uncomment (and perhaps change
 					# it to "Reply-To") to force replies

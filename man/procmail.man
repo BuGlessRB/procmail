@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.62 1994/10/14 18:43:25 berg Exp $
+.Id $Id: procmail.man,v 1.63 1994/10/18 14:29:50 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -415,6 +415,10 @@ contained it was world writable (the rcfile was not used).
 .TP
 Terminating prematurely whilst waiting for .\|.\|.
 Procmail received a signal while it was waiting for .\|.\|.
+.TP
+Quota exceeded while writing "x"
+The filesize quota for the recipient on the filesystem containing "x"
+does not permit delivering the message to the file.
 .TP
 Timeout, terminating "x"
 Timeout has occurred on program or filter "x".

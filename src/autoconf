@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.101 1994/09/29 18:43:37 berg Exp $
+#$Id: autoconf,v 1.102 1994/10/18 14:30:01 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -1185,7 +1185,7 @@ main(argc,argv)int argc;const char*argv[];
 	if(!newdiff)				    /* reductio ad adsurdum? */
 	   break;			    /* yes, break off the engagement */
 	sprintf(num,"%u",newdiff);nargv[argc+diff]=0;  /* pass on the target */
-	execve(argv[0],nargv,environ);				/* jeronimo! */
+	execv(argv[0],nargv);					/* jeronimo! */
       }
 printit:					   /* we proudly present the */
      printf("#define MAX_argc %d%s\n",argc-2,einfo); /* results of the jury! */
@@ -1194,7 +1194,7 @@ printit:					   /* we proudly present the */
 }
 HERE
 
-echo "Determining the maximum number of 16 byte arguments execve() takes"
+echo "Determining the maximum number of 16 byte arguments execv() takes"
 
 if $MAKE _autotst >$DEVNULL 2>_autotst.rrr &&
    _autotst 0 012345678901234 012345678901234 012345678901234 \
