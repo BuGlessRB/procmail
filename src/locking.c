@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.57 2000/11/18 03:44:51 guenther Exp $";
+ "$Id: locking.c,v 1.58 2000/11/22 01:29:59 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -104,14 +104,16 @@ term: { free(name);			     /* drop the preallocated buffer */
      elog(whilstwfor),elog("lockfile"),logqnl(name),Terminate();
 }
 
-void lcllock P((void))				    /* lock a local lockfile */
+void lcllock(noext,withext)			    /* lock a local lockfile */
+ const char*const noext,*const withext;
 { char*lckfile;			    /* locking /dev/null or | would be silly */
-  if(tolock||strcmp(buf2,devnull)&&strcmp(buf2,"|"))
-   { if(tolock)
-	lckfile=tstrdup(tolock);
+  if(noext||(strcmp(withext,devnull)&&strcmp(withext,"|")))
+   { if(noext)
+	lckfile=tstrdup(noext);
      else
-      { int len=strlen(buf2);
-	strcpy(strcpy(lckfile=malloc(len+strlen(lockext)+1),buf2)+len,lockext);
+      { int len=strlen(withext);
+	lckfile=malloc(len+strlen(lockext)+1);
+	strcpy(strcpy(lckfile,withext)+len,lockext);
       }
      if(globlock&&!strcmp(lckfile,globlock))	 /* same as global lockfile? */
       { nlog("Deadlock attempted on");logqnl(lckfile);

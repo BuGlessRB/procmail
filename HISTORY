@@ -555,6 +555,12 @@
 	       - Strip runtime linker variables (LD_*) from environment on
 		 all platforms
 	       - Multiple -a options will now set $2, $3, etc
+	       - Regression bug since v3.12, TRAP wasn't expanded if procmail
+		 was interupted while skipping a nested block
+	    Changes to autoconf:
+	       - Check for enum support
+	       - Warn people that non-ISO/ANSI C compilers might not be
+		 supported in the future
 	    Changes to lockfile:
 	       - Include the system mailbox lockfile path in the -v output
 	    Documented formail's treatment of >From_ lines as continuations

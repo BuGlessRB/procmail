@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.165 2000/11/18 06:49:05 guenther Exp $";
+ "$Id: procmail.c,v 1.166 2000/11/22 01:30:04 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -44,7 +44,7 @@ static const char*const nullp,exflags[]=RECFLAGS,drcfile[]="Rcfile:",
  extrns[]="Extraneous ",ignrd[]=" ignored\n",pardir[]=chPARDIR,
  curdir[]={chCURDIR,'\0'},defspath[]=DEFSPATH,defpath[]=DEFPATH,
  defmaildir[]=DEFmaildir;
-char*buf,*buf2,*loclock,*tolock;
+char*buf,*buf2,*loclock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*const*restargv= &nullp,*sgetcp,
  pmrc[]=PROCMAILRC,*rcfile=pmrc,dirsep[]=DIRSEP,devnull[]=DevNull,empty[]="",
@@ -57,7 +57,7 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  Version[]=VERSION;
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rc= -1,asgnlastf,
- privileged=priv_START,lexitcode=EXIT_SUCCESS,ignwerr,crestarg,skiprc,savstdout,
+ privileged=priv_START,lexitcode=EXIT_SUCCESS,ignwerr,crestarg,savstdout,
  berkeley,mailfilter,erestrict,Deliverymode,ifdepth;   /* depth of outermost */
 struct dyna_array ifstack;
 size_t linebuf=mx(DEFlinebuf,1024/*STRLEN(systm_mbox)<<1*/);
@@ -604,8 +604,9 @@ suspicious_rc:
 }
 
 static int mainloop P((void))
-{ int lastsucc,lastcond,prevcond,i;register char*chp;
-  lastsucc=lastcond=prevcond=0;
+{ int lastsucc,lastcond,prevcond,i,skiprc;register char*chp,*tolock;
+  lastsucc=lastcond=prevcond=skiprc=0;
+  tolock=0;
   do
    { unlock(&loclock);				/* unlock any local lockfile */
      goto commint;
@@ -620,7 +621,7 @@ commint:do skipspace();					  /* skip whitespace */
 	static char flags[maxindex(exflags)];
 	do
 	 { int nrcond;
-	   if(readparse(buf,getb,0))
+	   if(readparse(buf,getb,0,skiprc))
 	      return rcs_EOF;			      /* give up on this one */
 	   ;{ char*temp;			 /* so that chp isn't forced */
 	      nrcond=strtol(buf,&temp,10);chp=temp;	      /* into memory */
@@ -653,7 +654,7 @@ commint:do skipspace();					  /* skip whitespace */
 	      concatenate(chp);skipped(chp);		/* display leftovers */
 	      break;
 	    }				      /* parse & test the conditions */
-	   i=conditions(flags,prevcond,lastsucc,lastcond,nrcond);
+	   i=conditions(flags,prevcond,lastsucc,lastcond,skiprc!=0,nrcond);
 	   if(!skiprc)
 	    { if(!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC])
 		 lastcond=i==1;		   /* save the outcome for posterity */
@@ -688,7 +689,7 @@ progrm: if(testB('!'))					 /* forward the mail */
 		 goto fail;
 	      *(chp=q)='\0';
 	    }
-	   if(readparse(chp+1,getb,0))
+	   if(readparse(chp+1,getb,0,skiprc))
 	      goto fail;
 	   if(i)
 	    { if(startchar==themail.p)
@@ -697,7 +698,7 @@ progrm: if(testB('!'))					 /* forward the mail */
 	       }      /* leave off leading From_ -- it confuses some mailers */
 	      goto forward;
 	    }
-	   skiprc--;
+	   skiprc&=~1;
 	 }
 	else if(testB('|'))				    /* pipe the mail */
 	 { chp=buf2;
@@ -719,7 +720,7 @@ forward:      if(locknext)
 			  buf2[i]='\0';
 			  if(sh)	 /* expand any environment variables */
 			   { chp=tstrdup(buf);sgetcp=buf2;
-			     if(readparse(buf,sgetc,0))
+			     if(readparse(buf,sgetc,0,0))
 			      { *buf2='\0';
 				goto nolock;
 			      }
@@ -732,7 +733,7 @@ nolock:		     { nlog("Couldn't determine implicit lockfile from");
 		       logqnl(buf);
 		     }
 		  }
-		 lcllock();
+		 lcllock(tolock,buf2);
 		 if(!pwait)		/* try and protect the user from his */
 		    pwait=2;			   /* blissful ignorance :-) */
 	       }
@@ -813,7 +814,7 @@ nolock:		     { nlog("Couldn't determine implicit lockfile from");
 	       { app_vali(ifstack,prevcond);		    /* push prevcond */
 		 app_vali(ifstack,lastcond);		    /* push lastcond */
 		 if(locknext)
-		  { *buf2='\0';lcllock();
+		  { lcllock(tolock,"");
 		    if(!pwait)		/* try and protect the user from his */
 		       pwait=2;			   /* blissful ignorance :-) */
 		  }
@@ -852,8 +853,8 @@ nolock:		     { nlog("Couldn't determine implicit lockfile from");
 	    }
 	   if(!i)						/* no match? */
 	      skiprc|=1;		  /* temporarily disable subprograms */
-	   if(readparse(chp,getb,0))
-fail:	    { succeed=0;setoverflow();
+	   if(readparse(chp,getb,0,skiprc))
+fail:	    { succeed=0;
 	      goto setlsucc;
 	    }
 	   if(i)
@@ -861,9 +862,7 @@ fail:	    { succeed=0;setoverflow();
 		 startchar=themail.p,tobesent=filled;	    /* whole message */
 tostdout:     rawnonl=flags[RAW_NONL];
 	      if(locknext)		     /* write to a file or directory */
-	       { if(!tolock)strcpy(buf2,buf);
-		 lcllock();
-	       }
+		 lcllock(tolock,buf);
 	      inittmout(buf);		  /* to break messed-up kernel locks */
 	      if(writefolder(buf,strchr(buf,'\0')+1,startchar,tobesent,
 		  ignwerr,0)&&
@@ -904,10 +903,8 @@ jsetlsucc:    lastsucc=succeed;lasttell= -1;		       /* for comsat */
 	skipspace();
 	if(testB('='))				   /* removal or assignment? */
 	 { *chp='=';
-	   if(readparse(++chp,getb,1))
-	    { setoverflow();
+	   if(readparse(++chp,getb,1,skiprc))
 	      continue;
-	    }
 	 }
 	else
 	   *++chp='\0';			     /* throw in a second terminator */
@@ -921,6 +918,6 @@ jsetlsucc:    lastsucc=succeed;lasttell= -1;		       /* for comsat */
      if(rc<0)				   /* abnormal exit from the rcfile? */
 	return rcs_HOST;
    }
-  while(!testB(EOF)||poprc());
+  while(!testB(EOF)||(skiprc=0,poprc()));
   return rcs_EOF;
 }

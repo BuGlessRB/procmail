@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.49 2000/11/18 03:43:32 guenther Exp $*/
+/*$Id: procmail.h,v 1.50 2000/11/22 01:30:05 guenther Exp $*/
 
 #include "includes.h"
 
@@ -87,7 +87,7 @@ extern struct varstr{const char*const sname,*sval;}strenstr[];
 /* #define PM_version	(strenstr[9].sval) */
 
 
-extern char*buf,*buf2,*loclock,*tolock,*Stdout,*thebody;
+extern char*buf,*buf2,*loclock,*Stdout,*thebody;
 extern const char shell[],lockfile[],newline[],binsh[],unexpeof[],*const*gargv,
  *const*restargv,*sgetcp,pmrc[],*rcfile,dirsep[],devnull[],empty[],lgname[],
  executing[],oquote[],cquote[],whilstwfor[],procmailn[],Mail[],home[],host[],
@@ -95,7 +95,7 @@ extern const char shell[],lockfile[],newline[],binsh[],unexpeof[],*const*gargv,
  insufprivs[],errwwriting[],Version[];
 extern long filled,lastscore;
 extern int sh,pwait,retval,retvl2,lcking,rc,asgnlastf,privileged,ignwerr,
- lexitcode,accspooldir,crestarg,skiprc,savstdout,berkeley,mailfilter,erestrict,
+ lexitcode,accspooldir,crestarg,savstdout,berkeley,mailfilter,erestrict,
  Deliverymode,ifdepth;
 extern struct dyna_array ifstack;
 extern size_t linebuf;

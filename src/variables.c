@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.6 2000/11/21 08:29:07 guenther Exp $";
+ "$Id: variables.c,v 1.7 2000/11/22 01:30:06 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -109,7 +109,7 @@ void postStdout P((void))		 /* throw it into the keyword parser */
 
 const char*eputenv(src,dst)const char*const src;char*const dst;
 { sgetcp=src;
-  return readparse(dst,sgetc,2)?0:sputenv(buf);
+  return readparse(dst,sgetc,2,0)?0:sputenv(buf);
 }
 
 void setdef(name,value)const char*const name,*const value;

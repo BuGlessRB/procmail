@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.109 2000/11/18 06:55:34 guenther Exp $";
+ "$Id: misc.c,v 1.110 2000/11/22 01:30:02 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -128,7 +128,7 @@ int buildpath(name,path,file)const char*name,*const path,*const file;
 { static const char toolong[]=" path too long",
    notabsolute[]=" is not an absolute path";
   sgetcp=path;
-  if(readparse(buf,sgetc,2))
+  if(readparse(buf,sgetc,2,0))
    { syslog(LOG_CRIT,"%s%s for LINEBUF for uid \"%lu\"\n",name,toolong,
       (unsigned long)uid);
 bad: nlog(name);elog(toolong);elog(newline);
@@ -431,8 +431,8 @@ void*app_val_(sp,size)struct dyna_array*const sp;int size;
 }
 
 			     /* lifted out of main() to reduce main()'s size */
-int conditions(flags,prevcond,lastsucc,lastcond,nrcond)char flags[];
- const int prevcond,lastsucc,lastcond;int nrcond;
+int conditions(flags,prevcond,lastsucc,lastcond,skipping,nrcond)char flags[];
+ const int prevcond,lastsucc,lastcond,skipping;int nrcond;
 { char*chp,*chp2,*startchar;double score;int scored,i,skippedempty;
   long tobesent;static const char suppressed[]=" suppressed\n";
   score=scored=0;
@@ -447,10 +447,10 @@ int conditions(flags,prevcond,lastsucc,lastcond,nrcond)char flags[];
       { startchar=thebody;tobesent=filled-tobesent;
 	goto noconcat;
       }
-   if(!skiprc)
+   if(!skipping)
       concon(' ');
 noconcat:
-   i=!skiprc;						  /* init test value */
+   i=!skipping;						  /* init test value */
    if(flags[ERROR_DO])
     { i&=prevcond&&!lastsucc;
       if(flags[ELSE_DO])
@@ -616,7 +616,7 @@ jinregs:		regsp=regs;		/* start over and look again */
 		  break;
 		}
 	       case '$':*buf2='"';squeeze(chp);
-		  if(readparse(buf,sgetc,2)&&(i=0,1))
+		  if(readparse(buf,sgetc,2,0)&&(i=0,1))
 		     break;
 		  strcpy(buf2,skpspace(buf));
 		  goto copydone;
@@ -640,7 +640,7 @@ copyrest:	  strcpy(buf,chp2);
 		   break;
 	       case '>':case '<':
 		{ long pivot;
-		  if(readparse(buf,sgetc,2)&&(i=0,1))
+		  if(readparse(buf,sgetc,2,0)&&(i=0,1))
 		     break;
 		  ;{ char*chp3;
 		     pivot=strtol(buf+1,&chp3,10);chp=chp3;

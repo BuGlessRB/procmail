@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.70 2000/11/18 02:41:09 guenther Exp $";
+ "$Id: goodies.c,v 1.71 2000/11/22 01:29:57 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -22,10 +22,11 @@ static /*const*/char rcsid[]=
 const char test[]="test";
 const char*Tmnate,*All_args;
 
-static const char*evalenv P((void))	/* expects the variable name in buf2 */
-{ int j;
-  return skiprc?(const char*)0:		      /* speed this up when skipping */
-	  (unsigned)(j=(*buf2)-'0')>9?getenv(buf2):
+static const char*evalenv(skipping)	/* expects the variable name in buf2 */
+ int skipping;
+{ int j=buf2[0]-'0';
+  return skipping?(const char*)0:	      /* speed this up when skipping */
+	  (unsigned)j>9?getenv(buf2):
 	  !j?argv0:
 	   j<=crestarg?restargv[j-1]:(const char*)0;
 }
@@ -37,19 +38,20 @@ static const char*evalenv P((void))	/* expects the variable name in buf2 */
 #define SINGLE_QUOTED	3
 
 #define fgetc() (*fpgetc)()	   /* some compilers previously choked on it */
-#define CHECKINC() (fencepost<p?(skiprc|=1,overflow=1,p=fencepost):0)
+#define CHECKINC() (fencepost<p?(skipping|=1,p=fencepost):0)
 
 /* sarg==0 : normal parsing, split up arguments like in /bin/sh
  * sarg==1 : environment assignment parsing, parse up till first whitespace
  * sarg==2 : normal parsing, split up arguments by existing whitespace
  */
-int readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
- const int sarg;
-{ static int i,skipbracelev,bracegot;int got,bracelev,qbracelev,overflow;
+int readparse(p,fpgetc,sarg,skipping)register char*p;int(*const fpgetc)();
+ const int sarg;int skipping;
+{ static int i,skipbracelev,bracegot;int got,bracelev,qbracelev;
   charNUM(num,long),*startb,*const fencepost=buf+linebuf,
      *const fencepost2=buf2+linebuf;
   static char*skipback;static const char*oldstartb;
-  overflow=bracelev=qbracelev=0;All_args=0;
+  bracelev=qbracelev=0;All_args=0;
+  if(skipping)skipping=2;	  /* bottom bit is whether overflow occurred */
   for(got=NOTHING_YET;;)		    /* buf2 is used as scratch space */
 loop:
    { i=fgetc();
@@ -62,11 +64,10 @@ early_eof:    nlog(unexpeof);
 ready:	   if(got!=SKIPPING_SPACE||sarg)  /* not terminated yet or sarg==2 ? */
 	      *p++='\0';
 	   Tmnate=p;
-	   if(overflow)
-	    { skiprc&=~1;
-	      nlog(exceededlb);setoverflow();
+	   if(skipping&1)
+	    { nlog(exceededlb);setoverflow();
 	    }
-	   return overflow;
+	   return skipping&1;
 	case '\\':
 	   if(got==SINGLE_QUOTED)
 	      break;
@@ -101,7 +102,7 @@ noesc:	      *p++='\\';		/* nothing to escape, just echo both */
 		    if(got!=DOUBLE_QUOTED)     /* missing closing backquote? */
 		       break;
 forcebquote:	 case EOF:case '`':
-		    if(skiprc)
+		    if(skipping)
 		       *(p=startb)='\0';
 		    else
 		     { int osh=sh;
@@ -109,7 +110,7 @@ forcebquote:	 case EOF:case '`':
 		       if(!(sh=!!strpbrk(startb,shellmetas)))
 			{ const char*save=sgetcp,*sAll_args;
 			  sgetcp=p=tstrdup(startb);sAll_args=All_args;
-			  if(readparse(startb,sgetc,0)		/* overflow? */
+			  if(readparse(startb,sgetc,0,0)	/* overflow? */
 #ifndef GOT_bin_test
 			   ||!strcmp(test,startb)      /* oops, `test' found */
 #endif
@@ -170,7 +171,7 @@ escaped:      CHECKINC();*p++=i;
 	      got==DOUBLE_QUOTED&&bracelev>qbracelev)
 	    { bracelev--;
 	      if(skipback&&bracelev==skipbracelev)
-	       { skiprc-=2;p=skipback;skipback=0;startb=(char*)oldstartb;
+	       { skipping-=2;p=skipback;skipback=0;startb=(char*)oldstartb;
 		 got=bracegot;
 		 goto closebrace;
 	       }
@@ -192,35 +193,35 @@ escaped:      CHECKINC();*p++=i;
 	      case '@':
 		 if(got!=DOUBLE_QUOTED)
 		    goto normchar;
-		 if(!skiprc)	      /* don't do it while skipping (braces) */
+		 if(!skipping)	      /* don't do it while skipping (braces) */
 		    All_args=p;
 		 continue;
 	      case '{':						  /* ${name} */
 		 while(EOF!=(i=fgetc())&&alphanum(i))
 		  { if(startb>=fencepost2)
-		       startb=buf2+2,skiprc|=1,overflow=1;
+		       startb=buf2+2,skipping|=1;
 		    *startb++=i;
 		  }
 		 *startb='\0';
 		 if(numeric(*buf2)&&buf2[1])
 		    goto badsub;
-		 startb=(char*)evalenv();
+		 startb=(char*)evalenv(skipping);
 		 switch(i)
 		  { default:
 		       goto badsub;
 		    case ':':
 		       switch(i=fgetc())
-			{ default:
-badsub:			     nlog("Bad substitution of");logqnl(buf2);
-			     continue;
-			  case '-':
+			{ case '-':
 			     if(startb&&*startb)
 				goto noalt;
 			     goto doalt;
 			  case '+':
 			     if(startb&&*startb)
 				goto doalt;
-			     startb=0;
+			     goto noalt;
+			  default:
+badsub:			     nlog("Bad substitution of");logqnl(buf2);
+			     continue;
 			}
 		    case '+':
 		       if(startb)
@@ -228,15 +229,20 @@ badsub:			     nlog("Bad substitution of");logqnl(buf2);
 		       goto noalt;
 		    case '-':
 		       if(startb)
-noalt:			  if(!skiprc)
-			   { skiprc+=2;skipback=p;skipbracelev=bracelev;
+noalt:			  if(!skipping)
+			   { skipping+=2;skipback=p;skipbracelev=bracelev;
 			     oldstartb=startb;bracegot=got;
 			   }
 doalt:		       bracelev++;
 		       continue;
+#if 0
+		    case '%':	  /* this is where processing of ${var%%pat} */
+		    case '#':			/* and friends would/will go */
+#endif
 		    case '}':
 closebrace:	       if(!startb)
 			  startb=(char*)empty;
+		       break;
 		  }
 		 goto ibreak;					  /* $$ =pid */
 	      case '$':ultstr(0,(unsigned long)thepid,startb=num);
@@ -264,14 +270,14 @@ ibreak:		 i='\0';
 		 if(alphanum(i))				    /* $name */
 		  { do
 		     { if(startb>=fencepost2)
-			  startb=buf2+2,skiprc|=1,overflow=1;
+			  startb=buf2+2,skipping|=1;
 		       *startb++=i;
 		     }
 		    while(EOF!=(i=fgetc())&&alphanum(i));
 		    if(i==EOF)
 			i='\0';
 finsb:		    *startb='\0';
-		    if(!(startb=(char*)evalenv()))
+		    if(!(startb=(char*)evalenv(skipping)))
 		       startb=(char*)empty;
 		    if(quoted)
 		     { *p++='(';CHECKINC();	/* protect leading character */
@@ -300,12 +306,12 @@ simplsplit: { char*q;
 	      if(q=simplesplit(p,startb,fencepost,&got))     /* simply split */
 		 p=q;				       /* it up in arguments */
 	      else
-		 skiprc|=1,overflow=1,p=fencepost;
+		 skipping|=1,p=fencepost;
 	    }
 	   else
 copyit:	    { strncpy(p,startb,fencepost-p+2);		   /* simply copy it */
 	      if(fencepost[1]!='\0')		      /* did we truncate it? */
-		 skiprc|=1,overflow=1,*fencepost='\0';
+		 skipping|=1,*fencepost='\0';
 	      if(got<=SKIPPING_SPACE)		/* can only occur if sarg!=0 */
 		 got=NORMAL_TEXT;
 	      p=strchr(p,'\0');
@@ -377,7 +383,7 @@ void metaparse(p)const char*p;				    /* result in buf */
      strcpy(buf,p);			 /* copy literally, shell will parse */
   else
    { sgetcp=p=tstrdup(p);
-     if(readparse(buf,sgetc,0)				/* parse it yourself */
+     if(readparse(buf,sgetc,0,0)			/* parse it yourself */
 #ifndef GOT_bin_test
 	||!strcmp(test,buf)
 #endif

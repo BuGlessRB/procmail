@@ -1,7 +1,7 @@
-/*$Id: goodies.h,v 1.25 2000/11/18 02:41:10 guenther Exp $*/
+/*$Id: goodies.h,v 1.26 2000/11/22 01:29:58 guenther Exp $*/
 
 int
- readparse P((char*p,int(*const fpgetc)(),const int sarg));
+ readparse P((char*p,int(*const fpgetc)(),const int sarg,int skipping));
 char
  *simplesplit P((char*to,const char*from,const char*fencepost,int*gotp));
 void

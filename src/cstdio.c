@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.51 2000/10/27 22:07:22 guenther Exp $";
+ "$Id: cstdio.c,v 1.52 2000/11/22 01:29:56 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -104,7 +104,6 @@ int poprc P((void))
 { closeonerc();					     /* close it in any case */
   if(ifstack.filled>ifdepth)		     /* force the matching of braces */
      ifstack.filled=ifdepth,nlog("Missing closing brace\n");
-  skiprc=0;
   if(!inced.filled)				  /* include stack is empty? */
      return 0;	      /* restore rc, seekpos, prime rcbuf and restore rcbufp */
   rc=acc_vali(inced,--inced.filled);

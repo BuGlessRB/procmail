@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.50 2000/11/18 06:49:04 guenther Exp $*/
+/*$Id: misc.h,v 1.51 2000/11/22 01:30:03 guenther Exp $*/
 
 struct dyna_array{int filled,tspace;char*vals;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -47,7 +47,7 @@ int
  enoughprivs Q((const auth_identity*const passinvk,const uid_t euid,
   const gid_t egid,const uid_t uid,const gid_t gid)),
  conditions P((char flags[],const int prevcond,const int lastsucc,
-  const int lastcond,int nrcond));
+  const int lastcond,const int skipping,int nrcond));
 char
  *tstrdup P((const char*const a)),
  *cstr P((char*const a,const char*const b)),

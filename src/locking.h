@@ -1,8 +1,8 @@
-/*$Id: locking.h,v 1.6 2000/10/24 00:16:43 guenther Exp $*/
+/*$Id: locking.h,v 1.7 2000/11/22 01:30:01 guenther Exp $*/
 
 void
  lockit P((char*name,char**const lockp)),
- lcllock P((void)),
+ lcllock P((const char*const noext,const char*const withext)),
  unlock P((char**const lockp));
 int
  xcreat Q((const char*const name,const mode_t mode,time_t*const tim,
