@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.10 1992/12/09 12:59:24 berg Exp $";
+ "$Id: regexp.c,v 1.11 1992/12/09 14:08:31 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -282,7 +282,7 @@ static fillout(stack)struct eps**const stack;
 
 struct eps*bregcomp(a,ign_case)const char*a;
 { struct eps*st;size_t i;      /* first a trial run, determine memory needed */
-  p=(uchar*)a;ignore_case=ign_case;r=Ceps&aleps+1;cachea=0;por(Ceps 0);
+  p=(uchar*)a;ignore_case=ign_case;r=Ceps&aleps;cachea=0;por(Ceps 0);
   r=st=malloc((i=(char*)r-(char*)&aleps)+ioffsetof(struct eps,stack)+sizeof r);
   p=(uchar*)a;por(Ceps((char*)st+i));r->opc=OPC_FIN;r->stack=0;	  /* compile */
   for(r=st;;)				 /* simplify the compiled code (i.e. */
