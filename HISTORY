@@ -601,3 +601,8 @@
 	       builds
 	    Include and use mkinstalldirs
 	    Called nice() when shouldn't have (this time for sure!)
+2001/06/29: v3.21pre
+	    Changes to procmail:
+	       - Incorrect prototype broke compilation on Tru64 UNIX
+	       - INCLUDERC was broken by trying to be fancy and not fully
+		 succeeding while adding support for multiple -a options

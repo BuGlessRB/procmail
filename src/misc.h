@@ -1,19 +1,25 @@
-/*$Id: misc.h,v 1.54 2001/06/21 09:43:48 guenther Exp $*/
+/*$Id: misc.h,v 1.55 2001/06/30 00:18:37 guenther Exp $*/
 
 struct dyna_array{int filled,tspace;char*vals;};
+union offori{off_t o;int i};
+
+#define app_val_type(sp,t,s,v)	(*(t*)app_val_(&sp,sizeof(s))=(v))
+#define app_valo(sp,val)	app_val_type(sp,off_t,union offori,val)
+#define app_vali(sp,val)	app_val_type(sp,int,union offori,val)
+
+#define app_vall(sp,val)	app_val_type(sp,long,long,val)
+#define app_valp(sp,val)	app_val_type(sp,const char*,const char*,val)
+
+#define acc_val_(sp,t,s,off)	(*(t*)&(((s*)sp.vals)[off]))
+
+/* these are lvalues */
+
+#define acc_valo(sp,off)	acc_val_(sp,off_t,union offori,off)
+#define acc_vali(sp,off)	acc_val_(sp,int,union offori,off)
+#define acc_vall(sp,off)	acc_val_(sp,long,long,off)
+#define acc_valp(sp,off)	acc_val_(sp,const char*,const char*,off)
+
 struct dynstring{struct dynstring*enext;char ename[255];};
-
-#define app_val_type(sp,type)	(type*)app_val_(&sp,sizeof(type))
-#define app_valo(sp,val)	(*app_val_type(sp,off_t)=(val))
-#define app_vall(sp,val)	(*app_val_type(sp,long)=(val))
-#define app_vali(sp,val)	(*app_val_type(sp,int)=(val))
-#define app_valp(sp,val)	(*app_val_type(sp,const char*)=(val))
-
-#define acc_val_(sp,type,off)	((type*)sp.vals)[off]
-#define acc_valo(sp,off)	acc_val_(sp,off_t,off)	/* these are lvalues */
-#define acc_vall(sp,off)	acc_val_(sp,long,off)
-#define acc_vali(sp,off)	acc_val_(sp,int,off)
-#define acc_valp(sp,off)	acc_val_(sp,const char*,off)
 
 void
  elog P((const char*const newt)),
