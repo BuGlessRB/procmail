@@ -9,6 +9,10 @@ Discusses:
 		3. Changing the mail spool directory to $HOME for all users
 		4. Security considerations (when installing procmail suid root)
 
+NOTE: This file refers to the procmail binary being located in
+/usr/bin.  Some systems may place procmail in other locations such as
+/usr/local/bin.	 Talk with your sysadmin if you are not sure.
+
 				---
 
 1. One home directory, several machine architectures
