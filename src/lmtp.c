@@ -7,7 +7,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lmtp.c,v 1.12 2001/06/27 17:07:24 guenther Exp $"
+ "$Id: lmtp.c,v 1.13 2001/06/28 21:44:28 guenther Exp $"
 #endif
 #include "procmail.h"
 #ifdef LMTP
@@ -294,14 +294,14 @@ struct auth_identity***lrout;char*invoker;
 	      do
 	       { switch(c)
 		  { case 's':case 'S':
-		       if(unexpect("ize="))			  /* rfc1653 */
+		       if(unexpect("IZE="))			  /* rfc1653 */
 			  goto unknown_param;
 		       size=slurpnumber();
 		       if(size<0)		/* will be zerod at loop top */
 			  goto unknown_param;
 		       break;
 		    case 'b':case 'B':
-		       if(unexpect("ody="))			  /* rfc1652 */
+		       if(unexpect("ODY="))			  /* rfc1652 */
 			  goto unknown_param;
 		       while((c=getL())!='\r')		      /* just ignore */
 			  switch(c)		      /* the parameter as we */
@@ -465,7 +465,7 @@ deliver:   readmail(2,0L);		/* fix up things */
 	       }
 	      do{c=getL();}while(c==' ');
 	      if(c=='l'||c=='L')
-	       { if(unexpect("ast"))
+	       { if(unexpect("AST"))
 		  {
 bad_bdat_param:	    msg="504 5.5.4 parameter unknown\r\n";
 		    goto message;
