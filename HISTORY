@@ -120,9 +120,11 @@
 		 (they sometimes can't be world writeable)
 	       - Weighted scoring on conditions
 	       - Ability to inline parse ${var-text} and ${var:-text}
+	       - Ability to inline parse ${var+text} and ${var:+text}
 	       - Skipping spaces after "!" on condition lines
-	       - Implicit delivery somehow got broken
+	       - Implicit delivery somehow got broken: fixed
 	       - Default umask is always 077 now for deliverymode
+	       - Extended ^FROM_DAEMON and ^FROM_MAILER macro regexps again
 	    Changes to formail:
 	       - Fixed a sender-determination-weight problem, it mixed up
 		 the weights when autoreplying and when regenerating the From_
@@ -181,3 +183,5 @@
 		    request
 	       Carbon copies of subscription requests contained misleading
 		  diagnostics
+	       Subscription notifications will be done to both the sender
+		  and the new subscriber (in case the addresses differ)

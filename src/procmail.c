@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.56 1993/12/08 17:34:26 berg Exp $";
+ "$Id: procmail.c,v 1.57 1993/12/13 15:53:15 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -240,18 +240,19 @@ leaveFrom:    filled=already+i;
 	    }
 	   while(chp=(char*)argv[argc]);
 	gargv=argv+argc;			 /* save it for nextrcfile() */
-	if(idhint&&(pass=getpwnam(idhint)))
-	   goto QSetuser;
 	if(Deliverymode)
 	 { if(!(pass=getpwnam(chp2)))
 	    { nlog("Unknown user");logqnl(chp2);return EX_NOUSER;
 	    }
-	   if(euid==ROOT_uid||euid==pass->pw_uid)
+	   if(euid==ROOT_uid||
+	      passinvk&&passinvk->pw_uid==pass->pw_uid||
+	      euid==pass->pw_uid&&!setgid(pass->pw_gid))
 	      goto Setuser;
-QSetuser:  if(passinvk&&passinvk->pw_uid==pass->pw_uid)
-	      goto Setuser;
+	   nlog("Insufficient privileges\n");
 	 }
-	if(pass=passinvk)
+	if(idhint&&(pass=getpwnam(idhint))&&
+	    passinvk&&passinvk->pw_uid==pass->pw_uid||
+	   (pass=passinvk))
 	  /*
 	   *	set preferred uid to the intended recipient
 	   */

@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.21 1993/11/29 17:22:40 berg Exp $
+.Id $Id: procmailex.man,v 1.22 1993/12/13 15:52:47 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -63,6 +63,18 @@ An equivalent, but slightly slower solution that accomplishes the same:
    * ^Subject:.*compilers
    petcompil
 .Ex
+If your system doesn't generate or generates incorrect leading `From '
+lines on every mail, you can fix this by inserting the following two
+recipes above all other recipes in your rcfile.  They will filter the header
+of any mail through the first formail which will strip any leading `From '
+line, and then through the second formail which then regenerates it.
+.Sx 5
+:0 @FILTER@@PASS_HEAD@@WAIT_EXIT@
+| formail \-@FM_DEL_INSERT@ "From "
+
+:0 @FILTER@@PASS_HEAD@@WAIT_EXIT@
+| formail
+.Ex
 Add the headers of all messages that didn't come from the postmaster
 to your private header collection (for
 statistics or mail debugging); and use the lockfile `headc.lock'.  In order
@@ -86,7 +98,7 @@ messages, and store them into surfing, using surfing.lock as the locallockfile.
 .Sx 3
 :0:
 * ^Subject:.*surfing.*Digest
-| formail @FM_SKIP@1 \-@FM_DIGEST@@FM_SPLIT@ cat >>surfing
+| formail @FM_SKIP@1 \-@FM_DIGEST@@FM_SPLIT@ >>surfing
 .Ex
 Store everything coming from the postmaster or mailer-daemon (like bounced
 mail) into the file postm, using postm.lock as the locallockfile.
@@ -246,11 +258,21 @@ line).  The second condition only matches at the start of the body (i.e.
 right after the
 .B first
 empty line).
-.Sx
+.Sx 4
 :0 @HEAD_GREP@@BODY_GREP@ @PASS_BODY@
 * ^^(.+$)*From[ :].*print-server
 * ^^(.+$)*^%!
 | lpr
+.Ex
+The same as above, but now by slightly different means:
+.Sx 7
+:0
+* ^From[ :].*print-server
+{
+  :0 @BODY_GREP@ @PASS_BODY@
+  * ^^%!
+  | lpr
+}
 .Ex
 Suppose you have two accounts, you use both accounts regularly, but they are
 in very distinct places (i.e. you can only read mail that arrived at either one
@@ -308,6 +330,29 @@ script to take care of the more complicated checks and operations.
   | (cat; cat $FILES) | $SENDMAIL \-oi \-t
 }
 .Ex
+The following example preconverts all plain-text mail arriving in certain
+encoded MIME formats into a more compact 8-bit format which can be used
+and displayed more easily by most programs.  The mmencode program is part
+of Nathaniel Borenstein's metamail package.
+.Sx 17
+:0
+* ^Content-Type: *text/plain
+{
+  :0 @FILTER@@PASS_BODY@@WAIT_EXIT@
+  * ^Content-Transfer-Encoding: *quoted-printable
+  | mmencode \-u \-q
+
+     :0 @ALSO_NEXT_RECIPE@@FILTER@@PASS_HEAD@@WAIT_EXIT@
+     | formail \-@FM_DEL_INSERT@ "Content-Transfer-Encoding: 8bit"
+
+  :0 @FILTER@@PASS_BODY@@WAIT_EXIT@
+  * ^Content-Transfer-Encoding: *base64
+  | mmencode \-u \-b
+
+     :0 @ALSO_NEXT_RECIPE@@FILTER@@PASS_HEAD@@WAIT_EXIT@
+     | formail \-@FM_DEL_INSERT@ "Content-Transfer-Encoding: 8bit"
+}
+.Ex
 The following one is rather exotic, but it only serves to demonstrate a
 feature.  Suppose you have a file in your HOME directory called ".urgent",
 and the (one) person named in that file is the sender of an incoming mail,
@@ -321,6 +366,30 @@ URGMATCH=`cat $HOME/.urgent`
 :0 @BODY_GREP@:
 * $^From.*${URGMATCH}.*
 urgent
+.Ex
+An entirely different application for procmail would be to conditionally
+apply filters to a certain (outgoing) text or mail.  A typical example
+would be a filter through which you pipe all outgoing mail, in order
+to make sure that it will be MIME encoded only if it needs to be.
+I.e. in this case you could start procmail in the middle of a pipe like:
+.Sx 1
+cat newtext | procmail ./mimeconvert | mail chris@where.ever
+.Ex
+The
+.B mimeconvert
+rcfile could contain something like (the =0x80= and =0xff= should
+be substituted with the real 8-bit characters):
+.Sx 10
+DEFAULT=|     # pipe to stdout instead of
+              # delivering mail as usual
+:0 @BODY_GREP@@FILTER@@PASS_BODY@@WAIT_EXIT@
+* [=0x80=-=0xff=]
+| mmencode -q
+
+  :0 @ALSO_NEXT_RECIPE@@FILTER@@PASS_HEAD@@WAIT_EXIT@
+  | formail \-I 'MIME-Version: 1.0' \e
+     \-I 'Content-Type: text/plain; charset=3DISO-8859-1' \e
+     \-I 'Content-Transfer-Encoding: quoted-printable'
 .Ex
 .Sh "SEE ALSO"
 .na

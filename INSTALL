@@ -51,8 +51,9 @@ mailstat is an "example" shell script that can be used as is to produce
 	procmail itself in any way.
 
 procmail, lockfile, formail and mailstat are all *standalone* programs, i.e.
-they do *not* use any compiled-in paths or files, they all can be used and
-installed independently without the need to install the others.
+they do *not* use any compiled-in paths or files that need to be there, they
+all can be used and installed independently without the need to install the
+others.
 
 If things don't compile automagically, I suggest you take a look at:
 src/autoconf, autoconf.h, config.h, src/includes.h

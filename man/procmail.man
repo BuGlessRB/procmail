@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.30 1993/11/29 17:22:37 berg Exp $
+.Id $Id: procmail.man,v 1.31 1993/12/13 15:52:44 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -124,7 +124,8 @@ mailer rule.
 .I "\fB\-@DELIVEROPT@\fP recipient .\|.\|."
 This turns on explicit delivery mode, delivery will be to the local user
 .IR recipient .
-This, of course, only is possible if procmail has root privileges.
+This, of course, only is possible if procmail has root
+privileges@SETRUID@.
 Procmail will setuid to the intended recipients and shall
 .I only
 read the recipient's @PROCMAILRC@ file (if present, if not, delivery is like
@@ -301,6 +302,11 @@ Forcing lock on "x"
 .Tp
 Incomplete recipe
 The start of a recipe was found, but it stranded in an EOF.
+.Tp
+Insufficient privileges
+Procmail either needs root privileges, or must have the
+right (e)uid and (e)gid to run in delivery mode.  Delivery will proceed
+to the invoker.
 .Tp
 Invalid regexp "x"
 The regular expression "x" contains errors (most likely some missing or
@@ -559,17 +565,19 @@ or whenever you start reading mail):
 .Rs
 #!/bin/sh
 
-if test -s $@SYSTEM_MBOX@
+if cd $HOME &&
+ test \-s @SYSTEM_MBOX@ &&
+ lockfile \-r0 \-l3600 .newmail.lock 2>/dev/null
 then
+  trap "rm \-f .newmail.lock" 1 2 3 15
   umask 077
-  lockfile \-l3600 $HOME/.newmail.lock
   lockfile \-l3600 \-ml
-  cat @SYSTEM_MBOX@ >>$HOME/.newmail &&
+  cat @SYSTEM_MBOX@ >>.newmail &&
    cat /dev/null >@SYSTEM_MBOX@
   lockfile \-mu
-  formail \-@FM_SPLIT@ procmail <$HOME/.newmail &&
-   rm \-f $HOME/.newmail
-  rm \-f $HOME/.newmail.lock
+  formail \-@FM_SPLIT@ procmail <.newmail &&
+   rm \-f .newmail
+  rm \-f .newmail.lock
 fi
 exit 0
 .Re

@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.27 1993/12/08 17:34:16 berg Exp $*/
+/*$Id: manconf.c,v 1.28 1993/12/13 15:53:06 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -263,5 +263,7 @@ See also:\1.BR DROPPRIVS .":"");
 #else
   pc("POW",'x');
 #endif
+  ps("SETRUID",setruid(getuid())?"":	/* is setruid() a valid system call? */
+   " (or if procmail is already running with the recipient's euid and egid)");
   return EX_OK;
 }

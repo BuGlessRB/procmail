@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.43 1993/12/08 17:33:21 berg Exp $
+#$Id: Makefile,v 1.44 1993/12/13 15:52:09 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -96,6 +96,8 @@ all: init
 
 make:
 	@$(BSHELL) -c "exit 0"
+
+.PRECIOUS: Makefile
 
 init:
 	$(BSHELL) ./initmake $(BSHELL) "$(SHELL)" "$(RM)" "$(MV)" "$(LN)" \

@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.4 1993/08/25 15:30:04 berg Exp $
+#$Id: Makefile,v 1.5 1993/12/13 15:52:59 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -9,6 +9,8 @@ all: init
 
 init:
 	cd ..; $(MAKE) make init
+
+.PRECIOUS: Makefile
 
 Makefile makefile Makefiles makefiles: init
 

@@ -159,8 +159,9 @@
 	  setgid(), procmail would have been able to switch back and forth
 	  between group mail and the group the recipient belongs to without
 	  creating security holes.
-	- If your system supported setrgid() or setregid() with BSD semantics,
-	  procmail would have been able to switch... (see the previous point).
+	- If your system supported setrgid() or setregid() or setresgid()
+	  with BSD semantics, procmail would have been able to switch...
+	  (see the previous point).
 	- You could simply put the following at the end of your .procmailrc
 	  file:
 

@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.22 1993/11/26 16:24:55 berg Exp $
+#$Id: Makefile.0,v 1.23 1993/12/13 15:53:02 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O)
@@ -11,6 +11,8 @@ all:	$(BINSS)
 
 make:
 	@$(SHELL) -c "exit 0"			# fake target
+
+.PRECIOUS: Makefile
 
 procmail: procmail.$(O) $(PM_OBJ)
 	$(CC) $(CFLAGS) $@.$(O) $(PM_OBJ) -o $@ $(LDFLAGS)

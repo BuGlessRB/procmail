@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.37 1993/12/08 17:34:22 berg Exp $";
+ "$Id: multigram.c,v 1.38 1993/12/13 15:53:10 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/12/08 17:34:22 $";
+static /*const*/char rcsdate[]="$Date: 1993/12/13 15:53:10 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -243,10 +243,14 @@ main(minweight,argv)char*argv[];
 	 }
 	else
 	  /*
-	   *	we weren't root, so try to get the uid of the .etc directory
+	   *	we weren't root, so try to get the uid and gid of the .etc
+	   *	directory
 	   */
-	 { setrgid(stbuf.st_gid);setgid(stbuf.st_gid);setruid(stbuf.st_uid);
-	   setuid(stbuf.st_uid);
+	 { int error;
+	   setrgid(stbuf.st_gid);error=setgid(stbuf.st_gid);
+	   setruid(stbuf.st_uid);
+	   if(setuid(stbuf.st_uid)&&error)
+	      nlog("Insufficient privileges\n");
 	 }
 	if(chdir(arg))			     /* goto the list's subdirectory */
 	   pmexec[1]=RCMAIN,Endpmexec(2)=0,chdir(defdir);

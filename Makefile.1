@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.22 1993/10/29 16:41:50 berg Exp $
+#$Id: Makefile.1,v 1.23 1993/12/13 15:52:11 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -6,6 +6,9 @@ all: bins mans recommend
 
 make:
 	@$(SHELL) -c "exit 0"
+
+.PRECIOUS: Makefile
+.INIT: Makefile
 
 bins: config.check src/Makefile
 	cd src; $(MAKE) $(NBINS)
