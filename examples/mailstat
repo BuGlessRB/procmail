@@ -16,7 +16,7 @@
 #	Created by S.R. van den Berg, The Netherlands		#
 #	This file can be freely copied for any use.		#
 #################################################################
-#$Id: mailstat,v 1.8 1992/12/07 17:43:01 berg Exp $
+#$Id: mailstat,v 1.9 1993/01/13 15:19:51 berg Exp $
 
 #	This shell script expects the following programs to be in the
 #	PATH (paths given here are the standard locations, your mileage
@@ -176,13 +176,18 @@ HERE
 if $test .$MSmergerror = .
 then
   $sed	-e '/^From /d' -e '/^ [Ss][uU][bB][jJ][eE][cC][tT]:/d' \
-   -e '/^  Folder/s/		*/	/' -e 's/^  Folder: \(.*\)/\1/' \
-   -e t -e 's/	/\\t/g' -e 's/^/ ## /' $OLDLOGFILE | $sort | $awk -f $TMPF -
+   -e '/^  Folder/s/		*/	/' \
+   -e '/^  Folder/s/\/msg.[-0-9A-Za-z_][-0-9A-Za-z_]*	/\/	/' \
+   -e '/^  Folder/s/\/[0-9][0-9]*	/\/.	/' \
+   -e 's/^  Folder: \(.*\)/\1/' -e t -e 's/	/\\t/g' \
+   -e 's/^/ ## /' $OLDLOGFILE | $sort | $awk -f $TMPF -
 else
   $sed	-e '/^From /d' -e '/^ [Ss][uU][bB][jJ][eE][cC][tT]:/d' \
-   -e '/^  Folder/s/		*/	/' -e 's/^  Folder: \(.*\)/\1/' \
-   -e t -e 's/.*/ ## diagnostic messages ##/' $OLDLOGFILE | \
-   $sort | $awk -f $TMPF -
+   -e '/^  Folder/s/		*/	/' \
+   -e '/^  Folder/s/\/msg.[-0-9A-Za-z_][-0-9A-Za-z_]*	/\/	/' \
+   -e '/^  Folder/s/\/[0-9][0-9]*	/\/.	/' \
+   -e 's/^  Folder: \(.*\)/\1/' -e t \
+   -e 's/.*/ ## diagnostic messages ##/' $OLDLOGFILE | $sort | $awk -f $TMPF -
 fi
 
 ########

@@ -1,0 +1,28 @@
+General info:
+
+Subcription/unsubscription/info requests should always be sent to the -request
+address of a mailinglist.
+If a mailinglist for example is called "thelist@some.domain", then the -request
+address can be inferred from this to be: "thelist-request@some.domain".
+
+To subscribe to a mailinglist, simply send a message with the word "subscribe"
+in the Subject: field to the -request address of that list.
+
+To unsubscribe from a mailinglist, simply send a message with the word (you
+guessed it :-) "unsubscribe" in the Subject: field to the -request address of
+that list.
+
+With the subscription request you can optionally specify that you do
+not want to receive back any copies of your own submissions.  You can
+do this by adding the following text in your subscription request:
+	"no copies please."
+This feature is not fully supported yet.  You will be marked as such, but
+you will receive back copies anyway.
+
+In the event of an address change, it would probably be the wisest to first
+send an unsubscribe for the old address (this can be done from the new
+address), and then a new subscribe to the new address (the order is important).
+
+Most (un)subscription requests are processed automatically without human
+intervention.
+--

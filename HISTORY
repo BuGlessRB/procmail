@@ -152,9 +152,10 @@
 	       - a condition line of a recipe can now start with '?' in order
 		 to use the exitcode of a program as true or false
 	       - the ^TO and ^FROM_DAEMON special keywords can now be used
-		 anywhere in the regular expression
+		 anywhere in the regular expression (^TO is extended as well)
 	       - taught the ^^ special token to the internal egrep
 	       - more than doubled the speed of the builtin regexp library
+		 (which was already fast :-)
 	    Changes to the installation scripts:
 	       - preset values for $(MAKE), $(CC) and $(SHELL) are respected
 		 in Makefiles now
@@ -163,7 +164,8 @@
 	       - to make sure that all this is possible, the Makefiles are
 		 created in a two step-process now (make init)
 	       - missing libraries for network/socket and opendir support
-		 are searched for
+		 are searched for (you won't believe what people use for
+		 network support libraries, not in your wildest dreams :-)
 	       - the autoconf script now performs a reliability test on kernel
 		 locking support
 	       - also, network support for comsat tries to build up a compile

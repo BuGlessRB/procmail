@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.12 1992/12/03 14:15:17 berg Exp $";
+ "$Id: goodies.c,v 1.13 1993/01/13 15:20:55 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -259,7 +259,7 @@ void primeStdout P((void))	    /* *no* environment changes are allowed! */
   Stdfilled=ioffsetof(struct lienv,ename[0])+strlen(myenv->ename);
 }
 
-void retStdout(newmyenv)char*newmyenv;		/* see note on primeStdout() */
+void retStdout(newmyenv)char*const newmyenv;	/* see note on primeStdout() */
 { if(newmyenv[Stdfilled-1]=='\n')	       /* strip one trailing newline */
      Stdfilled--;
   newmyenv[Stdfilled]='\0';*lastenv=(myenv=(struct lienv*)newmyenv)->ename;

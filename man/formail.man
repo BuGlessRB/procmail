@@ -1,7 +1,7 @@
-.Id $Id: formail.man,v 1.6 1992/12/10 12:15:43 berg Exp $
+.Id $Id: formail.man,v 1.7 1993/01/13 15:20:26 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
-.SH NAME
 .na
+.SH NAME
 formail \- mail (re)formatter
 .SH SYNOPSIS
 .B formail

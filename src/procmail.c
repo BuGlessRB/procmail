@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.17 1992/12/04 13:18:12 berg Exp $";
+ "$Id: procmail.c,v 1.18 1993/01/13 15:21:09 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -35,7 +35,7 @@ char*buf,*buf2,*globlock,*loclock,*tolock,*lastfolder;
 const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
  shellmetas[]="SHELLMETAS",lockext[]="LOCKEXT",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*sgetcp,*rcfile=PROCMAILRC,
- dirsep[]=DIRSEP,msgprefix[]="MSGPREFIX",devnull[]=DevNull,user[]="USER",
+ dirsep[]=DIRSEP,msgprefix[]="MSGPREFIX",devnull[]=DevNull,logname[]="LOGNAME",
  executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",procmailn[]="procmail",
  whilstwfor[]=" whilst waiting for ",home[]="HOME",maildir[]="MAILDIR";
 char*Stdout;
@@ -90,7 +90,7 @@ last_option:
    { const char**emax=(const char**)environ,*const*ep,*const*kp;
      for(kp=keepenv;*kp;kp++)			     /* preserve a happy few */
 	for(i=strlen(*kp),ep=emax;chp2=(char*)*ep;ep++)
-	   if(!strncmp(*kp,chp2,i)&&chp2[i]=='=')
+	   if(!strncmp(*kp,chp2,i)&&(chp2[i]=='='||chp2[i-1]=='_'))
 	    { *emax++=chp2;break;
 	    }
      *emax=0;						    /* drop the rest */
@@ -206,16 +206,16 @@ Setuser:
      *	set preferred uid to the intended recipient
      */
    { gid=pass->pw_gid;uid=pass->pw_uid;setdef(home,pass->pw_dir);
-     setdef(user,chp= *pass->pw_name?pass->pw_name:buf);
+     setdef(logname,chp= *pass->pw_name?pass->pw_name:buf);
      if(geteuid()==ROOT_uid)
 	initgroups(chp,gid);
-     endgrent();setdef(shell,pass->pw_shell);
+     endgrent();setdef(shell,*pass->pw_shell?pass->pw_shell:binsh);
    }
   else			 /* user could not be found, set reasonable defaults */
     /*
      *	to prevent security holes, drop any privileges now
      */
-   { setdef(home,RootDir);setdef(user,buf);setdef(shell,binsh);
+   { setdef(home,RootDir);setdef(logname,buf);setdef(shell,binsh);
      setgid(gid);setuid(uid);
    }
   endpwent();
@@ -303,7 +303,8 @@ notfishy:
    { setgid(gid);setuid(uid);
      if(suppmunreadable=nextrcfile())	  /* any rcfile on the command-line? */
 #ifndef NO_COMSAT
-	setdef(scomsat,DEFcomsat)	       /* turn off comsat by default */
+	if(!getenv(scomsat))
+	   setdef(scomsat,DEFcomsat)	       /* turn off comsat by default */
 #endif
 	 ;
      while(chp=(char*)argv[argc])      /* interpret command line specs first */

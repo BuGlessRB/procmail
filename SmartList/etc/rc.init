@@ -1,0 +1,116 @@
+#
+# IMPORTANT variables to check/change:	PATH domain listmaster
+#
+
+# BEFORE editing this file or any rc.* file in the .etc directory
+# you should create the .etc/rc.lock file.  As long as this file
+# exists, mail delivery to any list will stall (fmail checks this file).
+
+# ENVIRONMENT:
+# list		contains the submitting address of the list (sans domain)
+# domain	should contain the domain for the list, so that $list@$domain
+#		can be used to submit to the list
+# maintainer	should contain the fully qualified address of the maintainer
+#		of $list;  maintainter can be left empty
+# listmaster	should contain the fully qualified address of the supervising
+#		list maintainer;  listmaster can be left empty
+# X_ENVELOPE_TO contains the address that the incoming mail was addressed to
+
+# FILES:
+# log		optional logfile (uncomment the LOGFILE assignment to enable
+#		it)
+# dist		the subscriber list, one address per line
+# reject	list of people you definitely do want to subscribe
+# request	all the messages to request that could not be handled
+#		automatically (only if maintainer is empty)
+# help.txt	file sent to help requests
+# subscribe.txt file sent to new subscribers
+# bounces	directory containing the bounce history files
+# rc.submit	rcfile used when distributing submissions
+# rc.request	rcfile used when processing requests
+# rc.custom	rcfile that contains all the customisations per list
+
+#$Id: rc.init,v 1.1 1993/01/13 15:20:11 berg Exp $
+
+PATH=.:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
+SHELL=/bin/sh				# to prevent surprises
+
+defaults=.etc
+LOCKTIMEOUT=256				# about 4 minutes to avoid congestion
+
+###############################################################################
+# You have to setup the following two assignments, make sure that the address
+# mentioned in listmaster is *not* the address this script runs under;	if
+# you would end up doing that, then assign listmaster to ""
+# The same applies to the maintainer addresses used for every list, if you
+# would like to alias them back to this script or to the respective -request
+# addresses, then assign maintainer to "" instead.
+#
+# The mail-domain you have to insert below, must be the fully qualified
+# mail-domain for this list;  e.g. if the preferred mail address for this
+# account would be:  list@somemachine.somewhere.universe
+# Then you should assign the following:
+#		   domain=somemachine.somewhere.universe
+###############################################################################
+
+domain=INSERT.YOUR.MAIL.DOMAIN.HERE	# the common domain for all the lists
+listmaster=
+
+#UMASK=077				# group can not touch the files
+ UMASK=027				# group can read
+#UMASK=007				# group can write as well
+
+defaults=.etc				# the name of the defaults directory
+#LOGFILE=../$defaults/log		# uncomment in case of emergency
+#VERBOSE=yes				# uncomment in case of real emergency
+
+	# The following should catch all the unwanted mailer-daemons bouncing
+	# mail to us unexpectedly.
+
+FROM_MAILER_DAEMON='^(Precedence:.*junk|'\
+'(((Resent-)?(From|Sender)|X-Envelope-From):|From )'\
+'(.*[^.a-z])?('\
+'Postma(st(er)?|n)|Mailer|daemon|mmdf|root|uucp|serv(ices?|er)'\
+')([^.a-z]|$))'
+
+RC_INIT					# clear this one from the environment
+					# so that we include this file only
+					# once
+
+listaddr=$list@$domain
+listreq=$list-request@$domain
+listdist=$list-dist@$domain
+
+sendmailOPT="-oem -odb -oi -f$listreq"
+########################
+# sendmail options used:
+#
+# -t	scan the header of the mail for recipients
+# -f	specify the sender envelope address (requires T entry in sendmail.cf)
+# -oi	do not regard a single dot on an otherwise empty line as EOF
+# -om	include myself in any alias expansions
+# -odb	background deliverymode command returns immediately
+# -oem	mail back error messages
+# -oep	print error messages
+########################
+
+maxhist		=	8		# bounce history limit
+minbounce	=	3		# no. of bounces before removal
+cutoff_bounce	=	256		# lines to keep in bounce processing
+match_threshold =	30720		# for close matches to the list
+off_threshold	=	24576		# for loosely finding your name
+
+reject_threshold=      $match_threshold # to determine if you may subscribe
+submit_threshold=      $match_threshold # to determine if you may submit
+foreign_submit	=	A
+#foreign_submit =	a		# uncomment this line if you *don't*
+					# want to allow non-subscribers to
+					# submit
+
+X_COMMAND	=	X-Command
+X_COMMAND_PASSWORD =	password	# put the global password for
+					# X-Command mails here
+				# this password can of course be changed/
+				# customised in the per list rc.custom file
+
+RC_CUSTOM=rc.custom

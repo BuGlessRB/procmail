@@ -1,7 +1,7 @@
-.Id $Id: procmailrc.man,v 1.13 1992/12/02 17:26:41 berg Exp $
+.Id $Id: procmailrc.man,v 1.14 1993/01/13 15:20:37 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
-.SH NAME
 .na
+.SH NAME
 procmailrc \- procmail rcfile
 .SH SYNOPSIS
 .B $HOME/+PROCMAILRC+
@@ -190,7 +190,7 @@ directory name ends in "+MCDIRSEP++chCURDIR+", then this directory is presumed
 to be an MH folder; i.e. procmail will use the next number it finds available.
 .Ss "Environment variable defaults"
 .Tp 2.2i
-.B "USER, HOME and SHELL"
+.B "LOGNAME, HOME and SHELL"
 Your (the recipient's) defaults
 .Tp
 .B SHELLMETAS

@@ -1,0 +1,147 @@
+# BEFORE editing this file, you should make sure that it is not linked to
+# the master version (../.listadmin/listrc.sub) anymore (i.e. make a copy).
+# If the mailinglist is not in active use yet, or if you want to take the
+# chance, you can write out this file without locking.	To do it properly
+# you should create the ../.listadmin/the_lists.lock file with lockfile(1)
+# shortly before writing out the new version of this file (remove the lockfile
+# afterwards of course)
+
+#$Id: rc.request,v 1.1 1993/01/13 15:20:16 berg Exp $
+
+INCLUDERC=$RC_INIT
+INCLUDERC=$RC_CUSTOM
+
+LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
+			# also makes sure that the load doesn't go sky-high
+			# when a lot of mail arrives concurrently
+
+#
+# We now check:
+#	If the length is roughly within bounds.
+#	That it is not a reply or something.
+#	That we didn't send it ourselves.
+#	That it wasn't sent by a daemon of some kind.
+#
+# If everything matches, we extract the sender address into tmp.from
+#
+
+:4whc
+< 8192
+$!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
+!^Subject:(.*[^a-z])?(Re:|erro|problem|((can)?not|.*n't)([^a-z]|$))
+!^FROM_DAEMON
+| formail -rt -xTo: >tmp.from
+
+#
+# Store the whole mail in tmp.request, for later reference.
+#
+
+	:Ac
+	| cat >tmp.request
+
+#
+# Is it an unsubscription request?
+#
+
+	:1BHA:dist.lock
+	^((Subject:)?[	 ]*(remove|unsub)|(.*[^a-z])?(unsubscri.*|\
+			       (remove .* from|take .* off) .* list)([^a-z]|$))
+	| unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from`
+
+#
+# Is it a subscription request?	 Yes, well, then check if the person
+# subscribing isn't on the reject list.	 If not, then let's see if he might
+# already be on the mailinglist.  If not, add him.
+#
+
+	:3BHA:dist.lock
+	^((Subject:)?[	 ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
+				      (add .* to|put .* on) .* list)([^a-z]|$))
+	!?multigram -b1 -l$reject_threshold reject
+	!?multigram -b1 -l$reject_threshold dist
+	| subscribe | $SENDMAIL $sendmailOPT -t
+
+	:1A
+	^Subject:(.*[^a-z.])?(help|info((rm)?ation)?)([^a-z]|$)
+	| (formail -i"Sender: $listreq" -i"From: $listaddr" \
+	   -rtA"X-Loop: $listaddr"; cat help.txt) | $SENDMAIL $sendmailOPT -t
+
+#
+# Could it be a bounce message from a daemon?  Hand it down to procbounce
+# which will evaluate it.
+#
+
+:3wc
+!^Subject:(.*[^a-z])?Re:
+$!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
+^FROM_DAEMON
+| sed -e $cutoff_bounce',$ d' >tmp.request
+
+	:Ahfw
+	| procbounce
+
+#
+# Or is it a remote X-Command from our maintainer?
+#
+
+:2f:dist.lock
+^$X_COMMAND:.*$maintainer.*$X_COMMAND_PASSWORD
+$!^X-Loop: $listaddr
+| x_command `formail -x$X_COMMAND:`
+
+LOCKFILE				# we don't need the lockfile anymore
+
+LOGFILE=log				# log -request arrivals
+
+#
+# Anything not taken care of yet will be served to the maintainer of the list.
+#
+# To make it easier on him, we include a small hint about what might be the
+# problem (by adding X-Diagnostic: fields to the header).
+#
+
+:fh
+^FROM_DAEMON
+| formail -A "X-Diagnostic: Mail coming from a daemon, ignored"
+
+:BH fh
+$^X-Loop: $listaddr
+| formail -A "X-Diagnostic: Possible loopback problem"
+
+:ch
+!^X-(Diagnostic|Processed):
+/dev/null
+
+	:A fh
+	^$X_COMMAND:
+	| formail -A "X-Diagnostic: Suspicious $X_COMMAND format"
+
+	:A BH fh
+	?multigram -b1 -l$reject_threshold reject
+	| formail -A "X-Diagnostic: Found on the reject list" \
+	   -A "X-Diagnostic: `multigram -b1 -l$reject_threshold reject`"
+
+	:2A BH fh
+	^((Subject:)?[	 ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
+				      (add .* to|put .* on) .* list)([^a-z]|$))
+	?multigram -b1 -l$reject_threshold dist
+	| formail -A "X-Diagnostic: Already on the subscriber list" \
+	   -A "X-Diagnostic: `multigram -b1 -l$reject_threshold dist`"
+
+|0fh
+| formail -A"X-Envelope-To: $X_ENVELOPE_TO"
+
+#
+# If this list does not have a maintainer e-mail address, drop things in
+# the file request.
+#
+
+::
+?test -z "$maintainer"
+request
+
+:0w
+| formail -R"From X-Envelope-From:" -iReturn-Receipt-To: \
+   | $SENDMAIL $sendmailOPT -oep $maintainer
+
+HOST=continue_with_../.etc/rc.post

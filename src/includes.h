@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.10 1992/12/10 12:16:06 berg Exp $*/
+/*$Id: includes.h,v 1.11 1993/01/13 15:20:58 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -50,9 +50,10 @@
 #endif
 #include <errno.h>		/* EINTR EEXIST ENFILE EACCES EAGAIN */
 #ifndef SYSEXITS_H_MISSING
-#include <sysexits.h>		/* EX_OK EX_USAGE EX_NOUSER EX_UNAVAILABLE
-				   EX_OSERR EX_OSFILE EX_CANTCREAT EX_IOERR
-				   EX_TEMPFAIL */
+#include <sysexits.h>		/* EX_OK EX_USAGE EX_NOINPUT EX_NOUSER
+				   EX_UNAVAILABLE EX_OSERR EX_OSFILE
+				   EX_CANTCREAT EX_IOERR EX_TEMPFAIL
+				   EX_NOPERM */
 #endif
 
 #ifdef STDLIB_H_MISSING
@@ -96,6 +97,7 @@ char*strpbrk();
 		   by Eric Allman (eric@berkeley, ucbvax!eric)	 */
 #define EX_OK		0
 #define EX_USAGE	64
+#define EX_NOINPUT	66
 #define EX_NOUSER	67
 #define EX_UNAVAILABLE	69
 #define EX_OSERR	71
@@ -103,6 +105,7 @@ char*strpbrk();
 #define EX_CANTCREAT	73
 #define EX_IOERR	74
 #define EX_TEMPFAIL	75
+#define EX_NOPERM	77
 #endif
 
 #if O_SYNC
@@ -241,6 +244,8 @@ extern int uname();					 /* so we fix it :-) */
 #endif /* NOuname */
 				 /* NEWS OS 5.X has the wrong prototype here */
 #define fdopen_(fd,type)	((FILE*)fdopen(fd,type))
+
+#define Const			/*const*/	 /* Convex doesn't grok this */
 
 #ifndef P
 #define P(args)		args

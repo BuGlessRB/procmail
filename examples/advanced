@@ -91,40 +91,11 @@ to abuse the sgid/suid-ness.
 2a.Special directions for sites with sendmail
    ------------------------------------------
 
-Here you have two options:
- i. Procmail *not* being suid root
- ii.Procmail suid root (actually preferred and recommended)
-
-)Ad i.
 The following line should take the place of the standard
 Mlocal rule in your sendmail.cf (this way sendmail will start up procmail with
 root priv, procmail will immediately setuid itself to the recipient's uid):
 
 Mlocal, P=/usr/local/bin/procmail, F=lsSDFMhP, S=10, R=20, A=procmail -d $u
-
-)Ad ii.
-If your sendmail does not allow starting programs with root privs (the
-'S' flag), you can instead make procmail suid root (this is actually the
-preferred way to go, it closes a security hole which actually sendmail should
-have closed).  This will not create a security hole, procmail will normally
-setuid immediately to the real uid (effectively losing root privs), or will
-immediately setuid to the recipient's uid (and be completely loyal to the
-recipient's absent or present .procmailrc file).  Actually installing procmail
-suid root is a slightly more flexible approach (not at all more dangerous).
-
-If using the suid root version of procmail, you only need to insert the
-following line in your sendmail.cf:
-
-Mlocal, P=/usr/local/bin/procmail, F=lsDFMhP, S=10, R=20, A=procmail -d $u
-
-So, to summarise, if you install procmail not-suid-root you should use the
-first rule (with the 'S' flag), and if you install it suid-root you should
-use the second rule (without the 'S' flag).  If you install procmail
-not-suid-root you cannot use the second rule, since procmail will not be
-able to change uid to the recipient, and therefore it cannot read/write
-the recipient's files (including any .procmailrc).  The alternative would
-be that procmail already has the recipient's uid upon startup, this is not
-possible in sendmail without changing some configuration options.
 
 As for the remaining flags "S=10, R=20", if your system uses others or
 none on the current Mlocal rule, use those instead of "S=10, R=20".
@@ -146,11 +117,8 @@ For smail 3.x users there are also two options:
  ii.Replace any existing "local"-entry in the /usr/lib/smail/transports file
     (create one, if need be) with the following two lines:
 
-local: return_path, local, from, driver=pipe;
+local: return_path, local, from, driver=pipe; user=root,
 	cmd="/usr/local/bin/procmail -d $($user$)"
-
-For any ideas on suid/sgid modes which *might* be needed, see the previous
-section (2).
 
 				---
 

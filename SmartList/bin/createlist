@@ -5,9 +5,9 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.6 1992/12/04 13:17:57 berg Exp $
+#$Id: createlist,v 1.7 1993/01/13 15:19:55 berg Exp $
 
-defaults=.listadmin
+defaults=.etc
 
 test=test		# /bin/test
 ln=ln			# /bin/ln
@@ -17,7 +17,11 @@ sed=sed			# /bin/sed
 pwd=pwd			# /bin/pwd
 cat=cat			# /bin/cat
 rm=rm			# /bin/rm
+ln=ln			# /bin/ln
+cp=cp			# /bin/cp
 ls=ls			# /bin/ls
+chmod=chmod		# /bin/chmod
+echo=echo		# /bin/echo
 grep=grep		# /bin/grep
 lockfile=lockfile	# /usr/local/bin/lockfile
 
@@ -26,9 +30,9 @@ EX_USAGE=64
 EX_UNAVAILABLE=69
 
 ( lockfile ) 2>$DEVNULL
-if test $? != 64
+if $test $? != 64
 then
-  echo "Where is \"lockfile\"?	It should be installed in your PATH" 1>&2
+  echo "Where is \"lockfile\"? It should be installed in your PATH" 1>&2
   exit $EX_UNAVAILABLE
 fi
 
@@ -46,13 +50,35 @@ then
   exit $EX_USAGE
 fi
 
-domain=`$sed -n -e 's/^[^#]*domain= *\([^	 ]*\).*$/\1/p' \
- $defaults/listrc.main`
+if $test ! -x .bin/procmail
+then
+  OIFS="$IFS"
+  IFS=:"$IFS"
+  procmail=""
 
-if test .$domain = .INSERT.YOUR.MAIL.DOMAIN.HERE
+  for a in $PATH
+  do $test -z "$procmail" -a -x "$a"/procmail && procmail=$a/procmail
+  done
+
+  IFS="$OIFS"
+  if $test -z "$procmail"
+  then
+     echo "Where is \"procmail\"?" 1>&2
+     echo "The symbolic link .bin/procmail must point to it" 1>&2
+     exit $EX_UNAVAILABLE
+  fi
+  $rm -f .bin/procmail
+  $ln -s $procmail .bin/procmail || $ln $procmail .bin/procmail ||
+   $cp $procmail .bin/procmail
+fi
+
+domain=`$sed -n -e 's/^[^#]*domain= *\([^	 ]*\).*$/\1/p' \
+ $defaults/rc.init`
+
+if $test .$domain = .INSERT.YOUR.MAIL.DOMAIN.HERE
 then
   echo "I refuse to do anything useful until you have edited the" 1>&2
-  echo "listrc.main file.  \`domain' must be set to some sane value." 1>&2
+  echo "rc.init file.  \`domain' must be set to some sane value." 1>&2
   exit $EX_USAGE
 fi
 
@@ -64,14 +90,14 @@ list="$1"
 maintainer="$2"
 
 case "$list" in
-  ../*|*/..|*/../*|*/*) echo "createlist: Suspicious listname specified" 1>&2
+  *[/	 ]*) echo "createlist: Suspicious listname specified" 1>&2
      exit $EX_USAGE;;
   *[@!]*) echo "createlist: Specify listname without domain name appended" \
      1>&2; exit $EX_USAGE;;
 esac
 
 umask `$sed -n -e 's/^[^#]*UMASK=[^0-9]*\([0-9]*\).*$/\1/p' \
- $defaults/listrc.sub`
+ $defaults/rc.init`
 
 if $mkdir "$list" 2>$DEVNULL
 then
@@ -79,41 +105,44 @@ then
 else echo "createlist: \"$list\" already exists" 1>&2; exit $EX_USAGE
 fi
 cd "$list"
-for a in listrc.sub help.txt subscribe.txt reject
+for a in rc.submit rc.init rc.request help.txt subscribe.txt reject
 do
   $cat $DEVNULL >>../$defaults/$a		# to make sure it exists
   $ln ../$defaults/$a $a
 done
-$touch listrc.custom
-echo "(Only addresses below this line can be automatically removed)" >>dist
-cd ..
 
-trap "$rm -f the_lists.lock" 1 2 3 15
-$lockfile the_lists.lock
-$cat >>$defaults/the_lists <<HERE
-list=$list
-maintainer=$maintainer
-	:c
-	\$^TO[^a-z]\$list(-request)?([^-.a-z0-9]|\\\$)
-	| procmail -p ./../\$list/listrc.sub PATH=\$PATH SHELL=\$SHELL
-#########################################################################
-HERE
-trap "" 1 2 3 15
-$rm -f the_lists.lock
-trap 1 2 3 15
+echo "maintainer	=	$maintainer" >rc.custom
+echo "(Only addresses below this line can be automatically removed)" >>dist
+
+$chmod ugo+x .
+$chmod ugo+r dist
+cd ..
 
 echo 1>&2
 echo "Installed the following files (mostly hardlinked):" 1>&2
 echo 1>&2
-$ls -l "$list"/* 1>&2
+$ls -l $list/* 1>&2
 echo 1>&2
 
 listuser=`$ls -ld $defaults | ( read a b user d; echo $user )`
-listdir=`$pwd`
+
+TMPF=.uniq.$$
+
+listdir=$HOME
+
+trap "$rm -f $TMPF" 1 2 3 15
+
+$touch $TMPF
+test -f $HOME/$TMPF || listdir=`$pwd`
+
+$rm -f $TMPF
+trap 1 2 3 15
+
+flist=$listdir/.bin/flist
 
 echo "Now make the following entries in your /usr/lib/aliases file:" 1>&2
 echo \#########################################################################
-echo "$list:		$listuser@$domain"
-echo "$list-request:	$listuser@$domain"
+echo "$list:		\"IFS=' ';exec $flist $list\""
+echo "$list-request:	\"IFS=' ';exec $flist $list-request\""
 echo "$list-dist:		:include:$listdir/$list/dist"
 echo \#########################################################################

@@ -1,7 +1,7 @@
 /************************************************************************
  *	multigram - The human mail address reader			*
  *									*
- *	It uses multigrams to intelligently filter out mail addresses	*
+ *	It uses multigrams to intelligenly filter out mail addresses	*
  *	from the garbage in the arbitrary mail.				*
  *									*
  *	Seems to be relatively bug free.				*
@@ -11,9 +11,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.9 1992/12/01 15:46:29 berg Exp $";
+ "$Id: multigram.c,v 1.10 1993/01/13 15:21:05 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1992/12/01 15:46:29 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/13 15:21:05 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -27,6 +27,15 @@ static /*const*/char rcsdate[]="$Date: 1992/12/01 15:46:29 $";
 #define DEFmaxgram	4
 #define DEFminweight	(SCALE_WEIGHT/4)	      /* sanity cutoff value */
 #define DEFbest_matches 2
+
+#define PROCMAIL	"../.bin/procmail"	  /* some configurable paths */
+#define GLOCKFILE	"../.etc/rc.lock"
+#define LLOCKFILE	"rc.lock"
+#define REQUEST		"-request"
+#define RCSUBMIT	"rc.submit"
+#define RCREQUEST	"rc.request"
+#define RCINIT		"RC_INIT=rc.init"
+#define XENVELOPETO	"X_ENVELOPE_TO="
 
 #define metoo_SENDMAIL		"-om"
 #define nometoo_SENDMAIL	"-omF"
@@ -93,23 +102,80 @@ static void elog(a)const char*const a;
 { fputs(a,stderr);
 }
 
+static const char idhash="idhash",flist="flist",
+ dirsep[]=DIRSEP;
+static const char*progname="multigram";
+
 void nlog(a)const char*const a;
-{ elog("multigram: ");elog(a);
+{ elog(progname);elog(": ");elog(a);
+}
+						 /* finds the next character */
+static char*lastdirsep(filename)const char*filename;
+{ const char*p;					/* following the last DIRSEP */
+  while(p=strpbrk(filename,dirsep))
+     filename=p+1;
+  return(char*)filename;
+}
+
+static void rclock(file,stbuf)const char*const file;struct stat*const stbuf;
+{ while(!stat(file,stbuf)&&time((time_t*)0)-stbuf->st_mtime<DEFlocktimeout)
+     sleep(DEFlocksleep);
 }
 
 static PROGID;
 
-main(minweight,argv)const char*argv[];
+main(minweight,argv)char*argv[];
 { struct string fuzzstr,hardstr;FILE*hardfile;const char*addit=0;
   struct match{char*fuzz,*hard;int metric;long lentry,offs1,offs2;}
    **best,*curmatch=0;
   unsigned best_matches,maxgram,maxweight,charoffs=0,remov=0,renam=0,
-   chkmetoo=0,hashit=0;
+   chkmetoo=(char*)progid-(char*)progid,progsel=0;
   int lastfrom;
   static const char usage[]=
-"Usage: multigram [-cdmrH] [-b nnn] [-l nnn] [-w nnn] [-a address] filename\n";
+ "Usage: multigram [-cdmr] [-b nnn] [-l nnn] [-w nnn] [-a address] filename\n";
   if(minweight)			      /* sanity check, any arguments at all? */
-   { const char*chp;
+   { char*chp;
+     if(!strcmp(chp=lastdirsep(argv[0]),flist))
+      { struct stat stbuf;
+	*chp='\0';
+	if(!chdir(argv[0])&&!lstat(flist,&stbuf)&&S_ISREG(stbuf.st_mode)&&
+	 stbuf.st_mode&S_ISUID&&stbuf.st_uid==geteuid()&&!chdir(chPARDIR))
+	 { static const char request[]=REQUEST,xenvlpto[]=XENVELOPETO,
+	    *pmexec[]={PROCMAIL,RCSUBMIT,RCINIT,0,0};
+	   char*arg;
+	   if(minweight!=2)
+	    { elog("Usage: flist listname[-request]\n");return EX_USAGE;
+	    }
+	   chp=strchr(arg=argv[1],'\0');
+	   if(chp-arg>STRLEN(request)&&!strcmp(chp-=STRLEN(request),request))
+	      *chp='\0',pmexec[1]=RCREQUEST;
+	   else
+	      chp=0;
+	   if(chdir(arg))
+	    { nlog("Couldn't chdir to \"");elog(arg);elog("\"\n");
+	      return EX_NOINPUT;
+	    }
+	   if(chp)
+	      *chp= *request;
+	   setuid(stbuf.st_uid);setgid(stbuf.st_gid);
+	   rclock(GLOCKFILE,&stbuf);rclock(LLOCKFILE,&stbuf);
+	   strcpy(chp=malloc(strlen(arg)+STRLEN(xenvlpto)+1),xenvlpto);
+	   strcpy(chp+STRLEN(xenvlpto),arg);pmexec[maxindex(pmexec)-1]=chp;
+	   execve(pmexec[0],pmexec,environ);nlog("Couldn't exec \"");
+	   elog(pmexec[0]);elog("\"\n");return EX_UNAVAILABLE;
+	 }
+	nlog("Missing permissions\n");return EX_NOPERM;
+      }
+     setuid(getuid());
+     if(!strcmp(chp,idhash))
+      { unsigned long hash=0;int i;
+	if(minweigth!=1)
+	 { elog("Usage: idhash\n");return EX_USAGE;
+	 }
+	while(i=fgetc(stdin),!feof(stdin))
+	   hash=hash*67067L+i;
+	printf("%lx",hash);return EX_OK;
+      }
      minweight=SCALE_WEIGHT;best_matches=maxgram=0;
      while((chp= *++argv)&&*chp=='-')
 	for(chp++;;)
@@ -146,19 +212,12 @@ main(minweight,argv)const char*argv[];
 \n\t-m\t\tcheck for metoo\
 \n\t-l nnn\t\tlower bound metric\
 \n\t-r\t\trename address on list\
-\n\t-w nnn\t\twindow width used when matching\
-\n\t-H\t\thash stdin\n");return EX_USAGE;
+\n\t-w nnn\t\twindow width used when matching\n");return EX_USAGE;
 	      default:goto usg;
 	      case '\0':;
 	    }
 	   break;
 	 }
-     if(hashit)
-      { unsigned long hash=0;int i;
-	while(i=fgetc(stdin),!feof(stdin))
-	   hash=hash*67067L+i;
-	printf("%lx",hash);return EX_OK;
-      }
      if(!chp||*++argv||renam+remov+!!addit>1)
 	goto usg;
      if(!(hardfile=fopen(chp,remov||renam||addit?"r+":"r")))

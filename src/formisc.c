@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.10 1992/12/07 17:43:08 berg Exp $";
+ "$Id: formisc.c,v 1.11 1993/01/13 15:20:52 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -35,7 +35,7 @@ notend:	      if(p=strpbrk(start,"([\"<,; \t\n"))	/* find next special */
 	   return(char*)start;	       /* just go passed the leading comment */
 	case '(':delim=')';break;				  /* comment */
 	case '[':delim=']';break;			   /* domain-literal */
-	case '"':delim='"';
+	case '"':delim='"';start++;
       }
 machref:
     {int i;
@@ -106,7 +106,7 @@ void lputcs(i)const int i;
      putcs(i);
 }
 
-void startprog(argv)const char*const*const argv;
+void startprog(argv)const char*Const*const argv;
 { int poutfd[2];
   if(!nrtotal)					/* no more mails to display? */
      goto squelch;

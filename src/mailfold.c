@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.13 1992/11/24 16:00:05 berg Exp $";
+ "$Id: mailfold.c,v 1.14 1993/01/13 15:21:03 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -82,7 +82,7 @@ deliver(boxname)char*const boxname;
 { struct stat stbuf;
   tofile=to_FILE;strcpy(buf,boxname);	 /* boxname can be found back in buf */
   return stat(buf,&stbuf)||!S_ISDIR(stbuf.st_mode)?
-   (tofile=to_FOLDER,opena(buf)):dirmail();
+   (tofile=strcmp(devnull,buf)?to_FOLDER:0,opena(buf)):dirmail();
 }
 
 void logabstract P((void))

@@ -32,9 +32,12 @@
 
 	If all of this doesn't work, procmail can be called on a periodical
 	basis, either via "cron", "at" or whenever you start reading mail (or
-	log in).  The command line you would need in such a case would be
+	log in).  The commands you would need in such a case would be
 	something like:
+		lockfile -ml
 		formail -s procmail </usr/mail/$USER
+		cp /dev/null /usr/mail/$USER
+		lockfile -mu
 
 3. When I compile everything the compiler complains about invalid or illegal
    pointer combinations, but it produces the executables anyway.
@@ -95,10 +98,10 @@
 9. Why do I have to insert my login name after the '#' in the .forward or
    .maildelivery file?
 
-	Some mailers 'optimise' maildelivery and take out duplicates from
+	Some mailers `optimise' maildelivery and take out duplicates from
 	Cc:, Bcc: and alias lists before delivery.  If two or more persons on
 	such a list would have identical .forward files, then the mailer will
-	eliminate all but one.	Adding a '#' with your login name following
+	eliminate all but one.	Adding a `#' with your login name following
 	it will make the .forward files unique, and will ensure that the mailer
 	doesn't optimise away some addresses.
 

@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.5 1992/11/11 13:58:28 berg Exp $
+.Id $Id: procmailex.man,v 1.6 1993/01/13 15:20:34 berg Exp $
 .de Sx
 .PP
 .ne \\$1
@@ -9,8 +9,8 @@
 .PP
 ..
 .TH PROCMAILEX 5 \*(Dt BuGless
-.SH NAME
 .na
+.SH NAME
 procmailex \- procmail rcfile examples
 .SH SYNOPSIS
 .B $HOME/+PROCMAILRC+ examples
@@ -120,7 +120,7 @@ out the most appropriate sender address), and then telling it to extract the
 value of the `To:' field.
 .Sx 14
 SHELL=/bin/sh    # for other shells, this might need adjustment
-ALREADYSENT=$MAILDIR/vacation     # the vacation database
+ALREADYSENT=$HOME/vacation     # the vacation database
 
 : 2 +PASS_HEAD++WAIT_EXIT_QUIET++CONTINUE+:                          # the lockfile is important
 !^FROM_DAEMON

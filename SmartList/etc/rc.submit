@@ -1,0 +1,64 @@
+# BEFORE editing this file, you should make sure that it is not linked to
+# the master version (../.listadmin/listrc.sub) anymore (i.e. make a copy).
+# If the mailinglist is not in active use yet, or if you want to take the
+# chance, you can write out this file without locking.	To do it properly
+# you should create the ../.listadmin/the_lists.lock file with lockfile(1)
+# shortly before writing out the new version of this file (remove the lockfile
+# afterwards of course)
+
+#$Id: rc.submit,v 1.1 1993/01/13 15:20:19 berg Exp $
+
+INCLUDERC=$RC_INIT
+INCLUDERC=$RC_CUSTOM
+
+#
+# The following recipe makes sure that:
+#	The mail was not sent to the request address.
+#	It does not look like an administrative request.
+#	It wasn't sent by this list itself.
+#	It wasn't sent by a daemon (misdirected bounce message perhaps).
+#
+
+:5wfh
+$!^$X_COMMAND:
+!^TO.*-request
+!^Subject:( *(help|info) *$|.*( \
+    (add .* to|remove .* from|take .* off|put .* on) .* list|subscri(be|ption))
+$!^X-Loop: $listaddr
+$!$FROM_MAILER_DAEMON
+| formail -b -IReceived: -IReturn-Receipt-To: -IErrors-To: -iReturn-Path: \
+   -iX-Envelope-To: -iX-Envelope-From -A"Precedence: bulk" \
+   -i"Resent-Sender: $listreq" -i"Resent-From: $listaddr" -IReceived: \
+   -A"X-Loop: $listaddr" -a"Subject: Unidentified subject!" \
+   -a"X-MailingList: $listaddr"
+
+#
+# Now check to see if sender is a subscriber of this mailinglist, and while
+# doing so, also check if this subscriber wants to receive copies.
+#
+
+	:AWh
+  METOO=| multigram -b1 -m -l$submit_threshold dist
+
+#
+# The following recipe will distribute the message to the subscribers.
+# Note that there are several possibilities, the first one listed here is
+# the cleanest one, but it has the disadvantage that the $listdist alias
+# is accessible to the outside world (can be queried and mailed to directly).
+#
+
+	: ${foreign_submit} : dist.lock
+	! $sendmailOPT $METOO $listdist
+       #! $sendmailOPT $METOO `cat dist` ;
+	# alternate sendmail call
+
+#
+# The next recipe will be executed if sendmail failed to send the message to
+# all subscribers, if the submitter wasn't a subscriber, or if it seemed to
+# be a bounce message after all.
+#
+
+	:Afh
+	| formail -A "X-Diagnostic: Not on the subscriber list"
+
+HOST=continue_with_rc.request

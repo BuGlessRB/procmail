@@ -1,0 +1,57 @@
+#! /bin/sh
+: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+#$Id: x_command,v 1.1 1993/01/13 15:20:03 berg Exp $
+
+echo=echo		# /bin/echo
+test=test		# /bin/test
+cat=cat			# /bin/cat
+formail=formail		# /usr/local/bin/formail
+subscribe=subscribe	# ../.bin/subscribe
+subscribe=unsubscribe	# ../.bin/unsubscribe
+
+tmprequest=tmp.request
+tmpfrom=tmp.from
+dist=dist
+
+$test -z "$listaddr" &&
+ $echo "Don't start this script directly, it is used in listrc.sub" && exit 64
+
+$formail -R$X_COMMAND: X-Processed:
+
+while $test $# != 0
+do
+  case "_$1" in
+     _subscribe)
+	 $echo "From $2 " >$tmprequest
+	 $echo "From: $listreq" >>$tmprequest
+	 $echo "Reply-To: $2" >>$tmprequest
+	 $echo "To: $listreq" >>$tmprequest
+	 $echo "Subject: subscribe $2" >>$tmprequest
+	 $echo "$2" >$tmpfrom
+	 $subscribe <$tmprequest | $SENDMAIL $sendmailOPT -t
+	 shift ;;
+     _unsubscribe)
+	 $echo "From $2 " >$tmprequest
+	 $echo "From: $listreq" >>$tmprequest
+	 $echo "Reply-To: $2" >>$tmprequest
+	 $echo "To: $listreq" >>$tmprequest
+	 $echo "Subject: subscribe $2" >>$tmprequest
+	 $echo "$maintainer" "$2" >$tmpfrom
+	 $unsubscribe <$tmprequest | $SENDMAIL $sendmailOPT `cat $tmpfrom`
+	 shift ;;
+     _distfile)
+	 $echo "--- Current subscribers:"
+	 $cat $dist
+	 $echo "--- End of subscriber list"
+     _help|_info)
+	 $echo "Known $X_COMMAND keywords:"
+	 $echo "	subscribe mailaddress"
+	 $echo "	unsubscribe mailaddress"
+	 $echo "	distfile  (shows the complete distfile)"
+	 $echo "	help"
+	 $echo "	info" ;;
+     _$X_COMMAND_PASSWORD|_$maintainer) ;;
+     *) $echo "X-Diagnostic: Unknown command $1" ; set dummy help ;;
+  esac
+  shift
+done

@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.10 1992/11/24 16:00:01 berg Exp $";
+ "$Id: lockfile.c,v 1.11 1993/01/13 15:21:00 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1992/11/24 16:00:01 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/13 15:21:00 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -28,7 +28,7 @@ static volatile exitflag;
 pid_t thepid;
 static char systm_mbox[]=SYSTEM_MBOX;
 static const char dirsep[]=DIRSEP,lockext[]=DEFlockext,
- nameprefix[]="lockfile: ",user[]="USER",home[]="HOME";
+ nameprefix[]="lockfile: ",logname[]="LOGNAME",home[]="HOME";
 
 static void failure P((void))				      /* signal trap */
 { exitflag=2;					       /* merely sets a flag */
@@ -60,8 +60,8 @@ static size_t parsecopy(dest,org,pass)char*const dest;const char*org;
   for(p=dest,len=STRLEN(lockext)+1;;)
    { switch(*org)
       { case '$':					    /* we substitute */
-	   if(!strncmp(++org,user,STRLEN(user)))
-	      org+=STRLEN(user),chp=pass->pw_name;		/* $USER and */
+	   if(!strncmp(++org,logname,STRLEN(logname)))
+	      org+=STRLEN(logname),chp=pass->pw_name;	     /* $LOGNAME and */
 	   else if(!strncmp(org,home,STRLEN(home)))
 	      org+=STRLEN(home),chp=pass->pw_dir;		    /* $HOME */
 	   else
@@ -98,8 +98,8 @@ main(argc,argv)const char*const argv[];
 | -! | -ml | -mu | file ...\n";
   if(argc<=1)			       /* sanity check, any argument at all? */
      goto usg;
-  sleepsec=DEFlocksleep;force=invert=0;retries= -1;suspend=DEFsuspend;
-  thepid=getpid();uid=getuid();signal(SIGPIPE,SIG_IGN);
+  sleepsec=DEFlocksleep;force=invert=(char*)progid-(char*)progid;retries= -1;
+  suspend=DEFsuspend;thepid=getpid();uid=getuid();signal(SIGPIPE,SIG_IGN);
 again:
   signal(SIGHUP,(void(*)())failure);signal(SIGINT,(void(*)())failure);
   signal(SIGQUIT,(void(*)())failure);signal(SIGTERM,(void(*)())failure);
@@ -142,12 +142,12 @@ xusg:		       retval=EX_USAGE;goto nfailure;
 		 else		      /* no second pass, so leave sleepsec<0 */
 		    strtol(cp,&cp,10);		   /* and discard the number */
 		 continue;
-	      case 'm':		     /* take $USER as a hint, check if valid */
+	      case 'm':		  /* take $LOGNAME as a hint, check if valid */
 	       { struct passwd*pass;static char*ma;size_t alen;
 		 if(*cp&&cp[1]||ma&&sleepsec>=0)	     /* second pass? */
 		    goto eusg;
 		 if(!ma)			/* ma initialised last time? */
-		  { if(!((ma=(char*)getenv(user))&&(pass=getpwnam(ma))&&
+		  { if(!((ma=(char*)getenv(logname))&&(pass=getpwnam(ma))&&
 		     pass->pw_uid==uid||(pass=getpwuid(uid))))
 		     { nlog("Can't determine your mailbox, who are you?\n");
 		       goto nfailure;	 /* panic, you're not in /etc/passwd */

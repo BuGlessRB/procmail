@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.12 1992/12/09 16:26:07 berg Exp $";
+ "$Id: regexp.c,v 1.13 1993/01/13 15:21:15 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -301,7 +301,7 @@ struct eps*bregcomp(a,ign_case)const char*a;
 
 char*bregexec(code,text,len,ign_case)struct eps*code;const uchar*const text;
  size_t len;
-{ register struct eps*reg,*t,*stack,*other,*thiss;unsigned i,th1,ot1;
+{ register struct eps*reg,*stack,*other,*thiss;unsigned i,th1,ot1;
   const uchar*str;struct eps*initstack,*initcode;
   initstack=0;
   if((initcode=code)->opc==OPC_EPS)
@@ -317,9 +317,9 @@ lastrun:				     /* switch this & other pc-stack */
 setups:
      other=code;stack=initstack;reg=initcode;goto nostack;
      do					 /* pop next entry off this pc-stack */
-      { reg=(t=thiss)->next;thiss=PC(t,th1);PC(t,th1)=0;goto nostack;
+      { reg=thiss->next;PC(thiss,th1)=0;thiss=PC(this,th1);goto nostack;
 	do				/* pop next entry off the work-stack */
-	 { for(stack=(t=stack)->stack,t->stack=0,reg=t->spawn;;)
+	 { for(reg=stack->spawn,stack=stack->stack;;)
 nostack:    { switch(reg->opc-OPB)  /* push spawned branch on the work-stack */
 	       { default:
 		    if(i==reg->opc)		  /* regular character match */
@@ -330,7 +330,7 @@ nostack:    { switch(reg->opc-OPB)  /* push spawned branch on the work-stack */
 		 case OPC_FIN-OPB:	   /* hurray!  complete regexp match */
 		    return(char*)str;		/* return one past the match */
 		 case OPC_BOTEXT-OPB:
-		    if(i=='\n'&&str<text)
+		    if(str<text)	       /* only at the very beginning */
 		       goto yep;
 		    break;
 		 case OPC_CLASS-OPB:

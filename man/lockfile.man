@@ -1,7 +1,7 @@
-.Id $Id: lockfile.man,v 1.6 1992/11/11 13:58:16 berg Exp $
+.Id $Id: lockfile.man,v 1.7 1993/01/13 15:20:28 berg Exp $
 .TH LOCKFILE 1 \*(Dt BuGless
-.SH NAME
 .na
+.SH NAME
 lockfile \- conditional semaphore-file creator
 .SH SYNOPSIS
 .B lockfile
@@ -100,13 +100,14 @@ will be assured that at most one script will be executing between the
 `lockfile' and the `rm' commands.
 .Sh ENVIRONMENT
 .Tp 2.3i
-.B USER
+.B LOGNAME
 used as a hint to determine the invoker's loginname
 .Sh FILES
 .Tp 2.3i
 .B /etc/passwd
 to verify and/or correct the invoker's loginname (and to find out his HOME
 directory, if needed)
+.Tp
 .B +SYSTEM_MBOX++DEFlockext+
 lockfile for the system mailbox, the environment variables present in here
 will not be taken from the environment, but will be determined by looking

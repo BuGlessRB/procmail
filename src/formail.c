@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.15 1992/12/10 12:15:58 berg Exp $";
+ "$Id: formail.c,v 1.16 1993/01/13 15:20:49 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1992/12/10 12:15:58 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/13 15:20:49 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -105,7 +105,7 @@ static PROGID;
 
 main(lastm,argv)const char*const argv[];
 { int i,split=0,force=0,bogus=1,every=0,areply=0,trust=0,digest=0,nowait=0,
-   keepb=0,minfields=0,conctenate=0;
+   keepb=0,minfields=(char*)progid-(char*)progid,conctenate=0;
   size_t j,lnl;char*chp,*namep;struct field*fldp,*fp2,**afldp,*fdate;
   if(lastm)			       /* sanity check, any argument at all? */
 #define Qnext_arg()	if(!*chp&&!(chp=(char*)*++argv))goto usg

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.20 1992/12/10 12:15:50 berg Exp $
+#$Id: autoconf,v 1.21 1993/01/13 15:20:43 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -44,6 +44,7 @@
 #Ok	#define endprotoent()
 #	#define h_addr_list h_addr
 #Ok	#define NO_COMSAT
+#	#define _GUID_T
 #Ok	#define UDP_protocolno 17
 #Ok	#define BIFF_serviceport "512"
 #Ok	#define IP_localhost {127,0,0,1,}
@@ -55,7 +56,7 @@
 #	#define NOfcntl_lock
 #	#define USElockf
 #	#define USEflock
-#Ok	#define SYSTEM_MAILBOX "/usr/spool/mail/$USER"
+#Ok	#define SYSTEM_MAILBOX "/usr/spool/mail/$LOGNAME"
 #Ok	#define SENDMAIL "/usr/lib/sendmail"
 #Ok	#define CF_no_procmail_yet
 
@@ -65,7 +66,7 @@
 # the ANSI or POSIX standards (but procmail should be installable anyway).
 
 SHELL=$1
-PATH=:$PATH
+PATH=.:$PATH
 shift; RM="$1"
 shift; MV="$1"
 shift; USRINC=$1
@@ -86,13 +87,12 @@ else
  trap "$RM $ACONF; exit 1" 1 2 3 15
 fi
 
-if test -n "$LD_LIBRARY_PATH"
+if test ! -z "$LD_LIBRARY_PATH"
 then
   echo '***************************** WARNING *********************************'
   echo '* You seem to have set the LD_LIBRARY_PATH variable, this might cause *'
-  echo '* some trouble during the execution of this autoconf script.  If you  *'
-  echo '* encounter errors about "_autotst not found" or any other	      *'
-  echo '* irregularities, stop the make, do a: "make clean",		      *'
+  echo '* some trouble during the execution of this autoconf script.  If the  *'
+  echo '* the make does not finish by itself, do a: "make clean",	      *'
   echo '* clear LD_LIBRARY_PATH from the environment, and start over.	      *'
   echo '***************************** WARNING *********************************'
 fi
@@ -103,7 +103,7 @@ echo ho | $FGREP hi >$DEVNULL
 f=$?
 if test 0 != $t -o 0 = $f
 then
-  echo "Your \"$FGREP\" program seems to be uncapable of returning a proper"
+  echo "Your \"$FGREP\" program seems to be incapable of returning a proper"
   echo "exitvalue depending on the success of the search.  This script can"
   echo "not work without it."
   exit 2
@@ -200,9 +200,16 @@ fi
 $MAKE _autotst >_autotst.rrr 2>&1
 $RM _autotst.$O _autotst
 
-$FGREP -e fcntl _autotst.rrr >$DEVNULL && echo "#undef F_SETLKW" >>_locktst.h
-$FGREP -e lockf _autotst.rrr >$DEVNULL && echo "#undef F_LOCK" >>_locktst.h
-$FGREP -e flock _autotst.rrr >$DEVNULL && echo "#undef LOCK_EX" >>_locktst.h
+$FGREP fcntl _autotst.rrr >$DEVNULL && echo "#undef F_SETLKW" >>_locktst.h
+$FGREP lockf _autotst.rrr >$DEVNULL && echo "#undef F_LOCK" >>_locktst.h
+$FGREP flock _autotst.rrr >$DEVNULL && cat >>_locktst.h <<HERE
+#ifdef LOCK_EX
+#undef LOCK_EX
+#endif
+#ifndef SYS_FILE_H_MISSING
+#define SYS_FILE_H_MISSING
+#endif
+HERE
 
 cat >_autotst.c <<HERE
 #include "$ACONF"
@@ -481,9 +488,9 @@ echo 'Testing for const'
 if $MAKE _autotst.$O 2>&1 | $FGREP -v /include/ >_autotst.rrr &&
  test -f _autotst.$O
 then
- grepfor const '#define const'
+  grepfor const '#define const'
 else
- echo '#define const' >>$ACONF
+  echo '#define const' >>$ACONF
 fi
 $RM _autotst.$O
 
@@ -500,18 +507,23 @@ else
 fi
 $RM _autotst.$O
 
-cat >_autotst.c <<HERE
-main(int argc,char*argv[]){return argc;}
+if $FGREP const $ACONF >$DEVNULL
+then
+  echo '#define P(args) ()' >>$ACONF
+else
+  cat >_autotst.c <<HERE
+main(const argc,const char*const argv[]){return argc;}
 HERE
 
-echo 'Testing for prototypes'
-if $MAKE _autotst.$O >$DEVNULL 2>&1 && test -f _autotst.$O
-then
-:
-else
- echo '#define P(args) ()' >>$ACONF
+  echo 'Testing for prototypes'
+  if $MAKE _autotst.$O >$DEVNULL 2>&1 && test -f _autotst.$O
+  then
+  :
+  else
+     echo '#define P(args) ()' >>$ACONF
+  fi
+  $RM _autotst.$O
 fi
-$RM _autotst.$O
 
 cat >_autotst.c <<HERE
 #include "includes.h"
@@ -698,6 +710,13 @@ main(argc)
      if(i<=16)
       { puts("#define SMALLHEAP");return 1;
       }
+#ifdef _GUID_T			/* ISC cc hack */
+     ;{ struct pass*p;
+	if(sizeof(int)>sizeof(uid_t)&&(p=getpwnam("root"))&&(*p->pw_dir!='/'||
+	 (*p->pw_shell&&!(p->pw_shell)[1]))
+	   puts("#define _GUID_T\ntypedef int uid_t;\ntypedef int gid_t;");
+      }
+#endif
    }
 #ifdef SYSTEM_MBOX
   if(argc==2)
@@ -720,7 +739,7 @@ found=no
 for a in /usr/spool/mail /usr/mail /var/spool/mail /var/mail
 do
   test -d $a -a $found != yes &&
-   echo '#define SYSTEM_MAILBOX "'$a'/$USER"' >>$ACONF && found=yes
+   echo '#define SYSTEM_MAILBOX "'$a'/$LOGNAME"' >>$ACONF && found=yes
 done
 if test $found != yes && _autotst 2 >>$ACONF
 then

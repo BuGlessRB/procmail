@@ -1,8 +1,8 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.14 1992/12/10 12:15:30 berg Exp $
+#$Id: initmake,v 1.15 1993/01/13 15:19:42 berg Exp $
 
-PATH=:$PATH
+PATH=.:$PATH
 BSHELL=$1
 shift; MSHELL=$1
 shift; RM="$1"
@@ -26,7 +26,7 @@ shift; SUBDIRS="$1"
 test 1 != $# &&
  echo "Don't start this script directly, use \`make init'" && exit 1
 
-test -z "$MSHELL" && SHELL=$MSHELL
+test -z "$MSHELL" || SHELL=$MSHELL
 case "$SHELL" in
   *sh*)
      case "$SHELL" in
@@ -34,7 +34,6 @@ case "$SHELL" in
      esac;;
   *) echo "Warning: perverted make detected"; SHELL="";;
 esac
-test -z "$SHELL" && SHELL=$MSHELL
 test -z "$SHELL" && SHELL=$BSHELL
 
 export SHELL PATH
@@ -163,7 +162,7 @@ sed -e '/^# Makefile - mark/,$ d' <Makefile >_Makefile
 echo "# Makefile.1 - mark, don't (re)move this, a sed script needs it
 " >>_Makefile
 
-test -z "$MSHELL" && echo  "SHELL	= $SHELL"	>>_Makefile
+test a$SHELL != a$MSHELL && echo  "SHELL	= $SHELL"	>>_Makefile
 echo "FGREP	= $FGREP"				>>_Makefile
 test -z "$MAKE" && echo "MAKE	= make"			>>_Makefile
 test a"$cc" != a"$CC" && echo "CC	= $cc"		>>_Makefile

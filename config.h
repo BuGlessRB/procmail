@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.13 1992/12/10 12:15:26 berg Exp $*/
+/*$Id: config.h,v 1.14 1993/01/13 15:19:39 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -13,6 +13,8 @@
 /* every environment variable appearing in KEEPENV will not be thrown away
  * upon startup of procmail, e.g. you could define KEEPENV as follows:
  * #define KEEPENV	{"TZ","LANG",0}
+ * environment variables ending in an _ will designate the whole group starting
+ * with this prefix (e.g. "LC_").
  */
 #define KEEPENV		{"TZ",0}
 
@@ -23,7 +25,8 @@
  * any side effects (like setting the umask after an assignment to UMASK) will
  * *not* take place
  */
-#define PRESTENV	{"IFS","PATH=$HOME/bin:/bin:/usr/bin",0}
+#define PRESTENV	{"IFS","PATH=$HOME/bin:/bin:/usr/bin", \
+			 "USER=$LOGNAME",0}
 
 /************************************************************************
  * Only edit below this line if you have viewed/edited this file before *
@@ -94,10 +97,11 @@
 #define DEFsuspend	16		 /* multi-purpose 'idle loop' period */
 #define DEFlocksleep	8
 #define TOkey		"^TO"
-#define TOsubstitute	"^(Resent-)?(To|Cc|Bcc|Apparently-To):(.*[^a-zA-Z])?"
+#define TOsubstitute	\
+ "^((Resent-)?(To|Cc|Bcc)|(X-Envelope|Apparently)-To):(.*[^a-zA-Z])?"
 #define FROMDkey	"^FROM_DAEMON"
-#define FROMDsubstitute "\
-^(Precedence:.*(bulk|junk)|((Resent-)?(From|Sender):|From )(.*[^.a-z])?(\
+#define FROMDsubstitute "^(Precedence:.*(bulk|junk)|\
+(((Resent-)?(From|Sender)|X-Envelope-From):|From )(.*[^.a-z])?(\
 Postma(st(er)?|n)|Mailer|daemon|mmdf|root|uucp|LISTSERV|owner|request|bounce|\
 serv(ices?|er))([^.a-z]|$))"	       /* should match most kinds of daemons */
 #define DEFshellmetas	"&|<>~;?*[]"		    /* never put '$' in here */
@@ -122,6 +126,7 @@ serv(ices?|er))([^.a-z]|$))"	       /* should match most kinds of daemons */
 #define RootDir		"/"
 #define DevNull		"/dev/null"
 #define chCURDIR	'.'			    /* the current directory */
+#define chPARDIR	".."			     /* the parent directory */
 #define DIRSEP		"/"		 /* directory separator symbols, the */
 				   /* last one should be the most common one */
 

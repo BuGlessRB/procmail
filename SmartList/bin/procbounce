@@ -1,9 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: procbounce,v 1.2 1992/12/02 17:26:18 berg Exp $
-
-maxhist=$1
-minbounce=$2
+#$Id: procbounce,v 1.3 1993/01/13 15:19:58 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -14,8 +11,10 @@ ls=ls			# /bin/ls
 rm=rm			# /bin/rm
 find=find		# /bin/find
 expr=expr		# /bin/expr
+date=date		# /bin/date
 formail=formail		# /usr/local/bin/formail
 multigram=multigram	# ../.bin/multigram
+idhash=idhash		# ../.bin/idhash
 
 $test -z "$listaddr" &&
  $echo "Don't start this script directly, it is used in listrc.sub" && exit 64
@@ -32,8 +31,9 @@ addr=`$formail -1 -kde -xSubject: -s \
 
 if test ! -z "$addr"
 then
-  $echo "$addr" \
-   >>$bounces/`$formail +1 -1 -dexMessage-Id: -s $multigram -H <$tmprequest`
+  serial=`$formail +1 -1 -m4 -dexMessage-Id: -s $idhash <$tmprequest`
+  test -z "$serial" && serial=`$date +%y-%m-%d`
+  $echo "$addr" >>$bounces/$serial
   $rm -f `$ls -t $bounces/* | $sed -e '1,'$maxhist' d' `
 
   bounced=0
@@ -50,7 +50,7 @@ then
      addfield="$addfield
 X-Diagnostic: Bounces exceed threshold of $minbounce
 X-Diagnostic: `
-     if echo "$addr" | $multigram -b1 -l$off_threshold -d $dist 2>/dev/null
+     if echo "$addr" | $multigram -b1 -l$match_threshold -d $dist 2>/dev/null
      then
      :
      else
