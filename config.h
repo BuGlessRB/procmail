@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.58 1994/08/23 12:15:56 berg Exp $*/
+/*$Id: config.h,v 1.59 1994/09/09 11:12:44 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -253,6 +253,7 @@ mmdf|root|n?uucp|response|serv(ices?|er)|Admin(istrator)?\
 #define FM_BERKELEY	BERKELEYOPT   /* Berkeley format, no Content-Length: */
 #define FM_QPREFIX	'p'			  /* define quotation prefix */
 #define FM_CONCATENATE	'c'	      /* concatenate continued header-fields */
+#define FM_ZAPWHITE	'z'		 /* zap whitespace and empty headers */
 #define FM_FORCE	'f'   /* force formail to accept an arbitrary format */
 #define FM_REPLY	'r'		    /* generate an auto-reply header */
 #define FM_KEEPB	'k'		   /* keep the header, when replying */
@@ -277,15 +278,16 @@ mmdf|root|n?uucp|response|serv(ices?|er)|Admin(istrator)?\
 #define FM_LAST_UNIQ	'U'		     /* preserve the last occurrence */
 #define FM_ReNAME	'R'				   /* rename a field */
 #define FM_USAGE	"\
-Usage: formail [-bcfrktqY] [-D nnn idcache] [-p prefix] [-l folder]\n\
+Usage: formail [-bczfrktqY] [-D nnn idcache] [-p prefix] [-l folder]\n\
 \t[-xXaAiIuU field] [-R ofield nfield]\n\
-   Or: formail [+nnn] [-nnn] [-bcfrktnedqBY] [-D nnn idcache] [-p prefix]\n\
+   Or: formail [+nnn] [-nnn] [-bczfrktnedqBY] [-D nnn idcache] [-p prefix]\n\
 \t[-m nnn] [-l folder] [-xXaAiIuU field] [-R ofield nfield]\n\
 \t-s [prg [arg ...]]\n"	    /* split up FM_HELP, token too long for some ccs */
 #define FM_HELP		\
  " -b\t\tdon't escape bogus mailbox headers\
 \n -Y\t\tBerkeley format mailbox, disregard Content-Length:\
 \n -c\t\tconcatenate continued header-fields\
+\n -z\t\tzap whitespace and empty header-fields\
 \n -f\t\tforce formail to pass along any non-mailbox format\
 \n -r\t\tgenerate an auto-reply header, preserve fields with -i\
 \n -k\t\ton auto-reply keep the body, prevent escaping with -b\

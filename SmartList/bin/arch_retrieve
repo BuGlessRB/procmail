@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.42 1994/08/25 19:00:30 berg Exp $
+#$Id: arch_retrieve,v 1.43 1994/09/09 11:12:51 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -44,7 +44,7 @@ archivedir=archive
 
 standalone=$1
 
-from=`$echo "arch_retrieve:" \`$cat $tmpfrom\` requested`
+from="arch_retrieve: `$cat $tmpfrom` requested"
 $cat /dev/null >$tmpfrom
 
 case "$X_ENVELOPE_TO" in

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.62 1994/08/18 13:44:52 berg Exp $";
+ "$Id: formail.c,v 1.63 1994/09/09 11:13:13 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/08/18 13:44:52 $";
+static /*const*/char rcsdate[]="$Date: 1994/09/09 11:13:13 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -89,7 +89,7 @@ static const char emboxsep[]=eMAILBOX_SEPARATOR;
 
 const char binsh[]=BinSh,sfolder[]=FOLDER,
  couldntw[]="Couldn't write to stdout";
-int errout,oldstdout,quiet=1,buflast,lenfileno;
+int errout,oldstdout,quiet=1,zap,buflast,lenfileno;
 long initfileno;
 char ffileno[LEN_FILENO_VAR+8*sizeof(initfileno)*4/10+1+1]=DEFfileno;
 int lexitcode;					     /* dummy, for waitfor() */
@@ -227,6 +227,8 @@ main(lastm,argv)int lastm;const char*const argv[];
 	      case FM_KEEPB:keepb=1;
 		 continue;
 	      case FM_CONCATENATE:conctenate=1;
+		 continue;
+	      case FM_ZAPWHITE:zap=1;
 		 continue;
 	      case FM_QUIET:quiet=1;
 		 if(*chp=='-')
@@ -417,8 +419,21 @@ startover:
      while(i--);			      /* reset all state information */
      clear_uhead(uheader);clear_uhead(Uheader);
      wasafrom_=!force&&rdheader&&eqFrom_(rdheader->fld_text);procfields();
-     for(fldp=rdheader;fldp;fldp=fldp->fld_next)    /* go through the linked */
-      { int nowm;				    /* list of header-fields */
+     for(fldp= *(afldp= &rdheader);fldp;fldp= *(afldp= &(*afldp)->fld_next))
+      { int nowm;	      /* go through the linked list of header-fields */
+	if(zap)
+	 { chp=fldp->fld_text+(j=fldp->id_len);
+	   if(chp[-1]==HEAD_DELIMITER)
+	      if(*chp!=' '&&fldp->tot_len>j+1)
+	       { chp=j+(*afldp=fldp=
+		  realloc(fldp,FLD_HEADSIZ+(i= ++fldp->tot_len)))->fld_text;
+		 tmemmove(chp+1,chp,i-j);*chp=' ';
+	       }
+	      else if(fldp->tot_len<=j+2)
+	       { *afldp=fldp->next;free(fldp);
+		 continue;
+	       }
+	 }
 	if(conctenate)
 	   concatenate(fldp);			 /* look for `sender' fields */
 	chp=fldp->fld_text;j=fldp->id_len;i=maxindex(sest);
@@ -570,11 +585,11 @@ dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
      tmemmove(parkedbuf=malloc(buffilled),buf,lenparkedbuf=buffilled);
      buffilled=0;    /* moved the contents of buf out of the way temporarily */
      if(areply)		      /* autoreply requested, we clean up the header */
-      { for(fldp= *(afldp= &rdheader);fldp;)
+      { for(fldp= *(afldp= &rdheader);		 /* remove all fields except */
+	    fldp;			       /* those mentioned as -i ...: */
+	    fldp= *(afldp= &(*afldp)->fld_next))
 	   if(!(fp2=findf(fldp,&iheader))||fp2->id_len<fp2->tot_len-1)
-	      *afldp=fldp->fld_next,free(fldp),fldp= *afldp;   /* remove all */
-	   else					/* except the ones mentioned */
-	      fldp= *(afldp= &fldp->fld_next);		       /* as -i ...: */
+	      *afldp=fldp->fld_next,free(fldp);
 	loadbuf(to,STRLEN(to));loadchar(' ');	   /* generate the To: field */
 	if(namep)	       /* did we find a valid return address at all? */
 	   loadbuf(namep,strlen(namep));	      /* then insert it here */

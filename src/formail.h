@@ -1,4 +1,4 @@
-/*$Id: formail.h,v 1.11 1994/05/26 14:12:44 berg Exp $*/
+/*$Id: formail.h,v 1.12 1994/09/09 11:13:16 berg Exp $*/
 
 #define Bsize		128
 
@@ -17,7 +17,7 @@ struct saved{const char*const headr;const int lenr;int rexl;char*rexp;};
 
 extern const char binsh[],sfolder[],couldntw[];
 extern char ffileno[];
-extern int errout,oldstdout,quiet,buflast,lenfileno;
+extern int errout,oldstdout,quiet,zap,buflast,lenfileno;
 extern long initfileno;
 extern pid_t child;
 extern unsigned long rhash;

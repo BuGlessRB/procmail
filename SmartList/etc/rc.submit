@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.67 1994/08/29 12:39:00 berg Exp $
+#$Id: rc.submit,v 1.68 1994/09/09 11:13:01 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -112,7 +112,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
        LOCKFILE=tmp.lock
 
        :0 whc
-       | formail -rt -xTo: >tmp.from
+       | formail -rtz -xTo: >tmp.from
 
        :0 W :dist.lock
        | sed -e '/^$/,/^-- $/ d' | formail -I "Subject: auto subscribe" \
@@ -223,8 +223,13 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 
   :0 A c
   * ? test -f accept.txt
-  | (formail -i"From: $listreq" -krtA"X-Loop: $listaddr"; \
-	   cat accept.txt) | $SENDMAIL $sendmailOPT -t
+  {
+    :0 fh
+    | formail -i"From: $listreq" -kbrtA"X-Loop: $listaddr" ; cat accept.txt
+
+    :0
+    ! $sendmailOPT -t
+  }
 
 } }
 

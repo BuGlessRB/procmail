@@ -261,3 +261,5 @@
 	       - Due to popular demand: LOGABSTRACT=all logs *all* successful
 		 recipes executed
 	       - Enforce secure permissions on /etc/procmailrcs if used
+	    Changes to formail:
+	       - New option: -z (zap whitespace and empty fields)

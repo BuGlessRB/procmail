@@ -155,3 +155,7 @@
 	    Improved fuzzy search for explicit mail addresses in the
 	       subscription request
 1994/09/08: v3.10pre0
+	    Changes to rc.submit:
+	       - Moved the accept.txt in front of the body of the mail
+	    Make use of the -z option of formail, get rid of the leading
+	       blank in the dist file for new subscriptions

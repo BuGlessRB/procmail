@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.archive,v 1.12 1994/06/03 18:25:10 berg Exp $
+#$Id: rc.archive,v 1.13 1994/09/09 11:12:56 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -44,7 +44,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 
 :0 whc
 * !^Subject:(.*[^a-z])?(Re:|erro|problem|((can)?not|.*n't)\>)
-| formail -rt -xTo: >tmp.from
+| formail -rtz -xTo: >tmp.from
 
 #
 # Store the whole mail in tmp.request, for later reference.
