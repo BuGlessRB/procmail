@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.22 1993/06/23 12:55:47 berg Exp $
+.Id $Id: procmail.man,v 1.23 1993/06/30 16:01:33 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -309,8 +309,8 @@ Missing argument
 You specified the \-@ARGUMENTOPT@ option but forgot the argument
 .Tp
 Missing rcfile
-You specified the \-@FILTEROPT@ option, procmail expects the name of an rcfile
-as argument
+You specified the \-@MAILFILTOPT@ option, procmail expects the name of an
+rcfile as argument
 .Tp
 Missing recipient
 You specified the \-@DELIVEROPT@ option or called procmail under a different

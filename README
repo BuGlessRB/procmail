@@ -49,6 +49,7 @@ digests/mailboxes into the original messages, do some very simple
 header-munging/extraction, or force mail into mail-format (with leading From
 line).
 
+Also included is a comprehensive mailinglist/archive management system.
 ----------------------
 
 I made the utmost effort to make procmail as robust as any program can be
@@ -117,5 +118,5 @@ The latest version can be obtained directly from the ftp-archive at:
 
 	as zipped tar file:		pub/unix/procmail.tar.zip	<152KB
 	as compressed tar file:		pub/unix/procmail.tar.Z		<216KB
-	in compressed shar format:	pub/unix/procmail.??.Z	      12 parts
+	in compressed shar format:	pub/unix/procmail.??.Z	      11 parts
 ----------------------
