@@ -8,21 +8,23 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: memblk.c,v 1.5 2001/06/21 09:43:46 guenther Exp $"
+ "$Id: memblk.c,v 1.6 2001/06/28 22:55:09 guenther Exp $"
 #endif
 #include "procmail.h"
 #include "robust.h"
 #include "exopen.h"
 #include "memblk.h"
+#include "misc.h"
 #include "shell.h"
 
 #ifdef USE_MMAP
 int ISprivate;
 #include <sys/mman.h>
 #define P_RW		(PROT_READ|PROT_WRITE)
-#define MMAP_LEN	(STRLEN(MMAP_DIR)+UNIQnamelen+1)
+#define MMAP_FILE_LEN	(STRLEN(MMAP_DIR)+UNIQnamelen+1)
 #define MMAP_PERM	(NORMperm&~INIT_UMASK)
 #define set_fd(mb,num)	mb->fd=(num)
+static void mmapfailed P((const long len)) __attribute__((noreturn));
 #else
 #define set_fd(mb,num)	do{}while(0)
 #endif
@@ -49,8 +51,13 @@ void lockblock(mb)memblk*const mb;
 {
 #ifdef USE_MMAP
   if(mb->fd>=0)
-   { close(mb->fd);
-     mb->fd=ropen(devnull,O_RDWR,0);
+   { long len=mb->len+1;
+     if(munmap(mb->p,len))
+	mmapfailed(len);		      /* don't want to continue here */
+     if((mb->p=mmap(0,len,PROT_READ,MAP_PRIVATE,mb->fd,(off_t)0))==MAP_FAILED)
+	mmapfailed(len);
+     close(mb->fd);
+     mb->fd=ropen(devnull,O_RDWR,0);		/* XXX Perhaps -1 is better? */
    }
 #endif
 }
@@ -66,9 +73,9 @@ int resizeblock(mb,len,nonfatal)memblk*const mb;const long len;
    }
 #ifdef USE_MMAP
   if(len>MAXinMEM&&mb->fd<0)			      /* time to switch over */
-   { char filename[MMAP_LEN];
+   { char filename[MMAP_FILE_LEN];
      strcpy(filename,MMAP_DIR);
-     if(unique(filename,strchr(filename,'\0'),MMAP_LEN,MMAP_PERM,0,0)&&
+     if(unique(filename,strchr(filename,'\0'),MMAP_FILE_LEN,MMAP_PERM,0,0)&&
 	(mb->fd=ropen(filename,O_RDWR,MMAP_PERM),unlink(filename),mb->fd>=0))
       { mb->filelen=len;
 	if(lseek(mb->fd,mb->filelen-1,SEEK_SET)<0||1!=rwrite(mb->fd,empty,1))
@@ -101,14 +108,8 @@ dropf:	 { close(mb->fd);mb->fd= -1;
 	   goto dropf;
 	 }
 	munmap(mb->p,mb->len+1);
-mmap:	if((mb->p=mmap(0,len+1,P_RW,MAP_PRIVATE,mb->fd,(off_t)0))==MAP_FAILED)
-	 { static const char mmapfailed[]="Unable to mmap file";
-	   nextexit=2;nlog(mmapfailed);elog("\n");
-	   syslog(LOG_NOTICE,"%s of %ld bytes\n",mmapfailed,len);
-	   if(retval!=EX_TEMPFAIL)
-	      retval=EX_OSERR;
-	   Terminate();
-	 }
+mmap:	if((mb->p=mmap(0,len+1,P_RW,MAP_SHARED,mb->fd,(off_t)0))==MAP_FAILED)
+	   mmapfailed(len+1);
       }
      mb->len=len;
      goto ret1;
@@ -165,3 +166,14 @@ jumpin:
   *filledp=filled;				 /* write back the new value */
   return mb->p;
 }
+
+#ifdef USE_MMAP
+static void mmapfailed(len)const long len;
+{ static const char mmapfailed[]="Unable to mmap file";
+  nextexit=2;nlog(mmapfailed);elog("\n");
+  syslog(LOG_NOTICE,"%s of %ld bytes\n",mmapfailed,len);
+  if(retval!=EX_TEMPFAIL)
+     retval=EX_OSERR;
+  Terminate();
+}
+#endif

@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.177 2001/06/27 21:03:56 guenther Exp $";
+ "$Id: procmail.c,v 1.178 2001/06/28 22:55:10 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -249,14 +249,14 @@ nodevnull:
 	if(Deliverymode==2)
 	 { auth_identity**rcpts,**lastrcpt,**currcpt;
 	   currcpt=rcpts=lmtp(&lastrcpt,chp2);
+	   if(currcpt+1!=lastrcpt)     /* if there's more than one recipient */
+	      lockblock(&themail);     /* then no one can write to the block */
+	   else				     /* otherwise the only recipient */
+	      private(1);				/* gets the original */
 	   while(currcpt<lastrcpt)
 	    { if(!(pidchild=sfork()))
 	       { setupsigs();
 		 pass= *currcpt++;
-		 if(currcpt!=lastrcpt)	   /* make sure the early recipients */
-		    lockblock(&themail);	 /* can't write to the block */
-		 else					/* last one out gets */
-		    private(1);				     /* the original */
 		 while(currcpt<lastrcpt)
 		    auth_freeid(*currcpt++);
 		 freeoverread();
@@ -280,6 +280,12 @@ nodevnull:
 	makeFrom(fromwhom,chp2);
 	readmail(0,0L);			      /* read in the mail completely */
 	if(Deliverymode)
+	 { if(argv[argc+1])			 /* more than one recipient? */
+	    { private(0);				    /* time to share */
+	      lockblock(&themail);
+	    }
+	   else
+	      private(1);
 	   do			  /* chp should point to the first recipient */
 	    { chp2=chp;
 	      if(argv[++argc])			  /* more than one recipient */
@@ -291,15 +297,12 @@ nodevnull:
 		  }
 		 else
 		  { newid();
-		    private(0);				    /* time to share */
-		    lockblock(&themail);
 		    while(argv[++argc]);    /* skip till end of command line */
 		    break;
 		  }
-	      else
-		 private(1);		   /* last one out gets the original */
 	    }
 	   while(chp=(char*)argv[argc]);
+	 }
 	gargv=argv+argc;			 /* save it for nextrcfile() */
 	if(Deliverymode)	/* try recipient without changing case first */
 	 { if(!(pass=auth_finduser(chp2,-1)))	    /* chp2 is the recipient */
@@ -520,6 +523,9 @@ static void usage P((void))
   elog("\nYour system mailbox:\t");
   elog(auth_mailboxname(auth_finduid(getuid(),0)));
   elog(newline);
+#ifdef USE_MMAP
+  elog("\nLarge messages will be memory mapped during processing.\n");
+#endif
 }
 
 /*
