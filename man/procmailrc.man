@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.83 2001/06/04 00:33:54 guenther Exp $
+.Id $Id: procmailrc.man,v 1.84 2001/06/23 08:22:10 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -64,7 +64,7 @@ and
 .B recipes
 can be freely intermixed in the rcfile. If any environment variable has
 a special meaning to procmail, it will be used appropriately the moment
-it is parsed (i.e. you can change the current directory whenever you
+it is parsed (i.e., you can change the current directory whenever you
 want by specifying a new
 .BR MAILDIR ,
 switch lockfiles by specifying a new
@@ -141,7 +141,7 @@ following recipes with the '@ELSE_DO@' flag.  This allows you to specify
 .B @ERROR_DO@
 This recipe only executes if the immediately preceding recipe
 .IR failed
-(i.e. the action line was attempted, but resulted in an error).
+(i.e., the action line was attempted, but resulted in an error).
 .TP
 .B @PASS_HEAD@
 Feed the header to the pipe, file or mail destination (default).
@@ -173,7 +173,7 @@ Has the same meaning as the `@WAIT_EXIT@' flag, but will suppress any
 `Program failure' message.
 .TP
 .B @IGNORE_WRITERR@
-Ignore any write errors on this recipe (i.e. usually due to an early closed
+Ignore any write errors on this recipe (i.e., usually due to an early closed
 pipe).
 .TP
 .B @RAW_NONL@
@@ -431,7 +431,7 @@ of the machine, processing of the current
 will immediately cease. If other rcfiles were specified on the
 command line, processing will continue with the next one.  If all rcfiles
 are exhausted, the program will terminate, but will not generate an error
-(i.e. to the mailer it will seem that the mail has been delivered).
+(i.e., to the mailer it will seem that the mail has been delivered).
 .TP
 .B UMASK
 The name says it all (if it doesn't, then forget about this one :\-).
@@ -465,14 +465,14 @@ Number of retries that are to be made if any `\fBprocess table full\fP',
 `\fBout of swap space\fP' error should occur.  If this number is negative,
 then procmail will retry indefinitely; if not specified, it defaults to
 @DEFnoresretry@ times.  The retries occur with a $SUSPEND second interval.  The
-idea behind this is, that if e.g. the
+idea behind this is that if, e.g., the
 .I swap
 .I space
 has been exhausted or the
 .I process
 .I table
 is full, usually several other programs will either detect this as well
-and abort or crash 8-), thereby freeing valuable
+and abort or crash 8\-), thereby freeing valuable
 .I resources
 for procmail.
 .TP
@@ -495,10 +495,11 @@ be a binary file for that matter.  See also PROCMAIL_OVERFLOW.
 .B DELIVERED
 If set to `yes' procmail will pretend (to the mail agent) the mail
 has been delivered.  If mail cannot be delivered after having met this
-assignment (set to `yes'), the mail will be lost (i.e. it will not bounce).
+assignment (set to `yes'), the mail will be lost (i.e., it will not bounce).
 .TP
 .B TRAP
-When procmail terminates it will execute the contents of this variable.
+When procmail terminates of its own accord and not because it
+received a signal, it will execute the contents of this variable.
 A copy of the mail can be read from stdin.  Any output produced by this
 command will be appended to $LOGFILE.  Possible uses for TRAP are: removal
 of temporary files, logging customised abstracts, etc.  See also
@@ -507,13 +508,19 @@ and
 .BR LOGABSTRACT .
 .TP
 .B EXITCODE
-When procmail terminates and this variable has been set to a positive numeric
-value, procmail will use this as the exitcode.  If this variable is set but
-empty, procmail will set the exitcode to whatever the
+By default, procmail returns an exitcode of zero (success) if it
+successfully delivered the message or if the
+.B HOST
+variable was misset and there were no more rcfiles on the command
+line; otherwise it returns failure.  Before doing so, procmail
+examines the value of this variable.  If it is set to a positive
+numeric value, procmail will instead use that value as its exitcode.
+If this variable is set but empty and
 .B TRAP
-program returns.
-If this variable has not been set, procmail will set it shortly before calling
-up the
+is set, procmail will set the exitcode to whatever the
+.B TRAP
+program returns.  If this variable is not set, procmail will set
+it shortly before calling up the
 .B TRAP
 program.
 .TP
