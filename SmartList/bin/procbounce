@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: procbounce,v 1.18 1994/01/12 19:13:07 berg Exp $
+#$Id: procbounce,v 1.19 1994/01/13 13:39:37 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -32,12 +32,12 @@ addr=`$formail -1 -kdem4 -xSubject: <$tmprequest -s \
 test -z "$addr" &&
  addr=`$formail -1 -kdem4 -xSubject: <$tmprequest -s \
   $sed -e '/^[	 *]*Message-[Ii][Dd]:/ d' -e '/^[	 *]*To:/ d' |
-  $multigram -i -b1 -l$off_threshold -x$listaddr -x$listreq $dist |
+  $multigram -i -b1 -l16384 -x$domain $dist |
   $sed -e 's/^.* \([^ ]*\)$/\1/' `
 
 test -z "$addr" &&
  addr=`$formail -1 +1 -cqdem4 -xReceived: -s sed -e 1q <$tmprequest |
-  $multigram -i -b1 -l$off_threshold -x$listaddr -x$listreq $dist |
+  $multigram -i -b1 -l16384 -x$domain $dist |
   $sed -e 's/^.* \([^ ]*\)$/\1/' `
 
 if test ! -z "$addr"

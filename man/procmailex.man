@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.22 1993/12/13 15:52:47 berg Exp $
+.Id $Id: procmailex.man,v 1.23 1994/01/13 13:39:42 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -64,7 +64,9 @@ An equivalent, but slightly slower solution that accomplishes the same:
    petcompil
 .Ex
 If your system doesn't generate or generates incorrect leading `From '
-lines on every mail, you can fix this by inserting the following two
+lines on every mail, you can fix this by calling up procmail with
+the \-@FROMWHOPT@@REFRESH_TIME@ option.  To fix the same problem by
+different means, you could have inserted the following two
 recipes above all other recipes in your rcfile.  They will filter the header
 of any mail through the first formail which will strip any leading `From '
 line, and then through the second formail which then regenerates it.
@@ -133,27 +135,30 @@ program.  This recipe is based on the same principles as the last one (prevent
 by extracting the name of the sender and appending it to the file
 $ALREADYSENT, if the name is
 .B not
-already in there.  If the name was new, an autoreply will be sent (using the
-`@ALSO_N_IF_SUCC@' flag functionality).  To reliably extract the name of the
+already in there.  If the name was new, it's name will be appended to the
+database and an autoreply will be sent.  To reliably extract the name of the
 sender, I let formail generate an autoreply header (thereby making it figure
 out the most appropriate sender address), and then telling it to extract the
 value of the `To:' field.
-.Sx 14
+.Sx 17
 SHELL=/bin/sh    # for other shells, this might need adjustment
-ALREADYSENT=$HOME/vacation     # the vacation database
 
-:0 @PASS_HEAD@@WAIT_EXIT_QUIET@@CONTINUE@:                       # the lockfile is important
+:0
 * !^FROM_DAEMON
 * !^From +YOUR_LOGIN_NAME
-| FROM=`formail \-@FM_REPLY@@FM_EXTRACT@ To:` ;\e
-  if fgrep \-e "$FROM" <$ALREADYSENT ;\e
-  then exit 1 ;\e
-  else echo "$FROM" >>$ALREADYSENT ;\e
-  fi
+{
+  FROM=`formail \-@FM_REPLY@@FM_EXTRACT@ To:`
+  ALREADYSENT=$HOME/vacation     # the vacation database
 
-   :0 @ALSO_N_IF_SUCC@@PASS_HEAD@@CONTINUE@
-   | (formail \-@FM_REPLY@@FM_ADD_ALWAYS@"Precedence: junk";\e
-      echo "Mail received.") | $SENDMAIL \-t
+  :0 @CONTINUE@:                       # the lockfile is important
+  * !? fgrep \-e "$FROM" $ALREADYSENT
+  | echo $FROM >>$ALREADYSENT; \e
+    (formail \-@FM_REPLY@@FM_ADD_ALWAYS@"Precedence: junk"; \e
+      echo "I received your mail,"; \e
+      echo "but I won't be back until Monday."; \e
+      echo "-- "; cat $HOME/.signature \e
+    ) | $SENDMAIL \-t
+}
 .Ex
 Store all messages concerning TeX in separate, unique filenames, in a directory
 named texmail (this directory has to exist); there is no need to use lockfiles
