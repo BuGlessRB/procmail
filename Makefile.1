@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.37 1994/08/18 13:44:23 berg Exp $
+#$Id: Makefile.1,v 1.38 1994/08/18 18:42:51 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -89,13 +89,15 @@ install.man: $(MANS) $(BASENAME)
 	@chmod 0644 $(MANS)
 	@for a in $(MANS1S); \
 	  do $(INSTALL) new/$$a.1 $(MAN1DIR)/$$a.$(MAN1SUFFIX); \
-	     test "X$(MANCOMPRESS)" != "X" && \
-	      $(MANCOMPRESS) <new/$$a.1 >$(MAN1DIR)/$$a.$(MAN1SUFFIX); \
+	     if test "X$(MANCOMPRESS)" != "X"; \
+	     then $(MANCOMPRESS) <new/$$a.1 >$(MAN1DIR)/$$a.$(MAN1SUFFIX); \
+	     else :; fi; \
 	  done
 	@for a in $(MANS5S); \
 	  do $(INSTALL) new/$$a.5 $(MAN5DIR)/$$a.$(MAN5SUFFIX); \
-	     test "X$(MANCOMPRESS)" != "X" && \
-	      $(MANCOMPRESS) <new/$$a.5 >$(MAN5DIR)/$$a.$(MAN5SUFFIX); \
+	     if test "X$(MANCOMPRESS)" != "X"; \
+	     then $(MANCOMPRESS) <new/$$a.5 >$(MAN5DIR)/$$a.$(MAN5SUFFIX); \
+	     else :; fi; \
 	  done
 	echo Housekeeping file >install.man
 

@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.60 1994/08/18 13:45:12 berg Exp $";
+ "$Id: multigram.c,v 1.61 1994/08/18 18:42:58 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/08/18 13:45:12 $";
+static /*const*/char rcsdate[]="$Date: 1994/08/18 18:42:58 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -64,6 +64,7 @@ static /*const*/char rcsdate[]="$Date: 1994/08/18 13:45:12 $";
 
 struct string{char*text,*itext;size_t textlen,buflen;};
 
+const char dirsep[]=DIRSEP;
 static remov_delim,maxgram;
 
 int strnIcmp(a,b,l)const char*a,*b;size_t l;			     /* stub */
@@ -165,7 +166,7 @@ static void elog(a)const char*const a;
 }
 							/* the program names */
 static const char idhash[]="idhash",flist[]="flist",senddigest[]="senddigest",
- choplist[]="choplist",dirsep[]=DIRSEP;
+ choplist[]="choplist";
 static const char*progname="multigram";
 
 #define ISPROGRAM(curname,refname)	\
