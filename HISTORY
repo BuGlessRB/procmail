@@ -547,7 +547,12 @@
 	    Workaround SunOS 4.x compiler again
 2001/06/21: v3.20pre
 	    Changes to procmail:
-	       - SECURITY: don't do unsafe things from signal handlers
+	       - SECURITY: don't do unsafe things from signal handlers:
+		  - ignore TRAP when terminating because of a signal
+		  - resolve the host and protocol of COMSAT when it is set
+		  - save the absolute path form of $LASTFOLDER for the comsat
+		    message when it is set
+		  - only use the log buffer if it's safe
 	       - Support LMTP for delivery mode (though not enabled by default)
 	       - Use mmap() for `large' messages (ditto)
 	       - SWITCHRC=zero-length-file didn't always abort the current
@@ -560,7 +565,7 @@
 	       - Drop duplicate and malformed environment entries
 	       - Multiple -a options will now set $2, $3, etc
 	       - Regression bug since v3.12, TRAP wasn't expanded if procmail
-		 was interupted while skipping a nested block
+		 was interupted while skipping a nested block (but see above)
 	       - Command line assignments to INCLUDERC and SWITCHRC no longer
 		 have any effect
 	       - Worked around AIX 4.3.3 xlc compiler (incorrect file-scope
@@ -571,6 +576,7 @@
 	       - Unset LOCKFILE if we can't actually lock it
 	       - Set MAILDIR to '.' if the chdir fails
 	       - LASTFOLDER was sometimes set by '?' conditions
+	       - buffer the log more efficiently
 	    Changes to autoconf:
 	       - Check for enum support
 	       - Warn people that non-ISO/ANSI C compilers might not be
