@@ -1,0 +1,20 @@
+This archive server knows the following commands:
+
+get filename ...
+ls directory ...
+egrep case_insensitive_regular_expression filename ...
+maxfiles nnn
+
+Aliases for 'get': send, sendme, getme, gimme, retrieve, mail
+Aliases for 'ls': dir, directory, list, show
+Aliases for 'egrep': search, grep, fgrep, find
+
+Lines starting with a '#' are ignored.
+Multiple commands per mail are allowed.
+Setting maxfiles to zero will remove the limit (to protect you against
+yourself no more than maxfiles files will be returned per request).
+
+Examples:
+ls latest
+get latest/12
+egrep some.word latest/*
