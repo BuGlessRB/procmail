@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.160 2000/10/25 08:13:23 guenther Exp $";
+ "$Id: procmail.c,v 1.161 2000/10/27 20:04:02 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -213,27 +213,12 @@ confldopt:  { presenviron=mailfilter=0;		    /* -d disables -p and -m */
 	   break;
       }
      cleanupenv(presenviron);
-     ;{ auth_identity*pass,*passinvk;auth_identity*spassinvk;int privs;
+     ;{ auth_identity*pass,*passinvk;auth_identity*spassinvk;
 	uid_t euid=geteuid();
-	spassinvk=auth_newid();passinvk=savepass(spassinvk,uid=getuid());
-	privs=1;gid=getgid();
-	;{ static const char*const trusted_ids[]=TRUSTED_IDS;
-	   if(Deliverymode&&*trusted_ids&&uid!=euid)
-	    { struct group*grp;const char*const*kp;
-	      if(passinvk)		      /* check out the invoker's uid */
-		 for(chp2=(char*)auth_username(passinvk),kp=trusted_ids;*kp;)
-		    if(!strcmp(chp2,*kp++)) /* is it amongst the privileged? */
-		       goto privileged;
-	      if(grp=getgrgid(gid))	      /* check out the invoker's gid */
-		 for(chp2=grp->gr_name,kp=trusted_ids;*kp;)
-		    if(!strcmp(chp2,*kp++))   /* is it among the privileged? */
-		       goto privileged;
-	      privs=0;
-	    }
-	 }
-privileged:
-	privs|=override<<1;
-	endgrent();doumask(INIT_UMASK);
+	uid=getuid();gid=getgid();
+	spassinvk=auth_newid();passinvk=savepass(spassinvk,uid);   /* are we */
+	checkprivFrom_(euid,passinvk?auth_username(passinvk):0,override);
+	doumask(INIT_UMASK);		   /* allowed to set the From_ line? */
 	while((savstdout=rdup(STDOUT))<=STDERR)
 	 { rclose(savstdout);		       /* move stdout out of the way */
 	   if(0>(savstdout=opena(devnull)))
@@ -244,7 +229,7 @@ privileged:
 	if(0>opena(devnull))
 nodevnull:
 	 { writeerr(devnull);syslog(LOG_EMERG,slogstr,errwwriting,devnull);
-	   return EX_OSFILE;			     /* couldn't open stdout */
+	   return EX_OSFILE;			  /* couldn't open /dev/null */
 	 }
 #ifdef console
 	opnlog(console);
@@ -272,7 +257,7 @@ nodevnull:
 #ifdef LMTP
 	if(Deliverymode==2)
 	 { auth_identity**rcpts,**lastrcpt,**currcpt;
-	   currcpt=rcpts=lmtp(&lastrcpt,chp2,privs);
+	   currcpt=rcpts=lmtp(&lastrcpt,chp2);
 	   while(currcpt<lastrcpt)
 	    { if(!(pidchild=sfork()))
 	       { qsignal(SIGTERM,srequeue);qsignal(SIGINT,sbounce);
@@ -304,7 +289,7 @@ nodevnull:
 	qsignal(SIGTERM,srequeue);qsignal(SIGINT,sbounce);
 	qsignal(SIGHUP,sbounce);qsignal(SIGQUIT,slose);
 	signal(SIGALRM,(void(*)())ftimeout);
-	makeFrom(fromwhom,chp2,privs);
+	makeFrom(fromwhom,chp2);
 	readmail(0,0L);			      /* read in the mail completely */
 	if(Deliverymode)
 	   do			  /* chp should point to the first recipient */

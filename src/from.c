@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: from.c,v 1.1 2000/10/25 08:13:17 guenther Exp $";
+ "$Id: from.c,v 1.2 2000/10/27 20:03:58 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -18,6 +18,7 @@ static /*const*/char rcsid[]=
 #include "misc.h"				/* for nlog */
 #include "from.h"
 
+static int privs;			     /* can we change the From_ line */
 static const char From_[]=FROM,Fakefield[]=FAKE_FIELD,
  attemptst[]="Attempt to fake stamp by";
 
@@ -65,20 +66,29 @@ size_t ctime2buf2 P((void))
   return strlen(buf2);
 }
 
-void makeFrom(from,invoker,privs)const char*from,*const invoker;int privs;
-{ const char*fwhom;char*rstart;size_t lfr,linv;int tstamp,extra,r;
-  tstamp=from&&*from==REFRESH_TIME&&!from[1];fwhom=invoker;
+void makeFrom(from,invoker)const char*from,*const invoker;
+{ static const char mdaemon[]=MAILERDAEMON;
+  const char*fwhom;char*rstart;size_t lfr,linv;int tstamp,extra,r;
+  if(Deliverymode!=2)
+   { tstamp=from&&*from==REFRESH_TIME&&!from[1];
+     fwhom=from;
+   }
+  else
+   { tstamp=0;
+     fwhom= *from?from:mdaemon;
+   }
   if(from&&!tstamp)
-   { if(!(privs&1)&&!strcmp(from,invoker))
-	privs|=1;	  /* if -f user is the same as the invoker, allow it */
-     else if(privs==2&&from)
+   { if(privs!=1&&!strcmp(from,invoker))
+	privs=1;	  /* if -f user is the same as the invoker, allow it */
+     else if(privs==-1&&from)
       { if(verbose)
 	   nlog(insufprivs);			      /* ignore the bogus -f */
 	syslog(LOG_ERR,slogstr,attemptst,invoker);from=0;
+	fwhom=invoker;
       }
-     else
-	fwhom=from;
    }
+  else
+     fwhom=invoker;
   makeblock(&themail,2*linebuf+(lfr=strlen(fwhom))+(linv=strlen(invoker)));
   private(1);					    /* we're not yet sharing */
   rstart=thebody=themail.p;
@@ -88,51 +98,53 @@ void makeFrom(from,invoker,privs)const char*from,*const invoker;int privs;
   lfr+=STRLEN(From_)+r;			   /* length of requested From_ line */
   if(tstamp)
      tstamp=r;					   /* save time stamp length */
-  if(privs&1)						 /* privileged user? */
+  if(privs>0)						 /* privileged user? */
      linv=0;				 /* yes, so no need to insert >From_ */
   else
      linv+=STRLEN(Fakefield)+r;			    /* length of >From_ line */
-  while(1==(r=rread(STDIN,themail.p,1)))
-     if(themail.p[0]!='\n')			    /* skip leading newlines */
-	break;
-  if(r>0&&STRLEN(From_)<=(extra=1+rread(	      /* is it a From_ line? */
-   STDIN,rstart+1,(int)(linebuf-2-1)))&&eqFrom_(themail.p))
-   { rstart[extra]='\0';
-     if(!(rstart=strchr(rstart,'\n')))
-      { do					     /* drop long From_ line */
-	 { if((extra=rread(STDIN,themail.p,(int)(linebuf-2)))<=0)
-	      break;
-	   themail.p[extra]='\0';		  /* terminate it for strchr */
+  extra=0;
+  if(Deliverymode!=2)					      /* if not LMTP */
+   { while(1==(r=rread(STDIN,themail.p,1)))	  /* then read in first line */
+	if(themail.p[0]!='\n')			    /* skip leading newlines */
+	   break;
+     if(r>0&&STRLEN(From_)<=(extra=1+rread(	      /* is it a From_ line? */
+      STDIN,rstart+1,(int)(linebuf-2-1)))&&eqFrom_(themail.p))
+      { rstart[extra]='\0';
+	if(!(rstart=strchr(rstart,'\n')))
+	 { do					     /* drop long From_ line */
+	    { if((extra=rread(STDIN,themail.p,(int)(linebuf-2)))<=0)
+		 break;
+	      themail.p[extra]='\0';		  /* terminate it for strchr */
+	    }
+	   while(!(rstart=strchr(themail.p,'\n')));
+	   extra=rstart?extra-(++rstart-themail.p):0;
 	 }
-	while(!(rstart=strchr(themail.p,'\n')));
-	extra=rstart?extra-(++rstart-themail.p):0;
-	goto no_from;
-      }
-     ;{ size_t tfrl= ++rstart-themail.p;    /* length of existing From_ line */
-	extra-=tfrl;					     /* demarcate it */
-	if(Deliverymode&&privs==2)
-	 { if(verbose)				  /* discard the bogus From_ */
-	      nlog(insufprivs);
-	   syslog(LOG_ERR,slogstr,attemptst,fwhom);
-	   goto no_from;
-	 }
-	if(tstamp)
-	   lfr=findtstamp(themail.p+STRLEN(From_),rstart)
-	    -themail.p+tstamp;
-	else if(!from)			       /* leave the From_ line alone */
-	   if(linv)					      /* fake alert? */
-	      lfr=tfrl;		     /* yes, so separate From_ from the rest */
+	else
+	 { size_t tfrl= ++rstart-themail.p; /* length of existing From_ line */
+	   extra-=tfrl;					     /* demarcate it */
+	   if(Deliverymode&&privs<0)
+	    { if(verbose)			  /* discard the bogus From_ */
+		 nlog(insufprivs);
+	      syslog(LOG_ERR,slogstr,attemptst,fwhom);
+	    }
 	   else
-	      lfr=0,extra+=tfrl;		/* no, tack it onto the rest */
+	    { if(tstamp)
+		 lfr=findtstamp(themail.p+STRLEN(From_),rstart)
+		  -themail.p+tstamp;
+	      else if(!from)		       /* leave the From_ line alone */
+		 if(linv)				      /* fake alert? */
+		    lfr=tfrl;	     /* yes, so separate From_ from the rest */
+		 else
+		    lfr=0,extra+=tfrl;		/* no, tack it onto the rest */
+	      goto got_from;
+	    }
+	 }
       }
    }
-  else
-   { extra=0;
-no_from:
-     tstamp=0;			   /* no existing From_, so nothing to stamp */
-     if(!from)							  /* no -f ? */
-	linv=0;					  /* then it can't be a fake */
-   }
+  tstamp=0;			   /* no existing From_, so nothing to stamp */
+  if(!from)							  /* no -f ? */
+     linv=0;					  /* then it can't be a fake */
+got_from:
   filled=lfr+linv+extra;			    /* From_ + >From_ + rest */
   if(lfr||linv)			     /* move read text beyond our From_ line */
    { r= *rstart;tmemmove(themail.p+lfr+linv,rstart,extra);
@@ -154,32 +166,22 @@ no_from:
    }
 }
 
-#ifdef LMTP
-void lmtpFrom(from,invoker,privs)const char*const from,*const invoker;
- int privs;
-{ static const char mdaemon[]=MAILERDAEMON;
-  const char*fwhom;size_t lfr,linv,lts;
-  if(!(privs&1)&&!strcmp(from,invoker))
-     privs|=1;	  /* if mail from: user is the same as the invoker, allow it */
-  if(privs==2)
-   { syslog(LOG_ERR,slogstr,attemptst,invoker);
-     fwhom=invoker;
+void checkprivFrom_(euid,logname,override)uid_t euid;const char*logname;
+ int override;
+{ static const char*const trusted_ids[]=TRUSTED_IDS;
+  privs=1;					/* assume they're privileged */
+  if(Deliverymode&&*trusted_ids&&uid!=euid)
+   { struct group*grp;const char*const*kp;
+     if(logname)			      /* check out the invoker's uid */
+	for(kp=trusted_ids;*kp;kp++)
+	   if(!strcmp(logname,*kp))	    /* is it amongst the privileged? */
+	      goto privileged;
+     if(grp=getgrgid(gid))		      /* check out the invoker's gid */
+	for(logname=grp->gr_name,kp=trusted_ids;*kp;kp++)
+	   if(!strcmp(logname,*kp))	      /* is it among the privileged? */
+	      goto privileged;
+     privs= -override;		/* override only matters when not privileged */
    }
-  else if(*from)
-     fwhom=from;
-  else
-     fwhom=mdaemon;
-  lts=ctime2buf2();
-  lfr=STRLEN(From_)+strlen(fwhom);
-  if(privs&1)						 /* privileged user? */
-     linv=0;					 /* no need to insert >From_ */
-  else
-     linv=strlen(invoker)+STRLEN(Fakefield)+lts;
-  makeblock(&themail,filled=lfr+lts+linv);		   /* From_ + >From_ */
-  thebody=themail.p;
-  strcpy(themail.p,From_);strcpy(themail.p+STRLEN(From_),fwhom);
-  strcpy(themail.p+lfr,buf2);
-  if(linv)						       /* fake alert */
-     strcat(strcat(strcpy(themail.p+lfr+lts,Fakefield),invoker),buf2);
+privileged:
+  endgrent();
 }
-#endif

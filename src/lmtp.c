@@ -9,7 +9,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lmtp.c,v 1.5 2000/10/25 08:13:17 guenther Exp $"
+ "$Id: lmtp.c,v 1.6 2000/10/27 20:04:00 guenther Exp $"
 #endif
 #include "procmail.h"
 #ifdef LMTP
@@ -236,8 +236,8 @@ linebuf MUST be at least 256, and should be at least 1024 or so for buffering
    wrong, and it can't do the necessary calls to lmtpresponse(), then
    it should exit with some non-zero status.  The parent will then
    syslog it, and exit with EX_SOFTWARE.  (See getL() in cstdio.c) */
-struct auth_identity **lmtp(lrout,invoker,privs)
-struct auth_identity***lrout;char*invoker;int privs;
+struct auth_identity **lmtp(lrout,invoker)
+struct auth_identity***lrout;char*invoker;
 { static const char cLHLO[]="LHLO ",cMAIL[]="MAIL FROM:",cRCPT[]="RCPT TO:",
    cDATA[]="DATA",cBDAT[]="BDAT",cRSET[]="RSET",cVRFY[]="VRFY ",cQUIT[]="QUIT",
    cNOOP[]="NOOP";
@@ -334,8 +334,8 @@ jumpout:      rpipe(pipefds);
 	       { char status=0;
 		 rclose(pipefds[0]);
 		 ctopfd=pipefds[1];
-		 bufwrite(0,0,1);	  /* free up buf2 for lmtpFrom() */
-		 lmtpFrom(from+1,invoker,privs);
+		 bufwrite(0,0,1);	      /* free up buf2 for makeFrom() */
+		 makeFrom(from+1,invoker);
 		 /* bufinit;	only needed if buf2 might be realloced */
 		 free(from);
 		 if(size&&!resizeblock(&themail,size+=filled+3,1))/* try for */
