@@ -1,0 +1,115 @@
+#! /bin/sh
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
+#########################################################################
+#	led		A wrapper for the editor, if it is told to edit #
+#			a SmartList governed file, it will employ all	#
+#			the appropriate locking mechanisms.		#
+#			In addition it warns if the editor touches the	#
+#			file's attributes.				#
+#									#
+#	Created by S.R. van den Berg, The Netherlands			#
+#########################################################################
+#$Id: led,v 1.1 1994/09/15 18:19:32 berg Exp $
+
+test=test				# /bin/test
+touch=touch				# /bin/touch
+rm=rm					# /bin/rm
+ls=ls					# /bin/ls
+echo=echo				# /bin/echo
+basename=basename			# /bin/basename
+dirname=dirname				# /bin/dirname
+lockfile=lockfile			# /usr/local/bin/lockfile
+
+test -z "$VISUAL" && VISUAL=$EDITOR
+test -z "$VISUAL" && VISUAL=vi
+
+lockfiles=""
+touchfiles=""
+
+TMPF=/tmp/led.$$
+
+trap "$rm -f $TMPF \$lockfiles; exit 1" 1 2 3 15
+
+$touch $TMPF
+
+for a in "$@"
+do
+  case "$a" in
+     [-+]*) ;;
+     *)
+	if lf="`$ls -ld $a 2>&1`"
+	then
+	   ( set dummy $lf
+	     $echo " $a $2 $3 $4" >>$TMPF
+	   )
+	fi
+	file=`$basename $a`
+	dir=`$dirname $a`
+	lf=""
+	tf=""
+	case "$file" in
+	   dist|dist.digest)			lk=$dir/$file.lock ;;
+	   rc.init|rc.submit|rc.request)	tf=$dir/../.etc/rc.lock ;;
+	   rc.custom|subscreen|subscribe.file|log) tf=$dir/rc.lock ;;
+	   tmp.from|tmp.request)		lf=$dir/tmp.lock ;;
+	esac
+	case "$lf" in
+	   $lockfiles|"") ;;
+	   *) lockfiles="$lockfiles $lf" ;;
+	esac
+	case "$tf" in
+	   $touchfiles|"") ;;
+	   *) touchfiles="$touchfiles $tf" ;;
+	esac ;;
+  esac
+done
+
+$test ! -z "$lockfiles" && $lockfile $lockfiles
+
+$test ! -z "$touchfiles" && $touch $touchfiles
+
+$VISUAL "$@"
+( exec <$TMPF
+  while read info
+  do
+     set dummy $info
+     file=$2
+     info="$3 $4 $5"
+
+     set dummy `$ls -ld $file 2>&1`
+     newinfo="$2 $3 $4"
+
+     if $test "X$info" != "X$newinfo"
+     then
+	$echo "***************************************************************"
+	$echo "Your editor messed up the attributes of '$file'." 1>&2
+	$echo "I now see: '$newinfo', the way it was: '$info'." 1>&2
+	$echo 1>&2 \
+	    "If you don't correct this, SmartList might not operate correctly!"
+     fi
+  done
+)
+$rm -f _dummy_ $lockfiles $TMPF
+
+trap 1 2 3 15
+
+if $test ! -z "$touchfiles"
+then
+  for a in $touchfiles
+  do
+     if $test -f $a
+     then
+	while $echo "Remove $a? (y/n)" 1>&2
+	   read b
+	   case "$b" in
+	      [Yy]*) $rm -f $a ; (exit 1) ;;
+	      [Nn]*) (exit 1) ;;
+	      *) (exit 0) ;;
+	   esac
+	do
+	:
+	done
+     fi
+  done
+fi
