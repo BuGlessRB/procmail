@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.16 1993/08/20 11:22:43 berg Exp $";
+ "$Id: formisc.c,v 1.17 1993/11/02 13:08:53 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -19,7 +19,8 @@ static /*const*/char rcsid[]=
 static char*skipcomment(start)char*start;
 { for(;;)
      switch(*++start)
-      { case ')':return start;
+      { case '\0':start--;
+	case ')':return start;
 	case '\\':start++;break;
 	case '(':start=skipcomment(start);
       }
@@ -45,7 +46,6 @@ inc:	   start++;continue;
 	    { machref=2;goto special;
 	    }
 	   goto retz;
-	case '\\':*target++='\\';start++;			/* same here */
 	default:
 	   if(!machref&&hitspc==3&&target>oldstart)
 	case '\0':case '>':
@@ -56,6 +56,8 @@ inc:	   start++;continue;
 retz:	      *target='\0';
 ret:	      return start;
 	    }
+	   if(*start=='\\')
+	      *target++='\\',start++;
 	   hitspc=2;goto normal;			      /* normal word */
 	case '@':case ':':case '.':
 special:   hitspc=0;
