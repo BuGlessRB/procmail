@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.77 1999/04/02 19:04:59 guenther Exp $";
+ "$Id: mailfold.c,v 1.78 1999/04/02 20:15:39 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -281,6 +281,7 @@ nfail:	   if(linkfolder)
 	   nlog("Couldn't create or rename temp file");logqnl(buf);
 	   goto ret0;
 	 }
+	setlastfolder(buf);
 	break;
      case to_DIR:
 	if((chp+=2)-buf+UNIQnamelen>linebuf)	   /* couldn't check earlier */

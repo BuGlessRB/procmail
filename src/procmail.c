@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.138 1999/04/02 19:05:03 guenther Exp $";
+ "$Id: procmail.c,v 1.139 1999/04/02 20:15:40 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -721,7 +721,7 @@ progrm:	   if(testB('!'))				 /* forward the mail */
 	      if(i)
 	       { if(startchar==themail)
 		  { startchar[filled]='\0';		     /* just in case */
-		    startchar=skipFrom_(oldstart=startchar,&tobesent);
+		    startchar=skipFrom_(startchar,&tobesent);
 		  }   /* leave off leading From_ -- it confuses some mailers */
 		 goto forward;
 	       }
@@ -964,10 +964,10 @@ int eqFrom_(a)const char*const a;
 { return !strncmp(a,From_,STRLEN(From_));
 }
 
-char*skipFrom_(startchar,&tobesentp)char*startchar;long*tobesentp;
-{ long tobesent;
-  if(eqFrom_(startchar))
-   { tobesent= *tobesentp;
+char*skipFrom_(startchar,tobesentp)char*startchar;long*tobesentp;
+{ if(eqFrom_(startchar))
+   { long tobesent;char i;
+     tobesent= *tobesentp;
      do
 	while(i= *startchar++,--tobesent&&i!='\n');
      while(*startchar=='>');
