@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.83 2000/10/27 22:07:21 guenther Exp $
+.Id $Id: procmail.man,v 1.84 2000/11/18 06:40:24 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -228,7 +228,7 @@ And /etc/procmailrcs/some.rc could be as simple as:
 * ^Subject:.*junk
 /dev/null
 
-:0                              # pass along all other mail
+:0 w                            # pass along all other mail
 ! \-oi \-f "$@"
 .Ex
 Do watch out when sending mail from within the /etc/procmailrcs/some.rc file,
@@ -337,6 +337,20 @@ Nonexistent subdirectory, no write permission, pipe died or disk full.
 Exceeded LINEBUF
 Buffer overflow detected, LINEBUF was too small, PROCMAIL_OVERFLOW has
 been set.
+.TP
+MAILDIR is not an absolute path
+.TP
+MAILDIR path too long
+.TP
+ORGMAIL is not an absolute path
+.TP
+ORGMAIL path too long
+.TP
+default rcfile is not an absolute path
+.TP
+default rcfile path too long
+The specified item's full path, when expanded, was longer than LINEBUF
+or didn't start with a file separator.
 .TP
 Excessive output quenched from "x"
 The program or filter "x" tried to produce too much output for the current
@@ -527,7 +541,7 @@ Non-zero exitcode (nnn) by "x"
 Program that was started by procmail as a condition or as the action of
 a recipe with the `@WAIT_EXIT_QUIET@' flag returned nnn instead of
 EXIT_SUCCESS (=@EX_OK@); the usage indicates that this is not an
-unexpected condition.
+entirely unexpected condition.
 .TP
 Notified comsat: "$LOGNAME@offset:file"
 Sent comsat/biff a notice that mail arrived for user $LOGNAME at `offset'
