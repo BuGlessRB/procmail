@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.163 2000/10/28 08:57:48 guenther Exp $";
+ "$Id: procmail.c,v 1.164 2000/11/18 04:33:34 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -55,9 +55,9 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  exceededlb[]="Exceeded LINEBUF\n",errwwriting[]="Error while writing to",
  Version[]=VERSION;
 char*Stdout;
-int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rcstate,rc= -1,
- ignwerr,lexitcode=EXIT_SUCCESS,asgnlastf,crestarg,skiprc,savstdout,berkeley,
- mailfilter,erestrict,Deliverymode,ifdepth;	       /* depth of outermost */
+int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rc= -1,asgnlastf,
+ privileged=priv_START,lexitcode=EXIT_SUCCESS,ignwerr,crestarg,skiprc,savstdout,
+ berkeley,mailfilter,erestrict,Deliverymode,ifdepth;   /* depth of outermost */
 struct dyna_array ifstack;
 size_t linebuf=mx(DEFlinebuf,1024/*STRLEN(systm_mbox)<<1*/);
 volatile int nextexit;			       /* if termination is imminent */
@@ -80,23 +80,22 @@ ret: return spass;
   return (auth_identity*)0;
 }
 
-#if 0
-#define wipetcrc()	(etcrc&&(etcrc=0,closerc(),eputenv(defpath,buf),1))
-#else
-static int wipetcrc P((void))	  /* stupid function to avoid a compiler bug */
-{ if(etcrc)
-   { etcrc=0;closerc();
-     eputenv(defpath,buf);
-     return 1;
-   }
-  return 0;
-}
-#endif
+#define rct_ABSOLUTE	0			    /* rctypes for tryopen() */
+#define rct_CURRENT	1
+#define rct_DEFAULT	2
 
-static void usage P((void));
+#define rcs_DELIVERED	1		     /* rc exit codes for mainloop() */
+#define rcs_EOF		2
+#define rcs_HOST	3
+
+static void
+ usage P((void));
+static int
+ tryopen P((const int delay_setid,const int rctype,const int dowarning)),
+ mainloop P((void));
 
 int main(argc,argv)int argc;const char*const argv[];
-{ register char*chp,*chp2;register int i;int suppmunreadable;
+{ register char*chp,*chp2;int suppmunreadable;
 #if 0				/* enable this if you want to trace procmail */
   kill(getpid(),SIGSTOP);/*raise(SIGSTOP);*/
 #endif
@@ -234,7 +233,6 @@ nodevnull:
 #else
 	verbon();verboff();
 #endif
-	suppmunreadable=verbose;
 #ifdef SIGCHLD
 	signal(SIGCHLD,SIG_DFL);
 #endif
@@ -404,455 +402,81 @@ Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
      chp=(char*)getenv(orgmail);
      if(mailfilter||!screenmailbox(chp,egid,Deliverymode))
 nix_sysmbox:
-      { rcst_nosgid();sputenv(orgmail);	 /* nix delivering to system mailbox */
+      { sputenv(orgmail);		 /* nix delivering to system mailbox */
+	if(privileged)			       /* don't need this any longer */
+	   privileged=priv_DONTNEED;
 	if(!strcmp(chp,fdefault))			/* DEFAULT the same? */
 	   free((char*)fdefault),fdefault=empty;		 /* so panic */
       }						/* bad news, be conservative */
-     doumask(INIT_UMASK);eputenv(defpath,buf);
-     while(chp=(char*)argv[argc])      /* interpret command line specs first */
-      { argc++;
-	if(!asenvcpy(chp)&&mailfilter)
-	 { gargv= &nullp;			 /* stop at the first rcfile */
-	   for(restargv=argv+argc;restargv[crestarg];crestarg++);
-	   break;
-	 }
-	resettmout();
+   }
+  doumask(INIT_UMASK);eputenv(defpath,buf);
+  while(chp=(char*)argv[argc])	    /* interpret command line specs first */
+   { argc++;
+     if(!asenvcpy(chp)&&mailfilter)
+      { gargv= &nullp;			 /* stop at the first rcfile */
+	for(restargv=argv+argc;restargv[crestarg];crestarg++);
+	break;
       }
    }
-  ;{ int lastsucc,lastcond,prevcond;
-     if(etcrc)		  /* do we start with an /etc/procmailrc file first? */
-      { if(0<=bopen(etcrc))
-	 { yell(drcfile,etcrc);
+  if(etcrc)		  /* do we start with an /etc/procmailrc file first? */
+   { if(0<=bopen(etcrc))
+      { yell(drcfile,etcrc);
 #if !DEFverbose
-	   if(rcstate!=rc_NORMAL)
-	      verbose=0;		    /* no peeking in /etc/procmailrc */
+	if(privileged)
+	   verbose=0;			    /* no peeking in /etc/procmailrc */
 #endif
-	   eputenv(defspath,buf);
-	   goto startrc;
-	 }
-	etcrc=0;					     /* no such file */
+	eputenv(defspath,buf);			      /* use the secure PATH */
+	if(mainloop()==rcs_DELIVERED)			   /* run the rcfile */
+	   goto mailed;
+	eputenv(defpath,buf);		 /* switch back to the insecure PATH */
       }
-     do					     /* main rcfile interpreter loop */
-      { resettmout();
-	if(rc<0)					 /* open new rc file */
-	 { struct stat stbuf;
-	  /*
-	   *	if we happen to be still running as root, and the rcfile
-	   *	is mounted on a secure NFS-partition, we might not be able
-	   *	to access it, so check if we can stat it or don't need any
-	   *	sgid privileges, if yes, drop all privs and set uid to
-	   *	the recipient beforehand
-	   */
-	   goto findrc;
-	   do
-	    { if(suppmunreadable)	  /* should we supress this message? */
-fake_rc:	 readerr(buf);
-	      if(!nextrcfile())		      /* not available? try the next */
-	       { skiprc=0;
-		 goto nomore_rc;
-	       }
-	      suppmunreadable=0;	      /* keep the current directory, */
-findrc:	      i=0;			      /* default rcfile, or neither? */
-	      if(rcfile==pmrc&&(i=2))	    /* the default .procmailrc file? */
-	       { if(*strcpy((char*)(rcfile=buf2),pmrc2buf())=='\0')
-pm_overflow:	  { strcpy(buf,pmrc);
-		    goto fake_rc;
-		  }
-	       }
-	      else if(strchr(dirsep,*rcfile)||		   /* absolute path? */
-		 (mailfilter||*rcfile==chCURDIR&&strchr(dirsep,rcfile[1]))&&
-		 (i=1))				     /* mailfilter or ./ pfx */
-		 strcpy(buf,rcfile);	/* do not put anything in front then */
-	      else		     /* prepend default procmailrc directory */
-	       { *(chp=lastdirsep(pmrc2buf()))='\0';
-		 if(buf[0]=='\0')
-		    goto pm_overflow;		  /* overflow in pmrc2buf()? */
-		 else
-		    strcpy(chp,rcfile);			/* append the rcfile */
-	       }
-	      if(mailfilter!=2&&(rcstate==rc_NOSGID||	 /* nothing special? */
-		  !rcstate&&!stat(buf,&stbuf)))	  /* don't need privilege or */
-		 setids();		  /* it's accessible?  Transmogrify! */
-	    }
-	   while(0>bopen(buf));			   /* try opening the rcfile */
-	   if(rcstate!=rc_NORMAL&&mailfilter!=2)      /* if it isn't special */
-	    { closerc();			    /* but we are, close it, */
-	      setids();			  /* transmogrify to prevent peeking */
-	      if(0>bopen(buf))				    /* and try again */
-		 goto fake_rc;
-	    }
-#ifndef NOfstat
-	   if(fstat(rc,&stbuf))				    /* the right way */
-#else
-	   if(stat(buf,&stbuf))				  /* the best we can */
-#endif
-	    { static const char susprcf[]="Suspicious rcfile";
-susp_rc:      closerc();nlog(susprcf);logqnl(buf);
-	      syslog(LOG_ALERT,slogstr,susprcf,buf);
-	      goto fake_rc;
-	    }
-	   if(mailfilter==2)		 /* change now if we haven't already */
-	      setids();
-	   erestrict=1;			      /* possibly restrict execs now */
-	   if(i==1)		  /* opened rcfile in the current directory? */
-	    { if(!didchd)
-		 setmaildir(curdir);
-	    }
-	   else
-	     /*
-	      * OK, so now we have opened an absolute rcfile, but for security
-	      * reasons we only accept it if it is owned by the recipient or
-	      * root and is not world writable, and the directory it is in is
-	      * not world writable or has the sticky bit set.  If this is the
-	      * default rcfile then we also outlaw group writability.
-	      */
-	    { register char c= *(chp=lastdirsep(buf));
-	      if(((stbuf.st_uid!=uid&&stbuf.st_uid!=ROOT_uid||	/* check uid */
-		   stbuf.st_mode&S_IWOTH||	       /* writable by others */
-		   i&&stbuf.st_mode&S_IWGRP		/* writable by group */
-		    &&(NO_CHECK_stgid||stbuf.st_gid!=gid)
-		  )&&strcmp(devnull,buf)||    /* /dev/null is a special case */
-		 (*chp='\0',stat(buf,&stbuf))||	      /* check the directory */
-#ifndef CAN_chown				   /* sticky and can't chown */
-		 !(stbuf.st_mode&S_ISVTX)&&	   /* means we don't care if */
-#endif					     /* it's group or world writable */
-		 ((stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)||
-		  i&&(stbuf.st_mode&(S_IWGRP|S_IXGRP))==(S_IWGRP|S_IXGRP)
-		   &&(NO_CHECK_stgid||stbuf.st_gid!=gid))))
-	       { *chp=c;
-		 goto susp_rc;
-	       }
-	      *chp=c;
-	    }
-	  /*
-	   *	set uid back to recipient in any case, since we might just
-	   *	have opened his/her .procmailrc (don't remove these, since
-	   *	the rcfile might have been created after the first stat)
-	   */
-	   yell(drcfile,buf);
-	   if(!didchd)			       /* have we done this already? */
-	    { if((chp=lastdirsep(pmrc2buf()))>buf+1)	/* not the root dir? */
-		 chp--;
-	      *chp='\0';		     /* eliminate trailing separator */
-	      if(chp==buf)					   /* arrrg! */
-	       { nlog("procmailrc");elog(pathtoolong);elog(newline);
-		 syslog(LOG_CRIT,"procmailrc%s for LINEBUF for uid \"%lu\"\n",
-		  pathtoolong,(unsigned long)uid);
-		 goto nomore_rc;		    /* just save it and pray */
-	       }
-	      if(chdir(chp=buf))      /* no, well, then try an initial chdir */
-	       { chderr(buf);
-		 if(chdir(chp=(char*)tgetenv(home)))
-		    chderr(chp),chp=(char*)curdir;
-	       }
-	      setmaildir(chp);
-	    }
-startrc:   lastsucc=lastcond=prevcond=0;
+   }
+  erestrict=mailfilter!=2;		      /* possibly restrict execs now */
+  if(rcfile!=pmrc&&!mailfilter)			     /* "procmail rcfile..." */
+   { int rctype,dowarning;	 /* only warn about the first missing rcfile */
+     for(dowarning=1;;)
+      { rctype=rct_ABSOLUTE;
+	if(strchr(dirsep,*rcfile))				/* absolute? */
+	   strcpy(buf,rcfile);
+	else if(*rcfile==chCURDIR&&strchr(dirsep,rcfile[1]))   /* ./ prefix? */
+	   strcpy(buf,rcfile),rctype=rct_CURRENT;
+	else			     /* prepend default procmailrc directory */
+	 { char*chp=lastdirsep(pmrc2buf());
+	   if(chp==buf)
+	      goto pmrc_of;
+	   strcpy(chp,rcfile);			      /* append the filename */
 	 }
-	unlock(&loclock);			/* unlock any local lockfile */
-	goto commint;
-	do
-	 { skipline();
-commint:   do skipspace();				  /* skip whitespace */
-	   while(testB('\n'));
+	if(tryopen(0,rctype,dowarning))
+	 { register int rcs=mainloop();				   /* run it */
+	   if(rcs==rcs_DELIVERED)
+	      goto mailed;					 /* success! */
+	   if(rcs==rcs_EOF)
+	      break;				     /* normal end of rcfile */
 	 }
-	while(testB('#'));				   /* no comment :-) */
-	if(testB(':'))				       /* check for a recipe */
-	 { int locknext,succeed;char*startchar;long tobesent;
-	   static char flags[maxindex(exflags)];
-	   do
-	    { int nrcond;
-	      if(readparse(buf,getb,0))
-		 goto nextrc;			      /* give up on this one */
-	      ;{ char*chp3;
-		 nrcond=strtol(buf,&chp3,10);chp=chp3;
-	       }
-	      if(chp==buf)				 /* no number parsed */
-		 nrcond= -1;
-	      if(tolock)	 /* clear temporary buffer for lockfile name */
-		 free(tolock);
-	      for(i=maxindex(flags);flags[i]=0,i--;);	  /* clear the flags */
-	      for(tolock=0,locknext=0;;)
-	       { chp=skpspace(chp);
-		 switch(i= *chp++)
-		  { default:
-		       if(!(chp2=strchr(exflags,i)))	    /* a valid flag? */
-			{ chp--;
-			  break;
-			}
-		       flags[chp2-exflags]=1;		     /* set the flag */
-		    case '\0':
-		       if(chp!=Tmnate)		/* if not the real end, skip */
-			  continue;
-		       break;
-		    case ':':locknext=1;    /* yep, local lockfile specified */
-		       if(*chp||++chp!=Tmnate)
-			  tolock=tstrdup(chp),chp=strchr(chp,'\0')+1;
-		  }
-		 concatenate(chp);skipped(chp);		/* display leftovers */
-		 break;
-	       }			      /* parse & test the conditions */
-	      i=conditions(flags,prevcond,lastsucc,lastcond,nrcond);
-	      if(!skiprc)
-	       { if(!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC])
-		    lastcond=i==1;	   /* save the outcome for posterity */
-		 if(!prevcond||!flags[ELSE_DO])
-		    prevcond=i==1;    /* ditto for `else if' like constructs */
-	       }
-	    }
-	   while(i==2);			     /* missing in action, reiterate */
-	   startchar=themail.p;tobesent=filled;
-	   if(flags[PASS_HEAD])			    /* body, header or both? */
-	    { if(!flags[PASS_BODY])
-		 tobesent=thebody-themail.p;
-	    }
-	   else if(flags[PASS_BODY])
-	      tobesent-=(startchar=thebody)-themail.p;
-	   Stdout=0;succeed=sh=0;
-	   pwait=flags[WAIT_EXIT]|flags[WAIT_EXIT_QUIET]<<1;
-	   ignwerr=flags[IGNORE_WRITERR];skipspace();
-	   if(i)
-	      zombiecollect(),concon('\n');
-progrm:	   if(testB('!'))				 /* forward the mail */
-	    { char*fencepost=buf+linebuf-1;
-	      if(!i)
-		 skiprc|=1;
-	      *fencepost='\0';
-	      strncpy(buf,sendmail,linebuf-1);
-	      if((chp=strchr(buf,'\0'))==fencepost)
-		 goto fail;
-	      if(*flagsendmail)
-	       { char*q;int got=0;
-		 if(!(q=simplesplit(chp+1,flagsendmail,fencepost,&got)))
-		    goto fail;
-		 *(chp=q)='\0';
-	       }
-	      if(readparse(chp+1,getb,0))
-		 goto fail;
-	      if(i)
-	       { if(startchar==themail.p)
-		  { startchar[filled]='\0';		     /* just in case */
-		    startchar=(char*)skipFrom_(startchar,&tobesent);
-		  }   /* leave off leading From_ -- it confuses some mailers */
-		 goto forward;
-	       }
-	      skiprc--;
-	    }
-	   else if(testB('|'))				    /* pipe the mail */
-	    { chp=buf2;
-	      if(getlline(chp,buf2+linebuf))	 /* get the command to start */
-		 goto commint;
-	      if(i)
-	       { metaparse(buf2);
-		 if(!sh&&buf+1==Tmnate)		      /* just a pipe symbol? */
-		  { *buf='|';*(char*)(Tmnate++)='\0';		  /* fake it */
-		    goto tostdout;
-		  }
-forward:	 if(locknext)
-		  { if(!tolock)	   /* an explicit lockfile specified already */
-		     { *buf2='\0';  /* find the implicit lockfile ('>>name') */
-		       for(chp=buf;i= *chp++;)
-			  if(i=='>'&&*chp=='>')
-			   { chp=skpspace(chp+1);
-			     tmemmove(buf2,chp,i=strcspn(chp,EOFName));
-			     buf2[i]='\0';
-			     if(sh)	 /* expand any environment variables */
-			      { chp=tstrdup(buf);sgetcp=buf2;
-				if(readparse(buf,sgetc,0))
-				 { *buf2='\0';
-				   goto nolock;
-				 }
-				strcpy(buf2,buf);strcpy(buf,chp);free(chp);
-			      }
-			     break;
-			   }
-		       if(!*buf2)
-nolock:			{ nlog("Couldn't determine implicit lockfile from");
-			  logqnl(buf);
-			}
-		     }
-		    lcllock();
-		    if(!pwait)		/* try and protect the user from his */
-		       pwait=2;			   /* blissful ignorance :-) */
-		  }
-		 rawnonl=flags[RAW_NONL];inittmout(buf);asgnlastf=1;
-		 if(flags[CONTINUE]&&(flags[FILTER]||Stdout))
-		    nlog(extrns),elog("copy-flag"),elog(ignrd);
-		 if(flags[FILTER])
-		  { if(startchar==themail.p&&tobesent!=filled)/* if only 'h' */
-		     { if(!pipthrough(buf,startchar,tobesent))
-			  readmail(1,tobesent),succeed=!pipw;
-		     }
-		    else if(!pipthrough(buf,startchar,tobesent))
-		     { filled=startchar-themail.p;
-		       readmail(0,tobesent);
-		       succeed=!pipw;
-		     }
-		  }
-		 else if(Stdout)		  /* capturing stdout again? */
-		  { if(!pipthrough(buf,startchar,tobesent))
-		       succeed=1,postStdout();	  /* only parse if no errors */
-		  }
-		 else if(!pipin(buf,startchar,tobesent))  /* regular program */
-		    if(succeed=1,flags[CONTINUE])
-		       goto logsetlsucc;
-		    else
-		       goto frmailed;
-		 goto setlsucc;
-	       }
-	    }
-	   else if(testB(EOF))
-	      nlog("Incomplete recipe\n");
-	   else		   /* dump the mail into a mailbox file or directory */
-	    { int ofiltflag;char*end=buf+linebuf-4;	/* reserve some room */
-	      if(ofiltflag=flags[FILTER])
-		 flags[FILTER]=0,nlog(extrns),elog("filter-flag"),elog(ignrd);
-	      if(chp=gobenv(buf,end))	   /* can it be an environment name? */
-	       { if(chp==end)
-		  { getlline(buf,buf+linebuf);
-		    goto fail;
-		  }
-		 if(skipspace())
-		    chp++;		   /* keep pace with argument breaks */
-		 if(testB('='))		      /* is it really an assignment? */
-		  { int c;
-		    *chp++='=';*chp='\0';
-		    if(skipspace())
-		       chp++;
-		    ungetb(c=getb());
-		    switch(c)
-		     { case '!':case '|':		  /* ok, it's a pipe */
-			  if(i)
-			     Stdout = tstrdup(buf);
-			  goto progrm;
-		     }
-		  }
-	       }		 /* find the end, start of a nesting recipe? */
-	      else if((chp=strchr(buf,'\0'))==buf&&
-		      testB('{')&&
-		      (*chp++='{',*chp='\0',testB(' ')||	/* } } */
-		       testB('\t')||
-		       testB('\n')))
-	       { if(locknext&&!flags[CONTINUE])
-		    nlog(extrns),elog("locallockfile"),elog(ignrd);
-		 if(flags[PASS_BODY])
-		    nlog(extrns),elog("deliver-body flag"),elog(ignrd);
-		 if(flags[PASS_HEAD])
-		    nlog(extrns),elog("deliver-head flag"),elog(ignrd);
-		 if(flags[IGNORE_WRITERR])
-		    nlog(extrns),elog("ignore-write-error flag"),elog(ignrd);
-		 if(flags[RAW_NONL])
-		    nlog(extrns),elog("raw-mode flag"),elog(ignrd);
-		 if(!i)						/* no match? */
-		    skiprc+=2;		      /* increase the skipping level */
-		 else
-		  { app_vali(ifstack,prevcond);		    /* push prevcond */
-		    app_vali(ifstack,lastcond);		    /* push lastcond */
-		    if(locknext)
-		     { *buf2='\0';lcllock();
-		       if(!pwait)	/* try and protect the user from his */
-			  pwait=2;		   /* blissful ignorance :-) */
-		     }
-		    succeed=1;
-		    if(flags[CONTINUE])
-		     { yell("Forking",procmailn);inittmout(procmailn);
-		       onguard();private(0);	      /* can't share anymore */
-		       if(!(pidchild=sfork()))		   /* clone yourself */
-			{ if(loclock)	      /* lockfiles are not inherited */
-			     free(loclock),loclock=0;
-			  if(globlock)
-			     free(globlock),globlock=0;	     /* clear up the */
-			  newid();offguard();duprcs();	  /* identity crisis */
-			}
-		       else
-			{ offguard();
-			  if(forkerr(pidchild,procmailn))
-			     succeed=0;	       /* tsk, tsk, no cloning today */
-			  else
-			   { int excode;  /* wait for our significant other? */
-			     if(pwait&&
-				(excode=waitfor(pidchild))!=EXIT_SUCCESS)
-			      { if(!(pwait&2)||verbose)	 /* do we report it? */
-				   progerr(procmailn,excode,pwait&2);
-				succeed=0;
-			      }
-			     pidchild=0;skiprc+=2;   /* skip over the braces */
-			     ifstack.filled-=2;		/* retract the stack */
-			   }
-			}
-		     }
-		    goto jsetlsucc;		/* definitely no logabstract */
-		  }
-		 continue;
-	       }
-	      if(!i)						/* no match? */
-		 skiprc|=1;		  /* temporarily disable subprograms */
-	      if(readparse(chp,getb,0))
-fail:	       { succeed=0;setoverflow();
-		 goto setlsucc;
-	       }
-	      if(i)
-	       { if(ofiltflag)	       /* protect who use bogus filter-flags */
-		    startchar=themail.p,tobesent=filled;    /* whole message */
-tostdout:	 rawnonl=flags[RAW_NONL];
-		 if(locknext)		     /* write to a file or directory */
-		  { if(!tolock)strcpy(buf2,buf);
-		    lcllock();
-		  }
-		 inittmout(buf);	  /* to break messed-up kernel locks */
-		 if(writefolder(buf,strchr(buf,'\0')+1,startchar,tobesent,
-		     ignwerr,0)&&
-		    (succeed=1,!flags[CONTINUE]))
-frmailed:	  { if(ifstack.vals)
-		       free(ifstack.vals);
-		    goto mailed;
-		  }
-logsetlsucc:	 if(succeed&&flags[CONTINUE]&&lgabstract==2)
-		    logabstract(tgetenv(lastfolder));
-setlsucc:	 rawnonl=0;
-jsetlsucc:	 lastsucc=succeed;lasttell= -1;		       /* for comsat */
-	       }
-	      skiprc&=~1;			     /* reenable subprograms */
-	    }
-	 }	/* { */
-	else if(testB('}'))					/* end block */
-	 { if(skiprc>1)					    /* just skipping */
-	      skiprc-=2;				   /* decrease level */
-	   else if(ifstack.filled>ifdepth)    /* restore lastcond from stack */
-	    { lastcond=acc_vali(ifstack,--ifstack.filled);
-	      prevcond=acc_vali(ifstack,--ifstack.filled);	 /* prevcond */
-	    }							  /* as well */
-	   else
-	      nlog("Closing brace unexpected\n");	      /* stack empty */
+	else				      /* not available? try the next */
+	 { dowarning=0;				/* suppress further messages */
+	   if(!nextrcfile())				       /* none left? */
+	      break;						 /* then out */
 	 }
-	else				    /* then it must be an assignment */
-	 { char*end=buf+linebuf;
-	   if(!(chp=gobenv(buf,end)))
-	    { if(!*buf)					/* skip a word first */
-		 getbl(buf,end);			      /* then a line */
-	      skipped(buf);				/* display leftovers */
-	      continue;
-	    }
-	   if(chp==end)				      /* overflow => give up */
-nextrc:	      if(poprc()||wipetcrc())
-		 continue;
-	      else
-		 break;
-	   skipspace();
-	   if(testB('='))			   /* removal or assignment? */
-	    { *chp='=';
-	      if(readparse(++chp,getb,1))
-	       { setoverflow();
-		 continue;
-	       }
-	    }
-	   else
-	      *++chp='\0';		     /* throw in a second terminator */
-	   if(!skiprc)
-	      chp2=(char*)sputenv(buf),chp[-1]='\0',asenv(chp2);
+      }
+   }
+  else
+   { int rctype;
+     if(rcfile==pmrc)			    /* no rcfile on the command line */
+      { rctype=rct_DEFAULT;
+	rcfile=pmrc2buf();
+	if(*rcfile=='\0')
+pmrc_of: { readerr(pmrc);
+	   goto nomore_rc;
 	 }
-      }						    /* main interpreter loop */
-     while(rc<0||!testB(EOF)||poprc()||wipetcrc());
+      }
+     else						  /* mailfilter mode */
+      { rctype=strchr(dirsep,*rcfile)?rct_ABSOLUTE:rct_CURRENT;
+	strcpy(buf,rcfile);
+      }
+     if(tryopen(mailfilter==2,rctype,DEFverbose||mailfilter))
+	if(mainloop()!=rcs_EOF)
+	   goto mailed;
    }
 nomore_rc:
   if(ifstack.vals)
@@ -873,7 +497,7 @@ nomore_rc:
 	   succeed=1;				      /* try the last resort */
       }
      if(succeed)				     /* should we panic now? */
-mailed: rawnonl=0,retval=EXIT_SUCCESS;	  /* we're home free, mail delivered */
+mailed: retval=EXIT_SUCCESS;		  /* we're home free, mail delivered */
    }
   unlock(&loclock);Terminate();
 }
@@ -897,4 +521,421 @@ static void usage P((void))
   elog("\nYour system mailbox:\t");
   elog(auth_mailboxname(auth_finduid(getuid(),0)));
   elog(newline);
+}
+
+/*
+ *	if we happen to be still running as root, and the rcfile
+ *	is mounted on a secure NFS-partition, we might not be able
+ *	to access it, so check if we can stat it or don't need any
+ *	sgid privileges, if yes, drop all privs and set uid to
+ *	the recipient beforehand
+ */
+static int tryopen(delay_setid,rctype,dowarning)
+ const int delay_setid,rctype,dowarning;
+{ struct stat stbuf;
+  if(!delay_setid&&privileged&&	  /* if we can setid now and we haven't yet, */
+      (privileged==priv_DONTNEED||!stat(buf,&stbuf))) /* and we either don't */
+     setids();	   /* need the privileges or it's accessible, then setid now */
+  if(0>bopen(buf))				   /* try opening the rcfile */
+   { if(dowarning)
+rerr:	readerr(buf);
+     return 0;
+   }
+  if(!delay_setid&&privileged)		   /* if we're not supposed to delay */
+   { closerc();		       /* and we haven't changed yet, then close it, */
+     setids();				 /* transmogrify to prevent peeking, */
+     if(0>bopen(buf))					    /* and try again */
+	goto rerr;		   /* they couldn't read it, so it was bogus */
+   }
+#ifndef NOfstat
+  if(fstat(rc,&stbuf))					    /* the right way */
+#else
+  if(stat(buf,&stbuf))					  /* the best we can */
+#endif
+   { static const char susprcf[]="Suspicious rcfile";
+suspicious_rc:
+     closerc();nlog(susprcf);logqnl(buf);
+     syslog(LOG_ALERT,slogstr,susprcf,buf);
+     goto rerr;
+   }
+  if(delay_setid)			 /* change now if we haven't already */
+     setids();
+  if(rctype==rct_CURRENT)	  /* opened rcfile in the current directory? */
+   { if(!didchd)
+	setmaildir(curdir);
+   }
+  else
+    /*
+     * OK, so now we have opened an absolute rcfile, but for security
+     * reasons we only accept it if it is owned by the recipient or
+     * root and is not world writable, and the directory it is in is
+     * not world writable or has the sticky bit set.  If this is the
+     * default rcfile then we also outlaw group writability.
+     */
+   { char*chp=lastdirsep(buf),c;
+     c= *chp;
+     if(((stbuf.st_uid!=uid&&stbuf.st_uid!=ROOT_uid||	       /* check uid, */
+	  (stbuf.st_mode&S_IWOTH)||		      /* writable by others, */
+	  rctype==rct_DEFAULT&&		   /* if the default then also check */
+	   (stbuf.st_mode&S_IWGRP)&&		   /* for writable by group, */
+	   (NO_CHECK_stgid||stbuf.st_gid!=gid)
+	 )&&strcmp(devnull,buf)||	     /* /dev/null is a special case, */
+	(*chp='\0',stat(buf,&stbuf))||		     /* check the directory, */
+#ifndef CAN_chown				   /* sticky and can't chown */
+	!(stbuf.st_mode&S_ISVTX)&&		   /* means we don't care if */
+#endif					     /* it's group or world writable */
+	((stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)||
+	 rctype==rct_DEFAULT&&
+	  (stbuf.st_mode&(S_IWGRP|S_IXGRP))==(S_IWGRP|S_IXGRP)&&
+	  (NO_CHECK_stgid||stbuf.st_gid!=gid))))
+      { *chp=c;
+	goto suspicious_rc;
+      }
+     *chp=c;
+   }
+  yell(drcfile,buf);
+  /*
+   *	Chdir now if we haven't already
+   */
+  if(!didchd)				       /* have we done this already? */
+   { char*chp=lastdirsep(pmrc2buf());
+     if(chp==buf)						 /* arrrrgh! */
+      { nlog(pmrc);elog(pathtoolong);elog(newline);
+	syslog(LOG_CRIT,"procmailrc%s for LINEBUF for uid \"%lu\"\n",
+	 pathtoolong,(unsigned long)uid);
+	exit(EX_OSERR);					/* give up the ghost */
+      }
+     if(chp>buf+1)					/* not the root dir? */
+	chp--;
+     *chp='\0';				     /* eliminate trailing separator */
+     if(chdir(chp=buf))
+      { chderr(buf);		      /* no, well, then try an initial chdir */
+	if(chdir(chp=(char*)tgetenv(home)))
+	   chderr(chp),chp=(char*)curdir;
+      }
+     setmaildir(chp);
+   }
+  return 1;						 /* we're good to go */
+}
+
+static int mainloop P((void))
+{ int lastsucc,lastcond,prevcond,i;register char*chp;
+  lastsucc=lastcond=prevcond=0;
+  do
+   { unlock(&loclock);				/* unlock any local lockfile */
+     goto commint;
+     do
+      { skipline();
+commint:do skipspace();					  /* skip whitespace */
+	while(testB('\n'));
+      }
+     while(testB('#'));					   /* no comment :-) */
+     if(testB(':'))				       /* check for a recipe */
+      { int locknext,succeed;char*startchar;long tobesent;
+	static char flags[maxindex(exflags)];
+	do
+	 { int nrcond;
+	   if(readparse(buf,getb,0))
+	      return rcs_EOF;			      /* give up on this one */
+	   ;{ char*temp;			 /* so that chp isn't forced */
+	      nrcond=strtol(buf,&temp,10);chp=temp;	      /* into memory */
+	    }
+	   if(chp==buf)					 /* no number parsed */
+	      nrcond= -1;
+	   if(tolock)		 /* clear temporary buffer for lockfile name */
+	      free(tolock);
+	   for(i=maxindex(flags);i;i--)			  /* clear the flags */
+	      flags[i]=0;
+	   for(tolock=0,locknext=0;;)
+	    { chp=skpspace(chp);
+	      switch(i= *chp++)
+	       { default:
+		    ;{ char*flg;
+		       if(!(flg=strchr(exflags,i)))	    /* a valid flag? */
+			{ chp--;
+			  break;
+			}
+		       flags[flg-exflags]=1;		     /* set the flag */
+		     }
+		 case '\0':
+		    if(chp!=Tmnate)		/* if not the real end, skip */
+		       continue;
+		    break;
+		 case ':':locknext=1;	    /* yep, local lockfile specified */
+		    if(*chp||++chp!=Tmnate)
+		       tolock=tstrdup(chp),chp=strchr(chp,'\0')+1;
+	       }
+	      concatenate(chp);skipped(chp);		/* display leftovers */
+	      break;
+	    }				      /* parse & test the conditions */
+	   i=conditions(flags,prevcond,lastsucc,lastcond,nrcond);
+	   if(!skiprc)
+	    { if(!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC])
+		 lastcond=i==1;		   /* save the outcome for posterity */
+	      if(!prevcond||!flags[ELSE_DO])
+		 prevcond=i==1;	      /* ditto for `else if' like constructs */
+	    }
+	 }
+	while(i==2);			     /* missing in action, reiterate */
+	startchar=themail.p;tobesent=filled;
+	if(flags[PASS_HEAD])			    /* body, header or both? */
+	 { if(!flags[PASS_BODY])
+	      tobesent=thebody-themail.p;
+	 }
+	else if(flags[PASS_BODY])
+	   tobesent-=(startchar=thebody)-themail.p;
+	Stdout=0;succeed=sh=0;
+	pwait=flags[WAIT_EXIT]|flags[WAIT_EXIT_QUIET]<<1;
+	ignwerr=flags[IGNORE_WRITERR];skipspace();
+	if(i)
+	   zombiecollect(),concon('\n');
+progrm: if(testB('!'))					 /* forward the mail */
+	 { char*fencepost=buf+linebuf-1;
+	   if(!i)
+	      skiprc|=1;
+	   *fencepost='\0';
+	   strncpy(buf,sendmail,linebuf-1);
+	   if((chp=strchr(buf,'\0'))==fencepost)
+	      goto fail;
+	   if(*flagsendmail)
+	    { char*q;int got=0;
+	      if(!(q=simplesplit(chp+1,flagsendmail,fencepost,&got)))
+		 goto fail;
+	      *(chp=q)='\0';
+	    }
+	   if(readparse(chp+1,getb,0))
+	      goto fail;
+	   if(i)
+	    { if(startchar==themail.p)
+	       { startchar[filled]='\0';		     /* just in case */
+		 startchar=(char*)skipFrom_(startchar,&tobesent);
+	       }      /* leave off leading From_ -- it confuses some mailers */
+	      goto forward;
+	    }
+	   skiprc--;
+	 }
+	else if(testB('|'))				    /* pipe the mail */
+	 { chp=buf2;
+	   if(getlline(chp,buf2+linebuf))	 /* get the command to start */
+	      goto commint;
+	   if(i)
+	    { metaparse(buf2);
+	      if(!sh&&buf+1==Tmnate)		      /* just a pipe symbol? */
+	       { *buf='|';*(char*)(Tmnate++)='\0';		  /* fake it */
+		 goto tostdout;
+	       }
+forward:      if(locknext)
+	       { if(!tolock)	   /* an explicit lockfile specified already */
+		  { *buf2='\0';	    /* find the implicit lockfile ('>>name') */
+		    for(chp=buf;i= *chp++;)
+		       if(i=='>'&&*chp=='>')
+			{ chp=skpspace(chp+1);
+			  tmemmove(buf2,chp,i=strcspn(chp,EOFName));
+			  buf2[i]='\0';
+			  if(sh)	 /* expand any environment variables */
+			   { chp=tstrdup(buf);sgetcp=buf2;
+			     if(readparse(buf,sgetc,0))
+			      { *buf2='\0';
+				goto nolock;
+			      }
+			     strcpy(buf2,buf);strcpy(buf,chp);free(chp);
+			   }
+			  break;
+			}
+		    if(!*buf2)
+nolock:		     { nlog("Couldn't determine implicit lockfile from");
+		       logqnl(buf);
+		     }
+		  }
+		 lcllock();
+		 if(!pwait)		/* try and protect the user from his */
+		    pwait=2;			   /* blissful ignorance :-) */
+	       }
+	      rawnonl=flags[RAW_NONL];asgnlastf=1;
+	      if(flags[CONTINUE]&&(flags[FILTER]||Stdout))
+		 nlog(extrns),elog("copy-flag"),elog(ignrd);
+	      inittmout(buf);
+	      if(flags[FILTER])
+	       { if(startchar==themail.p&&tobesent!=filled)   /* if only 'h' */
+		  { if(!pipthrough(buf,startchar,tobesent))
+		       readmail(1,tobesent),succeed=!pipw;
+		  }
+		 else if(!pipthrough(buf,startchar,tobesent))
+		  { filled=startchar-themail.p;
+		    readmail(0,tobesent);
+		    succeed=!pipw;
+		  }
+	       }
+	      else if(Stdout)			  /* capturing stdout again? */
+	       { if(!pipthrough(buf,startchar,tobesent))
+		    succeed=1,postStdout();	  /* only parse if no errors */
+	       }
+	      else if(!pipin(buf,startchar,tobesent))	  /* regular program */
+	       { succeed=1;
+		 if(flags[CONTINUE])
+		    goto logsetlsucc;
+		 else
+		    goto frmailed;
+	       }
+	      goto setlsucc;
+	    }
+	 }
+	else if(testB(EOF))
+	   nlog("Incomplete recipe\n");
+	else		   /* dump the mail into a mailbox file or directory */
+	 { int ofiltflag;char*end=buf+linebuf-4;	/* reserve some room */
+	   if(ofiltflag=flags[FILTER])
+	      flags[FILTER]=0,nlog(extrns),elog("filter-flag"),elog(ignrd);
+	   if(chp=gobenv(buf,end))	   /* can it be an environment name? */
+	    { if(chp==end)
+	       { getlline(buf,buf+linebuf);
+		 goto fail;
+	       }
+	      if(skipspace())
+		 chp++;			   /* keep pace with argument breaks */
+	      if(testB('='))		      /* is it really an assignment? */
+	       { int c;
+		 *chp++='=';*chp='\0';
+		 if(skipspace())
+		    chp++;
+		 ungetb(c=getb());
+		 switch(c)
+		  { case '!':case '|':			  /* ok, it's a pipe */
+		       if(i)
+			  Stdout = tstrdup(buf);
+		       goto progrm;
+		  }
+	       }
+	    }			 /* find the end, start of a nesting recipe? */
+	   else if((chp=strchr(buf,'\0'))==buf&&
+		   testB('{')&&
+		   (*chp++='{',*chp='\0',testB(' ')||		      /* } } */
+		    testB('\t')||
+		    testB('\n')))
+	    { if(locknext&&!flags[CONTINUE])
+		 nlog(extrns),elog("locallockfile"),elog(ignrd);
+	      if(flags[PASS_BODY])
+		 nlog(extrns),elog("deliver-body flag"),elog(ignrd);
+	      if(flags[PASS_HEAD])
+		 nlog(extrns),elog("deliver-head flag"),elog(ignrd);
+	      if(flags[IGNORE_WRITERR])
+		 nlog(extrns),elog("ignore-write-error flag"),elog(ignrd);
+	      if(flags[RAW_NONL])
+		 nlog(extrns),elog("raw-mode flag"),elog(ignrd);
+	      if(!i)						/* no match? */
+		 skiprc+=2;		      /* increase the skipping level */
+	      else
+	       { app_vali(ifstack,prevcond);		    /* push prevcond */
+		 app_vali(ifstack,lastcond);		    /* push lastcond */
+		 if(locknext)
+		  { *buf2='\0';lcllock();
+		    if(!pwait)		/* try and protect the user from his */
+		       pwait=2;			   /* blissful ignorance :-) */
+		  }
+		 succeed=1;
+		 if(flags[CONTINUE])
+		  { yell("Forking",procmailn);
+		    private(0);			      /* can't share anymore */
+		    inittmout(procmailn);onguard();
+		    if(!(pidchild=sfork()))		   /* clone yourself */
+		     { if(loclock)	      /* lockfiles are not inherited */
+			  free(loclock),loclock=0;
+		       if(globlock)
+			  free(globlock),globlock=0;	     /* clear up the */
+		       newid();offguard();duprcs();	  /* identity crisis */
+		     }
+		    else
+		     { offguard();
+		       if(forkerr(pidchild,procmailn))
+			  succeed=0;	       /* tsk, tsk, no cloning today */
+		       else
+			{ int excode;	  /* wait for our significant other? */
+			  if(pwait&&
+			     (excode=waitfor(pidchild))!=EXIT_SUCCESS)
+			   { if(!(pwait&2)||verbose)	 /* do we report it? */
+				progerr(procmailn,excode,pwait&2);
+			     succeed=0;
+			   }
+			  pidchild=0;skiprc+=2;	     /* skip over the braces */
+			  ifstack.filled-=2;		/* retract the stack */
+			}
+		     }
+		  }
+		 goto jsetlsucc;		/* definitely no logabstract */
+	       }
+	      continue;
+	    }
+	   if(!i)						/* no match? */
+	      skiprc|=1;		  /* temporarily disable subprograms */
+	   if(readparse(chp,getb,0))
+fail:	    { succeed=0;setoverflow();
+	      goto setlsucc;
+	    }
+	   if(i)
+	    { if(ofiltflag)	       /* protect who use bogus filter-flags */
+		 startchar=themail.p,tobesent=filled;	    /* whole message */
+tostdout:     rawnonl=flags[RAW_NONL];
+	      if(locknext)		     /* write to a file or directory */
+	       { if(!tolock)strcpy(buf2,buf);
+		 lcllock();
+	       }
+	      inittmout(buf);		  /* to break messed-up kernel locks */
+	      if(writefolder(buf,strchr(buf,'\0')+1,startchar,tobesent,
+		  ignwerr,0)&&
+		 (succeed=1,!flags[CONTINUE]))
+frmailed:      { if(ifstack.vals)
+		    free(ifstack.vals);
+		 return rcs_DELIVERED;
+	       }
+logsetlsucc:  if(succeed&&flags[CONTINUE]&&lgabstract==2)
+		 logabstract(tgetenv(lastfolder));
+setlsucc:     rawnonl=0;
+jsetlsucc:    lastsucc=succeed;lasttell= -1;		       /* for comsat */
+	      resettmout();			  /* clear any pending timer */
+	    }
+	   skiprc&=~1;				     /* reenable subprograms */
+	 }
+      } /* { */
+     else if(testB('}'))					/* end block */
+      { if(skiprc>1)					    /* just skipping */
+	   skiprc-=2;					   /* decrease level */
+	else if(ifstack.filled>ifdepth)	      /* restore lastcond from stack */
+	 { lastcond=acc_vali(ifstack,--ifstack.filled);
+	   prevcond=acc_vali(ifstack,--ifstack.filled);		 /* prevcond */
+	 }							  /* as well */
+	else
+	   nlog("Closing brace unexpected\n");		      /* stack empty */
+      }
+     else				    /* then it must be an assignment */
+      { char*end=buf+linebuf;
+	if(!(chp=gobenv(buf,end)))
+	 { if(!*buf)					/* skip a word first */
+	      getbl(buf,end);				      /* then a line */
+	   skipped(buf);				/* display leftovers */
+	   continue;
+	 }
+	if(chp==end)				      /* overflow => give up */
+	   break;
+	skipspace();
+	if(testB('='))				   /* removal or assignment? */
+	 { *chp='=';
+	   if(readparse(++chp,getb,1))
+	    { setoverflow();
+	      continue;
+	    }
+	 }
+	else
+	   *++chp='\0';			     /* throw in a second terminator */
+	if(!skiprc)
+	 { const char*p;
+	   p=sputenv(buf);
+	   chp[-1]='\0';
+	   asenv(p);
+	 }
+      }
+     if(rc<0)				   /* abnormal exit from the rcfile? */
+	return rcs_HOST;
+   }
+  while(!testB(EOF)||poprc());
+  return rcs_EOF;
 }
