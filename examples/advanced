@@ -154,7 +154,8 @@ regular /bin/mail since it often writes the mailbox with root permissions
 However, if you are going to install procmail as the integrated local
 delivery agent, and you want mail to be delivered to, say, $HOME/.mail
 by default, this is what you have to do:
-	Edit the procmail/config.h file.   Uncomment and possibly change
+
+	Edit the procmail*/config.h file.   Uncomment and possibly change
 	the SYSTEM_MBOX define.	 Procmail now delivers there by default.
 
 	In order to make sure that normal mailtools can find the new

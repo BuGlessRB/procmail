@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.9 1993/01/20 14:25:02 berg Exp $
+.Id $Id: procmailex.man,v 1.10 1993/01/29 13:32:49 berg Exp $
 .de Sx
 .PP
 .ne \\$1
@@ -23,7 +23,7 @@ This man page shows several example recipes.  For examples of complete rcfiles
 you can check the NOTES section in
 .BR procmail (1),
 or look at the example rcfiles part of the procmail source distribution
-(procmail/examples/?procmailrc).
+(procmail*/examples/?procmailrc).
 .Sh EXAMPLES
 Sort out all mail coming from the scuba-dive mailling list into the mailfolder
 scubafile (uses the locallockfile scubafile.lock).

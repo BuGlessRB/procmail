@@ -1,4 +1,4 @@
-$Id: Manual,v 1.3 1993/01/19 11:54:57 berg Exp $
+$Id: Manual,v 1.4 1993/01/29 13:32:44 berg Exp $
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
@@ -9,6 +9,7 @@ Contents:
 		2. Remote maintenance of mailinglists
 		3. Customisation
 		4. The archive server
+		5. The format of the dist file
 
 
 1. Creating and removing mailinglists
@@ -164,3 +165,54 @@ outside the "scuba/archive" directory.	Any text-file that you put below
 the "scuba/archive" directory can now be retrieved by the archive commands.
 
 The whole archive server can be found in the .bin/arch_retrieve script.
+
+
+5. The format of the dist file
+   ---------------------------
+
+You do not need to know this, unless you edit the dist file by hand or want
+to incorporate an existing list of addresses.
+
+In order to distribute incoming submissions the dist file is fed to sendmail
+with the regular :include: alias.  So the format of this file must
+be in accordance with what sendmail would expect.  In addition to that
+this file is searched and edited by multigram in order to find particular
+subscribers.  The format which multigram expects is a bit more rigid than
+what sendmail allows.
+
+The following conditions apply:
+- One subscriber per line.
+- Empty lines are allowed.
+- The mail address of the subscriber must be the first word on the line.
+- Comments may follow the address (but separated from the address by
+  at least one whitespace character).
+- Everything preceding the line containing:
+	(Only addresses below this line can be automatically removed)
+  is write protected from changes by multigram (i.e. these addresses can
+  never be automatically/accidentally unsubscribed).
+- If the line:
+	(Only addresses below this line can be automatically removed)
+  is not present at all, automatic unsubscriptions to this list are impossible.
+- Whenever multigram automatically removes an address from the list, it
+  rewrites the dist file `in situ'.  This means that the dist file will be
+  contracted at that point, any excess slack at the end will be overwritten
+  by newlines (i.e. the dist file never shrinks, this because ANSI-C does not
+  provide a truncate() command of some kind).  I choose to write in situ in
+  order to avoid copying the dist file every time it changes (a real life
+  saver if the list grows too big).
+- Multigram always adds new subscribers on the line immediately following the
+  last filled entry in the dist file.
+
+Some sample entries (the preferred format):
+	joe@some.where
+	joe@some.where (some comment)
+	joe@some.where (some comment) (some more comment)
+
+Depreciated, but allowed:
+	<joe@some.where>
+	<joe@some.where> some comment
+	<joe@some.where> (some comment)
+
+Not allowed by multigram (although sendmail doesn't mind):
+	(some comment) joe@some.where
+	some comment <joe@some.where>

@@ -34,17 +34,17 @@ this directory by typing something like:
 This script will then create two subdirectories (.bin and .etc) in
 /home/list.  These directories will be filled with the files contained
 in the bin and etc subdirectories here.	 It will also make sure that
-the "multigram" program is compiled from the procmail/src directory and
+the "multigram" program is compiled from the procmail*/src directory and
 copied into /home/list/.bin.  Furthermore it will link
 /home/list/.etc/rc.main to /home/list/.procmailrc.  The latter is of
 course superfluous if you are still using this account to receive
 regular mail.
 
 Depending on your mail configuration, if procmail has not been integrated
-in the maildelivery system (see procmail/examples/advanced for more information
-on that topic) you also have to create a .forward file with an appropriate
-content (see "man procmail", the NOTES section at the end).  This, however,
-is only necessary if you created a seperate "list" account.
+in the maildelivery system (see procmail*/examples/advanced for more
+information on that topic) you also have to create a .forward file with an
+appropriate content (see "man procmail", the NOTES section at the end).	 This,
+however, is only necessary if you created a seperate "list" account.
 
 	Next, edit the /home/list/.etc/rc.init file.	Make sure that
 	"domain" is set to the right value, and you can optionally specify a
