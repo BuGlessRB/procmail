@@ -1,4 +1,4 @@
-/* $Id: variables.h,v 1.5 2001/06/21 11:59:33 guenther Exp $ */
+/* $Id: variables.h,v 1.6 2001/08/04 07:08:12 guenther Exp $ */
 
 const char
  *sputenv P((const char*const a)),
@@ -6,7 +6,7 @@ const char
  *tgetenv P((const char*const a));
 void
  primeStdout P((const char*const varname)),
- retStdout P((char*const newmyenv,int fail,int unset)),
+ retStdout P((char*const newmyenv,const int fail,const int unset)),
  retbStdout P((char*const newmyenv)),
  appendlastvar P((const char*const value)),
  cleanupenv P((int preserve)),
