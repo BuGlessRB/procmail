@@ -11,43 +11,70 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.8 1992/11/24 16:00:16 berg Exp $";
+ "$Id: multigram.c,v 1.9 1992/12/01 15:46:29 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1992/11/24 16:00:16 $";
+static /*const*/char rcsdate[]="$Date: 1992/12/01 15:46:29 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
 #include "ecommon.h"
 
-#define MIN_addr_len	3		/* shortest meaningful email address */
 #define BUFSTEP		16
 #define COPYBUF		16384
+/*#define SPEEDBUF	COPYBUF	       /* uncomment to get a speed increase? */
 #define SCALE_WEIGHT	0x7fff
 
 #define DEFmaxgram	4
 #define DEFminweight	(SCALE_WEIGHT/4)	      /* sanity cutoff value */
 #define DEFbest_matches 2
 
+#define metoo_SENDMAIL		"-om"
+#define nometoo_SENDMAIL	"-omF"
+#define REMOV1_DELIM "(Only"
+#define REMOV2_DELIM "addresses below this line can be automatically removed)"
+#define NOT_METOO	"(-n)"
+
 struct string{char*text,*itext;size_t buflen;};
+
+static remov_delim;
 
 strnIcmp(a,b,l)const char*a,*b;size_t l;
 { return strncmp(a,b,l);
 }
 
-static size_t readstr(file,p)FILE*const file;struct string*p;
-{ size_t len=0;int i;
-  for(;;)
+static size_t readstr(file,p,linewise)FILE*const file;struct string*p;
+ const int linewise;
+{ size_t len;int i,firstspc;
+  static const char rem1str[]=REMOV1_DELIM,rem2str[]=REMOV2_DELIM;
+  for(len=firstspc=0;;)
    { switch(i=getc(file))
-      { default:p->text[len]=i;
-	   if(++len==p->buflen)
-	      p->text=realloc(p->text,p->buflen+=BUFSTEP);
-	    continue;
-	case ' ':case '\t':case '\n':
+      { case ' ':case '\t':case '\n':
 	   if(!len)				  /* only skip leading space */
 	      continue;
+	   if(!linewise)
+	      break;
+	   if(!firstspc)
+	    { if(i=='\n')
+	       { p->text[len]='\0';
+		 if(++len==p->buflen)
+		    p->text=realloc(p->text,p->buflen+=BUFSTEP);
+		 break;
+	       }
+	      i='\0';firstspc=1;
+	    }
+	   if(i=='\n')
+	      break;
+	default:p->text[len]=i;
+	   if(++len==p->buflen)
+	      p->text=realloc(p->text,p->buflen+=BUFSTEP);
+	   continue;
 	case EOF:;
       }
-     p->text[len]='\0';return len;
+     p->text[len]='\0';
+     if(linewise&&!remov_delim&&!strcmp(p->text,rem1str)&&
+      !strcmp(p->text+sizeof rem1str,rem2str))	       /* special delimiter? */
+	remov_delim=1;
+     return len;
    }
 }
 
@@ -67,7 +94,7 @@ static void elog(a)const char*const a;
 }
 
 void nlog(a)const char*const a;
-{ elog("adresses: ");elog(a);
+{ elog("multigram: ");elog(a);
 }
 
 static PROGID;
@@ -76,9 +103,11 @@ main(minweight,argv)const char*argv[];
 { struct string fuzzstr,hardstr;FILE*hardfile;const char*addit=0;
   struct match{char*fuzz,*hard;int metric;long lentry,offs1,offs2;}
    **best,*curmatch=0;
-  unsigned best_matches,maxgram,maxweight,charoffs=0,remov=0,renam=0;
+  unsigned best_matches,maxgram,maxweight,charoffs=0,remov=0,renam=0,
+   chkmetoo=0,hashit=0;
+  int lastfrom;
   static const char usage[]=
-  "Usage: multigram [-cdr] [-b nnn] [-l nnn] [-w nnn] [-a address] filename\n";
+"Usage: multigram [-cdmrH] [-b nnn] [-l nnn] [-w nnn] [-a address] filename\n";
   if(minweight)			      /* sanity check, any arguments at all? */
    { const char*chp;
      minweight=SCALE_WEIGHT;best_matches=maxgram=0;
@@ -89,6 +118,8 @@ main(minweight,argv)const char*argv[];
 	    { case 'c':charoffs=1;continue;
 	      case 'd':remov=1;continue;
 	      case 'r':renam=1;continue;
+	      case 'm':chkmetoo=1;continue;
+	      case 'H':hashit=1;continue;
 	      case 'a':
 		 if(!*chp&&!(chp= *++argv))
 		    goto usg;
@@ -112,19 +143,30 @@ main(minweight,argv)const char*argv[];
 \n\t-b nnn\t\tmaximum no. of best matches shown\
 \n\t-c\t\tdisplay offsets in characters\
 \n\t-d\t\tdelete address from list\
+\n\t-m\t\tcheck for metoo\
 \n\t-l nnn\t\tlower bound metric\
 \n\t-r\t\trename address on list\
-\n\t-w nnn\t\twindow width used when matching\n");return EX_USAGE;
+\n\t-w nnn\t\twindow width used when matching\
+\n\t-H\t\thash stdin\n");return EX_USAGE;
 	      default:goto usg;
 	      case '\0':;
 	    }
 	   break;
 	 }
+     if(hashit)
+      { unsigned long hash=0;int i;
+	while(i=fgetc(stdin),!feof(stdin))
+	   hash=hash*67067L+i;
+	printf("%lx",hash);return EX_OK;
+      }
      if(!chp||*++argv||renam+remov+!!addit>1)
 	goto usg;
      if(!(hardfile=fopen(chp,remov||renam||addit?"r+":"r")))
       { nlog("Couldn't open \"");elog(chp);elog("\"\n");return EX_IOERR;
       }
+#ifdef SPEEDBUF
+     setvbuf(hardfile,malloc(SPEEDBUF),_IOFBF,(size_t)SPEEDBUF);
+#endif
    }
   else
 usg:
@@ -143,11 +185,8 @@ usg:
 	 }
 	break;
       }
-     fseek(hardfile,lasttell,SEEK_SET);
-     if(lasttell)
-	getc(hardfile),fflush(hardfile);
-     fprintf(hardfile,"%s\n",addit);printf("Added: %s\n",addit);
-     fclose(hardfile);return EX_OK;
+     fseek(hardfile,lasttell,SEEK_SET);fprintf(hardfile,"%s\n",addit);
+     printf("Added: %s\n",addit);fclose(hardfile);return EX_OK;
    }
   if(!maxgram)
      maxgram=DEFmaxgram;
@@ -166,15 +205,25 @@ usg:
    }
   while(i--);
  }
-  while(readstr(stdin,&fuzzstr))
+  for(lastfrom= -1;readstr(stdin,&fuzzstr,0);)
    { int meter,maxmetric;size_t fuzzlen;long linentry,offs1,offs2;
     {char*chp,*echp;int parens;
-     switch(*(echp=strchr(chp=fuzzstr.text,'\0')-1))
-      { case '.':case ',':case ';':case ':':case '?':case '!':*echp--='\0';
+     echp=strchr(chp=fuzzstr.text,'\0')-1;
+     do
+      { switch(*echp)
+	 { case '.':case ',':case ';':case ':':case '?':case '!':*echp='\0';
+	      continue;
+	 }
+	break;
       }
-     if(!strchr(chp,'@')&&(!strchr(chp,'!')||strchr(chp,'|')||strchr(chp,',')||
-      mystrstr(chp,"..",chp+strlen(chp))))
+     while(--echp>chp);
+     if(lastfrom<=0&&!strchr(chp,'@')&&(!strchr(chp,'!')||strchr(chp,'|')||
+      strchr(chp,',')||mystrstr(chp,"..",chp+strlen(chp))))
+      { if(lastfrom<0)
+	   lastfrom=!strcmp(SHFROM,chp);
 	continue;			  /* apparently not an email address */
+      }
+     lastfrom=0;
      for(parens=0;chp=strchr(chp,'(');chp++,parens++);
      for(chp=fuzzstr.text;chp=strchr(chp,')');chp++,parens--);
      if(*(chp=fuzzstr.text)=='(')
@@ -186,8 +235,11 @@ shftleft:  tmemmove(chp,chp+1,strlen(chp));
       }
      else if(parens<0&&*echp==')')
 	*echp='\0';
-     if((fuzzlen=strlen(chp))<MIN_addr_len)
-	continue;
+     if(*(chp=fuzzstr.text)=='<'&&*(echp=strchr(chp,'\0')-1)=='>'
+      &&echp==strpbrk(chp,"([\">,; \t\n"))	      /* strip '<' and '>' ? */
+	*echp='\0',tmemmove(chp,chp+1,echp-chp);
+     if(!(fuzzlen=strlen(chp)))
+	continue;;
      if(!curmatch)
 	curmatch=malloc(sizeof*curmatch);
      curmatch->fuzz=tstrdup(chp);curmatch->hard=malloc(1);
@@ -195,10 +247,13 @@ shftleft:  tmemmove(chp,chp+1,strlen(chp));
     }
      lowcase(&fuzzstr);fseek(hardfile,0L,SEEK_SET);
      maxmetric=best[best_matches]->metric;
-     for(offs2=linentry=0;offs1=offs2,readstr(hardfile,&hardstr);)
-      { size_t minlen;register size_t gramsize;
-       {size_t hardlen;
-	offs2=ftell(hardfile);linentry++;lowcase(&hardstr);
+     for(remov_delim=offs2=linentry=0;
+      offs1=offs2,readstr(hardfile,&hardstr,1);)
+      { size_t minlen,hardlen;register size_t gramsize;
+	offs2=ftell(hardfile);linentry++;
+	if(*hardstr.text=='(')
+	   continue;				   /* unsuitable for matches */
+	lowcase(&hardstr);
 	if((minlen=hardlen=strlen(hardstr.text))>fuzzlen)
 	   minlen=fuzzlen;
 	if((gramsize=minlen-1)>maxgram)
@@ -206,7 +261,6 @@ shftleft:  tmemmove(chp,chp+1,strlen(chp));
 	maxweight=SCALE_WEIGHT/(gramsize+1);
 	meter=(int)((unsigned long)SCALE_WEIGHT/2*minlen/
 	 (hardlen==minlen?fuzzlen:hardlen))-SCALE_WEIGHT/2;
-       }
 	do
 	 { register lmeter=0;
 	  {register const char*fzz,*hrd;
@@ -228,9 +282,12 @@ shftleft:  tmemmove(chp,chp+1,strlen(chp));
 	 }
 	while(gramsize--);
 	free(hardstr.itext);
-	if(meter>maxmetric)
+	if(meter>maxmetric&&(remov_delim||!renam&&!remov))
 	 { curmatch->metric=maxmetric=meter;curmatch->lentry=linentry;
-	   free(curmatch->hard);curmatch->hard=tstrdup(hardstr.text);
+	   free(curmatch->hard);hardlen++;
+	   hardlen+=strlen(hardstr.text+hardlen)+1;
+	   curmatch->hard=malloc(hardlen+=strlen(hardstr.text+hardlen)+1);
+	   tmemmove(curmatch->hard,hardstr.text,hardlen);
 	   curmatch->offs1=offs1;curmatch->offs2=offs2;
 	 }
       }
@@ -247,8 +304,12 @@ shftleft:  tmemmove(chp,chp+1,strlen(chp));
    }
  {int i;struct match*mp;
   for(i=0;i<=best_matches&&(mp=best[i++])->metric>=minweight;)
-     printf("%3ld %-34s %5d %-34s\n",charoffs?mp->offs1:mp->lentry,mp->hard,
-      mp->metric,mp->fuzz);
+     if(chkmetoo)
+	printf("%s\n",strcmp(mp->hard+strlen(mp->hard)+1,NOT_METOO)
+	 ?metoo_SENDMAIL:nometoo_SENDMAIL);
+     else
+	printf("%3ld %-34s %5d %-34s\n",charoffs?mp->offs1:mp->lentry,mp->hard,
+	 mp->metric,mp->fuzz);
   if((mp= *best)->metric>=minweight)
    { struct match*worse;
      if(renam)

@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.11 1992/11/24 15:59:46 berg Exp $
+.Id $Id: procmailrc.man,v 1.12 1992/12/01 15:46:11 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .SH NAME
 .na
@@ -479,6 +479,13 @@ paths to specify global lockfiles).
 .PP
 When capturing stdout from a recipe into an environment variable, exactly
 one trailing newline will be stripped.
+.PP
+By using the `^' or `$' in other spots than at the start respectively
+end of a line you can use the internal egrep to do multiline matches.
+.PP
+When the regular expression starts with `^^' it will
+.I only
+match at the very start of the text.
 .Sh MISCELLANEOUS
 If the regular expression contains `\fB+TOkey+\fP' it will be substituted by
 .na

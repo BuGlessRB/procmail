@@ -78,10 +78,11 @@
 	       demand (examples/mailstat)
 	    Gave procmail, formail, lockfile and mailstat a more verbose
 	       command line help (called up by -h or -?)
-1992/11/13: v2.80
+1992/12/01: v2.80
 	    Started using CVS to manage the source (god's gift to programmers)
 	    In procmail, lockfile and formail I built in a sanity check now,
 	       in case they would be called with argc==0
+	    Provided an extensive generic mailinglist example
 	    Enhanced lockfile a lot:
 	       - the -r option really specifies *re*tries now
 	       - concatenated and/or seperate options are allowed now
@@ -102,6 +103,7 @@
 	       - taught formail about some more headers, previously formail
 		 would refuse to split some mail-articles because it didn't
 		 recognise the second field
+	       - made it strip the <> when not strictly needed
 	       - reorganised the known header-fields into the header.h file
 		 (to allow convenient additions)
 	       - introduced the -l option, for generating procmail-alike
@@ -149,6 +151,7 @@
 		 to use the exitcode of a program as true or false
 	       - the ^TO and ^FROM_DAEMON special keywords can now be used
 		 anywhere in the regular expression
+	       - taught the ^^ special token to the internal egrep
 	    Changes to the installation scripts:
 	       - preset values for $(MAKE), $(CC) and $(SHELL) are respected
 		 in Makefiles now

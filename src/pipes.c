@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.10 1992/11/13 12:58:25 berg Exp $";
+ "$Id: pipes.c,v 1.11 1992/12/01 15:46:34 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -23,7 +23,7 @@ volatile time_t alrmtime;
 static char*lastexec,*backblock;
 static long backlen;	       /* length of backblock, filter recovery block */
 static pid_t pidfilt;
-static pbackfd[2];			       /* the emergency backpipe :-) */
+static pipw,pbackfd[2];			       /* the emergency backpipe :-) */
 
 void inittmout(progname)const char*const progname;
 { lastexec=cstr(lastexec,progname);
@@ -124,7 +124,10 @@ pipthrough(line,source,len)char*line,*source;const long len;
   if(forkerr(pidchild,procmailn))
      return 1;
   if(Stdout)
-     retStdout(readdyn(Stdout,&Stdfilled));
+   { retStdout(readdyn(Stdout,&Stdfilled));
+     if(pwait)
+	return pipw;
+   }
   return 0;		    /* we stay behind to read back the filtered text */
 }
 
@@ -176,7 +179,7 @@ jumpback:;
 	 }
       }
      if(pwait)
-	waitfor(pidchild);		      /* reap your child in any case */
+	pipw=waitfor(pidchild);		      /* reap your child in any case */
    }
   pidchild=0;					/* child must be gone by now */
   if(!*filled)

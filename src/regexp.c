@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.5 1992/11/13 12:58:34 berg Exp $";
+ "$Id: regexp.c,v 1.6 1992/12/01 15:46:40 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -35,7 +35,8 @@ static /*const*/char rcsid[]=
 #define OPC_EPS			OPB
 #define OPC_CLASS		(OPB+1)
 #define OPC_DOT			(OPB+2)
-#define OPC_FIN			(OPB+3)
+#define OPC_BOTEXT		(OPB+3)
+#define OPC_FIN			(OPB+4)
 
 #define bit_type		unsigned
 #define bit_bits		(sizeof(bit_type)*8)
@@ -140,7 +141,13 @@ static void psimp(e)const struct eps*const e;
 	 }
 	goto fine2;
      case R_EOL:case R_SOL:		      /* match a newline (in effect) */
-	if(e)
+	if(p[1]==R_SOL)
+	 { p++;
+	   if(e)
+	    {  r->opc=OPC_BOTEXT;goto fine;
+	    }
+	 }
+	else if(e)
 	 { r->opc='\n';goto fine;
 	 }
 	goto fine2;
@@ -282,16 +289,17 @@ struct eps*bregcomp(a,ign_case)const char*a;
  (ioffsetof(struct eps,spawn)^ioffsetof(struct eps,stack))
 #define PC(this,t)	(*(struct eps**)((char*)(this)+(t)))
 
-char*bregexec(code,text,len,ign_case)struct eps*code;const uchar*text;
+char*bregexec(code,text,len,ign_case)struct eps*code;const uchar*const text;
  size_t len;
 { register struct eps*reg,*t,*stack,*other,*thiss;unsigned i,th1,ot1;
+  const char*str;
   if(code[1].opc==OPC_EPS)
      code++;		   /* two epsilons at the start would be superfluous */
   (thiss=code)->stack=0;th1=ioffsetof(struct eps,spawn);
-  ot1=ioffsetof(struct eps,stack);text--;len++;
+  ot1=ioffsetof(struct eps,stack);str=text-1;len++;
   i='\n';goto setups;	      /* make sure any beginning-of-line-hooks catch */
   do
-   { i= *++text;			 /* get the next real-text character */
+   { i= *++str;				 /* get the next real-text character */
 lastrun:				     /* switch this & other pc-stack */
      th1^=XOR1;ot1^=XOR1;thiss=other;
 setups:
@@ -299,27 +307,33 @@ setups:
      do					 /* pop next entry off this pc-stack */
       { reg=(t=thiss)->next;thiss=PC(t,th1);PC(t,th1)=0;goto nostack;
 	do				/* pop next entry off the work-stack */
-	 { stack=(t=stack)->stack;t->stack=0;reg=t->spawn;
-nostack:   switch(reg->opc-OPB)	    /* push spawned branch on the work-stack */
-	    { default:
-		 if(ign_case&&i-'A'<'Z'-'A')
-		    i+='a'-'A';		     /* transmogrify it to lowercase */
-		 if(i==reg->opc)		  /* regular character match */
-		    goto yep;
-		 break;
-	      case OPC_EPS-OPB:reg->stack=stack;reg=(stack=reg)->next;
-		 goto nostack;
-	      case OPC_FIN-OPB:		   /* hurray!  complete regexp match */
-		 return(char*)text;		/* return one past the match */
-	      case OPC_CLASS-OPB:
-		 if(bit_test(((struct chclass*)reg)->c,i))
-		    goto yep;			       /* character in class */
-		 break;
-	      case OPC_DOT-OPB:				     /* dot-wildcard */
-		 if(i!='\n')
-yep:		    if(!PC(reg,ot1))		     /* state not yet pushed */
-		       PC(reg,ot1)=other,other=reg;    /* push location onto */
-	    }						   /* other pc-stack */
+	 { for(stack=(t=stack)->stack,t->stack=0,reg=t->spawn;;)
+nostack:    { switch(reg->opc-OPB)  /* push spawned branch on the work-stack */
+	       { default:
+		    if(ign_case&&i-'A'<'Z'-'A')
+		       i+='a'-'A';	     /* transmogrify it to lowercase */
+		    if(i==reg->opc)		  /* regular character match */
+		       goto yep;
+		    break;
+		 case OPC_EPS-OPB:reg->stack=stack;reg=(stack=reg)->next;
+		    continue;
+		 case OPC_FIN-OPB:	   /* hurray!  complete regexp match */
+		    return(char*)str;		/* return one past the match */
+		 case OPC_BOTEXT-OPB:
+		    if(i=='\n'&&str<text)
+		       goto yep;
+		    break;
+		 case OPC_CLASS-OPB:
+		    if(bit_test(((struct chclass*)reg)->c,i))
+		       goto yep;		       /* character in class */
+		    break;
+		 case OPC_DOT-OPB:			     /* dot-wildcard */
+		    if(i!='\n')
+yep:		       if(!PC(reg,ot1))		     /* state not yet pushed */
+			  PC(reg,ot1)=other,other=reg; /* push location onto */
+	       }					   /* other pc-stack */
+	      break;
+	    }
 	 }
 	while(stack);			      /* the work-stack is not empty */
       }
@@ -327,7 +341,7 @@ yep:		    if(!PC(reg,ot1))		     /* state not yet pushed */
    }
   while(--len);					     /* still text to search */
   if(ign_case!=2)					      /* out of text */
-   { ign_case=2;len=1;text++;goto lastrun;	 /* check if we just matched */
+   { ign_case=2;len=1;str++;goto lastrun;	 /* check if we just matched */
    }
   return 0;							 /* no match */
 }
