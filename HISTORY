@@ -462,6 +462,8 @@
 	    Changes to mailstat:
 	       - Work around the detab done on checkin to CVS
 	       - Recognize maildir mailboxes
+	    Changes to autoconf:
+	       - Don't assume realloc(0,size) works (doesn't on SunOS 4)
 	    Stop using `implicit int'
 	    Cache gethostname() or uname() output
 	    Change the form of tempfile names to make them `more' unique
