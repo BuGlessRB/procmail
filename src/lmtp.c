@@ -7,7 +7,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lmtp.c,v 1.9 2001/06/03 21:54:55 guenther Exp $"
+ "$Id: lmtp.c,v 1.10 2001/06/21 18:19:23 guenther Exp $"
 #endif
 #include "procmail.h"
 #ifdef LMTP
@@ -771,7 +771,7 @@ loop_exit:
 
 static int lreaddyn()
 { int state=nliseol?IS_NLBOL:IS_CRBOL;
-  read2blk(&themail,&filled,nliseol?&lmtp_read_nl:&lmtp_real_crnl,
+  read2blk(&themail,&filled,nliseol?&lmtp_read_nl:&lmtp_read_crnl,
    (cleanup_func_type*)0,&state);
   return state!=IS_READERR;
 }
