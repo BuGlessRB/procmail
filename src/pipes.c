@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.50 1998/11/19 04:44:26 guenther Exp $";
+ "$Id: pipes.c,v 1.51 1998/11/19 04:47:58 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -245,7 +245,7 @@ char*readdyn(bf,filled)char*bf;long*const filled;
      ;{ char*new=0;		       /* dynamically adjust the buffer size */
 	 /* the parens get us the real realloc so that we can retry failures */
 	while(EXPBLKSIZ&&blksiz>BLKSIZ&&!(new=(realloc)(bf,*filled+blksiz)))
-	   blksiz>>=1;			  /* try a smaller increment */
+	   blksiz>>=1;				  /* try a smaller increment */
 	bf=new?new:realloc(bf,*filled+blksiz);			 /* last try */
       }
 jumpback:;
