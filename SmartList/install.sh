@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.51 1994/09/20 19:33:11 berg Exp $
+#$Id: install.sh,v 1.52 1994/09/28 19:58:21 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -12,7 +12,8 @@ then IFS=" \
 fi
 
 SHELL=/bin/sh				# make sure we get a decent shell
-export SHELL
+test -z "$MAKE" && MAKE=make		# provide a default "make"
+export SHELL MAKE
 umask 022				# making sure that umask has sane value
 
 ( exec 2>/dev/null

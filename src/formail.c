@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.66 1994/09/20 19:31:53 berg Exp $";
+ "$Id: formail.c,v 1.67 1994/09/28 19:58:39 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/09/20 19:31:53 $";
+static /*const*/char rcsdate[]="$Date: 1994/09/28 19:58:39 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -534,20 +534,26 @@ pnewname:	 if(namep)
 	fldp= *(afldp= &fldp->fld_next);
       }
      if(idcache)
-      { int dupid=0;
-	if(msid->rexl)					/* any Message-ID: ? */
-	 { insoffs=maxlen;msid->rexp[msid->rexl-1]='\0';
+      { int dupid=0;char*key;
+	key=namep;
+	if(!areply)
+	 { key=0;
+	   if(msid->rexl)				/* any Message-ID: ? */
+	      (key=msid->rexp)[msid->rexl-1]='\0';
+	 }
+	if(key)
+	 { insoffs=maxlen;
 	   do					/* wipe out trailing newline */
 	    { int j;char*p;	  /* start reading & comparing the next word */
-	      for(p=msid->rexp;(j=fgetc(idcache))==*p;p++)
+	      for(p=key;(j=fgetc(idcache))==*p;p++)
 		 if(!j)					     /* end of word? */
 		  { if(!quiet)
-		       nlog("Duplicate ID found:"),elog(msid->rexp),elog("\n");
+		       nlog("Duplicate key found:"),elog(key),elog("\n");
 		    dupid=1;
 		    goto dupfound;		     /* YES! duplicate found */
 		  }
 	      if(!j)					     /* end of word? */
-	       { if(p==msid->rexp&&insoffs==maxlen)	 /* first character? */
+	       { if(p==key&&insoffs==maxlen)		 /* first character? */
 		  { insoffs=ftell(idcache)-1;		     /* found end of */
 		    goto skiprest;			  /* circular buffer */
 		  }
@@ -567,10 +573,10 @@ skiprest:	 for(;;)			/* skip the rest of the word */
 	   while(ftell(idcache)<maxlen);		  /* past our quota? */
 noluck:	   if(insoffs>=maxlen)				  /* past our quota? */
 	      insoffs=0;			     /* start up front again */
-	   fseek(idcache,insoffs,SEEK_SET);
-	   fwrite(msid->rexp,1,msid->rexl+1,idcache);
+	   fseek(idcache,insoffs,SEEK_SET);fwrite(key,1,strlen(key)+1,idcache);
 dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
-	   msid->rexp[msid->rexl-1]='\n';	      /* restore the newline */
+	   if(!areply)
+	      key[msid->rexl-1]='\n';		      /* restore the newline */
 	 }
 	if(!split)			  /* not splitting?  terminate early */
 	   return dupid?EXIT_SUCCESS:1;

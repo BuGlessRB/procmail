@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.105 1994/09/27 15:03:58 berg Exp $";
+ "$Id: procmail.c,v 1.106 1994/09/28 19:58:55 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -32,11 +32,10 @@ static /*const*/char rcsid[]=
 #include "mailfold.h"
 #include "lastdirsep.h"
 
-static const char orgmail[]="ORGMAIL",*const nullp,From_[]=FROM,
- exflags[]=RECFLAGS,drcfile[]="Rcfile:",systm_mbox[]=SYSTEM_MBOX,
- pmusage[]=PM_USAGE,*etcrc=ETCRC,misrecpt[]="Missing recipient\n",
- extrns[]="Extraneous ",ignrd[]=" ignored\n",conflicting[]="Conflicting ",
- pardir[]=chPARDIR,suppressed[]=" suppressed\n",curdir[]={chCURDIR,'\0'},
+static const char*const nullp,From_[]=FROM,exflags[]=RECFLAGS,
+ drcfile[]="Rcfile:",systm_mbox[]=SYSTEM_MBOX,pmusage[]=PM_USAGE,
+ *etcrc=ETCRC,misrecpt[]="Missing recipient\n",extrns[]="Extraneous ",
+ ignrd[]=" ignored\n",pardir[]=chPARDIR,curdir[]={chCURDIR,'\0'},
  insufprivs[]="Insufficient privileges\n";
 char*buf,*buf2,*loclock,*tolock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
@@ -45,7 +44,7 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  lgname[]="LOGNAME",executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",
  procmailn[]="procmail",whilstwfor[]=" whilst waiting for ",home[]="HOME",
  host[]="HOST",*defdeflock,*argv0="",errwwriting[]="Error while writing to",
- slogstr[]="%s \"%s\"";
+ slogstr[]="%s \"%s\"",conflicting[]="Conflicting ",orgmail[]="ORGMAIL";
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rcstate,rc= -1,
  ignwerr,lexitcode=EXIT_SUCCESS,asgnlastf,accspooldir,crestarg,skiprc,
@@ -458,117 +457,12 @@ Setuser: { gid=pass->pw_gid;uid=pass->pw_uid;
      sgetcp=fdefault;readparse(buf,sgetc,2);fdefault=tstrdup(buf);
      strcpy(chp2=strchr(strcpy(buf,chp=(char*)getenv(orgmail)),'\0'),lockext);
      defdeflock=tstrdup(buf);sgid=egid;accspooldir=3;	/* presumed innocent */
-     if(mailfilter)
-	goto no_mbox;	      /* when running as mailfilter, forget $DEFAULT */
-     ;{ struct stat stbuf;			   /* strip off the basename */
-       /*
-	*	do we need sgidness to access the mail-spool directory/files?
-	*/
-	*chp2='\0';buf[i=lastdirsep(chp)-chp]='\0';sgid=gid;
-	if(!stat(buf,&stbuf))
-	 { accspooldir=!!(stbuf.st_mode&(S_IWGRP|S_IWOTH))<<1|
-	    uid==stbuf.st_uid;
-	   if((uid!=stbuf.st_uid&&
-		stbuf.st_gid==egid||
-	       (rcstate=rc_NOSGID,0))&&
-	      (stbuf.st_mode&S_ISGID||
-	       (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH))==(S_IWGRP|S_IXGRP)))
-	    { doumask(INIT_UMASK&~S_IRWXG);	   /* make it group-writable */
-	      goto keepgid;
-	    }
-	   else if(stbuf.st_mode&S_ISGID)
-keepgid:      sgid=stbuf.st_gid;   /* keep the gid from the parent directory */
-	 }
-	else			/* panic, mail-spool directory not available */
-	   setids(),mkdir(buf,NORMdirperm);  /* try creating the last member */
-       /*
-	*	check if the default-mailbox-lockfile is owned by the
-	*	recipient, if not, mark it for further investigation, it
-	*	might need to be removed
-	*/
-	for(;;)
-	 { ;{ int mboxstat;
-	      static const char renbogus[]="Renamed bogus \"%s\" into \"%s\"",
-	       renfbogus[]="Couldn't rename bogus \"%s\" into \"%s\"";
-	      ;{ int goodlock;
-		 if(!(goodlock=lstat(defdeflock,&stbuf)||stbuf.st_uid==uid))
-		    ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
-		     strchr(strcpy(buf+i,BOGUSprefix),'\0'));
-		/*
-		 *	check if the original/default mailbox of the recipient
-		 *	exists, if it does, perform some security checks on it
-		 *	(check if it's a regular file, check if it's owned by
-		 *	the recipient), if something is wrong try and move the
-		 *	bogus mailbox out of the way, create the
-		 *	original/default mailbox file, and chown it to
-		 *	the recipient
-		 */
-		 if(lstat(chp,&stbuf))			 /* stat the mailbox */
-		  { mboxstat= -(errno==EACCES);
-		    goto boglock;
-		  }				/* lockfile unrightful owner */
-		 else
-		  { mboxstat=1;
-		    if(!(stbuf.st_mode&S_IWGRP))
-boglock:	       if(!goodlock)	      /* try & rename bogus lockfile */
-			  if(rename(defdeflock,buf))	   /* out of the way */
-			     syslog(LOG_EMERG,renfbogus,defdeflock,buf);
-			  else
-			     syslog(LOG_ALERT,renbogus,defdeflock,buf);
-		  }
-	       }
-	      if(mboxstat>0||mboxstat<0&&(setids(),!lstat(chp,&stbuf)))
-		 if(!(stbuf.st_mode&S_IWUSR)||	     /* recipient can write? */
-		    S_ISLNK(stbuf.st_mode)||		/* no symbolic links */
-		    (S_ISDIR(stbuf.st_mode)?  /* directories, yes, hardlinks */
-		      !(stbuf.st_mode&S_IXUSR):stbuf.st_nlink!=1))     /* no */
-		    goto bogusbox;	/* can't deliver to this contraption */
-		 else if(stbuf.st_uid!=uid)	      /* recipient not owner */
-bogusbox:	  { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
-		     strchr(strcpy(buf+i,BOGUSprefix),'\0'));	    /* bogus */
-		    nlog("Renaming bogus mailbox \"");elog(chp);
-		    elog("\" into");logqnl(buf);
-		    if(rename(chp,buf))	   /* try and move it out of the way */
-		     { syslog(LOG_EMERG,renfbogus,chp,buf);
-		       goto fishy;  /* rename failed, something's fishy here */
-		     }
-		    else
-		       syslog(LOG_ALERT,renbogus,chp,buf);
-		  }				/* SysV type autoforwarding? */
-		 else if(Deliverymode&&stbuf.st_mode&(S_ISGID|S_ISUID))
-		  { nlog("Autoforwarding mailbox found\n");
-		    return EX_NOUSER;
-		  }
-		 else
-		  { if(!(stbuf.st_mode&OVERRIDE_MASK)&&stbuf.st_mode&cumask)
-		     { static const char enfperm[]=
-			"Enforcing stricter permissions on";
-		       nlog(enfperm);logqnl(chp);
-		       syslog(LOG_NOTICE,slogstr,enfperm,chp);setids();
-		       chmod(chp,stbuf.st_mode&=~cumask);
-		     }
-		    break;			  /* everything is just fine */
-		  }
-	    }
-	   if(!(accspooldir&1))	     /* recipient does not own the spool dir */
-	    { if(!xcreat(chp,NORMperm,(time_t*)0,doCHOWN|doCHECK)) /* create */
-		 break;		   /* mailbox... yes we could, fine, proceed */
-	      if(!lstat(chp,&stbuf))		     /* anything in the way? */
-		 continue;		       /* check if it could be valid */
-	    }
-	   setids();					   /* try some magic */
-	   if(!xcreat(chp,NORMperm,(time_t*)0,doCHECK))		/* try again */
-	      break;
-	   if(lstat(chp,&stbuf))		      /* nothing in the way? */
-fishy:	    { nlog("Couldn't create");logqnl(chp);
-no_mbox:      sputenv(orgmail);
-	      if(!strcmp(chp,fdefault))			/* DEFAULT the same? */
-		 free((char*)fdefault),fdefault="";		 /* so panic */
-	      break;
-	    }
-	 }					/* bad news, be conservative */
-	doumask(INIT_UMASK);
-      }
+     if(mailfilter||!screenmailbox(chp,chp2,egid,Deliverymode))
+      { sputenv(orgmail);		 /* nix delivering to system mailbox */
+	if(!strcmp(chp,fdefault))			/* DEFAULT the same? */
+	   free((char*)fdefault),fdefault="";			 /* so panic */
+      }						/* bad news, be conservative */
+     doumask(INIT_UMASK);
      if(mailfilter!=2)		 /* special, can't be any command line specs */
 	while(chp=(char*)argv[argc])   /* interpret command line specs first */
 	  /*
@@ -692,10 +586,9 @@ commint:   do skipspace();				  /* skip whitespace */
 	 }
 	while(testb('#'));				   /* no comment :-) */
 	if(testb(':'))				       /* check for a recipe */
-	 { int locknext,succeed;long tobesent;char*startchar;
+	 { int locknext,succeed;char*startchar;long tobesent;
 	   static char flags[maxindex(exflags)];
-	   ;{ int nrcond,scored;double score;
-	      score=scored=0;
+	   ;{ int nrcond;
 	      readparse(buf,getb,0);
 	      ;{ char*chp3;
 		 nrcond=strtol(buf,&chp3,10);chp=chp3;
@@ -724,253 +617,8 @@ commint:   do skipspace();				  /* skip whitespace */
 		  }
 		 concatenate(chp);skipped(chp);		/* display leftovers */
 		 break;
-	       }
-	      if(flags[ERROR_DO]&&flags[ELSE_DO])
-		 nlog(conflicting),elog("else-if-flag"),elog(suppressed);
-	      if(flags[ERROR_DO]&&flags[ALSO_N_IF_SUCC])
-	       { nlog(conflicting);elog("also-if-succeeded-flag");
-		 elog(suppressed);
-	       }
-	      if(nrcond<0)    /* assume appropriate default nr of conditions */
-		 nrcond=!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC]&&
-			!flags[ELSE_DO]&&!flags[ERROR_DO];
-	      startchar=themail;tobesent=thebody-themail;
-	      if(flags[BODY_GREP])	       /* what needs to be egrepped? */
-		 if(flags[HEAD_GREP])
-		    tobesent=filled;
-		 else
-		  { startchar=thebody;tobesent=filled-tobesent;
-		    goto noconcat;
-		  }
-	      if(!skiprc)
-		 concon(' ');
-noconcat:     i=!skiprc;				  /* init test value */
-	      if(flags[ERROR_DO])
-		 i&=prevcond&&!lastsucc;
-	      if(flags[ELSE_DO])
-		 i&=!prevcond;
-	      if(flags[ALSO_N_IF_SUCC])
-		 i&=lastcond&&lastsucc;
-	      if(flags[ALSO_NEXT_RECIPE])
-		 i=i&&lastcond;
-	      Stdout=0;
-	      while(skipspace(),nrcond--,testb('*')||nrcond>=0)
-	       { skipspace();getlline(buf2);	    /* any conditions (left) */
-		 if(i)				 /* check out all conditions */
-		  { int negate,scoreany;double weight,xponent,lscore;
-		    char*lstartchar=startchar;long ltobesent=tobesent;
-		    for(chp=strchr(buf2,'\0');--chp>=buf2;)
-		     { switch(*chp)	  /* strip off whitespace at the end */
-			{ case ' ':case '\t':*chp='\0';
-			     continue;
-			}
-		       break;
-		     }
-		    negate=scoreany=0;lscore=score;
-		    for(chp=buf2+1;;strcpy(buf2,buf))
-copydone:	     { switch(*(sgetcp=buf2))
-			{ case '0':case '1':case '2':case '3':case '4':
-			  case '5':case '6':case '7':case '8':case '9':
-			  case '-':case '+':case '.':case ',':
-			   { char*chp3;double w;
-			     w=stod(buf2,(const char**)&chp3);chp2=chp3;
-			     if(chp2>buf2&&*(chp2=skpspace(chp2))=='^')
-			      { double x;
-				x=stod(chp2+1,(const char**)&chp3);
-				if(chp3>chp2+1)
-				 { if(score>=MAX32)
-				      goto skiptrue;
-				   xponent=x;weight=w;scored=scoreany=1;
-				   chp2=skpspace(chp3);
-				   goto copyrest;
-				 }
-			      }
-			     chp--;
-			     goto normalregexp;
-			   }
-			  default:chp--;     /* no special character, backup */
-			   { if(alphanum(*(chp2=chp)))
-			      { char*chp3;
-				while(alphanum(*++chp2));
-				if(!strncmp(chp3=skpspace(chp2),"??",2))
-				 { *chp2='\0';lstartchar=themail;
-				   if(!chp[1])
-				    { ltobesent=thebody-themail;
-				      switch(*chp)
-				       { case 'B':lstartchar=thebody;
-					    ltobesent=filled-ltobesent;
-					    goto partition;
-					 case 'H':
-					    goto docon;
-				       }
-				    }
-				   else if(!strcmp("HB",chp)||
-				    !strcmp("BH",chp))
-				    { ltobesent=filled;
-docon:				      concon(' ');
-				      goto partition;
-				    }
-				   ltobesent=
-				    strlen(lstartchar=(char*)tgetenv(chp));
-partition:			   chp2=skpspace(chp3+2);chp++;
-				   goto copyrest;
-				 }
-			      }
-			   }
-			  case '\\':
-normalregexp:		   { int or_nocase;	/* case-distinction override */
-			     static const struct {const char*regkey,*regsubst;}
-			      *regsp,regs[]=
-			       { {FROMDkey,FROMDsubstitute},
-				 {TOkey,TOsubstitute},
-				 {FROMMkey,FROMMsubstitute},
-				 {0,0}
-			       };
-			     squeeze(chp);or_nocase=0;
-			     goto jinregs;
-			     do		   /* find special keyword in regexp */
-				if((chp2=strstr(chp,regsp->regkey))&&
-				 (chp2==buf2||chp2[-1]!='\\'))	 /* escaped? */
-				 { size_t lregs,lregk;		   /* no, so */
-				   lregk=strlen(regsp->regkey); /* insert it */
-				   tmemmove(
-				    chp2+(lregs=strlen(regsp->regsubst)),
-				    chp2+lregk,strlen(chp2)-lregk+1);
-				   tmemmove(chp2,regsp->regsubst,lregs);
-				   if(regsp==regs)	   /* daemon regexp? */
-				      or_nocase=1;   /* no case sensitivity! */
-jinregs:			   regsp=regs;	/* start over and look again */
-				 }
-				else
-				   regsp++;		     /* next keyword */
-			     while(regsp->regkey);
-			     ;{ int igncase;
-				igncase=or_nocase||!flags[DISTINGUISH_CASE];
-				if(scoreany)
-				 { struct eps*re;
-				   re=bregcomp(chp,igncase);
-				   chp=lstartchar;
-				   if(negate)
-				    { if(weight&&!bregexec(re,
-				       (const uchar*)chp,(const uchar*)chp,
-				       (size_t)ltobesent,igncase))
-					 score+=weight;
-				    }
-				   else
-				    { double oweight=weight*weight;
-				      while(weight!=0&&
-					    MIN32<score&&
-					    score<MAX32&&
-					    ltobesent>=0&&
-					    (chp2=
-				       bregexec(re,(const uchar*)lstartchar,
-					(const uchar*)chp,(size_t)ltobesent,
-					igncase)))
-				       { score+=weight;weight*=xponent;
-					 if(chp>=chp2)	  /* break off empty */
-					  { if(0<xponent&&xponent<1)
-					       score+=weight/(1-xponent);
-					    else if(xponent>=1&&weight!=0)
-					       score+=weight<0?MIN32:MAX32;
-					    break;	    /* matches early */
-					  }
-					 ;{ double nweight;
-					    if((nweight=weight*weight)<oweight
-					       &&oweight<1)
-					       break;
-					    oweight=nweight;
-					  }
-					 ltobesent-=chp2-chp;chp=chp2;
-				       }
-				    }
-				   free(re);
-				 }
-				else			     /* egrep for it */
-				   i=!!egrepin(chp,lstartchar,ltobesent,
-				    !igncase)^negate;
-			      }
-			     break;
-			   }
-			  case '$':*buf2='"';squeeze(chp);
-			     readparse(buf,sgetc,2);strcpy(buf2,skpspace(buf));
-			     goto copydone;
-			  case '!':negate^=1;chp2=skpspace(chp);
-copyrest:		     strcpy(buf,chp2);
-			     continue;
-			  case '?':pwait=2;metaparse(chp);inittmout(buf);
-			      ignwerr=1;pipin(buf,lstartchar,ltobesent);
-			      if(scoreany&&lexitcode>=0)
-			       { int j=lexitcode;
-				 if(negate)
-				    while(--j>=0&&
-					  (score+=weight)<MAX32&&
-					  score>MIN32)
-				       weight*=xponent;
-				    else
-				       score+=j?xponent:weight;
-			       }
-			      else if(!!lexitcode^negate)
-				 i=0;
-			      strcpy(buf2,buf);
-			      break;
-			  case '>':case '<':readparse(buf,sgetc,2);
-			   { long pivot;
-			      ;{ char*chp3;
-				pivot=strtol(buf+1,&chp3,10);chp=chp3;
-			      }
-			     skipped(skpspace(chp));strcpy(buf2,buf);
-			     if(scoreany)
-			      { double f;
-				if((*buf=='<')^negate)
-				   if(filled)
-				      f=(double)pivot/filled;
-				   else if(pivot>0)
-				      goto plusinfty;
-				   else
-				      goto mininfty;
-				else if(pivot)
-				   f=(double)filled/pivot;
-				else
-				   goto plusinfty;
-				score+=weight*tpow(f,xponent);
-			      }
-			     else if(!((*buf=='<'?
-					 filled<pivot:
-					 filled>pivot)^
-					negate))
-				i=0;
-			   }
-			}
-		       break;
-		     }
-		    if(score>MAX32)		/* chop off at plus infinity */
-plusinfty:	       score=MAX32;
-		    if(score<=MIN32)	       /* chop off at minus infinity */
-mininfty:	       score=MIN32,i=0;
-		    if(verbose)
-		     { if(scoreany)  /* not entirely correct, but it will do */
-			{ charNUM(num,long);
-			  nlog("Score: ");ltstr(7,(long)(score-lscore),num);
-			  elog(num);elog(" ");
-			  ;{ long iscore=score;
-			     ltstr(7,iscore,num);
-			     if(!iscore&&score>0)
-				num[7-2]='+';		/* show +0 for (0,1) */
-			   }
-			  elog(num);
-			}
-		       else
-			  nlog(i?"M":"No m"),elog("atch on");
-		       if(negate)
-			  elog(" !");
-		       logqnl(buf2);
-		     }
-skiptrue:;	  }
-	       }
-	      if(!(lastscore=score)&&score>0)		   /* save it for $= */
-		 lastscore=1;				 /* round up +0 to 1 */
-	      if(scored&&i&&score<=0)
-		 i=0;				     /* it was not a success */
+	       }			      /* parse & test the conditions */
+	      i=conditions(flags,prevcond,lastsucc,lastcond,nrcond);
 	    }
 	   if(!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC])
 	      lastcond=i;		   /* save the outcome for posterity */

@@ -1,14 +1,14 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh2  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh2		  # we're in a buggy zsh
-#$Id: install.sh2,v 1.10 1994/06/15 17:06:33 berg Exp $
+#$Id: install.sh2,v 1.11 1994/09/28 19:58:23 berg Exp $
 
 umask 022
 
 test -z "$bindir" && echo "Call install.sh instead" && exit 64
 
 cd ../src
-make gethome <&4 || exit 1
+$MAKE gethome <&4 || exit 1
 cd ../SmartList
 
 ltarget=`../src/gethome "$listid" "$target"` || exit 1
@@ -38,5 +38,5 @@ sed -e 's/VERSION/SLVERSION/' -e 's/procmail/SmartList/g' <../patchlevel.h \
 cmp $hfile ../src/$hfile 2>/dev/null 1>&2 || cp $hfile ../src/$hfile
 
 cd ../src
-make multigram <&4 || exit 1
+$MAKE multigram <&4 || exit 1
 cd ../SmartList

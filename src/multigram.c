@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.65 1994/09/27 17:18:28 berg Exp $";
+ "$Id: multigram.c,v 1.66 1994/09/28 19:58:51 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/09/27 17:18:28 $";
+static /*const*/char rcsdate[]="$Date: 1994/09/28 19:58:51 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -503,7 +503,7 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 	if(!maxnames||maxnames>MAX_argc-argc)
 	   maxnames=MAX_argc-argc;
 	;{ size_t envc;const char*const*nam;
-	   nam=environ;envc=argc;
+	   nam=(const char*const*)environ;envc=argc;
 #define MAX_envc	0		  /* should be dynamic in the future */
 	   for(maxensize=(MAX_argc+MAX_envc)*16L;*nam;
 	    envc++,maxensize-=strlen(*nam++)+1+sizeof*nam);

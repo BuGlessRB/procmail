@@ -154,7 +154,7 @@
 	       on the accept list
 	    Improved fuzzy search for explicit mail addresses in the
 	       subscription request
-1994/09/27: v3.10pre4
+1994/09/28: v3.10pre5
 	    Changes to rc.submit:
 	       - Moved the accept.txt in front of the body of the mail
 	    Make use of the -z option of formail, get rid of the leading

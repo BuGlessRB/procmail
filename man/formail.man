@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.33 1994/09/22 17:13:19 berg Exp $
+.Id $Id: formail.man,v 1.34 1994/09/28 19:58:30 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -157,6 +157,13 @@ file of approximately
 .I maxlen
 size.  If not splitting, it will return success if a duplicate has been
 found.  If splitting, it will not output duplicate messages.
+If used in conjunction with
+.BR \-@FM_REPLY@ ,
+formail will look at the
+.I mail address
+of the sender
+.I instead
+at the Message-ID.
 .TP
 .I "\fB\-@FM_EXTRACT@\fP headerfield"
 Extract the contents of this
