@@ -4,12 +4,11 @@
  *	"-m nnn" fields encountered should be among them or one of	*
  *	the special From_, Article_ or X- fields).			*
  *									*
- *	If you need to add one (be sure to update "cdigest" below as	*
- *	well!), drop me a mail, I might be interested in including	*
- *	it in the next release.						*
+ *	If you need to add one, drop me an email at bug@procmail.org.	*
+ *	I might be interested in including it in the next release.	*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.44 1999/07/06 06:12:22 guenther Exp $*/
+/*$Id: header.h,v 1.45 2001/09/24 03:38:08 guenther Exp $*/
 
 X(returnpath,		"Return-Path:")				  /* RFC 822 */
 X(received,		"Received:")				/* ditto ... */
