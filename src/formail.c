@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.47 1994/05/26 14:12:41 berg Exp $";
+ "$Id: formail.c,v 1.48 1994/06/09 10:11:30 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/05/26 14:12:41 $";
+static /*const*/char rcsdate[]="$Date: 1994/06/09 10:11:30 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -483,13 +483,14 @@ dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
 	    { char*p;const char*name;unsigned long h1,h2,h3;
 	      static unsigned long h4; /* conjure up a `unique' msg-id field */
 	      h1=time((time_t*)0);h2=thepid;h3=rhash;
-	      p=chp=malloc(fldp->id_len+2+((sizeof h1*8+5)/6+1)*4+
+	      p=chp=malloc(fldp->id_len+2+1+((sizeof h1*8+5)/6+1)*4+1+
 	       strlen(name=hostname())+2);     /* allocate worst case length */
 	      strncpy(p,fldp->fld_text,fldp->id_len);*(p+=fldp->id_len)=' ';
-	      *++p='<';*(p=ultoan(h3,p+1))='.';*(p=ultoan(h4,p+1))='.';
-	      *(p=ultoan(h2,p+1))='.';*(p=ultoan(h1,p+1))='@';
-	      strcpy(p+1,name);*(p=strchr(p,'\0'))='>';*++p='\n';
-	      addfield(&nheader,chp,p-chp+1);free(chp);h4++;	/* put it in */
+	      *++p='<';*++p='"';*(p=ultoan(h3,p+1))='.';
+	      *(p=ultoan(h4,p+1))='.';*(p=ultoan(h2,p+1))='.';
+	      *(p=ultoan(h1,p+1))='"';*++p='@';strcpy(p+1,name);
+	      *(p=strchr(p,'\0'))='>';*++p='\n';addfield(&nheader,chp,p-chp+1);
+	      free(chp);h4++;					/* put it in */
 	    }
 	   else
 	      addfield(&nheader,fldp->fld_text,fldp->tot_len);
