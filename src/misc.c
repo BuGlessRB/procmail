@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.71 1995/10/30 02:09:24 srb Exp $";
+ "$Id: misc.c,v 1.72 1995/11/14 04:27:28 srb Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -664,26 +664,40 @@ boglock:	 if(!goodlock)		      /* try & rename bogus lockfile */
 	    }
 	 }
 	if(mboxstat>0||mboxstat<0&&(setids(),!lstat(chp,&stbuf)))
-	   if(!(stbuf.st_mode&S_IWUSR)||	     /* recipient can write? */
-	      S_ISLNK(stbuf.st_mode)||			/* no symbolic links */
-	      (S_ISDIR(stbuf.st_mode)?	      /* directories, yes, hardlinks */
-		!(stbuf.st_mode&S_IXUSR):stbuf.st_nlink!=1))	       /* no */
-	      goto bogusbox;		/* can't deliver to this contraption */
-	   else if(stbuf.st_uid!=uid)		      /* recipient not owner */
-bogusbox:   { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
-	       strchr(strcpy(buf+i,BOGUSprefix),'\0'));		    /* bogus */
-	      nlog("Renaming bogus mailbox \"");elog(chp);elog("\" into");
-	      logqnl(buf);
-	      if(rename(chp,buf))	   /* try and move it out of the way */
-	       { syslog(LOG_EMERG,renfbogus,chp,buf);
-		 goto fishy;	    /* rename failed, something's fishy here */
-	       }
+	 { int checkiter=1;
+	   for(;;)
+	    { if(stbuf.st_uid!=uid||		      /* recipient not owner */
+		 !(stbuf.st_mode&S_IWUSR)||	     /* recipient can write? */
+		 S_ISLNK(stbuf.st_mode)||		/* no symbolic links */
+		 (S_ISDIR(stbuf.st_mode)?     /* directories, yes, hardlinks */
+		   !(stbuf.st_mode&S_IXUSR):stbuf.st_nlink!=1))	       /* no */
+		/*
+		 *	If another procmail is about to create the new
+		 *	mailbox, and has just made the link, st_nlink==2
+		 */
+		 if(checkiter--)	    /* maybe it was a race condition */
+		    suspend();		 /* close eyes, and hope it improves */
+		 else			/* can't deliver to this contraption */
+		  { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
+		     strchr(strcpy(buf+i,BOGUSprefix),'\0'));	    /* bogus */
+		    nlog("Renaming bogus mailbox \"");elog(chp);
+		    elog("\" into");logqnl(buf);
+		    if(rename(chp,buf))	   /* try and move it out of the way */
+		     { syslog(LOG_EMERG,renfbogus,chp,buf);
+		       goto fishy;  /* rename failed, something's fishy here */
+		     }
+		    else
+		       syslog(LOG_ALERT,renbogus,chp,buf);
+		    goto nobox;
+		  }
 	      else
-		 syslog(LOG_ALERT,renbogus,chp,buf);
+		 break;
+	      if(lstat(chp,&stbuf))
+		 goto nobox;
 	    }					/* SysV type autoforwarding? */
-	   else if(Deliverymode&&stbuf.st_mode&(S_ISGID|S_ISUID))
+	   if(Deliverymode&&stbuf.st_mode&(S_ISGID|S_ISUID))
 	    { nlog("Autoforwarding mailbox found\n");
-	      return EX_NOUSER;
+	      exit(EX_NOUSER);
 	    }
 	   else
 	    { if(!(stbuf.st_mode&OVERRIDE_MASK)&&
@@ -697,7 +711,9 @@ bogusbox:   { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
 	       }
 	      break;				  /* everything is just fine */
 	    }
+	 }
       }
+nobox:
      if(!(accspooldir&1))	     /* recipient does not own the spool dir */
       { if(!xcreat(chp,NORMperm,(time_t*)0,doCHOWN|doCHECK))	   /* create */
 	   break;		   /* mailbox... yes we could, fine, proceed */

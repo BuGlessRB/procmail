@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.47 1995/10/30 02:09:06 srb Exp $
+#$Id: Makefile.1,v 1.48 1995/11/14 04:27:23 srb Exp $
 
 all: bins mans recommend
 	@echo If you would like to inspect the results before running make \
@@ -152,11 +152,13 @@ man/Makefile: man/Makefile.0 Makefile
 
 src/Makefile: src/Makefile.0 Makefile
 
+HIDEMAKE=$(MAKE)
+
 man/Makefile src/Makefile Makefile: Makefile.1 initmake
 	sed -e '/^# Makefile.1 - mark/,$$ d' <Makefile >_Makefile
 	cat Makefile.0 >>_Makefile
 	$(MV) _Makefile Makefile
 	$(RM) Makefile.0
-	$(MAKE) init
+	$(HIDEMAKE) init
 
 init makefiles Makefiles makefile: man/Makefile src/Makefile

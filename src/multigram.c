@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.79 1995/06/27 22:07:21 srb Exp $";
+ "$Id: multigram.c,v 1.80 1995/11/14 04:27:28 srb Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1995/06/27 22:07:21 $";
+static /*const*/char rcsdate[]="$Date: 1995/11/14 04:27:28 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -783,19 +783,16 @@ usg:
 	      chp++;
 	   while(*chp&&strchr(punctuation,*chp))
 	      chp++;				/* strip leading punctuation */
+	   ;{ const char*colon;				/* no decnet address */
+	      if(*(colon=chp+strcspn(chp,":@!/"))==':'&&colon[1]!=':')
+		 chp=(char*)colon+1;	       /* strip leading ...: garbage */
+	    }
 	   while(echp>=chp&&strchr(tpunctuation,*echp))
 	      *echp--='\0';		       /* strip trailing punctuation */
 	   if(echp>=chp&&*echp=='"'&&strchr(chp,'"')==echp)
 	      *echp--='\0';		      /* strip trailing unbalanced " */
 	   while(echp>=chp&&strchr(tpunctuation,*echp))
 	      *echp--='\0';		       /* strip trailing punctuation */
-	   ;{ const char*colon,*sep;
-	      if((colon=strchr(chp,':'))&&
-		 colon[1]!=':'&&			/* no decnet address */
-		 (sep=strpbrk(chp,"@!/"))&&	 /* address information only */
-		 sep>colon)				    /* beyond colon? */
-		 chp=(char*)colon+1;	       /* strip leading ...: garbage */
-	    }
 	   if(echp<chp)
 	      continue;
 	   if(lastfrom<=0&&   /* roughly check if it could be a mail address */

@@ -130,11 +130,12 @@ Procmail & SmartList updates and patches list (readonly):
 A recent version can be picked up at various comp.sources.misc archives.
 The latest version can be obtained from your friendly neighbour mirror site:
 
-	ftp://ftp.aist-nara.ac.jp/pub/misc/mail/filters/procmail
-	ftp://ftp.net.ohio-state.edu/pub/networking/mail/procmail
-	ftp://ftp.psg.com/pub/unix/procmail
-	ftp://hub.ucsb.edu/pub/mail		(hand updated)
-	ftp://ftp.tamu.edu/pub/Unix/Mail	(hand updated)
+	ftp://ftp.aist-nara.ac.jp/pub/misc/mail/filters/procmail/
+	ftp://ftp.net.ohio-state.edu/pub/networking/mail/procmail/
+	ftp://ftp.fu-berlin.de/pub/unix/mail/procmail/
+	ftp://ftp.psg.com/pub/unix/procmail/
+	ftp://hub.ucsb.edu/pub/mail/		(hand updated)
+	ftp://ftp.tamu.edu/pub/Unix/Mail/	(hand updated)
 
 Or directly as:
 

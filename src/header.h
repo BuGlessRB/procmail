@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.39 1995/10/30 02:09:21 srb Exp $*/
+/*$Id: header.h,v 1.40 1995/11/14 04:27:27 srb Exp $*/
 
 X(returnpath,		"Return-Path:")				  /* RFC 822 */
 X(received,		"Received:")				/* ditto ... */
@@ -102,6 +102,7 @@ X(originator,		"Originator:")
 X(nntppostinghost,	"NNTP-Posting-Host:")
 X(submittedby,		"Submitted-by:")
 X(postdto,		"Posted-To:")
+X(mailcopiesto,		"Mail-Copies-To:")
 X(title,		"Title:")	      /* antiquated USENET extension */
 X(aRticleid,		"Article-I.D.:")			/* ditto ... */
 X(posted,		"Posted:")

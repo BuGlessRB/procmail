@@ -31,7 +31,7 @@ Contents:
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.49 1995/10/30 02:09:09 srb Exp $
+$Id: Manual,v 1.50 1995/11/14 04:27:24 srb Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -59,10 +59,10 @@ it creates an archive server.
 The fourth command removes all traces of the "testing" mailinglist again.
 
 There are four other convenience-utilities that can be used:
-	led	A wrapper around your editor, should be used when instead
+	led	A wrapper around your editor, should be used instead
 		of calling up your editor directly whenever editing a
 		SmartList managed file.	 It automatically takes care
-		of proper locking and does attribute checks.
+		of proper locking and performs attribute checks.
 	delink
 		It will unlink a file from its hardlinked counterpart(s)
 		(without deleting it).
@@ -85,6 +85,10 @@ The maintainer has to be careful to use an umask of 007 while editing in
 his mailinglist directory.  This allows the mailinglist-programs to function
 while still limiting access to all mailinglist files to *one* person only
 (the maintainer).
+
+N.B. The person a list is being donated to is able to gain access to the
+     SmartList account, if he tries hard enough.  To get secured multiple
+     lists, install SmartList several times.
 
 
 2. Remote maintenance of mailinglists

@@ -335,6 +335,10 @@
 	       - SENDMAILFLAGS, new environment variable
 	       - Support -y as a substitute kludge for -Y
 	       - Fixed parsing of $@' when not doublequoted
+	       - Cater for a race condition that occurs if two procmails
+		 try to create an empty system mailbox (bogus BOGUS.* files)
+	       - SysV autoforwarding mailboxes didn't work, regression bug in
+		 v3.10
 	    Changes to formail:
 	       - Slightly extended the number of known header fields
 	       - Eliminated the conflict with the 4.4BSD daemon libidentifier
@@ -374,3 +378,4 @@
 	       sizeof(off_t)>sizeof(off_t*) (has been around for ages)
 	    The man pages were remade upon every make, fixed
 	    Changed the Mprocmail example, use $g instead of $f
+	    Corrected the last(?) "make -n" glitch
