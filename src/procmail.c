@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.12 1992/11/12 11:38:25 berg Exp $";
+ "$Id: procmail.c,v 1.13 1992/11/12 12:27:58 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -430,6 +430,7 @@ noconcat:
 			     strcpy(buf2,buf);	/* copy tail and put it back */
 			     if(regsp==regs)	  /* check for daemon regexp */
 				or_nocase=1;	     /* no case sensitivity! */
+			     regsp=regs;	/* start over and look again */
 			   }
 		       i=!!egrepin(chp,startchar,tobesent,	 /* egrep it */
 			or_nocase?0:flags[DISTINGUISH_CASE]);

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.10 1992/11/11 16:35:28 berg Exp $";
+ "$Id: misc.c,v 1.11 1992/11/12 12:27:51 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -204,7 +204,8 @@ char*pstrstr(whole,part)const char*whole,*const part;
   return 0;
 }
 
-void catlim(dest,src,lim)register char*dest,*src;register size_t lim;
+void catlim(dest,src,lim)register char*dest;register const char*src;
+ register size_t lim;
 { while(lim&&*dest)
      ++dest,--lim;
   if(lim)
@@ -366,6 +367,7 @@ long renvint(i,env)const long i;const char*const env;
 char*egrepin(expr,source,len,casesens)char*expr;const char*source;
  const long len;
 { source=(const char*)bregexec((struct eps*)(expr=(char*)
-   bregcomp(expr,!casesens)),source,len>0?(size_t)len:(size_t)0,!casesens);
+   bregcomp(expr,!casesens)),(const uchar*)source,len>0?
+   (size_t)len:(size_t)0,!casesens);
   free(expr);return(char*)source;
 }

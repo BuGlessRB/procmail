@@ -1,9 +1,9 @@
-/*$Id: sublib.c,v 1.4 1992/11/11 16:35:46 berg Exp $*/
+/*$Id: sublib.c,v 1.5 1992/11/12 12:28:01 berg Exp $*/
 #include "includes.h"
 #include "sublib.h"
 
 #ifdef NOmemmove
-void*smemmove(To,From,count)void*To,*From;register size_t count;
+void*smemmove(To,From,count)void*To;const void*From;register size_t count;
 #ifdef NObcopy
 { register char*to=To,*from=From;/*void*old;*/	  /* silly compromise, throw */
   /*old=to;*/count++;--to;--from;  /* away space to be syntactically correct */
