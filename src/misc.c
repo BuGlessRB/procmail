@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.30 1993/08/24 11:30:39 berg Exp $";
+ "$Id: misc.c,v 1.31 1993/08/24 12:43:43 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -93,14 +93,14 @@ void readerr(file)const char*const file;
 void verboff P((void))
 { verbose=0;
 #ifdef SIGUSR1
-  ssignal(SIGUSR1,(void(*)())verboff);
+  qsignal(SIGUSR1,(void(*)())verboff);
 #endif
 }
 
 void verbon P((void))
 { verbose=1;
 #ifdef SIGUSR2
-  ssignal(SIGUSR2,(void(*)())verbon);
+  qsignal(SIGUSR2,(void(*)())verbon);
 #endif
 }
 
@@ -112,7 +112,7 @@ void yell(a,b)const char*const a,*const b;		/* log if VERBOSE=on */
 void nlog(a)const char*const a;
 { elog(procmailn);elog(": ");
   if(verbose)
-   { char num[8*sizeof time_t*4/10+1];
+   { char num[8*sizeof(time_t)*4/10+1];
      ultstr(0,(unsigned long)time((time_t*)0),num);elog(num);elog(" ");
    }
   elog(a);

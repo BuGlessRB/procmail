@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.11 1993/08/24 11:30:30 berg Exp $";
+ "$Id: exopen.c,v 1.12 1993/08/24 12:43:33 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -30,7 +30,7 @@ static void fakehandler P((void))
 { gotsig=1;
 }
 
-void ssignal(sig,action)const int sig;void(*action)P((void));
+void qsignal(sig,action)const int sig;void(*action)P((void));
 { gotsig=0;
   if(SIG_IGN==signal(sig,(void(*)())fakehandler))
      signal(sig,SIG_IGN);

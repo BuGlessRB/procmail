@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.16 1993/08/24 11:30:36 berg Exp $";
+ "$Id: lockfile.c,v 1.17 1993/08/24 12:43:39 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/08/24 11:30:36 $";
+static /*const*/char rcsdate[]="$Date: 1993/08/24 12:43:39 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -101,8 +101,8 @@ main(argc,argv)const char*const argv[];
   sleepsec=DEFlocksleep;force=invert=(char*)progid-(char*)progid;retries= -1;
   suspend=DEFsuspend;thepid=getpid();uid=getuid();signal(SIGPIPE,SIG_IGN);
 again:
-  ssignal(SIGHUP,failure);ssignal(SIGINT,failure);ssignal(SIGQUIT,failure);
-  ssignal(SIGTERM,failure);
+  qsignal(SIGHUP,failure);qsignal(SIGINT,failure);qsignal(SIGQUIT,failure);
+  qsignal(SIGTERM,failure);
   for(lastf=p=argv;--argc;)
      if(*(cp=(char*)*++p)=='-')
 	for(cp++;;)

@@ -195,3 +195,5 @@
 	       Eliminating duplicate submissions
 	       Catering for autoreplies to people not on the accept list
 	       Flush_digests can now be forced to push out digests
+	       Clipped an a bit too greedy -request-redirection-regexp in
+		  rc.submit
