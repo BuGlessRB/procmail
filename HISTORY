@@ -298,7 +298,7 @@
 	    Fixed bug in lockfile, the exitcode was not correct if
 	       you used -! (I hope this finally fixes this -! problem)
 	    Using execv() instead of execve()
-1995/05/16: v3.11pre2
+1995/05/17: v3.11pre3
 	    Changes to procmail:
 	       - varname ?? < nnn conditions didn't have the expected effect
 	       - Regression bug since v3.06, procmail -m /etc/procmailrcs

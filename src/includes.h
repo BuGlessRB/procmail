@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.53 1995/05/16 19:56:30 berg Exp $*/
+/*$Id: includes.h,v 1.54 1995/05/17 09:23:47 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -412,8 +412,8 @@ extern void*memmove();
 
 #ifdef setrgid_RUNTIME_CHECK
 #undef setrgid_RUNTIME_CHECK
-#define setRgid(gid)	(setrgid(gid)||getgid(gid)!=(gid))
-#define setRuid(uid)	(setruid(uid)||getuid(uid)!=(uid))
+#define setRgid(gid)	(setrgid(gid)||getgid()!=(gid))
+#define setRuid(uid)	(setruid(uid)||getuid()!=(uid))
 #else
 #define setRgid(gid)	setrgid(gid)
 #define setRuid(uid)	setruid(uid)
