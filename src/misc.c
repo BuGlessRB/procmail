@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.24 1993/04/21 15:02:37 berg Exp $";
+ "$Id: misc.c,v 1.25 1993/05/28 14:43:42 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -32,7 +32,7 @@ static fakedelivery;
 void elog(newt)const char*const newt;
 { int lnew,i;static lold;static char*old;char*p;
 #ifndef O_CREAT
-  lseek(STDERR,0L,SEEK_END);		  /* locking should be done actually */
+  lseek(STDERR,(off_t)0,SEEK_END);	  /* locking should be done actually */
 #endif
   if(!(lnew=strlen(newt))||nextexit)			     /* force flush? */
      goto flush;
@@ -169,7 +169,7 @@ void suspend P((void))
 	alarm((unsigned)t);	/* badly implemented sleep library functions */
 }
 
-void app_val(sp,val)struct dyna_long*const sp;const long val;
+void app_val(sp,val)struct dyna_long*const sp;const off_t val;
 { if(sp->filled==sp->tspace)			    /* growth limit reached? */
    { if(!sp->offs)
 	sp->offs=malloc(1);

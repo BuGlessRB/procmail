@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.48 1993/05/19 16:22:46 berg Exp $
+#$Id: autoconf,v 1.49 1993/05/28 14:43:26 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -26,6 +26,7 @@
 #	typedef int uid_t;
 #	typedef int gid_t;
 #	typedef unsigned size_t;
+#	typedef long off_t;
 #	typedef long time_t;
 #	#define NOmemmove
 #	#define NObcopy
@@ -90,11 +91,13 @@ tailpid=""
 
 if test -f $ACONF
 then
-  trap "cp $ACONF $ACONF.tmp; $RM -r \$OLDTESTDIRS
-   test ! -z \"\$tailpid\" && kill \$tailpid; exit 1" 1 2 3 15
+  trap "kill \`cat _locktst.pid\`;cp $ACONF $ACONF.tmp;$RM -r \$OLDTESTDIRS
+   test ! -z \"\$tailpid\" && kill \$tailpid
+   kill \`cat _locktst.pid\` 2>$DEVNULL; exit 1" 1 2 3 15
 else
-  trap "$RM -r \$OLDTESTDIRS $ACONF.tmp;mv $ACONF $ACONF.tmp 2>$DEVNULL;
-   test ! -z \"\$tailpid\" && kill \$tailpid; exit 1" 1 2 3 15
+  trap "kill \`cat _locktst.pid\`;$RM -r \$OLDTESTDIRS $ACONF.tmp
+   mv $ACONF $ACONF.tmp 2>$DEVNULL;test ! -z \"\$tailpid\" && kill \$tailpid
+   kill \`cat _locktst.pid\` 2>$DEVNULL; exit 1" 1 2 3 15
 fi
 
 nocore=yes
@@ -310,8 +313,12 @@ cat >_autotst.c <<HERE
 int dolock,child[NR_of_forks],timeout,fdcollect;
 char dirlocktest[]="_locktest";
 
-void stimeout()
-{ timeout=1;killchildren();close(fdcollect);
+stimeout()
+{ timeout=1;close(fdcollect);killchildren();
+}
+
+terminate()
+{ stimeout();exit(1);
 }
 
 static unsigned long seed;
@@ -330,14 +337,13 @@ unsigned sfork()
 main(argc,argv)char*argv[];
 { int goodlock,testlock,i,pip[2],pipw[2];unsigned otimet,dtimet;
   static char filename[]="_locktst.l0";
-  close(0);goodlock=0;testlock=FIRST_lock;signal(SIGTERM,SIG_DFL);
-  signal(SIGPIPE,SIG_DFL);				     /* die on these */
+  close(0);goodlock=0;testlock=FIRST_lock;signal(SIGPIPE,SIG_DFL);
   if(sfork())				 /* try to ditch the controlling tty */
      return EX_OK;	/* mainly to prevent rather messy kernel-diagnostics */
   setsid();				       /* from appearing on your tty */
   do
    { int countlocks;
-     argc=1;dolock=goodlock|testlock;
+     signal(SIGTERM,SIG_DFL);argc=1;dolock=goodlock|testlock;
      do
       { char*curdir;
 	curdir=argv[argc];otimet=time((char*)0);
@@ -381,16 +387,20 @@ main(argc,argv)char*argv[];
 		 sleep(SLEEP_retreat);
 	    }
 	 }
+	signal(SIGTERM,terminate);
 	;{ unsigned char lckdfil[NR_of_lockfiles],curflag;
 	   int j,ppid;			       /* give all children a chance */
 	   ppid=getppid();
 	   if(sfork())	/* discard the old body, let init adopt our children */
 	      return EX_OK;
+	   ;{ FILE*fp;
+	      if(fp=fopen("_locktst.pid","w"))
+		 fprintf(fp,"%ld",(long)getpid()),fclose(fp);
+	    }
 	   countlocks=MIN_locks;close(pip[1]);close(pipw[1]);
 	   for(j=NR_of_lockfiles;lckdfil[--j]=0,j;);
 	   timeout=0;sleep(1);read(pipw[0],&curflag,1);close(pipw[0]);
-	   kill(ppid,SIGKILL);fdcollect=pip[0];
-	   signal(SIGALRM,(void(*)())stimeout);
+	   kill(ppid,SIGKILL);fdcollect=pip[0];signal(SIGALRM,stimeout);
 	   dtimet=(((unsigned)time((char*)0)-otimet)*GROW)+TIME_OUT_SEC;
 	   do
 	    { unlink("_locktst.alive");alarm(dtimet+2);		 /* watchdog */
@@ -668,6 +678,7 @@ main(){int i;char*p="t";
  {mode_t vmode_t;i=vmode_t=1;}
  {uid_t vuid_t;i=vuid_t=1;}
  {gid_t vgid_t;i=vgid_t=1;}
+ {off_t voff_t;i=voff_t=1;}
 #ifndef NO_COMSAT
  {struct hostent host;i=!(host.h_addr_list=0);}
 #endif
@@ -675,7 +686,7 @@ main(){int i;char*p="t";
  return !vvoid;}
 HERE
 
-echo 'Testing for void*,size_t,pid_t,time_t,mode_t,uid_t,gid_t'
+echo 'Testing for void*,size_t,off_t,pid_t,time_t,mode_t,uid_t,gid_t'
 $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
 $RM _autotst.$O
 
@@ -686,6 +697,7 @@ grepfor time_t 'typedef long time_t;'
 grepfor mode_t 'typedef int mode_t;'
 grepfor uid_t 'typedef int uid_t;'
 grepfor gid_t 'typedef int gid_t;'
+grepfor off_t 'typedef long off_t;'
 grepfor h_addr_list '#define h_0addr_list h_addr' ||
  grepfor struct '#define h_0addr_list h_addr'
 
@@ -898,7 +910,7 @@ $MAKE _autotst >$DEVNULL 2>&1
 _autotst >>$ACONF
 
 found=no
-for a in /usr/spool/mail /usr/mail /var/spool/mail /var/mail
+for a in /usr/spool/mail /usr/mail /var/spool/mail /var/mail /spool/mail
 do
   test -d $a -a $found != yes &&
    echo '#define SYSTEM_MAILBOX "'$a'/$LOGNAME"' >>$ACONF && found=yes
@@ -911,7 +923,7 @@ fi
 
 cat >lookfor <<HERE
 for a in /usr/lib /lib /usr/etc /etc /usr/bin /bin /usr/local/bin /usr/lbin \
- /usr/local/lib /usr/local /usr/.lib
+ /usr/local/lib /usr/local /usr/.lib /local/bin
 do
  if test -f "\$a/\$1"
  then

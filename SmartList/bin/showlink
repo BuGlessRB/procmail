@@ -8,7 +8,7 @@
 #	If you can figure out and understand everything in this script, #
 #	you can consider yourself an awk guru!				#
 #########################################################################
-#$Id: showlink,v 1.1 1993/05/05 13:05:43 berg Exp $
+#$Id: showlink,v 1.2 1993/05/28 14:42:54 berg Exp $
 
 defaults=.etc
 
@@ -35,8 +35,8 @@ case $# in
 	do $ls -di $defaults/$a .bin*/$a */$a 2>/dev/null
 	done
      else
-	file="`$basename \"$1\"`"
-	cd="`$dirname \"$1\"`"
+	file="`$basename '$1'`"
+	cd="`$dirname '$1'`"
 	$test ! -d $defaults -a -d ../$defaults && cd ..
 	$ls -di $defaults/$file .bin*/$file */$file 2>/dev/null
      fi;;

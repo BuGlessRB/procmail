@@ -1,4 +1,4 @@
-/*$Id: mailfold.h,v 1.6 1993/05/07 12:39:33 berg Exp $*/
+/*$Id: mailfold.h,v 1.7 1993/05/28 14:43:40 berg Exp $*/
 
 long
  dump P((const s,const char*source,long len));
@@ -11,7 +11,7 @@ void
 
 extern const char scomsat[];
 extern logopened,tofile;
-extern long lasttell;
+extern off_t lasttell;
 
 #define to_FILE		1		  /* when we are writing a real file */
 #define to_FOLDER	2		 /* when we are writing a filefolder */

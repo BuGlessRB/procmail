@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.12 1993/01/13 15:20:46 berg Exp $";
+ "$Id: cstdio.c,v 1.13 1993/05/28 14:43:29 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -14,14 +14,14 @@ static /*const*/char rcsid[]=
 #include "misc.h"
 
 static uchar rcbuf[STDBUF],*rcbufp,*rcbufend;	 /* buffers for custom stdio */
-static long blasttell;
+static off_t blasttell;
 static struct dyna_long inced;				  /* includerc stack */
 
 void pushrc(name)const char*const name;		      /* open include rcfile */
 { struct stat stbuf;					   /* only if size>0 */
   if(*name&&(stat(name,&stbuf)||!S_ISREG(stbuf.st_mode)||stbuf.st_size))
-   { app_val(&inced,rcbufp?(long)(rcbufp-rcbuf):0L);app_val(&inced,blasttell);
-     app_val(&inced,(long)rc);			 /* save old position and fd */
+   { app_val(&inced,rcbufp?(off_t)(rcbufp-rcbuf):(off_t)0);	 /* save old */
+     app_val(&inced,blasttell);app_val(&inced,(off_t)rc);   /* position & fd */
      if(bopen(name)<0)			      /* and try to open the new one */
 	readerr(name),poprc();		       /* we couldn't, so restore rc */
    }

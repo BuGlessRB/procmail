@@ -118,7 +118,45 @@
 
 	This is a known bug in sendmail-5.65c+IDA.
 
-12. None of the above topics cover my problem.	Should I panic?
+12. I sometimes get these `Lock failure on "/usr/mail/$LOGNAME.lock"' errors
+    from procmail.  What do I do about it?
+
+	The problem here is that as long as procmail has not read a
+	$HOME/.procmailrc file, it can hang on to the sgid mail permission
+	(which it needs in order to create a lockfile in /usr/mail).
+	I.e. if procmail delivers mail to a user without a $HOME/.procmailrc
+	file, procmail *can* (and does) use the /usr/mail/$LOGNAME.lock file.
+
+	If, however, it finds a $HOME/.procmailrc file, procmail has to let go
+	of the sgid mail permission because otherwise any ordinary user could
+	misuse that.
+
+	There are several solutions to this problem:
+	- Some systems support the sticky bit on directories (when set only
+	  allows the owner of a file in that directory to rename or remove
+	  it).	This enables you to make /usr/spool/mail drwxrwxrwt.  It is
+	  thus effectively world writeable, but all the mailboxes in it are
+	  protected because only the mailbox owner can remove or rename it.
+	- If your system did not exhibit the !@#$%^&* POSIX semantics for
+	  setgid(), procmail would have been able to switch back and forth
+	  between group mail and the group the recipient belongs to without
+	  creating security holes.
+	- If your system supported setrgid() or setregid() with BSD semantics,
+	  procmail would have been able to switch... (see the previous point).
+	- You could simply put the following at the end of your .procmailrc
+	  file:
+
+		LOCKFILE		# removes any preexisting lockfile
+		LOG=`lockfile $DEFAULT$LOCKEXT`
+		TRAP="rm -f $DEFAULT$LOCKEXT"
+			:0
+			$DEFAULT
+
+	- You could, instead of using /usr/mail/$LOGNAME, use a file below
+	  your home directory as your default mailbox.
+
+
+13. None of the above topics cover my problem.	Should I panic?
 
 	Let me ask you a question :-), have you examined the CAVEATS, WARNINGS,
 	BUGS and NOTES sections of the manual pages *closely* ?

@@ -16,11 +16,16 @@ maintainer	=
 #minbounce	=	3		# no. of bounces before removal
 #cutoff_bounce	=	256		# lines to keep in bounce processing
 #subscribe_log	=	$LOGFILE	# log file for administrivia
-#match_threshold=	30730		# for close matches to the list
-#off_threshold	=	24476		# for loosely finding your name
 
-#reject_threshold=	$match_threshold # to determine if you may subscribe
-#submit_threshold=	$match_threshold # to determine if you may submit
+#match_threshold=	30730		# for close matches to the list
+#medium_threshold=	28672		# for not so close matches to the list
+#loose_threshold=	24476		# for loosely finding your name
+
+#auto_off_threshold=  $medium_threshold # for auto-unsubscribing bouncers
+#off_threshold	=      $loose_threshold # for unsubscribing
+#reject_threshold=     $match_threshold # for rejecting subscriptions
+#submit_threshold=    $medium_threshold # for permitting submissions
+
 #foreign_submit =	yes
 ##foreign_submit			# uncomment this line if you
 					# *don't* want to allow

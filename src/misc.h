@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.12 1993/04/13 15:44:19 berg Exp $*/
+/*$Id: misc.h,v 1.13 1993/05/28 14:43:44 berg Exp $*/
 
 void
  elog P((const char*const newt)),
@@ -15,7 +15,7 @@ void
  sterminate P((void)),
  terminate P((void)),
  suspend P((void)),
- app_val P((struct dyna_long*const sp,const long val)),
+ app_val P((struct dyna_long*const sp,const off_t val)),
  firstchd P((void)),
  srequeue P((void)),
  slose P((void)),

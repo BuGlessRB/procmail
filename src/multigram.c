@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.27 1993/04/21 15:02:41 berg Exp $";
+ "$Id: multigram.c,v 1.28 1993/05/28 14:43:47 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/04/21 15:02:41 $";
+static /*const*/char rcsdate[]="$Date: 1993/05/28 14:43:47 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -145,7 +145,7 @@ static PROGID;
 
 main(minweight,argv)char*argv[];
 { struct string fuzzstr,hardstr;FILE*hardfile;const char*addit=0;
-  struct match{char*fuzz,*hard;int metric;long lentry,offs1,offs2;}
+  struct match{char*fuzz,*hard;int metric;long lentry;off_t offs1,offs2;}
    **best,*curmatch=0;
   unsigned best_matches,maxgram,maxweight,charoffs=0,remov=0,renam=0,
    chkmetoo=(char*)progid-(char*)progid;
@@ -223,10 +223,10 @@ main(minweight,argv)char*argv[];
 	   return EX_USAGE;
 	 }
 	if(!stat(argv[3],&stbuf))
-	 { time_t newt;unsigned long size;
+	 { time_t newt;unsigned off_t size;
 	   newt=stbuf.st_mtime;size=stbuf.st_size;
 	   if(!stat(argv[minweight=4],&stbuf))
-	    { unsigned long maxsize;
+	    { unsigned off_t maxsize;
 	      if(stbuf.st_mtime+strtol(argv[1],(char**)0,10)<newt)
 		 return EX_OK;				   /* digest too old */
 	      maxsize=strtol(argv[2],(char**)0,10);goto statd;
@@ -300,7 +300,7 @@ usg:
    { elog(usage);return EX_USAGE;
    }
   if(addit)			      /* special subfunction, to add entries */
-   { int lnl;long lasttell;				 /* to the dist file */
+   { int lnl;off_t lasttell;				 /* to the dist file */
      for(lnl=1,lasttell=0;;)
       { switch(getc(hardfile))			    /* step through the file */
 	 { case '\n':
@@ -333,7 +333,7 @@ usg:
      while(i--);
    }
   for(lastfrom= -1;readstr(stdin,&fuzzstr,0);)
-   { int meter,maxmetric;size_t fuzzlen;long linentry,offs1,offs2;
+   { int meter,maxmetric;size_t fuzzlen;long linentry;off_t offs1,offs2;
      ;{ char*chp,*echp;int parens;
 	echp=strchr(chp=fuzzstr.text,'\0')-1;
 	do
@@ -381,7 +381,7 @@ shftleft:     tmemmove(chp,chp+1,strlen(chp));
 	curmatch->fuzz=tstrdup(chp);curmatch->hard=malloc(1);
 	curmatch->metric= -SCALE_WEIGHT;
       }
-     lowcase(&fuzzstr);fseek(hardfile,0L,SEEK_SET);
+     lowcase(&fuzzstr);fseek(hardfile,(off_t)0,SEEK_SET);
      maxmetric=best[best_matches]->metric;
      for(remov_delim=offs2=linentry=0;
       offs1=offs2,readstr(hardfile,&hardstr,1);)
@@ -473,7 +473,7 @@ remv1:	       { worse=mp;mp= *best;goto remv;
 	   nlog("Couldn't find a proper address pair\n");goto norenam;
 	 }
 	if(remov)
-remv:	 { char*buf;long offs1,offs2;size_t readin;
+remv:	 { char*buf;off_t offs1,offs2;size_t readin;
 	   buf=malloc(COPYBUF);offs1=mp->offs1;offs2=mp->offs2;
 	   while(fseek(hardfile,offs2,SEEK_SET),
 	    readin=fread(buf,1,COPYBUF,hardfile))

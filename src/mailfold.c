@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.26 1993/05/05 13:06:28 berg Exp $";
+ "$Id: mailfold.c,v 1.27 1993/05/28 14:43:37 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -25,7 +25,7 @@ static /*const*/char rcsid[]=
 const char scomsat[]="COMSAT";
 #endif
 int logopened,tofile;
-long lasttell;
+off_t lasttell;
 static long lastdump;
 static volatile mailread;	/* if the mail is completely read in already */
 static struct dyna_long escFrom_,confield;	  /* escapes, concatenations */
@@ -49,11 +49,11 @@ long dump(s,source,len)const int s;const char*source;long len;
 { int i;long part;
   lasttell=i= -1;
   if(s>=0)
-   { if(tofile&&(lseek(s,0L,SEEK_END),fdlock(s)))
+   { if(tofile&&(lseek(s,(off_t)0,SEEK_END),fdlock(s)))
 	nlog("Kernel-lock failed\n");
      lastdump=len;part=tofile==to_FOLDER?getchunk(s,source,len):len;
-     lasttell=lseek(s,0L,SEEK_END);smboxseparator(s);  /* optional separator */
-#ifndef NO_NFS_ATIME_HACK
+     lasttell=lseek(s,(off_t)0,SEEK_END);smboxseparator(s);	 /* optional */
+#ifndef NO_NFS_ATIME_HACK					/* separator */
      if(part&&tofile)		       /* if it is a file, trick NFS into an */
 	len--,part--,rwrite(s,source++,1),sleep(1);	    /* a_time<m_time */
 #endif
@@ -129,22 +129,26 @@ static ismhdir(chp)char*const chp;
 }
 				       /* open file or new file in directory */
 deliver(boxname,linkfolder)char*boxname,*linkfolder;
-{ struct stat stbuf;char*chp;int mhdir;
-  tofile=to_FILE;asgnlastf=1;
+{ struct stat stbuf;char*chp;int mhdir;mode_t cumask;
+  umask(cumask=umask(0));cumask=UPDATE_MASK&~cumask;tofile=to_FILE;
+  asgnlastf=1;
   if(boxname!=buf)
      strcpy(buf,boxname);		 /* boxname can be found back in buf */
   if(*(chp=buf))				  /* not null length target? */
      chp=strchr(buf,'\0')-1;		     /* point to just before the end */
   mhdir=ismhdir(chp);				      /* is it an MH folder? */
   if(stat(boxname,&stbuf))				 /* it doesn't exist */
-   { if(!mhdir||mkdir(buf,NORMdirperm))		/* should it be a directory? */
+   { if(cumask&&!(stbuf.st_mode&UPDATE_MASK))
+	chmod(boxname,stbuf.st_mode|UPDATE_MASK);
+     if(!mhdir||mkdir(buf,NORMdirperm))		/* should it be a directory? */
 	goto makefile;				/* no, create a regular file */
    }
   else if(!S_ISDIR(stbuf.st_mode))	 /* it exists and is not a directory */
 makefile:
    { if(linkfolder)	  /* any leftovers?  Now is the time to display them */
 	concatenate(linkfolder),skipped(linkfolder);
-     tofile=strcmp(devnull,buf)?to_FOLDER:0;return opena(boxname);
+     tofile=strcmp(devnull,buf)?to_FOLDER:0;
+     return opena(boxname);
    }
   if(linkfolder)		    /* any additional directories specified? */
    { for(boxname=linkfolder;*boxname!=TMNATE;)
@@ -167,6 +171,8 @@ makefile:
 	   mhdir=ismhdir(chp);			      /* is it an MH folder? */
 	   if(stat(boxname,&stbuf))			 /* it doesn't exist */
 	      mkdir(buf,NORMdirperm);				/* create it */
+	   else if(cumask&&!(stbuf.st_mode&UPDATE_MASK))
+	      chmod(buf,stbuf.st_mode|UPDATE_MASK);
 	   if(mhdir)
 	      *chp='\0',chp[-1]= *MCDIRSEP_;
 	   else				 /* fixup directory name, append a / */
@@ -245,7 +251,7 @@ void logabstract(lstfolder)const char*const lstfolder;
 	addr.sin_port=htons((short)s);			    /* network order */
      cat(tgetenv(lgname),"@");			 /* should always fit in buf */
      if(lasttell>=0)					   /* was it a file? */
-	ultstr(0,lasttell,buf2),catlim(buf2);			      /* yep */
+	ultstr(0,(unsigned long)lasttell,buf2),catlim(buf2);	      /* yep */
      catlim(COMSATxtrsep);				 /* custom seperator */
      if(lasttell>=0&&!strchr(dirsep,*lstfolder))       /* relative filename? */
 	catlim(tgetenv(maildir)),catlim(MCDIRSEP_);   /* prepend current dir */
@@ -290,7 +296,7 @@ void readmail(rhead,tobesent)const long tobesent;
 	while(thebody=
 	 egrepin("[^\n]\n[\n\t ]",thebody,(long)(pastend-thebody),1))
 	   if(thebody[-1]!='\n')		  /* mark continuated fields */
-	      app_val(&confield,(long)(--thebody-1-themail));
+	      app_val(&confield,(off_t)(--thebody-1-themail));
 	   else
 	      goto eofheader;		   /* empty line marks end of header */
 	thebody=pastend;      /* provide a default, in case there is no body */
@@ -303,7 +309,7 @@ eofheader:;
      f1stchar= *realstart;*(chp=realstart)='\0';escFrom_.filled=0;
      while(chp=egrepin(FROM_EXPR,chp,(long)(pastend-chp),1))
       { while(*--chp!='\n');		       /* where did this line start? */
-	app_val(&escFrom_,(long)(++chp-themail));chp++;		   /* bogus! */
+	app_val(&escFrom_,(off_t)(++chp-themail));chp++;	   /* bogus! */
       }
      *realstart=f1stchar;mailread=1;
    }

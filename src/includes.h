@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.22 1993/05/07 12:39:30 berg Exp $*/
+/*$Id: includes.h,v 1.23 1993/05/28 14:43:32 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -10,11 +10,12 @@
 #define _HPUX_SOURCE	      /* sad, but needed on HP-UX when compiling -Aa */
 #endif
 
-#include <sys/types.h>		/* pid_t mode_t uid_t gid_t */
+#include <sys/types.h>		/* pid_t mode_t uid_t gid_t off_t */
 #ifndef UNISTD_H_MISSING
 #include <unistd.h>		/* open() read() write() close() dup() pipe()
-				/* fork() getuid() getpid() execve()
-				   execvp() sleep() */
+				/* fork() getuid() getgid() getpid() execve()
+				   execvp() sleep() setuid() setgid()
+				   setrgid() chown() */
 #endif
 #include <stdio.h>		/* setbuf() fclose() stdin stdout stderr
 				/* fopen() fread() fwrite() fgetc() getc()
@@ -42,7 +43,8 @@
 #ifndef SYS_UTSNAME_H_MISSING
 #include <sys/utsname.h>	/* uname() utsname */
 #endif
-#include <sys/stat.h>		/* stat() S_ISDIR() S_ISREG() struct stat */
+#include <sys/stat.h>		/* stat() S_ISDIR() S_ISREG() struct stat
+				/* chmod() mkdir() */
 #include <signal.h>		/* signal() kill() alarm() SIG_IGN SIGHUP
 				/* SIGINT SIGQUIT SIGALRM SIGTERM */
 #ifndef STRING_H_MISSING
@@ -125,7 +127,7 @@ char*strpbrk();
 #define SEEK_END	2
 #endif
 #ifndef tell
-#define tell(fd)	lseek(fd,0L,SEEK_CUR)
+#define tell(fd)	lseek(fd,(off_t)0,SEEK_CUR)
 #endif
 
 #ifndef EWOULDBLOCK

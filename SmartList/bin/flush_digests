@@ -8,7 +8,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: flush_digests,v 1.3 1993/04/13 15:48:01 berg Exp $
+#$Id: flush_digests,v 1.4 1993/05/28 14:42:50 berg Exp $
 
 test=test		# /bin/test
 mkdir=mkdir		# /bin/mkdir
@@ -72,7 +72,7 @@ HERE
   fi
 
 else
-  a=`$dirname "$0"`/..
+  a=`$dirname '$0'`/..
   if cd "$a"
   then
   :

@@ -16,7 +16,7 @@
 #	Created by S.R. van den Berg, The Netherlands		#
 #	This file can be freely copied for any use.		#
 #################################################################
-#$Id: mailstat,v 1.15 1993/05/19 15:03:08 berg Exp $
+#$Id: mailstat,v 1.16 1993/05/28 14:42:42 berg Exp $
 
 #	This shell script expects the following programs to be in the
 #	PATH (paths given here are the standard locations, your mileage
@@ -60,7 +60,7 @@ do
   else
      flags=-h				# force help page
   fi
-  while flags="`$expr \"X$flags\" : 'X.\(.*\)'`"; $test ."$flags" != .
+  while flags="`$expr 'X$flags' : 'X.\(.*\)'`"; $test ."$flags" != .
   do
      case "$flags" in
 	 k*) MSkeeplogfile=1;;
@@ -105,7 +105,7 @@ then
 	if $test -f "$LOGFILE"
 	then
 	   $echo No mail arrived since \
-	    `$expr "X\`LANG= LC_TIME= $ls -l \"$OLDLOGFILE\"\`" : \
+	    `$expr "X\`LANG= LC_TIME= $ls -l '$OLDLOGFILE'\`" : \
 	     '.*[0-9] \([A-Z][a-z][a-z] .[^ ] .....\) [^ ]'`
 	else
 	   $echo "Can't find your LOGFILE=$LOGFILE"

@@ -179,12 +179,16 @@
 	    Extended recommend.c, it advises changing the permissions on
 	       the system mail spool directory as well now (if needed)
 	    Procmail can now deliver to multiple directories (using hardlinks)
+	    If the umask permits o+x, this bit will be set on any mailbox
+	       procmail delivers to directly
 	    Added the LASTFOLDER & LOGABSTRACT variables to procmail in order
 	       to ease the generation of custom logfile abstracts/summaries
 	    Programs started from within TRAP can read the mail from stdin
 	    Worked my way around the !@#$%^&*() POSIX setgid() semantics (if
 	       your OS supports setrgid() or setregid())
 	    Eliminated all uses of "expr match"
+	    Altered mailstat to work on really broken shells
+	    Extended the FAQ
 	    Changes to the mailinglist scripts:
 	       - Finetuned some scripts
 	       - Added digested lists

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.14 1993/05/05 13:06:25 berg Exp $";
+ "$Id: locking.c,v 1.15 1993/05/28 14:43:34 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -155,7 +155,7 @@ static struct flock flck;		/* why can't it be a local variable? */
 #define REITfcntl	0
 #endif /* NOfcntl_lock */
 #ifdef USElockf
-static long oldlockoffset;
+static off_t oldlockoffset;
 #define REITlockf	1
 #else
 #define REITlockf	0
@@ -178,7 +178,7 @@ fdlock(fd)
 #ifndef NOfcntl_lock
      ret=fcntl(fd,F_SETLKW,&flck);
 #ifdef USElockf
-     if((ret|=lockf(fd,F_TLOCK,0L))&&(errno==EAGAIN||errno==EACCES||
+     if((ret|=lockf(fd,F_TLOCK,(off_t)0))&&(errno==EAGAIN||errno==EACCES||
       errno==EWOULDBLOCK))
 ufcntl:
       { flck.l_type=F_UNLCK;fcntl(fd,F_SETLK,&flck);continue;
@@ -186,7 +186,7 @@ ufcntl:
 #ifdef USEflock
      if((ret|=flock(fd,LOCK_EX|LOCK_NB))&&(errno==EAGAIN||errno==EACCES||
       errno==EWOULDBLOCK))
-      { lockf(fd,F_ULOCK,0L);goto ufcntl;
+      { lockf(fd,F_ULOCK,(off_t)0);goto ufcntl;
       }
 #endif /* USEflock */
 #else /* USElockf */
@@ -199,11 +199,11 @@ ufcntl:
 #endif /* USElockf */
 #else /* NOfcntl_lock */
 #ifdef USElockf
-     ret=lockf(fd,F_LOCK,0L);
+     ret=lockf(fd,F_LOCK,(off_t)0);
 #ifdef USEflock
      if((ret|=flock(fd,LOCK_EX|LOCK_NB))&&(errno==EAGAIN||errno==EACCES||
       errno==EWOULDBLOCK))
-      { lockf(fd,F_ULOCK,0L);continue;
+      { lockf(fd,F_ULOCK,(off_t)0);continue;
       }
 #endif /* USEflock */
 #else /* USElockf */
@@ -225,7 +225,7 @@ fdunlock P((void))
   i|=flock(oldfdlock,LOCK_UN);
 #endif
 #ifdef USElockf
-  lseek(oldfdlock,oldlockoffset,SEEK_SET);i|=lockf(oldfdlock,F_ULOCK,0L);
+  lseek(oldfdlock,oldlockoffset,SEEK_SET);i|=lockf(oldfdlock,F_ULOCK,(off_t)0);
 #endif
 #ifndef NOfcntl_lock
   flck.l_type=F_UNLCK;i|=fcntl(oldfdlock,F_SETLK,&flck);
