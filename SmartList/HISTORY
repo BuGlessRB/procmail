@@ -182,6 +182,7 @@
 	    Forgot to export PATH in the cronlist example
 	    Put in support to recognise the default domain for the accept
 	       list and force_subscribe flag
-	    Allow multigram to really display multiple matches
+	    Allow multigram to really display multiple matches (so that the
+	       checkdist and unsub_assist features finally work as intended)
 	    Tuned the multigram match values a bit, to improve the signal
 	       to noise ratio for typical mail addresses
