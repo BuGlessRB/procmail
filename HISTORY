@@ -136,6 +136,7 @@
 		 pair is on an otherwise empty line, in which case only the
 		 newline remains
 	       - comsat/biff is fully supported now
+	       - added the TRAP keyword, to allow for temporary file cleanup
 	    Changes to the installation scripts:
 	       - preset values for $(MAKE), $(CC) and $(SHELL) are respected
 		 in Makefiles now
@@ -143,7 +144,7 @@
 	       - the need for any -D_POSIX_SOURCE is recognised automatically
 	       - to make sure that all this is possible, the Makefiles are
 		 created in a two step-process now (make init)
-	       - the autoconf script now does performs reliability test on
-		 kernel locking support
+	       - the autoconf script now performs a reliability test on kernel
+		 locking support
 	       - also, network support for comsat tries to build up a compile
 		 time cache for trivial get*byname() calls

@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: robust.c,v 1.3 1992/10/02 14:41:09 berg Exp $";
+static char rcsid[]="$Id: robust.c,v 1.4 1992/10/20 15:35:58 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -14,8 +14,8 @@ static char rcsid[]="$Id: robust.c,v 1.3 1992/10/02 14:41:09 berg Exp $";
 
 #define nomemretry	noresretry
 #define noforkretry	noresretry
-
-static void nomemerr()	  /* set nextexit to prevent log from using malloc() */
+		       /* set nextexit to prevent elog() from using malloc() */
+static void nomemerr P((void))
 { nextexit=2;nlog("Out of memory\n");
   if(buf2)
    { buf[linebuf-1]=buf2[linebuf-1]='\0';elog("buffer 0:");logqnl(buf);
@@ -66,7 +66,7 @@ void tfree(p)void*const p;
 
 #include "shell.h"
 
-pid_t sfork()				/* this fork can survive a temporary */
+pid_t sfork P((void))			/* this fork can survive a temporary */
 { pid_t i;int r;			   /* "process table full" condition */
   elog("");r=noforkretry;			  /* flush log, just in case */
   while((i=fork())==-1)
@@ -78,10 +78,12 @@ pid_t sfork()				/* this fork can survive a temporary */
   lcking&=~lck_FORK;return i;
 }
 
-void openlog(file)const char*const file;
+void openlog(file)const char*file;
 { int i;
+  if(!*file)						   /* empty LOGFILE? */
+     file=devnull;				 /* substitute the bitbucket */
   if(0>(i=opena(file)))
-     writeerr(file);
+     writeerr(file);			      /* error, keep the old LOGFILE */
   else
      rclose(STDERR),rdup(i),rclose(i),logopened=1;
 }

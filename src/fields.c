@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: fields.c,v 1.4 1992/10/02 14:39:54 berg Exp $";
+static char rcsid[]="$Id: fields.c,v 1.5 1992/10/20 15:35:09 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -67,7 +67,7 @@ void dispfield(p)const register struct field*p;
 	lputssn(p->fld_text,p->tot_len);
 }
 
-readhead()	    /* try and append one valid field to rdheader from stdin */
+readhead P((void))  /* try and append one valid field to rdheader from stdin */
 { getline();
   if(!eqFrom_(buf))				    /* it's not a From_ line */
    { if(!breakfield(buf,buffilled))	   /* not the start of a valid field */
@@ -84,6 +84,6 @@ readhead()	    /* try and append one valid field to rdheader from stdin */
   addbuf();return 1;		  /* phew, got the field, add it to rdheader */
 }
 
-void addbuf()
+void addbuf P((void))
 { addfield(&rdheader,buf,buffilled);buffilled=0;
 }

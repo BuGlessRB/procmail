@@ -5,14 +5,14 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: exopen.c,v 1.5 1992/10/02 14:39:48 berg Exp $";
+static char rcsid[]="$Id: exopen.c,v 1.6 1992/10/20 15:35:05 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
 #include "misc.h"
 #include "exopen.h"
 
-const char*hostname()
+const char*hostname P((void))
 { static char name[HOSTNAMElen+1];
 #ifdef	NOuname
   gethostname(name,HOSTNAMElen+1);

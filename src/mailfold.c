@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: mailfold.c,v 1.4 1992/10/02 14:40:34 berg Exp $";
+static char rcsid[]="$Id: mailfold.c,v 1.5 1992/10/20 15:35:35 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -83,7 +83,7 @@ deliver(boxname)char*const boxname;
    (tofile=to_FOLDER,opena(buf)):dirmail();
 }
 
-void logabstract()
+void logabstract P((void))
 {{char*chp,*chp2;int i;static const char sfolder[]=FOLDER;
   if(mailread&&logopened)		  /* is the mail completely read in? */
    { *thebody='\0';		       /* terminate the header, just in case */
@@ -212,7 +212,7 @@ eofheader:;
  }
 }
 
-dirmail()				/* buf should contain directory name */
+dirmail P((void))			/* buf should contain directory name */
 { char*chp;struct stat stbuf;
   if((chp=strchr(buf,'\0')-1)-1>=buf&&chp[-1]==*_MCDIRSEP&&*chp==chCURDIR)
      *chp='\0',strcpy(buf2,buf);			   /* it ended in /. */
@@ -231,7 +231,7 @@ dirmail()				/* buf should contain directory name */
 	   closedir(dirp);			     /* aren't we neat today */
 	 }
 	else
-	   nlog(couldnread),logqnl(buf);
+	   readerr(buf);
 #endif /* NOopendir */
 	do ultstr(0,++i,chp);		       /* find first empty MH folder */
 	while(link(buf2,buf)&&errno==EEXIST);

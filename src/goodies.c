@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: goodies.c,v 1.4 1992/10/02 14:40:08 berg Exp $";
+static char rcsid[]="$Id: goodies.c,v 1.5 1992/10/20 15:35:18 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -243,7 +243,7 @@ wipenv:
    }
 }
 			    /* between calling primeStdout() and retStdout() */
-void primeStdout()		    /* *no* environment changes are allowed! */
+void primeStdout P((void))	    /* *no* environment changes are allowed! */
 { char*p;
   if((p=strchr(buf,'\0'))[-1]!='=')		   /* does it end in an '='? */
      *p='=',p[1]='\0';					/* make sure it does */
@@ -254,4 +254,9 @@ void primeStdout()		    /* *no* environment changes are allowed! */
 void retStdout(newmyenv)char*const newmyenv;	/* see note on primeStdout() */
 { newmyenv[Stdfilled]='\0';*lastenv=(myenv=(struct lienv*)newmyenv)->ename;
   Stdout=0;
+}
+
+void postStdout P((void))		 /* throw it into the keyword parser */
+{ const char*p;size_t i;
+  p= *lastenv;tmemmove(buf,p,i=strchr(p,'=')-p);buf[i]='\0';asenv(p+i+1);
 }

@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: misc.c,v 1.4 1992/10/02 14:40:42 berg Exp $";
+static char rcsid[]="$Id: misc.c,v 1.5 1992/10/20 15:35:41 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -52,7 +52,7 @@ flush:
 
 #include "shell.h"
 
-void ignoreterm()
+void ignoreterm P((void))
 { signal(SIGTERM,SIG_IGN);signal(SIGHUP,SIG_IGN);signal(SIGINT,SIG_IGN);
   signal(SIGQUIT,SIG_IGN);
 }
@@ -70,6 +70,14 @@ forkerr(pid,a)const pid_t pid;const char*const a;
 
 void progerr(line)const char*const line;
 { nlog("Program failure of");logqnl(line);
+}
+
+void chderr(dir)const char*const dir;
+{ nlog("Couldn't chdir to");logqnl(dir);
+}
+
+void readerr(file)const char*const file;
+{ nlog("Couldn't read");logqnl(file);
 }
 
 void yell(a,b)const char*const a,*const b;		/* log if VERBOSE=on */
@@ -90,7 +98,7 @@ void skipped(x)const char*const x;
      nlog("Skipped"),logqnl(x);
 }
 
-nextrcfile()			/* next rcfile specified on the command line */
+nextrcfile P((void))		/* next rcfile specified on the command line */
 { const char*p;
   while(p= *gargv)
    { gargv++;
@@ -101,7 +109,7 @@ nextrcfile()			/* next rcfile specified on the command line */
   return 0;
 }
 
-void sterminate()
+void sterminate P((void))
 { static const char*const msg[]={"memory","fork",	  /* crosscheck with */
    "a file descriptor","a kernel-lock"};	  /* lck_ defs in procmail.h */
   ignoreterm();
@@ -121,7 +129,7 @@ void sterminate()
    }
 }
 
-void terminate()
+void terminate P((void))
 { ignoreterm();
   if(retvl2!=EX_OK)
      fakedelivery=0,retval=retvl2;
@@ -131,12 +139,15 @@ void terminate()
 	lastfolder=fakedelivery?"**Lost**":		/* don't free() here */
 	 retval==EX_TEMPFAIL?"**Requeued**":"**Bounced**";
       }
-     logabstract();nextexit=2;unlock(&loclock);unlock(&globlock);fdunlock();
+     logabstract();closerc();
+     if(!(lcking&lck_ALLOCLIB))			/* don't reenter malloc/free */
+	exectrap(tgetenv("TRAP"));
+     nextexit=2;unlock(&loclock);unlock(&globlock);fdunlock();
    }
   exit(fakedelivery==2?EX_OK:retval);
 }
 
-void suspend()
+void suspend P((void))
 { long t;
   sleep((unsigned)suspendv);
   if(alrmtime)
@@ -159,27 +170,27 @@ alphanum(c)const unsigned c;
 { return c-'0'<='9'-'0'||c-'a'<='z'-'a'||c-'A'<='Z'-'A'||c=='_';
 }
 
-void firstchd()
+void firstchd P((void))
 { if(!didchd)				       /* have we been here already? */
    { const char*p;
      didchd=1;			      /* no, well, then try an initial chdir */
      if(chdir(p=tgetenv(maildir)))
-      { nlog(cldchd);logqnl(p);
+      { chderr(p);
 	if(chdir(p=tgetenv(home)))
-	   nlog(cldchd),logqnl(p);
+	   chderr(p);
       }
    }
 }
 
-void srequeue()
+void srequeue P((void))
 { retval=EX_TEMPFAIL;sterminate();
 }
 
-void slose()
+void slose P((void))
 { fakedelivery=2;sterminate();
 }
 
-void sbounce()
+void sbounce P((void))
 { retval=EX_CANTCREAT;sterminate();
 }
 
@@ -195,6 +206,13 @@ void catlim(dest,src,lim)register char*dest,*src;register size_t lim;
 void setdef(name,contents)const char*const name,*const contents;
 { strcat(strcat(strcpy((char*)(sgetcp=buf2),name),"="),contents);
   readparse(buf,sgetc,2);sputenv(buf);
+}
+
+void metaparse(p)const char*p;				    /* result in buf */
+{ if(sh=!!strpbrk(p,tgetenv(shellmetas)))
+     strcpy(buf,p);			 /* copy literally, shell will parse */
+  else
+     sgetcp=p,readparse(buf,sgetc,0);			/* parse it yourself */
 }
 
 void concatenate(p)register char*p;
@@ -253,24 +271,25 @@ char*gobenv(chp)char*chp;
 void asenvcpy(src)char*src;
 { strcpy(buf,src);
   if(src=strchr(buf,'='))			     /* is it an assignment? */
-     strcpy((char*)(sgetcp=buf2),++src),readparse(src,sgetc,2),asenv(src);
+   { strcpy((char*)(sgetcp=buf2),++src);readparse(src,sgetc,2);sputenv(buf);
+     src[-1]='\0';asenv(src);
+   }
 }
 
-void asenv(chp)char*chp;
+void asenv(chp)const char*const chp;
 { static const char slinebuf[]="LINEBUF",logfile[]="LOGFILE",Log[]="LOG",
    sdelivered[]="DELIVERED",includerc[]="INCLUDERC",eumask[]="UMASK",
    host[]="HOST";
-  sputenv(buf);chp[-1]='\0';
   if(!strcmp(buf,slinebuf))
    { if((linebuf=renvint(0L,chp)+XTRAlinebuf)<MINlinebuf+XTRAlinebuf)
 	linebuf=MINlinebuf+XTRAlinebuf;		       /* check minimum size */
      free(buf);free(buf2);buf=malloc(linebuf);buf2=malloc(linebuf);
    }
   else if(!strcmp(buf,maildir))
-   { didchd=1;
      if(chdir(chp))
-	nlog(cldchd),logqnl(chp);
-   }
+	chderr(chp);
+     else
+	didchd=1;
   else if(!strcmp(buf,logfile))
      openlog(chp);
   else if(!strcmp(buf,Log))

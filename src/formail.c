@@ -7,9 +7,9 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: formail.c,v 1.3 1992/10/02 14:39:59 berg Exp $";
+static char rcsid[]="$Id: formail.c,v 1.4 1992/10/20 15:35:12 berg Exp $";
 #endif
-static char rcsdate[]="$Date: 1992/10/02 14:39:59 $";
+static char rcsdate[]="$Date: 1992/10/20 15:35:12 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -31,7 +31,8 @@ static const char unknown[]=UNKNOWN,re[]=" Re:",fmusage[]=FM_USAGE,
  *	reply-address determination fields (wrepl specifies the weight)
  */
 static const struct {const char*head;int len,wrepl;}sest[]=
-{ {ssl(errorsto),6},{ssl(retreceiptto),7},{ssl(sender),0},{ssl(replyto),5},
+{ {ssl(res_sender),8},{ssl(res_replyto),10},{ssl(res_from),9},
+  {ssl(errorsto),6},{ssl(retreceiptto),7},{ssl(sender),0},{ssl(replyto),5},
   {ssl(Fromm),2},{ssl(path),4},{ssl(returnpath),1}
 };
 
@@ -71,8 +72,8 @@ static struct field*iheader,*Iheader,*aheader,*Aheader,*xheader,*Rheader,
 
 #include "shell.h"
 
-static void logfolder()	  /* estimate the nr. characters needed to represent */
-{ size_t i;char num[8*sizeof totallen*4/10+1];			 /* totallen */
+static void logfolder P((void))	 /* estimate the no. of characters needed to */
+{ size_t i;char num[8*sizeof totallen*4/10+1];	       /* represent totallen */
   static const char tabchar[]=TABCHAR;
   if(logsummary)
    { putssn(sfolder,STRLEN(sfolder));i=strlen(logsummary)+STRLEN(sfolder);
@@ -83,7 +84,7 @@ static void logfolder()	  /* estimate the nr. characters needed to represent */
    }
 }
     /* checks if the last field in rdheader looks like a known digest header */
-static digheadr()
+static digheadr P((void))
 { char*chp;int i,j;struct field*fp;
   for(fp=rdheader;fp->fld_next;fp=fp->fld_next);	 /* skip to the last */
   i=maxindex(cdigest);chp=fp->fld_text;j=fp->id_len;
@@ -92,7 +93,7 @@ static digheadr()
    j>STRLEN(x_)&&!strnIcmp(x_,chp,STRLEN(x_));
 }
 
-static artheadr()		     /* could it be the start of an article? */
+static artheadr P((void))	     /* could it be the start of an article? */
 { if(!rdheader&&!strncmp(buf,Article_,STRLEN(Article_)))
    { addbuf();rdheader->id_len=STRLEN(Article_);return 1;
    }

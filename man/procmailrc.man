@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.3 1992/10/02 14:39:17 berg Exp $
+.Id $Id: procmailrc.man,v 1.4 1992/10/20 15:34:54 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .SH NAME
 .na
@@ -368,6 +368,9 @@ If set to `yes' procmail will pretend (to the mail agent) the mail
 has been delivered.  If mail cannot be delivered after meeting this
 assignment (to `yes'), the mail will be lost (i.e. it will not bounce).
 .Tp
+.B TRAP
+When procmail terminates it will execute the contents of this variable.
+.Tp
 .B INCLUDERC
 Names an rcfile (relative to the current directory) which will be included
 here as if it were part of the current rcfile.  Unlimited nesting is
@@ -413,6 +416,9 @@ If you specify only a `+PASS_HEAD+' or a `+PASS_BODY+' flag on a recipe,
 and the recipe matches, then, unless a `+FILTER+' or `+CONTINUE+' flag is
 present as well, the body respectively the header of the mail will be silently
 lost.
+.PP
+The `+CONTINUE+' flag defaults to on when a conditional variable assignment
+preceeds the action line.
 .Sh "SEE ALSO"
 .na
 .BR procmail (1),
@@ -467,11 +473,11 @@ which should catch mails coming from most daemons (how's that for a regular
 expression :-).
 .ad
 .PP
-When assigning boolean values to variables like VERBOSE, DELIVERY or COMSAT,
+When assigning boolean values to variables like VERBOSE, DELIVERED or COMSAT,
 procmail accepts as true every string starting with: a non-zero value, `on',
 `y' or `t'.  False is every string starting with: a zero value, `off', `n' or
 `f'.
-.Sh MISCELLANEOUS
+.PP
 If the action line of a recipe specifies a program, a sole backslash-newline
 pair in it on an otherwise empty line will be converted into a newline.
 .Sh NOTES

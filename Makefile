@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.4 1992/10/16 15:49:08 berg Exp $
+#$Id: Makefile,v 1.5 1992/10/20 15:34:10 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -8,8 +8,10 @@ BASENAME = /usr/local
 
 BINDIR	  = $(BASENAME)/bin$(ARCHITECTURE)
 MANDIR	  = $(BASENAME)/man
-MAN1SUFFIX= 1				# regular utility manuals
-MAN5SUFFIX= 5				# file-format descriptions
+# MAN1SUFFIX for regular utility manuals
+MAN1SUFFIX= 1
+# MAN5SUFFIX for file-format descriptions
+MAN5SUFFIX= 5
 MAN1DIR	  = $(MANDIR)/man$(MAN1SUFFIX)
 MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 
@@ -43,10 +45,10 @@ MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 # Directory for the standard include files
 USRINCLUDE = /usr/include
 
-CFLAGS0 = -O #-ansi -pedantic -Wid-clash-6
-LDFLAGS0= -s
+CFLAGS0 = -g #-ansi -pedantic -Wid-clash-6
+LDFLAGS0= #-s
 
-CFLAGS1 = $(CFLAGS0) #-D_POSIX_SOURCE
+CFLAGS1 = $(CFLAGS0)
 LDFLAGS1= $(LDFLAGS0) #-lcposix
 
 ####CC	= cc # gcc

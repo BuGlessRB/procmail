@@ -11,7 +11,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: procmail.c,v 1.4 1992/10/02 14:40:56 berg Exp $";
+static char rcsid[]="$Id: procmail.c,v 1.5 1992/10/20 15:35:52 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -33,8 +33,7 @@ const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
  unexpeof[]="Unexpected EOL\n",*const*gargv,*sgetcp,*rcfile=PROCMAILRC,
  dirsep[]=DIRSEP,msgprefix[]="MSGPREFIX",devnull[]=DevNull,user[]="USER",
  executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",procmailn[]="procmail",
- whilstwfor[]=" whilst waiting for ",home[]="HOME",
- cldchd[]="Couldn't chdir to",couldnread[]="Couldn't read",maildir[]="MAILDIR";
+ whilstwfor[]=" whilst waiting for ",home[]="HOME",maildir[]="MAILDIR";
 static const char tokey[]=TOkey,fromdaemon[]=FROMDkey,fdefault[]="DEFAULT",
  orgmail[]="ORGMAIL",sendmail[]="SENDMAIL",From_[]=FROM,exflags[]=RECFLAGS,
  systm_mbox[]=SYSTEM_MBOX,pmusage[]=PM_USAGE;
@@ -313,7 +312,7 @@ notfishy:
 	*/
 	goto findrc;
 	do
-fake_rc: { nlog(couldnread);logqnl(buf);
+fake_rc: { readerr(buf);
 	   if(!nextrcfile())		      /* not available? try the next */
 	      goto nomore_rc;
 findrc:	  i=0;
@@ -453,29 +452,28 @@ progrm: if(testb('!'))					 /* forward the mail */
 	      if(chp2!=chp)				  /* non-empty line? */
 		 ++chp;			      /* then preserve the backslash */
 	   if(i)
-	    { if(sh=!!strpbrk(buf2,tgetenv(shellmetas)))
-		 strcpy(buf,buf2);	 /* copy literally, shell will parse */
-	      else
-		 sgetcp=buf2,readparse(buf,sgetc,0);	/* parse it yourself */
-forward:      if(!tolock)	   /* an explicit lockfile specified already */
-	       { *buf2='\0';	    /* find the implicit lockfile ('>>name') */
-		 for(chp=buf;i= *chp++;)
-		    if(i=='>'&&*chp=='>')
-		     { chp=pstrspn(chp+1," \t");
-		       tmemmove(buf2,chp,i=strcspn(chp,EOFName));buf2[i]='\0';
-		       if(sh)		 /* expand any environment variables */
-			{ chp=tstrdup(buf);sgetcp=buf2;readparse(buf,sgetc,0);
-			  strcpy(buf2,buf);strcpy(buf,chp);free(chp);
+	    { metaparse(buf2);
+forward:      if(locknext)
+	       { if(!tolock)	   /* an explicit lockfile specified already */
+		  { *buf2='\0';	    /* find the implicit lockfile ('>>name') */
+		    for(chp=buf;i= *chp++;)
+		       if(i=='>'&&*chp=='>')
+			{ chp=pstrspn(chp+1," \t");
+			  tmemmove(buf2,chp,i=strcspn(chp,EOFName));
+			  buf2[i]='\0';
+			  if(sh)	 /* expand any environment variables */
+			   { chp=tstrdup(buf);sgetcp=buf2;
+			     readparse(buf,sgetc,0);strcpy(buf2,buf);
+			     strcpy(buf,chp);free(chp);
+			   }
+			  break;
 			}
-		       break;
+		    if(!*buf2)
+		     { nlog("Couldn't determine implicit lockfile from");
+		       logqnl(buf);
 		     }
-		 if(!*buf2)
-		  { nlog("Couldn't determine implicit lockfile from");
-		    logqnl(buf);
 		  }
-	       }
-	      if(locknext)
-	       { lcllock();
+		 lcllock();
 		 if(!pwait)		/* try and protect the user from his */
 		    pwait=2;			   /* blissful ignorance :-) */
 	       }
@@ -488,8 +486,12 @@ forward:      if(!tolock)	   /* an explicit lockfile specified already */
 		 else if(!pipthrough(buf,startchar,tobesent))
 		    succeed=1,filled=startchar-themail,readmail(0,0L);
 	       }
-	      else if(!(Stdout?pipthrough(buf,startchar,tobesent):
-	       pipin(buf,startchar,tobesent))&&(succeed=1,!flags[CONTINUE]))
+	      else if(Stdout)			  /* capturing stdout again? */
+	       { if(!pipthrough(buf,startchar,tobesent))
+		    succeed=1,postStdout();	  /* only parse if no errors */
+	       }
+	      else if(!pipin(buf,startchar,tobesent)&&	  /* regular program */
+	       (succeed=1,!flags[CONTINUE]))
 		 goto mailed;
 	    }
 	 }
@@ -506,7 +508,10 @@ forward:      if(!tolock)	   /* an explicit lockfile specified already */
 		    ++chp;
 		 ungetb(c=getb());
 		 switch(c)
-		  { case '!':case '|':primeStdout();goto progrm;
+		  { case '!':case '|':
+		       if(i)
+			  primeStdout();
+		       goto progrm;
 		  }
 	       }
 	    }
@@ -530,14 +535,16 @@ forward:      if(!tolock)	   /* an explicit lockfile specified already */
 	getbl(buf);
      else				    /* then it must be an assignment */
       { if(!(chp=gobenv(buf)))
-	 { skipped(buf);continue;			/* display leftovers */
+	 { if(!*buf)					/* skip a word first */
+	      getbl(buf);				      /* then a line */
+	   skipped(buf);continue;			/* display leftovers */
 	 }
 	skipspace();
 	if(testb('='))				   /* removal or assignment? */
 	   *chp='=',readparse(++chp,getb,1);
 	else
 	   *++chp='\0';			     /* throw in a second terminator */
-	asenv(chp);
+	sputenv(buf);chp[-1]='\0';asenv(chp);
       }
    }
   while(rc<0||!testb(EOF)||poprc());		    /* main interpreter loop */

@@ -12,9 +12,9 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: lockfile.c,v 1.4 1992/10/02 14:40:24 berg Exp $";
+static char rcsid[]="$Id: lockfile.c,v 1.5 1992/10/20 15:35:28 berg Exp $";
 #endif
-static char rcsdate[]="$Date: 1992/10/02 14:40:24 $";
+static char rcsdate[]="$Date: 1992/10/20 15:35:28 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -29,7 +29,7 @@ static char systm_mbox[]=SYSTEM_MBOX;
 static const char dirsep[]=DIRSEP,lockext[]=DEFlockext,
  nameprefix[]="lockfile: ",user[]="USER",home[]="HOME";
 
-static void failure()					      /* signal trap */
+static void failure P((void))				      /* signal trap */
 { exitflag=2;					       /* merely sets a flag */
 }
 				    /* see locking.c for comment on xcreat() */
@@ -144,7 +144,7 @@ xusg:		       retval=EX_USAGE;goto nfailure;
 		 if(*cp&&cp[1]||ma&&sleepsec>=0)	     /* second pass? */
 		    goto eusg;
 		 if(!ma)			/* ma initialised last time? */
-		  { if(!((ma=getenv(user))&&(pass=getpwnam(ma))&&
+		  { if(!((ma=(char*)getenv(user))&&(pass=getpwnam(ma))&&
 		     pass->pw_uid==uid||(pass=getpwuid(uid))))
 		     { nlog("Can't determine your mailbox, who are you?\n");
 		       goto nfailure;	 /* panic, you're not in /etc/passwd */

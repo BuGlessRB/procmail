@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: common.c,v 1.5 1992/10/02 14:39:35 berg Exp $";
+static char rcsid[]="$Id: common.c,v 1.6 1992/10/20 15:35:00 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -20,8 +20,8 @@ void shexec(argv)const char*const*argv;
 #endif
 #ifdef SIGLOST
   signal(SIGLOST,SIG_DFL);
-#endif
-  signal(SIGPIPE,SIG_DFL);execvp(*argv,argv);	/* or is it a shell script ? */
+#endif						/* or is it a shell script ? */
+  signal(SIGPIPE,SIG_DFL);execvp(*argv,(char*const*)argv);
   for(p=(const char**)argv,i=1;i++,*p++;);	      /* count the arguments */
   newargv=malloc(i*sizeof*p);
   for(*(p=(const char**)newargv)=binsh;*++p= *argv++;);

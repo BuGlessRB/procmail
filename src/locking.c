@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: locking.c,v 1.3 1992/10/02 14:40:27 berg Exp $";
+static char rcsid[]="$Id: locking.c,v 1.4 1992/10/20 15:35:32 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -77,7 +77,7 @@ term: { free(name);break;		     /* drop the preallocated buffer */
    }
 }
 
-void lcllock()					    /* lock a local lockfile */
+void lcllock P((void))				    /* lock a local lockfile */
 { char*lckfile;
   if(!strcmp(lckfile=tolock?tolock:strcat(buf2,tgetenv(lockext)),
    tgetenv(lockfile)))
@@ -180,7 +180,7 @@ ufcntl:
    }
 }
 
-fdunlock()
+fdunlock P((void))
 { int i;
   if(oldfdlock<0)
      return -1;

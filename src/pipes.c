@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: pipes.c,v 1.4 1992/10/02 14:40:50 berg Exp $";
+static char rcsid[]="$Id: pipes.c,v 1.5 1992/10/20 15:35:47 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -30,14 +30,14 @@ void inittmout(progname)const char*const progname;
   alarm((unsigned)timeoutv);
 }
 
-void ftimeout()
+void ftimeout P((void))
 { alarm(0);alrmtime=0;
   if(pidchild>0&&!kill(pidchild,SIGTERM))	   /* careful, killing again */
 	nlog("Timeout, terminating"),logqnl(lastexec);
   signal(SIGALRM,(void(*)())ftimeout);
 }
 
-static void stermchild()
+static void stermchild P((void))
 { if(pidfilt>0)		    /* don't kill what is not ours, we might be root */
      kill(pidfilt,SIGTERM);
   if(!Stdout)
@@ -50,7 +50,7 @@ static void stermchild()
   exit(lexitcode);
 }
 
-static void childsetup()
+static void childsetup P((void))
 { lexitcode=EX_UNAVAILABLE;signal(SIGTERM,(void(*)())stermchild);
   signal(SIGINT,(void(*)())stermchild);signal(SIGHUP,(void(*)())stermchild);
   signal(SIGQUIT,(void(*)())stermchild);closerc();
@@ -206,4 +206,16 @@ char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
   else
      rclose(PRDI);
   pidchild=0;*p='\0';return p;
+}
+
+void exectrap(tp)const char*const tp;
+{ if(*tp)
+   { metaparse(tp);inittmout(buf);
+     if(!(pidchild=sfork()))
+      { signal(SIGTERM,SIG_DFL);signal(SIGINT,SIG_DFL);signal(SIGHUP,SIG_DFL);
+	signal(SIGQUIT,SIG_DFL);rclose(STDOUT);rdup(STDERR);callnewprog(buf);
+      }
+     if(!forkerr(pidchild,buf))
+	waitfor(pidchild);
+   }
 }

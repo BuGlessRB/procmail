@@ -1,10 +1,12 @@
-/*$Id: misc.h,v 1.3 1992/10/02 14:40:44 berg Exp $*/
+/*$Id: misc.h,v 1.4 1992/10/20 15:35:44 berg Exp $*/
 
 void
  elog P((const char*const newt)),
  ignoreterm P((void)),
  writeerr P((const char*const line)),
  progerr P((const char*const line)),
+ chderr P((const char*const dir)),
+ readerr P((const char*const file)),
  yell P((const char*const a,const char*const b)),
  nlog P((const char*const a)),
  logqnl P((const char*const a)),
@@ -19,8 +21,9 @@ void
  sbounce P((void)),
  catlim Q((char*dest,char*src,size_t lim)),
  setdef P((const char*const name,const char*const contents)),
+ metaparse P((const char*p)),
  asenvcpy P((char*src)),
- asenv P((char*chp)),
+ asenv P((const char*const chp)),
  concatenate P((char*p));
 int
  forkerr P((const pid_t pid,const char*const a)),

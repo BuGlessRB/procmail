@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.2 1992/10/02 14:38:37 berg Exp $
+#$Id: Makefile.1,v 1.3 1992/10/20 15:34:13 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -23,8 +23,6 @@ procmail: config.check src/Makefile man/Makefile
 formail lockfile: config.check src/Makefile man/Makefile
 	cd src; $(MAKE) ../new/$@
 	cd man; $(MAKE) ../new/$@.1
-
-install: install.man install.bin
 
 config.check: config.h
 	@echo Housekeeping file >$@
@@ -93,10 +91,11 @@ new:
 
 deinstall:
 	@echo ----------------------------- Deinstalling the procmail package.
+	@$(RM) install.man install.bin
 	@echo ----------------------------- Checking if everything was removed:
-	@-cd $(BINDIR); $(RM) $(BINSS); ls -l $(BINSS)
-	@-cd $(MAN1DIR); $(RM) $(MANS1); ls -l $(MANS1)
-	@-cd $(MAN5DIR); $(RM) $(MANS5); ls -l $(MANS5)
+	@-cd $(BINDIR); $(RM) $(BINSS); ls -l $(BINSS); exit 0
+	@-cd $(MAN1DIR); $(RM) $(MANS1); ls -l $(MANS1); exit 0
+	@-cd $(MAN5DIR); $(RM) $(MANS5); ls -l $(MANS5); exit 0
 	@echo ----------------------------- Ready.
 
 clean: new

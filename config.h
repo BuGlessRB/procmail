@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.2 1992/10/02 14:38:40 berg Exp $*/
+/*$Id: config.h,v 1.3 1992/10/20 15:34:21 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -58,7 +58,7 @@
 /*#define DEFsendmail	"/bin/mail"	/* uncomment and/or change if the
 					   preset default SENDMAIL is not
 	suitable */
-#define console "/dev/tty"
+
 /*#define console	"/dev/console"	/* uncomment if you want procmail to
 					   use the console (or any other
 	terminal or file) to print any error messages that could not be dumped
@@ -119,7 +119,6 @@ postma(st(er)?|n)|Mailer|daemon|mmdf|root|uucp|LISTSERV|owner|request|bounce\
 
 #define BinSh		"/bin/sh"
 #define RootDir		"/"
-#define DEBUGPREFIX	':'			 /* debug prefix for LOGFILE */
 #define DevNull		"/dev/null"
 #define chCURDIR	'.'			    /* the current directory */
 #define DIRSEP		"/"		 /* directory separator symbols, the */
@@ -146,18 +145,18 @@ postma(st(er)?|n)|Mailer|daemon|mmdf|root|uucp|LISTSERV|owner|request|bounce\
 \n\t-f fromwhom\t(re)generate the leading 'From ' line\
 \n\t-d recipient\texplicit delivery mode\n"
 #define PM_QREFERENCE	\
- "\nRecipe flags quick reference:\
+ "\nRecipe flag quick reference:\
 \n\tH\tegrep the header (default)\
 \n\tB\tegrep the body\
 \n\tD\tdistinguish case\
 \n\tA\talso execute this recipe if the common condition matched\
-\n\ta\tsame as 'A', but only if the previous recipe was succesful\
+\n\ta\tsame as 'A', but only if the previous recipe was successful\
 \n\th\tfeed the header to the pipe (default)\
 \n\tb\tfeed the body to the pipe (default)\
 \n\tf\tfilter\
 \n\tc\tcontinue with the next recipe in any case\
 \n\tw\twait for a filter or program\
-\n\tW\tsame as 'w', but suppresses 'Program failure' messages\
+\n\tW\tsame as 'w', but suppress 'Program failure' messages\
 \n\ti\tignore write errors\n"
 
 #define MINlinebuf	128    /* minimal LINEBUF length (don't change this) */

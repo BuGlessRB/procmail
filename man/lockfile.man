@@ -1,4 +1,4 @@
-.Id $Id: lockfile.man,v 1.3 1992/10/02 14:39:07 berg Exp $
+.Id $Id: lockfile.man,v 1.4 1992/10/20 15:34:47 berg Exp $
 .TH LOCKFILE 1 \*(Dt BuGless
 .SH NAME
 .na
@@ -38,7 +38,8 @@ to do until failure is returned.
 If the number of
 .I retries
 is -1 (default, i.e.
-.BR \-r\-1 ) lockfile will retry forever.
+.BR \-r\-1 )
+lockfile will retry forever.
 .PP
 If the number of
 .I retries

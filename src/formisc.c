@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: formisc.c,v 1.4 1992/10/02 14:40:03 berg Exp $";
+static char rcsid[]="$Id: formisc.c,v 1.5 1992/10/20 15:35:16 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -89,7 +89,7 @@ void loadchar(c)const int c;		      /* append one character to buf */
   buf[buffilled++]=c;
 }
 
-getline()				   /* read a newline-terminated line */
+getline P((void))			   /* read a newline-terminated line */
 { if(buflast!=EOF)			     /* do we still have a leftover? */
      loadchar(buflast);				  /* load it into the buffer */
   if(buflast!='\n')
@@ -148,11 +148,11 @@ squelch:
      nlog("Can't fork\n"),exit(EX_OSERR);
 }
 
-void nofild()
+void nofild P((void))
 { nlog("File table full\n");exit(EX_OSERR);
 }
 
-void waitforit()
+void waitforit P((void))
 { int i;pid_t j;
   while(child!=(j=wait(&i))||WIFSTOPPED(i))
     if(-1==j)
@@ -167,12 +167,12 @@ void logqnl(a)const char*const a;
 { elog(" \"");elog(a);elog("\"\n");
 }
 
-void closemine()
+void closemine P((void))
 { if((fclose(mystdout)==EOF||errout==EOF)&&!quiet)
      nlog(couldntw),elog("\n"),exit(EX_IOERR);
 }
 
-void opensink()
+void opensink P((void))
 { if(!(mystdout=fopen(DevNull,"a")))
      nofild();
 }

@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.5 1992/10/02 15:21:46 berg Exp $*/
+/*$Id: manconf.c,v 1.6 1992/10/20 15:35:38 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -75,7 +75,7 @@ static void pc(name,value)const char*const name;const int value;
 { pname(name);putcesc(value);puts("/g");
 }
 
-main()
+main P((void))
 { char*p,*q;
 #ifndef MAILBOX_SEPARATOR
   ps("DOT_FORWARD",".forward");
@@ -142,9 +142,10 @@ is case sensitive, and some users have login names with uppercase letters in\
   ps("COMSATprotocol",COMSATprotocol);
   ps("COMSATxtrsep",COMSATxtrsep);
   pc("SERV_ADDRsep",SERV_ADDRsep);
+  ps("BinSh",BinSh);
+  ps("RootDir",RootDir);
   pc("MCDIRSEP",*MCDIRSEP);
   pc("chCURDIR",chCURDIR);
-  pc("DEBUGPREFIX",DEBUGPREFIX);
   pc("HELPOPT1",HELPOPT1);
   pc("HELPOPT2",HELPOPT2);
   pc("VERSIONOPT",VERSIONOPT);

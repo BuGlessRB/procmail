@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.3 1992/10/02 14:40:17 berg Exp $*/
+/*$Id: header.h,v 1.4 1992/10/20 15:35:25 berg Exp $*/
 
 static const char
  returnpath[]=		"Return-Path:",				  /* RFC 822 */
@@ -41,7 +41,9 @@ static const char
  precedence[]=		"Precedence:",
  mssage[]=		"Message:",
  text[]=		"Text:",
+ via[]=			"Via:",
  priority[]=		"Priority:",			    /* ELM extension */
+ fcc[]=			"Fcc:",				   /* Mush extension */
  article[]=		"Article:",			 /* USENET extension */
  path[]=		"Path:",				/* ditto ... */
  summary[]=		"Summary:",
@@ -71,10 +73,10 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
   bsl(to),bsl(res_to),bsl(cc),bsl(res_cc),bsl(bcc),bsl(res_bcc),bsl(messageid),
   bsl(res_messageid),bsl(inreplyto),bsl(references),bsl(keywords),bsl(subject),
   bsl(scomments),bsl(ncrypted),bsl(errorsto),bsl(retreceiptto),
-  bsl(precedence),bsl(mssage),bsl(text),bsl(priority),bsl(article),bsl(path),
-  bsl(summary),bsl(organisation),bsl(aorganization),bsl(newsgroups),
-  bsl(followupto),bsl(approved),bsl(lines),bsl(expires),bsl(control),
-  bsl(distribution),bsl(xref),bsl(originator),bsl(nntppostinghost),
-  bsl(cnttype),bsl(encoding),bsl(mimeversion),bsl(cnttransferenc),bsl(cntid),
-  bsl(cntdescription),bsl(status)
+  bsl(precedence),bsl(mssage),bsl(text),bsl(via),bsl(priority),bsl(fcc),
+  bsl(article),bsl(path),bsl(summary),bsl(organisation),bsl(aorganization),
+  bsl(newsgroups),bsl(followupto),bsl(approved),bsl(lines),bsl(expires),
+  bsl(control),bsl(distribution),bsl(xref),bsl(originator),
+  bsl(nntppostinghost),bsl(cnttype),bsl(encoding),bsl(mimeversion),
+  bsl(cnttransferenc),bsl(cntid),bsl(cntdescription),bsl(status)
 };
