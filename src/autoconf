@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.43 1993/05/05 13:06:07 berg Exp $
+#$Id: autoconf,v 1.44 1993/05/07 12:39:23 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -620,7 +620,7 @@ do
   fi
   oldi=$newi
   echo \
-   "	...missing `expr length $oldi` include files, doublechecking..."
+   "	...missing `expr length \"$oldi\"` include files, doublechecking..."
 done
 
 $RM _autotst.$O

@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.16 1993/05/05 13:06:18 berg Exp $*/
+/*$Id: header.h,v 1.17 1993/05/07 12:39:27 berg Exp $*/
 
 static const char
  returnpath[]=		"Return-Path:",				  /* RFC 822 */
@@ -89,12 +89,12 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
   bsl(res_messageid),bsl(inreplyto),bsl(references),bsl(keywords),bsl(subject),
   bsl(scomments),bsl(ncrypted),bsl(errorsto),bsl(retreceiptto),
   bsl(precedence),bsl(fullname),bsl(postddate),bsl(recvddate),bsl(mssage),
-  bsl(text),bsl(via),bsl(priority),bsl(fcc),bsl(article),bsl(path),
-  bsl(summary),bsl(organisation),bsl(aorganization),bsl(newsgroups),
-  bsl(followupto),bsl(approved),bsl(lines),bsl(expires),bsl(control),
-  bsl(distribution),bsl(xref),bsl(originator),bsl(nntppostinghost),bsl(title),
-  bsl(aRticleid),bsl(posted),bsl(cnttype),bsl(encoding),bsl(mimeversion),
-  bsl(cnttransferenc),bsl(cntid),bsl(cntdescription),bsl(transportoptions),
-  bsl(defltoptions),bsl(cntlength),bsl(rference),bsl(msgtype),
-  bsl(autoforwardedfrom),bsl(status)
+  bsl(text),bsl(via),bsl(priority),bsl(fcc),bsl(resent),bsl(forwarded),
+  bsl(replied),bsl(article),bsl(path),bsl(summary),bsl(organisation),
+  bsl(aorganization),bsl(newsgroups),bsl(followupto),bsl(approved),bsl(lines),
+  bsl(expires),bsl(control),bsl(distribution),bsl(xref),bsl(originator),
+  bsl(nntppostinghost),bsl(title),bsl(aRticleid),bsl(posted),bsl(cnttype),
+  bsl(encoding),bsl(mimeversion),bsl(cnttransferenc),bsl(cntid),
+  bsl(cntdescription),bsl(transportoptions),bsl(defltoptions),bsl(cntlength),
+  bsl(rference),bsl(msgtype),bsl(autoforwardedfrom),bsl(status)
 };

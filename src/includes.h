@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.21 1993/05/05 13:06:23 berg Exp $*/
+/*$Id: includes.h,v 1.22 1993/05/07 12:39:30 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -269,6 +269,12 @@ extern void*memmove();
 #endif
 
 #define Const			/*const*/     /* Convex cc doesn't grok this */
+
+#ifdef const
+#ifndef P				      /* no prototypes without const */
+#define P(args) ()
+#endif
+#endif
 
 #ifdef NOrename
 #define rename(old,new) (-(link(old,new)||unlink(old)))

@@ -1,9 +1,9 @@
-/*$Id: mailfold.h,v 1.5 1993/04/02 12:38:54 berg Exp $*/
+/*$Id: mailfold.h,v 1.6 1993/05/07 12:39:33 berg Exp $*/
 
 long
  dump P((const s,const char*source,long len));
 int
- deliver P((char*const boxname,char*const linkfolder));
+ deliver P((char*boxname,char*linkfolder));
 void
  logabstract P((const char*const lstfolder)),
  concon P((const ch)),

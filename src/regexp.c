@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.19 1993/04/21 16:38:24 berg Exp $";
+ "$Id: regexp.c,v 1.20 1993/05/07 12:39:35 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -63,7 +63,7 @@ static struct eps*r;
 static struct{unsigned topc;struct eps*tnext;}aleps;
 static uchar*p,*cachea,*cachep;
 static size_t cacher;
-static ignore_case,errorno;
+static case_ignore,errorno;
 
 struct chclass {unsigned opc_;struct eps*stack_,*spawn_,*next_;
  bit_field(c,OPB);};
@@ -82,7 +82,7 @@ static void putneps(spot,to)struct eps*const spot;const struct eps*const to;
 
 static void bseti(i,j)unsigned i;const int j;
 { bit_set(rAc,i,j);			   /* mark 'i' as being in the class */
-  if(ignore_case)				  /* mark the other case too */
+  if(case_ignore)				  /* mark the other case too */
    { if(i-'A'<'Z'-'A')						/* uppercase */
 	i+='a'-'A';
      else if(i-'a'<'z'-'a')					/* lowercase */
@@ -163,7 +163,7 @@ static void psimp(e)const struct eps*const e;
 	   p--;
    }
   if(e)						      /* a regular character */
-   { r->opc=ignore_case&&(unsigned)*p-'A'<'Z'-'A'?*p+'a'-'A':*p;
+   { r->opc=case_ignore&&(unsigned)*p-'A'<'Z'-'A'?*p+'a'-'A':*p;
 fine:
      r->next=Ceps e;r->spawn=r->stack=0;
    }
@@ -293,7 +293,7 @@ static fillout(stack)struct eps**const stack;
 
 struct eps*bregcomp(a,ign_case)const char*const a;
 { struct eps*st;size_t i;      /* first a trial run, determine memory needed */
-  errorno=0;p=(uchar*)a;ignore_case=ign_case;r=Ceps&aleps;cachea=0;por(Ceps 0);
+  errorno=0;p=(uchar*)a;case_ignore=ign_case;r=Ceps&aleps;cachea=0;por(Ceps 0);
   st=r=
    malloc((i=(char*)r-(char*)&aleps)+ioffsetof(struct eps,stack)+sizeof r);
   p=(uchar*)a;
