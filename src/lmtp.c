@@ -1,15 +1,13 @@
 /************************************************************************
  *	LMTP (Local Mail Transfer Protocol) routines			*
  *									*
- *	Copyright (c) 1997,1998,1999 Philip Guenther <guenther@gac.edu> *
- *	This file may be redistributed under the same conditions	*
- *	as the other source files in the procmail suite, with an	*
- *	exception near the bottom of this file which has its own	*
- *	criteria.							*
+ *	Copyright (c) 1997-2001, Philip Guenther, The United States	*
+ *							of America	*
+ *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lmtp.c,v 1.6 2000/10/27 20:04:00 guenther Exp $"
+ "$Id: lmtp.c,v 1.7 2001/01/28 00:48:29 guenther Exp $"
 #endif
 #include "procmail.h"
 #ifdef LMTP
@@ -611,6 +609,7 @@ static struct{const char*mess;int len;}ret2LMTP[]=
   X("550 5.0.0 insufficient permission\r\n"),			   /* NOPERM */
   X("554 5.3.5 configuration error\r\n"),			   /* CONFIG */
 };
+#undef X
 
 void lmtpresponse(retcode)int retcode;
 { const char*message;int len;
@@ -636,7 +635,9 @@ void lmtpresponse(retcode)int retcode;
 #define IS_NLBOL	5
 #define IS_NLDOT	6
 
-static char*lmtp_read(char*p,long left,void*statep)
+#define EXIT_LOOP(s)	{state=(s);goto loop_exit;}
+
+static char*lmtp_read_crnl(char*p,long left,void*statep)
 { int got,state= *(int*)statep;
   register char*in,*q,*last;
   do
@@ -646,84 +647,111 @@ static char*lmtp_read(char*p,long left,void*statep)
       }
      last=(in=p)+got;
      /*
-      * A state machine to read LMTP data.  If 'nliseol' is
-      * set then \n is the end-o'-line character and \r is not
-      * special at all.	 If 'nliseol' isn't set, then \r\n is the
-      * end-o'-line string, and \n is only special in it.  \r's are
-      * stripped from \r\n, but are otherwise preserved.
+      * A state machine to read LMTP data.  If 'nliseol' isn't set,
+      * then \r\n is the end-o'-line string, and \n is only special
+      * in it.	\r's are stripped from \r\n, but are otherwise preserved.
       */
      switch(state)
       { case IS_CR:   goto is_cr;
 	case IS_CRBOL:goto is_crbol;
 	case IS_CRDOT:goto is_crdot;
 	case IS_DOTCR:goto is_dotcr;
+	case IS_NORMAL:break;
+	case IS_NLBOL:case IS_NLDOT:case IS_READERR:
+	   exit(EX_SOFTWARE);
+      }
+     while(in<last)
+	if((q=memchr(in,'\r',last-in))?q>in:!!(q=last))
+	 { if(in!=p)
+	      memmove(p,in,q-in);
+	   p+=q-in;in=q;
+	 }
+	else							       /* CR */
+	 {
+found_cr:  *p++=*in++;				   /* tenatively save the \r */
+	   if(in==last)
+	      EXIT_LOOP(IS_CR)
+is_cr:	   if(*in!='\n')
+	      continue;
+	   p[-1]=*in++;					 /* overwrite the \r */
+	   if(in==last)						     /* CRLF */
+	      EXIT_LOOP(IS_CRBOL)
+is_crbol:  if(*in=='\r')					 /* CRLF CR? */
+	      goto found_cr;
+	   if(*in!='.')
+	    { *p++=*in++;
+	      continue;
+	    }
+	   if(++in==last)					 /* CRLF "." */
+	      EXIT_LOOP(IS_CRDOT)
+is_crdot:  if((*p++=*in++)!='\r')
+	      continue;
+	   if(in==last)					      /* CRLF "." CR */
+	      EXIT_LOOP(IS_DOTCR)
+is_dotcr:  if(*in=='\n')				    /* CRLF "." CRLF */
+	    { p--;				   /* remove the trailing \r */
+	      if((overlen=last-++in)>0)		 /* should never be negative */
+		 tmemmove(overread=malloc(overlen),in,overlen);
+	      return p;
+	    }
+	 }
+     state=IS_NORMAL;		 /* we must have fallen out because in==last */
+loop_exit:
+     got-=in-p;				     /* correct for what disappeared */
+   }
+  while(left-=got);				/* change listed buffer size */
+  *(long*)statep=state;					       /* save state */
+  return 0;
+}
+
+static char*lmtp_read_nl(char*p,long left,void*statep)
+{ int got,state= *(int*)statep;
+  register char*in,*q,*last;
+  do
+   { if(0>=(got=readL(p,left)))					/* read mail */
+      { state=IS_READERR;
+	return p;
+      }
+     last=(in=p)+got;
+     /*
+      * A state machine to read LMTP data.  \n is the end-o'-line
+      * character and \r is not special at all.
+      */
+     switch(state)
+      { case IS_CR:case IS_CRBOL:case IS_CRDOT:case IS_DOTCR:
+	case IS_READERR:
+	   exit(EX_SOFTWARE);
 	case IS_NLBOL:goto is_nlbol;
 	case IS_NLDOT:goto is_nldot;
 	case IS_NORMAL:break;
       }
-#define EXIT_LOOP(s)	{state=(s);goto loop_exit;}
-     if(!nliseol)
-	while(in<last)
-	   if((q=memchr(in,'\r',last-in))?q>in:!!(q=last))
-	    { if(in!=p)
-		 memmove(p,in,q-in);
-	      p+=q-in;in=q;
+     while(in<last)
+	if((q=memchr(in,'\n',last-in))?q>in:!!(q=last))
+	 { if(in!=p)
+	      memmove(p,in,q-in);
+	   p+=q-in;in=q;
+	 }
+	else							       /* LF */
+	 { do
+	    { *p++=*in++;
+is_nlbol:     ;
 	    }
-	   else							      /* CR */
-	    {
-found_cr:     *p++=*in++;			   /* tenatively save the \r */
-	      if(in==last)
-		 EXIT_LOOP(IS_CR)
-is_cr:	      if(*in!='\n')
-		 continue;
-	      p[-1]=*in++;				 /* overwrite the \r */
-	      if(in==last)					     /* CRLF */
-		 EXIT_LOOP(IS_CRBOL)
-is_crbol:     if(*in=='\r')					 /* CRLF CR? */
-		 goto found_cr;
-	      if(*in!='.')
-	       { *p++=*in++;
-		 continue;
-	       }
-	      if(++in==last)					 /* CRLF "." */
-		 EXIT_LOOP(IS_CRDOT)
-is_crdot:     if((*p++=*in++)!='\r')
-		 continue;
-	      if(in==last)				      /* CRLF "." CR */
-		 EXIT_LOOP(IS_DOTCR)
-is_dotcr:     if(*in=='\n')				    /* CRLF "." CRLF */
-	       { p--;				   /* remove the trailing \r */
-		 goto found_end;
-	       }
+	   while(in<last&&*in=='\n');
+	   if(in==last)
+	      EXIT_LOOP(IS_NLBOL)
+	   if(*in!='.')
+	    { *p++=*in++;
+	      continue;
 	    }
-     else /* nliseol */
-	while(in<last)
-	   if((q=memchr(in,'\n',last-in))?q>in:!!(q=last))
-	    { if(in!=p)
-		 memmove(p,in,q-in);
-	      p+=q-in;in=q;
+	   if(++in==last)					   /* LF "." */
+	      EXIT_LOOP(IS_NLDOT)
+is_nldot:  if(*in=='\n')					/* LF "." LF */
+	    { if((overlen=last-++in)>0)		 /* should never be negative */
+		 tmemmove(overread=malloc(overlen),in,overlen);
+	      return p;
 	    }
-	   else							       /* LF */
-	    { do
-	       { *p++=*in++;
-is_nlbol:	 ;
-	       }
-	      while(in<last&&*in=='\n');
-	      if(in==last)
-		 EXIT_LOOP(IS_NLBOL)
-	      if(*in!='.')
-	       { *p++=*in++;
-		 continue;
-	       }
-	      if(++in==last)					   /* LF "." */
-		 EXIT_LOOP(IS_NLDOT)
-is_nldot:     if(*in=='\n')					/* LF "." LF */
-found_end:     { if((overlen=last-++in)>0) /* should never be negative */
-		    tmemmove(overread=malloc(overlen),in,overlen);
-		 return p;
-	       }
-	      *p++=*in++;
-	    }
+	   *p++=*in++;
+	 }
      state=IS_NORMAL;		 /* we must have fallen out because in==last */
 loop_exit:
      got-=in-p;				     /* correct for what disappeared */
@@ -735,7 +763,8 @@ loop_exit:
 
 static int lreaddyn()
 { int state=nliseol?IS_NLBOL:IS_CRBOL;
-  read2blk(&themail,&filled,&lmtp_read,(cleanup_func_type*)0,&state);
+  read2blk(&themail,&filled,nliseol?&lmtp_read_nl:&lmtp_real_crnl,
+   (cleanup_func_type*)0,&state);
   return state!=IS_READERR;
 }
 #else
