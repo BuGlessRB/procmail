@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.19 1993/11/26 16:25:02 berg Exp $";
+ "$Id: formisc.c,v 1.20 1994/02/22 17:25:03 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -87,13 +87,13 @@ void loadsaved(sp)const struct saved*const sp;	     /* load some saved text */
 							    /* append to buf */
 void loadbuf(text,len)const char*const text;const size_t len;
 { if(buffilled+len>buflen)			  /* buf can't hold the text */
-     buf=realloc(buf,buflen+=BSIZE);
+     buf=realloc(buf,buflen+=Bsize);
   tmemmove(buf+buffilled,text,len);buffilled+=len;
 }
 
 void loadchar(c)const int c;		      /* append one character to buf */
 { if(buffilled==buflen)
-     buf=realloc(buf,buflen+=BSIZE);
+     buf=realloc(buf,buflen+=Bsize);
   buf[buffilled++]=c;
 }
 

@@ -1,6 +1,6 @@
-/*$Id: formail.h,v 1.5 1993/11/26 16:25:00 berg Exp $*/
+/*$Id: formail.h,v 1.6 1994/02/22 17:25:01 berg Exp $*/
 
-#define BSIZE		128
+#define Bsize		128
 
 #define NAMEPREFIX	"formail: "
 #define HEAD_DELIMITER	':'

@@ -11,7 +11,7 @@
 	       "#define console"
 	    Stripping off leading "From " lines now before passing mails
 	       through the mailinglist
-1994/02/16: v2.92
+1994/02/22: v2.92
 	    Cleaned up install.sh* for the mailinglists: starting su with
 	       commands on stdin, checking some permissions now in the
 	       filesystem to prevent silly mistakes during the installation
@@ -63,3 +63,5 @@
 	       PATH, domain and listmaster (if you are upgrading)
 	    Rc.submit will add a To: field to outgoing mails if there wasn't
 	       any
+	    Mail to digested lists will be automatically reposted on the
+	       undigested list (if any)

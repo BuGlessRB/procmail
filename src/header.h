@@ -9,115 +9,92 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.26 1994/02/09 19:11:19 berg Exp $*/
+/*$Id: header.h,v 1.27 1994/02/22 17:25:05 berg Exp $*/
 
-static const char
- returnpath[]=		"Return-Path:",				  /* RFC 822 */
- received[]=		"Received:",				/* ditto ... */
- replyto[]=		"Reply-To:",
- Fromm[]=		"From:",
- sender[]=		"Sender:",
- res_replyto[]=		"Resent-Reply-To:",
- res_from[]=		"Resent-From:",
- res_sender[]=		"Resent-Sender:",
- date[]=		"Date:",
- res_date[]=		"Resent-Date:",
- to[]=			"To:",
- res_to[]=		"Resent-To:",
- cc[]=			"Cc:",
- res_cc[]=		"Resent-Cc:",
- bcc[]=			"Bcc:",
- res_bcc[]=		"Resent-Bcc:",
- messageid[]=		"Message-ID:",
- res_messageid[]=	"Resent-Message-ID:",
- inreplyto[]=		"In-Reply-To:",
- references[]=		"References:",
- keywords[]=		"Keywords:",
- subject[]=		"Subject:",
- scomments[]=		"Comments:",
- ncrypted[]=		"Encrypted:",
- errorsto[]=		"Errors-To:",		       /* sendmail extension */
- retreceiptto[]=	"Return-Receipt-To:",			/* ditto ... */
- precedence[]=		"Precedence:",
- fullname[]=		"Full-Name:",
- postddate[]=		"Posted-Date:",
- recvddate[]=		"Received-Date:",
- mssage[]=		"Message:",
- text[]=		"Text:",
- via[]=			"Via:",
- x400received[]=	"X400-Received:",
- x400originator[]=	"X400-Originator:",
- x400rcipients[]=	"X400-Recipients:",
- x400mtsidentifier[]=	"X400-Mts-Identifier:",
- x400contenttype[]=	"X400-Content-Type:",
- priority[]=		"Priority:",			    /* ELM extension */
- fcc[]=			"Fcc:",				   /* Mush extension */
- resent[]=		"Resent:",			     /* MH extension */
- forwarded[]=		"Forwarded:",				/* ditto ... */
- replied[]=		"Replied:",
- article[]=		"Article:",			 /* USENET extension */
- path[]=		"Path:",				/* ditto ... */
- summary[]=		"Summary:",
- organisation[]=	"Organisation:",
- aorganization[]=	"Organization:",
- newsgroups[]=		"Newsgroups:",
- followupto[]=		"Followup-To:",
- approved[]=		"Approved:",
- lines[]=		"Lines:",
- expires[]=		"Expires:",
- control[]=		"Control:",
- distribution[]=	"Distribution:",
- xref[]=		"Xref:",
- originator[]=		"Originator:",
- nntppostinghost[]=	"NNTP-Posting-Host:",
- submittedby[]=		"Submitted-by:",
- title[]=		"Title:",	      /* antiquated USENET extension */
- aRticleid[]=		"Article-I.D.:",			/* ditto ... */
- posted[]=		"Posted:",
- relayversion[]=	"Relay-Version:",
- cnttype[]=		"Content-Type:",	       /* Internet extension */
- encoding[]=		"Encoding:",				/* ditto ... */
- cntmd5[]=		"Content-MD5:",
- mimeversion[]=		"MIME-Version:",		   /* MIME extension */
- cnttransferenc[]=	"Content-Transfer-Encoding:",		/* ditto ... */
- cntid[]=		"Content-ID:",
- cntdescription[]=	"Content-Description:",
- cntdisposition[]=	"Content-Disposition:",
- transportoptions[]=	"Transport-Options:",	    /* SysV mailer extension */
- defltoptions[]=	"Default-Options:",
- cntlength[]=		"Content-Length:",
- rference[]=		"Reference:",
- msgtype[]=		"Message-Type:",
- autoforwardedfrom[]=	"Auto-Forwarded-From:",
- autofcount[]=		"Auto-Forward-Count:",
- endofheader[]=		"End-of-Header:",
- orgafrom[]=		"Original-From:",
- orgaforwfrom[]=	"Original-Auto-Forwarded-From:",
- orgdate[]=		"Original-Date:",
- notdeliveredto[]=	"Not-Delivered-To:",
- reportversion[]=	"Report-Version:",
- status[]=		"Status:",			 /* mailer extension */
- mailfrom[]=		"Mail-from:",		    /* emacs BABYL extension */
- readreceiptto[]=	"Read-Receipt-To:";	  /* miscellaneous extension */
-
-static const struct {const char*hedr;int lnr;}cdigest[]=
-{ bsl(returnpath),bsl(received),bsl(replyto),bsl(Fromm),bsl(sender),
-  bsl(res_replyto),bsl(res_from),bsl(res_sender),bsl(date),bsl(res_date),
-  bsl(to),bsl(res_to),bsl(cc),bsl(res_cc),bsl(bcc),bsl(res_bcc),bsl(messageid),
-  bsl(res_messageid),bsl(inreplyto),bsl(references),bsl(keywords),bsl(subject),
-  bsl(scomments),bsl(ncrypted),bsl(errorsto),bsl(retreceiptto),
-  bsl(precedence),bsl(fullname),bsl(postddate),bsl(recvddate),bsl(mssage),
-  bsl(text),bsl(via),bsl(x400received),bsl(x400originator),bsl(x400rcipients),
-  bsl(x400mtsidentifier),bsl(x400contenttype),bsl(priority),bsl(fcc),
-  bsl(resent),bsl(forwarded),bsl(replied),bsl(article),bsl(path),bsl(summary),
-  bsl(organisation),bsl(aorganization),bsl(newsgroups),bsl(followupto),
-  bsl(approved),bsl(lines),bsl(expires),bsl(control),bsl(distribution),
-  bsl(xref),bsl(originator),bsl(nntppostinghost),bsl(submittedby),bsl(title),
-  bsl(aRticleid),bsl(posted),bsl(relayversion),bsl(cnttype),bsl(encoding),
-  bsl(cntmd5),bsl(mimeversion),bsl(cnttransferenc),bsl(cntid),
-  bsl(cntdescription),bsl(cntdisposition),bsl(transportoptions),
-  bsl(defltoptions),bsl(cntlength),bsl(rference),bsl(msgtype),
-  bsl(autoforwardedfrom),bsl(autofcount),bsl(endofheader),bsl(orgafrom),
-  bsl(orgaforwfrom),bsl(orgdate),bsl(notdeliveredto),bsl(reportversion),
-  bsl(status),bsl(mailfrom),bsl(readreceiptto)
-};
+X(returnpath,		"Return-Path:")				  /* RFC 822 */
+X(received,		"Received:")				/* ditto ... */
+X(replyto,		"Reply-To:")
+X(Fromm,		"From:")
+X(sender,		"Sender:")
+X(res_replyto,		"Resent-Reply-To:")
+X(res_from,		"Resent-From:")
+X(res_sender,		"Resent-Sender:")
+X(date,			"Date:")
+X(res_date,		"Resent-Date:")
+X(to,			"To:")
+X(res_to,		"Resent-To:")
+X(cc,			"Cc:")
+X(res_cc,		"Resent-Cc:")
+X(bcc,			"Bcc:")
+X(res_bcc,		"Resent-Bcc:")
+X(messageid,		"Message-ID:")
+X(res_messageid,	"Resent-Message-ID:")
+X(inreplyto,		"In-Reply-To:")
+X(references,		"References:")
+X(keywords,		"Keywords:")
+X(subject,		"Subject:")
+X(scomments,		"Comments:")
+X(ncrypted,		"Encrypted:")
+X(errorsto,		"Errors-To:")		       /* sendmail extension */
+X(retreceiptto,		"Return-Receipt-To:")			/* ditto ... */
+X(precedence,		"Precedence:")
+X(fullname,		"Full-Name:")
+X(postddate,		"Posted-Date:")
+X(recvddate,		"Received-Date:")
+X(mssage,		"Message:")
+X(text,			"Text:")
+X(via,			"Via:")
+X(x400received,		"X400-Received:")
+X(x400originator,	"X400-Originator:")
+X(x400rcipients,	"X400-Recipients:")
+X(x400mtsidentifier,	"X400-Mts-Identifier:")
+X(x400contenttype,	"X400-Content-Type:")
+X(priority,		"Priority:")			    /* ELM extension */
+X(fcc,			"Fcc:")				   /* Mush extension */
+X(resent,		"Resent:")			     /* MH extension */
+X(forwarded,		"Forwarded:")				/* ditto ... */
+X(replied,		"Replied:")
+X(article,		"Article:")			 /* USENET extension */
+X(path,			"Path:")				/* ditto ... */
+X(summary,		"Summary:")
+X(organisation,		"Organisation:")
+X(aorganization,	"Organization:")
+X(newsgroups,		"Newsgroups:")
+X(followupto,		"Followup-To:")
+X(approved,		"Approved:")
+X(lines,		"Lines:")
+X(expires,		"Expires:")
+X(control,		"Control:")
+X(distribution,		"Distribution:")
+X(xref,			"Xref:")
+X(originator,		"Originator:")
+X(nntppostinghost,	"NNTP-Posting-Host:")
+X(submittedby,		"Submitted-by:")
+X(title,		"Title:")	      /* antiquated USENET extension */
+X(aRticleid,		"Article-I.D.:")			/* ditto ... */
+X(posted,		"Posted:")
+X(relayversion,		"Relay-Version:")
+X(cnttype,		"Content-Type:")	       /* Internet extension */
+X(encoding,		"Encoding:")				/* ditto ... */
+X(cntmd5,		"Content-MD5:")
+X(mimeversion,		"MIME-Version:")		   /* MIME extension */
+X(cnttransferenc,	"Content-Transfer-Encoding:")		/* ditto ... */
+X(cntid,		"Content-ID:")
+X(cntdescription,	"Content-Description:")
+X(cntdisposition,	"Content-Disposition:")
+X(transportoptions,	"Transport-Options:")	    /* SysV mailer extension */
+X(defltoptions,		"Default-Options:")
+X(cntlength,		"Content-Length:")
+X(rference,		"Reference:")
+X(msgtype,		"Message-Type:")
+X(autoforwardedfrom,	"Auto-Forwarded-From:")
+X(autofcount,		"Auto-Forward-Count:")
+X(endofheader,		"End-of-Header:")
+X(orgafrom,		"Original-From:")
+X(orgaforwfrom,		"Original-Auto-Forwarded-From:")
+X(orgdate,		"Original-Date:")
+X(notdeliveredto,	"Not-Delivered-To:")
+X(reportversion,	"Report-Version:")
+X(status,		"Status:")			 /* mailer extension */
+X(mailfrom,		"Mail-from:")		    /* emacs BABYL extension */
+X(readreceiptto,	"Read-Receipt-To:")	  /* miscellaneous extension */

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.36 1994/02/11 18:49:16 berg Exp $";
+ "$Id: formail.c,v 1.37 1994/02/22 17:24:58 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/02/11 18:49:16 $";
+static /*const*/char rcsdate[]="$Date: 1994/02/22 17:24:58 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -21,15 +21,27 @@ static /*const*/char rcsdate[]="$Date: 1994/02/11 18:49:16 $";
 #include "ecommon.h"
 #include "formisc.h"
 
-static const char unknown[]=UNKNOWN,re[]=" Re:",fmusage[]=FM_USAGE,
- From_[]=		FROM,				/* VNIX 'From ' line */
- Article_[]=		"Article ",		   /* USENET 'Article ' line */
- x_[]=			"X-",				/* general extension */
- old_[]=		OLD_PREFIX;			     /* my extension */
 #define ssl(str)		str,STRLEN(str)
 #define bsl(str)		{ssl(str)}
 #define sslbar(str,bar1,bar2)	{ssl(str),STRLEN(bar1)-1,STRLEN(bar2)-1}
-#include "header.h"
+
+static const char
+#define X(name,value)	name[]=value,
+#include "header.h"				  /* pull in the definitions */
+#undef X
+ From_[]=		FROM,				/* VNIX 'From ' line */
+ Article_[]=		"Article ",		   /* USENET 'Article ' line */
+ x_[]=			"X-",				/* general extension */
+ old_[]=		OLD_PREFIX,			     /* my extension */
+ unknown[]=UNKNOWN,re[]=" Re:",fmusage[]=FM_USAGE;
+
+static const struct {const char*hedr;int lnr;}cdigest[]=
+{
+#define X(name,value)	bsl(name),
+#include "header.h"		     /* pull in the precalculated references */
+#undef X
+};
+
 /*
  *	sender determination fields in order of importance/reliability
  *	reply-address determination fields (wrepl specifies the weight
@@ -219,7 +231,7 @@ usg:						     /* options sanity check */
 xusg:
      return EX_USAGE;
    }
-  buf=malloc(buflen=BSIZE);totallen=0;i=maxindex(rex); /* prime some buffers */
+  buf=malloc(buflen=Bsize);totallen=0;i=maxindex(rex); /* prime some buffers */
   do rex[i].rexp=malloc(1);
   while(i--);
   fdate=0;addfield(&fdate,date,STRLEN(date)); /* fdate is only for searching */
