@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.80 1999/04/03 19:50:47 guenther Exp $";
+ "$Id: mailfold.c,v 1.81 1999/04/10 18:03:15 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -20,7 +20,6 @@ static /*const*/char rcsid[]=
 #include "goodies.h"
 #include "locking.h"
 #include "mailfold.h"
-#include "lastdirsep.h"
 
 int logopened,tofile,rawnonl;
 off_t lasttell;
@@ -139,17 +138,14 @@ exlb: { nlog(exceededlb);setoverflow();
      goto opn;
    }
   else if(tofile==to_MAILDIR)			     /* linkonly must be one */
-   { strcpy(strcpy(strcpy(chp,maildirnew)+MAILDIRLEN,MCDIRSEP_)+1,
-      lastdirsep(buf2));
-      /* this isn't right.  We need to make up our own unique name here,
-	 as th previous directory may have not been a maildir mailbox.	Don't
-	 bother to #include lastdirsep.h XXX */
-     yell(lkingto,buf);
-     if(rlink(buf2,buf,0))
-	goto nolnk;
-     goto didlnk;
+   { if(!unique(buf,strcpy(strcpy(chp,maildirtmp)+MAILDIRLEN,MCDIRSEP_)+1,
+      NORMperm,verbose,0))
+	goto ret;
+     unlink(buf);			 /* found a name, remove file in tmp */
+     strncpy(chp,maildirnew);	    /* but prepare to link directly into new */
    }
-  ;{ struct stat stbuf;
+  else							   /* tofile==to_DIR */
+   { struct stat stbuf;
      size_t mpl=strlen(msgprefix);
      if(chp-buf+mpl+sizeNUM(stbuf.st_ino)-XTRAlinebuf>linebuf)
 	goto exlb;
