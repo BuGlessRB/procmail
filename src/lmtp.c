@@ -9,9 +9,10 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lmtp.c,v 1.2 1999/12/15 08:52:45 guenther Exp $"
+ "$Id: lmtp.c,v 1.3 1999/12/17 07:17:14 guenther Exp $"
 #endif
 #include "procmail.h"
+#ifdef LMTP
 #include "sublib.h"
 #include "robust.h"
 #include "misc.h"
@@ -768,3 +769,6 @@ eoffound:
   resizeblock(&themail,(filled=size)+1,1);    /* minimise+1 for housekeeping */
   return 1;
 }
+#else
+int lmtp_dummy_var;		      /* to prevent insanity in some linkers */
+#endif
