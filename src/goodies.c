@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.53 1999/02/02 07:07:35 guenther Exp $";
+ "$Id: goodies.c,v 1.54 1999/02/07 06:57:08 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -240,15 +240,15 @@ closebrace:	       if(!startb)
 			  startb="";
 		  }
 		 goto ibreak;					  /* $$ =pid */
-	      case '$':ultstr(0,(unsigned long)thepid,p);
+	      case '$':ultstr(0,(unsigned long)thepid,startb);
 		 goto ieofstr;
-	      case '?':ltstr(0,(long)lexitcode,p);
+	      case '?':ltstr(0,(long)lexitcode,startb);
 		 goto ieofstr;
-	      case '#':ultstr(0,(unsigned long)crestarg,p);
+	      case '#':ultstr(0,(unsigned long)crestarg,startb);
 		 goto ieofstr;
-	      case '=':ltstr(0,lastscore,p);
+	      case '=':ltstr(0,lastscore,startb);
 ieofstr:	 i='\0';
-		 goto eofstr;
+		 goto copyit;
 	      case '_':startb=incnamed?incnamed->ename:"";
 		 goto ibreak;
 	      case '-':startb=(char*)tgetenv(lastfolder); /* $- =$LASTFOLDER */
@@ -314,7 +314,7 @@ simplsplit: { if(sarg)
 copyit:	    { strncpy(p,startb,fencepost-p+2);		   /* simply copy it */
 	      if(fencepost[1]!='\0')		      /* did we truncate it? */
 		 overflow||skiprc++,overflow=1,fencepost[1]='\0';
-eofstr:	      if(got<=SKIPPING_SPACE)		/* can only occur if sarg!=0 */
+	      if(got<=SKIPPING_SPACE)		/* can only occur if sarg!=0 */
 		 got=NORMAL_TEXT;
 	      p=strchr(p,'\0');
 	    }
