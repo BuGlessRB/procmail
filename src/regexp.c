@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.49 1994/09/27 15:04:02 berg Exp $";
+ "$Id: regexp.c,v 1.50 1994/10/04 19:58:29 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -431,7 +431,7 @@ char*bregexec(code,text,str,len,ign_case)struct eps*code;
   sempty.spawn= &sempty;			      /* static initialisers */
   bom=eom=0;stack= &sempty;ign_case=!!ign_case;			/* normalise */
   if((initcode=code)->opc==OPC_EPS)
-     initcode=(stack=code)+1,code->spawn= &sempty;
+     initcode=(stack=code)+1,code->spawn= &sempty,code=initcode;
   th1=ioffsetof(struct chclass,pos1);ot1=ioffsetof(struct chclass,pos2);
   other=Ceps&tswitch;
   if(str--==text||*str=='\n')
@@ -442,6 +442,7 @@ begofline:
      i='\n';len++;
      goto setups;
    }
+restart:
   do
    { i= *++str;				 /* get the next real-text character */
      if(ign_case&&i-'A'<='Z'-'A')
@@ -464,13 +465,18 @@ setups:
 		 case OPC_BOM-OPB:
 		    cleantail(thiss,th1);cleantail(other,ot1);
 		    if(eom)
-		       goto set2match;
+		       goto setmatch;
 		    thiss=other=Ceps&tswitch;reg=epso(reg,sizeof(union seps));
 		    initcode=Ceps&nop;bom=(const char*)str;
 		    continue;
 		 case OPC_FILL-OPB:		/* nop, nothing points at it */
-		    if(thiss==Ceps&tswitch)  /* so the stack is always empty */
-		       goto setmatch;
+		    if(thiss==Ceps&tswitch)
+		       if(eom)
+			  goto setmatch;
+		       else
+			{ str=(const uchar*)bom-1;initcode=code;
+			  goto restart;
+			}		     /* so the stack is always empty */
 		 case OPC_SEMPTY-OPB:
 		    goto empty_stack;
 		 case OPC_TSWITCH-OPB:
@@ -511,10 +517,9 @@ pcstack_switch:;				   /* this pc-stack is empty */
 	other=Ceps&tswitch;
 	goto empty_stack;			 /* check if we just matched */
    }
-setmatch:
   if(eom)
    { static char match[]=MATCHVAR;size_t mlen;char*q;
-set2match:
+setmatch:
      mlen=eom-bom;match[STRLEN(match)-1]='\0';
      if(getenv(match)==(const char*)text)	     /* anal retentive match */
 	tmemmove(q=(char*)text,bom,mlen),q[len]='\0',bom=q;
