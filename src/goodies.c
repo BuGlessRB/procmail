@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.63 1999/11/08 07:06:07 guenther Exp $";
+ "$Id: goodies.c,v 1.64 1999/11/20 23:24:32 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -187,7 +187,7 @@ escaped:      CHECKINC();*p++=i;
 	      break;
 	   startb=buf2;
 	   switch(i=fgetc())
-	    { case EOF:*p++='$';
+	    { case EOF:*p++='$';got=NORMAL_TEXT;
 		 goto ready;
 	      case '@':
 		 if(got!=DOUBLE_QUOTED)
