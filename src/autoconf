@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.91 1994/08/12 17:33:54 berg Exp $
+#$Id: autoconf,v 1.92 1994/08/18 18:12:37 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -1224,7 +1224,7 @@ then
  echo "#define SENDMAIL \"$a\"" >>$ACONF
 fi
 
-cat /usr/lib/sendmail.cf /etc/sendmail.cf 2>$DEVNULL |
+cat /usr/lib/sendmail.cf /etc/sendmail.cf /etc/mail/sendmail.cf 2>$DEVNULL |
  grep 'Mlocal.*procmail' >$DEVNULL ||
  echo '#define CF_no_procmail_yet' >>$ACONF
 
@@ -1266,7 +1266,7 @@ do
   sleep 4
 done
 exec 9>&2 2>$DEVNULL
-test ! -z "$tailpid" && kill $tailpid && echo && echo
+test ! -z "$tailpid" && kill $tailpid >$DEVNULL && echo && echo
 tailpid=""
 exec 2>&9 9>&-
 echo "Collecting results from kernel-locking tests"

@@ -1,13 +1,13 @@
 
-#$Id: Makefile.0,v 1.33 1994/08/18 13:44:49 berg Exp $
+#$Id: Makefile.0,v 1.34 1994/08/18 18:12:34 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O) \
- acommon.$(O) mcommon.$(O)
+ acommon.$(O) mcommon.$(O) lastdirsep.$(O)
 LF_OBJ=exopen.$(O) sublib.$(O) acommon.$(O) mcommon.$(O)
 FM_OBJ=common.$(O) fields.$(O) formisc.$(O) sublib.$(O) ecommon.$(O) \
  acommon.$(O)
-MG_OBJ=sublib.$(O) ecommon.$(O) mcommon.$(O) hsort.$(O)
+MG_OBJ=sublib.$(O) ecommon.$(O) mcommon.$(O) hsort.$(O) lastdirsep.$(O)
 
 all:	$(BINSS)
 
@@ -140,12 +140,12 @@ setid: setid.$(O)
 	@$(CC) $(CFLAGS) $@.$(O) -o $@ $(LDFLAGS)
 
 recommend: recommend.$(O) sublib.$(O)
-	@$(CC) $(CFLAGS) $@.$(O) sublib.$(O) -o $@ $(LDFLAGS)
+	@$(CC) $(CFLAGS) $@.$(O) sublib.$(O) lastdirsep.$(O) -o $@ $(LDFLAGS)
 
 ../man/man.sed: manconf.c ../autoconf.h ../config.h includes.h procmail.h
 ../man/man.sed: ../patchlevel.h lastdirsep.h
 	@$(CC) $(CFLAGS) "-DBINDIR=\"$(BINDIR)\"" -o _autotst manconf.c \
-	 $(LDFLAGS)
+	 lastdirsep.$(O) $(LDFLAGS)
 	@./_autotst $@ $@.0 $@.1
 	@$(RM) _autotst
 

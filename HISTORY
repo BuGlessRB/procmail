@@ -229,7 +229,7 @@
 	    Procmail sometimes didn't reliably count the number of matches on
 	       a weighted recipe, fixed
 	    Some minor manpage adaptations
-1994/08/12: v3.06pre0
+1994/08/18: v3.06pre1
 	    Groff -mandoc macros managed to display the man pages incorrectly,
 	       hacked my way around the .TH dependency to fix it
 	    Split up string constant FM_HELP, it exceeded some compiler limits
