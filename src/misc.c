@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.82 1999/01/29 22:04:58 guenther Exp $";
+ "$Id: misc.c,v 1.83 1999/02/12 05:54:00 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -319,6 +319,11 @@ void setmaildir(newdir)const char*const newdir;		    /* destroys buf2 */
   strcpy(++chp,newdir);sputenv(buf2);
 }
 
+void setoverflow P((void))
+{ static const char overflow[]="PROCMAIL_OVERFLOW=yes";
+  sputenv(overflow);
+}
+
 void srequeue P((void))
 { retval=EX_TEMPFAIL;sterminate();
 }
@@ -407,7 +412,7 @@ char*gobenv(chp,end)char*chp,*end;
      for(found=1;*chp++=i,chp<end&&alphanum(i=getb()););
   *chp='\0';ungetb(i);
   if(chp==end)							 /* overflow */
-   { nlog(exceededlb);
+   { nlog(exceededlb);setoverflow();
      return end+1;
    }
   switch(i)
@@ -482,7 +487,7 @@ void asenv(chp)const char*const chp;
       }
    }
   else if(!strcmp(buf,lockfile))
-     lockit((char*)chp,&globlock);
+     lockit(tstrdup((char*)chp),&globlock);
   else if(!strcmp(buf,eumask))
      doumask((mode_t)strtol(chp,(char**)0,8));
   else if(!strcmp(buf,includerc))

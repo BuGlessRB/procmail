@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.129 1999/01/29 23:53:07 guenther Exp $";
+ "$Id: procmail.c,v 1.130 1999/02/12 05:54:02 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -907,7 +907,7 @@ nomore_rc:
 	if(strcmp(chp,devnull)&&strcmp(chp,"|"))  /* neither /dev/null nor | */
 	 { cat(chp,lockext);
 	   if(!globlock||strcmp(buf,globlock))		  /* already locked? */
-	      lockit(buf,&loclock);			    /* implicit lock */
+	      lockit(tstrdup(buf),&loclock);		    /* implicit lock */
 	 }
 	if(writefolder(chp,(char*)0,themail,filled,0))		  /* default */
 	   succeed=1;

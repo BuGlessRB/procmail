@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.54 1999/02/07 06:57:08 guenther Exp $";
+ "$Id: goodies.c,v 1.55 1999/02/12 05:53:57 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -63,7 +63,9 @@ ready:	   if(got!=SKIPPING_SPACE||sarg)  /* not terminated yet or sarg==2 ? */
 	      *p++='\0';
 	   Tmnate=p;
 	   if(overflow)
-	      skiprc--,nlog(exceededlb);
+	    { skiprc--;
+	      nlog(exceededlb);setoverflow();
+	    }
 	   return overflow;
 	case '\\':
 	   if(got==SINGLE_QUOTED)

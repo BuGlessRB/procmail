@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.49 1999/01/23 07:02:58 guenther Exp $";
+ "$Id: locking.c,v 1.50 1999/02/12 05:53:58 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -22,23 +22,24 @@ void lockit(name,lockp)char*name;char**const lockp;
   zombiecollect();
   if(*lockp)
    { if(!strcmp(name,*lockp))	/* compare the previous lockfile to this one */
-	return;			 /* they're equal, save yourself some effort */
+      { free(name);return;	 /* they're equal, save yourself some effort */
+      }
      unlock(lockp);		       /* unlock any previous lockfile FIRST */
    }				  /* to prevent deadlocks (I hate deadlocks) */
   if(!*name)
-     return;
+   { free(name);return;
+   }
   if(!strcmp(name,defdeflock))	       /* is it the system mailbox lockfile? */
    { locktype=doCHECK|doLOCK;
      if(sgid!=gid&&setegid(sgid))      /* try and get some extra permissions */
 #ifndef fdlock
 	if(!accspooldir)
 	 { yell("Bypassed locking",name);
-	   return;
+	   free(name);return;
 	 }
 #endif
 	;
    }
-  name=tstrdup(name); /* allocate now, so we won't hang on memory *and* lock */
   for(lcking|=lck_LOCKFILE;;)
    { yell("Locking",name);	    /* in order to cater for clock skew: get */
      if(!xcreat(name,LOCKperm,&t,locktype))    /* time t from the filesystem */
@@ -103,9 +104,16 @@ term: { free(name);			     /* drop the preallocated buffer */
 void lcllock P((void))				    /* lock a local lockfile */
 { char*lckfile;			    /* locking /dev/null or | would be silly */
   if(tolock||strcmp(buf2,devnull)&&strcmp(buf2,"|"))
-   { lckfile=tolock?tolock:strcat(buf2,lockext);
+   { if(tolock)
+	lckfile=tstrdup(tolock);
+     else
+      { int len=strlen(buf2);
+	strcpy(len+strcpy(lckfile=malloc(len+strlen(lockext)+1),buf2),lockext);
+      }
      if(globlock&&!strcmp(lckfile,globlock))	 /* same as global lockfile? */
-	nlog("Deadlock attempted on"),logqnl(lckfile);
+      { nlog("Deadlock attempted on");logqnl(lckfile);
+	free(lckfile);
+      }
      else
 	lockit(lckfile,&loclock);
    }

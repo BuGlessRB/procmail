@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.34 1999/01/29 22:04:54 guenther Exp $";
+ "$Id: cstdio.c,v 1.35 1999/02/12 05:53:56 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -155,7 +155,8 @@ int getlline(target)char*target;
 	    }
 	case 0:
 	   if(overflow)
-	      nlog(exceededlb);
+	    { nlog(exceededlb);setoverflow();
+	    }
 	   return overflow;
       }
 }

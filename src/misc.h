@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.36 1999/01/29 22:04:59 guenther Exp $*/
+/*$Id: misc.h,v 1.37 1999/02/12 05:54:01 guenther Exp $*/
 
 struct dyna_long{size_t filled,tspace;off_t*offs;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -27,6 +27,7 @@ void
  suspend P((void)),
  app_val P((struct dyna_long*const sp,const off_t val)),
  setmaildir P((const char*const newdir)),
+ setoverflow P((void)),
  srequeue P((void)),
  slose P((void)),
  sbounce P((void)),

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.72 1999/02/07 20:37:10 guenther Exp $";
+ "$Id: mailfold.c,v 1.73 1999/02/12 05:53:59 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -68,7 +68,11 @@ long dump(s,source,len)const int s;const char*source;long len;
 	if(part&&tofile==to_FILE)			    /* a_time<m_time */
 	 { struct stat stbuf;
 	   rwrite(s,source++,1);len--;part--;		     /* set the trap */
+#ifdef NOfstat
+	   if(stat(buf,&stbuf)||
+#else
 	   if(fstat(s,&stbuf)||					  /* needed? */
+#endif
 	    stbuf.st_mtime==stbuf.st_atime&&stbuf.st_size!=1)
 	      ssleep(1);  /* ...what a difference this (tea) second makes... */
 	 }
@@ -117,7 +121,7 @@ static int dirfile(chp,linkonly)char*const chp;const int linkonly;
 	readerr(buf);
 #endif /* NOopendir */
      if(chp-buf+sizeNUM(i)-XTRAlinebuf>linebuf)
-exlb: { nlog(exceededlb);
+exlb: { nlog(exceededlb);setoverflow();
 	goto ret;
       }
      ;{ int ok;
@@ -206,7 +210,7 @@ makefile:
   else					 /* fixup directory name, append a / */
      strcat(chp,MCDIRSEP_),strcpy(buf2,buf),chp=0;
   if(strlen(buf2)+UNIQnamelen>linebuf)
-   { nlog(exceededlb);
+   { nlog(exceededlb);setoverflow();
      return -1;
    }
   ;{ int fd= -1;		/* generate the name for the first directory */
