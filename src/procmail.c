@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.82 1994/06/22 19:05:38 berg Exp $";
+ "$Id: procmail.c,v 1.83 1994/06/24 10:45:05 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -35,7 +35,7 @@ static const char orgmail[]="ORGMAIL",*const nullp,From_[]=FROM,
  exflags[]=RECFLAGS,drcfile[]="Rcfile:",systm_mbox[]=SYSTEM_MBOX,
  pmusage[]=PM_USAGE,*etcrc=ETCRC,misrecpt[]="Missing recipient\n",
  extrns[]="Extraneous ",ignrd[]=" ignored\n",conflicting[]="Conflicting ",
- pardir[]=chPARDIR,suppressed[]=" suppressed\n",slogstr[]="%s \"%s\"",
+ pardir[]=chPARDIR,suppressed[]=" suppressed\n",
  insufprivs[]="Insufficient privileges\n";
 char*buf,*buf2,*loclock,*tolock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
@@ -43,7 +43,8 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  *rcfile=PROCMAILRC,dirsep[]=DIRSEP,devnull[]=DevNull,lgname[]="LOGNAME",
  executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",procmailn[]="procmail",
  whilstwfor[]=" whilst waiting for ",home[]="HOME",maildir[]="MAILDIR",
- host[]="HOST",*defdeflock,*argv0="",errwwriting[]="Error while writing to";
+ host[]="HOST",*defdeflock,*argv0="",errwwriting[]="Error while writing to",
+ slogstr[]="%s \"%s\"";
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EX_OK,sh,pwait,lcking,rcstate,rc= -1,ignwerr,
  lexitcode=EX_OK,asgnlastf,accspooldir,crestarg,skiprc,savstdout;
@@ -579,7 +580,9 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 		  (*chp='\0',stat(buf,&stbuf)||
 		   (stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)&&
 		    !(stbuf.st_mode&S_ISVTX))))
-	       { *chp=i;closerc();nlog("Suspicious rcfile\n");goto fake_rc;
+	       { static const char susprcf[]="Suspicious rcfile";
+		 *chp=i;closerc();nlog(susprcf);logqnl(buf);
+		 syslog(LOG_ALERT,slogstr,susprcf,buf);goto fake_rc;
 	       }
 	      *chp=i;
 	    }

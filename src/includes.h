@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.43 1994/06/22 19:05:28 berg Exp $*/
+/*$Id: includes.h,v 1.44 1994/06/24 10:44:57 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -77,8 +77,9 @@
 #include <math.h>		/* pow() */
 #endif
 #ifndef SYSLOG_H_MISSING
-#include <syslog.h>		/* openlog() syslog() LOG_EMERG LOG_ALERT
-				/* LOG_ERR LOG_PID LOG_MAIL */
+#include <syslog.h>		/* openlog() syslog() closelog() LOG_EMERG
+				/* LOG_ALERT LOG_ERR LOG_NOTICE LOG_PID
+				   LOG_MAIL */
 #endif
 #include <errno.h>		/* EINTR EEXIST ENFILE EACCES EAGAIN EXDEV */
 #ifndef SYSEXITS_H_MISSING
@@ -304,6 +305,7 @@ extern int errno;
 #define LOG_EMERG			0
 #define LOG_ALERT			0
 #define LOG_ERR				0
+#define LOG_NOTICE			0
 #endif
 
 #ifndef NOuname

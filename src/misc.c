@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.53 1994/06/22 19:05:35 berg Exp $";
+ "$Id: misc.c,v 1.54 1994/06/24 10:45:02 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -73,7 +73,7 @@ void ignoreterm P((void))
 }
 
 void shutdesc P((void))
-{ rclose(savstdout);closerc();
+{ rclose(savstdout);closelog();closerc();
 }
 
 void setids P((void))

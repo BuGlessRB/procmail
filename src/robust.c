@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.18 1994/06/03 18:25:40 berg Exp $";
+ "$Id: robust.c,v 1.19 1994/06/24 10:45:10 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -89,8 +89,8 @@ void opnlog(file)const char*file;
   elog("");						     /* flush stderr */
   if(!*file)						   /* empty LOGFILE? */
      file=devnull;				 /* substitute the bitbucket */
-  if(0>(i=opena(file)))
-     writeerr(file);			      /* error, keep the old LOGFILE */
+  if(0>(i=opena(file)))			     /* error?	keep the old LOGFILE */
+     writeerr(file),syslog(LOG_NOTICE,slogstr,errwwriting,file);
   else
      rclose(STDERR),rdup(i),rclose(i),logopened=1;
 }

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.46 1994/06/03 18:25:30 berg Exp $";
+ "$Id: mailfold.c,v 1.47 1994/06/24 10:44:59 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -278,8 +278,13 @@ void concon(ch)const int ch;   /* flip between concatenated and split fields */
    }
 }
 
+static void ffrom(const char*chp)
+{ while(chp=strstr(chp,FROM_EXPR))
+     app_val(&escFrom_,(off_t)(++chp-themail));	       /* bogus From_ found! */
+}
+
 void readmail(rhead,tobesent)const long tobesent;
-{ char*chp,*pastend,*realstart;
+{ char*chp,*pastend,*realstart;static size_t contlengthoffset;
   ;{ long dfilled;
      if(rhead)					/* only read in a new header */
       { dfilled=mailread=0;chp=readdyn(malloc(1),&dfilled);filled-=tobesent;
@@ -308,15 +313,40 @@ void readmail(rhead,tobesent)const long tobesent;
 	      case '\n':thebody++;goto eofheader;
 	    }
 	thebody=pastend;      /* provide a default, in case there is no body */
-eofheader:;
+eofheader:
+	contlengthoffset=0;
+	if(chp=egrepin("^Content-Length:",themail,(long)(thebody-themail),0))
+	   contlengthoffset=chp-thebody;
       }
      else			       /* no new header read, keep it simple */
 	thebody=themail+dfilled; /* that means we know where the body starts */
    }		      /* to make sure that the first From_ line is uninjured */
-  chp=realstart;escFrom_.filled=0;
-  while(chp=strstr(chp,FROM_EXPR))
-     app_val(&escFrom_,(off_t)(++chp-themail));	       /* bogus From_ found! */
-  mailread=1;
+  escFrom_.filled=0;
+  ;{ int i;				    /* eradicate From_ in the header */
+     i= *thebody;*thebody='\0';ffrom(realstart);*thebody=i;
+   }
+  if((chp=thebody)>themail)
+     chp--;
+  if(contlengthoffset)
+   { unsigned places;long cntlen;long actcntlen;
+     chp=themail+contlengthoffset;cntlen=filled-(thebody-themail)-1;
+     for(actcntlen=places=0;;
+	 *chp++=cntlen>0?(actcntlen=actcntlen*10+9,'9'):' ',places++)
+      { switch(*chp)
+	 { default:continue;
+	   case '\n':case '\0':;
+	 }
+	break;
+      }
+     if(cntlen>0)
+      { charNUM(num,cntlen);
+	ultstr(places,cntlen,num);
+	if(!num[places])
+	   tmemmove(chp-places,num,places),actcntlen=cntlen;
+      }
+     chp+=actcntlen;
+   }
+  ffrom(chp);mailread=1;	  /* eradicate From_ in the rest of the body */
 }
 
 char*findtstamp(start,end)const char*start,*end;

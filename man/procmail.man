@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.49 1994/06/22 19:05:18 berg Exp $
+.Id $Id: procmail.man,v 1.50 1994/06/24 10:44:51 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -397,7 +397,7 @@ evasive actions.
 Skipped: "x"
 Couldn't do anything with "x" in the rcfile (syntax error), ignoring it.
 .TP
-Suspicious rcfile
+Suspicious rcfile "x"
 The owner of the rcfile was not the recipient or root, or the directory that
 contained it was world writable (the rcfile was not used).
 .TP
@@ -509,9 +509,17 @@ Procmail uses the regular TERMINATE signal to terminate any runaway filter,
 but it does not check if the filter responds to that signal and it only sends
 it to the filter itself, not to any of the filter's children.
 .SH MISCELLANEOUS
-When appending to regular mailfolders any lines in the body of the message that
-look like postmarks are prepended with `@ESCAP@' (disarms bogus mailheaders).
-The regular expression that is used to search for these postmarks is:
+If there is an existing
+.B Content-Length:
+field in the header of the mail procmail will trim it to report the right
+size.  Procmail does not extend the field in length.
+.PP
+If there is no
+.B Content-Length:
+field and procmail appends to regular mailfolders, any lines in the body of
+the message that look like postmarks are prepended with `@ESCAP@' (disarms
+bogus mailheaders).  The regular expression that is used to search for these
+postmarks is:
 .RS
 `@FROM_EXPR@'
 .RE

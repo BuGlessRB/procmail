@@ -220,3 +220,4 @@
 	    Utilise a syslog daemon (if present) to log some critical errors
 	       (mostly attempted security violations and errors which are
 	       fatal but can't occur (like an unwritable /dev/null))
+	    Reconstruct and respect Content-Length: in procmail
