@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.75 1994/04/12 16:28:30 berg Exp $";
+ "$Id: procmail.c,v 1.76 1994/04/14 12:12:20 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -339,7 +339,7 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 		    */
 		    if(presenviron||			  /* -p is dangerous */
 		       suppmunreadable!=2||   /* so are variable assignments */
-		       stat(rcfile,&stbuf)||		   /* does it exist? */
+		       lstat(rcfile,&stbuf)||		/* it seems to exist */
 		       !enoughprivs(passinvk,euid,egid,stbuf.st_uid,
 			stbuf.st_gid)||		   /* can we do this at all? */
 		       S_ISDIR(stbuf.st_mode)||		  /* no directories! */
@@ -495,7 +495,12 @@ fishy:	    { nlog("Couldn't create");logqnl(chp);sputenv(orgmail);
      ifstack.filled=ifstack.tspace=0;ifstack.offs=0;
      if(etcrc)		  /* do we start with an /etc/procmailrc file first? */
       { if(0<=bopen(etcrc))
-	 { yell(drcfile,etcrc);goto startrc;
+	 { yell(drcfile,etcrc);
+#if !DEFverbose
+	   if(rcstate!=rc_NORMAL)
+	      verbose=0;		    /* no peeking in /etc/procmailrc */
+#endif
+	   goto startrc;
 	 }
 	etcrc=0;					     /* no such file */
       }

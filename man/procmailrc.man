@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.38 1994/04/05 15:33:53 berg Exp $
+.Id $Id: procmailrc.man,v 1.39 1994/04/14 12:11:56 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -336,7 +336,7 @@ then no timeout will be used and procmail will wait forever until the
 lockfile is removed; if not specified, it defaults to @DEFlocktimeout@ seconds.
 This variable is useful to prevent indefinite hangups of
 .BR sendmail /procmail.
-Procmail is immune to clock skew.
+Procmail is immune to clock skew across machines.
 .TP
 .B TIMEOUT
 Number of seconds that have to have passed before procmail decides that
@@ -365,7 +365,7 @@ Anything assigned to UMASK is taken as an
 .B octal
 number.  If not specified, the umask defaults to @INIT_UMASK@.  If the umask
 permits o+x, all the mailboxes procmail delivers to directly will receive
-a o+x mode change.  This can be used to check if new mail arrived.
+an o+x mode change.  This can be used to check if new mail arrived.
 .TP
 .B SHELLMETAS
 If any of the characters in SHELLMETAS appears in the line specifying

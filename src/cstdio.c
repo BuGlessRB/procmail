@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.21 1994/04/12 16:28:02 berg Exp $";
+ "$Id: cstdio.c,v 1.22 1994/04/14 12:12:05 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -68,7 +68,7 @@ void closerc P((void))					/* {while(poprc());} */
 int bopen(name)const char*const name;				 /* my fopen */
 { rcbufp=rcbufend=0;rc=ropen(name,O_RDONLY,0);
   if(rc>=0)
-     newdynstring(incnamed,name);
+     newdynstring(&incnamed,name);
   return rc;
 }
 

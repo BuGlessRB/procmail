@@ -23,10 +23,10 @@ world, contact me instead.
 
 -------------------------- SYSTEM REQUIREMENTS -------------------------------
 
-Any *NIX-alike system.
+Any *NIX-alike (or POSIX compliant) system.
 
-Sendmail, smail, MMDF, mailsurr or compatible mailers (in effect any mailer
-that can process RFC-822 compliant mails).
+Sendmail, ZMailer, smail, MMDF, mailsurr or compatible mailers (in effect any
+mailer that can process RFC-822 compliant mails).
 
 The most important system calls that need to be supported (among others):
 dup(),wait(),getpwnam(),fork(),pipe()

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.49 1994/04/12 16:28:22 berg Exp $";
+ "$Id: misc.c,v 1.50 1994/04/14 12:12:15 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -160,13 +160,13 @@ void skipped(x)const char*const x;
 }
 
 nextrcfile P((void))		/* next rcfile specified on the command line */
-{ const char*p;int retval=2;
+{ const char*p;int rval=2;
   while(p= *gargv)
    { gargv++;
      if(!strchr(p,'='))
-      { rcfile=p;return retval;
+      { rcfile=p;return rval;
       }
-     retval=1;			       /* not the first argument encountered */
+     rval=1;			       /* not the first argument encountered */
    }
   return 0;
 }

@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.38 1994/04/05 15:34:59 berg Exp $*/
+/*$Id: manconf.c,v 1.39 1994/04/14 12:12:12 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -150,7 +150,7 @@ Care must be taken when creating @ETCRC@, because, if circumstances\
   ps("ETCRC_files",etcrc?"\1.TP\1.B @ETCRC@\1initial global rcfile":"");
   ps("DROPPRIVS",etcrc?"\1.TP\1.B DROPPRIVS\1If set to `yes' procmail\
  will drop all privileges it might have had (suid or sgid).  This is\
- most useful if you want to guarantee that the bottom half of the\
+ only useful if you want to guarantee that the bottom half of the\
  @ETCRC@ file is executed on behalf of the recipient.":"");
   ps("ETCRC_warn",etcrc?"\1.PP\1The\1.B @ETCRC@\1file might be executed\
  with root privileges, so be very careful of what you put in it.\1\
@@ -161,7 +161,7 @@ See also:\1.BR DROPPRIVS .":"");
 \1.B @ETCRCS@\
 \1 without backward references (i.e. the parent directory cannot\
  be mentioned) procmail will, only if no security violations are found,\
- take on the identity of the owner of the rcfile.");
+ take on the identity of the owner of the rcfile (or symbolic link).");
   ps("ETCRCS_files","\1.TP\1.B @ETCRCS@\1special privileges path for rcfiles");
   ps("ETCRCS_warn","\1.PP\1Keep in mind that if\1.BR chown (1)\1is permitted\
  on files in\1.BR @ETCRCS@ ,\1that they can be chowned to root\

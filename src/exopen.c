@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.17 1994/04/12 13:21:28 berg Exp $";
+ "$Id: exopen.c,v 1.18 1994/04/14 12:12:08 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -21,7 +21,7 @@ unique(full,p,mode,verbos,chownit)const char*const full;char*p;
   int nicediff,didnice=0;
   if(chownit&doCHOWN)		  /* semi-critical, try raising the priority */
    { nicediff=nice(0);errno=0;nicediff-=nice(-NICE_RANGE);
-     if(errno!=EPERM)
+     if(!errno)
 	didnice=1;
    }
   do						  /* create unique file name */
@@ -60,7 +60,7 @@ ret0:	return 0;
       }
    }
   if(chownit&doLOCK)
-     rwrite(i,"0",1);
+     rwrite(i,"0",1);			   /* pid 0, `works' across networks */
   rclose(i);return 1;
 }
 				     /* rename MUST fail if already existent */

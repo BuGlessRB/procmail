@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.46 1994/04/12 13:20:35 berg Exp $*/
+/*$Id: config.h,v 1.47 1994/04/14 12:11:42 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -123,7 +123,7 @@ request|bounce|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>]))"
 #define FROMMsubstitute "(^(((Resent-)?(From|Sender)|X-Envelope-From):|\
 >?From )(.*[^(.%@a-z0-9])?(Post(ma(st(er)?|n)|office)|Mail(er)?|daemon|mmdf|\
 root|uucp|serv(ices?|er)|Admin(istrator)?)([^).!:a-z0-9].*)?$[^>])"
-#define DEFshellmetas	"&|<>~;\n?*["		    /* never put '$' in here */
+#define DEFshellmetas	"&|<>~;?*[\\\n"		    /* never put '$' in here */
 #define DEFmaildir	"$HOME"
 #define DEFdefault	"$ORGMAIL"
 #define DEFmsgprefix	"msg."
