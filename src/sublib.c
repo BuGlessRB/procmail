@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: sublib.c,v 1.27 2001/06/27 17:07:25 guenther Exp $";
+ "$Id: sublib.c,v 1.28 2001/08/04 06:55:08 guenther Exp $";
 #endif
 #include "includes.h"
 #include "acommon.h"
@@ -47,7 +47,7 @@ jidesc:;
 #include "shell.h"
 
 #ifdef NOstrpbrk
-char*strpbrk(st,del)const char*const st,*del;
+char*sstrpbrk(st,del)const char*const st,*del;
 { const char*f=0,*t;
   for(f=0;*del;)
      if((t=strchr(st,*del++))&&(!f||t<f))
@@ -138,7 +138,7 @@ void bbzero(s,n)void *s;size_t n;
 #endif
 
 #ifdef NOstrlcat
-size_t strlcat(dst,src,size)char *dst;const char*src;size_t size;
+size_t sstrlcat(dst,src,size)char *dst;const char*src;size_t size;
 { const char*start=dst;
   if(size>0)
    { size--;					/* reserve space for the NUL */
@@ -150,11 +150,22 @@ size_t strlcat(dst,src,size)char *dst;const char*src;size_t size;
    }
   return dst-start+strlen(src);
 }
+
+size_t sstrlcpy(dst,src,size)char *dst;const char*src;size_t size;
+{ const char*start=dst;
+  if(size>0)
+   { size--;					/* reserve space for the NUL */
+     while(size>0&&*src)			     /* copy over characters */
+	size--,*dst++= *src++;
+     *dst='\0';					    /* hasta la vista, baby! */
+   }
+  return dst-start+strlen(src);
+}
 #endif
 
 #ifdef NOstrerror
 #define ERRSTR "Error number "
-char *strerror(int err)
+char *sstrerror(int err)
 { static char errbuf[STRLEN(ERRSTR)+sizeNUM(int)+1]=ERRSTR;
 #ifndef NOsys_errlist
   if(err>=0&&err<sys_nerr)
@@ -166,7 +177,7 @@ char *strerror(int err)
 #endif
 			    /* strtol replacement which lacks range checking */
 #ifdef NOstrtol
-long strtol(start,ptr,base)const char*start,**const ptr;int base;
+long sstrtol(start,ptr,base)const char*start,**const ptr;int base;
 { long result;const char*str=start;unsigned i;int sign,found;
   if(base<(sign=found=result=0)||base>=36)
      goto fault;
