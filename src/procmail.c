@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.140 1999/04/03 19:30:46 guenther Exp $";
+ "$Id: procmail.c,v 1.141 1999/04/05 17:35:05 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -114,9 +114,6 @@ main(argc,argv)const char*const argv[];
 		    elog("\nDefault rcfile:\t\t");elog(pmrc);
 		    elog("\nYour system mailbox:\t");
 		    elog(auth_mailboxname(auth_finduid(getuid(),0)));
-		    ;{ charNUM(num,linebuf);ultstr(0,linebuf-XTRAlinebuf,num);
-		       elog("\nDefault LINEBUF:\t");elog(num);
-		     }
 		    elog(newline);
 		    return EXIT_SUCCESS;
 		 case HELPOPT1:case HELPOPT2:elog(pmusage);elog(PM_HELP);
@@ -251,7 +248,7 @@ nodevnull:
 #ifdef console
 	opnlog(console);
 #endif
-	setbuf(stdin,(char*)0);mallocbuffers(linebuf);
+	setbuf(stdin,(char*)0);mallocbuffers(linebuf,1);
 #ifdef SIGXCPU
 	signal(SIGXCPU,SIG_IGN);signal(SIGXFSZ,SIG_IGN);
 #endif
@@ -936,10 +933,9 @@ nomore_rc:
      if(*(chp=(char*)fdefault))				     /* DEFAULT set? */
       { int len,tlen;
 	setuid(uid);
-	len=strlen(chp);
-	if(linebuf<(tlen=(len=strlen(chp))+strlen(lockext)+
-	 XTRAlinebuf+UNIQnamelen))
-	   mallocbuffers(linebuf=tlen);	   /* make sure we have enough space */
+	len=strlen(chp);		   /* make sure we have enough space */
+	if(linebuf<(tlen=len+strlen(lockext)+XTRAlinebuf+UNIQnamelen))
+	   mallocbuffers(linebuf=tlen,1);  /* to perform the lock & delivery */
 	if(strcmp(chp,devnull)&&strcmp(chp,"|")&& /* neither /dev/null nor | */
 	 (strcpy(buf,chp),to_dotlock(foldertype(buf+len))))/* but yet a file */
 	 { cat(chp,lockext);

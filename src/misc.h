@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.38 1999/04/02 19:05:02 guenther Exp $*/
+/*$Id: misc.h,v 1.39 1999/04/05 17:35:04 guenther Exp $*/
 
 struct dyna_long{size_t filled,tspace;off_t*offs;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -35,7 +35,7 @@ void
  setdef P((const char*const name,const char*const contents)),
  metaparse P((const char*p)),
  setlastfolder P((const char*const folder)),
- mallocbuffers P((size_t linebuf)),
+ mallocbuffers P((size_t linebuf,int setenv)),
  asenv P((const char*const chp)),
  concatenate P((char*p)),
  squeeze P((char*target)),

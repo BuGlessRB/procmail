@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.90 1999/04/02 19:05:01 guenther Exp $";
+ "$Id: misc.c,v 1.91 1999/04/05 17:35:03 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -41,7 +41,7 @@ struct varstr strenstr[]={{"SHELLMETAS",DEFshellmetas},{"LOCKEXT",DEFlockext},
 #define MAXvarvals	 maxindex(strenvvar)
 #define MAXvarstrs	 maxindex(strenstr)
 
-const char lastfolder[]="LASTFOLDER",maildir[]="MAILDIR";
+const char lastfolder[]="LASTFOLDER",maildir[]="MAILDIR",slinebuf[]="LINEBUF";
 int didchd;
 char*globlock;
 static time_t oldtime;
@@ -216,7 +216,8 @@ void sterminate P((void))
 }
 
 void Terminate P((void))
-{ ignoreterm();
+{ const char*chp;
+  ignoreterm();
   if(retvl2!=EXIT_SUCCESS)
      fakedelivery=0,retval=retvl2;
   if(getpid()==thepid)
@@ -230,7 +231,9 @@ void Terminate P((void))
 	lstfolder=tgetenv(lastfolder);
      logabstract(lstfolder);
 #ifndef NO_COMSAT
-     ;{ int s;struct sockaddr_in addr;char*chp,*chad;	     /* @ seperator? */
+     if(strlen(chp=tgetenv(lgname))+2<=linebuf)	  /* first pass length check */
+      { int s;struct sockaddr_in addr;char*chad;	     /* @ seperator? */
+	cat(chp,"@");			     /* start setting up the message */
 	if(chad=strchr(chp=(char*)scomsat,SERV_ADDRsep))
 	   *chad++='\0';	      /* split it up in service and hostname */
 	else if(!renvint(-1L,chp))		/* or is it a false boolean? */
@@ -269,7 +272,6 @@ void Terminate P((void))
 	 }
 	else
 	   addr.sin_port=htons((short)s);		    /* network order */
-	cat(tgetenv(lgname),"@");		 /* should always fit in buf */
 	if(lasttell>=0)					   /* was it a file? */
 	   ultstr(0,(unsigned long)lasttell,buf2),catlim(buf2);	      /* yep */
 	catlim(COMSATxtrsep);				 /* custom seperator */
@@ -441,22 +443,28 @@ int asenvcpy(src)char*src;
   return 0;
 }
 
-void mallocbuffers(linebuf)size_t linebuf;
+void mallocbuffers(linebuf,setenv)size_t linebuf;int setenv;
 { if(buf)
    { free(buf);
      free(buf2);
    }
   buf=malloc(linebuf);buf2=malloc(linebuf);
+  if(setenv)
+   { char*chp;
+     *(chp=strcpy(buf,slinebuf)+STRLEN(slinebuf))='=';
+     ultstr(0,linebuf-XTRAlinebuf,chp+1);
+     sputenv(buf);
+   }
 }
 
 void asenv(chp)const char*const chp;
-{ static const char slinebuf[]="LINEBUF",logfile[]="LOGFILE",Log[]="LOG",
-   sdelivered[]="DELIVERED",includerc[]="INCLUDERC",eumask[]="UMASK",
-   dropprivs[]="DROPPRIVS",shift[]="SHIFT";
+{ static const char logfile[]="LOGFILE",Log[]="LOG",sdelivered[]="DELIVERED",
+   includerc[]="INCLUDERC",eumask[]="UMASK",dropprivs[]="DROPPRIVS",
+   shift[]="SHIFT";
   if(!strcmp(buf,slinebuf))
    { if((linebuf=renvint(0L,chp)+XTRAlinebuf)<MINlinebuf+XTRAlinebuf)
 	linebuf=MINlinebuf+XTRAlinebuf;		       /* check minimum size */
-     mallocbuffers(linebuf);
+     mallocbuffers(linebuf,0);
    }
   else if(!strcmp(buf,maildir))
      if(chdir(chp))

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.64 1999/02/16 21:13:47 guenther Exp $";
+ "$Id: regexp.c,v 1.65 1999/04/05 17:35:06 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -593,7 +593,7 @@ checkmatch:
 	   bom=(const char*)text;
 	if(eom>--pend)
 	   eom=pend;
-	len=eom-bom;
+	len=eom>bom?eom-bom:0;
 	if(getenv(match)==(const char*)text)	     /* anal retentive match */
 	   tmemmove(q=(char*)text,bom,len),q[len]='\0',bom=q;
 	else
