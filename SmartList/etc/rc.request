@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.58 1994/06/14 13:48:54 berg Exp $
+#$Id: rc.request,v 1.59 1994/06/15 17:06:39 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -84,7 +84,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
       (sign( [^ ]+ |-)?off|leave|delete|remove|unsub)\>|\
      ($(.+$)*$(.*$)*)?(.*[^a-z])?\
       (un(sub?)?scri|\
-      (leave|(delete|remove) .* from|(sign|take) .* off) .* [a-z-]*list)\>)
+      (leave|(delete|remove) .* from|(sign|take) .* off) .* [a-z-]*list\>))
   | unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from` ${cc_unsubrequests}
 
   cc_unsubrequests
@@ -100,7 +100,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
       (Could you )?(please )?\
       (sign( [^ ]+ |-)?on|add|join|sub)\>|\
      ($(.+$)*$(.*$)*)?(.*[^a-z])?\
-      (sub?scri.*|(join|add .* to|(sign|put) .* on) .* [a-z-]*list)\>)
+      (sub?scri.*|(join|add .* to|(sign|put) .* on) .* [a-z-]*list\>))
    {
      #
      # Yes, well, then check if the person subscribing isn't on the reject

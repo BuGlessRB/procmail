@@ -100,3 +100,6 @@
 	    Full blown MIME support for the archive server (binary files,
 	       arbitrary length, autosplitting, full MIME-encapsulation)
 	    The archive server understands the "version" command
+1994/06/15: v3.01
+	    v3.00 didn't react to plain (un)subscribe requests
+	    Installation as non-root had problems finding the right directory

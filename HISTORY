@@ -206,3 +206,5 @@
 	       - Provided for the ability to hotwire the lockingtests
 	       - Autoconf asks if you'd like to use the existing autoconf.h
 	       - Autoconf determines MAX_argc (for choplist)
+1994/06/14: v3.01
+	    No changes, version number bump to keep in sync with SmartList
