@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.181 2001/08/27 08:44:00 guenther Exp $";
+ "$Id: procmail.c,v 1.182 2001/08/31 04:55:38 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -702,6 +702,7 @@ progrm: if(testB('!'))					 /* forward the mail */
 	      skiprc|=1;
 	   if(strlcpy(buf,sendmail,linebuf)>=linebuf)
 	      goto fail;
+	   chp=strchr(buf,'\0');
 	   if(*flagsendmail)
 	    { char*q;int got=0;
 	      if(!(q=simplesplit(chp+1,flagsendmail,buf+linebuf-1,&got)))
