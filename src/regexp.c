@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.51 1994/10/07 12:48:12 berg Exp $";
+ "$Id: regexp.c,v 1.52 1994/10/07 13:56:19 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -436,7 +436,7 @@ static struct eps*cleantail(start,thiss,th1)const char*const start;
 char*bregexec(code,text,str,len,ign_case)struct eps*code;
  const uchar*const text;const uchar*str;size_t len;unsigned ign_case;
 { register struct eps*reg,*stack,*other,*thiss;unsigned i,th1,ot1;
-  struct eps*initcode;const char*start,*bom,*eom,*pend;
+  struct eps*initcode;const char*eom,*pend;
   static struct eps sempty={OPC_SEMPTY,&sempty};
   static const struct jump nop={OPC_FILL};
   sempty.spawn= &sempty;			      /* static initialisers */
@@ -459,9 +459,8 @@ begofline:
 	i+='a'-'A';			     /* transmogrify it to lowercase */
      th1^=XOR1;ot1^=XOR1;		     /* switch this & other pc-stack */
 setups:
-     bom=pend;thiss=other;other=Ceps&tswitch;reg=initcode;	 /* pop from */
-     for(;;							 /* pc-stack */
-	thiss=PC(reg=thiss,th1),PC(reg,th1)=0,bom=PCp(reg,th1),reg=reg->next)
+     thiss=other;other=Ceps&tswitch;reg=initcode;		 /* pop from */
+     for(;;thiss=PC(reg=thiss,th1),PC(reg,th1)=0,reg=reg->next)	 /* pc-stack */
       { for(;;reg=stack->next,stack=stack->spawn)     /* pop from work-stack */
 	   for(;;)
 	    { switch(reg->opc-OPB)
@@ -474,15 +473,7 @@ setups:
 		 case OPC_JUMP-OPB:reg=reg->next;
 		    continue;
 		 case OPC_BOM-OPB:
-#if 0 /* extended behaviour?! srb */
-		    if(eom)
-		       goto setmatch;
-#endif
-		    reg=epso(reg,sizeof(union seps));bom=(const char*)str;
-		    continue;
-		 case OPC_FILL-OPB:		/* nop, nothing points at it */
-		    if(thiss==Ceps&tswitch)
-		       goto setmatch;	     /* so the stack is always empty */
+		    goto foundbom;
 		 case OPC_SEMPTY-OPB:
 		    goto empty_stack;
 		 case OPC_TSWITCH-OPB:
@@ -490,15 +481,7 @@ setups:
 		 case OPC_EOTEXT-OPB:
 		    if(ign_case==2)		     /* only at the very end */
 		 case OPC_FIN-OPB:
-		     { if(bom<pend)
-			{ thiss=cleantail(start=bom,thiss,th1);
-			  other=cleantail(bom,other,ot1);
-			  eom=(const char*)str;initcode=Ceps&nop;
-			  break;
-			}			      /* reset the automaton */
-		       cleantail(--pend,thiss,th1);cleantail(pend,other,ot1);
-		       return (char*)str;	       /* one past the match */
-		     }
+		       goto nobom;
 		 case OPC_BOTEXT-OPB:
 		    if(str<text)	       /* only at the very beginning */
 		       goto yep;
@@ -510,11 +493,7 @@ setups:
 		 case OPC_DOT-OPB:			     /* dot-wildcard */
 		    if(i!='\n')
 yep:		       if(!PC(reg,ot1))		     /* state not yet pushed */
-			{ PC(reg,ot1)=other;other=reg; /* push location onto */
-earlier:		  PCp(reg,ot1)=bom;		   /* other pc-stack */
-			}
-		       else if(bom<(char*)PCp(reg,ot1))
-			  goto earlier;
+			  PC(reg,ot1)=other,other=reg,PCp(reg,ot1)=pend;
 	       }
 	      break;
 	    }
@@ -523,31 +502,104 @@ empty_stack:;					  /* the work-stack is empty */
 pcstack_switch:;				   /* this pc-stack is empty */
    }
   while(--len);					     /* still text to search */
-  switch(ign_case)
-   { case 0:case 1:ign_case=1;i='\n';			   /* just finished? */
-     case 2:ign_case++;str++;len=1;th1^=XOR1;ot1^=XOR1;thiss=other;
-	other=Ceps&tswitch;
-	goto empty_stack;			 /* check if we just matched */
-   }
-  if(eom)
-   { static char match[]=MATCHVAR;size_t mlen;char*q;
-setmatch:
-     if(start<(char*)text)
-	start=(const char*)text;
-     if(eom>--pend)
-	eom=pend;
-     mlen=eom-start;match[STRLEN(match)-1]='\0';
-     if(getenv(match)==(const char*)text)	     /* anal retentive match */
-	tmemmove(q=(char*)text,start,mlen),q[len]='\0',start=q;
-     else
-      { char*p;
-	match[STRLEN(match)-1]='=';
-	if(*start=='\n')
-	   start++;				/* strip one leading newline */
-	primeStdout(match);p=realloc(Stdout,(Stdfilled+=mlen)+1);
-	tmemmove(q=p+Stdfilled-(int)mlen,start,mlen);retStdout(p);
+  goto wrapup;
+  ;{ const char*start,*bom;
+     do
+      { i= *++str;			 /* get the next real-text character */
+	if(ign_case&&i-'A'<='Z'-'A')
+	   i+='a'-'A';			     /* transmogrify it to lowercase */
+	th1^=XOR1;ot1^=XOR1;start=pend;thiss=other;other=Ceps&tswitch;
+	reg=initcode;
+	for(;;							 /* pc-stack */
+	 thiss=PC(reg=thiss,th1),PC(reg,th1)=0,start=PCp(reg,th1),
+	 reg=reg->next)
+	 { for(;;reg=stack->next,stack=stack->spawn)  /* pop from work-stack */
+	      for(;;)
+	       { switch(reg->opc-OPB)
+		  { default:
+		       if(i==reg->opc)		  /* regular character match */
+			  goto Yep;
+		       break;	    /* push spawned branch on the work-stack */
+		    case OPC_EPS-OPB:reg->spawn=stack;reg=(stack=reg)+1;
+		       continue;
+		    case OPC_JUMP-OPB:reg=reg->next;
+		       continue;
+		    case OPC_BOM-OPB:
+		       if(eom)			       /* extended behaviour */
+			  goto setmatch;
+foundbom:	       reg=epso(reg,sizeof(union seps));start=(const char*)str;
+		       continue;
+		    case OPC_FILL-OPB:		/* nop, nothing points at it */
+		       if(thiss==Ceps&tswitch)
+			  goto setmatch;     /* so the stack is always empty */
+		    case OPC_SEMPTY-OPB:
+		       goto Empty_stack;
+		    case OPC_TSWITCH-OPB:
+		       goto Pcstack_switch;
+		    case OPC_EOTEXT-OPB:
+		       if(ign_case==2)		     /* only at the very end */
+		    case OPC_FIN-OPB:
+			{ if(start<pend)		       /* any match? */
+			   { thiss=cleantail(bom=start,thiss,th1);
+			     other=cleantail(start,other,ot1);
+			     eom=(const char*)str;initcode=Ceps&nop;
+			     break;
+			   }			      /* reset the automaton */
+nobom:			  cleantail(--pend,thiss,th1);
+			  cleantail(pend,other,ot1);
+			  return (char*)str;	       /* one past the match */
+			}
+		    case OPC_BOTEXT-OPB:
+		       if(str<text)	       /* only at the very beginning */
+			  goto Yep;
+		       break;
+		    case OPC_CLASS-OPB:
+		       if(bit_test(((struct chclass*)reg)->c,i))
+			  goto Yep;		       /* character in class */
+		       break;
+		    case OPC_DOT-OPB:			     /* dot-wildcard */
+		       if(i!='\n')
+Yep:			  if(!PC(reg,ot1))	     /* state not yet pushed */
+			   { PC(reg,ot1)=other;other=reg;   /* push location */
+earlier:		     PCp(reg,ot1)=start;      /* onto other pc-stack */
+			   }
+			  else if(start<(char*)PCp(reg,ot1))
+			     goto earlier;
+		  }
+		 break;
+	       }
+Empty_stack:;					  /* the work-stack is empty */
+	 }
+Pcstack_switch:;				   /* this pc-stack is empty */
       }
-     yell("Matched",q);
+     while(--len);				     /* still text to search */
+wrapup:
+     switch(ign_case)
+      { case 0:case 1:ign_case=1;i='\n';		   /* just finished? */
+	case 2:ign_case++;str++;len=1;th1^=XOR1;ot1^=XOR1;start=pend;
+	   thiss=other;other=Ceps&tswitch;
+	   goto Empty_stack;			 /* check if we just matched */
+      }
+     if(eom)
+      { static char match[]=MATCHVAR;size_t mlen;char*q;
+setmatch:
+	if(bom<(char*)text)
+	   bom=(const char*)text;
+	if(eom>--pend)
+	   eom=pend;
+	mlen=eom-bom;match[STRLEN(match)-1]='\0';
+	if(getenv(match)==(const char*)text)	     /* anal retentive match */
+	   tmemmove(q=(char*)text,bom,mlen),q[len]='\0',bom=q;
+	else
+	 { char*p;
+	   match[STRLEN(match)-1]='=';
+	   if(*bom=='\n')
+	      bom++;				/* strip one leading newline */
+	   primeStdout(match);p=realloc(Stdout,(Stdfilled+=mlen)+1);
+	   tmemmove(q=p+Stdfilled-(int)mlen,bom,mlen);retStdout(p);
+	 }
+	yell("Matched",q);
+      }
    }
   return (char*)eom;						   /* match? */
 }
