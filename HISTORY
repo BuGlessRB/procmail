@@ -416,9 +416,10 @@
 	       - Work around a compiler bug in Sun C compiler 4.2 (fdefault
 		 cached past function calls)
 	       - Tempfile names would grow on retry
-	       - Almost always open rcfiles as the user and check for
-		 symlink tricks (removes potential security hole on
-		 some platforms)
+	       - Open or reopen rcfiles as the user to prevent peeking when
+		 not in privileged mailfilter mode
+	       - Don't use a .procmailrc if it's group-writable or in a
+		 group-writable directory
 	    Worked around a compiler bug old HP compilers (pointer-unsigned),
 	       caused the Content-Length: field to be mangled on some older
 	       HP/UX systems (not on every mail)
