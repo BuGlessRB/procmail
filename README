@@ -113,5 +113,5 @@ The latest version can be obtained directly from the ftp-archive at:
 
 	as zipped tar file:		pub/unix/procmail.tar.zip	~128KB
 	as compressed tar file:		pub/unix/procmail.tar.Z		~192KB
-	in compressed shar format:	pub/unix/procmail.0?.Z
+	in compressed shar format:	pub/unix/procmail.??.Z	      11 parts
 ----------------------
