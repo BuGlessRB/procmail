@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.61 1994/01/12 19:13:24 berg Exp $";
+ "$Id: procmail.c,v 1.62 1994/01/14 17:57:51 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -190,9 +190,8 @@ privileged:				       /* move stdout out of the way */
 	ultstr(0,(unsigned long)uid,buf);
 	chp2=!passinvk||!*passinvk->pw_name?buf:passinvk->pw_name;
 	filled=0;
-	;{ const char*fwhom;size_t lfr,linv;int tstamp=0;
-	   if(fromwhom&&*fromwhom==REFRESH_TIME&&!fromwhom[1])
-	      tstamp=1;
+	;{ const char*fwhom;size_t lfr,linv;int tstamp;
+	   tstamp=fromwhom&&*fromwhom==REFRESH_TIME&&!fromwhom[1];
 	   fwhom=fromwhom&&!tstamp?fromwhom:chp2;
 	   thebody=themail=
 	    malloc(2*linebuf+(lfr=strlen(fwhom))+(linv=strlen(chp2)));
@@ -214,21 +213,25 @@ privileged:				       /* move stdout out of the way */
 	       STDIN,rstart+1,linebuf-2-1)+1)&&eqFrom_(themail))
 	       { rstart[i]='\0';
 		 if(!(rstart=strchr(rstart,'\n')))
-		    goto nonewl;		     /* drop long From_ line */
-		 i-=++rstart-themail;
-		 if(tstamp)
-		    lfr=findtstamp(themail+STRLEN(From_),rstart)
-		     -themail+tstamp;
-		 else if(fromwhom)		       /* discard From_ line */
-		  { for(;!(rstart=strchr(themail,'\n'));themail[i]='\0')
-nonewl:		       if((i=rread(STDIN,themail,linebuf-2))<=0)
+		  { do				     /* drop long From_ line */
+		     { if((i=rread(STDIN,themail,linebuf-2))<=0)
 			  break;
+		       themail[i]='\0';
+		     }
+		    while(!(rstart=strchr(themail,'\n')));
 		    i=rstart?i-(++rstart-themail):0;
 		  }
-		 else			       /* leave the From_ line alone */
-		  { lfr=0;
-		    if(linv)
-		       i-=(lfr=rstart-themail);
+		 else
+		  { size_t tfrl;
+		    i-=tfrl=++rstart-themail;
+		    if(tstamp)
+		       lfr=findtstamp(themail+STRLEN(From_),rstart)
+			-themail+tstamp;
+		    else if(!fromwhom)	       /* leave the From_ line alone */
+		       if(linv)
+			  lfr=tfrl;
+		       else
+			  lfr=0,i+=tfrl;
 		  }
 	       }
 	      else
@@ -236,6 +239,7 @@ nonewl:		       if((i=rread(STDIN,themail,linebuf-2))<=0)
 	      filled=lfr+linv+i;
 	      if(lfr||linv)	     /* move read text beyond our From_ line */
 	       { r= *rstart;tmemmove(themail+lfr+linv,rstart,i);
+		 rstart=themail+lfr;
 		 if(!linv)
 		  { rstart[-tstamp]='\0';
 		    if(!tstamp)
@@ -243,12 +247,10 @@ nonewl:		       if((i=rread(STDIN,themail,linebuf-2))<=0)
 		  }
 		 else
 		  { if(lfr)
-		     { rstart-=linv;
 		       if(tstamp)
 			  strcpy(rstart-tstamp,buf2);
-		       else
+		       else if(fromwhom)
 			  strcat(strcat(strcpy(themail,From_),fwhom),buf2);
-		     }	       /* insert a >From_ field to distinguish fakes */
 		    strcat(strcpy(rstart,Fakefield),chp2);
 		  }			  /* overwrite the trailing \0 again */
 		 strcat(themail,buf2);themail[lfr+linv]=r;
@@ -658,8 +660,9 @@ jinregs:			   regsp=regs;	/* start over and look again */
 			      }
 			     break;
 			   }
-			  case '$':*buf2='"';squeeze(chp);readparse(buf,sgetc,2);
-			     strcpy(buf2,skpspace(buf));goto copydone;
+			  case '$':*buf2='"';squeeze(chp);
+			     readparse(buf,sgetc,2);strcpy(buf2,skpspace(buf));
+			     goto copydone;
 			  case '!':negate^=1;chp2=skpspace(chp);
 copyrest:		     strcpy(buf,chp2);continue;
 			  case '?':pwait=2;metaparse(chp);inittmout(buf);
