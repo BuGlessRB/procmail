@@ -9,7 +9,7 @@
 #	This file is *not* automatically replaced during an upgrade of	#
 #	SmartList.							#
 #########################################################################
-#$Id: mimencap.local,v 1.12 1994/06/30 12:01:42 berg Exp $
+#$Id: mimencap.local,v 1.13 1994/06/30 14:22:11 berg Exp $
 
 # What we have at our disposal are:
 #
@@ -187,9 +187,8 @@
 
   :0 wfh
   | $formail -fb -a "MIME-Version: 1.0" | \
-    $sed -e '/^Content-Type:/ a\
-\	; directory="'$dir'"; name="'$name\"
-
+    $sed -e 's"^\(Content-Type: .*\)$"\1;\
+	directory=\"'$dir'\"; name=\"'$name'\""'
 
   :0
   |

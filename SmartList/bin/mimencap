@@ -5,7 +5,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: mimencap,v 1.9 1994/06/30 12:01:35 berg Exp $
+#$Id: mimencap,v 1.10 1994/06/30 14:22:08 berg Exp $
 
 DEFAULT=|
 
@@ -13,7 +13,7 @@ DEFAULT=|
 * ^Content-Type:
 |
 
-INCLUDERC=../SedBinDir/mimencap.local
+INCLUDERC=../.bin/mimencap.local
 
 :0
 * !^Content-Transfer-Encoding:
@@ -32,8 +32,8 @@ INCLUDERC=../SedBinDir/mimencap.local
       | $formail -fb -I "MIME-Version: 1.0" \
 	 -a "Content-Type: application/octet-stream" \
 	 -I "Content-Transfer-Encoding: base64" | \
-	$sed -e '/^Content-Type:/ a\
-\	; directory="'$dir'"; name="'$name\"
+	$sed -e 's"^\(Content-Type: .*\)$"\1;\
+	directory=\"'$dir'\"; name=\"'$name'\""'
 
       :0
       |
@@ -46,8 +46,8 @@ INCLUDERC=../SedBinDir/mimencap.local
     | $formail -fb -I "MIME-Version: 1.0" \
        -a "Content-Type: application/octet-stream" \
        -I "Content-Transfer-Encoding: quoted-printable" | \
-	$sed -e '/^Content-Type:/ a\
-\	; directory="'$dir'"; name="'$name\"
+      $sed -e 's"^\(Content-Type: .*\)$"\1;\
+	directory=\"'$dir'\"; name=\"'$name'\""'
 
     :0
     |

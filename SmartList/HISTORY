@@ -116,6 +116,7 @@
 	    Laid out the requirements for MIME support in the Manual
 	    Modifications to the archive server:
 	      - fix a typo in mimencap for the fallback Content-Type: field
+	      - work around a bug in mimencode
 	      - change the dir= attribute to directory=
 	      - also support the planned Content-Disposition: field (for naming
 		files)

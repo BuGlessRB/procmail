@@ -221,6 +221,8 @@
 	       (mostly attempted security violations and errors which are
 	       fatal but can't occur (like an unwritable /dev/null))
 	    Reconstruct and respect Content-Length: in procmail
+	       (if you need the >From lines, you'll have to take any existing
+	       Content-Lenght: field out of the header)
 	    Reformatted the source code to match the changed conventions
 	    Procmail always defaulting the umask to 077 for deliverymode broke
 	       some systems, reverting back to the old method of allowing group
