@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.24 1994/01/17 14:40:24 berg Exp $
+#$Id: createlist,v 1.25 1994/01/28 11:56:36 berg Exp $
 
 defaults=.etc
 
@@ -126,7 +126,7 @@ cd "$list"
 for a in rc.submit rc.init rc.request help.txt subscribe.txt unsubscribe.txt \
  reject
 do
-  $cat $DEVNULL >>../$defaults/$a		# to make sure it exists
+  $test -f ../$defaults/$a || $touch $a		# to make sure it exists
   $ln ../$defaults/$a $a
 done
 

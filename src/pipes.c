@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.25 1994/01/18 17:29:41 berg Exp $";
+ "$Id: pipes.c,v 1.26 1994/01/28 11:57:40 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -247,9 +247,19 @@ char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
 }
 
 void exectrap(tp)const char*const tp;
-{ if(*tp)
-   { int newret;
-     metaparse(tp);concon('\n');inittmout(buf);
+{ int forceret;static const char exitcode[]="EXITCODE";
+  ;{ const char*p;
+     if(p=getenv(exitcode))			 /* user specified exitcode? */
+      { if((forceret=renvint(-2L,p))>=0)	     /* yes, is it positive? */
+	   retval=forceret;				 /* then override it */
+      }
+     else				     /* no EXITCODE set, provide one */
+      { strcpy(p=buf2,exitcode);*(p+=STRLEN(exitcode))='=';
+	ultstr(0,(unsigned long)retval,p+1);sputenv(buf2);forceret= -1;
+      }
+   }
+  if(*tp)
+   { metaparse(tp);concon('\n');inittmout(buf);
      if(!(pidchild=sfork()))	     /* connect stdout to stderr before exec */
       { int poutfd[2];
 	Stdout=buf;childsetup();rpipe(poutfd);rclose(STDOUT);pidfilt=thepid;
@@ -260,7 +270,11 @@ void exectrap(tp)const char*const tp;
 	 }					 /* call up the TRAP program */
 	rclose(PWRO);rdup(STDERR);forkerr(pidchild,buf);callnewprog(buf);
       }
-     if(!forkerr(pidchild,buf)&&(newret=waitfor(pidchild))!=EX_OK)
-	retval=newret;			       /* supersede the return value */
+     ;{ int newret;
+	if(!forkerr(pidchild,buf)&&
+	   (newret=waitfor(pidchild))!=EX_OK&&
+	   forceret==-2)
+	   retval=newret;		       /* supersede the return value */
+      }
    }
 }

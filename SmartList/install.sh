@@ -1,13 +1,10 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.37 1994/01/18 16:10:33 berg Exp $
+#$Id: install.sh,v 1.38 1994/01/28 11:56:33 berg Exp $
 
-IFS="	 \
-
-"
 SHELL=/bin/sh
-export SHELL IFS
+export SHELL
 umask 022				# making sure that umask has sane value
 
 test $# != 1 -a $# != 2 && echo "Usage: install.sh target-directory [.bin]" &&

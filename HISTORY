@@ -88,6 +88,9 @@
 	       machine (due to the lockingtests, not procmail itself)
 1994/01/18: v2.92
 	    Changes to procmail:
+	       - Changed the semantics of the TRAP keyword.  In order to
+		 make procmail accept the exitcode it returns, you now have
+		 to set EXITCODE=""
 	       - It was still occasionally trying to lock /dev/null, which
 		 is of course silly, fixed that
 	       - Taught it about `nesting recipes'; they allow parts of
@@ -124,6 +127,9 @@
 		 except that unpriviliged users will get an additional >From_
 		 they didn't bargain for (in order to make fakes identifiable)
 	       - The date on the From_ line can now be refreshed with -f-
+	       - Introduced new recipe flags: E and e (else and error)
+	       - Nested blocks clone procmail on a 'c' flag
+	       - Introduced the EXITCODE special variable
 	    Changes to formail:
 	       - Fixed a sender-determination-weight problem, it mixed up
 		 the weights when autoreplying and when regenerating the From_

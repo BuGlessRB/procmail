@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.39 1994/01/11 13:17:13 berg Exp $";
+ "$Id: mailfold.c,v 1.40 1994/01/28 11:57:15 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -222,6 +222,8 @@ void logabstract(lstfolder)const char*const lstfolder;
 	*chad++='\0';		      /* split it up in service and hostname */
      else if(!renvint(-1L,scomsat))		/* or is it a false boolean? */
 	return;					       /* ok, no comsat then */
+     else
+	chp="";				  /* Set to yes, so take the default */
      if(!chad||!*chad)						  /* no host */
 #ifndef IP_localhost
 	chad=COMSAThost;				      /* use default */

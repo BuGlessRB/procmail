@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.75 1994/01/25 15:39:56 berg Exp $
+#$Id: autoconf,v 1.76 1994/01/28 11:57:10 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -75,10 +75,6 @@
 # Anything else indicates failure of your system to comply with either
 # the ANSI or POSIX standards (but procmail should be installable anyway).
 
-IFS="	 \
-
-"
-
 SHELL=$1
 PATH=.:$PATH
 shift; RM="$1"
@@ -94,7 +90,7 @@ test 1 != $# &&
  echo "Don't start this script directly, use \`make ../autoconf.h'" && exit 1
 
 LANG=""
-export SHELL PATH LANG IFS
+export SHELL PATH LANG
 
 test "X$LOCKINGTEST" = X__defaults__ && LOCKINGTEST=""
 

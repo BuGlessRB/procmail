@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.32 1994/01/25 15:39:38 berg Exp $
+.Id $Id: procmailrc.man,v 1.33 1994/01/28 11:56:55 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -8,7 +8,7 @@ procmailrc \- procmail rcfile
 .SH SYNOPSIS
 .B $HOME/@PROCMAILRC@
 .ad
-.SH DESCRIPTION
+.SH DESCRIPTION
 For a quick start, see
 .B NOTES
 at the end of the
@@ -116,6 +116,16 @@ The number of conditions that are expected to follow default to none.
 Has the same meaning as the `@ALSO_NEXT_RECIPE@' flag, but will depend on the
 .I successful
 completion of the immediately preceding recipe as well.
+.Tp
+.B @ELSE_DO@
+This recipe only executes if the immediately preceding recipe was not
+executed.  This allows you to specify `else' actions.
+The number of conditions that are expected to follow default to none.
+.Tp
+.B @ERROR_DO@
+This recipe only executes if the immediately preceding recipe failed.
+This allows you to specify `error' actions.
+The number of conditions that are expected to follow default to none.
 .TP
 .B @PASS_HEAD@
 Feed the header to the pipe (default).
@@ -127,8 +137,9 @@ Feed the body to the pipe (default).
 Consider the pipe as a filter.
 .TP
 .B @CONTINUE@
-Continue processing rcfile even if this recipe matches (not needed when 'f'
-specified).
+Continue processing the rcfile even if this recipe matches (not needed
+when `@FILTER@' is specified).  On nesting blocks this will clone the
+running procmail process (lockfiles can not be inherited).
 .TP
 .B @WAIT_EXIT@
 Wait for the filter or program to finish and check its exitcode (normally
@@ -417,8 +428,21 @@ assignment (to `yes'), the mail will be lost (i.e. it will not bounce).
 When procmail terminates it will execute the contents of this variable.
 A copy of the mail can be read from stdin.  Any output produced by this
 command will be appended to $LOGFILE.  Possible uses for TRAP are: removal
-of temporary files, logging customised abstracts, change the exitcode of
-procmail, etc.
+of temporary files, logging customised abstracts, etc.  See also
+.B EXITCODE
+and
+.BR LOGABSTRACT .
+.Tp
+.B EXITCODE
+When procmail terminates and this variable has a positive numeric value,
+procmail will use this as the exitcode.  If this variable is set but
+empty, procmail will set the exitcode to whatever the
+.B TRAP
+program returns.
+If this variable is not set, procmail will set it shortly before calling
+up the
+.B TRAP
+program.
 .TP
 .B LASTFOLDER
 This variable is assigned to by procmail whenever it is delivering

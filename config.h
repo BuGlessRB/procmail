@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.36 1994/01/12 17:21:45 berg Exp $*/
+/*$Id: config.h,v 1.37 1994/01/28 11:56:23 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -61,8 +61,8 @@
 	(it will supersede the value of SYSTEM_MAILBOX in autoconf.h) */
 
 /*#define DEFsendmail	"/bin/mail"	/* uncomment and/or change if the
-					   preset default SENDMAIL is not
-	suitable */
+					   autoconfigured default SENDMAIL is
+	not suitable */
 
 #define ETCRC	"/etc/procmailrc"	/* optional global procmailrc startup
 	file (will only be read if procmail is started with no rcfile
@@ -172,18 +172,18 @@ root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
 \n\t-m\t\tact as a general purpose mail filter\n"
 #define PM_QREFERENCE	\
  "Recipe flag quick reference:\
-\n\tH\tegrep the header (default)\
-\n\tB\tegrep the body\
-\n\tD\tdistinguish case\
-\n\tA\talso execute this recipe if the common condition matched\
-\n\ta\tsame as 'A', but only if the previous recipe was successful\
-\n\th\tfeed the header to the pipe (default)\
-\n\tb\tfeed the body to the pipe (default)\
-\n\tf\tfilter\
-\n\tc\tcontinue with the next recipe in any case\
-\n\tw\twait for a filter or program\
-\n\tW\tsame as 'w', but suppress 'Program failure' messages\
-\n\ti\tignore write errors\n"
+\n\tH  egrep header (default)\tB  egrep body\
+\n\tD  distinguish case\
+\n\tA  also execute this recipe if the common condition matched\
+\n\ta  same as 'A', but only if the previous recipe was successful\
+\n\tE  else execute this recipe, if the preceding condition didn't match\
+\n\te  on error execute this recipe, if the previous recipe failed\
+\n\th  deliver header (default)\tb  deliver body (default)\
+\n\tf  filter\
+\n\tc  continue with the next recipe in any case\
+\n\tw  wait for a filter or program\
+\n\tW  same as 'w', but suppress 'Program failure' messages\
+\n\ti  ignore write errors\n"
 
 #define MINlinebuf	128    /* minimal LINEBUF length (don't change this) */
 #define FROM_EXPR	"\nFrom "
@@ -197,7 +197,7 @@ root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
 #define TABCHAR		"\t"
 #define TABWIDTH	8
 
-#define RECFLAGS	"HBDAahbfcwWi"
+#define RECFLAGS	"HBDAahbfcwWiEe"
 #define HEAD_GREP	 0
 #define BODY_GREP	  1
 #define DISTINGUISH_CASE   2
@@ -210,6 +210,8 @@ root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
 #define WAIT_EXIT		  9
 #define WAIT_EXIT_QUIET		   10
 #define IGNORE_WRITERR		    11
+#define ELSE_DO			     12
+#define ERROR_DO		      13
 
 #define UNIQ_PREFIX	'_'	  /* prepended to temporary unique filenames */
 #define ESCAP		">"

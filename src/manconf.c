@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.32 1994/01/25 15:40:13 berg Exp $*/
+/*$Id: manconf.c,v 1.33 1994/01/28 11:57:19 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -95,7 +95,6 @@ static void pc(name,value)const char*const name;const int value;
 main(argc,argv)const char*const argv[];
 { char*p,*q;
   gargv=argv;
-  puts("/^\\.ex/,/^\\.ex/ d");
 #ifdef CF_no_procmail_yet
   ps("CF_procmail","If procmail is\1\
 .I not\1\
@@ -106,6 +105,7 @@ administrator), you have to make sure it is invoked when your mail arrives.");
 procmail when mail arrives, you can control the invocation of procmail \
 yourself.");
 #endif
+  puts("/^\\.ex/,/^\\.ex/ d");
 #ifndef MAILBOX_SEPARATOR
   ps("DOT_FORWARD",".forward");
   ps("FW_content",
@@ -218,6 +218,8 @@ See also:\1.BR DROPPRIVS .":"");
   pc("DISTINGUISH_CASE",RECFLAGS[DISTINGUISH_CASE]);
   pc("ALSO_NEXT_RECIPE",RECFLAGS[ALSO_NEXT_RECIPE]);
   pc("ALSO_N_IF_SUCC",RECFLAGS[ALSO_N_IF_SUCC]);
+  pc("ELSE_DO",RECFLAGS[ELSE_DO]);
+  pc("ERROR_DO",RECFLAGS[ERROR_DO]);
   pc("PASS_HEAD",RECFLAGS[PASS_HEAD]);
   pc("PASS_BODY",RECFLAGS[PASS_BODY]);
   pc("FILTER",RECFLAGS[FILTER]);

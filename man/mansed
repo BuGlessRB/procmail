@@ -1,10 +1,6 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.15 1994/01/25 15:39:24 berg Exp $
-
-IFS="	 \
-
-"
+#$Id: mansed,v 1.16 1994/01/28 11:56:45 berg Exp $
 
 test 5 != $# &&
  echo "Don't start this script directly, use \`make'" && exit 1
@@ -14,7 +10,7 @@ SRC="$2"
 DEST="$3"
 RM="$4"
 DEVNULL=$5
-export SHELL SRC DEST RM DEVNULL IFS
+export SHELL SRC DEST RM DEVNULL
 
 if test ! -f "$DEST"
 then
@@ -22,7 +18,7 @@ then
 fi
 
 (cat <<\HERE
-.if n .pl +(135i-\n(.pu)
+.\"if n .pl +(135i-\n(.pu)
 .de Id
 .ds Rv \\$3
 .ds Dt \\$4

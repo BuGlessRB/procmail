@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.64 1994/01/25 15:40:19 berg Exp $";
+ "$Id: procmail.c,v 1.65 1994/01/28 11:57:47 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -61,7 +61,8 @@ main(argc,argv)const char*const argv[];
 #define Presenviron	i
      Deliverymode=mailfilter=0;thepid=getpid();
      if(argc)			       /* sanity check, any argument at all? */
-      { Deliverymode=strcmp(lastdirsep(argv0=argv[0]),procmailn);
+      { Deliverymode=strncmp(lastdirsep(argv0=argv[0]),procmailn,
+	 STRLEN(procmailn));
 	for(Presenviron=argc=0;(chp2=(char*)argv[++argc])&&*chp2=='-';)
 	   for(;;)				       /* processing options */
 	    { switch(*++chp2)
@@ -438,7 +439,7 @@ fishy:	    { nlog("Couldn't create");logqnl(chp);sputenv(orgmail);
 	 }
       }
    }
-  ;{ int succeed,lastcond;struct dyna_long ifstack;
+  ;{ int succeed,lastcond,prevcond;struct dyna_long ifstack;
      ifstack.filled=ifstack.tspace=0;ifstack.offs=0;
      if(etcrc)
       { if(0<=bopen(etcrc))
@@ -504,7 +505,7 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 	   *	the rcfile might have been created after the first stat)
 	   */
 	   *chp=i;yell(drcfile,buf);setids();firstchd();
-startrc:   succeed=lastcond=0;
+startrc:   succeed=lastcond=prevcond=0;
 	 }
 	unlock(&loclock);goto commint;		/* unlock any local lockfile */
 	do
@@ -552,7 +553,8 @@ commint:   do skipspace();				  /* skip whitespace */
 		 concatenate(chp);skipped(chp);break;	/* display leftovers */
 	       }
 	      if(nrcond<0)    /* assume appropriate default nr of conditions */
-		 nrcond=!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC];
+		 nrcond=!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC]&&
+			!flags[ELSE_DO]&&!flags[ERROR_DO];
 	      startchar=themail;tobesent=thebody-themail;
 	      if(flags[BODY_GREP])	       /* what needs to be egrepped? */
 		 if(flags[HEAD_GREP])
@@ -562,9 +564,10 @@ commint:   do skipspace();				  /* skip whitespace */
 		  }
 	      if(!skiprc)
 		 concon(' ');
-noconcat:     i=flags[ALSO_NEXT_RECIPE]?lastcond:1;	  /* init test value */
-	      if(flags[ALSO_N_IF_SUCC])
-		 i=lastcond&&succeed;	/* only if the last recipe succeeded */
+noconcat:     i=flags[ERROR_DO]?prevcond&&!succeed:
+		flags[ELSE_DO]?!prevcond:
+		flags[ALSO_N_IF_SUCC]?lastcond&&succeed:
+		flags[ALSO_NEXT_RECIPE]?lastcond:1;	  /* init test value */
 	      if(skiprc)
 		 i=0;
 	      while(skipspace(),nrcond--,testb('*')||nrcond>=0)
@@ -738,8 +741,8 @@ skiptrue:;	  }
 	    }
 	   if(!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC])
 	      lastcond=i;		   /* save the outcome for posterity */
-	   startchar=themail;tobesent=filled;	    /* body, header or both? */
-	   if(flags[PASS_HEAD])
+	   prevcond=i;startchar=themail;tobesent=filled;
+	   if(flags[PASS_HEAD])			    /* body, header or both? */
 	    { if(!flags[PASS_BODY])
 		 tobesent=thebody-themail;
 	    }
@@ -838,13 +841,41 @@ forward:	 if(locknext)
 	       }		 /* find the end, start of a nesting recipe? */
 	      else if((chp=strchr(buf,'\0'))==buf&&testb('{')&&
 	       (*chp++='{',*chp='\0',testb(' ')||testb('\t')||testb('\n')))
-	       { if(flags[CONTINUE])
-		    nlog(extrns),elog("continue-flag"),elog(ignrd);
-		 if(locknext)
+	       {  if(locknext)
 		    nlog(extrns),elog("locallockfile"),elog(ignrd);
 		 app_val(&ifstack,(off_t)lastcond);	    /* push lastcond */
 		 if(!i)						/* no match? */
 		    skiprc++;		      /* increase the skipping level */
+		 else
+		  { if(locknext)
+		     { lcllock();
+		       if(!pwait)	/* try and protect the user from his */
+			  pwait=2;		   /* blissful ignorance :-) */
+		     }
+		    inittmout(procmailn);
+		    if(flags[CONTINUE])
+		     { yell("Forking",procmailn);
+		       if(!(pidchild=sfork()))		   /* clone yourself */
+			{ if(loclock)	      /* lockfiles are not inherited */
+			     free(loclock),loclock=0;
+			  if(globlock)
+			     free(globlock),globlock=0;
+			  thepid=getpid();	 /* clear up identity crisis */
+			}
+		       else if(forkerr(pidchild,procmailn))
+			  succeed=0;	       /* Tsk, tsk, no cloning today */
+		       else
+			{ int excode;
+			  succeed=1;   /* shall we wait for our better half? */
+			  if(pwait&&(excode=waitfor(pidchild))!=EX_OK)
+			   { if(!(pwait&2)||verbose)	 /* do we report it? */
+				progerr(procmailn,excode);
+			     succeed=0;
+			   }
+			  pidchild=0;
+			}
+		     }
+		  }
 		 continue;
 	       }
 	      if(!i)						/* no match? */

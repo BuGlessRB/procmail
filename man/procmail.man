@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.35 1994/01/25 15:39:27 berg Exp $
+.Id $Id: procmail.man,v 1.36 1994/01/28 11:56:49 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -287,7 +287,7 @@ The program or filter "x" tried to produce too much output for the current
 LINEBUF, discarded the rest.
 .TP
 Extraneous x ignored
-The action line of this recipe makes x meaningless.
+The action line of this recipe makes flag x meaningless.
 .TP
 Failed forking "x"
 Process table is full (and NORESRETRY has been exhausted).
@@ -521,7 +521,7 @@ To make `egrepping' of headers more consistent, procmail concatenates all
 continued header fields; but only internally.  When delivering the mail, line
 breaks will appear as before.
 .PP
-If procmail is called under a different name than `procmail' (i.e. if it
+If procmail is called under a name not starting with `procmail' (i.e. if it
 is linked to another name and invoked as such), it comes up in explicit
 delivery mode, and expects the recipients' names as command line arguments
 (as if \-@DELIVEROPT@ had been specified).

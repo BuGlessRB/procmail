@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.41 1994/01/14 18:15:29 berg Exp $";
+ "$Id: multigram.c,v 1.42 1994/01/28 11:57:32 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/01/14 18:15:29 $";
+static /*const*/char rcsdate[]="$Date: 1994/01/28 11:57:32 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -219,8 +219,8 @@ main(minweight,argv)char*argv[];
 "Usage: multigram [-cdimr] [-b nnn] [-l nnn] [-w nnn] [-ax address] filename\n"
    ;
   if(minweight)			      /* sanity check, any arguments at all? */
-   { char*chp;
-     if(!strcmp(chp=lastdirsep(argv[0]),flist))		 /* suid flist prog? */
+   { char*chp;						 /* suid flist prog? */
+     if(!strncmp(chp=lastdirsep(argv[0]),flist,STRLEN(flist)))
       { struct stat stbuf;char*arg;
 	static const char request[]=REQUEST,listid[]=LISTID,
 	 rcrequest[]=RCREQUEST,rcpost[]=RCPOST,list[]=LIST,

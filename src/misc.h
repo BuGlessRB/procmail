@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.21 1994/01/11 13:24:59 berg Exp $*/
+/*$Id: misc.h,v 1.22 1994/01/28 11:57:27 berg Exp $*/
 
 struct dyna_long{size_t filled,tspace;off_t*offs;};
 
@@ -51,5 +51,6 @@ long
 
 extern const char lastfolder[];
 extern didchd;
+extern char*globlock;
 
 #define MAXvarvals	maxindex(strenvvar)
