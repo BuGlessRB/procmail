@@ -478,7 +478,8 @@
 		 space
 	       - SENDMAIL and SENDMAILFLAGS are now split in forwarding actions
 	       - Variable capture actions now see the variable's current value
-		 and restore that value if the action fails
+		 and restore it if the action fails.  Previously unset
+		 variables will remain unset.
 	       - fsync() mailboxes before closing them
 	       - Actually suppress the 'E' and 'a' flags when combined with
 		 the 'e' flag instead of just saying so

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.61 1999/11/04 23:26:23 guenther Exp $";
+ "$Id: pipes.c,v 1.62 1999/11/08 07:06:09 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -54,7 +54,8 @@ static void stermchild P((void))
   if(pidfilt>0)		    /* don't kill what is not ours, we might be root */
      kill(pidfilt,SIGTERM);
   rawnonl=1;				       /* give back the raw contents */
-  if(dump(PWRB,backblock,backlen))	  /* pump data back via the backpipe */
+  if(PWRB<0);						/* previously unset? */
+  else if(dump(PWRB,backblock,backlen))	  /* pump data back via the backpipe */
      nlog(rescdata),elog("failed\n");
   else if(verbose||pwait!=4)		/* are we not looking the other way? */
      nlog(rescdata),elog("succeeded\n");
@@ -132,12 +133,16 @@ No_1st_comma: elog(*walkargs);					/* expand it */
 }
 
 int pipthrough(line,source,len)char*line,*source;const long len;
-{ int pinfd[2],poutfd[2];
-  rpipe(pbackfd);
+{ int pinfd[2],poutfd[2];char*eq;
+  if(Stdout&&(*(eq=strchr(Stdout,'\0')-1)='\0',		     /* chop the '=' */
+   !(backblock=getenv(Stdout))))			/* no current value? */
+     PRDB=PWRB= -1;
+  else
+     rpipe(pbackfd);
   rpipe(pinfd);						 /* main pipes setup */
   if(!(pidchild=sfork()))			/* create a sending procmail */
-   { if(Stdout)
-	backlen=strlen(backblock=getenv(Stdout));
+   { if(Stdout&&backblock)
+	backlen=strlen(backblock);
      else
 	backblock=source,backlen=len;
      childsetup();rclose(PRDI);rclose(PRDB);
@@ -170,9 +175,10 @@ perr:	      progerr(line,excode,pwait==4);  /* I'm going to tell my mommy! */
   if(forkerr(pidchild,procmailn))
      return -1;
   if(Stdout)
-   { char*name=Stdout;Stdout=0;
-     primeStdout(name);free(name);
-     retStdout(readdyn(Stdout,&Stdfilled));
+   { char*name;
+     *eq='=';name=Stdout;Stdout=0;primeStdout(name);free(name);
+     Stdout=readdyn(Stdout,&Stdfilled);
+     retStdout(Stdout,!backblock&&pwait&&pipw);
      return pipw;
    }
   return 0;		    /* we stay behind to read back the filtered text */
@@ -264,12 +270,12 @@ jumpback:;
    }
 eoffound:
   if(pidchild>0)
-   { if(Stdout!=buf2)
+   { if(PRDB>=0)
       { getstdin(PRDB);			       /* filter ready, get backpipe */
 	if(1==rread(STDIN,buf,1))		      /* backup pipe closed? */
 	 { bf=trealloc(bf,(size_t)((*filled=oldsize+1)+blksiz));
 	   bf[oldsize]= *buf;
-	   Stdout=buf2;pwait=2;		      /* break loop, definitely reap */
+	   PRDB= -1;pwait=2;		      /* break loop, definitely reap */
 	   goto jumpback;		       /* filter goofed, rescue data */
 	 }
       }

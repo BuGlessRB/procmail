@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.62 1999/11/04 23:26:17 guenther Exp $";
+ "$Id: goodies.c,v 1.63 1999/11/08 07:06:07 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -410,8 +410,14 @@ void primeStdout(varname)const char*const varname;   /* changes are allowed! */
   Stdfilled=ioffsetof(struct dynstring,ename[0])+strlen(varname);
 }
 
-void retStdout(newmyenv)char*const newmyenv;	/* see note on primeStdout() */
-{ if(newmyenv[Stdfilled-1]=='\n')	       /* strip one trailing newline */
+void retStdout(newmyenv,unset)			/* see note on primeStdout() */
+ char*const newmyenv;int unset;
+{ if(unset)					     /* on second thought... */
+   { myenv=((struct dynstring*)newmyenv)->enext;	 /* pull it back out */
+     free(newmyenv);*lastenv=Stdout=0;
+     return;
+   }
+  if(newmyenv[Stdfilled-1]=='\n')	       /* strip one trailing newline */
      Stdfilled--;
   retbStdout(newmyenv);
 }

@@ -1,11 +1,11 @@
-/*$Id: goodies.h,v 1.18 1999/04/19 06:42:17 guenther Exp $*/
+/*$Id: goodies.h,v 1.19 1999/11/08 07:06:08 guenther Exp $*/
 
 int
  readparse P((char*p,int(*const fpgetc)(),const int sarg));
 void
  ltstr P((const int minwidth,const long val,char*dest)),
  primeStdout P((const char*const varname)),
- retStdout P((char*const newmyenv)),
+ retStdout P((char*const newmyenv,int unset)),
  retbStdout P((char*const newmyenv)),
  postStdout P((void));
 const char
