@@ -298,7 +298,7 @@
 	    Fixed bug in lockfile, the exitcode was not correct if
 	       you used -! (I hope this finally fixes this -! problem)
 	    Using execv() instead of execve()
-1997/04/28: v3.11pre7
+1997/04/28: v3.11pre8
 	    Changes to procmail:
 	       - varname ?? < nnn conditions didn't have the expected effect
 	       - Regression bug since v3.06, procmail -m /etc/procmailrcs
@@ -344,7 +344,7 @@
 	       - Kernel lockf() method doesn't change the position of the
 		 filepointer anymore (results in more accurate lockingtests)
 	       - Multiple directory folders are assigned to LASTFOLDER
-	       - Don't strip trailing \n in a $MATCH
+	       - Don't strip leading or trailing \n in a $MATCH
 	       - Refuse to open directories for INCLUDERC files
 	       - Syslog failed -o attempts
 	       - Don't log non-delivering recipes, even with 'c' flag
@@ -352,6 +352,9 @@
 	       - Define RESTRICT_EXEC to restrict execution of programs
 	       - Perform continuous checks on heap overflow
 	       - Catch overly long rcfile names
+	       - new variable PROCMAIL_VERSION
+	       - LOGABSTRACT=all no longer logs filtering or variable capture
+		 actions
 	    Changes to formail:
 	       - Slightly extended the number of known header fields
 	       - Eliminated the conflict with the 4.4BSD daemon libidentifier
@@ -393,6 +396,7 @@
 	       - Detect & work around BSD 4.4 brain damaged setrgid()
 	       - If running on a system with good old BSD semantics for
 		 setrgid(), use the extra features offered
+	       - Detect & work around inefficient realloc() implementations
 	    Fixed potential memory corruption bug for machines that have
 	       sizeof(off_t)>sizeof(off_t*) (has been around for ages)
 	    The man pages were remade upon every make, fixed

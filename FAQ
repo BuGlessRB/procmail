@@ -256,7 +256,22 @@ http://www.cis.ohio-state.edu/hypertext/faq/usenet/mail/filtering-faq/faq.html
 	  and procmail use an overlapping kernel locking method.
 
 
-18. None of the above topics cover my problem.	Should I panic?
+18. Is procmail Y2K safe/compliant?
+
+	Both procmail and formail are Y2K compliant if your system's
+	libraries are Y2K compliant.  In particular, they use the
+	time_t type to hold the current time when it is needed and
+	print out the time using the ctime() library routine.
+
+	For those who have examined the code themselves, the casting of
+	a time_t value to unsigned long in formail.c is guaranteed to
+	work according to the current version of the C language
+	standard.  Future revisions of that standard may change that,
+	at which time formail will be updated to work with both the new
+	and the old standards.
+
+
+19. None of the above topics cover my problem.	Should I panic?
 
 	Let me ask you a question :-), have you examined the CAVEATS, WARNINGS,
 	BUGS and NOTES sections of the manual pages *closely* ?
