@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.25 1994/06/14 13:49:02 berg Exp $
+.Id $Id: formail.man,v 1.26 1994/06/14 14:38:34 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -232,7 +232,7 @@ formail \-@FM_DEL_INSERT@ Received:
 .PP
 To remove all fields except From: and Subject: from the header:
 .RS
-formail \-@FM_KEEP@ \-@FM_EXTRC_KEEP@ From: \-@FM_EXTRC_KEEP@ Subject:
+formail \-@FM_KEEPB@ \-@FM_EXTRC_KEEP@ From: \-@FM_EXTRC_KEEP@ Subject:
 .RE
 .PP
 To supersede the Reply-To: field in a header you could use:
