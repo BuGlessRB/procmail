@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.178 2001/06/28 22:55:10 guenther Exp $";
+ "$Id: procmail.c,v 1.179 2001/08/04 07:21:59 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -690,16 +690,13 @@ commint:do skipspace();					  /* skip whitespace */
 	if(i)
 	   zombiecollect(),concon('\n');
 progrm: if(testB('!'))					 /* forward the mail */
-	 { char*fencepost=buf+linebuf-1;
-	   if(!i)
+	 { if(!i)
 	      skiprc|=1;
-	   *fencepost='\0';
-	   strncpy(buf,sendmail,linebuf-1);
-	   if((chp=strchr(buf,'\0'))==fencepost)
+	   if(strlcpy(buf,sendmail,linebuf)>=linebuf)
 	      goto fail;
 	   if(*flagsendmail)
 	    { char*q;int got=0;
-	      if(!(q=simplesplit(chp+1,flagsendmail,fencepost,&got)))
+	      if(!(q=simplesplit(chp+1,flagsendmail,buf+linebuf-1,&got)))
 		 goto fail;
 	      *(chp=q)='\0';
 	    }
