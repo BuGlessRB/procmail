@@ -122,7 +122,7 @@
 		files)
 	      - propagate the SHELL variable to any sub-procmails we run
 	    Updated some misleading comments in rc.submit
-1994/07/19: v3.04
+1994/08/02: v3.04
 	    Changes to mimencap.local:
 	       - Added support for the most recent MIME types
 	       - Change the format of the Content-ID field to be RFC822

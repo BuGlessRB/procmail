@@ -227,7 +227,7 @@
 	    Procmail always defaulting the umask to 077 for deliverymode broke
 	       some systems, reverting back to the old method of allowing group
 	       access on the system mailbox if necessary
-1994/07/19: v3.04
+1994/08/02: v3.04
 	    Changes to procmail:
 	       - Support some non-BSD compatible syslog() implementations
 	       - Even if the Content-Length is zero, write it out (some
