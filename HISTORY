@@ -554,6 +554,7 @@
 	       - LC_ in KEEPENV would preserve only the first LC_foo variable
 	       - Strip runtime linker variables (LD_*) from environment on
 		 all platforms
+	       - Multiple -a options will now set $2, $3, etc
 	    Changes to lockfile:
 	       - Include the system mailbox lockfile path in the -v output
 	    Documented formail's treatment of >From_ lines as continuations

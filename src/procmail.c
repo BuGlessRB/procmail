@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.161 2000/10/27 20:04:02 guenther Exp $";
+ "$Id: procmail.c,v 1.162 2000/10/27 22:07:28 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -58,7 +58,7 @@ char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rcstate,rc= -1,
  ignwerr,lexitcode=EXIT_SUCCESS,asgnlastf,crestarg,skiprc,savstdout,berkeley,
  mailfilter,erestrict,Deliverymode,ifdepth;	       /* depth of outermost */
-struct dyna_long ifstack;
+struct dyna_array ifstack;
 size_t linebuf=mx(DEFlinebuf,1024/*STRLEN(systm_mbox)<<1*/);
 volatile int nextexit;			       /* if termination is imminent */
 pid_t thepid;
@@ -93,6 +93,8 @@ static int wipetcrc P((void))	  /* stupid function to avoid a compiler bug */
 }
 #endif
 
+static void usage P((void));
+
 int main(argc,argv)int argc;const char*const argv[];
 { register char*chp,*chp2;register int i;int suppmunreadable;
 #if 0				/* enable this if you want to trace procmail */
@@ -109,24 +111,8 @@ int main(argc,argv)int argc;const char*const argv[];
 	for(presenviron=argc=0;(chp2=(char*)argv[++argc])&&*chp2=='-';)
 	   for(;;)				       /* processing options */
 	    { switch(*++chp2)
-	       { case VERSIONOPT:elog(procmailn);elog(Version);
-		    elog("\nLocking strategies:\tdotlocking");
-#ifndef NOfcntl_lock
-		    elog(", fcntl()");		    /* a peek under the hood */
-#endif
-#ifdef USElockf
-		    elog(", lockf()");
-#endif
-#ifdef USEflock
-		    elog(", flock()");
-#endif
-		    elog("\nDefault rcfile:\t\t");elog(pmrc);
-#ifdef GROUP_PER_USER
-		    elog("\n\tIt may be writable by your primary group");
-#endif
-		    elog("\nYour system mailbox:\t");
-		    elog(auth_mailboxname(auth_finduid(getuid(),0)));
-		    elog(newline);
+	       { case VERSIONOPT:
+		    usage();
 		    return EXIT_SUCCESS;
 		 case HELPOPT1:case HELPOPT2:elog(pmusage);elog(PM_HELP);
 		    elog(PM_QREFERENCE);
@@ -150,12 +136,14 @@ int main(argc,argv)int argc;const char*const argv[];
 		       nlog("Missing name\n");
 		    break;
 		 case ARGUMENTOPT:
-		  { static const char*argv1[]={empty,0};
+		  { static struct dyna_array newargv;
 		    if(*++chp2)
 		       goto setarg;
 		    else if(chp2=(char*)argv[argc+1])
 		     { argc++;
-setarg:		       *argv1=chp2;restargv=argv1;crestarg=1;
+setarg:		       app_valp(newargv,(const char*)chp2);
+		       restargv=&(acc_valp(newargv,0));
+		       crestarg++;
 		     }
 		    else
 		       nlog("Missing argument\n");
@@ -892,4 +880,25 @@ nomore_rc:
 mailed: rawnonl=0,retval=EXIT_SUCCESS;	  /* we're home free, mail delivered */
    }
   unlock(&loclock);Terminate();
+}
+
+static void usage P((void))
+{ elog(procmailn);elog(Version);
+  elog("\nLocking strategies:\tdotlocking");
+#ifndef NOfcntl_lock
+  elog(", fcntl()");				    /* a peek under the hood */
+#endif
+#ifdef USElockf
+  elog(", lockf()");
+#endif
+#ifdef USEflock
+  elog(", flock()");
+#endif
+  elog("\nDefault rcfile:\t\t");elog(pmrc);
+#ifdef GROUP_PER_USER
+  elog("\n\tIt may be writable by your primary group");
+#endif
+  elog("\nYour system mailbox:\t");
+  elog(auth_mailboxname(auth_finduid(getuid(),0)));
+  elog(newline);
 }

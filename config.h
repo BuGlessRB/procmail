@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.91 2000/10/23 09:04:14 guenther Exp $*/
+/*$Id: config.h,v 1.92 2000/10/27 22:07:20 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -237,10 +237,10 @@ MMGR)\
 #define LMTPOPT		'z'			/* talk LTMP on stdin/stdout */
 #define PM_USAGE	\
  "Usage: procmail [-vptoY] [-f fromwhom] [parameter=value | rcfile] ...\
-\n   Or: procmail [-toY] [-f fromwhom] [-a argument] -d recipient ...\
+\n   Or: procmail [-toY] [-f fromwhom] [-a argument] ... -d recipient ...\
 \n\
    Or: procmail [-ptY] [-f fromwhom] -m [parameter=value] ... rcfile [arg] ...\
-\n   Or: procmail [-otY] [-a argument] -z\
+\n   Or: procmail [-toY] [-a argument] ... -z\
 \n"
 #define PM_HELP		\
  "\t-v\t\tdisplay the version number and exit\
@@ -249,7 +249,7 @@ MMGR)\
 \n\t-f fromwhom\t(re)generate the leading 'From ' line\
 \n\t-o\t\toverride the leading 'From ' line if necessary\
 \n\t-Y\t\tBerkeley format mailbox, disregard Content-Length:\
-\n\t-a argument\twill set $1\
+\n\t-a argument\twill set $1, $2, etc\
 \n\t-d recipient\texplicit delivery mode\
 \n\t-z\t\tact as an LMTP server\
 \n\t-m\t\tact as a general purpose mail filter\n"

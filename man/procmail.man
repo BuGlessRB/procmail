@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.82 2000/10/23 09:02:46 guenther Exp $
+.Id $Id: procmail.man,v 1.83 2000/10/27 22:07:21 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -17,6 +17,7 @@ procmail \- autonomous mail processor
 .RB [ \-@TEMPFAILOPT@@OVERRIDEOPT@@BERKELEYOPT@ ]
 .RB [ "\-@FROMWHOPT@ \fIfromwhom\fP" ]
 .RB [ "\-@ARGUMENTOPT@ \fIargument\fP" ]
+\&.\|.\|.
 .if n .ti +0.5i
 .B \-@DELIVEROPT@
 .I recipient
@@ -144,9 +145,11 @@ fields.
 .I "\fB\-@ARGUMENTOPT@\fP argument"
 This will set $1 to be equal to
 .IR argument .
-It can be used to pass meta information along to procmail.  This is
-typically done by passing along the $@x information from the sendmail
-mailer rule.
+Each succeeding
+.I "\fB\-@ARGUMENTOPT@\fP argument"
+will set the next number variable ($2, $3, etc).  It can be used
+to pass meta information along to procmail.  This is typically done
+by passing along the $@x information from the sendmail mailer rule.
 .TP
 .I "\fB\-@DELIVEROPT@\fP recipient .\|.\|."
 This turns on explicit delivery mode, delivery will be to the local user

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.104 2000/10/25 08:13:21 guenther Exp $";
+ "$Id: misc.c,v 1.105 2000/10/27 22:07:26 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -392,12 +392,12 @@ const char*newdynstring(adrp,chp)struct dynstring**const adrp;
   return curr->ename;
 }
 
-void*app_val_(sp)struct dyna_long*const sp;
+void*app_val_(sp,size)struct dyna_array*const sp;int size;
 { if(sp->filled==sp->tspace)			    /* growth limit reached? */
-   { size_t len=(sp->tspace+=4)*sizeof*sp->vals;
+   { size_t len=(sp->tspace+=4)*size;
      sp->vals=sp->vals?realloc(sp->vals,len):malloc(len);	   /* expand */
    }
-  return &sp->vals[sp->filled++];			     /* append to it */
+  return &sp->vals[size*sp->filled++];			     /* append to it */
 }
 
 			     /* lifted out of main() to reduce main()'s size */

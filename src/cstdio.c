@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.50 2000/10/24 00:16:38 guenther Exp $";
+ "$Id: cstdio.c,v 1.51 2000/10/27 22:07:22 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -18,7 +18,7 @@ static /*const*/char rcsid[]=
 
 static uchar rcbuf[STDBUF],*rcbufp,*rcbufend;	  /* buffer for custom stdio */
 static off_t blasttell;
-static struct dyna_long inced;				  /* includerc stack */
+static struct dyna_array inced;				  /* includerc stack */
 struct dynstring*incnamed;
 
 static void refill(offset)const int offset;		/* refill the buffer */

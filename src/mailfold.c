@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.96 2000/10/25 08:13:19 guenther Exp $";
+ "$Id: mailfold.c,v 1.97 2000/10/27 22:07:24 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -32,7 +32,7 @@ int logopened,rawnonl;
 off_t lasttell;
 static long lastdump;
 static volatile int mailread;	/* if the mail is completely read in already */
-static struct dyna_long confield;		  /* escapes, concatenations */
+static struct dyna_array confield;		  /* escapes, concatenations */
 static const char*realstart,*restbody;
 static const char from_expr[]=FROM_EXPR;
 

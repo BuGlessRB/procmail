@@ -1,14 +1,19 @@
-/*$Id: misc.h,v 1.47 2000/10/25 08:13:22 guenther Exp $*/
+/*$Id: misc.h,v 1.48 2000/10/27 22:07:27 guenther Exp $*/
 
-struct dyna_long{int filled,tspace;union{int i;off_t o;long l;}*vals;};
+struct dyna_array{int filled,tspace;char*vals;};
 struct dynstring{struct dynstring*enext;char ename[255];};
 
-#define app_valo(sp,val)	(*(off_t*)app_val_(&sp)=(val))
-#define app_vall(sp,val)	(*(long *)app_val_(&sp)=(val))
-#define app_vali(sp,val)	(*(int	*)app_val_(&sp)=(val))
-#define acc_valo(sp,off)	sp.vals[off].o		/* this is an lvalue */
-#define acc_vall(sp,off)	sp.vals[off].l			    /* ditto */
-#define acc_vali(sp,off)	sp.vals[off].i			    /* ditto */
+#define app_val_type(sp,type)	(type*)app_val_(&sp,sizeof(type))
+#define app_valo(sp,val)	(*app_val_type(sp,off_t)=(val))
+#define app_vall(sp,val)	(*app_val_type(sp,long)=(val))
+#define app_vali(sp,val)	(*app_val_type(sp,int)=(val))
+#define app_valp(sp,val)	(*app_val_type(sp,const char*)=(val))
+
+#define acc_val_(sp,type,off)	((type*)sp.vals)[off]
+#define acc_valo(sp,off)	acc_val_(sp,off_t,off)	/* these are lvalues */
+#define acc_vall(sp,off)	acc_val_(sp,long,off)
+#define acc_vali(sp,off)	acc_val_(sp,int,off)
+#define acc_valp(sp,off)	acc_val_(sp,const char*,off)
 
 void
  elog P((const char*const newt)),
@@ -33,7 +38,7 @@ void
  sterminate P((void)),
  Terminate P((void)),
  suspend P((void)),
- *app_val_ P((struct dyna_long*const sp)),
+ *app_val_ P((struct dyna_array*const sp,int size)),
  srequeue P((void)),
  slose P((void)),
  sbounce P((void)),
