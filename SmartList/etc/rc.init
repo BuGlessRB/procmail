@@ -53,7 +53,7 @@
 #		conjunction with the RC_LOCAL_* variables which can be set
 #		in rc.init or rc.custom files)
 
-#$Id: rc.init,v 1.44 1995/10/30 02:09:12 srb Exp $
+#$Id: rc.init,v 1.45 1999/12/17 07:04:50 guenther Exp $
 
 DELIVERED=yes	# we're in control of the mail now, tell sendmail to go away
 
@@ -122,7 +122,8 @@ minnames mindiffnames maxnames maxsplits maxsize maxconcur
 #alt_sendmail				# uncomment if you'd prefer sendmail
 					# to handle the $listdist expansion
 
-sendmailOPT="-oem -odb -oi -om -f$listreq"
+sendmailOPTnorm="-oem -odb -oi -om"
+sendmailOPT="$sendmailOPTnorm -f$listreq"
 sendmailOPTp=-oep
 sendmailOPTq=-odq
 sendmailOPTi=-odi
@@ -160,6 +161,10 @@ size_limit	=	524288		# sanity cutoff value for submissions
 idcache_size	=	8192		# duplicate-msgid cache size in bytes
 
 archive_hist	=	2		# number of messages left archived
+					# or "all" to keep them all
+archive_dir	=	latest		# subdirectory of archive to which
+					# the messages are saved in an
+					# MH-style folder
 archive_log	=	$LOGFILE	# log file for archive retrievals
 subscribe_log	=	$LOGFILE	# log file for administrivia
 

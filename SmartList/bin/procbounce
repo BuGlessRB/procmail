@@ -1,7 +1,7 @@
 #! /bin/sh
 :
-# Copyright (c) 1993-1996, S.R. van den Berg, The Netherlands
-#$Id: procbounce,v 1.36 1999/11/22 05:40:49 guenther Exp $
+# Copyright (c) 1993-1999, S.R. van den Berg, The Netherlands
+#$Id: procbounce,v 1.37 1999/12/17 07:04:48 guenther Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo

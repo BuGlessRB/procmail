@@ -15,6 +15,9 @@ maintainer	=
 
 #archive_hist	=	2		# number of messages left archived
 					# or "all" to keep them all
+#archive_dir	=	latest		# subdirectory of archive to which
+					# the messages are saved in an
+					# MH-style folder
 #archive_log	=	$LOGFILE	# log file for archive retrievals
 #subscribe_log	=	$LOGFILE	# log file for administrivia
 
@@ -81,9 +84,8 @@ maintainer	=
 					# list to the maintainer unprocessed
 					# (instead of trying to handle them)
 #reply_to
-##reply_to	= "Resent-Reply-To: $listaddr" # uncomment (and perhaps change
-					# it to "Reply-To") to force replies
-					# to go to the list (discouraged)
+##reply_to	= "Reply-To: $listaddr" # uncomment to force replies to
+					# go to the list (discouraged)
 					# why discouraged?  see:
 			# http://garcon.unicom.com/FAQ/reply-to-harmful.html
 #digest_flag
