@@ -1,10 +1,10 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailsc.man,v 1.11 2000/09/28 01:23:10 guenther Exp $
+.Id $Id: procmailsc.man,v 1.12 2001/06/04 00:01:13 guenther Exp $
 .TH PROCMAILSC 5 \*(Dt BuGless
 .na
 .SH NAME
-procmailsc \- procmail weighted scoring techique
+procmailsc \- procmail weighted scoring technique
 .SH SYNOPSIS
 .RB [ * ]
 .B "w^x condition"
@@ -71,10 +71,10 @@ section below).
 .TP
 1<x
 Every match will contribute more to the score than the previous one.
-The score will grow exponentionally.
+The score will grow exponentially.
 .TP
 x<0
-Can be utilised to favour odd or even number of matches.
+Can be utilized to favour odd or even number of matches.
 .PP
 If the regular expression is negated (i.e. matches if it isn't found),
 then

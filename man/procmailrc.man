@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.81 2001/06/03 22:10:54 guenther Exp $
+.Id $Id: procmailrc.man,v 1.82 2001/06/04 00:01:12 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -266,7 +266,7 @@ inside a subdirectory named "new".  If the mailbox is specified to be an MH
 folder or maildir folder, procmail will create the necessary directories if
 they don't exist, rather than treat the mailbox as a non-existent
 filename.  When procmail is delivering to directories, you can specify
-multiple directories to deliver to (procmail will do so utilising
+multiple directories to deliver to (procmail will do so utilizing
 hardlinks).
 .SS "Environment variable defaults"
 .TP 2.2i
@@ -501,7 +501,7 @@ assignment (set to `yes'), the mail will be lost (i.e. it will not bounce).
 When procmail terminates it will execute the contents of this variable.
 A copy of the mail can be read from stdin.  Any output produced by this
 command will be appended to $LOGFILE.  Possible uses for TRAP are: removal
-of temporary files, logging customised abstracts, etc.  See also
+of temporary files, logging customized abstracts, etc.  See also
 .B EXITCODE
 and
 .BR LOGABSTRACT .
@@ -573,7 +573,7 @@ section below for other details of operation when overflow occurs.
 .B COMSAT
 .BR Comsat (8)/ biff (1)
 notification is on by default, it can be turned off by setting this variable
-to `no'.  Alternatively the biff-service can be customised by setting it to
+to `no'.  Alternatively the biff-service can be customized by setting it to
 either `service@SERV_ADDRsep@', `@SERV_ADDRsep@hostname', or
 `service@SERV_ADDRsep@hostname'.  When not specified it defaults
 to @COMSATservice@@SERV_ADDRsep@@COMSAThost@.@DROPPRIVS@
@@ -720,7 +720,7 @@ whereby $\ename will be substituted by the
 all-magic-regular-expression-characters-disarmed
 equivalent of $name, $_ by the name of the current rcfile, $\- by
 $LASTFOLDER and $= will contain the score of the last recipe.
-Furthermore, the result of $\ename substituion will never be split on
+Furthermore, the result of $\ename substitution will never be split on
 whitespace.  When the
 .B \-@ARGUMENTOPT@
 or
@@ -729,7 +729,7 @@ options are used, $# will expand to the number of arguments so
 specified and "$@" (the quotes are required) will expand to the
 specified arguments.  However, "$@" will only be expanded when
 passed as in the argument list to a program, and
-then only one such occurence will be expanded.
+then only one such occurrence will be expanded.
 .PP
 Unquoted variable expansions performed by procmail are always split on
 space, tab, and newline characters; the IFS variable is not used internally.

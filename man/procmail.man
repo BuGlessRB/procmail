@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.85 2000/11/18 06:47:14 guenther Exp $
+.Id $Id: procmail.man,v 1.86 2001/06/04 00:01:10 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -244,7 +244,7 @@ to set the recipient's LOGNAME, HOME and SHELL variable defaults
 .TP
 .B @MAILSPOOLDIR@$LOGNAME
 system mailbox; both the system mailbox and the immediate directory
-it is in will be created everytime procmail starts and either one is
+it is in will be created every time procmail starts and either one is
 not present@ETCRC_files@@ETCRCS_files@
 .TP
 .B @PROCMAILRC@
@@ -308,7 +308,7 @@ The maildir folder "x" is missing one or more required subdirectories and
 procmail could not create them.
 .TP
 Couldn't create or rename temp file "x"
-An error occured in the mechanics of  delivering to the directory folder "x".
+An error occurred in the mechanics of  delivering to the directory folder "x".
 .TP
 Couldn't determine implicit lockfile from "x"
 There were no `>>' redirectors to be found, using simply `$LOCKEXT' as
@@ -439,7 +439,7 @@ Out of memory
 The system is out of swap space (and NORESRETRY has been exhausted).
 .TP
 Processing continued
-The unrecognised options on the command line are ignored, proceeding as
+The unrecognized options on the command line are ignored, proceeding as
 usual.
 .TP
 Program failure (nnn) of "x"
