@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.85 1999/04/13 07:46:08 guenther Exp $";
+ "$Id: mailfold.c,v 1.86 1999/04/22 05:07:11 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -139,7 +139,7 @@ exlb: { nlog(exceededlb);setoverflow();
    }
   else if(tofile==to_MAILDIR)			     /* linkonly must be one */
    { if(!unique(buf,strcpy(strcpy(chp,maildirtmp)+MAILDIRLEN,MCDIRSEP_)+1,
-      NORMperm,verbose,0))
+      linebuf,NORMperm,verbose,0))
 	goto ret;
      unlink(buf);			 /* found a name, remove file in tmp */
      strncpy(chp,maildirnew,MAILDIRLEN);    /* but to link directly into new */
@@ -274,7 +274,8 @@ ret0:	return 0;
 	   goto retf;
 	;{ char*chp2=chp-buf+strcpy(buf2,buf);
 	   strcat(chp,MCDIRSEP_);
-	   if(0>(fd=unique(buf,chp+=MAILDIRLEN+1,NORMperm,verbose,doFD)))
+	   if(0>(fd=unique(buf,chp+=MAILDIRLEN+1,linebuf,NORMperm,verbose,
+	    doFD)))
 	      goto nfail;
 	   if(source==themail)			      /* skip leading From_? */
 	      source=skipFrom_(source,&len);
@@ -301,7 +302,7 @@ retf:	   if(linkfolder)
      case to_MH:
 	chp[-1]= *MCDIRSEP_;*chp='\0';
 	strcpy(buf2,buf);
-	if(!unique(buf2,strchr(buf2,'\0'),NORMperm,verbose,0)||
+	if(!unique(buf2,strchr(buf2,'\0'),linebuf,NORMperm,verbose,0)||
 	 0>(fd=dirfile(chp,0,tofile)))
 	   goto nfail;
 	if(dump(fd,source,len)&&!ignwerr)

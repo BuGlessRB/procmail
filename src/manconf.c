@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.65 1999/04/19 06:42:19 guenther Exp $*/
+/*$Id: manconf.c,v 1.66 1999/04/22 05:07:10 guenther Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -226,7 +226,7 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
   ps("BOGUSprefix",BOGUSprefix);
   ps("FAKE_FIELD",FAKE_FIELD);
   ps("PROCMAILRC",pmrc);
-  pn("HOSTNAMElen",HOSTNAMElen);
+  pn("RETRYunique",RETRYunique);
   pn("DEFsuspend",DEFsuspend);
   pn("DEFlocksleep",DEFlocksleep);
   ps("TO_key",TO_key);
