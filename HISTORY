@@ -581,3 +581,4 @@
 	    Fixed manpage formatting problem
 	    The default MAILDIR is now configurable separately from the
 	       default rcfile location
+	    Include an RPM spec file in the examples directory for automated		       builds
