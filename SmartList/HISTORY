@@ -289,3 +289,5 @@
 	       - prevent attempts to exercise a Linux kernel security hole
 2001/04/10: v3.16pre
 	    DSN recognizer was broken by the CVS tabifier
+	    The install.sh script didn't work with the POSIX shell or ksh
+	       due to change in behavior of redirection using `exec'.
