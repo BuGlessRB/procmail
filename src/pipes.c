@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.71 2001/06/23 08:18:49 guenther Exp $";
+ "$Id: pipes.c,v 1.72 2001/08/25 05:59:58 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -307,9 +307,12 @@ char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
    { name=tstrdup(name);
      while(0<(i=rread(PRDI,p,(int)max))&&(p+=i,max-=i));    /* read its lips */
      if(0<rread(PRDI,p,1))
-	nlog("Excessive output quenched from"),logqnl(name);
+      { nlog("Excessive output quenched from");logqnl(name);
+	setoverflow();
+      }
+     else
+	while(--p>=dest&&*p=='\n'); /* trailing newlines should be discarded */
      rclose(PRDI);free(name);
-     while(--p>=dest&&*p=='\n');    /* trailing newlines should be discarded */
      p++;waitfor(pidchild);
    }
   else
