@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.58 1994/08/02 17:41:21 berg Exp $";
+ "$Id: formail.c,v 1.59 1994/08/02 18:20:02 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/08/02 17:41:21 $";
+static /*const*/char rcsdate[]="$Date: 1994/08/02 18:20:02 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -117,7 +117,7 @@ static void logfolder P((void))	 /* estimate the no. of characters needed to */
 }
 
 static void renfield(pointer,oldl,newname,newl)struct field**const pointer;
- const size_t oldl,newl;const char*const newname;	    /* rename fields */
+ size_t oldl;const size_t newl;const char*const newname;    /* rename fields */
 { struct field*p;size_t i;char*chp;
   p= *pointer;(chp=p->fld_text)[p->tot_len-1]='\0';
   if(eqFrom_(chp))				       /* continued From_ to */
@@ -494,12 +494,12 @@ startover:
 		    nowm-=(maxindex(sest)+2)*1;	     /* depreciate bangpaths */
 		 if(!namep||nowm>lastm)		/* better than previous ones */
 		  { saddr=strcpy(malloc(strlen(saddr)+1),saddr);lastm=nowm;
-		    goto newnamep;
+		    goto pnewname;
 		  }
 	       }
 	      else if(sest[i].head==returnpath)		/* nill Return-Path: */
 	       { saddr=0;lastm=maxindex(sest)+2;		 /* override */
-newnamep:	 if(namep)
+pnewname:	 if(namep)
 		    free(namep);
 		 namep=saddr;
 	       }
