@@ -560,6 +560,8 @@
 		 was interupted while skipping a nested block
 	       - Command line assignments to INCLUDERC and SWITCHRC no longer
 		 have any effect
+	       - Worked around AIX 4.3.3 xlc compiler (incorrect file-scope
+		 variable initialization)
 	    Changes to autoconf:
 	       - Check for enum support
 	       - Warn people that non-ISO/ANSI C compilers might not be

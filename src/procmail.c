@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.167 2000/11/27 07:09:25 guenther Exp $";
+ "$Id: procmail.c,v 1.168 2000/12/03 06:54:21 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -47,7 +47,7 @@ static const char*const nullp,exflags[]=RECFLAGS,drcfile[]="Rcfile:",
 char*buf,*buf2,*loclock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*const*restargv= &nullp,*sgetcp,
- pmrc[]=PROCMAILRC,*rcfile=pmrc,dirsep[]=DIRSEP,devnull[]=DevNull,empty[]="",
+ pmrc[]=PROCMAILRC,*rcfile,dirsep[]=DIRSEP,devnull[]=DevNull,empty[]="",
  lgname[]="LOGNAME",executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",
  procmailn[]="procmail",whilstwfor[]=" whilst waiting for ",home[]="HOME",
  host[]="HOST",*defdeflock=empty,*argv0=empty,
@@ -429,7 +429,7 @@ nix_sysmbox:
       }
    }
   erestrict=mailfilter!=2;		      /* possibly restrict execs now */
-  if(rcfile!=pmrc&&!mailfilter)			     /* "procmail rcfile..." */
+  if(rcfile&&!mailfilter)			     /* "procmail rcfile..." */
    { int rctype,dowarning;	 /* only warn about the first missing rcfile */
      for(dowarning=1;;)
       { rctype=rct_ABSOLUTE;
@@ -455,7 +455,7 @@ nix_sysmbox:
    }
   else
    { int rctype;
-     if(rcfile==pmrc)			    /* no rcfile on the command line */
+     if(!rcfile)			    /* no rcfile on the command line */
       { rctype=rct_DEFAULT;
 	if(buildpath("default rcfile",pmrc,(char*)0))
 	   goto nomore_rc;
@@ -562,7 +562,7 @@ suspicious_rc:
      * not world writable or has the sticky bit set.  If this is the
      * default rcfile then we also outlaw group writability.
      */
-   { char*chp=lastdirsep(buf),c;
+   { register char*chp=lastdirsep(buf),c;
      c= *chp;
      if(((stbuf.st_uid!=uid&&stbuf.st_uid!=ROOT_uid||	       /* check uid, */
 	  (stbuf.st_mode&S_IWOTH)||		      /* writable by others, */
