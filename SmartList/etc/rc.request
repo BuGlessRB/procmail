@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.28 1993/11/05 12:40:05 berg Exp $
+#$Id: rc.request,v 1.29 1993/11/05 16:07:53 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -115,9 +115,9 @@ Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)([^a-z]|$)))|\
 #
 
 :0 wic
-* $!^(Subject:(.*[^a-z])?Re:|
-X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)|\
-^FROM_DAEMON
+* $!^(Subject:(.*[^a-z])?Re:|\
+X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
+* ^FROM_DAEMON
 | sed -e $cutoff_bounce' q' >tmp.request
 
   :0 Ahfw

@@ -1,8 +1,9 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.20 1993/10/29 16:42:01 berg Exp $
+#$Id: arch_retrieve,v 1.21 1993/11/05 16:07:50 berg Exp $
 
 test=test		# /bin/test
+expr=expr		# /bin/expr
 echo=echo		# /bin/echo
 ls=ls			# /bin/ls
 rm=rm			# /bin/rm
@@ -96,7 +97,7 @@ $wrongaddress"
 		 $test ! -z "$wrongaddress" && $echo "$wrongaddress"
 		 $echo "Your request expanded to more than $maxfiles files."
 		 $echo "If you want to receive all of them, use the"
-		 $echo "'archive maxfiles nnn' command first to raise the"
+		 $echo "'archive maxfiles $#' command first to raise the"
 		 $echo "limit."
 	       ) | $SENDMAIL $sendmailOPT -t
 	    fi ;;
@@ -104,7 +105,7 @@ $wrongaddress"
 	 LS|DIR|DIRECTORY|LIST|SHOW)
 	    shift
 	    case "$*" in
-	       *[/ ]../*|../*|*/..|..|[-/]*|* /*)
+	       *[/\ ]../*|../*|*/..|..|[-/]*|*\ /*)
 		  $test -z "$ILLEGAL" && ILLEGAL="$line";;
 	       *)
 		  $echo $from ls "$line" >>$tmpfrom
@@ -125,7 +126,7 @@ Truncating after '$breakoff_ls' names...' -e ${breakoff_ls}q
 	    $echo $from "$line" >>$tmpfrom
 	    shift; regxp="$1"; shift
 	    case "$*" in
-	       *[/ ]../*|../*|*/..|..|[-/]*|* /*)
+	       *[/\ ]../*|../*|*/..|..|[-/]*|*\ /*)
 		  $test -z "$ILLEGAL" && ILLEGAL="$line";;
 	       *)
 		( $formail -rt -I"Subject: archive retrieval: $line" \
@@ -141,7 +142,7 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 		  $echo "END-----------------cut here------------------"
 		) | $SENDMAIL $sendmailOPT -t ;;
 	    esac ;;
-	 ""|#*) ;;
+	 ""|\#*) ;;
 	 *) $test -z "$sendhelp" && sendhelp="$1" ;;
       esac
    done
