@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.35 1994/01/11 13:16:03 berg Exp $*/
+/*$Id: config.h,v 1.36 1994/01/12 17:21:45 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -36,7 +36,7 @@
    if the list is empty (just a terminating 0), everyone can use it
    TRUSTED_IDS should be defined as a comma-separated null-terminated
    list of strings;  if unauthorised users use the -f option, an extra
-   Received: field will be added in the body */
+   >From_ field will be added in the header */
 
 #define TRUSTED_IDS	{"root","daemon","uucp","mail","x400","network",\
 			 "list","lists","news",0}

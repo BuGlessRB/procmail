@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.24 1993/11/24 19:46:37 berg Exp $";
+ "$Id: locking.c,v 1.25 1994/01/12 17:22:03 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -32,7 +32,7 @@ void lockit(name,lockp)char*name;char**const lockp;
       }
      else
 #endif
-	setgid(sgid);		       /* try and get some extra permissions */
+	setegid(sgid);		       /* try and get some extra permissions */
   name=tstrdup(name); /* allocate now, so we won't hang on memory *and* lock */
   for(lcking|=lck_LOCKFILE;;)
    { yell("Locking",name);	    /* in order to cater for clock skew: get */
@@ -84,7 +84,7 @@ term: { free(name);break;		     /* drop the preallocated buffer */
       }
    }
   if(rcstate==rc_NORMAL)			   /* we already set our ids */
-     setgid(gid);		      /* we put back our regular permissions */
+     setegid(gid);		      /* we put back our regular permissions */
   lcking&=~lck_LOCKFILE;
   if(nextexit)
    { elog(whilstwfor);elog("lockfile");logqnl(name);terminate();
@@ -105,12 +105,12 @@ void unlock(lockp)char**const lockp;
 { lcking|=lck_LOCKFILE;
   if(*lockp)
    { if(!strcmp(*lockp,defdeflock))    /* is it the system mailbox lockfile? */
-	setgid(sgid);		       /* try and get some extra permissions */
+	setegid(sgid);		       /* try and get some extra permissions */
      yell("Unlocking",*lockp);
      if(unlink(*lockp))
 	nlog("Couldn't unlock"),logqnl(*lockp);
      if(rcstate==rc_NORMAL)			   /* we already set our ids */
-	setgid(gid);		      /* we put back our regular permissions */
+	setegid(gid);		      /* we put back our regular permissions */
      if(!nextexit)			   /* if not inside a signal handler */
 	free(*lockp);
      *lockp=0;

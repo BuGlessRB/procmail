@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.71 1994/01/11 13:24:46 berg Exp $
+#$Id: autoconf,v 1.72 1994/01/12 17:21:55 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -36,6 +36,7 @@
 #	#define NOopendir
 #	#define NOrename
 #	#define NOsetrgid
+#	#define NOsetegid
 #	#define NOsetregid
 #	#define NOsetresgid
 #	#define NOpow
@@ -793,8 +794,8 @@ cat >_autotst.c <<HERE
 main(){char a[2];
  endpwent();endgrent();memmove(a,"0",1);bcopy("0",a,1);strcspn(a,"0");
  strtol("0",(char**)0,10);strchr("0",'0');strpbrk(a,"0");rename(a,"0");
- setrgid(0);setregid(0,0);setresgid(0,0,0);opendir("0");initgroups("0",0);
- strstr("0","0");mkdir("0",0);pow(0.,0.);clock();
+ setrgid(0);setegid(0);setregid(0,0);setresgid(0,0,0);opendir("0");
+ initgroups("0",0);strstr("0","0");mkdir("0",0);pow(0.,0.);clock();
 #ifndef NOuname
  {struct utsname b;uname(&b);}
 #endif
@@ -806,7 +807,7 @@ main(){char a[2];
 HERE
 
 echo 'Testing for memmove, strchr, strpbrk, strcspn, strtol, strstr,'
-echo '	rename, setrgid, pow, opendir & mkdir'
+echo '	rename, setrgid, setegid, pow, opendir & mkdir'
 if $MAKE _autotst.$O >$DEVNULL 2>&1
 then
 :
@@ -831,9 +832,13 @@ grepfor opendir "
 			   selected in MH-folders by procmail */
 "
 grepfor rename '#define NOrename'
-grepfor setrgid '#define NOsetrgid' &&
- grepfor setregid '#define NOsetregid' &&
-  grepfor setresgid '#define NOsetresgid'
+a=no
+grepfor setrgid '#define NOsetrgid' && a=yes
+if grepfor setrgid '#define NOsetegid' || test $a = yes
+then
+  grepfor setregid '#define NOsetregid' &&
+   grepfor setresgid '#define NOsetresgid'
+fi
 grepfor pow '#define NOpow'
 grepfor mkdir '#define NOmkdir'
 grepfor strchr '#define strchr(s,c) index(s,c)'

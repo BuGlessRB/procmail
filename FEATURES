@@ -8,6 +8,8 @@ Feature summary for procmail:
 	+ Does not use *any* temporary files
 	+ Uses standard egrep regular expressions
 	+ It poses a very low impact on your system's resources
+	  (it's 1.4 times faster than the average /bin/mail in user-cpu
+	   time)
 	+ Allows for very-easy-to-use yes-no decisions on where the mail
 	  should go (can take the size of the mail into consideration)
 	+ Also allows for neural-net-type weighted scoring of mails

@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.32 1993/12/23 13:01:59 berg Exp $*/
+/*$Id: includes.h,v 1.33 1994/01/12 17:22:00 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -24,7 +24,7 @@
 #include <unistd.h>		/* open() read() write() close() dup() pipe()
 				/* fork() getuid() getgid() getpid() execve()
 				   execvp() sleep() setuid() setgid()
-				   setruid() setrgid() chown() */
+				   setruid() setrgid() setegid() chown() */
 #else
 #undef UNISTD_H_MISSING
 #endif
@@ -324,22 +324,45 @@ extern void*memmove();
 #define rename(old,new) (-(link(old,new)||unlink(old)))
 #endif
 
-#ifdef NOsetrgid
-#undef NOsetrgid
 #ifndef NOsetregid
+#ifdef NOsetrgid
 #define setrgid(gid)	setregid(gid,-1)
 #define setruid(uid)	setreuid(uid,-1)
+#endif
+#ifdef NOsetegid
+#define setegid(gid)	setregid(-1,gid)
+#endif
 #else
-#undef NOsetregid
 #ifndef NOsetresgid
+#ifdef NOsetrgid
 #define setrgid(gid)	setresgid(gid,-1,-1)
 #define setruid(uid)	setresuid(uid,-1,-1)
+#endif
+#ifdef NOsetegid
+#define setegid(gid)	setresgid(-1,gid,-1)
+#endif
 #else
-#undef NOsetresgid
+#ifdef NOsetrgid
 #define setrgid(gid)	(-1)
 #define setruid(uid)	(-1)
 #endif
+#ifdef NOsetegid
+#define setegid(gid)	(-1)
 #endif
+#endif
+#endif
+
+#ifdef NOsetrgid
+#undef NOsetrgid
+#endif
+#ifdef NOsetegid
+#undef NOsetegid
+#endif
+#ifdef NOsetregid
+#undef NOsetregid
+#endif
+#ifdef NOsetresgid
+#undef NOsetresgid
 #endif
 
 #ifdef NOpow
