@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.99 2001/06/28 22:54:31 guenther Exp $*/
+/*$Id: config.h,v 1.100 2001/08/04 06:49:45 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -80,6 +80,10 @@
 /*#define NO_fcntl_LOCK		/* uncomment any of these three if you	     */
 /*#define NO_lockf_LOCK		/* definitely do not want procmail to make   */
 /*#define NO_flock_LOCK		/* use of those kernel-locking methods	     */
+				/* If you set LOCKINGTEST to a binary number
+	than there's no need to set these.  These #defines are only useful
+	if you want to disable particular locking styles but are unsure which
+	of the others are safe.	 Otherwise, don't touch them.  */
 
 /*#define RESTRICT_EXEC 100	/* uncomment to prevent users with uids equal
 				   or higher than RESTRICT_EXEC from
@@ -89,17 +93,20 @@
 
 /*#define NO_NFS_ATIME_HACK	/* uncomment if you're definitely not using
 				   NFS mounted filesystems and can't afford
-	procmail to sleep for 1 sec. before writing a regular mailbox
-	(under heavy load procmail automatically suppresses this) */
+	procmail to sleep for 1 sec. before writing to an empty regular
+	mailbox.  This lets programs correctly judge whether there is unread
+	mail present.  procmail automatically suppresses this when it isn't
+	needed or under heavy load. */
 
-/*#define DEFsendmail	"/bin/mail"	/* uncomment and/or change if the
-					   autoconfigured default SENDMAIL is
-	not suitable.  This program should quack like a sendmail: it should
-	accept the -oi flag (to tell it to _not_ treat a line containing just
-	a period as EOF) and then a list of recipients.	 If the -t flag is
-	given, it should instead extract the recipients from the To:, Cc:,
-	and Bcc: header fields.	 If it can't do this, many standard recipes
-	will not work. */
+/*#define DEFsendmail	"/usr/sbin/sendmail"	/* uncomment and/or change if
+						   the autoconfigured default
+	SENDMAIL is not suitable.  This program should quack like a sendmail:
+	it should accept the -oi flag (to tell it to _not_ treat a line
+	containing just a period as EOF) and then a list of recipients.	 If the
+	-t flag is given, it should instead extract the recipients from the
+	To:, Cc:, and Bcc: header fields.  If it can't do this, many standard
+	recipes will not work.	One reasonable candidate is "/etc/mta/send"
+	on systems that support the MTA configuration switch. */
 
 #define DEFmaildir	"$HOME"	     /* default value for the MAILDIR variable;
 					this must be an absolute path */
@@ -225,7 +232,7 @@ MMGR)\
 #define MAILDIRcur	"/cur"
 #define MAILDIRnew	"/new"
 #define MAILDIRLEN	STRLEN(MAILDIRnew)
-#define MAILDIRretries	3	   /* retries on obtaining a unique filename */
+#define MAILDIRretries	5	   /* retries on obtaining a unique filename */
 
 #define EOFName		" \t\n#`'\");"
 
