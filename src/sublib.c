@@ -8,10 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: sublib.c,v 1.28 2001/08/04 06:55:08 guenther Exp $";
+ "$Id: sublib.c,v 1.29 2001/08/10 18:52:29 guenther Exp $";
 #endif
 #include "includes.h"
-#include "acommon.h"
 #include "sublib.h"
 
 #ifdef NOmemmove
@@ -164,15 +163,14 @@ size_t sstrlcpy(dst,src,size)char *dst;const char*src;size_t size;
 #endif
 
 #ifdef NOstrerror
-#define ERRSTR "Error number "
 char *sstrerror(int err)
-{ static char errbuf[STRLEN(ERRSTR)+sizeNUM(int)+1]=ERRSTR;
+{
 #ifndef NOsys_errlist
+  extern int sys_nerr;extern char*sys_errlist[];
   if(err>=0&&err<sys_nerr)
      return sys_errlist[err];
 #endif
-  ultstr(0,(unsigned int)err,errbuf+STRLEN(ERRSTR));
-  return errbuf;
+  return "Unknown error";
 }
 #endif
 			    /* strtol replacement which lacks range checking */
