@@ -2,12 +2,8 @@
  *	recommend	Analyses the installation, and makes		*
  *			recommendations about suid/sgid modes		*
  ************************************************************************/
-/*$Id: recommend.c,v 1.15 1999/04/19 06:42:25 guenther Exp $*/
+/*$Id: recommend.c,v 1.16 1999/10/20 04:47:45 guenther Exp $*/
 #include "includes.h"
-
-#ifndef SYSTEM_MBOX
-#define SYSTEM_MBOX	SYSTEM_MAILBOX
-#endif
 
 #define PERMIS	(S_IRWXU|S_IRWXG&~S_IWGRP|S_IRWXO&~S_IWOTH)
 
