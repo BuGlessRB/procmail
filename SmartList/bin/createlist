@@ -4,7 +4,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.1 1992/11/11 19:34:35 berg Exp $
+#$Id: createlist,v 1.2 1992/11/11 20:16:07 berg Exp $
 
 defaults=.listadmin
 
@@ -17,6 +17,7 @@ pwd=pwd			# /bin/pwd
 cat=cat			# /bin/cat
 rm=rm			# /bin/rm
 ls=ls			# /bin/ls
+grep=grep		# /bin/grep
 lockfile=lockfile	# /usr/local/bin/lockfile
 
 DEVNULL=/dev/null
@@ -41,6 +42,12 @@ fi
 if $test ! -d $defaults
 then
   echo "createlist: You should be near the main list directory to do this" 1>&2
+  exit $EX_USAGE
+fi
+if $grep "^domain=INSERT.YOUR.MAIL.DOMAIN.HERE" $defaults/listrc.main >$DEVNULL
+then
+  echo "I refuse to do anything useful until you have edited the" 1>&2
+  echo "listrc.main file.  \`domain' must be set to some sane value." 1>&2
   exit $EX_USAGE
 fi
 
