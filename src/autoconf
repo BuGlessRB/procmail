@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.78 1994/02/11 18:01:02 berg Exp $
+#$Id: autoconf,v 1.79 1994/02/18 18:43:27 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -19,6 +19,7 @@
 #	#define SYSEXITS_H_MISSING
 #Ok	#define SYS_FILE_H_MISSING
 #	#define MATH_H_MISSING
+#	#define LIMITS_H_MISSING
 #	#define NO_const
 #	#define volatile
 #	#define P(args) ()
@@ -130,7 +131,7 @@ In order for the kernel-locking tests to work as intended I have to be able to
 test-lock files on as many semantically different filesystems as possible (for
 more information about this, READ PARAGRAPH TWO in INSTALL).  To suppress this
 prompt you can set the LOCKINGTEST variable in the Makefile.
-
+
 Please add writable directories to the list.  You should only add directories
 that reside on filesystems that have unique characterics.  E.g. if you have
 several remote NFS partitions, pick some unique client-server pairs, there is
@@ -652,6 +653,7 @@ DIR*vDIR;
 HERE
 
 i0="";i1="";i2="";i3="";i4="";i5="";i6="";i7="";i8="";i9="";i10="";i11="";
+i12=""
 oldi=""
 
 while $MAKE _autotst.$O 2>&1 | $FGREP -v include/ >_autotst.rrr
@@ -672,8 +674,9 @@ do
    i8=I
   test -z "$i9" && grepfor string.h "#define STRING_H_MISSING" && i9=I
   test -z "$i10" && grepfor sysexits.h "#define SYSEXITS_H_MISSING" && i10=I
-  test -z "$i10" && grepfor math.h "#define MATH_H_MISSING" && i10=I
-  newi="$i0$i1$i2$i3$i4$i5$i6$i7$i8$i9$i10$i11"
+  test -z "$i11" && grepfor math.h "#define MATH_H_MISSING" && i11=I
+  test -z "$i12" && grepfor limits.h "#define LIMITS_H_MISSING" && i12=I
+  newi="$i0$i1$i2$i3$i4$i5$i6$i7$i8$i9$i10$i11$i12"
   if test a$oldi = a$newi
   then
      echo 2>&1 "Whoeaaa!  There's something fishy going on here."

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.34 1994/02/16 18:22:36 berg Exp $";
+ "$Id: regexp.c,v 1.35 1994/02/18 18:43:33 berg Exp $";
 #endif
 #include "includes.h"
 #include "robust.h"
@@ -33,7 +33,7 @@ static /*const*/char rcsid[]=
 
 #define R_BEG_WORD	'<'
 #define R_END_WORD	'>'
-#define NO_WORD_CLASS	"[^a-zA-Z0-9_\n]"
+#define NO_WORD_CLASS	"[^a-zA-Z0-9_]"
 
 #define BITS_P_CHAR		8
 #define OPB			(1<<BITS_P_CHAR)
@@ -178,7 +178,10 @@ static void psimp(e)const struct eps*const e;
 	switch(*++p)
 	 { case R_BEG_WORD:case R_END_WORD:
 	    { uchar*pold=p;
-	      p=(uchar*)NO_WORD_CLASS;psimp(e);p=pold+1;return;
+	      p=(uchar*)NO_WORD_CLASS;psimp(e);p=pold+1;
+	      if(e)
+		 bit_toggle(Cc(epso(r,-(int)SZ(chclass)),c),'\n');
+	      return;
 	    }
 	   case '\0':p--;				 /* nothing to quote */
 	 }
@@ -378,7 +381,7 @@ struct eps*bregcomp(a,ign_case)const char*const a;
 #define PC(this,t)	(*(struct eps**)((char*)(this)+(t)))
 
 char*bregexec(code,text,str,len,ign_case)struct eps*code;
- const uchar*const text;const uchar*str;size_t len;
+ const uchar*const text;const uchar*str;size_t len;int ign_case;
 { register struct eps*reg,*stack,*other,*thiss;unsigned i,th1,ot1;
   struct eps*initstack,*initcode;
   static struct mchar tswitch={OPC_TSWITCH,Ceps&tswitch};

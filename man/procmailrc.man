@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.35 1994/02/09 19:11:09 berg Exp $
+.Id $Id: procmailrc.man,v 1.36 1994/02/18 18:43:20 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -581,7 +581,9 @@ When the regular expression starts with `^^' it will anchor the match
 at the very start of the text.
 .PP
 The start and end of a word can be matched by `\e<' and `\e>'.  They
-are merely a shorthand for `[^a-zA-Z0-9_\en]'.
+are merely a shorthand for `[^a-zA-Z0-9_]', but can also match newlines.
+Since they match actual characters, they are only suitable to delimit
+words, not to delimit inter-word space.
 .SH MISCELLANEOUS
 If the regular expression contains `\fB@TOkey@\fP' it will be substituted by
 .na

@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.35 1994/02/08 16:14:42 berg Exp $*/
+/*$Id: includes.h,v 1.36 1994/02/18 18:43:30 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -20,6 +20,10 @@
 #endif				/* saves a few bytes in some implementations */
 
 #include <sys/types.h>		/* pid_t mode_t uid_t gid_t off_t */
+#ifndef LIMITS_H_MISSING
+#include <limits.h>		/* absolutely nothing, just for fun */
+#undef LIMITS_H_MISSING
+#endif
 #ifndef UNISTD_H_MISSING
 #include <unistd.h>		/* open() read() write() close() dup() pipe()
 				/* fork() getuid() geteuid() getgid() getegid()

@@ -161,3 +161,5 @@
 	       - Created a new procmailsc man page
 	       - Fixed a bug in lockfile, the exitcode was not correct if
 		 you used -! with more than one file
+	       - Including <limits.h> now, some (old) architectures seem to
+		 insist on this
