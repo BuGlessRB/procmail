@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.7 1992/12/03 14:15:25 berg Exp $";
+ "$Id: regexp.c,v 1.8 1992/12/07 17:43:14 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -58,7 +58,8 @@ static /*const*/char rcsid[]=
 /* the spawn and stack members are reused in the normal opcodes as pc fields */
 static struct eps*r;
 static struct{unsigned topc;struct eps*tnext;}aleps;
-static uchar*p;
+static uchar*p,*cachea,*cachep;
+static struct eps*cacher;
 static ignore_case;
 
 struct chclass {unsigned opc_;struct eps*stack_,*spawn_,*next_;
@@ -200,11 +201,14 @@ incagoon:  switch(*++p)			/* at the end of this group already? */
 }
 
 static void por(e)const struct eps*const e;
-{ uchar*pold;struct eps*rold;
+{ uchar*pvold;
+  if(!e&&cachea==(pvold=p))
+   { p=cachep;r=cacher;return;
+   }
   for(;;)
-     for(pold=p;;)
-      { rold=r;
-	switch(*p)
+   { uchar*pold;struct eps*rold;
+     for(pold=p,rold=r;;)
+      { switch(*p)
 	 { default:pnorm(Ceps 0);r=rold;continue;     /* still in this group */
 	   case '\0':case R_END_GROUP:	       /* found the end of the group */
 	      if(p==pold)				 /* empty 'or' group */
@@ -216,6 +220,8 @@ static void por(e)const struct eps*const e;
 		 p=pold,pnorm(e);			/* normal last group */
 	      if(*p)
 		 p++;
+	      if(!e)
+		 cachea=pvold,cachep=p,cacher=r;
 	      return;
 	   case R_OR:r++;
 	      if(p==pold)				 /* empty 'or' group */
@@ -231,6 +237,7 @@ static void por(e)const struct eps*const e;
 	 }
 	break;
       }
+   }
 }
 
 static void findandrep(old,newv)register struct eps**const old;

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.9 1992/11/13 12:58:06 berg Exp $";
+ "$Id: formisc.c,v 1.10 1992/12/07 17:43:08 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -123,7 +123,7 @@ squelch:
      shexec(argv);
    }
   close(STDOUT);close(PRDO);
-  if(STDOUT!=dup(PWRO)||!(mystdout=fdopen(STDOUT,"a")))
+  if(STDOUT!=dup(PWRO)||!(mystdout=fdopen_(STDOUT,"a")))
      nofild();
   close(PWRO);
   if(-1==child)

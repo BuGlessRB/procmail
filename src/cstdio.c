@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.10 1992/12/04 13:18:10 berg Exp $";
+ "$Id: cstdio.c,v 1.11 1992/12/07 17:43:05 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -18,8 +18,8 @@ static long blasttell;
 static struct dyna_long inced;				  /* includerc stack */
 
 void pushrc(name)const char*const name;		      /* open include rcfile */
-{ struct stat stbuf;
-  if(stat(name,&stbuf)||stbuf.st_size)			   /* only if size>0 */
+{ struct stat stbuf;					   /* only if size>0 */
+  if(stat(name,&stbuf)||!S_ISREG(stbuf.st_mode)||stbuf.st_size)
    { app_val(&inced,rcbufp?(long)(rcbufp-rcbuf):0L);app_val(&inced,blasttell);
      app_val(&inced,(long)rc);			 /* save old position and fd */
      if(bopen(name)<0)			      /* and try to open the new one */

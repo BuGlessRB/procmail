@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.8 1992/11/11 14:00:00 berg Exp $*/
+/*$Id: includes.h,v 1.9 1992/12/07 17:43:11 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -16,7 +16,7 @@
 #endif
 #include <stdio.h>		/* setbuf() fclose() stdin stdout stderr
 				   fopen() fread() fwrite() fgetc() getc()
-				   putc() fputs() FILE EOF */
+				   fdopen() putc() fputs() FILE EOF */
 #ifndef STDDEF_H_MISSING
 #include <stddef.h>		/* ptrdiff_t size_t */
 #endif
@@ -40,7 +40,7 @@
 #ifndef SYS_UTSNAME_H_MISSING
 #include <sys/utsname.h>	/* uname() utsname */
 #endif
-#include <sys/stat.h>		/* stat() S_ISDIR() struct stat */
+#include <sys/stat.h>		/* stat() S_ISDIR() S_ISREG() struct stat */
 #include <signal.h>		/* signal() kill() alarm() SIG_IGN SIGHUP
 				   SIGINT SIGQUIT SIGALRM SIGTERM */
 #ifndef STRING_H_MISSING
@@ -141,6 +141,13 @@ char*strpbrk();
 #endif
 #endif
 
+#ifndef S_ISREG
+#define S_ISREG(mode)	(((mode)&S_IFMT)==S_IFREG)
+#ifndef S_IFREG
+#define S_IFREG 0100000
+#endif
+#endif
+
 #ifndef S_ISLNK
 #ifndef S_IFLNK
 #define lstat(path,stbuf)	stat(path,stbuf)
@@ -232,6 +239,8 @@ extern int uname();					 /* so we fix it :-) */
 #define Uname(name)		uname(name)		    /* no fix needed */
 #endif /* P */
 #endif /* NOuname */
+				 /* NEWS OS 5.X has the wrong prototype here */
+#define fdopen_(fd,type)	((FILE*)fdopen(fd,type))
 
 #ifndef P
 #define P(args)		args

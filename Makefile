@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.13 1992/11/24 15:57:47 berg Exp $
+#$Id: Makefile,v 1.14 1992/12/07 17:42:50 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -57,8 +57,8 @@ LDFLAGS1= $(LDFLAGS0) #-lcposix
 ####CC	= cc # gcc
 # object file extension
 O	= o
-# library archive file extension
-A	= a
+# library archive file extension(s)
+A	= [A-Z.]*
 RM	= /bin/rm -f
 MV	= mv -f
 LN	= ln -f
@@ -83,8 +83,8 @@ make:
 
 init:
 	$(BSHELL) ./initmake $(BSHELL) "$(SHELL)" "$(RM)" "$(MV)" "$(LN)" \
-	 $(USRINCLUDE) $(PLIB) $(PUSRLIB) $(DEVNULL) "$(HIDEMAKE)" $(O) $(A) \
-	 "$(CC)" "$(CFLAGS1)" "$(LDFLAGS1)" "$(BINSS)" \
+	 $(USRINCLUDE) $(PLIB) $(PUSRLIB) $(DEVNULL) "$(HIDEMAKE)" $(O)
+	 "$(A)" "$(CC)" "$(CFLAGS1)" "$(LDFLAGS1)" "$(BINSS)" \
 	 "$(MANS1S)" "$(MANS5S)" "$(SUBDIRS)"
 
 makefiles makefile Makefiles Makefile: init
