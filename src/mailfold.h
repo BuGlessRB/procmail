@@ -1,4 +1,4 @@
-/*$Id: mailfold.h,v 1.21 1999/11/04 23:26:19 guenther Exp $*/
+/*$Id: mailfold.h,v 1.22 1999/11/22 19:13:08 guenther Exp $*/
 
 long
  dump P((const int s,const char*source,long len));
@@ -7,7 +7,7 @@ int
   const int dolog)),
  foldertype P((char*chp,mode_t*const modep,int forcedir,
   struct stat*const paranoid)),
- writefolder P((char*boxname,char*linkfolder,const char*source,const long len,
+ writefolder P((char*boxname,char*linkfolder,const char*source,long len,
   const int ignwerr,const int dolock));
 void
  logabstract P((const char*const lstfolder)),
