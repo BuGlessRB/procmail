@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.74 1999/11/18 01:49:32 guenther Exp $
+.Id $Id: procmailrc.man,v 1.75 1999/11/23 06:08:57 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -805,6 +805,12 @@ before checking for $SHELLMETAS.
 .PP
 Files included with the INCLUDERC directive containing only environment
 variable assignments can be shared with sh.
+.PP
+The current behavior of assignments on the command line to
+.B INCLUDERC
+and
+.B SWITCHRC
+is not guaranteed and may be changed or removed in future releases.
 .PP
 For
 .I really
