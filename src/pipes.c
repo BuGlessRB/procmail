@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.16 1993/07/19 15:43:17 berg Exp $";
+ "$Id: pipes.c,v 1.17 1993/08/09 14:10:59 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -20,22 +20,22 @@ static /*const*/char rcsid[]=
 
 pid_t pidchild;
 volatile time_t alrmtime;
+volatile int toutflag;
 static char*lastexec,*backblock;
 static long backlen;	       /* length of backblock, filter recovery block */
 static pid_t pidfilt;
 static pipw,pbackfd[2];			       /* the emergency backpipe :-) */
 
 void inittmout(progname)const char*const progname;
-{ lastexec=cstr(lastexec,progname);
+{ lastexec=cstr(lastexec,progname);toutflag=0;
   alrmtime=timeoutv?time((time_t*)0)+(unsigned)timeoutv:0;
   alarm((unsigned)timeoutv);
 }
 
 void ftimeout P((void))
-{ alarm(0);alrmtime=0;
-  if(pidchild>0&&!kill(pidchild,SIGTERM))	   /* careful, killing again */
-	nlog("Timeout, terminating"),logqnl(lastexec);
-  signal(SIGALRM,(void(*)())ftimeout);
+{ alarm(0);alrmtime=0;toutflag=1;nlog("Timeout, ");	 /* careful, killing */
+  elog(pidchild>0&&!kill(pidchild,SIGTERM)?"terminating":"was waiting for");
+  logqnl(lastexec);signal(SIGALRM,(void(*)())ftimeout);
 }
 
 static void stermchild P((void))

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.27 1993/07/02 16:31:48 berg Exp $";
+ "$Id: misc.c,v 1.28 1993/08/09 14:10:52 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -90,6 +90,20 @@ void readerr(file)const char*const file;
 { nlog("Couldn't read");logqnl(file);
 }
 
+void verboff P((void))
+{ verbose=0;
+#ifdef SIGUSR1
+  signal(SIGUSR1,(void(*)())verboff);
+#endif
+}
+
+void verbon P((void))
+{ verbose=1;
+#ifdef SIGUSR2
+  signal(SIGUSR2,(void(*)())verbon);
+#endif
+}
+
 void yell(a,b)const char*const a,*const b;		/* log if VERBOSE=on */
 { if(verbose)
      nlog(a),logqnl(b);
@@ -160,13 +174,7 @@ void terminate P((void))
 }
 
 void suspend P((void))
-{ long t;
-  sleep((unsigned)suspendv);
-  if(alrmtime)
-     if((t=alrmtime-time((time_t*)0))<=1)	  /* if less than 1s timeout */
-	ftimeout();				  /* activate it by hand now */
-     else		    /* set it manually again, to avoid problems with */
-	alarm((unsigned)t);	/* badly implemented sleep library functions */
+{ ssleep((unsigned)suspendv);
 }
 
 void app_val(sp,val)struct dyna_long*const sp;const off_t val;

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.32 1993/07/01 11:58:32 berg Exp $";
+ "$Id: mailfold.c,v 1.33 1993/08/09 14:10:49 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -55,7 +55,7 @@ long dump(s,source,len)const int s;const char*source;long len;
      lasttell=lseek(s,(off_t)0,SEEK_END);smboxseparator(s);	 /* optional */
 #ifndef NO_NFS_ATIME_HACK					/* separator */
      if(part&&tofile)		       /* if it is a file, trick NFS into an */
-	len--,part--,rwrite(s,source++,1),sleep(1);	    /* a_time<m_time */
+	len--,part--,rwrite(s,source++,1),ssleep(1);	    /* a_time<m_time */
 #endif
      goto jin;
      do

@@ -1,4 +1,4 @@
-/*$Id: pipes.h,v 1.4 1992/11/11 14:00:33 berg Exp $*/
+/*$Id: pipes.h,v 1.5 1993/08/09 14:11:01 berg Exp $*/
 
 void
  inittmout P((const char*const progname)),
@@ -21,3 +21,4 @@ char*
 
 extern pid_t pidchild;
 extern volatile time_t alrmtime;
+extern volatile toutflag;

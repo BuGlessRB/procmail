@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.19 1993/07/30 13:52:40 berg Exp $
+#$Id: Makefile.1,v 1.20 1993/08/09 14:10:12 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -66,8 +66,8 @@ changed.; echo I suggest you remove the '`u'"'"-flag 'like in:'; echo ; \
 suid.sh: recommend
 
 install-suid: suid.sh install.bin
-	@cat $@.sh
-	@$(SHELL) ./$@.sh
+	@cat suid.sh
+	@$(SHELL) ./suid.sh
 	@cd $(BINDIR); echo Installed in $(BINDIR); ls -l $(BINSS)
 
 $(MANS): mans

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.18 1993/07/30 13:17:35 berg Exp $";
+ "$Id: locking.c,v 1.19 1993/08/09 14:10:46 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -77,7 +77,7 @@ faillock:  nlog("Lock failure on");logqnl(name);goto term;
 #endif
       }
      permanent=nfsTRY;
-ds:  sleep((unsigned)locksleep);
+ds:  ssleep((unsigned)locksleep);
 ce:  if(nextexit)
 term: { free(name);break;		     /* drop the preallocated buffer */
       }
@@ -167,8 +167,8 @@ static off_t oldlockoffset;
 fdlock(fd)
 { int ret;
 #if REITfcntl+REITflock+REITlockf>1
-  for(;;verbose&&(nlog("Reiterating kernel-lock\n"),0),
-   sleep((unsigned)locksleep))
+  for(;!toutflag;verbose&&(nlog("Reiterating kernel-lock\n"),0),
+   ssleep((unsigned)locksleep))
 #endif
    {
 #ifndef NOfcntl_lock

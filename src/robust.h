@@ -1,10 +1,11 @@
-/*$Id: robust.h,v 1.5 1993/03/05 14:40:27 berg Exp $*/
+/*$Id: robust.h,v 1.6 1993/08/09 14:11:13 berg Exp $*/
 
 void
  *tmalloc Q((const size_t len)),
  *trealloc Q((void*const old,const size_t len)),
  tfree P((void*const p)),
- opnlog P((const char*file));
+ opnlog P((const char*file)),
+ ssleep P((const unsigned seconds));
 pid_t
  sfork P((void));
 int

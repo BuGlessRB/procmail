@@ -6,11 +6,12 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.11 1993/04/02 12:39:20 berg Exp $";
+ "$Id: robust.c,v 1.12 1993/08/09 14:11:10 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
 #include "misc.h"
+#include "pipes.h"
 #include "mailfold.h"
 
 #define nomemretry	noresretry
@@ -141,4 +142,14 @@ rwrite(fd,a,len)const int fd,len;const void*const a;  /* a SysV secure write */
 { int i;
   while(0>(i=write(fd,a,(size_t)len))&&errno==EINTR);
   return i;
+}
+
+void ssleep(seconds)const unsigned seconds;
+{ long t;
+  sleep(seconds);
+  if(alrmtime)
+     if((t=alrmtime-time((time_t*)0))<=1)	  /* if less than 1s timeout */
+	ftimeout();				  /* activate it by hand now */
+     else		    /* set it manually again, to avoid problems with */
+	alarm((unsigned)t);	/* badly implemented sleep library functions */
 }

@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.27 1993/07/30 13:53:07 berg Exp $
+#$Id: rc.submit,v 1.28 1993/08/09 14:10:34 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -16,8 +16,7 @@ INCLUDERC=$RC_CUSTOM
 #	It does not look like an administrative request.
 #	It wasn't sent by this list itself.
 #	It wasn't sent by a daemon (misdirected bounce message perhaps).
-# Then check to see if sender is a subscriber of this mailinglist, and while
-# doing so, also check if this subscriber wants to receive copies.
+# Then check to see if sender is a subscriber of this mailinglist.
 #
 
 :0 Wch i
@@ -25,15 +24,15 @@ INCLUDERC=$RC_CUSTOM
 * $!^$X_COMMAND:
 * !^Subject:([	 ]*(archive([	 ]+((send|get)(me)?|gimme|retrieve|\
    mail|ls|dir(ectory)?|list|show|search|[fe]?grep|find|help|info)\
-   ([	 ]|$))|[	 ]*$)|\
+   ([	 ]|$)|[	 ]*$)|\
    (help|info)[	 ]*$)|[^:]*( (add .* to|(delete|remove) .* from|\
-   take .* off|put .* on) .* [a-z-]*list|subscri(be|ption))
+   take .* off|put .* on) .* [a-z-]*list|subscri(be|ption))([^a-z-]|$))
 * $!^X-Loop: $listaddr
 * !^Precedence:.*junk|^FROM_MAILER
 | test yes = "$foreign_submit" && exit 0; \
   formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
-   -xResent-Reply-To: -xResent-Sender: | \
-    multigram -b1 -m -l$submit_threshold accept
+   -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
+    multigram -b1 -m -l$submit_threshold -x$listaddr -x$listreq accept
 
   :0 a
    {
@@ -120,5 +119,11 @@ INCLUDERC=$RC_CUSTOM
 
   :0 A wfh
   | formail -A "X-Diagnostic: Not on the accept list"
+
+  :0 A ch
+  * ? test -f accept.txt
+  | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
+	   cat accept.txt) | $SENDMAIL $sendmailOPT -t
+
 
 HOST=continue_with_rc.request

@@ -9,7 +9,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: flush_digests,v 1.7 1993/07/16 14:51:33 berg Exp $
+#$Id: flush_digests,v 1.8 1993/08/09 14:10:31 berg Exp $
 
 test=test		# /bin/test
 mkdir=mkdir		# /bin/mkdir
@@ -22,8 +22,8 @@ touch=touch		# /bin/touch
 dirname=dirname		# /bin/dirname
 lockfile=lockfile	# /usr/local/bin/lockfile
 
-$test \( $# != 0 -a $# != 1 \) -o $# = 1 -a .-c != ".$1" &&
- $echo "Usage: flush_digests [-c]" 1>&2 && exit 64
+$test $# = 0 -o .-c = ".$1" -a \( $# = 1 -o .-f = ".$1" -a $# = 2 \) ||
+ $echo "Usage: flush_digests [-c [-f]]" 1>&2 && exit 64
 
 tmprequest=tmp.request
 tmpfrom=tmp.from
@@ -43,6 +43,8 @@ then
   archive_hist=$1; shift
   umask $1; shift
   SENDMAIL="$*"
+
+  $test .-f = ".$1" && digest_age=0	# force digest out
 
   if senddigest $digest_age $digest_size $digestbody $digesttrailer \
    $tmprequest $tmpfrom $digestheader $digestadmin $digestadmin2
@@ -94,9 +96,15 @@ else
 	   trap "$rm -f tmp.lock; exit 1" 1 2 3 15
 	   $cat /dev/null >$tmprequest 2>$tmpfrom
 	   $touch $digestbody
-	   PATH=.:../SedBinDir:../.bin:$PATH ../SedBinDir/flush_digests -c
+	   if $test -f .digest.force
+	   then
+	      PATH=.:../SedBinDir:../.bin:$PATH \
+	       ../SedBinDir/flush_digests -c -f
+	   else
+	      PATH=.:../SedBinDir:../.bin:$PATH ../SedBinDir/flush_digests -c
+	   fi
 	   trap "" 1 2 3 15
-	   $rm -f tmp.lock
+	   $rm -f tmp.lock .digest.force
 	   cd ..
 	fi
      fi

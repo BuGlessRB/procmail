@@ -31,5 +31,5 @@ Summary of what the mailinglist scripts in here provide:
 	  possible problems
 	+ You can set up a mailinglist to function as a standalone mail
 	  archive server
-	+ Supports moderated mailinglists with multiple moderators
+	+ Moderated mailinglists with an arbitrary number of moderators
 	+ Automatically eliminates duplicate submissions

@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.14 1993/06/21 14:24:44 berg Exp $*/
+/*$Id: misc.h,v 1.15 1993/08/09 14:10:54 berg Exp $*/
 
 void
  elog P((const char*const newt)),
@@ -8,6 +8,8 @@ void
  progerr P((const char*const line)),
  chderr P((const char*const dir)),
  readerr P((const char*const file)),
+ verboff P((void)),
+ verbon P((void)),
  yell P((const char*const a,const char*const b)),
  nlog P((const char*const a)),
  logqnl P((const char*const a)),

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.43 1993/07/22 14:29:23 berg Exp $";
+ "$Id: procmail.c,v 1.44 1993/08/09 14:11:05 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -52,7 +52,7 @@ gid_t gid,sgid;
 
 main(argc,argv)const char*const argv[];
 { register char*chp,*chp2;register i;int suppmunreadable;
-  ;{ int Deliverymode,mailfilter;char*fromwhom=0;
+  ;{ int Deliverymode,mailfilter;char*fromwhom=0;const char*idhint=0;
 #define Presenviron	i
      Deliverymode=mailfilter=0;
      if(argc)			       /* sanity check, any argument at all? */
@@ -112,6 +112,8 @@ last_option:
 	if(crestarg)				     /* -m will supersede -a */
 conflopt:  nlog("Conflicting options\n"),elog(pmusage);
       }
+     if(!Deliverymode)
+	idhint=getenv(lgname);
      if(!Presenviron)				     /* drop the environment */
       { const char**emax=(const char**)environ,*const*ep,*const*kp;
 	static const char*const keepenv[]=KEEPENV;
@@ -167,6 +169,11 @@ privileged:
 #endif
 #ifdef SIGLOST
 	signal(SIGLOST,SIG_IGN);
+#endif
+#if DEFverbose
+	verboff();verbon();
+#else
+	verbon();verboff();
 #endif
 	signal(SIGPIPE,SIG_IGN);signal(SIGTERM,(void(*)())srequeue);
 	signal(SIGINT,(void(*)())sbounce);signal(SIGHUP,(void(*)())sbounce);
@@ -225,11 +232,15 @@ leaveFrom:    filled=already+i;
 	    }
 	   while(chp=(char*)argv[argc]);
 	gargv=argv+argc;			 /* save it for nextrcfile() */
+	if(idhint&&(pass=getpwnam(idhint)))
+	   goto QSetuser;
 	if(Deliverymode)
 	 { if(!(pass=getpwnam(chp2)))
 	    { nlog("Unknown user");logqnl(chp2);return EX_NOUSER;
 	    }
-	   if(passinvk&&passinvk->pw_uid==pass->pw_uid||euid==ROOT_uid)
+	   if(euid==ROOT_uid)
+	      goto Setuser;
+QSetuser:  if(passinvk&&passinvk->pw_uid==pass->pw_uid)
 	      goto Setuser;
 	 }
 	if(pass=passinvk)
@@ -672,6 +683,7 @@ forward:	 if(locknext)
 	       { strcpy(buf2,buf);
 		 if(locknext)
 		    lcllock();		     /* write to a file or directory */
+		 inittmout(buf);	  /* to break messed-up kernel locks */
 		 if(dump(deliver(buf,strchr(buf,'\0')+1),startchar,tobesent)
 		  &&!ignwerr)
 		    writeerr(buf);

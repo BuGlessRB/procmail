@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.27 1993/07/30 13:52:53 berg Exp $
+#$Id: install.sh,v 1.28 1993/08/09 14:10:25 berg Exp $
 
 SHELL=/bin/sh
 export SHELL
@@ -71,7 +71,7 @@ else
   if ( echo Id test >id.test ) 2>/dev/null
   then
   :
-  else
+  else	# You can run install.sh WITHOUT root permissions as well!
      echo "Please run install.sh with root permissions instead"
      exit 77
   fi

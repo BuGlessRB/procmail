@@ -147,7 +147,7 @@
 	       through the mailinglist
 	    Reached the doubtful milestone to sometimes crash an Ultrix
 	       machine (due to the lockingtests, not procmail itself)
-1993/07/30: v2.92
+1993/08/09: v2.92
 	    Fixed a formail sender-determination-weight problem, it mixed up
 	       the weights when autoreplying and when regenerating the From_
 	       line (and thus didn't always pick the optimal field)
@@ -162,6 +162,8 @@
 	       NeXTStep 3.1 environments
 	    Moved the "Reiterating kernel lock" diagnostic into the "extended"
 	       (i.e. VERBOSE=on) section
+	    Caused the regular TIMEOUT to break a `hanging' kernel lock
+	    SIGUSR1 and SIGUSR2 can be used to turn on and off verbose logging
 	    Extended the procmailex man page (again)
 	    Tightened the loop when skipping comments in rcfiles
 	    Updated the crontab script recommendation in the procmail man page
@@ -179,6 +181,8 @@
 		  symbolic link
 	       Taught the embedded archive server in the mailinglists to allow
 		  searching for regexps
-	       Fixed a few typos that slipped into procbounce and flush_digest
+	       Fixed a few typos that slipped into procbounce and flush_digests
 	       Explicit support for moderated lists
 	       Eliminating duplicate submissions
+	       Catering for autoreplies to people not on the accept list
+	       Flush_digests can now be forced to push out digests

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.61 1993/07/30 13:17:27 berg Exp $
+#$Id: autoconf,v 1.62 1993/08/09 14:10:43 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -695,7 +695,6 @@ cat >_autotst.c <<HERE
 #ifndef NO_COMSAT
 #include "network.h"
 #endif
-#define testdec(type,vtype);
 main(){int i=0;
  {size_t vsize_t;i+=vsize_t=1;}
  {pid_t vpid_t;i+=vpid_t=1;}

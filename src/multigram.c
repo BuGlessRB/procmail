@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.32 1993/07/19 12:41:18 berg Exp $";
+ "$Id: multigram.c,v 1.33 1993/08/09 14:10:56 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/07/19 12:41:18 $";
+static /*const*/char rcsdate[]="$Date: 1993/08/09 14:10:56 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -92,9 +92,13 @@ static size_t readstr(file,p,linewise)FILE*const file;struct string*p;
 	case EOF:;
       }
      p->text[len]='\0';			 /* terminate the buffer in any case */
-     if(linewise&&!remov_delim&&!strcmp(p->text,rem1str)&&
-      !strcmp(p->text+sizeof rem1str,rem2str))	       /* special delimiter? */
-	remov_delim=1;
+     if(linewise&&len)
+      { int i=0;
+	for(i=0;!remov_delim&&!i;i=1)
+	   if(!strcmp(p->text+i,rem1str)&&
+	    !strcmp(p->text+sizeof rem1str+i,rem2str)) /* special delimiter? */
+	      remov_delim=1;
+      }
      return len;
    }
 }
@@ -467,7 +471,8 @@ usg:
 	 }
 	while(--echp>chp);    /* roughly check if it could be a mail address */
 	if(lastfrom<=0&&!strpbrk(chp,"@/")&&(!strchr(chp,'!')||
-	 strchr(chp,'|')||strchr(chp,',')||strstr(chp,"..")))
+	 strchr(chp,'|')||strchr(chp,',')||strstr(chp,".."))&&
+	 !(*chp=='<'&&strchr(chp,'\0')[-1]=='>'))
 	 { if(lastfrom<0)
 	      lastfrom=!strcmp(SHFROM,chp);
 	   continue;			  /* apparently not an email address */

@@ -1,4 +1,4 @@
-$Id: Manual,v 1.14 1993/07/19 15:43:03 berg Exp $
+$Id: Manual,v 1.15 1993/08/09 14:10:22 berg Exp $
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
@@ -189,6 +189,12 @@ will be sent out.  Beware: call flush_digests with an absolute or relative
 path, do not rely on PATH to find it for you (flush_digests uses $0 to
 find the location of the lists).
 
+Flush_digests normally checks the age of the digest and does not send it
+out until it is overdue.  If you want to force flush_digests to send out
+a digest of a particular list, you can create the file ".digest.force" in
+that list's directory.	During the next run of flush_digests, it will
+remove .digest.force and push out the digest (if any) regardless of its age.
+
 If you want to give your subscribers the choice of receiving digests or not.
 This is what you can do:
 
@@ -226,6 +232,15 @@ submitted.  To enable this you have to uncomment the appropriate
 to the dist file (i.e. if submissions are restricted, only subcsribers
 can do so).  If you want to allow only an even more select group, delink the
 accept file and edit it to taste.
+
+Beware that using an accept file is incompatible with having an owner- alias
+for this list (procmail administered lists do not need the owner- alias
+anyway).
+
+If, in addition to notifying the maintainer you want an automated reply
+to be generated to the submitter which was not in the accept file, then you
+can accomplish this by simply creating an accept.txt file.  Its contents
+will (like the contents of the help.txt file) be returned to the submitter.
 
 This feature is not the same as a moderated list, the two features can be
 used accumulatively.

@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.18 1993/07/19 12:40:39 berg Exp $
+#$Id: createlist,v 1.19 1993/08/09 14:10:29 berg Exp $
 
 defaults=.etc
 
@@ -115,6 +115,8 @@ esac
 
 umask `$sed -n -e 's/^[^#]*UMASK=[^0-9]*\([0-9]*\).*$/\1/p' $defaults/rc.init`
 
+$chmod go+x . .bin $defaults			# to preserve sanity
+
 if $mkdir "$list" 2>$DEVNULL
 then
   $chmod g+s "$list" 2>/dev/null	# to ensure the gid is inherited
@@ -179,3 +181,4 @@ $echo "$list: \"|IFS=' ';exec $flist $list\""
 $echo "$list-request: \"|IFS=' ';exec $flist $list-request\""
 $test $archiveserver = no && $echo "$list-dist: :include:$listdir/$list/dist"
 $echo \########################################################################
+$echo "And make sure to run newaliases afterwards." 1>&2
