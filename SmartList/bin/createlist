@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.19 1993/08/09 14:10:29 berg Exp $
+#$Id: createlist,v 1.20 1993/09/16 14:42:57 berg Exp $
 
 defaults=.etc
 
@@ -148,7 +148,7 @@ HOST=continue_with_rc.request
 HERE
   $ln ../$defaults/rc.archive rc.request
 else
-  ln dist accept
+  $ln dist accept
 fi
 
 cd ..

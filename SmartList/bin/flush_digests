@@ -9,7 +9,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: flush_digests,v 1.9 1993/09/01 15:53:51 berg Exp $
+#$Id: flush_digests,v 1.10 1993/09/16 14:42:59 berg Exp $
 
 test=test		# /bin/test
 mkdir=mkdir		# /bin/mkdir
@@ -44,6 +44,8 @@ then
   digestadmin2=archive/latest/$digestadmin
   digesttrailer=archive/latest/digest.trailer
 
+  $test -f $digesttrailer || exit 0	# early exit, nothing to do
+
   set `cat .digest.params`
   digest_age=$1; shift
   digest_size=$1; shift
@@ -62,7 +64,13 @@ then
      Volume=archive/volume$2
      Issue=$Volume/$3
      $test -d $Volume || $mkdir $Volume
+     $test -f $Issue && $echo 1>&2 "flush_digests: Warning, overwriting $Issue"
      $cat $digestheader >$Issue
+     if $test ! -f $Issue
+     then
+	$echo 1>&2 "flush_digests: Couldn't write $Issue, terminating"
+	exit 73
+     fi
      $echo "" >>$Issue
      if $test -f $digestadmin -o -f $digestadmin2
      then

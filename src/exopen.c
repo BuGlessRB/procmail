@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.12 1993/08/24 12:43:33 berg Exp $";
+ "$Id: exopen.c,v 1.13 1993/09/16 14:43:08 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -73,7 +73,24 @@ unique(full,p,mode,verbos)const char*const full;char*const p;
 }
 				     /* rename MUST fail if already existent */
 myrename(old,newn)const char*const old,*const newn;
-{ int i,serrno;struct stat stbuf;
-  link(old,newn);serrno=errno;i=stat(old,&stbuf);unlink(old);errno=serrno;
-  return stbuf.st_nlink==2?i:-1;
+{ int i,serrno;
+  i=hlink(old,newn);serrno=errno;unlink(old);errno=serrno;return i;
+}
+		 /* hardlink with fallback for systems that don't support it */
+hlink(old,newn)const char*const old,*const newn;
+{ if(link(old,newn))				      /* try a real hardlink */
+   { int i,serrno;struct stat stbuf;
+     serrno=errno;i=stat(old,&stbuf);errno=serrno;
+     if(i)
+	goto retfail;
+     if(stbuf.st_nlink!=2)
+      { if(serrno!=EXDEV)		       /* failure due to filesystem? */
+	   goto retfail;		     /* try it by conventional means */
+	if(0>(i=ropen(newn,O_WRONLY|O_CREAT|O_EXCL,stbuf.st_mode)))
+	 { rclose(i);
+retfail:   return -1;
+	 }
+      }
+   }
+  return 0;
 }

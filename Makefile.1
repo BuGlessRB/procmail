@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.20 1993/08/09 14:10:12 berg Exp $
+#$Id: Makefile.1,v 1.21 1993/09/16 14:42:45 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -133,8 +133,8 @@ man/Makefile: man/Makefile.0
 src/Makefile: src/Makefile.0
 
 man/Makefile src/Makefile: Makefile
-	$(MAKE) _init; $(HIDEMAKE) init
 
 Makefile: Makefile.1 initmake
+	$(MAKE) _init; $(HIDEMAKE) init
 
 init makefiles Makefiles makefile: man/Makefile src/Makefile

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.39 1993/07/30 13:52:43 berg Exp $
+#$Id: initmake,v 1.40 1993/09/16 14:42:48 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -76,6 +76,17 @@ then
 fi
 
 cd src				# diving into the source directory ######
+
+newln=""
+$RM _autotst.rrr _autotst
+echo hi >_autotst.rrr
+if $LN _autotst.rrr _autotst
+then
+:
+else
+   $LN -s _autotst.rrr _autotst && LN="$LN -s" && newln=yes
+fi
+
 cat >_autotst.c <<HERE
 main()
 { return 0;
@@ -210,9 +221,12 @@ for a in $SUBDIRS
 do
   if test ! -f $a/Makefile.init
   then
-     $LN $a/Makefile $a/Makefile.init
-     $RM $a/Makefile
-     $LN $a/Makefile.init $a/Makefile
+     case "$LN" in
+	*-s*) cp $a/Makefile $a/Makefile.init ;;
+	*) $LN $a/Makefile $a/Makefile.init
+	   $RM $a/Makefile
+	   $LN $a/Makefile.init $a/Makefile ;;
+     esac
   fi
 done
 
@@ -223,6 +237,7 @@ echo "# Makefile.1 - mark, don't (re)move this, a sed script needs it
 
 test a$SHELL != a$MSHELL && echo  "SHELL	= $SHELL"	>>_Makefile
 echo "FGREP	= $FGREP"				>>_Makefile
+test -z "$newln" || echo "LN	= $LN"			>>_Makefile
 test -z "$MAKE" && echo "MAKE	= make"			>>_Makefile
 test a"$cc" != a"$CC" && echo "CC	= $cc"		>>_Makefile
 
@@ -280,7 +295,7 @@ do
   echo							>>src/_Makefile
   echo "../new/$a: $a ../config.check"			>>src/_Makefile
   echo "	@\$(RM) \$@"				>>src/_Makefile
-  echo "	\$(LN) $a \$@"				>>src/_Makefile
+  echo "	\$(LN) ../src/$a \$@"			>>src/_Makefile
 done
 
 for a in $MANSS
@@ -288,7 +303,7 @@ do
   echo							>>man/_Makefile
   echo "../new/$a: $a ../config.check"			>>man/_Makefile
   echo "	@\$(RM) \$@"				>>man/_Makefile
-  echo "	\$(LN) $a \$@"				>>man/_Makefile
+  echo "	\$(LN) ../man/$a \$@"			>>man/_Makefile
 done
 
 for a in $MANS1S

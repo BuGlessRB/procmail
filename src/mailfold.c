@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.33 1993/08/09 14:10:49 berg Exp $";
+ "$Id: mailfold.c,v 1.34 1993/09/16 14:43:14 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -79,7 +79,8 @@ writefin:
 }
 
 static dirfile(chp,linkonly)char*const chp;const int linkonly;
-{ if(chp)
+{ const static char lkingto[]="Linking to";
+  if(chp)
    { long i=0;			     /* first let us try to prime i with the */
 #ifndef NOopendir		     /* highest MH folder number we can find */
      long j;DIR*dirp;struct dirent*dp;char*chp2;
@@ -94,9 +95,10 @@ static dirfile(chp,linkonly)char*const chp;const int linkonly;
 #endif /* NOopendir */
      ;{ int ok;
 	do ultstr(0,++i,chp);		       /* find first empty MH folder */
-	while((ok=link(buf2,buf))&&errno==EEXIST);
+	while((ok=linkonly?link(buf2,buf):hlink(buf2,buf))&&errno==EEXIST);
 	if(linkonly)
-	 { if(ok)
+	 { yell(lkingto,buf);
+	   if(ok)
 	      goto nolnk;
 	   goto ret;
 	 }
@@ -109,12 +111,12 @@ static dirfile(chp,linkonly)char*const chp;const int linkonly;
       strchr(strcat(buf,tgetenv(msgprefix)),'\0'));
    }
   if(linkonly)
-   { yell("Linking to",buf);
+   { yell(lkingto,buf);
      if(link(buf2,buf))	   /* hardlink the new file, it's a directory folder */
 nolnk:	nlog("Couldn't make link to"),logqnl(buf);
      goto ret;
    }
-  if(!myrename(buf2,buf))	       /* rename it, we need the same i-node */
+  if(!rename(buf2,buf))		       /* rename it, we need the same i-node */
 opn: return opena(buf);
 ret:
   return -1;

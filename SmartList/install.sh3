@@ -1,9 +1,11 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh3  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh3		  # we're in a buggy zsh
-#$Id: install.sh3,v 1.15 1993/09/08 12:44:27 berg Exp $
+#$Id: install.sh3,v 1.16 1993/09/16 14:42:54 berg Exp $
 
 umask 022
+
+ln=ln		# set ln="ln -s" if you don't have hardlinks
 
 test -z "$bindir" && echo "Call install.sh instead" && exit 64
 
@@ -27,7 +29,7 @@ echo Fixing up incompatibilities with older versions...
 ( cd "$target"
   for a in *
   do
-     test -f "$a/accept" || ln "$a/dist" "$a/accept" 2>/dev/null
+     test -f $a/accept || (cd $a && $ln dist accept 2>/dev/null )
   done
 )
 
@@ -67,12 +69,12 @@ mv -f "$target/$bindir/procmail" "$target/$bindir/.procmail" 2>/dev/null
 chmod 0755 $target/$bindir/* 2>/dev/null
 
 rm -f "$TMPFLIST"
-ln "$target/$bindir/flist" "$TMPFLIST"
+$ln "$target/$bindir/flist" "$TMPFLIST"
 mv -f "$target/$bindir/multigram" "$target/$bindir/flist"
 for a in multigram senddigest idhash idcheck
 do
   rm -f "$target/$bindir/$a"
-  ln "$target/$bindir/flist" "$target/$bindir/$a"
+  $ln "$target/$bindir/flist" "$target/$bindir/$a"
 done
 
 rm -f "$TMPFLIST"
@@ -88,4 +90,4 @@ done
 
 echo "Linking .etc/rc.main to $target/.procmailrc"
 rm -f "$target/.procmailrc"
-ln "$target/.etc/rc.main" "$target/.procmailrc"
+(cd "$target" && $ln .etc/rc.main .procmailrc )

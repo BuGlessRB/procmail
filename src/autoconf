@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.63 1993/09/06 16:19:46 berg Exp $
+#$Id: autoconf,v 1.64 1993/09/16 14:43:05 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -629,6 +629,9 @@ echo 'Checking for POSIX and ANSI system include files'
 cat >_autotst.c <<HERE
 #include "includes.h"
 int a;
+#ifndef SYS_DIRENT_H_MISSING
+DIR*vDIR;
+#endif
 HERE
 
 i0="";i1="";i2="";i3="";i4="";i5="";i6="";i7="";i8="";i9="";i10="";
@@ -640,6 +643,8 @@ do
   test -z "$i0" && grepfor stddef.h "#define STDDEF_H_MISSING" && i0=I
   test -z "$i1" && grepfor stdlib.h "#define STDLIB_H_MISSING" && i1=I
   test -z "$i2" && grepfor dirent.h "#define DIRENT_H_MISSING" && i2=I
+  test -z "$i2" && grepfor DIR "#define DIRENT_H_MISSING		   \
+/* <dirent.h> is there, but empty */" && i2=I
   test -z "$i3" && grepfor ndir.h "#define NDIR_H_MISSING" && i3=I
    test I = "$i3$i4" && grepfor sys/ndir.h "#define SYS_NDIR_H_MISSING" && i4=I
     test I = "$i4$i5" && grepfor sys/dir.h "#define SYS_DIR_H_MISSING" && i5=I
@@ -727,8 +732,7 @@ do
   test -z "$i6" && grepfor h_addr_list '#define h_0addr_list h_addr' && i5=I
   test -z "$i6" && grepfor hostent '#define h_0addr_list h_addr' && i5=I
   test -z "$i6" && grepfor member '#define h_0addr_list h_addr' && i5=I
-  test -z "$i7" && grepfor utsname "\
-#define NOuname		 \
+  test -z "$i7" && grepfor utsname "#define NOuname			      \
 /* <sys/utsname.h> is there, but empty */" && i6=I
   newi="$i0$i1$i2$i3$i4$i5$i6$i7"
   if test a$oldi = a$newi

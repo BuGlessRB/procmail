@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.26 1993/08/24 11:30:34 berg Exp $*/
+/*$Id: includes.h,v 1.27 1993/09/16 14:43:12 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -67,7 +67,7 @@
 				/* strspn() strcspn() strchr() strcmp()
 				   strncmp() strpbrk() strstr() memmove() */
 #endif
-#include <errno.h>		/* EINTR EEXIST ENFILE EACCES EAGAIN */
+#include <errno.h>		/* EINTR EEXIST ENFILE EACCES EAGAIN EXDEV */
 #ifndef SYSEXITS_H_MISSING
 #include <sysexits.h>		/* EX_OK EX_USAGE EX_NOINPUT EX_NOUSER
 				/* EX_UNAVAILABLE EX_OSERR EX_OSFILE
@@ -100,7 +100,7 @@ const char*getenv();
 #ifndef SYS_DIRENT_H_MISSING	     /* sys/dirent.h must be moved down here */
 #include <sys/dirent.h>
 #else
-#undef SYS_DIRENT_H_MISSING
+/*#undef SYS_DIRENT_H_MISSING			       /* needed by autoconf */
 /* I give up, I can only hope that your system defines DIR and struct dirent */
 #endif
 #endif

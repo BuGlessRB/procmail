@@ -1,5 +1,5 @@
 #define VERSION "\
-procmail v2.92pre6 1993/09/09 written and created by Stephen R. van den Berg\n\
+procmail v2.92pre7 1993/09/16 written and created by Stephen R. van den Berg\n\
 \t\t\t\tberg@pool.informatik.rwth-aachen.de\n\
 \t\t\t\tberg@physik.tu-muenchen.de\n\
 \n\
