@@ -1,13 +1,14 @@
 /************************************************************************
  *	Routines that deal with understanding the folder types		*
  *									*
+ *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
  *	Copyright (c) 1999-2000, Philip Guenther, The United States	*
  *							of America	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: foldinfo.c,v 1.4 2000/12/22 20:33:49 guenther Exp $";
+ "$Id: foldinfo.c,v 1.5 2001/02/20 10:14:05 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "misc.h"

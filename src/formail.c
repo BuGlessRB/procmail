@@ -4,15 +4,15 @@
  *	Seems to be relatively bug free.				*
  *									*
  *	Copyright (c) 1990-2000, S.R. van den Berg, The Netherlands	*
- *	Copyright (c) 1999-2000, Philip Guenther, The United States	*
+ *	Copyright (c) 1999-2001, Philip Guenther, The United States	*
  *							of America	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.100 2001/02/03 08:24:38 guenther Exp $";
+ "$Id: formail.c,v 1.101 2001/02/20 10:14:06 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 2001/02/03 08:24:38 $";
+static /*const*/char rcsdate[]="$Date: 2001/02/20 10:14:06 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"

@@ -2,13 +2,13 @@
  *	Environment and variable handling routines used by procmail	*
  *									*
  *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
- *	Copyright (c) 2000, Philip Guenther, The United States		*
+ *	Copyright (c) 2000-2001, Philip Guenther, The United States	*
  *							of America	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.9 2001/01/28 00:50:08 guenther Exp $";
+ "$Id: variables.c,v 1.10 2001/02/20 10:14:10 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */

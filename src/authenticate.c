@@ -7,11 +7,13 @@
  *	you need to authenticate your users				*
  *									*
  *	Copyright (c) 1996-1997, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1999-2001, Philip Guenther, The United States	*
+ *						of America		*
  *	#include "../README" or "README"				*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: authenticate.c,v 1.7 2001/02/20 09:35:19 guenther Exp $";
+ "$Id: authenticate.c,v 1.8 2001/02/20 10:14:04 guenther Exp $";
 #endif
 
 #ifdef PROCMAIL

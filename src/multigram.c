@@ -15,13 +15,15 @@
  *	Seems to be relatively bug free.				*
  *									*
  *	Copyright (c) 1992-1999, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1998-2001, Philip Guenther, The United States	*
+ *							of America	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.96 2001/02/03 08:24:37 guenther Exp $";
+ "$Id: multigram.c,v 1.97 2001/02/20 10:14:08 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 2001/02/03 08:24:37 $";
+static /*const*/char rcsdate[]="$Date: 2001/02/20 10:14:08 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"

@@ -9,13 +9,15 @@
  *	Seems to be relatively bug free.				*
  *									*
  *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1999-2001, Philip Guenther, The United States	*
+ *							of America	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.47 2001/01/27 23:16:15 guenther Exp $";
+ "$Id: lockfile.c,v 1.48 2001/02/20 10:14:07 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 2001/01/27 23:16:15 $";
+static /*const*/char rcsdate[]="$Date: 2001/02/20 10:14:07 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
