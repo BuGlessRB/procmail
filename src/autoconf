@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.46 1993/05/18 13:05:29 berg Exp $
+#$Id: autoconf,v 1.47 1993/05/19 15:03:22 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -308,6 +308,7 @@ cat >_autotst.c <<HERE
 #define MSK_flock	0x01
 
 int dolock,child[NR_of_forks],timeout,fdcollect;
+char dirlocktest[]="_locktest";
 
 void stimeout()
 { timeout=1;killchildren();close(fdcollect);
@@ -319,11 +320,19 @@ unsigned psrand()
 { return(unsigned)(seed*=69069L)>>8;
 }
 
+unsigned sfork()
+{ int pid;
+  while((pid=fork())<0)
+     fprintf(stderr,"Couldn't fork _locktst, retrying\n"),sleep(TIME_OUT_SEC);
+  return pid;
+}
+
 main(argc,argv)char*argv[];
 { int goodlock,testlock,i,pip[2],pipw[2];unsigned otimet,dtimet;
   static char filename[]="_locktst.l0";
-  close(0);goodlock=0;testlock=FIRST_lock;
-  if(fork())				 /* try to ditch the controlling tty */
+  close(0);goodlock=0;testlock=FIRST_lock;signal(SIGALRM,(void(*)())stimeout);
+  signal(SIGTERM,SIG_DFL);signal(SIGPIPE,SIG_DFL);	     /* die on these */
+  if(sfork())				 /* try to ditch the controlling tty */
      return EX_OK;	/* mainly to prevent rather messy kernel-diagnostics */
   setsid();				       /* from appearing on your tty */
   do
@@ -331,10 +340,10 @@ main(argc,argv)char*argv[];
      argc=1;dolock=goodlock|testlock;
      do
       { char*curdir;
-	curdir=argv[argc];otimet=time((char*)0);signal(SIGTERM,SIG_DFL);
-	if(fork())    /* discard the old body, let "init" adopt our children */
+	curdir=argv[argc];otimet=time((char*)0);
+	if(sfork())
 	 { close(1);close(2);i=NR_of_lockfiles;chdir(curdir);
-	   chdir("_locktest");
+	   chdir(dirlocktest);
 	   do			       /* prime the lock, see if it vanishes */
 	    { filename[sizeof filename-2]='0'+--i;
 	      lseek(goodlock=open(filename,O_WRONLY),0L,SEEK_END);
@@ -346,12 +355,12 @@ main(argc,argv)char*argv[];
 	 }
 	sleep(1);pipe(pip);pipe(pipw);i=NR_of_forks;*child=0;
 	fprintf(stderr,"\nStarting test %x on %s\n",dolock,curdir);
-	while((child[--i]=fork())&&i);		       /* divide and conquer */
+	while((child[--i]=sfork())&&i);		       /* divide and conquer */
 	if(!*child)
 	 { unsigned char lockflag;int fd,childno=i<<SHIFT_childno;
 	   int mylocks=LOCKS_per_child;
 	   close(pipw[0]);close(pip[0]);close(1);
-	   seed=time((char*)0)+getpid()|1;chdir(curdir);chdir("_locktest");
+	   seed=time((char*)0)+getpid()|1;chdir(curdir);chdir(dirlocktest);
 	   close(pipw[1]);
 	   for(;;)					   /* and lock away! */
 	    { filename[sizeof filename-2]='0'+(i=psrand()%NR_of_lockfiles);
@@ -373,12 +382,14 @@ main(argc,argv)char*argv[];
 	    }
 	 }
 	;{ unsigned char lckdfil[NR_of_lockfiles],curflag;
-	   int j;			       /* give all children a chance */
+	   int j,ppid;			       /* give all children a chance */
+	   ppid=getppid();
+	   if(sfork())	/* discard the old body, let init adopt our children */
+	      return EX_OK;
 	   countlocks=MIN_locks;close(pip[1]);close(pipw[1]);
 	   for(j=NR_of_lockfiles;lckdfil[--j]=0,j;);
 	   timeout=0;sleep(1);read(pipw[0],&curflag,1);close(pipw[0]);
-	   kill(getppid(),SIGKILL);fdcollect=pip[0];
-	   signal(SIGALRM,(void(*)())stimeout);
+	   kill(ppid,SIGKILL);fdcollect=pip[0];
 	   dtimet=(((unsigned)time((char*)0)-otimet)*GROW)+TIME_OUT_SEC;
 	   do
 	    { unlink("_locktst.alive");alarm(dtimet+2);		 /* watchdog */
@@ -389,7 +400,7 @@ main(argc,argv)char*argv[];
 	   while(1==read(fdcollect,&curflag,1)&&
 	    (j=lckdfil[i=(curflag&MASK_fileno)>>1],!timeout)&&
 	    ((j^(lckdfil[i]=curflag))==1||!(j&1)&&curflag&1)&&--countlocks);
-	   alarm(0);killchildren();close(fdcollect);
+	   alarm(0);close(fdcollect);killchildren();
 	   fprintf(stdout,
 	    "/*locktype: %x, countlocks: %x, timeout %x, watchdog %x, %s*/\n",
 	    dolock,countlocks,timeout,dtimet,curdir);fflush(stdout);
