@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.113 1998/11/06 06:21:00 guenther Exp $
+#$Id: autoconf,v 1.114 1998/11/10 10:08:38 srb Exp $
 
 # All possible entries in autoconf.h:
 
@@ -424,7 +424,7 @@ unsigned sfork()
 }
 
 main(argc,argv)char*argv[];
-{ int goodlock,testlock,i,pip[2],pipw[2];time_t otimet,dtimet;
+{ int goodlock,testlock,i,pip[2],pipw[2];time_t otimet;unsigned dtimet;
   static char filename[]="_locktst.l0";
   close(0);goodlock=0;testlock=FIRST_lock;signal(SIGPIPE,SIG_DFL);
   if(argc==2)
@@ -517,7 +517,7 @@ which program, XX indicates a lock conflict or failure\n");
 	   for(j=NR_of_lockfiles;lckdfil[--j]=0,j;);
 	   timeout=0;sleep(1);read(pipw[0],&curflag,1);close(pipw[0]);
 	   kill(ppid,SIGKILL);fdcollect=pip[0];signal(SIGALRM,stimeout);
-	   dtimet=(((unsigned)time((time_t*)0)-otimet)*GROW)+TIME_OUT_SEC;
+	   dtimet=(time((time_t*)0)-otimet)*GROW+TIME_OUT_SEC;
 	   do
 	    { unlink("_locktst.alive");alarm(dtimet+2);		 /* watchdog */
 	      dtimet=(otimet=time((time_t*)0)-otimet)>dtimet?
