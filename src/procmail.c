@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.54 1993/11/26 16:25:15 berg Exp $";
+ "$Id: procmail.c,v 1.55 1993/11/29 17:23:00 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -535,8 +535,7 @@ noconcat:     i=flags[ALSO_NEXT_RECIPE]?lastcond:1;	  /* init test value */
 		     { switch(*(sgetcp=buf2))
 			{ case '0':case '1':case '2':case '3':case '4':
 			  case '5':case '6':case '7':case '8':case '9':
-			  case '-':case '+':case '.':case ',':case ' ':
-			  case '\t':
+			  case '-':case '+':case '.':case ',':
 			   { char*chp3;double w;
 			     w=stod(buf2,(const char**)&chp3);chp2=chp3;
 			     if(chp2>buf2&&*(chp2=skpspace(chp2))=='^')
@@ -545,7 +544,7 @@ noconcat:     i=flags[ALSO_NEXT_RECIPE]?lastcond:1;	  /* init test value */
 				if(chp3>chp2+1)
 				 { if(score>=MAX32)
 				      goto skiptrue;
-				   chp=chp3;xponent=x;weight=w;
+				   chp2=skpspace(chp3);xponent=x;weight=w;
 				   scored=scoreany=1;goto copyrest;
 				 }
 			      }
@@ -608,14 +607,14 @@ jinregs:			   regsp=regs;	/* start over and look again */
 					 score+=weight;
 				    }
 				   else
+				    { double oweight=weight*weight;
 				      while(weight&&(chp2=
 				       bregexec(re,(const uchar*)startchar,
 					(const uchar*)chp,(size_t)rest,
 					igncase)))
-				       { score+=weight;
-					 ;{ double oweight=weight;
-					    if((weight*=xponent)<oweight&&
-					     oweight<1)
+				       { score+=weight;weight*=xponent;
+					 ;{ double nweight;
+					    if((nweight=weight*weight)<oweight						     &&oweight<1)
 					       break;
 					  }
 					 if(chp==chp2)
@@ -625,6 +624,7 @@ jinregs:			   regsp=regs;	/* start over and look again */
 					       continue;
 					 rest-=chp2-chp;chp=chp2;
 				       }
+				    }
 				   free(re);
 				 }
 				else			     /* egrep for it */
@@ -634,8 +634,8 @@ jinregs:			   regsp=regs;	/* start over and look again */
 			     break;
 			   }
 			  case '$':*buf2='"';readparse(buf,sgetc,2);continue;
-			  case '!':negate^=1;
-copyrest:		     strcpy(buf,skpspace(chp));continue;
+			  case '!':negate^=1;chp2=skpspace(chp);
+copyrest:		     strcpy(buf,chp2);continue;
 			  case '?':pwait=2;metaparse(chp);inittmout(buf);
 			      ignwerr=1;pipin(buf,startchar,tobesent);
 			      if(scoreany&&lexitcode>=0)
@@ -652,25 +652,39 @@ copyrest:		     strcpy(buf,skpspace(chp));continue;
 				 i=0;
 			      strcpy(buf2,buf);break;
 			  case '>':case '<':readparse(buf,sgetc,2);
-			     ;{ char*chp3;
-				i=strtol(buf+1,&chp3,10);chp=chp3;
+			   { long pivot;
+			      ;{ char*chp3;
+				pivot=strtol(buf+1,&chp3,10);chp=chp3;
 			      }
+			     skipped(skpspace(chp));strcpy(buf2,buf);
 			     if(scoreany)
 			      { double f;
-				f=(*buf=='<')^negate?
-				   (double)i/filled:(double)filled/i;
-				score+=weight*pow(f,xponent);i=1;
+				if((*buf=='<')^negate)
+				   if(filled)
+				      f=(double)pivot/filled;
+				   else if(pivot>0)
+				      goto plusinfty;
+				   else
+				      goto mininfty;
+				else if(pivot)
+				   f=(double)filled/pivot;
+				else
+				   goto plusinfty;
+				score+=weight*pow(f,xponent);
 			      }
-			     else
-				i=(*buf=='<'?filled<i:filled>i)^negate;
-			     skipped(skpspace(chp));strcpy(buf2,buf);
+			     else if(!((*buf=='<'?
+					 filled<pivot:
+					 filled>pivot)^
+					negate))
+				i=0;
+			   }					/* leftovers */
 			}					/* leftovers */
 		       break;
 		     }
 		    if(score>MAX32)		/* chop off at plus infinity */
-		       score=MAX32;
+plusinfty:	       score=MAX32;
 		    if(score<=MIN32)	       /* chop off at minus infinity */
-		       score=MIN32,i=0;
+mininfty:	       score=MIN32,i=0;
 		    if(verbose)	     /* not entirely correct, but it will do */
 		     { if(scoreany)
 			{ charNUM(num,long);
@@ -686,11 +700,9 @@ copyrest:		     strcpy(buf,skpspace(chp));continue;
 		     }
 skiptrue:;	  }
 	       }
-	      if(scored)	       /* any scored conditions encountered? */
-	       { lastscore=score;			   /* save it for $= */
-		 if(i&&score<=0)
-		    i=0;			     /* it was not a success */
-	       }
+	      lastscore=score;				   /* save it for $= */
+	      if(scored&&i&&score<=0)
+		 i=0;				     /* it was not a success */
 	    }
 	   if(!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC])
 	      lastcond=i;		   /* save the outcome for posterity */

@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.3 1992/11/11 13:58:08 berg Exp $
+#$Id: Makefile,v 1.4 1993/11/29 17:22:34 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -12,5 +12,5 @@ init:
 
 Makefile makefile Makefiles makefiles: init
 
-procmail.1 procmailrc.5 procmailex.5 lockfile.1 formail.1: init
+procmail.1 procmailrc.5 procmailsc.5 procmailex.5 lockfile.1 formail.1: init
 	$(HIDEMAKE) make $@

@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.29 1993/11/24 19:46:00 berg Exp $
+.Id $Id: procmail.man,v 1.30 1993/11/29 17:22:37 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -56,6 +56,10 @@ have been made to enable procmail to be invoked in a special sendmail rule.
 .PP
 The rcfile format is described in detail in the
 .BR procmailrc (5)
+man page.
+.PP
+The weighted scoring technique is described in detail in the
+.BR procmailsc (5)
 man page.
 .PP
 Examples for rcfile recipes can be looked up in the
@@ -216,6 +220,7 @@ temporary `unique' zero-length files created by procmail
 .na
 .nh
 .BR procmailrc (5),
+.BR procmailsc (5),
 .BR procmailex (5),
 .BR sh (1),
 .BR csh (1),

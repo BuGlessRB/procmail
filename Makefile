@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.41 1993/11/26 16:30:36 berg Exp $
+#$Id: Makefile,v 1.42 1993/11/29 17:22:20 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -86,7 +86,7 @@ DEVNULL = /dev/null
 SUBDIRS = src man
 BINSS	= procmail lockfile formail mailstat
 MANS1S	= procmail formail lockfile
-MANS5S	= procmailrc procmailex
+MANS5S	= procmailrc procmailsc procmailex
 
 # Makefile - mark, don't (re)move this, a sed script needs it
 

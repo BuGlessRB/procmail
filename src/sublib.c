@@ -1,4 +1,4 @@
-/*$Id: sublib.c,v 1.8 1993/01/26 12:30:51 berg Exp $*/
+/*$Id: sublib.c,v 1.9 1993/11/29 17:23:04 berg Exp $*/
 #include "includes.h"
 #include "sublib.h"
 
@@ -83,7 +83,7 @@ long strtol(start,ptr,base)const char*start,**const ptr;
   do
    { found=1;result=result*base+i;str++;		 /* start converting */
 jumpin:
-     if((i= *str-'0')<10);
+     if((i=(unsigned)*str-'0')<10);
      else if(i-'A'+'0'<='Z'-'A')
 	i-='A'-10-'0';			   /* collating sequence dependency! */
      else if(i-'a'+'0'<'z'-'a')

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.21 1993/11/26 16:25:04 berg Exp $";
+ "$Id: goodies.c,v 1.22 1993/11/29 17:22:52 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -269,20 +269,20 @@ void ltstr(minwidth,val,dest)const int minwidth;const long val;char*dest;
 
 double stod(str,ptr)const char*str;const char**const ptr;
 { int sign,any;unsigned i;char*chp;double acc,fracc;
-  fracc=1;acc=any=sign=0;chp=skpspace(str);
-  switch(*chp)							 /* the sign */
+  fracc=1;acc=any=sign=0;
+  switch(*(chp=skpspace(str)))					 /* the sign */
    { case '-':sign=1;
      case '+':chp++;
    }
-  while((i= *chp++-'0')<=9)			 /* before the decimal point */
+  while((i=(unsigned)*chp++-'0')<=9)		 /* before the decimal point */
      acc=acc*10+i,any=1;
   switch(i)
-   { case '.':case ',':
-	while(fracc/=10,(i= *chp++-'0')<=9)	  /* and the fractional part */
+   { case (unsigned)'.'-'0':case (unsigned)','-'0':
+	while(fracc/=10,(i=(unsigned)*chp++-'0')<=9)  /* the fractional part */
 	   acc+=fracc*i,any=1;
    }
   if(ptr)
-     *ptr=any?chp:str;
+     *ptr=any?chp-1:str;
   return sign?-acc:acc;
 }
 

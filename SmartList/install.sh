@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.31 1993/11/24 19:45:32 berg Exp $
+#$Id: install.sh,v 1.32 1993/11/29 17:22:30 berg Exp $
 
 SHELL=/bin/sh
 export SHELL
@@ -126,6 +126,12 @@ fi
 
 echo '**********************************************************************'
 echo "Finished installing, now you should"
-echo "edit $target/.etc/rc.init to make sure"
+if test -f $target/.etc/rc.init.new
+then
+  echo "edit $target/.etc/rc.init.new, AND move it over the"
+  echo "old $target/.etc/rc.init to make sure"
+else
+  echo "edit $target/.etc/rc.init to make sure"
+fi
 echo "that \`PATH', \`domain' and \`listmaster' reflect your installation."
 echo '**********************************************************************'

@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.29 1993/11/24 19:46:32 berg Exp $*/
+/*$Id: includes.h,v 1.30 1993/11/29 17:22:56 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -360,7 +360,7 @@ extern void*memmove();
 #define maxindex(x)	(sizeof(x)/sizeof((x)[0])-1)
 #define STRLEN(x)	(sizeof(x)-1)
 #define ioffsetof(s,m)	((int)offsetof(s,m))
-#define numeric(x)	((unsigned)((x)-'0')<='9'-'0')
+#define numeric(x)	((unsigned)(x)-'0'<='9'-'0')
 #define charNUM(num,v)	char num[8*sizeof(v)*4/10+1+1]
 
 #define mx(a,b)		((a)>(b)?(a):(b))

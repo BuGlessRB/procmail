@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.20 1993/09/08 12:44:30 berg Exp $
+.Id $Id: procmailex.man,v 1.21 1993/11/29 17:22:40 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -9,6 +9,10 @@ procmailex \- procmail rcfile examples
 .Sh DESCRIPTION
 For a description of the rcfile format see
 .BR procmailrc (5).
+.PP
+The weighted scoring technique is described in detail in the
+.BR procmailsc (5)
+man page.
 .PP
 This man page shows several example recipes.  For examples of complete rcfiles
 you can check the NOTES section in
@@ -323,6 +327,7 @@ urgent
 .nh
 .BR procmail (1),
 .BR procmailrc (5),
+.BR procmailsc (5),
 .BR sh (1),
 .BR csh (1),
 .BR mail (1),
