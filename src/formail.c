@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.48 1994/06/09 10:11:30 berg Exp $";
+ "$Id: formail.c,v 1.49 1994/06/09 14:18:42 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/06/09 10:11:30 $";
+static /*const*/char rcsdate[]="$Date: 1994/06/09 14:18:42 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -330,10 +330,48 @@ startover:
 	   nowm=trust?sest[i].wtrepl:areply?sest[i].wrepl:i;chp+=j;
 	   tmp=malloc(j=fldp->tot_len-j);tmemmove(tmp,chp,j);
 	   (chp=tmp)[j-1]='\0';
-	   if(!trust&&sest[i].head==From_&&strchr(chp,'\n'))
-	    { for(chp+=j-1;*--chp!='\n';);   /* skip to the last uucp >From_ */
-	      if(!(chp=strchr(chp,' ')))
-		 chp=tmp;
+	   if(sest[i].head==From_)
+	    { char*pastad;
+	      if(trust||!(saddr=strchr(chp,'\n')))   /* skip the first line? */
+		 saddr=chp;					  /* no need */
+	      if(*saddr=='\n'&&(pastad=strchr(saddr,' ')))
+		 saddr=pastad+1;		/* reposition at the address */
+	      chp=saddr;
+	      while((pastad=strchr(chp,'\n'))&&(pastad=strchr(pastad,' ')))
+		 chp=pastad+1;		      /* skip to the last uucp >From */
+	      if(pastad=strchr(chp,' '))		/* found an address? */
+	       { char*savetmp;				      /* lift it out */
+		 savetmp=malloc((j=pastad-chp)+1);tmemmove(savetmp,chp,j);
+		 savetmp[j]='\0';
+		 if(strchr(savetmp,'@'))		 /* domain attached? */
+		    chp=savetmp,savetmp=tmp,tmp=chp;		/* ok, ready */
+		 else				/* no domain, bang away! :-) */
+		  { static const char remf[]=" remote from ",
+		     fwdb[]=" forwarded by ";
+		    char*p1,*p2;
+		    chp=tmp;
+		    for(;;)
+		     { int c;
+		       p1=strstr(saddr,remf);
+		       if(!(p2=strstr(saddr,fwdb))&&!p1)
+			  break;			     /* no more info */
+		       if(!p1||p2&&p2<p1)	      /* pick the first bang */
+			  p1=p2+STRLEN(fwdb);
+		       else
+			  p1+=STRLEN(remf);
+		       for(;;)				     /* copy it over */
+			{ switch(c= *p1++)
+			   { default:*chp++=c;continue;
+			     case '\0':case '\n':*chp++='!'; /* for the buck */
+			   }
+			  break;
+			}
+		       saddr=p1;			/* continue the hunt */
+		     }
+		    strcpy(chp,savetmp);chp=tmp;     /* attach the user part */
+		  }
+		 free(savetmp);	  /* (temporary buffers might have switched) */
+	       }
 	    }
 	   while(*(chp=skpspace(chp))=='\n')
 	      chp++;
