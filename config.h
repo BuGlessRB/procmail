@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.43 1994/02/24 11:46:57 berg Exp $*/
+/*$Id: config.h,v 1.44 1994/03/10 16:19:57 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -155,11 +155,12 @@ root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
 #define FROMWHOPT	'f'			   /* set name on From_ line */
 #define REFRESH_TIME	'-'		     /* when given as argument to -f */
 #define ALTFROMWHOPT	'r'		/* alternate and obsolete form of -f */
+#define OVERRIDEOPT	'o'		     /* do not generate >From_ lines */
 #define ARGUMENTOPT	'a'					   /* set $1 */
 #define DELIVEROPT	'd'		  /* deliver mail to named recipient */
 #define PM_USAGE	\
- "Usage: procmail [-vpt] [-f fromwhom] [parameter=value | rcfile] ...\
-\n   Or: procmail [-pt] [-f fromwhom] [-a argument] -d recipient ...\
+ "Usage: procmail [-vpto] [-f fromwhom] [parameter=value | rcfile] ...\
+\n   Or: procmail [-pto] [-f fromwhom] [-a argument] -d recipient ...\
 \n   Or: procmail [-pt] -m [parameter=value] ... rcfile mail_from rcpt_to ...\
 \n"
 #define PM_HELP		\
@@ -167,6 +168,7 @@ root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
 \n\t-p\t\tpreserve (most of) the environment upon startup\
 \n\t-t\t\tfail softly if mail is undeliverable\
 \n\t-f fromwhom\t(re)generate the leading 'From ' line\
+\n\t-o override the leading 'From ' line if necessary\
 \n\t-a argument\twill set $1\
 \n\t-d recipient\texplicit delivery mode\
 \n\t-m\t\tact as a general purpose mail filter\n"
@@ -179,11 +181,10 @@ root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
 \n\tE  else execute this recipe, if the preceding condition didn't match\
 \n\te  on error execute this recipe, if the previous recipe failed\
 \n\th  deliver header (default)\tb  deliver body (default)\
-\n\tf  filter\
+\n\tf  filter\t\t\ti  ignore write errors\
 \n\tc  continue with the next recipe in any case\
 \n\tw  wait for a filter or program\
-\n\tW  same as 'w', but suppress 'Program failure' messages\
-\n\ti  ignore write errors\n"
+\n\tW  same as 'w', but suppress 'Program failure' messages\n"
 
 #define MINlinebuf	128    /* minimal LINEBUF length (don't change this) */
 #define FROM_EXPR	"\nFrom "
@@ -224,6 +225,7 @@ root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
 #define BABYL_SEP2	'\f'		       /* BABYL format separator two */
 #define DEFfileno	"FILENO=000"		/* split counter for formail */
 #define LEN_FILENO_VAR	7			       /* =strlen("FILENO=") */
+#define CHILD_FACTOR	3/4 /* do not parenthesise; average running children */
 
 #define FM_SKIP		'+'		      /* skip the first nnn messages */
 #define FM_TOTAL	'-'	    /* only spit out a total of nnn messages */
@@ -242,7 +244,8 @@ root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
 #define DEFminfields	2	    /* before a header is recognised as such */
 #define FM_DIGEST	'd'				 /* split up digests */
 #define FM_BABYL	'B'		/* split up BABYL format rmail files */
-#define FM_QUIET	'q'		    /* ignore write errors on stdout */
+#define FM_QUIET	'q'					 /* be quiet */
+#define FM_DUPLICATE	'D'		/* return success on duplicate mails */
 #define FM_EXTRACT	'x'			   /* extract field contents */
 #define FM_EXTRC_KEEP	'X'				    /* extract field */
 #define FM_ADD_IFNOT	'a'		 /* add a field if not already there */
@@ -251,27 +254,27 @@ root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
 #define FM_DEL_INSERT	'I'			/* delete and insert a field */
 #define FM_ReNAME	'R'				   /* rename a field */
 #define FM_USAGE	"\
-Usage: formail [-bcfrktq] [-p prefix] [-l folder] [-xXaAiI field]\n\
-\t[-R ofield nfield]\n\
-   Or: formail [+nnn] [-nnn] [-bcfrktnedqB] [-p prefix] [-m nnn] [-l folder]\n\
-\t[-xXaAiI field] [-R ofield nfield] -s [prg [arg ...]]\n"
+Usage: formail [-bcfrktq] [-D nnn idcache] [-p prefix] [-l folder]\n\
+\t[-xXaAiI field] [-R ofield nfield]\n\
+   Or: formail [+nnn] [-nnn] [-bcfrktnedqB] [-D nnn idcache] [-p prefix]\n\
+\t[-m nnn] [-l folder] [-xXaAiI field] [-R ofield nfield]\n\
+\t-s [prg [arg ...]]\n"
 #define FM_HELP		\
- "\t-b\tdon't escape bogus mailbox headers\
-\n\t-p prefix\tdefine quotation prefix\
-\n\t-c\tconcatenate continued header-fields\
-\n\t-f\tforce formail to pass along any non-mailbox format\
-\n\t-r\tgenerate an auto-reply header, preserve fields with -i\
-\n\t-k\ton auto-reply keep the body, prevent escaping with -b\
-\n\t-t\ttrust the sender for his return address\
-\n\t-l folder\tgenerate a procmail-compatible log summary\
-\n\t-q\tbe quiet about write errors on stdout\
-\n\t-s prg arg\tsplit the mail, startup prg for every message\
-\n\t+nnn\tskip the first nnn\t-nnn\toutput at most nnn messages\
-\n\t-n\tdon't wait for every prg while splitting\
-\n\t-e\tdon't require empty lines to precede a header\
-\n\t-d\taccept digest format\t-B\taccept BABYL rmail format\
-\n\t-m nnn\tmin fields threshold (default 2) for start of message\
-\n\t-x field   extract contents\t-X field   extract fully\
-\n\t-a field   add if not present\t-A field   add in any case\
-\n\t-i field   rename and insert\t-I field   delete and insert\
-\n\t-R oldfield newfield\trename\n"
+ " -b\t\tdon't escape bogus mailbox headers\
+\n -c\t\tconcatenate continued header-fields\
+\n -f\t\tforce formail to pass along any non-mailbox format\
+\n -r\t\tgenerate an auto-reply header, preserve fields with -i\
+\n -k\t\ton auto-reply keep the body, prevent escaping with -b\
+\n -t\t\ttrust the sender for his return address\
+\n -l folder\tgenerate a procmail-compatible log summary\
+\n -D nnn idcache\tdetect duplicates with an idcache of length nnn\
+\n -s prg arg\tsplit the mail, startup prg for every message\
+\n +nnn\t\tskip the first nnn\t-nnn\toutput at most nnn messages\
+\n -n\t\tdon't serialise splits\t-e\tempty lines are optional\
+\n -d\t\taccept digest format\t-B\taccept BABYL rmail format\
+\n -q\t\tbe quiet\t\t-p prefix\tquotation prefix\
+\n -m nnn \tmin fields threshold (default 2) for start of message\
+\n -x field\textract contents\t-X field\textract fully\
+\n -a field\tadd if not present\t-A field\tadd in any case\
+\n -i field\trename and insert\t-I field\tdelete and insert\
+\n -R oldfield newfield\trename\n"

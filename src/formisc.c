@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.21 1994/02/24 11:47:23 berg Exp $";
+ "$Id: formisc.c,v 1.22 1994/03/10 16:21:20 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -145,6 +145,7 @@ squelch:
   dup(oldstdout);
   if(*argv)			    /* do we have to start a program at all? */
    { int poutfd[2];
+     static children;
      if(lenfileno>=0)
       { long val=initfileno++;char*chp;
 	chp=ffileno+LEN_FILENO_VAR;
@@ -155,7 +156,16 @@ squelch:
 	   *chp++='0';
       }
      pipe(poutfd);
-     if(!(child=fork()))     /* DON'T fclose(stdin), provokes a bug on HP/UX */
+     ;{ int maxchild=(unsigned long)children*CHILD_FACTOR,excode;
+	while((child=fork())==-1&&children)	       /* reap some children */
+	   for(--children;(excode=waitfor((pid_t)0))!=NO_PROCESS;)
+	    { if(excode!=EX_OK)
+		 retval=excode;
+	      if(--children<=maxchild)
+		 break;
+	    }
+      }
+     if(!child)		     /* DON'T fclose(stdin), provokes a bug on HP/UX */
       { close(STDIN);close(oldstdout);close(PWRO);dup(PRDO);close(PRDO);
 	shexec(argv);
       }
@@ -165,6 +175,7 @@ squelch:
      close(PWRO);
      if(-1==child)
 	nlog("Can't fork\n"),exit(EX_OSERR);
+     children++;
    }
   if(!(mystdout=Fdopen(STDOUT,"a")))
      nofild();

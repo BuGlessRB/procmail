@@ -1,19 +1,19 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.40 1994/03/01 13:45:12 berg Exp $
+.Id $Id: procmail.man,v 1.41 1994/03/10 16:20:46 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
 procmail \- autonomous mail processor
 .SH SYNOPSIS
 .B procmail
-.RB [ \-@PRESERVOPT@@TEMPFAILOPT@ ]
+.RB [ \-@PRESERVOPT@@TEMPFAILOPT@@OVERRIDEOPT@ ]
 .RB [ "\-@FROMWHOPT@ \fIfromwhom\fP" ]
 .RI [ "parameter\fB=\fPvalue " | " rcfile" ]
 \&.\|.\|.
 .br
 .B procmail
-.RB [ \-@PRESERVOPT@@TEMPFAILOPT@ ]
+.RB [ \-@PRESERVOPT@@TEMPFAILOPT@@OVERRIDEOPT@ ]
 .RB [ "\-@FROMWHOPT@ \fIfromwhom\fP" ]
 .RB [ "\-@ARGUMENTOPT@ \fIargument\fP" ]
 .B \-@DELIVEROPT@
@@ -123,6 +123,10 @@ obsolete \-@ALTFROMWHOPT@).  If
 consists merely of a single `@REFRESH_TIME@', then procmail will only
 update the timestamp on the `@FROM@' line (if present, if not, it will
 generate a new one).
+.TP
+.B \-@OVERRIDEOPT@
+Instead of allowing anyone to generate `@FROM@' lines, simply override
+the fakes.
 .TP
 .I "\fB\-@ARGUMENTOPT@\fP argument"
 This will set $1 to be equal to
@@ -565,9 +569,10 @@ the single and double quotes, and it
 .I must
 be an
 .I absolute
-path.  The `#YOUR_USERNAME' is not actually a parameter that is required by
-procmail, in fact, it will be discarded by sh before procmail ever sees it;
-it is however a necessary kludge against overoptimising sendmail programs:
+path.  The \fB#\fP\fIYOUR_USERNAME\fP is not actually a parameter that is
+required by procmail, in fact, it will be discarded by sh before procmail ever
+sees it; it is however a necessary kludge against overoptimising sendmail
+programs:
 .PP
 .na
 .nf

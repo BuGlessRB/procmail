@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.79 1994/02/18 18:43:27 berg Exp $
+#$Id: autoconf,v 1.80 1994/03/10 16:21:05 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -98,8 +98,7 @@ shift; ACONF=$1
 test 1 != $# &&
  echo "Don't start this script directly, use \`make ../autoconf.h'" && exit 1
 
-LANG=""
-export SHELL PATH LANG
+export SHELL PATH
 
 test "X$LOCKINGTEST" = X__defaults__ && LOCKINGTEST=""
 
@@ -109,6 +108,18 @@ echo "" >_locktst.pid
 
 if test -f $ACONF
 then
+  if $FGREP -e "/* autoconf completed */" $ACONF >$DEVNULL
+  then
+     cat <<HERE
+==============================================================================
+Would you like to skip running autoconf and use the existing autoconf.h file?
+When in doubt, press return [n]:
+HERE
+     read a
+     case "$a"n in
+	[yY]*) touch $ACONF; exit 0;;
+     esac
+  fi
   trap "kill \`cat _locktst.pid\` 2>$DEVNULL;cp $ACONF $ACONF.tmp
    $RM -r \$OLDTESTDIRS;test ! -z \"\$tailpid\" && kill \$tailpid 2>$DEVNULL
    kill \`cat _locktst.pid\` 2>$DEVNULL; exit 1" 1 2 3 15
@@ -1126,6 +1137,8 @@ then
   echo "Removing core file (probably from the locking tests)"
   $RM *core*
 fi
+
+echo "/* autoconf completed */" >>$ACONF
 
 $RM -r $OLDTESTDIRS 2>$DEVNULL
 $RM _autotst* _locktst* lookfor grepfor 2>$DEVNULL

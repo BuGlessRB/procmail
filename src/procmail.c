@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.69 1994/03/01 13:45:26 berg Exp $";
+ "$Id: procmail.c,v 1.70 1994/03/10 16:21:38 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -34,7 +34,7 @@ static const char fdefault[]="DEFAULT",orgmail[]="ORGMAIL",*const nullp,
  systm_mbox[]=SYSTEM_MBOX,pmusage[]=PM_USAGE,DEFdeflock[]=DEFdefaultlock,
  *etcrc=ETCRC,misrecpt[]="Missing recipient\n",extrns[]="Extraneous ",
  ignrd[]=" ignored\n",conflicting[]="Conflicting ",
- suppressed[]=" suppressed\n";
+ suppressed[]=" suppressed\n",insufprivs[]="Insufficient privileges\n";
 char*buf,*buf2,*loclock,*tolock;
 const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
  shellmetas[]="SHELLMETAS",lockext[]="LOCKEXT",newline[]="\n",binsh[]=BinSh,
@@ -59,10 +59,10 @@ main(argc,argv)const char*const argv[];
 #if 0				/* enable this if you want to trace procmail */
   kill(getpid(),SIGSTOP);/*raise(SIGSTOP);*/
 #endif
-  ;{ int Deliverymode,mailfilter;char*fromwhom=0;const char*idhint=0;
+  ;{ int Deliverymode,mailfilter,override;char*fromwhom=0;const char*idhint=0;
      gid_t egid=getegid();
 #define Presenviron	i
-     Deliverymode=mailfilter=0;thepid=getpid();
+     Deliverymode=mailfilter=override=0;thepid=getpid();
      if(argc)			       /* sanity check, any argument at all? */
       { Deliverymode=strncmp(lastdirsep(argv0=argv[0]),procmailn,
 	 STRLEN(procmailn));
@@ -74,6 +74,7 @@ main(argc,argv)const char*const argv[];
 		    elog(PM_QREFERENCE);return EX_USAGE;
 		 case PRESERVOPT:Presenviron=1;continue;
 		 case MAILFILTOPT:mailfilter=1;continue;
+		 case OVERRIDEOPT:override=1;continue;
 		 case TEMPFAILOPT:retval=EX_TEMPFAIL;continue;
 		 case FROMWHOPT:case ALTFROMWHOPT:
 		    if(*++chp2)
@@ -196,7 +197,14 @@ privileged:				       /* move stdout out of the way */
 	filled=0;
 	;{ const char*fwhom;size_t lfr,linv;int tstamp;
 	   tstamp=fromwhom&&*fromwhom==REFRESH_TIME&&!fromwhom[1];
-	   fwhom=fromwhom&&!tstamp?fromwhom:chp2;
+	   fwhom=chp2;			 /* set it to the invoker by default */
+	   if(fromwhom)
+	    { if(!tstamp)
+	       { if(!privs&&!strcmp(fromwhom,fwhom))	/* if -f user is the */
+		    privs=1;	       /* same user as the invoker, allow it */
+		 fwhom=fromwhom;	  /* set it to the -f user specified */
+	       }
+	    }
 	   thebody=themail=
 	    malloc(2*linebuf+(lfr=strlen(fwhom))+(linv=strlen(chp2)));
 	   if(Deliverymode||fromwhom)  /* need to peek for a leading From_ ? */
@@ -206,7 +214,7 @@ privileged:				       /* move stdout out of the way */
 	       }
 	      lfr+=STRLEN(From_)+(r=strlen(buf2));
 	      if(tstamp)
-		 tstamp=r;
+		 tstamp=r;			   /* save time stamp length */
 	      if(privs)					 /* privileged user? */
 		 linv=0;		 /* yes, so no need to insert >From_ */
 	      else
@@ -220,45 +228,54 @@ privileged:				       /* move stdout out of the way */
 		  { do				     /* drop long From_ line */
 		     { if((i=rread(STDIN,themail,(int)(linebuf-2)))<=0)
 			  break;
-		       themail[i]='\0';
+		       themail[i]='\0';		  /* terminate it for strchr */
 		     }
 		    while(!(rstart=strchr(themail,'\n')));
-		    i=rstart?i-(++rstart-themail):0;
+		    i=rstart?i-(++rstart-themail):0;goto no_from;
 		  }
-		 else
-		  { size_t tfrl;
-		    i-=tfrl=++rstart-themail;
+		 ;{ size_t tfrl;
+		    i-=tfrl= ++rstart-themail;	     /* demarcate From_ line */
+		    if(Deliverymode&&override&&!privs)
+		     { if(verbose)		  /* discard the bogus From_ */
+			  nlog(insufprivs);
+		       goto no_from;
+		     }
 		    if(tstamp)
 		       lfr=findtstamp(themail+STRLEN(From_),rstart)
 			-themail+tstamp;
 		    else if(!fromwhom)	       /* leave the From_ line alone */
-		       if(linv)
-			  lfr=tfrl;
+		       if(linv)				      /* fake alert? */
+			  lfr=tfrl;  /* yes, so separate From_ from the rest */
 		       else
-			  lfr=0,i+=tfrl;
+			  lfr=0,i+=tfrl;	/* no, tack it onto the rest */
 		  }
 	       }
 	      else
-	       { tstamp=0;
-		 if(!fromwhom)
-		    linv=0;
+no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
+		 if(fromwhom&&override&&!privs)
+		  { if(verbose)
+		       nlog(insufprivs);
+		    fromwhom=0;			      /* ignore the bogus -f */
+		  }
+		 if(!fromwhom)					  /* no -f ? */
+		    linv=0;			  /* then it can't be a fake */
 	       }
-	      filled=lfr+linv+i;
+	      filled=lfr+linv+i;		    /* From_ + >From_ + rest */
 	      if(lfr||linv)	     /* move read text beyond our From_ line */
 	       { r= *rstart;tmemmove(themail+lfr+linv,rstart,i);
-		 rstart=themail+lfr;
-		 if(!linv)
-		  { rstart[-tstamp]='\0';
-		    if(!tstamp)
-		       strcat(strcpy(themail,From_),fwhom);
+		 rstart=themail+lfr;	      /* skip the From_ line, if any */
+		 if(!linv)				    /* no fake alert */
+		  { rstart[-tstamp]='\0';	       /* where do we append */
+		    if(!tstamp)		 /* no timestamp, so generate it all */
+		       strcat(strcpy(themail,From_),fwhom);	/* From user */
 		  }
 		 else
-		  { if(lfr)
-		       if(tstamp)
+		  { if(lfr)			/* did we skip a From_ line? */
+		       if(tstamp)	 /* copy the timestamp over the tail */
 			  strcpy(rstart-tstamp,buf2);
-		       else if(fromwhom)
+		       else if(fromwhom)		 /* whole new From_? */
 			  strcat(strcat(strcpy(themail,From_),fwhom),buf2);
-		    strcat(strcpy(rstart,Fakefield),chp2);
+		    strcat(strcpy(rstart,Fakefield),chp2);     /* fake alert */
 		  }			  /* overwrite the trailing \0 again */
 		 strcat(themail,buf2);themail[lfr+linv]=r;
 	       }
@@ -294,7 +311,7 @@ privileged:				       /* move stdout out of the way */
 	      passinvk&&passinvk->pw_uid==pass->pw_uid||
 	      euid==pass->pw_uid&&egid==pass->pw_gid)
 	      goto Setuser;
-	   nlog("Insufficient privileges\n");
+	   nlog(insufprivs);
 	 }
 	if(idhint&&(pass=getpwnam(idhint))&&
 	    passinvk&&passinvk->pw_uid==pass->pw_uid||
@@ -786,7 +803,9 @@ progrm:	   if(testb('!'))				 /* forward the mail */
 	       { if(startchar==themail)
 		  { startchar[filled]='\0';		     /* just in case */
 		    if(eqFrom_(startchar))    /* leave off any leading From_ */
-		       while(i= *startchar++,--tobesent&&i!='\n');
+		       do
+			  while(i= *startchar++,--tobesent&&i!='\n');
+		       while(*startchar=='>'&&eqFrom_(startchar+1));
 		  }				 /* it confuses some mailers */
 		 goto forward;
 	       }

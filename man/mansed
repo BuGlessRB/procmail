@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.18 1994/02/11 18:00:54 berg Exp $
+#$Id: mansed,v 1.19 1994/03/10 16:20:42 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -101,7 +101,7 @@ Stephen R. van den Berg at RWTH-Aachen, Germany
 @MY_MAIL_ADDR@
 .\" @MY_ALT_MAIL_ADDR@
 .Re
-.if n .pl -(\n(.tu-1i)
+.\".if n .pl -(\n(.tu-1i)
 HERE
  )| sed -f man.sed |
  if test -f man.sed.1

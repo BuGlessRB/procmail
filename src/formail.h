@@ -1,4 +1,4 @@
-/*$Id: formail.h,v 1.7 1994/02/24 11:47:21 berg Exp $*/
+/*$Id: formail.h,v 1.8 1994/03/10 16:21:17 berg Exp $*/
 
 #define Bsize		128
 
@@ -21,7 +21,7 @@ extern errout,oldstdout,quiet,buflast,lenfileno;
 extern long initfileno;
 extern pid_t child;
 extern FILE*mystdout;
-extern nrskip,nrtotal;
+extern int nrskip,nrtotal,retval;
 extern size_t buflen,buffilled;
 extern long totallen;
 extern char*buf,*logsummary;

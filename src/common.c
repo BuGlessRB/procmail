@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: common.c,v 1.14 1994/01/11 13:16:57 berg Exp $";
+ "$Id: common.c,v 1.15 1994/03/10 16:21:08 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -70,7 +70,9 @@ int waitfor(pid)const pid_t pid;	      /* wait for a specific process */
 { int i;pid_t j;
   while(pid!=(j=wait(&i))||WIFSTOPPED(i))
      if(-1==j)
-	return -256;
+	return NO_PROCESS;
+     else if(!pid)
+	break;
   return lexitcode=WIFEXITED(i)?WEXITSTATUS(i):-WTERMSIG(i);
 }
 

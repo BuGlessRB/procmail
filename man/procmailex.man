@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.26 1994/02/24 11:47:10 berg Exp $
+.Id $Id: procmailex.man,v 1.27 1994/03/10 16:20:50 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -216,6 +216,18 @@ DUMMY=`test \-d $MONTHFOLDER || mkdir $MONTHFOLDER`
 * meeting
 ${MONTHFOLDER}/meeting
 .Ex
+If you are subscribed to several mailinglists and people cross-post to
+some of them, you usually receive several duplicate mails (one from every
+list).  The following simple recipe eliminates duplicate mails.  It tells
+formail to keep an 8KB cache file in which it will store the Message-IDs of
+the most recent mails you received.  Since Message-IDs are guaranteed to
+be unique for every new mail, they are ideally suited to weed out duplicate
+mails.  Simply put the following recipe at the top of your rcfile, and
+no duplicate mail will get past it.
+.Sx 2
+:0 @WAIT_EXIT_QUIET@@PASS_HEAD@: msgid.lock
+| formail \-@FM_DUPLICATE@ 8192 msgid.cache
+.Ex
 When delivering to emacs folders (i.e. mailfolders managed by any emacs
 mail package, e.g. RMAIL or VM) directly, you should use emacs-compatible
 lockfiles.  The emacs mailers are a bit braindamaged in that respect, they get
@@ -228,6 +240,10 @@ MAILDIR=Mail
 * ^Subject:.*whatever
 mailbox
 .Ex
+Alternatively, you can have procmail deliver into its own set of mailboxes,
+which you then periodically empty and copy over to your emacs files using
+.BR movemail .  Movemail uses mailbox.lock local lockfiles per mailbox.
+.PP
 To extract certain headers from a mail and put them into environment
 variables you can use any of the following constructs:
 .Sx 5
@@ -401,7 +417,7 @@ DEFAULT=|     # pipe to stdout instead of
 
   :0 @ALSO_NEXT_RECIPE@@FILTER@@PASS_HEAD@@WAIT_EXIT@
   | formail \-I 'MIME-Version: 1.0' \e
-     \-I 'Content-Type: text/plain; charset=3DISO-8859-1' \e
+     \-I 'Content-Type: text/plain; charset=ISO-8859-1' \e
      \-I 'Content-Transfer-Encoding: quoted-printable'
 .Ex
 .SH "SEE ALSO"

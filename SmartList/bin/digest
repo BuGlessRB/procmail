@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.14 1994/03/01 13:44:56 berg Exp $
+#$Id: digest,v 1.15 1994/03/10 16:20:16 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -97,9 +97,7 @@ $echo "" >>$digestbody
 if $test ! -f $digesttrailer
 then
 
-  LANG=""
-  export LANG
-  Year=`$date +%y 2>&1`
+  Year=`LANG='' $date +%y 2>&1`
   case "$Year" in
      ????|??) ;;
      *) Year=`set \`$date\`; echo $6` ;;	# for the POSIX deprived

@@ -1,0 +1,79 @@
+#!/bin/sh
+#$Id: retrieve.local,v 1.1 1994/03/10 16:20:34 berg Exp $
+
+# This script provides an example on how to extend the default archive
+# server with your own custom commands (for more info, look in the
+# .bin/arch_retrieve script).  For this to work, you should put this
+# script in the .bin directory or the directory of a list itself.
+
+# Since this script is sourced, and not executed, environment changes
+# will be propagated back to the arch_retrieve script; also, you should
+# not "exit" from this script, since that will exit arch_retrieve as well.
+
+# $1 contains the command, the arguments have been expanded inside
+# the archive directory.
+# $line contains the original unexpanded command line.
+# $maxfiles can be queried.
+# $ILLEGAL can be set to first illegal filename encountered.
+# $from contains the mail address of the sender.
+# $tmpfrom is the name of the transaction logfile.
+# $tmprequest is the name of the file containing the original mail.
+
+# If a command has been found, you have to use "set" to clear $1 afterward,
+# so as to notify the arch_retrieve script.
+
+# A template entry is provided below:
+
+case "$1" in
+#################### Start of template
+ find|\
+ FIND)
+
+    #
+    # Single out any arguments that can not be illegal
+    #
+
+    shift; regxp="$1"; shift
+    case "$*" in
+
+       #
+       # Now check for illegal file or pathnames
+       #
+
+       *[/\ ]..[/\ ]*|..[/\ ]*|*[/\ ]..|..|[-/]*|*\ /*)
+	  $echo $from ILLEGAL "$line" >>$tmpfrom
+	  $test -z "$ILLEGAL" && ILLEGAL="$line";;
+
+       #
+       # Log the archive request.
+       #
+
+       *) $echo $from "$line" >>$tmpfrom
+	( $formail -rt -I"Subject: archive retrieval: $line" \
+	   -i"From: $listreq" -A"X-Loop: $listaddr" \
+	   -I"Precedence: bulk" <$tmprequest
+	  $test ! -z "$wrongaddress" && $echo "$wrongaddress"
+	  cd $archivedir
+
+	  $echo "$line"
+	  $echo "BEGIN---------------cut here------------------"
+
+	  #
+	  # Insert your custom routines here...
+	  #
+
+	  $nice $egrep -n -i -e $regxp $* </dev/null 2>&1 |
+	   $sed -e $breakoff_search'a\
+Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
+
+	  #
+	  # Anything you echo to stdout here will end up in the mail.
+	  #
+
+	  $echo "END-----------------cut here------------------"
+
+	) | $SENDMAIL $sendmailOPT -t ;;
+    esac
+ set ;; # And clear the command line to notify arch_retrieve
+#################### End of template
+esac

@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.44 1994/02/24 11:47:33 berg Exp $";
+ "$Id: multigram.c,v 1.45 1994/03/10 16:21:33 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/02/24 11:47:33 $";
+static /*const*/char rcsdate[]="$Date: 1994/03/10 16:21:33 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -118,8 +118,8 @@ static void elog(a)const char*const a;
 { fputs(a,stderr);
 }
 							/* the program names */
-static const char idhash[]="idhash",idcheck[]="idcheck",flist[]="flist",
- senddigest[]="senddigest",dirsep[]=DIRSEP;
+static const char idhash[]="idhash",flist[]="flist",senddigest[]="senddigest",
+ dirsep[]=DIRSEP;
 static const char*progname="multigram";
 
 void nlog(a)const char*const a;		    /* log error with identification */
@@ -296,70 +296,6 @@ main(minweight,argv)char*argv[];
 	while(i=fgetc(stdin),!feof(stdin))		       /* hash away! */
 	   hash=hash*67067L+i;
 	printf("%lx",hash);return EX_OK;
-      }
-     if(!strcmp(chp,idcheck))				 /* idcheck program? */
-      { int quiet=0;char*buf;off_t maxlen,insoffs;FILE*cache;size_t k;
-	progname=idcheck;
-	;{ int i=1;size_t buflen;
-	   static const char idcusage[]=
-	    "Usage: idcheck [-q] maxcache filename\n";
-	   switch(minweight)			 /* four or three arguments? */
-	    { case 4:i++;
-		 if(*argv[1]=='-'&&argv[1][1]&&!argv[1][2])	  /* option? */
-		    switch(argv[1][1])
-		     { case HELPOPT1:case HELPOPT2:elog(idcusage);
-			  elog("\t-q\tquiet\n");return EX_USAGE;
-		       default:goto idcusg;
-		       case 'q':quiet=1;	    /* ok, so we'll be quiet */
-		     }
-		 else
-	      default:
-idcusg:		  { elog(idcusage);return EX_USAGE;
-		  }			  /* read in the cache-cutoff length */
-	      case 3:insoffs=maxlen=strtol(argv[i],(char**)0,10);
-		 if(!(cache=fopen(argv[++i],"r+b"))&&	  /* existing cache? */
-		  !(cache=fopen(argv[i],"w+b")))	    /* create cache? */
-		  { nlog("Couldn't open \"");elog(argv[i]);elog("\"\n");
-		    return EX_CANTCREAT;
-		  }
-	    }
-	   for(buf=malloc(buflen=BUFSTEP),k=0;
-	    buf[k]=fgetc(stdin),!feof(stdin);)
-	      if(++k==buflen-1)			      /* keep one char slack */
-		 buf=realloc(buf,buflen+=BUFSTEP);
-	   if(!k)					      /* empty input */
-	      return 1;					/* no duplicate then */
-	   buf[k]='\0';
-	 }
-	;{ int i;char*p;
-	   do			  /* start reading & comparing the next word */
-	    { for(p=buf;(i=fgetc(cache))==*p;p++)
-		 if(!i)					     /* end of word? */
-		  { if(!quiet)
-		       nlog("Duplicate ID found:"),elog(buf);
-		    return EX_OK;		     /* YES! duplicate found */
-		  }
-	      if(!i)					     /* end of word? */
-	       { if(p==buf&&insoffs==maxlen)		 /* first character? */
-		  { insoffs=ftell(cache)-1;goto skiprest;	    /* found */
-		  }				   /* end of circular buffer */
-	       }
-	      else
-skiprest:	 for(;;)			/* skip the rest of the word */
-		  { switch(fgetc(cache))
-		     { case EOF:goto noluck;
-		       default:continue;
-		       case '\0':;
-		     }
-		    break;
-		  }
-	    }
-	   while(ftell(cache)<maxlen);			  /* past our quota? */
-	 }
-noluck: if(insoffs>=maxlen)				  /* past our quota? */
-	   insoffs=0;				     /* start up front again */
-	fseek(cache,insoffs,SEEK_SET);buf[++k]='\0';fwrite(buf,1,k+1,cache);
-	fclose(cache);return 1;		     /* clean up and report mismatch */
       }
      if(!strcmp(chp,senddigest))		      /* senddigest program? */
       { struct stat stbuf;

@@ -21,7 +21,7 @@ Contents:
 		6. Multigram and the thresholds in rc.init/rc.custom
 		7. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.26 1994/02/22 15:22:50 berg Exp $
+$Id: Manual,v 1.27 1994/03/10 16:20:04 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -364,7 +364,7 @@ Then, if it was a regular submission to thelist@domain:
 			- if needed does digest processing (and stop)
 		- archives the mail
 		- munges the header of the mail to taste
-		- fires of sendmail to send the mail to thelist-dist@domain
+		- fires off sendmail to send the mail to thelist-dist@domain
 	- If the mail was an administrative request, it does not get
 	  passed on to the list, instead, procmail pulls in rc.request
 
@@ -393,8 +393,7 @@ The files will be numbered.
 
 Now, normally, only the last two mails will be kept around, the others
 are periodically removed.  This in order to keep down the archiving costs
-for people with limited diskspace.  To disable archiving completely,
-edit the rc.submit file.  To simply make the archive-history longer,
+for people with limited diskspace.  To change the size of the archive-history
 edit the rc.custom file.  To get more sophisticated archiving, like grouping
 submissions monthly, you should either create a cron job or edit the
 .bin/arch_trunc file.

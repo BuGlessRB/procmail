@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.38 1994/02/24 11:47:19 berg Exp $";
+ "$Id: formail.c,v 1.39 1994/03/10 16:21:14 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/02/24 11:47:19 $";
+static /*const*/char rcsdate[]="$Date: 1994/03/10 16:21:14 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -93,7 +93,7 @@ char ffileno[LEN_FILENO_VAR+8*sizeof(initfileno)*4/10+1+1]=DEFfileno;
 int lexitcode;					     /* dummy, for waitfor() */
 pid_t child= -1;
 FILE*mystdout;
-int nrskip,nrtotal= -1;
+int nrskip,nrtotal= -1,retval=EX_OK;
 size_t buflen,buffilled;
 long totallen;
 char*buf,*logsummary;
@@ -132,8 +132,8 @@ static PROGID;
 
 main(lastm,argv)const char*const argv[];
 { int i,split=0,force=0,bogus=1,every=0,areply=0,trust=0,digest=0,nowait=0,
-   keepb=0,minfields=(char*)progid-(char*)progid,conctenate=0,retval=EX_OK,
-   babyl=0;
+   keepb=0,minfields=(char*)progid-(char*)progid,conctenate=0,babyl=0;
+  off_t maxlen,insoffs;FILE*idcache;
   size_t j,lnl,escaplen;char*chp,*namep,*escap=ESCAP;
   struct field*fldp,*fp2,**afldp,*fdate;
   if(lastm)			       /* sanity check, any argument at all? */
@@ -166,13 +166,20 @@ main(lastm,argv)const char*const argv[];
 		 goto usg;
 	      case HELPOPT1:case HELPOPT2:elog(fmusage);elog(FM_HELP);
 		 goto xusg;
-	      case FM_MINFIELDS:Qnext_arg();chp++;
+	      case FM_DUPLICATE:case FM_MINFIELDS:Qnext_arg();chp++;
 	      default:chp--;
 number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		    goto usg;
 		 i=strtol(chp,&chp,10);
 		 switch(lastm)			/* where does the number go? */
 		  { case FM_SKIP:nrskip=i;break;
+		    case FM_DUPLICATE:maxlen=i;Qnext_arg();
+		       if(!(idcache=fopen(chp,"r+b"))&&	  /* existing cache? */
+			  !(idcache=fopen(chp,"w+b")))	    /* create cache? */
+			{ nlog("Couldn't open");logqnl(argv[i]);
+			  return EX_CANTCREAT;
+			}
+		       goto nextarg;
 		    case FM_MINFIELDS:minfields=i;break;
 		    default:nrtotal=i;
 		  }
@@ -217,6 +224,7 @@ invfield:	     { nlog("Invalid field-name:");logqnl(chp?chp:"");
 	    }
 	   break;
 	 }
+nextarg:;
       }
 parsedoptions:
   escaplen=strlen(escap);mystdout=stdout;signal(SIGPIPE,SIG_IGN);
@@ -346,7 +354,49 @@ newnamep:	 if(namep)
 	while((rex[i].lenr!=j||strnIcmp(rex[i].headr,chp,j))&&i--);
 	chp+=j;
 	if(i>=0&&(j=fldp->tot_len-j)>1)			  /* found anything? */
-	   tmemmove(rex[i].rexp=realloc(rex[i].rexp,rex[i].rexl=j),chp,j);
+	 { tmemmove(rex[i].rexp=realloc(rex[i].rexp,(rex[i].rexl=j)+1),chp,j);
+	   rex[i].rexp[j]='\0';			     /* add a terminating \0 */
+	 }
+      }
+     if(idcache)
+      { int dupid=0;
+	if(msid->rexl)					/* any Message-ID: ? */
+	 { int i;char*p;			/* wipe out trailing newline */
+	   insoffs=maxlen;msid->rexp[msid->rexl-1]='\0';
+	   do			  /* start reading & comparing the next word */
+	    { for(p=msid->rexp;(i=fgetc(idcache))==*p;p++)
+		 if(!i)					     /* end of word? */
+		  { if(!quiet)
+		       nlog("Duplicate ID found:"),elog(msid->rexp),elog("\n");
+		    dupid=1;goto dupfound;	     /* YES! duplicate found */
+		  }
+	      if(!i)					     /* end of word? */
+	       { if(p==msid->rexp&&insoffs==maxlen)	 /* first character? */
+		  { insoffs=ftell(idcache)-1;goto skiprest;	    /* found */
+		  }				   /* end of circular buffer */
+	       }
+	      else
+skiprest:	 for(;;)			/* skip the rest of the word */
+		  { switch(fgetc(idcache))
+		     { case EOF:goto noluck;
+		       default:continue;
+		       case '\0':;
+		     }
+		    break;
+		  }
+	    }
+	   while(ftell(idcache)<maxlen);		  /* past our quota? */
+noluck:	   if(insoffs>=maxlen)				  /* past our quota? */
+	      insoffs=0;			     /* start up front again */
+	   fseek(idcache,insoffs,SEEK_SET);
+	   fwrite(msid->rexp,1,msid->rexl+1,idcache);
+dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
+	   msid->rexp[msid->rexl-1]='\n';	      /* restore the newline */
+	 }
+	if(!split)			  /* not splitting?  terminate early */
+	   return dupid?EX_OK:1;
+	if(dupid)			       /* duplicate? suppress output */
+	   closemine(),opensink();
       }
      tmemmove(parkedbuf=malloc(buffilled),buf,lenparkedbuf=buffilled);
      buffilled=0;    /* moved the contents of buf out of the way temporarily */
@@ -432,6 +482,8 @@ newnamep:	 if(namep)
    { logfolder();				   /* we throw away the rest */
      if(split)
 	closemine();
+     else		      /* terminate early, only the header was needed */
+	goto onlyhead;
      opensink();					 /* discard the body */
    }
   lnl=1;					  /* last line was a newline */
@@ -525,14 +577,15 @@ putsp:	lputcs(' ');
      else
 flbuf:	lputssn(buf,buffilled),buffilled=0;
    }			       /* make sure the mail ends with an empty line */
-  logfolder();closemine();
+  logfolder();
+onlyhead:
+  closemine();
   ;{ int excode;					/* wait for everyone */
-     while(-1!=wait(&excode)&&!WIFSTOPPED(excode))
-	if(retval==EX_OK&&
-	 (excode=WIFEXITED(excode)?WEXITSTATUS(excode):-1)!=EX_OK)
+     while((excode=waitfor((pid_t)0))!=NO_PROCESS)
+	if(retval==EX_OK&&excode!=EX_OK)
 	   retval=excode;
    }
-  if(retval==-1)
+  if(retval<0)
      retval=EX_UNAVAILABLE;
   return retval!=EX_OK?retval:split<0?EX_IOERR:EX_OK;
 }

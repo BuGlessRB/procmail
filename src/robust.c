@@ -6,12 +6,13 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.13 1993/11/24 19:47:04 berg Exp $";
+ "$Id: robust.c,v 1.14 1994/03/10 16:21:41 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
 #include "misc.h"
 #include "pipes.h"
+#include "common.h"
 #include "mailfold.h"
 
 #define nomemretry	noresretry
@@ -75,7 +76,8 @@ pid_t sfork P((void))			/* this fork can survive a temporary */
    { lcking|=lck_FORK;
      if(!(r<0||r--))
 	break;
-     suspend();
+     if(waitfor((pid_t)0)==NO_PROCESS)
+	suspend();
    }
   lcking&=~lck_FORK;return i;
 }

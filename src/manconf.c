@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.36 1994/02/24 11:47:26 berg Exp $*/
+/*$Id: manconf.c,v 1.37 1994/03/10 16:21:29 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -108,12 +108,12 @@ yourself.");
   puts("/^\\.ex/,/^\\.ex/ d");
 #ifndef MAILBOX_SEPARATOR
   ps("DOT_FORWARD",".forward");
-  ps("FW_content",
-   "\"|IFS=' '&&exec /usr/local/bin/procmail ||exit 75 #YOUR_USERNAME\"");
+  ps("FW_content","\"|IFS=' '&&exec /usr/local/bin/procmail ||\
+exit 75 \\fB#\\fP\\fIYOUR_USERNAME\\fP\"");
 #else
   ps("DOT_FORWARD",".maildelivery");
-  ps("FW_content",
-"* - | ? \"IFS=' '&&exec /usr/local/bin/procmail ||exit 75 #YOUR_USERNAME\"");
+  ps("FW_content","* - | ? \"IFS=' '&&exec /usr/local/bin/procmail ||\
+exit 75 \fB#\fP\fIYOUR_USERNAME\fP\"");
 #endif
   plist("PRESTENV","\1.PP\1Other preset environment variables are "
    ,prestenv,".",""," and ");
@@ -209,6 +209,7 @@ See also:\1.BR DROPPRIVS .":"");
   pc("FROMWHOPT",FROMWHOPT);
   pc("REFRESH_TIME",REFRESH_TIME);
   pc("ALTFROMWHOPT",ALTFROMWHOPT);
+  pc("OVERRIDEOPT",OVERRIDEOPT);
   pc("ARGUMENTOPT",ARGUMENTOPT);
   pc("DELIVEROPT",DELIVEROPT);
   pn("MINlinebuf",MINlinebuf);
@@ -252,6 +253,7 @@ See also:\1.BR DROPPRIVS .":"");
   pc("FM_DIGEST",FM_DIGEST);
   pc("FM_BABYL",FM_BABYL);
   pc("FM_QUIET",FM_QUIET);
+  pc("FM_DUPLICATE",FM_DUPLICATE);
   pc("FM_EXTRACT",FM_EXTRACT);
   pc("FM_EXTRC_KEEP",FM_EXTRC_KEEP);
   pc("FM_ADD_IFNOT",FM_ADD_IFNOT);

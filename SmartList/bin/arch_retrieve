@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.25 1994/01/18 16:10:37 berg Exp $
+#$Id: arch_retrieve,v 1.26 1994/03/10 16:20:13 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -59,6 +59,23 @@ $wrongaddress"
 	 archive|ARCHIVE|archive:|ARCHIVE:) shift
 	    $test ! -z "$wrongaddress" && wrongaddress="$oldwrongaddress";;
       esac
+      #
+      # Now call up the local extension file (if any)...
+      #
+      if test -f retrieve.local
+      then
+	 . retrieve.local
+      elif test -f ../SedBinDir/retrieve.local
+      then
+	 . ../SedBinDir/retrieve.local
+      elif test -f ../.bin/retrieve.local
+      then
+	 . ../.bin/retrieve.local
+      fi
+      #
+      # The extension file should have used "set" to clear $1 and tell that
+      # it has processed the current command
+      #
       case "$1" in
 	 maxfiles|MAXFILES)
 	    maxfiles=$2 ;;

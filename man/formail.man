@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.16 1994/02/24 11:47:07 berg Exp $
+.Id $Id: formail.man,v 1.17 1994/03/10 16:20:39 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -12,6 +12,9 @@ formail \- mail (re)formatter
 .RB [ \-@FM_BOGUS@@FM_CONCATENATE@@FM_FORCE@@FM_REPLY@@FM_KEEPB@@FM_TRUST@@FM_NOWAIT@@FM_EVERY@@FM_DIGEST@@FM_QUIET@@FM_BABYL@ ]
 .RB [ \-@FM_QPREFIX@
 .IR prefix ]
+.if n .ti +0.5i
+.RB [ \-@FM_DUPLICATE@
+.IR "maxlen idcache" ]
 .if n .ti +0.5i
 .RB [ \-@FM_EXTRACT@
 .IR "header field" ]
@@ -100,11 +103,12 @@ splitted mails on stdout again.  See
 .BR @FILENO@ .
 .TP
 .B \-@FM_NOWAIT@
-Tell formail not to wait for every program to finish before starting the next.
+Tell formail not to wait for every program to finish before starting the next
+(causes splits to be processed in parallel).
 .TP
 .B \-@FM_EVERY@
-Do not require empty lines preceding the header of a new message (i.e. the
-messages could start on every line).
+Do not require empty lines to be preceding the header of a new message (i.e.
+the messages could start on every line).
 .TP
 .B \-@FM_DIGEST@
 Tell formail that the messages it is supposed to split need not be in strict
@@ -120,7 +124,17 @@ before it decides it found the start of a new message, it defaults to
 @DEFminfields@.
 .TP
 .B \-@FM_QUIET@
-Tells formail to ignore any write errors on stdout.
+Tells formail not to report write errors on stdout and not to report that it
+found duplicate messages.
+.TP
+.I "\fB\-@FM_DUPLICATE@\fP maxlen idcache"
+Formail will detect if the Message-ID of the current message has already
+been seen using an
+.I idcache
+file of approximately
+.I maxlen
+size.  If not splitting, it will return success if a duplicate has been
+found.  If splitting, it will not output duplicate messages.
 .TP
 .I "\fB\-@FM_EXTRACT@\fP header field"
 Extract the contents of this
@@ -225,7 +239,13 @@ Too many processes on this machine.
 .TP
 Couldn't write to stdout
 The program that formail was trying to pipe into didn't accept all the data
-formail sent to it; this diagnostic can be disabled by the
+formail sent to it; this diagnostic can be suppressed by the
+.B \-@FM_QUIET@
+option.
+.TP
+Duplicate ID found: x
+The Message-ID x in this message was found in the idcache; this diagnostic can
+be suppressed by the
 .B \-@FM_QUIET@
 option.
 .TP

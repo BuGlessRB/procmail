@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.25 1994/01/25 15:40:03 berg Exp $";
+ "$Id: goodies.c,v 1.26 1994/03/10 16:21:23 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -46,8 +46,8 @@ static const char*evalenv P((void))	/* expects the variable name in buf2 */
  */
 void readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
  const int sarg;
-{ static i;int got;char*startb;
-  All_args=0;
+{ static i;int got,bracelev;char*startb;
+  All_args=0;bracelev=0;
   for(got=NOTHING_YET;;)		    /* buf2 is used as scratch space */
 loop:
    { i=fgetc();
@@ -143,8 +143,12 @@ escaped:      *p++=i;
 	    }
 	   got=SINGLE_QUOTED;continue;				/* opening ' */
 	case '}':
-	   if(sarg==3&&got<=NORMAL_TEXT)
-	      goto ready;
+	   if(got<=NORMAL_TEXT)
+	      if(sarg==3)
+		 goto ready;
+	      else if(bracelev)
+	       { bracelev--;continue;
+	       }
 	   goto nodelim;
 	case '#':
 	   if(got>SKIPPING_SPACE)		/* comment at start of word? */
@@ -171,9 +175,9 @@ escaped:      *p++=i;
 		  { default:goto badsub;
 		    case ':':
 		       switch(i=fgetc())
-badsub:			{ default:nlog("Bad substitution of");logqnl(buf2);
-			     continue;
-			  case'-':
+			{ default:
+badsub:			     nlog("Bad substitution of");logqnl(buf2);continue;
+			  case '-':
 			     if(startb&&*startb)
 				goto noalt;
 			     goto doalt;
@@ -188,16 +192,15 @@ badsub:			{ default:nlog("Bad substitution of");logqnl(buf2);
 		       goto noalt;
 		    case '-':
 		       if(startb)
-noalt:			  skiprc++;
-		       else
-doalt:			  startb=p;
-		       ;{ const char*sall_args;
-			  sall_args=All_args;readparse(p,fpgetc,3);
-			  if(!All_args)	       /* only one can be remembered */
-			     All_args=sall_args;	    /* this is a bug */
+noalt:			{ const char*sall_args;
+			  if(skiprc)
+			     goto doalt;  /* to minimise pointless recursion */
+			  skiprc++;sall_args=All_args;readparse(p,fpgetc,3);
+			  All_args=sall_args;skiprc--;
 			}
-		       if(startb!=p)
-			  skiprc--;
+		       else
+doalt:			{ bracelev++;continue;
+			}
 		    case '}':
 		       if(!startb)
 			  startb="";

@@ -134,8 +134,8 @@
 		 with the word `procmail'
 	       - Fixed the BSD support for kernel-locking only operation
 	       - Taught the regexp engine about \< and \>
-	       - Fixed bug on NS; caused three bytes to be zeroed when
-		 filtering headers only
+	       - Fixed bug present on some systems; caused the body to be
+		 munged when filtering headers only
 	    Changes to formail:
 	       - Fixed a sender-determination-weight problem, it mixed up
 		 the weights when autoreplying and when regenerating the From_
@@ -152,6 +152,11 @@
 	       - Introduced the -B option to split up BABYL rmail files
 	       - It regards and generates a FILENO variable (for easy
 		 numbering)
+	       - Moved the idcheck functionality into formail -D (due to
+		 popular demand), for eliminating duplicate mails
+	       - It terminates early now if it only needs the header
+	       - The -n option can now sustain itself by reaping children
+		 if it can't fork() immediately
 	    Miscellaneous changes:
 	       - Detecting and dodging buggy zshs everywhere
 	       - Slightly adjusted autoconf for the new non-standard 386BSD

@@ -69,3 +69,5 @@
 	       between the two sendmail invocations
 	    Adding the X-Diagnostic: Unprocessed if no further processing
 	       seems to have taken place
+	    Moved the idcheck functionality into formail -D (due to
+	       popular demand)

@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.42 1994/03/01 13:45:05 berg Exp $
+#$Id: rc.request,v 1.43 1994/03/10 16:20:25 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -42,7 +42,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 #
 
   :0 wc
-  | cat >tmp.request
+  | formail -IIn-Reply-To: >tmp.request
 
 #
 # Check for a missing Subject: line.
@@ -94,8 +94,9 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
      ((\(none\))?$(.+$)*(^[	 ]*)+)?(signon|add|sub(scri|[	 ]|$)?)|\
      ((\(none\))?$(.*$)*)?\
       (.*[^a-z])?(subscri|(add .* to|put .* on) .* [a-z-]*list\>))
-  * !?multigram -b1 -l$reject_threshold reject
-  * !?multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
+  * !? multigram -b1 -l$reject_threshold reject
+  * !? formail -IIn-Reply-To: | \
+	multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
    {
      :0 W ${cc_requests:+c}:dist.lock
      | subscribe
@@ -112,7 +113,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 # optional info.txt file.
 #
 
-  :0 HB w ${cc_requests:+c}
+  :0 hHB w ${cc_requests:+c}
   * ^^(.+$)*Subject:[	 ]*((\(none\))?$(.+$)*(^[	 ]*)+)?\
      [a-z,.	 ]*(help|info(rm(ation)?)?)\>
   | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
@@ -173,14 +174,15 @@ LOCKFILE				# we don't need the lockfile anymore
   | formail -A "X-Diagnostic: Suspicious $X_COMMAND format"
 
   :0 HB wfh
-  * ?multigram -b1 -l$reject_threshold reject
+  * ? multigram -b1 -l$reject_threshold reject
   | formail -A "X-Diagnostic: Found on the reject list" \
      -A "X-Diagnostic: `multigram -b1 -l$reject_threshold reject`"
 
   :0 HB wfh
-  * ^((Subject:)?[a-z,. ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
+  * ^((Subject:)?[a-z,. ]*(add|sub.*[@!])|(.*[^a-z])?(signon|subscri.*|\
 			      (add .* to|put .* on) .* list)\>)
-  * ?multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
+  * ? formail -IIn-Reply-To: | \
+       multigram -b1 -x$listreq -x$listaddr -l$reject_threshold dist
   | formail -A "X-Diagnostic: Already on the subscriber list" \
      -A "X-Diagnostic: `multigram -b1 -x$listreq -x$listaddr \
      -l$reject_threshold dist`"
