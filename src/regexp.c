@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.26 1993/06/30 16:01:38 berg Exp $";
+ "$Id: regexp.c,v 1.27 1993/06/30 16:14:06 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -77,7 +77,7 @@ struct mchar {unsigned opcc_;struct eps*next1_,*p1_,*p2_;};
 struct chclass {unsigned opc_;struct eps*next_,*pos1,*pos2;
  bit_field(c,OPB);};
 					  /* length array, used by skiplen() */
-static/*const*/char skplen[]=		   /* it SHOULD have been const, but */
+static /*const*/char skplen[]=		   /* it SHOULD have been const, but */
  {SZ(eps),SZ(jump),SZ(chclass),0,0};   /* some !@#$%^&*() compilers disagree */
 						       /* epsilon transition */
 static void puteps(spot,to)struct eps*const spot;const struct eps*const to;
