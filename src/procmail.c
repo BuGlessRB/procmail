@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.85 1994/06/30 12:01:52 berg Exp $";
+ "$Id: procmail.c,v 1.86 1994/06/30 13:52:34 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -509,7 +509,7 @@ bogusbox:	  { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
 		     { static const char enfperm[]=
 			"Enforcing stricter permissions on";
 		       nlog(enfperm);logqnl(chp);
-		       syslog(LOG_NOTIFY,slogstr,enfperm,chp);setids();
+		       syslog(LOG_NOTICE,slogstr,enfperm,chp);setids();
 		       chmod(chp,stbuf.st_mode&=~cumask);
 		     }
 		    break;			  /* everything is just fine */
