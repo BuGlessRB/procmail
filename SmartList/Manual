@@ -1,7 +1,7 @@
 		SmartList mailinglist management
 		--------------------------------
 
-	Copyright (c) 1993-1999, Stephen R. van den Berg, The Netherlands.
+	Copyright (c) 1993-2000, Stephen R. van den Berg, The Netherlands.
 				 <srb@cuci.nl>
 
 NOTE: Run "flist -v" to find out more about your installed version of
@@ -33,7 +33,7 @@ Contents:
 		8. FTP addresses & the SmartList mailinglist
 		9. The FAQ
 
-$Id: Manual,v 1.56 1999/11/29 02:35:29 guenther Exp $
+$Id: Manual,v 1.57 2000/01/29 06:52:14 guenther Exp $
 
 
 1. Creating and removing mailinglists or archive servers

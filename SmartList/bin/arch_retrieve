@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.51 1995/06/27 22:07:18 srb Exp $
+#$Id: arch_retrieve,v 1.52 2000/01/29 06:52:16 guenther Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -101,6 +101,11 @@ $oldwrongaddress"
 	 ARCHIVE|ARCHIVE[Ss]|ARCHIVE[Ss]:|ARCHIVE:) shift
 	    $test ! -z "$wrongaddress" && wrongaddress="$oldwrongaddress";;
       esac
+      if $test ! -z "$wrongaddress"
+      then
+	 wrongaddress="
+$wrongaddress"
+      fi
       #
       # Now call up the local extension file (if any)...
       #
