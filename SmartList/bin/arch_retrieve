@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.35 1994/06/13 18:08:46 berg Exp $
+#$Id: arch_retrieve,v 1.36 1994/06/14 17:36:40 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -176,8 +176,9 @@ Truncating after '$breakoff_ls' names...' -e ${breakoff_ls}q
 	 search|grep|egrep|fgrep|find|\
 	 SEARCH|GREP|EGREP|FGREP|FIND)
 	    iflag="-i"; nflag="-n"; flags=""; ready=no
-	    while shift; $test ! -z "$ready"
+	    while $test ! -z "$ready"
 	    do
+	       shift
 	       case "$1" in
 		  -i-) iflag="";;
 		  -n-) nflag="";;
