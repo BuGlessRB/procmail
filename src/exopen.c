@@ -5,9 +5,11 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: exopen.c,v 1.3 1992/09/30 16:23:55 berg Exp $";
+static char rcsid[]="$Id: exopen.c,v 1.4 1992/09/30 17:55:37 berg Exp $";
 #endif
 #include "procmail.h"
+#include "robust.h"
+#include "misc.h"
 #include "exopen.h"
 
 const char*hostname()

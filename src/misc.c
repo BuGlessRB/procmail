@@ -5,15 +5,17 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: misc.c,v 1.2 1992/09/30 16:24:26 berg Exp $";
+static char rcsid[]="$Id: misc.c,v 1.3 1992/09/30 17:55:58 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
 #include "robust.h"
 #include "misc.h"
 #include "pipes.h"
+#include "common.h"
 #include "cstdio.h"
 #include "exopen.h"
+#include "regexp.h"
 #include "goodies.h"
 #include "locking.h"
 #include "mailfold.h"

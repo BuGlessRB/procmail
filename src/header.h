@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.1 1992/09/28 14:28:04 berg Exp $*/
+/*$Id: header.h,v 1.2 1992/09/30 17:55:48 berg Exp $*/
 
 static const char
  returnpath[]=		"Return-Path:",				  /* RFC 822 */
@@ -35,7 +35,7 @@ static const char
  keywords[]=		"Keywords:",
  subject[]=		"Subject:",
  scomments[]=		"Comments:",
- encrypted[]=		"Encrypted:",
+ ncrypted[]=		"Encrypted:",
  errorsto[]=		"Errors-To:",		       /* sendmail extension */
  retreceiptto[]=	"Return-Receipt-To:",			/* ditto ... */
  precedence[]=		"Precedence:",
@@ -70,7 +70,7 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
   bsl(res_replyto),bsl(res_from),bsl(res_sender),bsl(date),bsl(res_date),
   bsl(to),bsl(res_to),bsl(cc),bsl(res_cc),bsl(bcc),bsl(res_bcc),bsl(messageid),
   bsl(res_messageid),bsl(inreplyto),bsl(references),bsl(keywords),bsl(subject),
-  bsl(scomments),bsl(encrypted),bsl(errorsto),bsl(retreceiptto),
+  bsl(scomments),bsl(ncrypted),bsl(errorsto),bsl(retreceiptto),
   bsl(precedence),bsl(mssage),bsl(text),bsl(priority),bsl(article),bsl(path),
   bsl(summary),bsl(organisation),bsl(aorganization),bsl(newsgroups),
   bsl(followupto),bsl(approved),bsl(lines),bsl(expires),bsl(control),

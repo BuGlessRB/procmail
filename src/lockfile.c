@@ -12,9 +12,9 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: lockfile.c,v 1.2 1992/09/30 16:24:12 berg Exp $";
+static char rcsid[]="$Id: lockfile.c,v 1.3 1992/09/30 17:55:51 berg Exp $";
 #endif
-static char rcsdate[]="$Date: 1992/09/30 16:24:12 $";
+static char rcsdate[]="$Date: 1992/09/30 17:55:51 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -242,8 +242,6 @@ usg:
   return retval;			       /* all other exitcodes remain */
 }
 
-#include "robust.h"
-
 void*tmalloc(len)const size_t len;				     /* stub */
 { return malloc(len);
 }
@@ -251,8 +249,6 @@ void*tmalloc(len)const size_t len;				     /* stub */
 ropen(name,mode,mask)const char*const name;const int mode;const mode_t mask;
 { return open(name,mode,mask);					     /* stub */
 }
-
-#include "misc.h"
 
 rclose(fd)const int fd;						     /* stub */
 { return close(fd);

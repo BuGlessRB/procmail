@@ -5,11 +5,12 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: formisc.c,v 1.2 1992/09/30 16:24:04 berg Exp $";
+static char rcsid[]="$Id: formisc.c,v 1.3 1992/09/30 17:55:41 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
 #include "sublib.h"
+#include "common.h"
 #include "formisc.h"
 
 static const char outofmem[]="Out of memory\n";

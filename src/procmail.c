@@ -11,7 +11,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: procmail.c,v 1.2 1992/09/30 16:24:35 berg Exp $";
+static char rcsid[]="$Id: procmail.c,v 1.3 1992/09/30 17:56:06 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -24,6 +24,8 @@ static char rcsid[]="$Id: procmail.c,v 1.2 1992/09/30 16:24:35 berg Exp $";
 #include "cstdio.h"
 #include "exopen.h"
 #include "goodies.h"
+#include "locking.h"
+#include "mailfold.h"
 
 char*buf,*buf2,*globlock,*loclock,*tolock,*lastfolder;
 const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
@@ -196,10 +198,10 @@ Frominserted:
       { nlog("Unknown user");logqnl(chp2);return EX_NOUSER;
       }
      if(passinvk&&passinvk->pw_uid==pass->pw_uid||geteuid()==ROOT_uid)
-	goto setuser;
+	goto Setuser;
    }
   if(pass=passinvk)
-setuser:
+Setuser:
     /*
      *	set preferred uid to the intended recipient
      */
@@ -543,9 +545,9 @@ nomore_rc:
   if(*tgetenv(fdefault))				     /* DEFAULT set? */
      setuid(uid),firstchd(),asenvcpy(DEFdefaultlock);	    /* implicit lock */
   concon('\n');
-  if(dump(deliver(tgetenv(fdefault)),themail,filled))		  /* default */
+  if(dump(deliver((char*)tgetenv(fdefault)),themail,filled))	  /* default */
    { writeerr(buf);	    /* if it fails, don't panic, try the last resort */
-     if(dump(deliver(tgetenv(orgmail)),themail,filled))
+     if(dump(deliver((char*)tgetenv(orgmail)),themail,filled))
 	writeerr(buf);goto mailerr;			/* now you can panic */
    }
 mailed:

@@ -5,10 +5,12 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: cstdio.c,v 1.2 1992/09/30 16:23:52 berg Exp $";
+static char rcsid[]="$Id: cstdio.c,v 1.3 1992/09/30 17:55:32 berg Exp $";
 #endif
 #include "procmail.h"
+#include "robust.h"
 #include "cstdio.h"
+#include "misc.h"
 
 static uchar rcbuf[STDBUF],*rcbufp,*rcbufend;	 /* buffers for custom stdio */
 static long blasttell;
@@ -30,7 +32,7 @@ poprc()
   rcbufp=rcbufend;getb();rcbufp=rcbuf+inced.offs[--inced.filled];return 1;
 }
 
-closerc()						/* {while(poprc());} */
+void closerc()						/* {while(poprc());} */
 { while(rclose(rc),inced.filled)
      rc=inced.offs[inced.filled-1],inced.filled-=3;
 }

@@ -1,5 +1,5 @@
 
-#$Id: initmake,v 1.1 1992/09/28 14:27:51 berg Exp $
+#$Id: initmake,v 1.2 1992/09/30 17:55:14 berg Exp $
 
 SHELL=/bin/sh || exec /bin/sh ./initmake $* # we're in a csh, feed myself to sh
 
@@ -44,7 +44,7 @@ for a in "$CC" cc gcc
 do
   echo $a $CFLAGS1 -o src/autotst.$O src/_autotst.c >>src/_autotst.rrr
   test -z "$cc" -a ! -z "$a" &&
-   ($a $CFLAGS1 -o src/_autotst.$O src/_autotst.c) 2>&1 >>src/_autotst.rrr &&
+   ($a $CFLAGS1 -o src/_autotst.$O src/_autotst.c) >>src/_autotst.rrr 2>&1 &&
    cc="$a"
   echo "::::" >>src/_autotst.rrr
 done

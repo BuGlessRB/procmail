@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.2 1992/09/30 16:24:23 berg Exp $*/
+/*$Id: manconf.c,v 1.3 1992/09/30 17:55:56 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -76,7 +76,7 @@ static void pc(name,value)const char*const name;const int value;
 }
 
 main()
-{ int i;char*p,*q;
+{ char*p,*q;
 #ifndef MAILBOX_SEPARATOR
   ps("DOT_FORWARD",".forward");
   ps("FW_content",

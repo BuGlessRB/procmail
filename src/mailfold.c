@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: mailfold.c,v 1.2 1992/09/30 16:24:19 berg Exp $";
+static char rcsid[]="$Id: mailfold.c,v 1.3 1992/09/30 17:55:53 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -14,6 +14,7 @@ static char rcsid[]="$Id: mailfold.c,v 1.2 1992/09/30 16:24:19 berg Exp $";
 #include "misc.h"
 #include "pipes.h"
 #include "common.h"
+#include "exopen.h"
 #include "locking.h"
 #include "mailfold.h"
 #ifndef NO_COMSAT
@@ -29,7 +30,7 @@ static struct dyna_long escFrom_,confield;	  /* escapes, concatenations */
 static long getchunk(s,fromw,len)const int s;const char*fromw;const long len;
 { long dist,dif;int i;static char esc[]={ESCAP};
   dist=fromw-themail;			/* where are we now in transmitting? */
-  for(i=0;i<escFrom_.filled;)		    /* let's see if we can find this */
+  for(dif=len,i=0;i<escFrom_.filled;)	    /* let's see if we can find this */
      if(!(dif=escFrom_.offs[i++]-dist))			 /* this exact spot? */
       { rwrite(s,esc,sizeof esc);++lastdump;			/* escape it */
 	if(i>=escFrom_.filled)				      /* last block? */

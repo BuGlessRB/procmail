@@ -1,4 +1,4 @@
-/*$Id: formisc.h,v 1.1 1992/09/28 14:28:05 berg Exp $*/
+/*$Id: formisc.h,v 1.2 1992/09/30 17:55:43 berg Exp $*/
 
 void
  *tmalloc Q((const size_t len)),
@@ -7,7 +7,7 @@ void
  loadsaved P((const struct saved*const sp)),
  loadbuf Q((const char*const text,const size_t len)),
  loadchar P((const c)),
- log P((const char*const a)),
+ elog P((const char*const a)),
  tputssn Q((const char*a,size_t l)),
  ltputssn Q((const char*a,size_t l)),
  lputcs P((const i)),

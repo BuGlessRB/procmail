@@ -1,5 +1,5 @@
 
-#$Id: autoconf,v 1.2 1992/09/30 16:23:41 berg Exp $
+#$Id: autoconf,v 1.3 1992/09/30 17:55:25 berg Exp $
 
 SHELL=/bin/sh || exec /bin/sh ./autoconf $* # we're in a csh, feed myself to sh
 
@@ -265,7 +265,7 @@ main()
      do
       { unlink("_locktst.alive");alarm(dtimet+2);		 /* watchdog */
 	dtimet=(otimet=((unsigned)time((char*)0)-otimet)<<2)>dtimet?
-	 otimet:dtimet*7/8+2;				   /* load dependent */
+	 otimet:dtimet*7/8+1;				   /* load dependent */
 	otimet=time((char*)0);
       }
      while(1==read(pip[0],&curflag,1)&&(j=lckdfil[i=(curflag&MASK_fileno)>>1],
@@ -384,7 +384,7 @@ main()
 { char*const*p;char*q="";static struct{const int a;int b;}c[2];
   --(c+1)->b;				 /* AIX 3.1.5 machines can't do this */
   p= &q;
-  execvp(q,p);		/* IRIX system-include files are wrong on this point */
+  execvp(q,p);	  /* IRIX 4.0.1 system-include files are wrong on this point */
 }
 HERE
 

@@ -5,7 +5,7 @@
  *	#include "README"						*
  ************************************************************************/
 #ifdef RCS
-static char rcsid[]="$Id: pipes.c,v 1.2 1992/09/30 16:24:32 berg Exp $";
+static char rcsid[]="$Id: pipes.c,v 1.3 1992/09/30 17:56:03 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -13,6 +13,7 @@ static char rcsid[]="$Id: pipes.c,v 1.2 1992/09/30 16:24:32 berg Exp $";
 #include "misc.h"
 #include "pipes.h"
 #include "goodies.h"
+#include "mailfold.h"
 
 pid_t pidchild;
 volatile time_t alrmtime;
