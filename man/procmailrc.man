@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.79 2000/12/31 07:37:53 guenther Exp $
+.Id $Id: procmailrc.man,v 1.80 2001/01/28 00:45:21 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -274,10 +274,15 @@ hardlinks).
 Your (the recipient's) defaults
 .TP
 .B PATH
+.na
 \&@DEFpath@
-.br
-(Except during the processing of an @ETCRC@ file, when it will be set
-to `\&@DEFspath@'.)
+(Except
+.ad
+during the processing of an @ETCRC@ file, when it will be set
+to
+.na
+`\&@DEFspath@'.)
+.ad
 .TP
 .B SHELLMETAS
 \&@DEFshellmetas@
