@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.29 1999/02/16 21:13:35 guenther Exp $";
+ "$Id: exopen.c,v 1.30 1999/02/21 04:13:27 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -74,19 +74,25 @@ int myrename(old,newn)const char*const old,*const newn;
 		 /* hardlink with fallback for systems that don't support it */
 int hlink(old,newn)const char*const old,*const newn;
 { if(link(old,newn))				      /* try a real hardlink */
-   { int i,serrno;struct stat stbuf;
-     serrno=errno;i=lstat(old,&stbuf);SETerrno(serrno);
-     if(i||S_ISLNK(stbuf.st_mode))		/* no stat or symbolic link? */
+   { int serrno;struct stat stbuf,stbuf2;
+     serrno=errno;
+     if(lstat(old,&stbuf)||S_ISLNK(stbuf.st_mode))    /* no stat or symlink? */
 	goto retfail;				     /* yuk, don't accept it */
-     if(stbuf.st_nlink!=2)
-      { if(serrno!=EXDEV)		       /* failure due to filesystem? */
+#undef NEQ			       /* compare files to see if the link() */
+#define NEQ(what)	(stbuf.what!=stbuf2.what)      /* actually succeeded */
+     if(stbuf.st_nlink!=2||lstat(newn,&stbuf2)||NEQ(st_dev)||NEQ(st_ino))
+      { int fd;
+	if(serrno!=EXDEV)		       /* failure due to filesystem? */
 	   goto retfail;		     /* try it by conventional means */
 #ifdef O_CREAT
-	if(0>(i=ropen(newn,O_WRONLY|O_CREAT|O_EXCL,stbuf.st_mode)))
+	if(0>(fd=ropen(newn,O_WRONLY|O_CREAT|O_EXCL,stbuf.st_mode)))
 #endif
-retfail:   return -1;
-	rclose(i);
+retfail: { SETerrno(serrno);
+	   return -1;
+	 }
+	rclose(fd);
       }
+     SETerrno(serrno);
    }
   return 0;
 }
