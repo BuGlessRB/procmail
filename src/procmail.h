@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.54 2001/06/21 11:59:31 guenther Exp $*/
+/*$Id: procmail.h,v 1.55 2001/06/21 17:48:12 guenther Exp $*/
 
 #include "includes.h"
 
@@ -80,13 +80,12 @@ extern struct varstr{const char*const sname,*sval;}strenstr[];
 #define shellmetas	(strenstr[0].sval)
 #define lockext		(strenstr[1].sval)
 #define msgprefix	(strenstr[2].sval)
-#define scomsat		(strenstr[3].sval)
-#define traps		(strenstr[4].sval)
-#define shellflags	(strenstr[5].sval)
-#define fdefault	(*(const char*volatile*)&strenstr[6].sval)
-#define sendmail	(strenstr[7].sval)
-#define flagsendmail	(strenstr[8].sval)
-/* #define PM_version	(strenstr[9].sval) */
+#define traps		(strenstr[3].sval)
+#define shellflags	(strenstr[4].sval)
+#define fdefault	(*(const char*volatile*)&strenstr[5].sval)
+#define sendmail	(strenstr[6].sval)
+#define flagsendmail	(strenstr[7].sval)
+/* #define PM_version	(strenstr[8].sval) */
 
 
 extern char*buf,*buf2,*loclock,*thebody;

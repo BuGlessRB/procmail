@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.14 2001/06/21 11:59:32 guenther Exp $";
+ "$Id: variables.c,v 1.15 2001/06/21 17:48:13 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -28,7 +28,7 @@ struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
  {"NORESRETRY",DEFnoresretry},{"TIMEOUT",DEFtimeout},{"VERBOSE",DEFverbose},
  {"LOGABSTRACT",DEFlogabstract}};
 struct varstr strenstr[]={{"SHELLMETAS",DEFshellmetas},{"LOCKEXT",DEFlockext},
- {"MSGPREFIX",DEFmsgprefix},{"COMSAT",empty},{"TRAP",empty},
+ {"MSGPREFIX",DEFmsgprefix},{"TRAP",empty},
  {"SHELLFLAGS",DEFshellflags},{"DEFAULT",DEFdefault},{"SENDMAIL",DEFsendmail},
  {"SENDMAILFLAGS",DEFflagsendmail},{"PROCMAIL_VERSION",PM_VERSION}};
 
@@ -43,7 +43,7 @@ char*Stdout;
 static void asenvtext P((const char*const chp));      /* needed by retStdout */
 
 static const char slinebuf[]="LINEBUF",pmoverflow[]="PROCMAIL_OVERFLOW=yes",
- exitcode[]="EXITCODE";
+ exitcode[]="EXITCODE",scomsat[]="COMSAT";
 static int setxit;
 
 static struct dynstring*myenv;
@@ -363,6 +363,8 @@ void asenv(chp)const char*const chp;
      setlgcs(chp);
   else if(!strcmp(buf,lastfolder))
      setlfcs(chp);
+  else if(!strcmp(buf,scomsat))
+     setcomsat(chp);
   else if(!strcmp(buf,shift))
    { int i;
      if((i=renvint(0L,chp))>0)
