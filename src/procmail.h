@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.56 2001/08/04 07:16:49 guenther Exp $*/
+/*$Id: procmail.h,v 1.57 2001/08/25 04:38:40 guenther Exp $*/
 
 #include "includes.h"
 
@@ -93,7 +93,7 @@ extern const char shell[],lockfile[],newline[],binsh[],unexpeof[],*const*gargv,
  *const*restargv,*sgetcp,pmrc[],*rcfile,dirsep[],devnull[],empty[],lgname[],
  executing[],oquote[],cquote[],whilstwfor[],procmailn[],Mail[],home[],host[],
  *defdeflock,*argv0,exceededlb[],curdir[],slogstr[],conflicting[],orgmail[],
- insufprivs[],errwwriting[],Version[];
+ insufprivs[],defpath[],errwwriting[],Version[];
 extern long filled,lastscore;
 extern int sh,pwait,retval,retvl2,rc,privileged,ignwerr,
  lexitcode,accspooldir,crestarg,savstdout,berkeley,mailfilter,erestrict,

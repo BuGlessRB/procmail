@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.179 2001/08/04 07:21:59 guenther Exp $";
+ "$Id: procmail.c,v 1.180 2001/08/25 04:38:38 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -43,7 +43,7 @@ static /*const*/char rcsid[]=
 static const char*const nullp,exflags[]=RECFLAGS,drcfile[]="Rcfile:",
  pmusage[]=PM_USAGE,*etcrc=ETCRC,misrecpt[]="Missing recipient\n",
  extrns[]="Extraneous ",ignrd[]=" ignored\n",pardir[]=chPARDIR,
- defspath[]=DEFSPATH,defpath[]=DEFPATH,defmaildir[]=DEFmaildir;
+ defspath[]=DEFSPATH,defmaildir[]=DEFmaildir;
 char*buf,*buf2,*loclock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*const*restargv= &nullp,*sgetcp,
@@ -52,7 +52,7 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  procmailn[]="procmail",whilstwfor[]=" whilst waiting for ",home[]="HOME",
  host[]="HOST",*defdeflock=empty,*argv0=empty,curdir[]={chCURDIR,'\0'},
  slogstr[]="%s \"%s\"",conflicting[]="Conflicting ",orgmail[]="ORGMAIL",
- insufprivs[]="Insufficient privileges\n",
+ insufprivs[]="Insufficient privileges\n",defpath[]=DEFPATH,
  exceededlb[]="Exceeded LINEBUF\n",errwwriting[]="Error while writing to",
  Version[]=VERSION;
 int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,rc= -1,
@@ -418,7 +418,7 @@ nix_sysmbox:
 	   free((char*)fdefault),fdefault=empty;		 /* so panic */
       }						/* bad news, be conservative */
    }
-  doumask(INIT_UMASK);eputenv(defpath,buf);
+  doumask(INIT_UMASK);
   while(chp=(char*)argv[argc])	    /* interpret command line specs first */
    { argc++;
      if(!asenvcpy(chp)&&mailfilter)
@@ -458,11 +458,14 @@ nix_sysmbox:
 	      goto mailed;					 /* success! */
 	   if(rcs==rcs_EOF)
 	      break;				     /* normal end of rcfile */
+	   if(!nextrcfile())				       /* none left? */
+	      goto mailed;					 /* then out */
 	 }
 	else				      /* not available? try the next */
-	   dowarning=0;				/* suppress further messages */
-	if(!nextrcfile())				       /* none left? */
-	   break;						 /* then out */
+	 { dowarning=0;				/* suppress further messages */
+	   if(!nextrcfile())				       /* none left? */
+	      break;						 /* then out */
+	 }
       }
    }
   else

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.18 2001/08/04 07:07:44 guenther Exp $";
+ "$Id: variables.c,v 1.19 2001/08/25 04:38:41 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -159,7 +159,7 @@ void cleanupenv(preserve)int preserve;
 	   if(!strncmp(*pp,p,len)&&(p[len]=='='||p[len-1]=='_'))
 	    { *ep= *emax;			      /* it's fine, swap 'em */
 	      *emax++=p;
-	      if(p[len]=='=')		  /* if this wasn't a wildcard match */
+	      if(p[len-1]!='_')		  /* if this wasn't a wildcard match */
 		break;			 /* then go on to next keepenv entry */
 	    }
       }
@@ -218,6 +218,7 @@ void initdefenv(pass,fallback,do_presets)auth_identity*pass;
      sputenv(lastfolder);
      sputenv(scomsat);setcomsat(empty);
      sputenv(exitcode);
+     eputenv(defpath,buf);
      for(pp=prestenv;*pp;pp++)			     /* non-standard presets */
 	eputenv(*pp,buf);
    }

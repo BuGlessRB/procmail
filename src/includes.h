@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.76 2001/08/04 06:55:07 guenther Exp $*/
+/*$Id: includes.h,v 1.77 2001/08/25 04:38:37 guenther Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -71,7 +71,7 @@
 #include <signal.h>		/* signal() kill() alarm() SIG_IGN SIGHUP
 				/* SIGINT SIGQUIT SIGALRM SIGTERM */
 #ifndef STRING_H_MISSING
-#include <string.h>		/* strcpy() strncpy() strcat() strlen()
+#include <string.h>		/* strcpy() strcat() strlen()
 				/* strspn() strcspn() strchr() strcmp()
 				   strncmp() strpbrk() strstr() memmove()
 				   strncasecmp() memset() */
