@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.162 2000/10/27 22:07:28 guenther Exp $";
+ "$Id: procmail.c,v 1.163 2000/10/28 08:57:48 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -248,12 +248,10 @@ nodevnull:
 	   currcpt=rcpts=lmtp(&lastrcpt,chp2);
 	   while(currcpt<lastrcpt)
 	    { if(!(pidchild=sfork()))
-	       { qsignal(SIGTERM,srequeue);qsignal(SIGINT,sbounce);
-		 qsignal(SIGHUP,sbounce);qsignal(SIGQUIT,slose);
-		 signal(SIGALRM,(void(*)())ftimeout);
-		 pass=*currcpt;
-		 if(++currcpt==lastrcpt)   /* last one out gets the original */
-		    private(1);
+	       { setupsigs();
+		 pass= *currcpt++;
+		 if(currcpt==lastrcpt)			/* last one out gets */
+		    private(1);				     /* the original */
 		 while(currcpt<lastrcpt)
 		    auth_freeid(*currcpt++);
 		 if(overread)
@@ -274,9 +272,7 @@ nodevnull:
 	   exit(EXIT_SUCCESS);
 	 }
 #endif
-	qsignal(SIGTERM,srequeue);qsignal(SIGINT,sbounce);
-	qsignal(SIGHUP,sbounce);qsignal(SIGQUIT,slose);
-	signal(SIGALRM,(void(*)())ftimeout);
+	setupsigs();
 	makeFrom(fromwhom,chp2);
 	readmail(0,0L);			      /* read in the mail completely */
 	if(Deliverymode)

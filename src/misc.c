@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.105 2000/10/27 22:07:26 guenther Exp $";
+ "$Id: misc.c,v 1.106 2000/10/28 08:57:50 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -325,16 +325,22 @@ void suspend P((void))
 { ssleep((unsigned)suspendv);
 }
 
-void srequeue P((void))
+static void srequeue P((void))
 { retval=EX_TEMPFAIL;sterminate();
 }
 
-void slose P((void))
+static void slose P((void))
 { fakedelivery=2;sterminate();
 }
 
-void sbounce P((void))
+static void sbounce P((void))
 { retval=EX_CANTCREAT;sterminate();
+}
+
+void setupsigs P((void))
+{ qsignal(SIGTERM,srequeue);qsignal(SIGINT,sbounce);
+  qsignal(SIGHUP,sbounce);qsignal(SIGQUIT,slose);
+  signal(SIGALRM,(void(*)())ftimeout);
 }
 
 static void squeeze(target)char*target;
@@ -473,10 +479,10 @@ copydone: { switch(*(sgetcp=buf2))
 	     { case '0':case '1':case '2':case '3':case '4':case '5':case '6':
 	       case '7':case '8':case '9':case '-':case '+':case '.':case ',':
 		{ char*chp3;double w;
-		  w=stod(buf2,(const char**)&chp3);chp2=chp3;
+		  w=strtod(buf2,(const char**)&chp3);chp2=chp3;
 		  if(chp2>buf2&&*(chp2=skpspace(chp2))=='^')
 		   { double x;
-		     x=stod(chp2+1,(const char**)&chp3);
+		     x=strtod(chp2+1,(const char**)&chp3);
 		     if(chp3>chp2+1)
 		      { if(score>=MAX32)
 			   goto skiptrue;
@@ -595,6 +601,7 @@ copyrest:	  strcpy(buf,chp2);
 		  continue;
 	       case '?':pwait=2;metaparse(chp);inittmout(buf);ignwerr=1;
 		   pipin(buf,lstartchar,ltobesent);
+		   resettmout();
 		   if(scoreany&&lexitcode>=0)
 		    { int j=lexitcode;
 		      if(negate)
