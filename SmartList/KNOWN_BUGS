@@ -1,4 +1,15 @@
-Address confusion in SmartList
+Address confusion in SmartList (part I)
     While SmartList accepts subscribe and unsubscribe requests that
     specify another address, rc.request checks for the address from the
     headers, not from the request itself.
+
+Address confusion in SmartList (part II)
+    When matching addresses, multigram should weight differences
+    in the local-part more than differences in the host part.  If
+    the local-parts differ, they're almost certainly different
+    addresses.
+
+Missing "(Only addresses below this line can be automatically removed)"
+    SmartList should provide a clear indication when automatic
+    requests are being ignored because this line is missing.  It's
+    too subtle a situation as is.

@@ -5,7 +5,9 @@ TIMEOUT doesn't always work
 regexp matching bug
     Some regexps may return an incorrect value in the MATCH variable.
     In particular, this can happen when 'redundant' * or + operators
-    appear on the lefthand side of the \/ token.
+    appear on the lefthand side of the \/ token.  (The current best
+    guess is that fixing this would require moving the "beginning of
+    match" pointer into the "per-task" regexp structure.)
 
 Incorrect usage of -lnsl and -lsocket
     libsocket and libnsl should be avoided if not needed as they're
@@ -14,3 +16,23 @@ Incorrect usage of -lnsl and -lsocket
     appears to have problems accessing the passwd file, try removing
     -lnsl and -lsocket from the SEARCHLIBS variable in the Makefile,
     then recompile.
+
+No "$@" in logged abstract
+    When passing "$@" to a command, the "Folder:" logged does not
+    include any of arguments passed via the "$@"
+
+Custom delimiter lossage
+    When using a custom message delimiter (like MMDF's ^A^A^A^A\n)
+    procmail fails to escape the delimiter in incoming messages,
+    resulting in corrupted mailboxes.  Best current workaround is
+    to put a recipe in the /etc/procmailrc file that reads something
+    like
+	:0 fw
+	* ^A^A^A^A$
+	|perl -pe 's:\001\001\001\001$:\002\002\002\002:'
+    The "^A"s in the condition need to be real control-A characters.
+
+Lost value on failed chdir()
+    If the user assigns a value to MAILDIR and the chdir() fails,
+    the previous value of the variable (but not the process's cwd)
+    is lost and replaced with "."

@@ -419,7 +419,7 @@
 	       - Open or reopen rcfiles as the user to prevent peeking when
 		 not in privileged mailfilter mode
 	       - Don't use $HOME/.procmailrc if it's group-writable or in a
-		 group-writable directory, unless if the user's default group
+		 group-writable directory, unless it's the user's default group
 		 and GROUP_PER_USER is set in config.h
 	       - hardlink in a an NFS-resistant manner
 	    Worked around a compiler bug old HP compilers (pointer-unsigned),
@@ -567,6 +567,8 @@
 	       - A race to create the mailspool would bounce one of the
 		 messages due to an internal error
 	       - Be more paranoid about leaking information between recipients
+	       - Unset LOCKFILE if we can't actually lock it
+	       - Set MAILDIR to '.' if the chdir fails
 	    Changes to autoconf:
 	       - Check for enum support
 	       - Warn people that non-ISO/ANSI C compilers might not be
@@ -579,8 +581,10 @@
 	    Documented formail's treatment of >From_ lines as continuations
 	       of the From_ line and warned of problems caused by non-RFC822
 	       field names like 'Old-From '
+	    Clarified procmail's treatment of $@ and $#
 	    Fixed manpage formatting problem
 	    Use long, not off_t, with fseek()/ftell()
 	    The default MAILDIR is now configurable separately from the
 	       default rcfile location
 	    Include an RPM spec file in the examples directory for automated		       builds
+	    Called nice() when shouldn't have (this time for sure!)

@@ -287,3 +287,5 @@
 	       message forwarded back to go out.
 	    Changes to multigram:
 	       - prevent attempts to exercise a Linux kernel security hole
+2001/04/10: v3.16pre
+	    DSN recognizer was broken by the CVS tabifier
