@@ -147,7 +147,7 @@
 	       through the mailinglist
 	    Reached the doubtful milestone to sometimes crash an Ultrix
 	       machine (due to the lockingtests, not procmail itself)
-1993/08/24: v2.92
+1993/08/25: v2.92
 	    Fixed a formail sender-determination-weight problem, it mixed up
 	       the weights when autoreplying and when regenerating the From_
 	       line (and thus didn't always pick the optimal field)
@@ -197,3 +197,5 @@
 	       Flush_digests can now be forced to push out digests
 	       Clipped an a bit too greedy -request-redirection-regexp in
 		  rc.submit
+	       Tuned the procbounce script (it does what I mean now
+		  and it got more verbose in its diagnostics)

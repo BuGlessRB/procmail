@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: procbounce,v 1.14 1993/08/25 14:10:01 berg Exp $
+#$Id: procbounce,v 1.15 1993/08/25 15:29:59 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -52,7 +52,7 @@ then
 	:
 	else
 	   $echo 'Not confident enough to autoremove the offending address'
-	   $echo "$addr" | $multigram -b2 -l0 -d$dist
+	   $echo "$addr" | $multigram -b2 -l0 $dist
 	fi | $sed -e '/^Removed:/ d' \
 	 -e '1 s/^ *[0-9]* \([^ ]* *[0-9]*\).*$/Removed: \1/' \
 	  -e 's/^ *[0-9]/	/'`
