@@ -40,6 +40,10 @@ maintainer	=
 ##foreign_submit			# uncomment this line if you
 					# want to restrict submitting to
 					# people on the accept list
+#restrict_archive
+##restrict_archive=	yes		# uncomment this line if you
+					# want to restrict archive retrievals
+					# to people on the accept list
 #force_subscribe
 ##force_subscribe=	yes		# uncomment to cause people to
 					# be autosubscribed upon first

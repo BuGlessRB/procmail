@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.70 1994/10/20 18:14:16 berg Exp $
+#$Id: rc.request,v 1.71 1994/10/26 19:37:17 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -70,18 +70,29 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 #
 
   :0 HB w
-  * ^^(.+$)*Subject:[	 ]*((\(none\))?$(.+$)*(^[	 ]*)+)?\
+  * ^^(.+$)*Subject:[	 ]*(([(<]none[>)])?$(.+$)*(^[	 ]*)+)?\
      (archive:?([	 ]|$)|\
      ((send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|list|show|\
       search|[fe]?grep|find|maxfiles|version)([	 ]+[^	 ]*)?$)
-  | arch_retrieve
+  {
+    :0
+    * 1^1 $${restrict_archive:+!}
+    * 2^0 ? formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
+	     -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
+	     multigram -b1 -m -l$submit_threshold -L$domain \
+	      -x$listaddr -x$listreq accept accept2
+    | arch_retrieve
+
+    :0 E fhw
+    | formail -A "X-Diagnostic: Not on the accept list"
+  }
 
 #
 # Is it an unsubscription request?
 #
 
   :0 EHB
-  * ^^(.+$)*Subject:[	 ]*(\(none\))?(\
+  * ^^(.+$)*Subject:[	 ]*([(<]none[>)])?(\
      ($(.+$)*(^[	 ]*)+((.+|$)+[,.:;]([	 ]+|$)+)?)?\
       (Could you )?(please )?\
       (sign( [^ ]+ |-)?off|cancel|leave|delete|remove|(un|de)sub)\>|\
@@ -104,7 +115,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 #
 
   :0 EHB
-  * ^^(.+$)*Subject:[	 ]*(\(none\))?(\
+  * ^^(.+$)*Subject:[	 ]*([(<]none[>)])?(\
      ($(.+$)*(^[	 ]*)+((.+|$)+[,.:;]([	 ]+|$)+)?)?\
       (Could you )?(please )?\
       (sign( [^ ]+ |-)?on|add|join|sub)\>|\
@@ -158,9 +169,9 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 #
 
   :0 EHB
-  *  3^0 ^^(.+$)*Subject:[	 ]*((\(none\))?$(.+$)*(^[	 ]*)+)?\
+  *  3^0 ^^(.+$)*Subject:[	 ]*(([(<]none[>)])?$(.+$)*(^[	 ]*)+)?\
      [a-z,.	 ]*(help|info(rm(ation)?)?)\>
-  *  1^0 ^^(.+$)*Subject:[	 ]*(\(none\))?$
+  *  1^0 ^^(.+$)*Subject:[	 ]*([(<]none[>)])?$
   * -2^0 ^^(.+$)*(^[	 ]*)+[a-z]
   *  3^0 ^^(.+$)*^([	 ]*$)*--
   {

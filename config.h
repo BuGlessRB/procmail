@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.62 1994/10/18 14:29:28 berg Exp $*/
+/*$Id: config.h,v 1.63 1994/10/26 19:36:57 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -128,13 +128,13 @@
 #define FROMDkey	"^FROM_DAEMON"		     /* matches most daemons */
 #define FROMDsubstitute "(^(Precedence:.*(junk|bulk|list)|\
 (((Resent-)?(From|Sender)|X-Envelope-From):|>?From )(.*[^(.%@a-z0-9])?(\
-Post(ma?(st(e?r)?|n)|office)|(send)?Mail(er)?|daemon|mmdf|root|n?uucp|\
+Post(ma?(st(e?r)?|n)|office)|(send)?Mail(er)?|daemon|mmdf|root|n?uucp|smtp|\
 response|LISTSERV|owner|request|bounce|serv(ices?|er)|Admin(istrator)?)\
 ([^).!:a-z0-9].*)?$[^>]))"
 #define FROMMkey	"^FROM_MAILER"	      /* matches most mailer-daemons */
 #define FROMMsubstitute "(^(((Resent-)?(From|Sender)|X-Envelope-From):|\
 >?From )(.*[^(.%@a-z0-9])?(Post(ma(st(er)?|n)|office)|(send)?Mail(er)?|daemon|\
-mmdf|root|n?uucp|response|serv(ices?|er)|Admin(istrator)?\
+mmdf|root|n?uucp|smtp|response|serv(ices?|er)|Admin(istrator)?\
 )([^).!:a-z0-9].*)?$[^>])"
 #define DEFshellmetas	"&|<>~;?*["		    /* never put '$' in here */
 #define DEFdefault	"$ORGMAIL"

@@ -53,7 +53,7 @@
 #		conjunction with the RC_LOCAL_* variables which can be set
 #		in rc.init or rc.custom files)
 
-#$Id: rc.init,v 1.41 1994/10/18 14:29:40 berg Exp $
+#$Id: rc.init,v 1.42 1994/10/26 19:37:13 berg Exp $
 
 DELIVERED=yes	# we're in control of the mail now, tell sendmail to go away
 
@@ -184,6 +184,10 @@ foreign_submit	=	yes
 #foreign_submit				# uncomment this line if you
 					# want to restrict submitting to
 					# people on the accept list
+restrict_archive
+#restrict_archive=	yes		# uncomment this line if you
+					# want to restrict archive retrievals
+					# to people on the accept list
 force_subscribe
 #force_subscribe=	yes		# uncomment to cause people to
 					# be autosubscribed upon first

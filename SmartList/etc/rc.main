@@ -1,5 +1,6 @@
-#$Id: rc.main,v 1.6 1994/05/26 14:11:34 berg Exp $
+#$Id: rc.main,v 1.7 1994/10/26 19:37:15 berg Exp $
 
+LOGFILE=/dev/null
 MAILDIR=.etc				# chdir to the defaults directory
 
 INCLUDERC=rc.init

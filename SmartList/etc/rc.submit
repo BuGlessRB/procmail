@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.73 1994/10/20 18:14:18 berg Exp $
+#$Id: rc.submit,v 1.74 1994/10/26 19:37:20 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -48,7 +48,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
        .*( (join|leave|add .* to|(delete|remove) .* from|\
 	 (take|sign) .* off|(put|sign) .* on) .* [a-z-]*list|\
 	 (un|de|sub?)s(cr|c|r)i(be|ption))\>)
-* -50^0 ^Subject:[	 ]*\(none\)$
+* -50^0 ^Subject:[	 ]*[(<]none[>)]$
 *  50^0 ^Subject:.*[a-z]
 *  25^2 >2048
 {
@@ -66,13 +66,13 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 	  list|show|search|[fe]?grep|find|maxfiles|version|help|info)\
 	 ([	 ]|$)|[	 ]*$)|\
 	(help|info)[	 ]*$|\
-	(add|join|leave|sign( [^ ]+ |-)?o(n|ff)|(un|de)?sub).*)|\
+	(add|join|leave|sign( [^ ]+ |-)?o(n|ff)|(un|de)?sub)\>)|\
        .*( (join|leave|add .* to|(delete|remove) .* from|\
 	 (take|sign) .* off|(put|sign) .* on) .* [a-z-]*list|\
 	 (un|de|sub?)scri(be|ption))\>)
 {
   #
-  # Then check to see if sender is on the accept list (if foreign_submit
+  # Then check to see if the sender is on the accept list (if foreign_submit
   # is not set).
   #
 

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.71 1994/10/18 14:30:09 berg Exp $";
+ "$Id: formail.c,v 1.72 1994/10/26 19:37:26 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/10/18 14:30:09 $";
+static /*const*/char rcsdate[]="$Date: 1994/10/26 19:37:26 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -35,7 +35,7 @@ static const char
  x_[]=			"X-",				/* general extension */
  old_[]=		OLD_PREFIX,			     /* my extension */
  xloop[]=		"X-Loop:",				/* ditto ... */
- unknown[]=UNKNOWN,re[]=" Re:",fmusage[]=FM_USAGE;
+ daemon[]="<>",unknown[]=UNKNOWN,re[]=" Re:",fmusage[]=FM_USAGE;
 
 static const struct {const char*hedr;int lnr;}cdigest[]=
 {
@@ -139,7 +139,7 @@ replaceall:
   chp=p->fld_text;tmemmove(chp+newl,chp+oldl,i);tmemmove(chp,newname,newl);
 }
 
-static void procfields P((void))
+static void procfields(sareply)const int sareply;
 { struct field*fldp,**afldp;
   fldp= *(afldp= &rdheader);
   while(fldp)
@@ -149,13 +149,15 @@ static void procfields P((void))
 	 fp2->tot_len-fp2->id_len);
 	goto fixfldp;
       }
-     if((fp2=findf(fldp,&iheader))&&
-	!(areply&&fldp->id_len>=fp2->tot_len-1))
+     if(!sareply&&
+	(fp2=findf(fldp,&iheader))&&
+	!(areply&&fldp->id_len>=fp2->tot_len-1))      /* filled replacement? */
       { renfield(afldp,(size_t)0,old_,STRLEN(old_));	/* implicitly rename */
 fixfldp:
 	fldp= *afldp;
       }
-     if(findf(fldp,&Iheader))				    /* delete fields */
+     if((fp2=findf(fldp,&Iheader))&&			    /* delete fields */
+	!(sareply&&fldp->id_len<fp2->tot_len-1))       /* empty replacement? */
 	goto delfld;
      ;{ struct field*uf;
 	if((uf=findf(fldp,&uheader))&&!uf->fld_ref)
@@ -270,13 +272,12 @@ static char*getsender(namep,fldp,trust)char*namep;struct field*fldp;
 	   else if(strchr(saddr,'!'))
 	      nowm-=(maxindex(sest)+2)*1;	     /* depreciate bangpaths */
 	   if(!namep||nowm>lastm)		/* better than previous ones */
-	    { saddr=strcpy(malloc(strlen(saddr)+1),saddr);lastm=nowm;
 	      goto pnewname;
-	    }
 	 }
 	else if(sest[i].head==returnpath)		/* nill Return-Path: */
-	 { saddr=0;lastm=maxindex(sest)+2;			 /* override */
-pnewname:  if(namep)
+	 { saddr=daemon;nowm=maxindex(sest)+2;			 /* override */
+pnewname:  lastm=nowm;saddr=strcpy(malloc(strlen(saddr)+1),saddr);
+	   if(namep)
 	      free(namep);
 	   namep=saddr;
 	 }
@@ -511,7 +512,8 @@ startover:
      do rex[i].rexl=0;
      while(i--);			      /* reset all state information */
      clear_uhead(uheader);clear_uhead(Uheader);
-     wasafrom_=!force&&rdheader&&eqFrom_(rdheader->fld_text);procfields();
+     wasafrom_=!force&&rdheader&&eqFrom_(rdheader->fld_text);
+     procfields(areply);
      for(fldp= *(afldp= &rdheader);fldp;)
       { if(zap)		      /* go through the linked list of header-fields */
 	 { chp=fldp->fld_text+(j=fldp->id_len);
@@ -628,7 +630,7 @@ dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
 	 }
 	if(msid->rexl)			 /* do we add an In-Reply-To: field? */
 	   loadbuf(inreplyto,STRLEN(inreplyto)),loadsaved(msid),addbuf();
-	procfields();
+	procfields(0);
       }
      else if(!force&&		       /* are we allowed to add From_ lines? */
 	     (!rdheader||!eqFrom_(rdheader->fld_text))&&   /* is it missing? */

@@ -25,12 +25,13 @@ Contents:
 		3l.Schematic overview of what goes on behind the scenes
 		4. The archive server
 		4a.Sending files to the archive server
+		4b.Restricting access to the archive server
 		5. The format of the dist file
 		6. Multigram and the thresholds in rc.init/rc.custom
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.44 1994/10/19 17:00:09 berg Exp $
+$Id: Manual,v 1.45 1994/10/26 19:37:05 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -305,7 +306,7 @@ You can restrict submissions to people on the accept-list (the `accept'-file).
 Mail from anyone else will be passed on to the maintainer instead of being
 submitted.  To enable this you have to uncomment the appropriate
 "foreign_submit" line in rc.custom.  By default the accept file is hardlinked
-to the dist file (i.e. if submissions are restricted, only subcsribers
+to the dist file (i.e. if submissions are restricted, only subscribers
 can do so).  If you want to allow only an even more select group, delink the
 accept file and edit it to taste.  If you'd like to have both the dynamic
 accept file and a static one, create a new file "accept2", it will be
@@ -563,6 +564,16 @@ The archive server as installed with SmartList does not directly support
 the receipt and storage of files.
 What you can do is look in the at the rcfile script .examples/putfile.
 It provides you with all you'd need to receive and store files.
+
+
+4b.Restricting access to the archive server
+   ----------------------------------------
+
+You can restrict archive access to people on the accept-lists
+(the `accept' and `accept2'-file).  Mail from anyone else will be passed on
+to the maintainer instead of being passed to the archive server.  To enable
+this you have to uncomment the appropriate "restrict_archive" line in
+rc.custom.
 
 
 5. The format of the dist file

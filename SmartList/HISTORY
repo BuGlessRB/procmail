@@ -154,7 +154,7 @@
 	       on the accept list
 	    Improved fuzzy search for explicit mail addresses in the
 	       subscription request
-1994/10/20: v3.10
+1994/10/26: v3.10
 	    Changes to rc.submit:
 	       - Moved the accept.txt in front of the body of the mail
 	       - The initial submission of force subscribed people was lost,
@@ -186,3 +186,5 @@
 	       checkdist and unsub_assist features finally work as intended)
 	    Tuned the multigram match values a bit, to improve the signal
 	       to noise ratio for typical mail addresses
+	    Mails that did not have a Return-Path: or Reply-To: field were
+	       not replied to correctly (regression bug since v3.06), fixed
