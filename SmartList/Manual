@@ -30,7 +30,7 @@ Contents:
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.43 1994/10/18 16:48:59 berg Exp $
+$Id: Manual,v 1.44 1994/10/19 17:00:09 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -436,7 +436,7 @@ threefold:
 - Misdirected administrative requests are filtered out of the regular
   submission channel.
 
-If you larger mailinglist you are exploding locally is a SmartList list
+If the larger mailinglist you are exploding locally is a SmartList list
 as well, then there are no special precautions to take at all.
 If the larger mailinglist is not managed by SmartList, misdirected
 administrative requests will be caught *and* handled by the local list;
