@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.37 1997/04/03 01:58:42 srb Exp $";
+ "$Id: formisc.c,v 1.38 1997/04/11 10:29:06 srb Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -28,7 +28,7 @@ static const char*skipcomment(start)const char*start;
 }
 
 char*skipwords(start)char*start;		 /* skips an RFC 822 address */
-{ int delim,hitspc,fat,machref,group;char*target,*oldstart;
+{ int delim,hitspc,machref,group;char*target,*oldstart;
   group=1;hitspc=machref=0;target=oldstart=start;
   if(*start=='<')
      start++,machref=1;

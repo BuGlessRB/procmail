@@ -34,7 +34,7 @@ see "src/includes.h".
 
 ------------------------------ DESCRIPTION -----------------------------------
 
-The procmail mail processing program. (v3.11pre5 1997/04/03)
+The procmail mail processing program. (vv3.11pre6 1997/04/11)
 
 Can be used to create mail-servers, mailing lists, sort your incoming mail
 into separate folders/files (real convenient when subscribing to one or more

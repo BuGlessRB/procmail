@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: lockfile.man,v 1.14 1997/04/02 03:31:54 srb Exp $
+.Id $Id: lockfile.man,v 1.15 1997/04/11 10:28:58 srb Exp $
 .TH LOCKFILE 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -110,7 +110,7 @@ used as a hint to determine the invoker's loginname
 to verify and/or correct the invoker's loginname (and to find out his HOME
 directory, if needed)
 .TP
-.B @SYSTEM_MBOX@$LOGNAME@DEFlockext@
+.B @MAILSPOOLDIR@$LOGNAME@DEFlockext@
 lockfile for the system mailbox, the environment variables present in here
 will not be taken from the environment, but will be determined by looking
 in /etc/passwd

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.70 1997/04/02 03:31:55 srb Exp $
+.Id $Id: procmail.man,v 1.71 1997/04/11 10:28:59 srb Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -236,7 +236,7 @@ be creating an endless mail loop.
 .B /etc/passwd
 to set the recipient's LOGNAME, HOME and SHELL variable defaults
 .TP
-.B @SYSTEM_MBOX@$LOGNAME
+.B @MAILSPOOLDIR@$LOGNAME
 system mailbox; both the system mailbox and the immediate directory
 it is in will be created everytime procmail starts and either one is
 not present@ETCRC_files@@ETCRCS_files@
@@ -244,9 +244,9 @@ not present@ETCRC_files@@ETCRCS_files@
 .B @PROCMAILRC@
 default rcfile
 .TP
-.B @SYSTEM_MBOX@$LOGNAME@DEFlockext@
+.B @MAILSPOOLDIR@$LOGNAME@DEFlockext@
 lockfile for the system mailbox (not automatically used by procmail, unless
-$DEFAULT equals @SYSTEM_MBOX@$LOGNAME and procmail is delivering to $DEFAULT)
+$DEFAULT equals @MAILSPOOLDIR@$LOGNAME and procmail is delivering to $DEFAULT)
 .TP
 .B @DEFsendmail@
 default mail forwarder
@@ -580,7 +580,7 @@ For security reasons procmail will only use an absolute or $HOME-relative
 rcfile if it is either owned by the recipient or root and not world writable,
 or if the directory it is contained in is not world writable.
 .PP
-If @SYSTEM_MBOX@$LOGNAME is a bogus mailbox (i.e. does not belong to the
+If @MAILSPOOLDIR@$LOGNAME is a bogus mailbox (i.e. does not belong to the
 recipient, is unwritable, is a symbolic link or is a hard link), procmail will
 upon startup try to rename it into a file starting with `@BOGUSprefix@' and
 ending in an inode-sequence-code.  If this turns out to be impossible,
@@ -589,7 +589,7 @@ will have
 .I no
 initial value, and hence will inhibit delivery without a proper rcfile.
 .PP
-If @SYSTEM_MBOX@$LOGNAME already is a valid mailbox, but has got too loose
+If @MAILSPOOLDIR@$LOGNAME already is a valid mailbox, but has got too loose
 permissions on it, procmail will correct this.  To prevent procmail from doing
 this make sure the u+x bit is set.
 .PP
@@ -670,7 +670,7 @@ or whenever you start reading mail):
 .Sx 17
 #!/bin/sh
 
-ORGMAIL=@SYSTEM_MBOX@$LOGNAME
+ORGMAIL=@MAILSPOOLDIR@$LOGNAME
 
 if cd $HOME &&
  test \-s $ORGMAIL &&

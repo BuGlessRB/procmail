@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.80 1997/04/03 01:58:42 srb Exp $";
+ "$Id: formail.c,v 1.81 1997/04/11 10:29:05 srb Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1997/04/03 01:58:42 $";
+static /*const*/char rcsdate[]="$Date: 1997/04/11 10:29:05 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -856,7 +856,7 @@ nconlyhead:
   return retval!=EXIT_SUCCESS?retval:split<0?EX_IOERR:EXIT_SUCCESS;
 }
 
-eqFrom_(a)const char*const a;
+int eqFrom_(a)const char*const a;
 { return !strncmp(a,From_,STRLEN(From_));
 }
 

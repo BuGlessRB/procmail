@@ -1,4 +1,4 @@
-/*$Id: authenticate.h,v 1.3 1997/04/03 01:58:39 srb Exp $*/
+/*$Id: authenticate.h,v 1.4 1997/04/11 10:29:03 srb Exp $*/
 
 /* Generic authentication interface, substitute a suitable module to
    accomodate arbitrary other authentication databases */
@@ -7,11 +7,12 @@ typedef struct auth_identity auth_identity;
 
 #ifndef P
 #define P(x)	x
+#define Q(x)	()
 #endif
 
 /*const*/auth_identity
  *auth_finduser P((char*const user,const sock)),
- *auth_finduid P((const uid_t uid,const sock));
+ *auth_finduid Q((const uid_t uid,const sock));
 auth_identity
  *auth_newid P((void));
 int

@@ -11,7 +11,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: authenticate.c,v 1.3 1997/04/03 01:58:39 srb Exp $";
+ "$Id: authenticate.c,v 1.4 1997/04/11 10:29:03 srb Exp $";
 #endif
 
 #ifdef PROCMAIL
@@ -114,7 +114,7 @@ const char*auth_getsecret(pass)const auth_identity*const pass;
 #else /* PROCMAIL */
 auth_identity*auth_newid P((void))
 { auth_identity*pass;
-  (pass=malloc(sizeof*pass))->pw=0;pass->mbox=0;
+  (pass=malloc(sizeof*pass))->pw=0;pass->mbox=0;return pass;
 }
 
 void auth_copyid(newpass,oldpass)auth_identity*newpass;
@@ -124,7 +124,7 @@ void auth_copyid(newpass,oldpass)auth_identity*newpass;
      free(newpass->mbox),newpass->mbox=0;
   newpass->sock=oldpass->sock;
   if(!(np=(struct passwd*)newpass->pw))
-   { np=(struct passwd*)newpass->pw=malloc(sizeof*np);
+   { np=(struct passwd*)(newpass->pw=malloc(sizeof*np));
      np->pw_name=np->pw_dir=np->pw_shell=0;
    }
   np->pw_uid=(op=oldpass->pw)->pw_uid;np->pw_gid=op->pw_gid;
@@ -165,7 +165,7 @@ const char*auth_mailboxname(pass)auth_identity*const pass;
 	for(p=pass->mbox+STRLEN(mailspooldir),n=pass->pw->pw_name,
 	 i=MAILSPOOLHASH;i--;*p++='/')
 	 { if(*n)
-	      c=*n++;
+	      c= *n++;
 	   *p++=c;
 	 }
 	strcpy(p,pass->pw->pw_name);

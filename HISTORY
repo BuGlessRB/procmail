@@ -298,7 +298,7 @@
 	    Fixed bug in lockfile, the exitcode was not correct if
 	       you used -! (I hope this finally fixes this -! problem)
 	    Using execv() instead of execve()
-1995/10/29: v3.11pre4
+1997/04/11: v3.11pre6
 	    Changes to procmail:
 	       - varname ?? < nnn conditions didn't have the expected effect
 	       - Regression bug since v3.06, procmail -m /etc/procmailrcs
@@ -347,6 +347,7 @@
 	       - Don't strip trailing \n in a $MATCH
 	       - Refuse to open directories for INCLUDERC files
 	       - Syslog failed -o attempts
+	       - Don't log non-delivering recipes, even with 'c' flag
 	    Changes to formail:
 	       - Slightly extended the number of known header fields
 	       - Eliminated the conflict with the 4.4BSD daemon libidentifier
@@ -392,5 +393,5 @@
 	    Corrected the last(?) "make -n" glitch
 	    Fixed library detection loop for some Solaris 2.[3-5] setups
 	    Changes to procmail and lockfile: use the authenticate library
-	       for easier integration custom authentication and mailbox
+	       for easier integration with custom authentication and mailbox
 	       locations

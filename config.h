@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.74 1997/04/02 03:15:33 srb Exp $*/
+/*$Id: config.h,v 1.75 1997/04/11 10:28:55 srb Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -54,7 +54,7 @@
 	procmail to sleep for 1 sec. before writing a regular mailbox
 	(under heavy load procmail automatically suppresses this) */
 
-/* This usually allowed you define SYSTEM_MBOX.	 This has changed.
+/* This usually allowed you to define SYSTEM_MBOX.  This has changed.
    If you want mail delivery to custom mail-spool-files, edit the
    authenticate.c file and change the content of:  auth_mailboxname() */
 
@@ -126,7 +126,7 @@
 #define FROMDsubstitute "(^(Precedence:.*(junk|bulk|list)|\
 To: Multiple recipients of |\
 (((Resent-)?(From|Sender)|X-Envelope-From):|>?From )([^>]*[^(.%@a-z0-9])?(\
-Post(ma?(st(e?r)?|n)|office)|(send)?Mail(er)?|daemon|mmdf|n?uucp|\
+Post(ma?(st(e?r)?|n)|office)|(send)?Mail(er)?|daemon|m(mdf|ajordomo)|n?uucp|\
 LIST(SERV|proc)|NETSERV|o(wner|ps)|r(e(quest|sponse)|oot)|b(ounce|bs\\.smtp)|\
 echo|mirror|s(erv(ices?|er)|mtp(error)?|ystem)|\
 A(dmin(istrator)?|MMGR|utoanswer)\

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.118 1997/04/03 01:58:48 srb Exp $";
+ "$Id: procmail.c,v 1.119 1997/04/11 10:29:06 srb Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -59,7 +59,7 @@ char*themail,*thebody;			    /* the head and body of the mail */
 uid_t uid;
 gid_t gid,sgid;
 
-auth_identity*savepass(spass,uid)auth_identity*const spass;
+static auth_identity*savepass(spass,uid)auth_identity*const spass;
  const uid_t uid;
 { const auth_identity*tpass;
   if(auth_filledid(spass)&&auth_whatuid(spass)==uid)
@@ -806,9 +806,9 @@ frmailed:	  { if(ifstack.offs)
 		       free(ifstack.offs);
 		    goto mailed;
 		  }
-setlsucc:	 if(succeed&&flags[CONTINUE]&&lgabstract==2)
+		 if(succeed&&flags[CONTINUE]&&lgabstract==2)
 		    logabstract(tgetenv(lastfolder));
-		 rawnonl=0;
+setlsucc:	 rawnonl=0;
 jsetlsucc:	 lastsucc=succeed;lasttell= -1;		       /* for comsat */
 	       }
 	      else
