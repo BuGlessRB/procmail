@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.132 2001/06/07 20:55:33 guenther Exp $
+#$Id: autoconf,v 1.133 2001/06/17 04:06:25 guenther Exp $
 
 # All possible entries in autoconf.h:
 
@@ -54,6 +54,7 @@
 #	#define NOstrtol
 #	#define NOstrtod
 #	#define NOstrerror
+#Ok	#define NOstrlcat
 #Ok	#define NOstrncasecmp
 #Ok	#define NOsys_errlist
 #Ok	#define NObzero
@@ -268,8 +269,8 @@ cat >_autotst.c <<HERE
 void*vvoid;
 int main(){int i=0;char*p="t";
  vvoid=p;
- {time_t vtime_t;i+=vtime_t=1;}
- {off_t voff_t;i+=voff_t=1;}
+ {time_t vtime;i+=vtime=1;}
+ {off_t voff;i+=voff=1;}
  return !vvoid+!i;}
 #include <unistd.h>
 int empty()
@@ -1038,7 +1039,8 @@ int main(){char a[2];
  setrgid(0);setegid(0);setregid(0,0);setresgid(0,0,0);opendir("0");
  initgroups("0",0);strstr("0","0");mkdir("0",0);pow(0.,0.);clock();
  waitpid((pid_t)-1,(int*)0,0);ftruncate(0,0);fsync(0);strtod("0.0",(char**)0);
- strncasecmp("foo","bar",3);strerror(ENOENT);bzero(a,2);memset(a,'\0',2);
+ strncasecmp("0","0",3);strerror(ENOENT);strlcat(a,"0",2);
+ bzero(a,2);memset(a,'\0',2);
 #ifdef S_ISLNK
  {struct stat stbuf;fstat(0,&stbuf);}
 #endif
@@ -1054,8 +1056,9 @@ int main(){char a[2];
 HERE
 
 echo 'Testing for memmove, strchr, strpbrk, strcspn, strtol, strstr,'
-echo '	rename, setrgid, setegid, pow, opendir, mkdir, waitpid, fsync, '
-echo '	ftruncate, strtod, strncasecmp, strerror, memset, _exit, and bzero'
+echo '	rename, setrgid, setegid, pow, opendir, mkdir, waitpid, fsync,'
+echo '	ftruncate, strtod, strncasecmp, strerror, strlcat,'
+echo '	memset, bzero, and _exit'
 if $MAKE _autotst.$O >$DEVNULL 2>&1
 then
 :
@@ -1074,7 +1077,7 @@ $RM _autotst _autotst.$O
 
 # The simple ones
 for func in strcspn strpbrk rename pow mkdir fstat initgroups \
- strtol waitpid ftruncate fsync strtod strncasecmp memset _exit bzero
+ strtol waitpid ftruncate fsync strtod strncasecmp strlcat memset bzero _exit
 do
   grepfor $func "#define NO$func"
 done
