@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.67 1994/09/29 18:43:55 berg Exp $";
+ "$Id: multigram.c,v 1.68 1994/10/07 15:25:01 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/09/29 18:43:55 $";
+static /*const*/char rcsdate[]="$Date: 1994/10/07 15:25:01 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -531,7 +531,7 @@ invaddr:	  { default:nlog("Skipping invalid address entry:");*chp=' ';
 	    }
 	   revstr(*nam);*ip=0;nam=malloc(1+ ++argc*sizeof*argv);
 	   tmemmove(nam+1,nargv,argc*sizeof*argv);*(nargv=nam)=BinSh;
-	   ;{ unsigned long cnames,cnsize,cconcur,maxnsize;
+	   ;{ unsigned long cnames,cnsize,cconcur;
 	      char**first,**best;
 	      ;{ unsigned long maxnsize;
 		 for(maxnsize=0;*nam;maxnsize+=strlen(*nam++)+1+sizeof*nam);
@@ -735,6 +735,13 @@ usg:
 	   *echp--='\0';		      /* strip trailing unbalanced " */
 	while(echp>=chp&&strchr(tpunctuation,*echp))
 	   *echp--='\0';		       /* strip trailing punctuation */
+	;{ const char*colon,*sep;
+	   if((colon=strchr(chp,':'))&&
+	      colon[1]!=':'&&				/* no decnet address */
+	      (sep=strpbrk(chp,"@!/"))&&	 /* address information only */
+	      sep>colon)				    /* beyond colon? */
+	      chp=(char*)colon+1;	       /* strip leading ...: garbage */
+	 }
 	if(echp<chp)
 	   continue;
 	if(lastfrom<=0&&      /* roughly check if it could be a mail address */

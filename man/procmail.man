@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.60 1994/09/22 17:13:22 berg Exp $
+.Id $Id: procmail.man,v 1.61 1994/10/07 15:24:24 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -28,8 +28,6 @@ procmail \- autonomous mail processor
 .I rcfile
 .if n .ti +0.5i
 .RI [ argument ]
-\&.\|.\|.
-.I mail_from rcpt_to
 \&.\|.\|.
 .br
 .B procmail

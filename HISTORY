@@ -253,7 +253,7 @@
 	    Sharpened the autoconf const check, AIX 3.2.3 managed to slip past
 	       it again
 	    Made sure that "make -n" with any make works as expected
-1994/09/29: v3.10pre5
+1994/10/07: v3.10pre5
 	    Changes to procmail:
 	       - Minor corrections to the semantics of the 'a' and 'e' flags
 	       - Minor correction to the semantics of the -o option
@@ -280,6 +280,7 @@
 	       - -D with -r cache reply addresses now
 	       - Carved out one subroutine from main() to get it below the
 		 optimisation threshold
+	       - -R with -x didn't work reliably
 	    Updated the man pages, new subsection to procmailrc(5) summarising
 	       procmail regexp syntax
 	    Expanded on the sendmail.cf $#local example in the

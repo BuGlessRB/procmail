@@ -154,9 +154,11 @@
 	       on the accept list
 	    Improved fuzzy search for explicit mail addresses in the
 	       subscription request
-1994/09/29: v3.10pre5
+1994/10/07: v3.10pre5
 	    Changes to rc.submit:
 	       - Moved the accept.txt in front of the body of the mail
+	       - The initial submission of force subscribed people was lost,
+		 fixed
 	    Make use of the -z option of formail, get rid of the leading
 	       blank in the dist file for new subscriptions
 	    Arch_retrieve log format changed, included timestamps
@@ -176,3 +178,5 @@
 	    Procbounce ignores lines starting with [1-4][0-9][0-9] (transient
 	       failures)
 	    Choplist supports kernels that don't support the #! hack
+	    Subscribing third parties was impossible in v3.06, fixed
+	    Forgot to export PATH in the cronlist example

@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: mimesend,v 1.14 1994/09/27 15:03:31 berg Exp $
+#$Id: mimesend,v 1.15 1994/10/07 15:24:08 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -44,7 +44,7 @@ export name dir filename archivedir mimencode formail sed	# for mimencap
    -I"Precedence: bulk" -X "" <$tmprequest
   $test ! -z "$wrongaddress" && $echo "$wrongaddress"
   cd $archivedir
-  if $test -f "./$filename"
+  if $test -r "./$filename" -a ! -d "./$filename"
   then
      case "`sed -e 1q <\"./$filename\"`" in
 	Content-[Tt]ype:*) $cat "./$filename" ;;
@@ -59,6 +59,7 @@ export name dir filename archivedir mimencode formail sed	# for mimencap
 	$echo "$filename is a directory, use 'ls' instead."
      else
 	$echo "File $filename is currently not available."
+	$echo "N.B. Filenames are case sensitive!"
      fi
   fi
 ) | $procmail -pm SHELL=$SHELL ./../SedBinDir/mimencap | $splitmail -p $TMPF

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.47 1994/09/27 15:03:26 berg Exp $
+#$Id: arch_retrieve,v 1.48 1994/10/07 15:24:05 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -129,7 +129,15 @@ $wrongaddress}"
 		     */../*|../*|*/..|..|[-/]*)
 			$echo "$from ILLEGAL $1" >>$tmpfrom
 			$test -z "$ILLEGAL" && ILLEGAL="$1";;
-		     *) $echo "$from $1" >>$tmpfrom
+		     *) if $test -d "$archivedir/$1"
+			then
+			   $echo "$from DIR_ERROR $1" >>$tmpfrom
+			elif $test -r "$archivedir/$1"
+			then
+			   $echo "$from $1" >>$tmpfrom
+			else
+			   $echo "$from UNAVAIL $1" >>$tmpfrom
+			fi
 			if $test -z "$mimencode"
 			then
 		      ( $formail -rt -I"Subject: archive retrieval: $1" \
@@ -139,7 +147,11 @@ $wrongaddress}"
 			 -I"Precedence: bulk" -X "" <$tmprequest
 			$test ! -z "$wrongaddress" && $echo "$wrongaddress"
 			cd $archivedir
-			if $test -f "./$1"
+			if $test -d "./$1"
+			then
+			   $echo ""
+			   $echo "$1 is a directory, use 'ls' instead."
+			elif $test -r "./$1"
 			then
 			   case "`$sed -e 1q <\"./$1\"`" in
 			      Content-[Tt]ype:*) $cat "./$1" ;;
@@ -152,12 +164,8 @@ $wrongaddress}"
 			   esac
 			else
 			   $echo ""
-			   if $test -d "./$1"
-			   then
-			      $echo "$1 is a directory, use 'ls' instead."
-			   else
-			      $echo "File $1 is currently not available."
-			   fi
+			   $echo "File $1 is currently not available."
+			   $echo "N.B. Filenames are case sensitive!"
 			fi
 		      ) | $SENDMAIL $sendmailOPT $sendmailOPTq -t
 			else
@@ -266,7 +274,8 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 	  <$tmprequest
 	 $test ! -z "$wrongaddress" && $echo "$wrongaddress"
 	 case "X$sendhelp" in
-	    X[Hh][Ee][Ll][Pp]|X[Ii][Nn][Ff][Oo]|X) ;;
+	    X[Hh][Ee][Ll][Pp]|X[Ii][Nn][Ff][Oo]|X)
+	       $echo "$from $sendhelp." >>$tmpfrom ;;
 	    *) $echo "$from unknown command $sendhelp." >>$tmpfrom
 	       $echo "Unknown command $sendhelp." ;;
 	 esac
@@ -285,6 +294,7 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 
 if $test ! -z "$archive_log"
 then
+  $echo "arch_retrieve: done  `$date`" >>$tmpfrom
   $cat $tmpfrom >>$archive_log
 fi
 

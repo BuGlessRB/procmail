@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.106 1994/09/28 19:58:55 berg Exp $";
+ "$Id: procmail.c,v 1.107 1994/10/07 15:25:06 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -196,7 +196,7 @@ conflopt:  nlog(conflicting),elog("options\n"),elog(pmusage);
 	spassinvk.pw_name=spassinvk.pw_dir=spassinvk.pw_shell=0;
 	passinvk=savepass(&spassinvk,uid=getuid());privs=1;gid=getgid();
 	;{ static const char*const trusted_ids[]=TRUSTED_IDS;
-	   if(*trusted_ids&&uid!=euid)
+	   if(Deliverymode&&*trusted_ids&&uid!=euid)
 	    { struct group*grp;const char*const*kp;
 	      if(passinvk)		      /* check out the invoker's uid */
 		 for(chp2=passinvk->pw_name,kp=trusted_ids;*kp;)

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.53 1994/09/27 15:03:42 berg Exp $
+.Id $Id: procmailrc.man,v 1.54 1994/10/07 15:24:27 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -579,15 +579,8 @@ Since they match actual characters, they are only suitable to delimit
 words, not to delimit inter-word space.
 .TP
 .B \e/
-Splits the expression in a search part (to the left) and a match part
-(to the right).  The search part determines where the match part is tried,
-the match part determines where and if the entire expression matches and what
-will be assigned to the @MATCHVAR@ environment variable.  The search part
-searches for the
-.I shortest
-match, the match part searches for the
-.I longest
-match.
+Splits the expression in two parts.  Everything matching the right part
+will be assigned to the @MATCHVAR@ environment variable.
 .SH EXAMPLES
 Look in the
 .BR procmailex (5)

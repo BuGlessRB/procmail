@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.57 1994/09/20 19:31:58 berg Exp $";
+ "$Id: mailfold.c,v 1.58 1994/10/07 15:24:58 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -52,11 +52,12 @@ long dump(s,source,len)const int s;const char*source;long len;
      lastdump=len;part=tofile==to_FOLDER&&!rawnonl?getchunk(s,source,len):len;
      lasttell=lseek(s,(off_t)0,SEEK_END);
      if(!rawnonl)
-	smboxseparator(s);			       /* optional separator */
+      { smboxseparator(s);			       /* optional separator */
 #ifndef NO_NFS_ATIME_HACK
-     if(part&&tofile)		       /* if it is a file, trick NFS into an */
-	len--,part--,rwrite(s,source++,1),ssleep(1);	    /* a_time<m_time */
+	if(part&&tofile)	       /* if it is a file, trick NFS into an */
+	   len--,part--,rwrite(s,source++,1),ssleep(1);	    /* a_time<m_time */
 #endif
+      }
      goto jin;
      do
       { part=getchunk(s,source,len);

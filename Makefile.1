@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.42 1994/09/08 16:11:33 berg Exp $
+#$Id: Makefile.1,v 1.43 1994/10/07 15:23:47 berg Exp $
 
 all: bins mans recommend
 	@echo If you would like to inspect the results before running make \
@@ -130,7 +130,7 @@ deinstall:
 
 clean: config.check
 	-for a in $(SUBDIRS); do cd $$a; $(MAKE) $@; cd ..; done; exit 0
-	cd SmartList; $(RM) targetdir.h targetdir.tmp install.list
+	cd SmartList; $(RM) targetdir.h targetdir.tmp install.list asked.patch
 	$(RM) $(MANS) $(BINS) install.man install.bin suid.sh _Makefile \
 	 *core* autoconf.h.tmp
 

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: sublib.c,v 1.14 1994/08/12 17:34:32 berg Exp $";
+ "$Id: sublib.c,v 1.15 1994/10/07 15:25:11 berg Exp $";
 #endif
 #include "includes.h"
 #include "sublib.h"
@@ -122,7 +122,7 @@ jin:	   if(!(a= *++haystack))
 foundneedle:
   return (char*)haystack;
 ret0:
-  return (char*)0;
+  return 0;
 }
 #endif
 			    /* strtol replacement which lacks range checking */

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailsc.man,v 1.9 1994/08/04 17:05:16 berg Exp $
+.Id $Id: procmailsc.man,v 1.10 1994/10/07 15:24:32 berg Exp $
 .TH PROCMAILSC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -207,8 +207,14 @@ man page.
 Because this speeds up the search by an order of magnitude,
 the procmail internal egrep will always search for the leftmost
 .I shortest
-match (contrary to most editors, which search the leftmost longest match).
-E.g. by itself, the regular expression:
+match, unless it is determining what to assign to
+.BR @MATCHVAR@ ,
+in which case it searches the leftmost
+.I longest
+match.
+E.g. for the leftmost
+.I shortest
+match, by itself, the regular expression:
 .TP
 .B .*
 will always match a zero length string at the same spot.

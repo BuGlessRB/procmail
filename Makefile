@@ -1,5 +1,6 @@
-#$Id: Makefile,v 1.64 1994/09/29 18:43:10 berg Exp $
+#$Id: Makefile,v 1.65 1994/10/07 15:23:44 berg Exp $
 
+# BASENAME should point to where the whole lot will be installed
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
 
@@ -17,7 +18,7 @@ MAN1DIR	  = $(MANDIR)/man$(MAN1SUFFIX)
 MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 
 # Uncomment to install compressed man pages (possibly add extra suffix
-# to the definitions of MAN?DIR by hand)
+# to the definitions of MAN?DIR and/or MAN?SUFFIX by hand)
 #MANCOMPRESS = compress
 
 ############################*#
@@ -49,8 +50,6 @@ MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 # Makefile.0 - mark, don't (re)move this, a sed script needs it
 
 LOCKINGTEST=__defaults__
-LOCKINGTEST=000
-CC=cc +w1
 
 #LOCKINGTEST=/tmp .	# Uncomment and add any directories you see fit.
 #			If LOCKINGTEST is defined, autoconf will NOT

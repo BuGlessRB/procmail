@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.68 1994/09/29 18:43:41 berg Exp $";
+ "$Id: formail.c,v 1.69 1994/10/07 15:24:54 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/09/29 18:43:41 $";
+static /*const*/char rcsdate[]="$Date: 1994/10/07 15:24:54 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -132,7 +132,8 @@ static void renfield(pointer,oldl,newname,newl)struct field**const pointer;
   if(newname[newl-1]==HEAD_DELIMITER)		     /* completely new field */
 replaceall:
      oldl=p->id_len;			     /* replace the old one entirely */
-  p->fld_text[p->tot_len-1]='\n';p->tot_len=(i=p->tot_len-oldl)+newl;
+  p->id_len+=(int)newl-(int)oldl;p->fld_text[p->tot_len-1]='\n';
+  p->tot_len=(i=p->tot_len-oldl)+newl;
   if(newl>oldl)
      *pointer=p=realloc(p,FLD_HEADSIZ+p->tot_len);
   chp=p->fld_text;tmemmove(chp+newl,chp+oldl,i);tmemmove(chp,newname,newl);

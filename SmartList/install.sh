@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.52 1994/09/28 19:58:21 berg Exp $
+#$Id: install.sh,v 1.53 1994/10/07 15:24:01 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -28,14 +28,13 @@ then
   exit 69
 fi
 
+test $# = 0 -a -f asked.patch && set dummy `cat asked.patch` && shift
 
 test $# != 1 -a $# != 2 && echo "Usage: install.sh target-directory [.bin]" &&
  exit 64
 
 target="$1"
 bindir="$2"
-
-setid=../src/setid
 
 case "$target" in		# Make sure $target is absolute
   /*) ;;
@@ -45,7 +44,12 @@ esac
 test -z "$bindir" && bindir=.bin
 
 test ! -d "$target" && echo "Please create the target directory first" &&
- echo "Make sure it has the right owner" && exit 2
+ echo "Make sure it has the right owner & group" && exit 2
+
+cd "`dirname $0`"
+PATH=.:$PATH
+
+setid=../src/setid
 
 if test ! -f ../config.h
 then
@@ -82,10 +86,27 @@ else
   exit 64
 fi
 
-cd "`dirname $0`"
-PATH=.:$PATH
-
 export target bindir binmail PATH
+
+if test -f "$target/.etc/rc.init.dist" -a ! -f asked.patch
+then
+   ( exec 2>/dev/null
+     diff >/dev/null
+     if test $? = 2
+     then
+	exec patch </dev/null
+     fi
+     exit 1
+   )
+  if test $? != 0
+  then
+     echo 1>&2 "Although not mandatory, it could save *you* some time if the"
+     echo 1>&2 "'diff' and 'patch' utilities are in the PATH.  If either one"
+     echo 1>&2 "is not available, forget I asked and run install.sh again."
+     echo "$*" >asked.patch
+     exit 75
+  fi
+fi
 
 TMPF=/tmp/list.id.$$
 
@@ -118,6 +139,11 @@ else
      echo "Please run install.sh with root permissions instead"
      exit 77
   fi
+  echo 1>&2 \
+   "*** This script is best run as root, if that's not possible press return"
+  echo 1>&2 \
+   "*** to continue; if it *is* possible, abort now and restart as root!"
+  read a
   listid=`ls -l install.sh |
    sed -e 's/^[^ ]* *[0-9][0-9]*[^0-9] *\([^ ]*\) .*$/\1/'`
 fi
@@ -126,6 +152,7 @@ trap "" 1 2 3 15
 
 export listid
 
+rm -f install.list
 date >install.list
 chmod 0666 install.list
 
