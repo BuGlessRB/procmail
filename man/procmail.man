@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.58 1994/08/19 18:14:59 berg Exp $
+.Id $Id: procmail.man,v 1.59 1994/08/23 14:47:21 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -543,10 +543,12 @@ size.  Procmail does not change the fieldwidth.
 .PP
 If there is no
 .B Content-Length:
-field and procmail appends to regular mailfolders, any lines in the body of
-the message that look like postmarks are prepended with `@ESCAP@' (disarms
-bogus mailheaders).  The regular expression that is used to search for these
-postmarks is:
+field or the
+.B \-@BERKELEYOPT@
+has been specified and procmail appends to regular mailfolders, any lines in
+the body of the message that look like postmarks are prepended with `@ESCAP@'
+(disarms bogus mailheaders).  The regular expression that is used to search
+for these postmarks is:
 .RS
 `@FROM_EXPR@'
 .RE
@@ -562,7 +564,7 @@ When in explicit delivery mode, procmail will generate a leading `@FROM@'
 line if none is present.  If one is already present procmail will leave it
 intact.@TRUSTED_IDS@
 .PP
-For security reasons procmail will only use an absolute or $HOME relative
+For security reasons procmail will only use an absolute or $HOME-relative
 rcfile if it is either owned by the recipient or root and not world writable,
 or if the directory it is contained in is not world writable.
 .PP
@@ -597,7 +599,7 @@ To make `egrepping' of headers more consistent, procmail concatenates all
 continued header fields; but only internally.  When delivering the mail, line
 breaks will appear as before.
 .PP
-If procmail is called under a name not starting with `procmail' (i.e. if it
+If procmail is called under a name not starting with `procmail' (e.g. if it
 is linked to another name and invoked as such), it comes up in explicit
 delivery mode, and expects the recipients' names as command line arguments
 (as if \-@DELIVEROPT@ had been specified).

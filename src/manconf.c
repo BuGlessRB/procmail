@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.48 1994/08/19 18:15:07 berg Exp $*/
+/*$Id: manconf.c,v 1.49 1994/08/23 14:47:31 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -115,7 +115,6 @@ administrator), you have to make sure it is invoked when your mail arrives.");
 procmail when mail arrives, you can control the invocation of procmail \
 yourself.");
 #endif
-  puts("/^\\.ex/,/^\\.ex/ d");
 #ifndef MAILBOX_SEPARATOR
   ps("DOT_FORWARD",".forward");
   ps("FW_content","\"|IFS=' '&&exec /usr/local/bin/procmail -f-||\
@@ -164,6 +163,9 @@ Care must be taken when creating @ETCRC@, because, if circumstances\
  @ETCRC@ file is executed on behalf of the recipient.":"");
   ps("ETCRC_warn",etcrc?"\1.PP\1The\1.B @ETCRC@\1file might be executed\
  with root privileges, so be very careful of what you put in it.\1\
+.B SHELL\1\
+will be equal to that of the current recipient, so if procmail has to invoke\
+ the shell, you'd better set it to some safe value first.\1\
 See also:\1.BR DROPPRIVS .":"");
   ps("ETCRC",etcrc?etcrc:"");
 #ifdef ETCRCS
@@ -176,7 +178,7 @@ See also:\1.BR DROPPRIVS .":"");
   ps("ETCRCS_warn","\1.PP\1Keep in mind that if\1.BR chown (1)\1is permitted\
  on files in\1.BR @ETCRCS@ ,\1that they can be chowned to root\
  (or anyone else) by their current owners.\1For maximum security, make\
- sure this directory is executable to root only.");
+ sure this directory is\1.I executable\1to root only.");
   ps("ETCRCS_error","\1.TP\1Denying special privileges for \"x\"\1\
 Procmail will not take on the identity that comes with the rcfile because\1\
 a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\

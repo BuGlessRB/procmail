@@ -249,3 +249,4 @@
 	    Formail v3.00 and later occasionally seemed to hang if used in
 	       a chain of pipes and fed with more text than it needed, fixed
 	    Updated the FAQ
+	    Updated the man pages

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.46 1994/08/23 12:16:05 berg Exp $
+.Id $Id: procmailrc.man,v 1.47 1994/08/23 14:47:25 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -30,7 +30,7 @@ If a
 is found to match, procmail considers the mail (you guessed it) delivered and
 will
 .I cease processing
-the rcfile after executing the action line of the recipe.
+the rcfile after having successfully executed the action line of the recipe.
 If a
 .I non-delivering recipe
 is found to match, processing of the rcfile will
@@ -38,18 +38,17 @@ is found to match, processing of the rcfile will
 after the action line of this recipe has been executed.
 .PP
 Delivering recipes are those that cause header and/or body of the mail to
-be written into a file, to be absorbed by a program or to be forwarded
-to a mailaddress.
+be: written into a file, absorbed by a program or forwarded to a mailaddress.
 .PP
 Non-delivering recipes are those that cause the output of a program or
-filter to be captured or that mark the start of a nesting block.
+filter to be captured back by procmail or those that start a nesting block.
 .PP
 You can tell procmail to treat a
 .I delivering recipe
 as if it were a non-delivering recipe by specifying the `@CONTINUE@' flag on
 such a recipe.  This will make procmail
 .I continue
-processing the rcfile even if it just delivered to this recipe.
+processing the rcfile even if it just delivered successfully to this recipe.
 .PP
 By using any number of recipes you can presort your mail extremely
 straightforward into several mailfolders.  Bear in mind though that the mail
@@ -455,8 +454,8 @@ be a binary file for that matter.
 .TP
 .B DELIVERED
 If set to `yes' procmail will pretend (to the mail agent) the mail
-has been delivered.  If mail cannot be delivered after meeting this
-assignment (to `yes'), the mail will be lost (i.e. it will not bounce).
+has been delivered.  If mail cannot be delivered after having met this
+assignment (set to `yes'), the mail will be lost (i.e. it will not bounce).
 .TP
 .B TRAP
 When procmail terminates it will execute the contents of this variable.
@@ -656,7 +655,7 @@ which should catch mails coming from most mailer-daemons.
 When assigning boolean values to variables like VERBOSE, DELIVERED or COMSAT,
 procmail accepts as true every string starting with: a non-zero value, `on',
 `y', `t' or `e'.  False is every string starting with: a zero value, `off',
-`n', `f' or 'd'.
+`n', `f' or `d'.
 .PP
 If the action line of a recipe specifies a program, a sole backslash-newline
 pair in it on an otherwise empty line will be converted into a newline.

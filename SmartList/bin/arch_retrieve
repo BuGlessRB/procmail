@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.40 1994/08/23 13:29:44 berg Exp $
+#$Id: arch_retrieve,v 1.41 1994/08/23 14:47:13 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -119,7 +119,7 @@ $wrongaddress}"
 			then
 		      ( $formail -rt -I"Subject: archive retrieval: $1" \
 			 -i"From: $listreq" -A"X-Loop: $listaddr" \
-		-i"Reply-To: Please_write_a_new_mail_instead_of_replying" \
+ -i"Reply-To: Please.write.a.new.mail.instead.of.replying@FIRST.WORD.archive" \
 			 -i"Content-ID: <$1%$listreq>" \
 			 -I"Precedence: bulk" -X "" <$tmprequest
 			$test ! -z "$wrongaddress" && $echo "$wrongaddress"
@@ -155,7 +155,7 @@ $wrongaddress}"
 	    else
 	       ( $formail -rt -I"Subject: archive retrieval: $line" \
 		      -i"From: $listreq" -A"X-Loop: $listaddr" \
-		-i"Reply-To: Please_write_a_new_mail_instead_of_replying" \
+ -i"Reply-To: Please.write.a.new.mail.instead.of.replying@FIRST.WORD.archive" \
 		      -I"Precedence: bulk" <$tmprequest
 		 $test ! -z "$wrongaddress" && $echo "$wrongaddress"
 		 $echo "Your request expanded to more than $maxfiles files."
@@ -176,7 +176,7 @@ $wrongaddress}"
 		  $echo $from ls "$line" >>$tmpfrom
 		   ( $formail -rt -I"Subject: archive retrieval: ls $1" \
 		      -i"From: $listreq" -A"X-Loop: $listaddr" \
-		-i"Reply-To: Please_write_a_new_mail_instead_of_replying" \
+ -i"Reply-To: Please.write.a.new.mail.instead.of.replying@FIRST.WORD.archive" \
 		      -i"Content-ID: <$line%$listreq>" \
 		      -I"Precedence: bulk" <$tmprequest
 		     $test ! -z "$wrongaddress" && $echo "$wrongaddress"
@@ -212,7 +212,7 @@ Truncating after '$breakoff_ls' names...' -e ${breakoff_ls}q
 	       *) $echo $from "$line" >>$tmpfrom
 		( $formail -rt -I"Subject: archive retrieval: $line" \
 		   -i"From: $listreq" -A"X-Loop: $listaddr" \
-		   -i"Reply-To: Please_write_a_new_mail_instead_of_replying" \
+ -i"Reply-To: Please.write.a.new.mail.instead.of.replying@FIRST.WORD.archive" \
 		   -I"Precedence: bulk" <$tmprequest
 		  $test ! -z "$wrongaddress" && $echo "$wrongaddress"
 		  cd $archivedir
@@ -228,7 +228,7 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 	 version|VERSION)
 		( $formail -rt -I"Subject: archive retrieval: $line" \
 		   -i"From: $listreq" -A"X-Loop: $listaddr" \
-		   -i"Reply-To: Please_write_a_new_mail_instead_of_replying" \
+ -i"Reply-To: Please.write.a.new.mail.instead.of.replying@FIRST.WORD.archive" \
 		   <$tmprequest
 		  $test ! -z "$wrongaddress" && $echo "$wrongaddress"
 		  flist -v 2>&1 | sed -e "/^User:/,$ d"
@@ -244,7 +244,7 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
    then
        ( $formail -rt -I"Subject: archive retrieval info" \
 	  -i"From: $listreq" -A"X-Loop: $listaddr" -I"Precedence: bulk" \
-	  -i"Reply-To: Please_write_a_new_mail_instead_of_replying" \
+ -i"Reply-To: Please.write.a.new.mail.instead.of.replying@FIRST.WORD.archive" \
 	  <$tmprequest
 	 $test ! -z "$wrongaddress" && $echo "$wrongaddress"
 	 case "X$sendhelp" in

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.23 1994/08/18 19:16:26 berg Exp $
+#$Id: mansed,v 1.24 1994/08/23 14:47:18 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -31,9 +31,8 @@ fi
 .ds Rv \\$3
 .ds Dt \\$4
 ..
-.ex
 HERE
-sed -e '/^\.TH/ q' <$SRC
+sed -e '1,/^.ex/ d' -e '/^\.TH/ q' <$SRC
 cat <<\HERE
 .rn SH Sh
 .de SH

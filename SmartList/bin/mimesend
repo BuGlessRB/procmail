@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: mimesend,v 1.11 1994/08/23 13:29:46 berg Exp $
+#$Id: mimesend,v 1.12 1994/08/23 14:47:15 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -39,7 +39,7 @@ export name dir filename archivedir mimencode formail sed	# for mimencap
 
 ( $formail -rt -I"Subject: archive retrieval: $1" \
    -i"From: $listreq" -A"X-Loop: $listaddr" \
-   -i"Reply-To: Please_write_a_new_mail_instead_of_replying" \
+ -i"Reply-To: Please.write.a.new.mail.instead.of.replying@FIRST.WORD.archive" \
    -i"Content-ID: <\"$filename\"%$listreq>" \
    -I"Precedence: bulk" -X "" <$tmprequest
   $test ! -z "$wrongaddress" && $echo "$wrongaddress"
@@ -76,7 +76,8 @@ else
   for a in "$@"
   do
      $formail -fb -A"X-Loop: $listaddr" -I"Precedence: bulk" \
-	-a"Reply-To: Please_write_a_new_mail_instead_of_replying" <"$a" |
+ -a"Reply-To: Please.write.a.new.mail.instead.of.replying@FIRST.WORD.archive" \
+	<"$a" |
       $SENDMAIL $sendmailOPT $sendmailOPTq -t
      $rm -f "$a"
   done
