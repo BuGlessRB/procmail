@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.13 1993/04/27 17:33:47 berg Exp $
+.Id $Id: procmailex.man,v 1.14 1993/05/18 13:05:24 berg Exp $
 .de Sx
 .PP
 .ne \\$1
@@ -144,11 +144,18 @@ in this case, so we won't.
 texmail
 .Ex
 The same as above, except now we store the mails in numbered files (MH mail
-folder), again the texmail directory has to exist already.
+folder), again the texmail directory should exist already.
 .Sx 3
 :
 (^TO|^Subject:.*)TeX[^t]
 texmail/.
+Or you could file the mail in several directory folders at the same time.
+The following recipe will deliver the mail to two MH-folders and one
+directory folder.  It is actually only one file with two extra hardlinks.
+.Sx 3
+:
+(^TO|^Subject:.*)TeX[^t]
+texmail/. wordprocessing dtp/.
 .Ex
 Store all the messages about meetings in a folder that is in a directory
 that changes every month.  E.g. if it were January 1994, the folder
@@ -180,6 +187,19 @@ DUMMY=`test \-d $MONTHFOLDER || mkdir $MONTHFOLDER`
 ::
 meeting
 ${MONTHFOLDER}/meeting
+.Ex
+When delivering to emacs folders (i.e. mailfolders managed by any emacs
+mail package, e.g. RMAIL or VM) directly, you should use emacs-compatible
+lockfiles.  The emacs mailers are a bit braindamaged in that respect, they get
+very upset if someone delivers to mailfolders which they already have in their
+internal buffers.  The following recipe assumes that the $HOME equals
+/home/john.
+.Sx 5
+MAILDIR=Mail
+
+::/usr/local/lib/emacs/lock/!home!john!Mail!mailbox
+^Subject:.*whatever
+mailbox
 .Ex
 To extract certain headers from a mail and put them into environment
 variables you can use any of the following constructs:

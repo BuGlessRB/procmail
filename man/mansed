@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.8 1993/04/27 17:33:43 berg Exp $
+#$Id: mansed,v 1.9 1993/05/18 13:05:21 berg Exp $
 
 test 5 != $# &&
  echo "Don't start this script directly, use \`make'" && exit 1
@@ -49,7 +49,7 @@ fi
 ..
 HERE
 cat "$SRC"
-expr match "$DEST" '.*[18]$' >$DEVNULL && cat <<HERE
+expr "X$DEST" : '.*[18]$' >$DEVNULL && cat <<HERE
 .Sh SOURCE
 This program is part of the
 .I procmail mail-processing-package

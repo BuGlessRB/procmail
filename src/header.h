@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.17 1993/05/07 12:39:27 berg Exp $*/
+/*$Id: header.h,v 1.18 1993/05/18 13:05:32 berg Exp $*/
 
 static const char
  returnpath[]=		"Return-Path:",				  /* RFC 822 */
@@ -80,6 +80,12 @@ static const char
  rference[]=		"Reference:",
  msgtype[]=		"Message-Type:",
  autoforwardedfrom[]=	"Auto-Forwarded-From:",
+ autofcount[]=		"Auto-Forward-Count:",
+ endofheader[]=		"End-of-Header:",
+ orgaforwfrom[]=	"Original-Auto-Forwarded-From:",
+ orgdate[]=		"Original-Date:",
+ notdeliveredto[]=	"Not-Delivered-To:",
+ reportversion[]=	"Report-Version:",
  status[]=		"Status:";			 /* mailer extension */
 
 static const struct {const char*hedr;int lnr;}cdigest[]=
@@ -96,5 +102,7 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
   bsl(nntppostinghost),bsl(title),bsl(aRticleid),bsl(posted),bsl(cnttype),
   bsl(encoding),bsl(mimeversion),bsl(cnttransferenc),bsl(cntid),
   bsl(cntdescription),bsl(transportoptions),bsl(defltoptions),bsl(cntlength),
-  bsl(rference),bsl(msgtype),bsl(autoforwardedfrom),bsl(status)
+  bsl(rference),bsl(msgtype),bsl(autoforwardedfrom),bsl(autofcount),
+  bsl(endofheader),bsl(orgaforwfrom),bsl(orgdate),bsl(notdeliveredto),
+  bsl(reportversion),bsl(status)
 };

@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.18 1993/04/21 16:38:09 berg Exp $
+#$Id: install.sh,v 1.19 1993/05/18 13:05:12 berg Exp $
 
 test $# != 1 -a $# != 2 && echo "Usage: install.sh target-directory [.bin]" &&
  exit 64
@@ -13,7 +13,7 @@ test -z "$bindir" && bindir=.bin
 test ! -d "$target" && echo "Please create the target directory first" &&
  exit 2
 
-if expr match "$bindir" .bin >/dev/null
+if expr "X$bindir" : X.bin >/dev/null
 then
 :
 else

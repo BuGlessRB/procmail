@@ -16,7 +16,7 @@
 #	Created by S.R. van den Berg, The Netherlands		#
 #	This file can be freely copied for any use.		#
 #################################################################
-#$Id: mailstat,v 1.13 1993/03/05 14:39:48 berg Exp $
+#$Id: mailstat,v 1.14 1993/05/18 13:05:09 berg Exp $
 
 #	This shell script expects the following programs to be in the
 #	PATH (paths given here are the standard locations, your mileage
@@ -52,15 +52,15 @@ EX_USAGE=64
 ########
 
 while $test $# != 0 -a a"$1" != a-- -a \
- \( 0 != `$expr match a"$1" a-.` -o $# != 1 \)
+ \( 0 != `$expr "X$1" : X-.` -o $# != 1 \)
 do
-  if $expr match "$1" -. >$DEVNULL	# structured-programming spaghetti
+  if $expr "X$1" : X-. >$DEVNULL	# structured-programming spaghetti
   then
      flags="$1"; shift
   else
      flags=-h				# force help page
   fi
-  while flags="`$expr match "$flags" '.\\(.*\\)'`"; $test ."$flags" != .
+  while flags="`$expr 'X$flags' : 'X.\\(.*\\)'`"; $test ."$flags" != .
   do
      case "$flags" in
 	 k*) MSkeeplogfile=1;;
@@ -105,8 +105,8 @@ then
 	if $test -f "$LOGFILE"
 	then
 	   $echo No mail arrived since \
-	    `$expr match "\`LANG= LC_TIME= $ls -l \"$OLDLOGFILE\"
-	    \`" '.*[0-9] \\([A-Z][a-z][a-z] .[^ ] .....\\) [^ ]'`
+	    `$expr "X\`LANG= LC_TIME= $ls -l \"$OLDLOGFILE\"
+	    \`" : '.*[0-9] \\([A-Z][a-z][a-z] .[^ ] .....\\) [^ ]'`
 	else
 	   $echo "Can't find your LOGFILE=$LOGFILE"
 	fi

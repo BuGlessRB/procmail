@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.33 1993/05/05 13:18:06 berg Exp $
+#$Id: initmake,v 1.34 1993/05/18 13:05:06 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -140,9 +140,8 @@ do
   do
      if test dummy != $a
      then
-	lib=`expr match $a '-l\(.*\)'`
-	if $FGREP lib$lib _autotst.rrr >$DEVNULL ||
-	 $FGREP -e $a _autotst.rrr >$DEVNULL
+	lib=`expr $a : '-l\(.*\)'`
+	if $FGREP -e lib$lib -e $a -e "'$lib'" _autotst.rrr >$DEVNULL
 	then
 	:
 	else

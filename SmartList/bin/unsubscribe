@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: unsubscribe,v 1.12 1993/04/14 10:04:11 berg Exp $
+#$Id: unsubscribe,v 1.13 1993/05/18 13:05:18 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -45,7 +45,7 @@ $echo "$remtext" | $sed -e '1 s/^ *[0-9]* [^ ]* \(.*\)$/\1/' \
 
 if $test ! -z "$subscribe_log"
 then
-  if $expr match "$remtext" ".*You have been removed" >/dev/null
+  if $expr "X$remtext" : ".*You have been removed" >/dev/null
   then
      $echo "unsubscribe: `$echo \"$remtext\" | $sed -e '2,\$d'` by:$fromaddr"
   else

@@ -159,7 +159,7 @@
 	       turns out to be /dev/null
 	    Added a paragraph to the mailinglist/Manual (explaining multigram
 	       and threshold values)
-1993/05/05: v2.82
+1993/05/18: v2.82
 	    Fixed sleeptime argument to lockfile
 	    Refined the ^FROM_DAEMON macro again
 	    Added a ^FROM_MAILER macro
@@ -174,6 +174,8 @@
 	    Made the regexp lib faster again (worst case performance improved)
 	    Split up the manpage auto-generated sed scripts, some seds cannot
 	       process scripts with more than 100 commands
+	    Changed manpage substitions tokens to use @*@ instead of +*+
+	    Added example recipe for emacs users in the procmailex man page
 	    Extended recommend.c, it advises changing the permissions on
 	       the system mail spool directory as well now (if needed)
 	    Procmail can now deliver to multiple directories (using hardlinks)
@@ -182,6 +184,7 @@
 	    Programs started from within TRAP can read the mail from stdin
 	    Worked my way around the !@#$%^&*() POSIX setgid() semantics (if
 	       your OS supports setrgid() or setregid())
+	    Eliminated all uses of "expr match"
 	    Changes to the mailinglist scripts:
 	       - Finetuned some scripts
 	       - Added digested lists
