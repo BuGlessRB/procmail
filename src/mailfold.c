@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.83 1999/04/13 04:33:17 guenther Exp $";
+ "$Id: mailfold.c,v 1.84 1999/04/13 04:50:41 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -151,6 +151,8 @@ exlb: { nlog(exceededlb);setoverflow();
 	goto exlb;
      stat(buf2,&stbuf);			      /* filename with i-node number */
      ultoan((unsigned long)stbuf.st_ino,strcpy(chp,msgprefix)+mpl);
+     if(!linkonly&&(!stat(buf,&stbuf)||errno!=ENOENT))
+	goto ret;			 /* avoid overwriting an old message */
    }
   if(linkonly)
    { yell(lkingto,buf);
