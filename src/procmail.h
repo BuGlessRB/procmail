@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.55 2001/06/21 17:48:12 guenther Exp $*/
+/*$Id: procmail.h,v 1.56 2001/08/04 07:16:49 guenther Exp $*/
 
 #include "includes.h"
 
@@ -109,7 +109,7 @@ extern gid_t gid,sgid;
  *	External variables that are checked/changed by the signal handlers:
  *	volatile time_t alrmtime;
  *	pid_t pidfilt,pidchild;
- *	volatile nextexit,lcking;
+ *	volatile int nextexit,lcking;
  *	size_t linebuf;
  *	static volatile int mailread;	in mailfold.c
  */
