@@ -1,0 +1,55 @@
+#! /bin/sh
+
+tmprequest=tmp.request
+tmpfrom=tmp.from
+subscribetxt=subscribe.txt
+
+subscraddr=""
+
+address=`formail -k -xSubject: |
+ sed -n \
+  -e 's/^[	 ]*[aA][dD][dD][	][	 ]*'\
+'\([^	 ][^	 ]*[@!][^	 ][^	 ]*\)/\1/' \
+  -e 's/^[	 ]*[aA][dD][dD][rR][eE][sS][sS][	][	 ]*'\
+'\([^	 ][^	 ]*[@!][^	 ][^	 ]*\)/\1/' \
+  -e 's/^[	 ]*[sS][uU][bB][	][	 ]*'\
+'\([^	 ][^	 ]*[@!][^	 ][^	 ]*\)/\1/' \
+  -e 's/^[	 ]*[sS][uU][bB][sS][cC][rR][iI][bB][eE][	][	 ]*'\
+'\([^	 ][^	 ]*[@!][^	 ][^	 ]*\)/\1/' `
+
+for a in $address ""
+do
+  test -z "$subscraddr" && subscraddr=$a
+done
+
+if test -z "$subscraddr"
+then
+  address=`formail -k -xSubject: <$tmprequest |
+   multigram -b1 -l$off_threshold $tmpfrom |
+   sed -e 's/^ *[^ ]* *[^ ]* *[^ ]* *\([^ ]*\)/\1/' `
+
+  for a in $address ""
+  do
+     test -z "$subscraddr" && subscraddr=$a
+  done
+
+  test -z "$subscraddr" && subscraddr=`cat $tmpfrom`
+fi
+
+multigram -a $subscraddr dist >/dev/null
+
+formail -i"Sender: $listreq" -i"From: $listaddr" -rtA"X-Loop: $listaddr" \
+ <$tmprequest
+
+echo "You have added to the subscriber list of:"
+echo
+echo "	$listaddr"
+echo
+echo "the following mail address:"
+echo
+echo "	$subscraddr"
+echo
+
+cat $subscribetxt
+
+sed -e 's/^\(.\)/>\1/' $tmprequest

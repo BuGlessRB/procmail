@@ -29,8 +29,8 @@ Now, back to installing the mailinglist scripts:
 
 Suppose you have create this pseudo user "list" and its home directory would
 be /home/list
-Simply execute the "install.sh" script present in this directory by typing
-something like:
+Simply execute the "install.sh" script (preferably as user "list") present in
+this directory by typing something like:
 
 	sh install.sh /home/list
 

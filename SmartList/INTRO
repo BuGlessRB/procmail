@@ -1,4 +1,4 @@
-$Id: INTRO,v 1.1 1992/11/11 19:34:29 berg Exp $
+$Id: INTRO,v 1.2 1992/11/24 15:58:06 berg Exp $
 
 			How to set up mailing lists
 			---------------------------
@@ -106,7 +106,7 @@ e. Can only be taken care of by using a mailfilter like procmail.
 
 f. Can only be taken care of by using a mailfilter like procmail.
 
-h. Can only be taken care of by using a mailfilter like procmail.
+g. Can only be taken care of by using a mailfilter like procmail.
 
 
 5. Why use procmail to filter the mailinglist mail?

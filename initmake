@@ -1,10 +1,10 @@
 #! /bin/sh
-: &&O= || exec /bin/sh ./initmake $argv:q # we're in a csh, feed myself to sh
+:
+#$Id: initmake,v 1.11 1992/11/24 15:57:53 berg Exp $
 
-#$Id: initmake,v 1.10 1992/11/19 12:32:26 berg Exp $
-
-MSHELL=$1
 PATH=:$PATH
+BSHELL=$1
+shift; MSHELL=$1
 shift; RM="$1"
 shift; MV="$1"
 shift; LN="$1"
@@ -35,7 +35,7 @@ case "$SHELL" in
   *) echo "Warning: perverted make detected"; SHELL="";;
 esac
 test -z "$SHELL" && SHELL=$MSHELL
-test -z "$SHELL" && SHELL=/bin/sh
+test -z "$SHELL" && SHELL=$BSHELL
 
 export SHELL PATH
 
@@ -134,6 +134,7 @@ LDFLAGS=`checklib x`
 LDFLAGS=`checklib net`
 LDFLAGS=`checklib nsl_s`
 LDFLAGS=`checklib nsl`
+LDFLAGS=`checklib gen`
 LDFLAGS=`checklib socket`
 #LDFLAGS=`checklib resolv`		# not really needed, is it?
 LDFLAGS=`checklib sun`
@@ -231,7 +232,8 @@ for a in $MANS1S
 do
   echo							>>man/_Makefile
   echo "$a.1: $a.man man.sed mansed"			>>man/_Makefile
-  echo "	\$(SHELL) ./mansed $a.man \$@ \"\$(RM)\" \$(DEVNULL)" \
+  echo \
+   "	\$(SHELL) ./mansed \$(SHELL) $a.man \$@ \"\$(RM)\" \$(DEVNULL)" \
    >>man/_Makefile
 done
 
@@ -239,7 +241,8 @@ for a in $MANS5S
 do
   echo							>>man/_Makefile
   echo "$a.5: $a.man man.sed mansed"			>>man/_Makefile
-  echo "	\$(SHELL) ./mansed $a.man \$@ \"\$(RM)\" \$(DEVNULL)" \
+  echo \
+   "	\$(SHELL) ./mansed \$(SHELL) $a.man \$@ \"\$(RM)\" \$(DEVNULL)" \
    >>man/_Makefile
 done
 

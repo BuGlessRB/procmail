@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.8 1992/11/11 16:34:43 berg Exp $*/
+/*$Id: config.h,v 1.9 1992/11/24 15:57:51 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -116,6 +116,7 @@ postma(st(er)?|n)|Mailer|daemon|mmdf|root|uucp|LISTSERV|owner|request|bounce\
 #define COMSATprotocol	"udp" /* if you change this, comsat() needs patching */
 #define COMSATxtrsep	":"		 /* mailbox-spec extension separator */
 #define SERV_ADDRsep	'@'	      /* when overriding in COMSAT=serv@addr */
+#define DEFcomsat	"no"		      /* when an rcfile is specified */
 
 #define BinSh		"/bin/sh"
 #define RootDir		"/"

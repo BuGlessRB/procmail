@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.12 1992/11/12 11:37:48 berg Exp $
+#$Id: Makefile,v 1.13 1992/11/24 15:57:47 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -62,6 +62,7 @@ A	= a
 RM	= /bin/rm -f
 MV	= mv -f
 LN	= ln -f
+BSHELL	= /bin/sh
 INSTALL = cp
 DEVNULL = /dev/null
 
@@ -78,10 +79,10 @@ all: init
 	$(HIDEMAKE) make $@
 
 make:
-	@/bin/sh -c "exit 0"
+	@$(BSHELL) -c "exit 0"
 
 init:
-	/bin/sh ./initmake "$(SHELL)" "$(RM)" "$(MV)" "$(LN)" \
+	$(BSHELL) ./initmake $(BSHELL) "$(SHELL)" "$(RM)" "$(MV)" "$(LN)" \
 	 $(USRINCLUDE) $(PLIB) $(PUSRLIB) $(DEVNULL) "$(HIDEMAKE)" $(O) $(A) \
 	 "$(CC)" "$(CFLAGS1)" "$(LDFLAGS1)" "$(BINSS)" \
 	 "$(MANS1S)" "$(MANS5S)" "$(SUBDIRS)"
