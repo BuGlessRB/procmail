@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.10 1992/11/11 16:35:25 berg Exp $";
+ "$Id: mailfold.c,v 1.11 1992/11/13 11:20:02 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -220,7 +220,7 @@ dirmail P((void))			/* buf should contain directory name */
      *chp='\0',strcpy(buf2,buf);			   /* it ended in /. */
   else
      chp=0,strcpy(buf2,strcat(buf,_MCDIRSEP));
-  if(unique(buf2,strchr(buf2,'\0'),NORMperm))
+  if(unique(buf2,strchr(buf2,'\0'),NORMperm,verbose))
    { if(chp)
       { long i=0;		     /* first let us try to prime i with the */
 #ifndef NOopendir		     /* highest MH folder number we can find */

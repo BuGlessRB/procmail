@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.8 1992/11/11 16:35:04 berg Exp $";
+ "$Id: exopen.c,v 1.9 1992/11/13 11:19:52 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -35,7 +35,8 @@ void ultoan(val,dest)unsigned long val;char*dest;     /* convert to a number */
   *dest='\0';
 }
 
-unique(full,p,mode)const char*const full;char*const p;const mode_t mode;
+unique(full,p,mode,verbos)const char*const full;char*const p;
+ const mode_t mode;const int verbos;
 { unsigned long retry=mrotbSERIAL;int i;	  /* create unique file name */
   do
    { ultoan(maskSERIAL&(retry<<bitsSERIAL-mrotbSERIAL)+
@@ -48,7 +49,9 @@ unique(full,p,mode)const char*const full;char*const p;const mode_t mode;
   while(0>(i=ropen(full,O_WRONLY|O_CREAT|O_EXCL,mode))&&errno==EEXIST&&
    retry--);	    /* casually check if it already exists (highly unlikely) */
   if(i<0)
-   { writeerr(full);return 0;
+   { if(verbos)			      /* this error message can be confusing */
+	writeerr(full);					 /* for casual users */
+     return 0;
    }
   rclose(i);return 1;
 }

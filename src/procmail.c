@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.13 1992/11/12 12:27:58 berg Exp $";
+ "$Id: procmail.c,v 1.14 1992/11/13 11:20:08 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -420,18 +420,22 @@ noconcat:
 			   {TOkey,TOsubstitute},
 			   {0,0}
 			 };
-		       for(or_nocase=0,regsp=regs;regsp->regkey;++regsp)
+		       or_nocase=0;goto jinregs;
+		       do		   /* find special keyword in regexp */
 			  if((chp2=pstrstr(chp,regsp->regkey))&&
-			   (chp2==buf2||chp2[-1]!='\\'))
-			   { size_t l;
-			     tmemmove(buf,chp,l=chp2-chp);     /* copy start */
-			     strcpy(buf+l,regsp->regsubst);    /* copy subst */
-			     strcat(buf,chp2+strlen(regsp->regkey));
-			     strcpy(buf2,buf);	/* copy tail and put it back */
+			   (chp2==buf2||chp2[-1]!='\\'))     /* not escaped? */
+			   { size_t lregs,lregk;
+			     lregk=strlen(regsp->regkey);     /* shove it in */
+			     tmemmove(chp2+(lregs=strlen(regsp->regsubst)),
+			      chp2+lregk,strlen(chp2)-lregk+1);
+			     tmemmove(chp2,regsp->regsubst,lregs);
 			     if(regsp==regs)	  /* check for daemon regexp */
 				or_nocase=1;	     /* no case sensitivity! */
-			     regsp=regs;	/* start over and look again */
+jinregs:		     regsp=regs;	/* start over and look again */
 			   }
+			  else
+			     regsp++;			     /* next keyword */
+		       while(regsp->regkey);
 		       i=!!egrepin(chp,startchar,tobesent,	 /* egrep it */
 			or_nocase?0:flags[DISTINGUISH_CASE]);
 		       break;

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.8 1992/11/11 16:35:22 berg Exp $";
+ "$Id: locking.c,v 1.9 1992/11/13 11:20:00 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -106,7 +106,7 @@ xcreat(name,mode,tim,chowned)const char*const name;const mode_t mode;
  time_t*const tim;int*const chowned;
 { char*p;int j= -2,i;
   i=lastdirsep(name)-name;strncpy(p=malloc(i+UNIQnamelen),name,i);
-  if(unique(p,p+i,mode))	       /* try and rename the unique filename */
+  if(unique(p,p+i,mode,verbose))       /* try and rename the unique filename */
    { if(chowned)
 	*chowned=chown(p,uid,sgid);			 /* try and chown it */
      if(tim)

@@ -1,11 +1,11 @@
-/*$Id: exopen.h,v 1.3 1992/11/11 13:59:23 berg Exp $*/
+/*$Id: exopen.h,v 1.4 1992/11/13 11:19:54 berg Exp $*/
 
 const char*
  hostname P((void));
 void
  ultoan P((unsigned long val,char*dest));
 int
- unique Q((const char*const full,char*const p,const mode_t mode)),
+ unique Q((const char*const full,char*const p,const mode_t mode,const verbos)),
  myrename P((const char*const old,const char*const newn));
 
 #define charsSERIAL	4

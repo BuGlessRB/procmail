@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.9 1992/11/11 13:58:31 berg Exp $
+.Id $Id: procmailrc.man,v 1.10 1992/11/13 11:19:43 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .SH NAME
 .na
@@ -79,33 +79,6 @@ compatible to the normal
 .BR egrep (1)
 regular expressions.
 .PP
-There are some special conditions you can use that are not straight regular
-expressions.  To select them, the first character of the condition must
-be a:
-.RS
-.Tp 0.5i
-.B !
-Invert the condition.
-.Tp
-.B $
-Evaluate the remainder according to
-.BR sh (1)
-substitution rules inside double quotes.
-.Tp
-.B ?
-Use the exitcode of the specified program.
-.Tp
-.B <
-Check if the total length of the mail is shorter than the specified (in
-decimal) number of bytes.
-.Tp
-.B >
-Analogous to '<'.
-.Tp
-.B \e
-To quote any of the above at the start of the line.
-.RE
-.PP
 Conditions are anded; if
 .I number
 is zero, then the condition is always true and no conditions are expected
@@ -160,6 +133,31 @@ Has the same meaning as the `+WAIT_EXIT+' flag, but will suppress any
 .B +IGNORE_WRITERR+
 Ignore any write errors on this recipe (i.e. usually due to an early closed
 pipe).
+.PP
+There are some special conditions you can use that are not straight regular
+expressions.  To select them, the first character of the condition must
+be a:
+.Tp 0.5i
+.B !
+Invert the condition.
+.Tp
+.B $
+Evaluate the remainder according to
+.BR sh (1)
+substitution rules inside double quotes.
+.Tp
+.B ?
+Use the exitcode of the specified program.
+.Tp
+.B <
+Check if the total length of the mail is shorter than the specified (in
+decimal) number of bytes.
+.Tp
+.B >
+Analogous to '<'.
+.Tp
+.B \e
+To quote any of the above at the start of the line.
 .Ss "Local lockfile"
 .PP
 If you put a second ':' on the first recipe line, then procmail will use a

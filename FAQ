@@ -80,7 +80,8 @@
 
 8. Where do I look for examples about:
 	One home directory, several machine architectures?
-	Procmail as an integrated local mail delivery agent?
+	Procmail as an integrated local mail delivery agent? (generic,
+	 sendmail, smail, SysV mail)
 	Security considerations (when installing procmail suid root)
 	Exorbitant rcfile formats?
 	The 'A' flag?
