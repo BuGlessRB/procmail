@@ -413,6 +413,7 @@
 	       - Don't strip leading \n in a $MATCH
 	       - Work around a compiler bug in Sun C compiler 4.2 (fdefault
 		 cached past function calls)
+	       - Tempfile names would grow on retry
 	    Worked around a compiler bug old HP compilers (pointer-unsigned),
 	       caused the Content-Length: field to be mangled on some older
 	       HP/UX systems (not on every mail)
