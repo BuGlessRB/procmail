@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.89 2000/06/21 20:31:31 guenther Exp $
+#$Id: rc.submit,v 1.90 2000/08/25 06:15:54 guenther Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -186,7 +186,20 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 	:0 c
 	* undigested_list ?? .
 	* $!^X-Loop: $\undigested_list
-	! $sendmailOPT $undigested_list
+	 {
+	   #
+	   # If there's a Delivered-To: header field for the digest list,
+	   # remove it to avoid losing the return post to the digest list
+	   :0
+	   * $^Delivered-To:(.*[ <	])?$\listname
+	   DT=|formail -c -XDelivered-To: | egrep -v "[	 :<]$\listname"
+
+	   :0 afhw
+	   |formail -IDelivered-To: -I"$DT"
+
+	   :0
+	   ! $sendmailOPT $undigested_list
+	 }
 
 	#
 	# Finally digest the mail.

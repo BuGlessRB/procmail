@@ -281,5 +281,9 @@
 	    Only add List-Subscribe: and List-Unsubscribe: header fields if
 	       auto_subscibe and auto_unsubscribe, respectively, are enabled
 	    Clarify the error message when a list cannot be created
+	    When forwarding a message from a digest list to its corresponding
+	       undigested list, remove any Delivered-To: header field
+	       containing the name of the digested list, thus allowing the
+	       message forwarded back to go out.
 	    Changes to multigram:
 	       - prevent attempts to exercise a Linux kernel security hole
