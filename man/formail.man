@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.40 2000/09/28 01:23:06 guenther Exp $
+.Id $Id: formail.man,v 1.41 2000/10/17 06:49:14 guenther Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -15,6 +15,9 @@ formail \- mail (re)formatter
 .if n .ti +0.5i
 .RB [ \-@FM_DUPLICATE@
 .IR "maxlen idcache" ]
+.if n .ti +0.5i
+.RB [ \-@FM_LOGSUMMARY@
+.IR folder ]
 .if n .ti +0.5i
 .RB [ \-@FM_EXTRACT@
 .IR headerfield ]
@@ -146,6 +149,12 @@ strict mailbox format (i.e. allows you to split digests/articles or
 non-standard mailbox formats).  This disables recognition of the
 .B Content-Length:
 field.
+.TP
+.B \-@FM_LOGSUMMARY@ folder
+Generate a log summary in the same style as procmail.  This includes
+the entire "From " line, the Subject: header field, the folder, and
+the size of the message in bytes.  The mailstat command can be used
+to summarize logs in this format.
 .TP
 .B \-@FM_BABYL@
 Makes formail assume that it is splitting up a BABYL rmail file.
