@@ -401,7 +401,7 @@
 	    Changes to procmail and lockfile: use the authenticate library
 	       for easier integration with custom authentication and mailbox
 	       locations
-1997/04/28: v3.11pre8
+1999/01/23: v3.11pre8
 	    Changes to procmail:
 	       - Use BOGUS.$LOGNAME.inode for bogus files to ease recovery
 	       - Define RESTRICT_EXEC to restrict execution of programs
