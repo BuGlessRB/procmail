@@ -9,7 +9,7 @@
 
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: comsat.c,v 1.3 2001/06/27 06:41:24 guenther Exp $";
+ "$Id: comsat.c,v 1.4 2001/06/27 17:07:20 guenther Exp $";
 #endif
 
 #include "procmail.h"
@@ -81,7 +81,7 @@ int setcomsat(chp)const char*chp;
 #endif /* IP_localhost */
    { const struct hostent*host;		      /* what host?  paranoid checks */
      if(!(host=gethostbyname(chad))||!host->h_0addr_list)
-      { bzero(&newaddr.sin_addr,sizeof newaddr.sin_addr);
+      { bbzero(&newaddr.sin_addr,sizeof newaddr.sin_addr);
 	newvalid=0;			     /* host can't be found, too bad */
       }
      else

@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.74 2001/06/21 09:43:44 guenther Exp $*/
+/*$Id: includes.h,v 1.75 2001/06/27 17:07:23 guenther Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -492,12 +492,14 @@ extern void*memmove();
 #define strstr(haystack,needle) sstrstr(haystack,needle)
 #endif
 
-#ifdef NObzero
 #ifdef NOmemset
-#define NEEDbzero
+#ifdef NObzero
+#define NEEDbbzero
 #else
-#define bzero(s,l)	memset(s,'\0',l)
+#define bbzero(s,l)	bzero(s,l)
 #endif
+#else
+#define bbzero(s,l)	memset(s,'\0',l)
 #endif
 
 #ifndef P

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: sublib.c,v 1.26 2001/06/27 06:41:29 guenther Exp $";
+ "$Id: sublib.c,v 1.27 2001/06/27 17:07:25 guenther Exp $";
 #endif
 #include "includes.h"
 #include "acommon.h"
@@ -129,8 +129,8 @@ ret0:
 }
 #endif
 
-#ifdef NEEDbzero				      /* NObzero && NOmemset */
-void bzero(s,n)void *s;size_t n;
+#ifdef NEEDbbzero				      /* NObzero && NOmemset */
+void bbzero(s,n)void *s;size_t n;
 { register char*p=s;
   while(n-->0)
      *p++='\0';
@@ -214,7 +214,7 @@ fault:
 #else /* NOstrtol */
 #ifndef NOstrerror
 #ifndef NOstrlcat
-#ifndef NEEDbzero
+#ifndef NEEDbbzero
 #ifndef SLOWstrstr
 #ifndef NOstrpbrk
 #ifndef NOmemmove
