@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.96 1999/11/01 19:18:35 guenther Exp $";
+ "$Id: misc.c,v 1.97 1999/11/02 03:13:07 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -765,15 +765,11 @@ fishy:
 }
 
 			     /* lifted out of main() to reduce main()'s size */
-int conditions(flags,prevcond,lastsucc,lastcond,nrcond)const char flags[];
+int conditions(flags,prevcond,lastsucc,lastcond,nrcond)char flags[];
  const int prevcond,lastsucc,lastcond;int nrcond;
 { char*chp,*chp2,*startchar;double score;int scored,i,skippedempty;
   long tobesent;static const char suppressed[]=" suppressed\n";
   score=scored=0;
-  if(flags[ERROR_DO]&&flags[ELSE_DO])
-     nlog(conflicting),elog("else-if-flag"),elog(suppressed);
-  if(flags[ERROR_DO]&&flags[ALSO_N_IF_SUCC])
-     nlog(conflicting),elog("also-if-succeeded-flag"),elog(suppressed);
   if(nrcond<0)		      /* assume appropriate default nr of conditions */
      nrcond=!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC]&&!flags[ELSE_DO]&&
       !flags[ERROR_DO];
@@ -790,7 +786,14 @@ int conditions(flags,prevcond,lastsucc,lastcond,nrcond)const char flags[];
 noconcat:
    i=!skiprc;						  /* init test value */
    if(flags[ERROR_DO])
-      i&=prevcond&&!lastsucc;
+    { i&=prevcond&&!lastsucc;
+      if(flags[ELSE_DO])
+	 nlog(conflicting),elog("else-if-flag"),elog(suppressed),
+	  flags[ELSE_DO]=0;
+      if(flags[ALSO_N_IF_SUCC])
+	 nlog(conflicting),elog("also-if-succeeded-flag"),elog(suppressed),
+	  flags[ALSO_N_IF_SUCC]=0;
+    }
    if(flags[ELSE_DO])
       i&=!prevcond;
    if(flags[ALSO_N_IF_SUCC])
