@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1996, S.R. van den Berg, The Netherlands
-#$Id: procbounce,v 1.34 1996/12/21 03:28:11 srb Exp $
+#$Id: procbounce,v 1.35 1999/10/20 04:56:38 guenther Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -52,7 +52,7 @@ then
   addr=`$expr "X$addr" : 'X.* \([^ ]*\)$' `
   serial=`$formail +1 -1 -m4 -zdexMessage-Id: -s $idhash <$tmprequest`
   case "X$serial" in
-     X|X0) set dummy `LANG='' $date +%y-%m-%d 2>/dev/null`
+     X|X0) set dummy `LANG='' $date +'%y %m %d' 2>/dev/null`
 	serial=$3$4$2 ;;
   esac
   $echo "$addr" >>$bounces/$serial
