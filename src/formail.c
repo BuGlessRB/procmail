@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.43 1994/05/05 15:53:49 berg Exp $";
+ "$Id: formail.c,v 1.44 1994/05/09 18:57:22 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/05/05 15:53:49 $";
+static /*const*/char rcsdate[]="$Date: 1994/05/09 18:57:22 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -261,7 +261,10 @@ parsedoptions:
 	lenfileno= -1;			    /* disable the FILENO generation */
      else
 	*vfileno=ffileno;	    /* stuff our template in the environment */
-     oldstdout=dup(STDOUT);fclose(stdout);startprog((const char*Const*)argv);
+     oldstdout=dup(STDOUT);fclose(stdout);
+     if(!nrtotal)
+	goto onlyhead;
+     startprog((const char*Const*)argv);
      if(!minfields)			       /* no user specified minimum? */
 	minfields=DEFminfields;				 /* take our default */
    }
@@ -569,6 +572,8 @@ splitit:       { if(!lnl)   /* did the previous mail end with an empty line? */
 		    if((excode=waitfor(child))!=EX_OK&&retval!=EX_OK)
 		       retval=excode;
 		  }
+		 if(!nrtotal)
+		    goto onlyhead;
 		 startprog((const char*Const*)argv);goto startover;
 	       }				    /* and there we go again */
 	    }

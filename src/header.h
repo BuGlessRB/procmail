@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.30 1994/05/05 15:54:02 berg Exp $*/
+/*$Id: header.h,v 1.31 1994/05/09 18:57:28 berg Exp $*/
 
 X(returnpath,		"Return-Path:")				  /* RFC 822 */
 X(received,		"Received:")				/* ditto ... */
@@ -104,6 +104,8 @@ X(autoforwardedfrom,	"Auto-Forwarded-From:")
 X(autofcount,		"Auto-Forward-Count:")
 X(endofheader,		"End-of-Header:")
 X(orgafrom,		"Original-From:")
+X(orgato,		"Original-To:")
+X(orgacc,		"Original-Cc:")
 X(orgaforwfrom,		"Original-Auto-Forwarded-From:")
 X(orgdate,		"Original-Date:")
 X(notdeliveredto,	"Not-Delivered-To:")

@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.48 1994/05/05 15:52:25 berg Exp $*/
+/*$Id: config.h,v 1.49 1994/05/09 18:56:56 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -112,7 +112,7 @@
 #define DEFsuspend	16		 /* multi-purpose 'idle loop' period */
 #define DEFlocksleep	8
 #define TOkey		"^TO"
-#define TOsubstitute	"(^((Resent-)?(To|Cc|Bcc)|\
+#define TOsubstitute	"(^((Original-)?(Resent-)?(To|Cc|Bcc)|\
 (X-Envelope|Apparently(-Resent)?)-To):(.*[^a-zA-Z])?)"
 #define FROMDkey	"^FROM_DAEMON"		     /* matches most daemons */
 #define FROMDsubstitute "(^(Precedence:.*(junk|bulk|list)|\

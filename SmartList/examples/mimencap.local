@@ -9,7 +9,7 @@
 #	This file is not automatically replaced during an upgrade of	#
 #	SmartList.							#
 #########################################################################
-#$Id: mimencap.local,v 1.1 1994/05/05 15:53:14 berg Exp $
+#$Id: mimencap.local,v 1.2 1994/05/09 18:57:15 berg Exp $
 
 # What we have at our disposal are:
 #
@@ -41,8 +41,8 @@
 | $formail -I "Content-Type: text/dvi"
 
 :0 EB wfh
-* ^^(From .+$(>From .+$)*)?	\
-  [-_a-z0-9]+:.*$([	 ].*$)* \
+* ^^(From .+$(>From .+$)*)?\
+  [-_a-z0-9]+:.*$([	 ].*$)*\
   [-_a-z0-9]+:.*$([	 ].*$)*
 | $formail -I "Content-Type: message/rfc822"
 
