@@ -121,6 +121,8 @@
 	       - Weighted scoring on conditions
 	       - Ability to inline parse ${var-text} and ${var:-text}
 	       - Skipping spaces after "!" on condition lines
+	       - Implicit delivery somehow got broken
+	       - Default umask is always 077 now for deliverymode
 	    Changes to formail:
 	       - Fixed a sender-determination-weight problem, it mixed up
 		 the weights when autoreplying and when regenerating the From_
