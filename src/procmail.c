@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.16 1992/11/24 16:00:22 berg Exp $";
+ "$Id: procmail.c,v 1.17 1992/12/04 13:18:12 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -326,10 +326,10 @@ notfishy:
 fake_rc:      readerr(buf);
 	   if(!nextrcfile())		      /* not available? try the next */
 	      goto nomore_rc;
-findrc:	  suppmunreadable=i=0;	    /* should we keep the current directory? */
-	  if(strchr(dirsep,*rcfile)||			   /* absolute path? */
-	   *rcfile==chCURDIR&&strchr(dirsep,rcfile[1])&&(i=1))	/* ./ prefix */
-	     *buf='\0';			/* do not put anything in front then */
+findrc:	   suppmunreadable=i=0;	    /* should we keep the current directory? */
+	   if(strchr(dirsep,*rcfile)||			   /* absolute path? */
+	    *rcfile==chCURDIR&&strchr(dirsep,rcfile[1])&&(i=1)) /* ./ prefix */
+	      *buf='\0';		/* do not put anything in front then */
 	   else
 	      cat(tgetenv(home),MCDIRSEP);	  /* prepend $HOME directory */
 	   if(stat(strcat(buf,rcfile),&stbuf)?		      /* accessible? */
