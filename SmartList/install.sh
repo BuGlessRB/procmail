@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.5 1992/12/04 13:31:55 berg Exp $
+#$Id: install.sh,v 1.6 1993/01/13 16:17:06 berg Exp $
 
 test $# != 1 && echo "Usage: install.sh target-directory" && exit 1
 
@@ -9,16 +9,7 @@ target="$1"
 test ! -d "$target" && echo "Please create the target directory first" &&
  exit 2
 
-FRAGILE="listrc.main the_lists"
-DIRS="bin listadmin"
-
-echo "Preserving any old files: $FRAGILE"
-
-for a in $FRAGILE
-do
-  test -f "$target/.listadmin/$a" &&
-   mv -f "$target/.listadmin/$a" "$target/.listadmin/$a.old"
-done
+DIRS="bin etc"
 
 echo Installing...
 
@@ -26,15 +17,6 @@ for a in $DIRS
 do
   mkdir "$target/.$a" 2>/dev/null
   cp $a/* "$target/.$a"
-done
-
-for a in $FRAGILE
-do
-  if test -f "$target/.listadmin/$a.old"
-  then
-     mv -f "$target/.listadmin/$a" "$target/.listadmin/$a.new"
-     mv -f "$target/.listadmin/$a.old" "$target/.listadmin/$a"
-  fi
 done
 
 chmod 755 $target/.bin/*
@@ -48,14 +30,18 @@ cd ../src
 test -f multigram || make multigram
 cp multigram "$target/.bin"
 cd ../mailinglist
-ls -l "$target/.bin/multigram"
 
-echo Creating link from .listadmin/listrc.main to .procmailrc
+ln "$target/.bin/multigram" "$target/.bin/idhash"
+ln "$target/.bin/multigram" "$target/.bin/flist"
+chmod 4755 "$target/.bin/flist"
+ls -l "$target/.bin/multigram" "$target/.bin/idhash" "$target/.bin/flist"
+
+echo Creating link from .etc/rc.main to .procmailrc
 rm -f "$target/.procmailrc"
-ln "$target/.listadmin/listrc.main" "$target/.procmailrc"
+ln "$target/.etc/rc.main" "$target/.procmailrc"
 
 echo '**********************************************************************'
 echo "Finished installing, now you should"
-echo "edit $a/.listadmin/listrc.main to make sure"
+echo "edit $a/.etc/rc.init to make sure"
 echo "that \`PATH', \`domain' and \`listmaster' reflect your installation."
 echo '**********************************************************************'

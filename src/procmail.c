@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.18 1993/01/13 15:21:09 berg Exp $";
+ "$Id: procmail.c,v 1.19 1993/01/13 16:17:25 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -35,7 +35,7 @@ char*buf,*buf2,*globlock,*loclock,*tolock,*lastfolder;
 const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
  shellmetas[]="SHELLMETAS",lockext[]="LOCKEXT",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*sgetcp,*rcfile=PROCMAILRC,
- dirsep[]=DIRSEP,msgprefix[]="MSGPREFIX",devnull[]=DevNull,logname[]="LOGNAME",
+ dirsep[]=DIRSEP,msgprefix[]="MSGPREFIX",devnull[]=DevNull,lgname[]="LOGNAME",
  executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",procmailn[]="procmail",
  whilstwfor[]=" whilst waiting for ",home[]="HOME",maildir[]="MAILDIR";
 char*Stdout;
@@ -206,7 +206,7 @@ Setuser:
      *	set preferred uid to the intended recipient
      */
    { gid=pass->pw_gid;uid=pass->pw_uid;setdef(home,pass->pw_dir);
-     setdef(logname,chp= *pass->pw_name?pass->pw_name:buf);
+     setdef(lgname,chp= *pass->pw_name?pass->pw_name:buf);
      if(geteuid()==ROOT_uid)
 	initgroups(chp,gid);
      endgrent();setdef(shell,*pass->pw_shell?pass->pw_shell:binsh);
@@ -215,7 +215,7 @@ Setuser:
     /*
      *	to prevent security holes, drop any privileges now
      */
-   { setdef(home,RootDir);setdef(logname,buf);setdef(shell,binsh);
+   { setdef(home,RootDir);setdef(lgname,buf);setdef(shell,binsh);
      setgid(gid);setuid(uid);
    }
   endpwent();

@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.11 1993/01/13 15:21:00 berg Exp $";
+ "$Id: lockfile.c,v 1.12 1993/01/13 16:17:16 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/13 15:21:00 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/13 16:17:16 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -28,7 +28,7 @@ static volatile exitflag;
 pid_t thepid;
 static char systm_mbox[]=SYSTEM_MBOX;
 static const char dirsep[]=DIRSEP,lockext[]=DEFlockext,
- nameprefix[]="lockfile: ",logname[]="LOGNAME",home[]="HOME";
+ nameprefix[]="lockfile: ",lgname[]="LOGNAME",home[]="HOME";
 
 static void failure P((void))				      /* signal trap */
 { exitflag=2;					       /* merely sets a flag */
@@ -60,8 +60,8 @@ static size_t parsecopy(dest,org,pass)char*const dest;const char*org;
   for(p=dest,len=STRLEN(lockext)+1;;)
    { switch(*org)
       { case '$':					    /* we substitute */
-	   if(!strncmp(++org,logname,STRLEN(logname)))
-	      org+=STRLEN(logname),chp=pass->pw_name;	     /* $LOGNAME and */
+	   if(!strncmp(++org,lgname,STRLEN(lgname)))
+	      org+=STRLEN(lgname),chp=pass->pw_name;	     /* $LOGNAME and */
 	   else if(!strncmp(org,home,STRLEN(home)))
 	      org+=STRLEN(home),chp=pass->pw_dir;		    /* $HOME */
 	   else
@@ -147,7 +147,7 @@ xusg:		       retval=EX_USAGE;goto nfailure;
 		 if(*cp&&cp[1]||ma&&sleepsec>=0)	     /* second pass? */
 		    goto eusg;
 		 if(!ma)			/* ma initialised last time? */
-		  { if(!((ma=(char*)getenv(logname))&&(pass=getpwnam(ma))&&
+		  { if(!((ma=(char*)getenv(lgname))&&(pass=getpwnam(ma))&&
 		     pass->pw_uid==uid||(pass=getpwuid(uid))))
 		     { nlog("Can't determine your mailbox, who are you?\n");
 		       goto nfailure;	 /* panic, you're not in /etc/passwd */

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.14 1993/01/13 15:21:03 berg Exp $";
+ "$Id: mailfold.c,v 1.15 1993/01/13 16:17:19 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -147,7 +147,7 @@ void logabstract P((void))
     }
   else
      addr.sin_port=htons((short)s);			    /* network order */
-  cat(tgetenv(user),"@");			 /* should always fit in buf */
+  cat(tgetenv(lgname),"@");			 /* should always fit in buf */
   if(lasttell>=0)					   /* was it a file? */
      ultstr(0,lasttell,buf2),catlim(buf,buf2,(size_t)linebuf);	      /* yep */
   catlim(buf,COMSATxtrsep,(size_t)linebuf);		 /* custom seperator */

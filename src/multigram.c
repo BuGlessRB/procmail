@@ -11,9 +11,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.10 1993/01/13 15:21:05 berg Exp $";
+ "$Id: multigram.c,v 1.11 1993/01/13 16:17:22 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/13 15:21:05 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/13 16:17:22 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -102,8 +102,7 @@ static void elog(a)const char*const a;
 { fputs(a,stderr);
 }
 
-static const char idhash="idhash",flist="flist",
- dirsep[]=DIRSEP;
+static const char idhash[]="idhash",flist[]="flist",dirsep[]=DIRSEP;
 static const char*progname="multigram";
 
 void nlog(a)const char*const a;
@@ -169,7 +168,7 @@ main(minweight,argv)char*argv[];
      setuid(getuid());
      if(!strcmp(chp,idhash))
       { unsigned long hash=0;int i;
-	if(minweigth!=1)
+	if(minweight!=1)
 	 { elog("Usage: idhash\n");return EX_USAGE;
 	 }
 	while(i=fgetc(stdin),!feof(stdin))
@@ -185,7 +184,6 @@ main(minweight,argv)char*argv[];
 	      case 'd':remov=1;continue;
 	      case 'r':renam=1;continue;
 	      case 'm':chkmetoo=1;continue;
-	      case 'H':hashit=1;continue;
 	      case 'a':
 		 if(!*chp&&!(chp= *++argv))
 		    goto usg;
