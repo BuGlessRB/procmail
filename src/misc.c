@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.14 1992/11/19 12:33:06 berg Exp $";
+ "$Id: misc.c,v 1.15 1992/12/03 13:33:49 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -328,7 +328,7 @@ void asenv(chp)const char*const chp;
       }
    }
   else if(!strcmp(buf,lockfile))
-     lockit((char*)chp,&globlock),chown(chp,uid,gid);
+     lockit((char*)chp,&globlock);
   else if(!strcmp(buf,eumask))
      umask((int)strtol(chp,(char**)0,8));
   else if(!strcmp(buf,includerc))
