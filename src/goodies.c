@@ -1,12 +1,14 @@
 /************************************************************************
  *	Collection of library-worthy routines				*
  *									*
- *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1998, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1998-2001, Philip Guenther, The United States	*
+ *					of America			*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.71 2000/11/22 01:29:57 guenther Exp $";
+ "$Id: goodies.c,v 1.72 2001/06/23 08:18:44 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -351,7 +353,7 @@ nodelim:
 
 char*simplesplit(to,from,fencepost,gotp)char*to;const char*from,*fencepost;
  int*gotp;
-{ register int got=*gotp;
+{ register int got= *gotp;
   for(;to<=fencepost;from++)
    { switch(*from)
       { case ' ':case '\t':case '\n':

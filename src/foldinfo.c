@@ -2,13 +2,13 @@
  *	Routines that deal with understanding the folder types		*
  *									*
  *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
- *	Copyright (c) 1999-2000, Philip Guenther, The United States	*
+ *	Copyright (c) 1999-2001, Philip Guenther, The United States	*
  *							of America	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: foldinfo.c,v 1.7 2001/06/21 09:43:43 guenther Exp $";
+ "$Id: foldinfo.c,v 1.8 2001/06/23 08:18:43 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "misc.h"
@@ -99,7 +99,7 @@ static int mkmaildir(buffer,chp,paranoid)char*const buffer,*const chp;
  const int paranoid;
 { mode_t mode;int i;
   if(paranoid)
-     strncpy(buf2,buffer,i=chp-buffer+1),buf2[i-1]=*MCDIRSEP_,buf2[i]='\0';
+     strncpy(buf2,buffer,i=chp-buffer+1),buf2[i-1]= *MCDIRSEP_,buf2[i]='\0';
   return
    (strcpy(chp,maildirnew),mode=trymkdir(buffer,paranoid,i),S_ISDIR(mode))&&
    (strcpy(chp,maildircur),mode=trymkdir(buffer,paranoid,i),S_ISDIR(mode))&&

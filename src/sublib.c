@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: sublib.c,v 1.24 2001/06/17 04:06:27 guenther Exp $";
+ "$Id: sublib.c,v 1.25 2001/06/23 08:18:51 guenther Exp $";
 #endif
 #include "includes.h"
 #include "sublib.h"
@@ -144,7 +144,7 @@ size_t strlcat(dst,src,size)char *dst;const char*src;size_t size;
      while(size>0&&*dst)				  /* skip to the end */
 	size--,dst++;
      while(size>0&&*src)			     /* copy over characters */
-	size--,*dst++=*src++;
+	size--,*dst++= *src++;
      *dst='\0';					    /* hasta la vista, baby! */
    }
   return dst-start+strlen(src);

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.40 2001/06/03 21:58:59 guenther Exp $";
+ "$Id: exopen.c,v 1.41 2001/06/23 08:18:41 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -20,14 +20,17 @@ static /*const*/char rcsid[]=
 int unique(full,p,len,mode,verbos,flags)char*const full;char*p;
  const size_t len;const mode_t mode;const int verbos,flags;
 { static const char s2c[]=".,+%";static int serial=STRLEN(s2c);
-  static time_t t;char*dot,*end=full+len,*op,*ldp;struct stat filebuf;
+  static time_t t;char*dot,*end,*op,*ldp;struct stat filebuf;
   int nicediff,i,didnice,retry=RETRYunique;
   if(flags&doCHOWN)		  /* semi-critical, try raising the priority */
    { nicediff=nice(0);SETerrno(0);nicediff-=nice(-NICE_RANGE);
      didnice=!errno;
    }
-  *(end=len?full+len-1:p+UNIQnamelen-1)='\0';
-  *(op=p)=UNIQ_PREFIX;dot=ultoan((long)thepid,p+1);
+  *(end=len?full+len-1:(op=p)+UNIQnamelen-1)='\0';
+  if(flags&doMAILDIR)				/* 'official' maildir format */
+     dot=p;
+  else						     /* 'traditional' format */
+     *p=UNIQ_PREFIX,dot=ultoan((long)thepid,p+1);
   if(serial<STRLEN(s2c))
      goto in;
   do
@@ -37,11 +40,22 @@ int unique(full,p,len,mode,verbos,flags)char*const full;char*p;
 	      ssleep(1);				   /* tap tap tap... */
 	   serial=0;t=t2;
 	 }
-in:	p=ultoan((long)t,dot+1);
-	*p++='.';
-	strncpy(p,hostname(),end-p);
+in:	if(flags&doMAILDIR)
+	 { ultstr(0,(long)t,p);
+	   *(dot=strchr(p,'\0'))='.';
+	   ultstr(0,(long)thepid,dot+1);
+	   *(dot=strchr(p,'\0'))='_';
+	   *(++dot+1)='.';
+	   strlcat(dot+2,hostname(),end-dot);
+	 }
+	else
+	 { p=ultoan((long)t,dot+1);
+	   *p++='.';
+	   strncpy(p,hostname(),end-p);
+	 }
       }
-     *dot=s2c[serial++];
+     *dot=(flags&doMAILDIR)?'0'+serial:s2c[serial];
+     serial++;
      i=lstat(full,&filebuf);
 #ifdef ENAMETOOLONG
      if(i&&errno==ENAMETOOLONG)

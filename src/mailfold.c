@@ -2,13 +2,13 @@
  *	Routines that deal with the mailfolder(format)			*
  *									*
  *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
- *	Copyright (c) 1999-2000, Philip Guenther, The United States	*
+ *	Copyright (c) 1999-2001, Philip Guenther, The United States	*
  *							of America	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.101 2001/06/21 11:59:27 guenther Exp $";
+ "$Id: mailfold.c,v 1.102 2001/06/23 08:18:47 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -132,7 +132,7 @@ writefin:
 }
 
 static int dirfile(chp,linkonly,type)char*const chp;const int linkonly,type;
-{ static const char lkingto[]="Linking to";
+{ static const char lkingto[]="Linking to";struct stat stbuf;
   if(type==ft_MH)
    { long i=0;			     /* first let us try to prime i with the */
 #ifndef NOopendir		     /* highest MH folder number we can find */
@@ -160,25 +160,20 @@ exlb: { nlog(exceededlb);setoverflow();
 	   goto didlnk;
 	 }
       }
-     unlink(buf2);
      goto opn;
    }
   else if(type==ft_MAILDIR)
-   { if(!unique(buf,chp,linebuf,NORMperm,
-      verbose,0))
+   { if(!unique(buf,chp,linebuf,NORMperm,verbose,doMAILDIR))
 	goto ret;
      unlink(buf);			 /* found a name, remove file in tmp */
      strncpy(chp-MAILDIRLEN-1,maildirnew,MAILDIRLEN);	/* but link directly */
    }								 /* into new */
   else								   /* ft_DIR */
-   { struct stat stbuf;
-     size_t mpl=strlen(msgprefix);
+   { size_t mpl=strlen(msgprefix);
      if(chp-buf+mpl+sizeNUM(stbuf.st_ino)>linebuf)
 	goto exlb;
      stat(buf2,&stbuf);			      /* filename with i-node number */
      ultoan((unsigned long)stbuf.st_ino,strcpy(chp,msgprefix)+mpl);
-     if(!linkonly&&(!stat(buf,&stbuf)||errno!=ENOENT))
-	goto ret;			 /* avoid overwriting an old message */
    }
   if(linkonly)
    { yell(lkingto,buf);
@@ -188,13 +183,12 @@ nolnk:	nlog("Couldn't make link to"),logqnl(buf);
 didlnk: appendlastvar(buf);		     /* lastvar is "LASTFOLDER" here */
      goto ret;
    }
-  if(!rename(buf2,buf))		       /* rename it, we need the same i-node */
-opn:
-   { setlastfolder(buf);
-     return opena(buf);
-   }
-ret:
-  return -1;
+  if(!rlink(buf2,buf,0))			      /* try rename-via-link */
+opn: unlink(buf2);			     /* success; remove the original */
+  else if(errno=EEXIST||!stat(buf,&stbuf)||errno!=ENOENT||rename(buf2,buf))
+ret: return -1;	 /* rename it, but only if it won't replace an existing file */
+  setlastfolder(buf);
+  return opena(buf);
 }
 
 int writefolder(boxname,linkfolder,source,len,ignwerr,dolock)
@@ -259,19 +253,29 @@ retf:	if(linkfolder)
 	   source=skipFrom_(source,&len);
 	strcpy(buf2,buf);
 	chp2=buf2+(chp-buf)-MAILDIRLEN;
-	*chp++=*MCDIRSEP_;
-	if(0>(fd=unique(buf,chp,linebuf,NORMperm,verbose,doFD)))
-	   goto nfail;
-	if(dump(fd,ft_MAILDIR,source,len)&&!ignwerr)
-	   goto failed;
-	strcpy(chp2,maildirnew);
-	chp2+=MAILDIRLEN;
-	*chp2++=*MCDIRSEP_;
-	strcpy(chp2,chp);
-	if(rename(buf,buf2))
-	 { unlink(buf);
-nfail:	   nlog("Couldn't create or rename temp file");logqnl(buf);
-	   goto retf;
+	*chp++= *MCDIRSEP_;
+	;{ int retries=MAILDIRretries;
+	   for(;;)
+	    { struct stat stbuf;
+	      if(0>(fd=unique(buf,chp,linebuf,NORMperm,verbose,doFD|doMAILDIR)))
+		 goto nfail;
+	      if(dump(fd,ft_MAILDIR,source,len)&&!ignwerr)
+		 goto failed;
+	      strcpy(chp2,maildirnew);
+	      chp2+=MAILDIRLEN;
+	      *chp2++= *MCDIRSEP_;
+	      strcpy(chp2,chp);
+	      if(!rlink(buf,buf2,0))
+	       { unlink(buf);
+		 break;
+	       }
+	      else if(errno!=EEXIST&&lstat(buf2,&stbuf)&&errno==ENOENT&&
+	       !rename(buf,buf2))
+		 break;
+	      unlink(buf);
+	      if(!retries--)
+		 goto nfail;
+	    }
 	 }
 	setlastfolder(buf2);
 	break;
@@ -281,12 +285,14 @@ nfail:	   nlog("Couldn't create or rename temp file");logqnl(buf);
 	   source=skipFrom_(source,&len);
 #endif
      default:						     /* case ft_DIR: */
-	*chp++=*MCDIRSEP_;
+	*chp++= *MCDIRSEP_;
 	strcpy(buf2,buf);
 	chp2=buf2+(chp-buf);
 	if(!unique(buf2,chp2,linebuf,NORMperm,verbose,0)||
 	 0>(fd=dirfile(chp,0,type)))
-	   goto nfail;
+nfail:	 { nlog("Couldn't create or rename temp file");logqnl(buf);
+	   goto retf;
+	 }
 	if(dump(fd,type,source,len)&&!ignwerr)
 	 { strcpy(buf,buf2);
 failed:	   unlink(buf);lasttell= -1;
@@ -309,7 +315,7 @@ failed:	   unlink(buf);lasttell= -1;
 	   case ft_CANTCREATE:continue;			     /* just skip it */
 	   case ft_DIR:case ft_MH:case ft_MAILDIR:
 	      chp=strchr(buf,'\0');
-	      *chp=*MCDIRSEP_;
+	      *chp= *MCDIRSEP_;
 	      if(dirfile(chp+1,1,type)) /* link it with the original in buf2 */
 		 if(!(UPDATE_MASK&(mode|cumask)))
 		  { *chp='\0';

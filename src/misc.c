@@ -2,13 +2,13 @@
  *	Miscellaneous routines used by procmail				*
  *									*
  *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
- *	Copyright (c) 1999-2000, Philip Guenther, The United States	*
+ *	Copyright (c) 1999-2001, Philip Guenther, The United States	*
  *							of America	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.114 2001/06/21 11:59:28 guenther Exp $";
+ "$Id: misc.c,v 1.115 2001/06/23 08:18:48 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -156,7 +156,7 @@ bad: nlog(name);elog(toolong);elog(newline);
       { name="full rcfile";		  /* this should be passed in... XXX */
 	goto bad;
       }
-     *chp++=*MCDIRSEP_;
+     *chp++= *MCDIRSEP_;
      strcpy(chp,file);				      /* append the filename */
    }
   return 0;

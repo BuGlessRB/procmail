@@ -1,9 +1,8 @@
-/*$Id: common.h,v 1.13 2000/11/27 07:09:21 guenther Exp $*/
+/*$Id: common.h,v 1.14 2001/06/23 08:18:40 guenther Exp $*/
 
 void
  shexec P((const char*const*argv))  __attribute__((noreturn)),
- detab P((char*p)),
- ultstr P((int minwidth,unsigned long val,char*dest));
+ detab P((char*p));
 char
  *skpspace P((const char*chp));
 int

@@ -7,7 +7,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lmtp.c,v 1.10 2001/06/21 18:19:23 guenther Exp $"
+ "$Id: lmtp.c,v 1.11 2001/06/23 08:18:45 guenther Exp $"
 #endif
 #include "procmail.h"
 #ifdef LMTP
@@ -89,7 +89,7 @@ static int unexpect(str)const char*str;
 { char c;
   while(*str!='\0')
    { if((c=getL())-'a'<='z'-'a'&&c>='a')c-='a'-'A';
-     if(c!=*str)
+     if(c!= *str)
       { if(c!='\n')
 	   skiptoeol;
 	return 1;
@@ -199,9 +199,9 @@ found:
 	case '"':
 	   while(*++p!='"')
 	      if(*p=='\\')
-		 *q++=*++p;
+		 *q++= *++p;
 	      else
-		 *q++=*p;
+		 *q++= *p;
 	   p++;
 	   continue;
 	case '\0':case '>':	 /* no final host part?	 That's fine with us */
@@ -209,7 +209,7 @@ found:
 	   *q='\0';
 	   return path;
       }
-     *q++=*p++;
+     *q++= *p++;
    }
 }
 
@@ -676,23 +676,23 @@ static char*lmtp_read_crnl(char*p,long left,void*statep)
 	 }
 	else							       /* CR */
 	 {
-found_cr:  *p++=*in++;				   /* tenatively save the \r */
+found_cr:  *p++= *in++;				   /* tenatively save the \r */
 	   if(in==last)
 	      EXIT_LOOP(IS_CR)
 is_cr:	   if(*in!='\n')
 	      continue;
-	   p[-1]=*in++;					 /* overwrite the \r */
+	   p[-1]= *in++;				 /* overwrite the \r */
 	   if(in==last)						     /* CRLF */
 	      EXIT_LOOP(IS_CRBOL)
 is_crbol:  if(*in=='\r')					 /* CRLF CR? */
 	      goto found_cr;
 	   if(*in!='.')
-	    { *p++=*in++;
+	    { *p++= *in++;
 	      continue;
 	    }
 	   if(++in==last)					 /* CRLF "." */
 	      EXIT_LOOP(IS_CRDOT)
-is_crdot:  if((*p++=*in++)!='\r')
+is_crdot:  if((*p++= *in++)!='\r')
 	      continue;
 	   if(in==last)					      /* CRLF "." CR */
 	      EXIT_LOOP(IS_DOTCR)
@@ -741,14 +741,14 @@ static char*lmtp_read_nl(char*p,long left,void*statep)
 	 }
 	else							       /* LF */
 	 { do
-	    { *p++=*in++;
+	    { *p++= *in++;
 is_nlbol:     ;
 	    }
 	   while(in<last&&*in=='\n');
 	   if(in==last)
 	      EXIT_LOOP(IS_NLBOL)
 	   if(*in!='.')
-	    { *p++=*in++;
+	    { *p++= *in++;
 	      continue;
 	    }
 	   if(++in==last)					   /* LF "." */
@@ -758,7 +758,7 @@ is_nldot:  if(*in=='\n')					/* LF "." LF */
 		 tmemmove(overread=malloc(overlen),in,overlen);
 	      return p;
 	    }
-	   *p++=*in++;
+	   *p++= *in++;
 	 }
      state=IS_NORMAL;		 /* we must have fallen out because in==last */
 loop_exit:

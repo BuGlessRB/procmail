@@ -1,12 +1,14 @@
 /************************************************************************
  *	Some routine common to procmail, formail and lockfile		*
  *									*
- *	Copyright (c) 1993-1999, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1993-1997, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1999-2001, Philip Guenther, The United States	*
+ *						of America		*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: acommon.c,v 1.10 1999/11/02 03:50:59 guenther Exp $";
+ "$Id: acommon.c,v 1.11 2001/06/23 08:18:37 guenther Exp $";
 #endif
 #include "includes.h"
 #include "acommon.h"
@@ -45,4 +47,16 @@ char*ultoan(val,dest)unsigned long val;char*dest;     /* convert to a number */
   while(val>>=6);
   *dest='\0';
   return dest;
+}
+
+void ultstr(minwidth,val,dest)int minwidth;unsigned long val;char*dest;
+{ int i;unsigned long j;
+  j=val;i=0;					   /* a beauty, isn't it :-) */
+  do i++;					   /* determine needed width */
+  while(j/=10);
+  while(--minwidth>=i)				 /* fill up any excess width */
+     *dest++=' ';
+  *(dest+=i)='\0';
+  do *--dest='0'+val%10;			  /* display value backwards */
+  while(val/=10);
 }

@@ -545,7 +545,7 @@
 	       tempfile names
 	    Called nice() when shouldn't have
 	    Workaround SunOS 4.x compiler again
-2001/06/21: v3.20pre
+2001/06/23: v3.20pre
 	    Changes to procmail:
 	       - SECURITY: don't do unsafe things from signal handlers:
 		  - ignore TRAP when terminating because of a signal
@@ -576,7 +576,10 @@
 	       - Unset LOCKFILE if we can't actually lock it
 	       - Set MAILDIR to '.' if the chdir fails
 	       - LASTFOLDER was sometimes set by '?' conditions
-	       - buffer the log more efficiently
+	       - Buffer the log more efficiently
+	       - Use the `standard' format for maildir filenames and retry
+		 on name collision
+	       - Rename by linking to prevent lossage
 	    Changes to autoconf:
 	       - Check for enum support
 	       - Warn people that non-ISO/ANSI C compilers might not be
@@ -597,4 +600,5 @@
 	       default rcfile location
 	    Include an RPM spec file in the examples directory for automated
 	       builds
+	    Include and use mkinstalldirs
 	    Called nice() when shouldn't have (this time for sure!)

@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.50 2001/01/28 00:51:22 guenther Exp $
+#$Id: Makefile.1,v 1.51 2001/06/23 08:18:32 guenther Exp $
 
 all: bins mans recommend
 	@echo If you would like to inspect the results before running make \
@@ -37,7 +37,6 @@ setid multigram: autoconf.h config.check src/Makefile man/Makefile
 
 config.check: config.h
 	echo Housekeeping file >$@
-	-mkdir new 2>$(DEVNULL); exit 0
 	@-if $(FGREP) -n -e '`' config.h $(DEVNULL) | $(FGREP) -v EOFName ; \
  then \
  echo;echo '   ^^^^^^^^^^^^^^^^^^^^ WARNING ^^^^^^^^^^^^^^^^^^^^^';\
@@ -81,14 +80,14 @@ $(MANS): mans
 $(BINS): bins
 
 $(BASENAME):
-	mkdir $(BASENAME)
+	$(MKDIRS) $(BASENAME)
 
 install.man: $(MANS) $(BASENAME)
-	@-mkdir $(MANDIR) 2>$(DEVNULL); exit 0
+	@-$(MKDIRS) $(MANDIR) 2>$(DEVNULL); exit 0
 	@-test -d $(MAN1DIR) || $(RM) $(MAN1DIR); exit 0
-	@-mkdir $(MAN1DIR) 2>$(DEVNULL); exit 0
+	@-$(MKDIRS) $(MAN1DIR) 2>$(DEVNULL); exit 0
 	@-test -d $(MAN5DIR) || $(RM) $(MAN5DIR); exit 0
-	@-mkdir $(MAN5DIR) 2>$(DEVNULL); exit 0
+	@-$(MKDIRS) $(MAN5DIR) 2>$(DEVNULL); exit 0
 	@chmod 0644 $(MANS)
 	@for a in $(MANS1S); \
   do $(INSTALL) new/$$a.1 $(MAN1DIR)/$$a.$(MAN1SUFFIX) || exit 1; \
@@ -105,7 +104,7 @@ install.man: $(MANS) $(BASENAME)
 	echo Housekeeping file >install.man
 
 install.bin: $(BINS) $(BASENAME)
-	@-mkdir $(BINDIR) 2>$(DEVNULL); exit 0
+	@-$(MKDIRS) $(BINDIR) 2>$(DEVNULL); exit 0
 	@chmod 0755 $(BINS)
 	$(INSTALL) $(BINS) $(BINDIR)
 	@-dirname / >$(DEVNULL) || $(INSTALL) examples/dirname $(BINDIR)
@@ -136,7 +135,6 @@ clean: config.check
 
 realclean: clean _init
 	$(RM) config.check
-	-rmdir new; exit 0
 	-for a in $(SUBDIRS); do $(MV) $$a/Makefile.init $$a/Makefile; done; \
  exit 0
 

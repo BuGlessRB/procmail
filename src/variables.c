@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.15 2001/06/21 17:48:13 guenther Exp $";
+ "$Id: variables.c,v 1.16 2001/06/23 08:18:52 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -118,7 +118,7 @@ void retbStdout(newmyenv)char*const newmyenv;	/* see note on primeStdout() */
 		 /* Append a space and then `value' to the last variable set */
 void appendlastvar(value)const char*const value;
 { size_t len;char*p;
-  Stdout=value;primeStdout(empty);
+  Stdout=(char*)value;primeStdout(empty);
   len=Stdfilled+strlen(Stdout+Stdfilled);	     /* Skip over the header */
   p=realloc(Stdout,(Stdfilled=len+1+strlen(value))+1);
   p[len]=' ';strcpy(p+len+1,buf);retbStdout(p);	  /* WARNING: no magic here! */

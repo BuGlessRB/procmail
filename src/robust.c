@@ -2,11 +2,13 @@
  *	The fault-tolerant system-interface				*
  *									*
  *	Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1999-2001, Philip Guenther, The United States	*
+ *						of America		*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.32 2001/06/21 09:43:52 guenther Exp $";
+ "$Id: robust.c,v 1.33 2001/06/23 08:18:50 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
