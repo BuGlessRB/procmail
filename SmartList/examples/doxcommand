@@ -8,7 +8,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Customise to taste.						#
 #########################################################################
-#$Id: doxcommand,v 1.4 1994/05/26 13:46:33 berg Exp $
+#$Id: doxcommand,v 1.5 1994/05/26 14:11:44 berg Exp $
 
 #
 # Edit the following three definitions to suit your list

@@ -22,7 +22,7 @@ Contents:
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.32 1994/05/26 13:45:42 berg Exp $
+$Id: Manual,v 1.33 1994/05/26 14:10:54 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -226,6 +226,15 @@ out until it is overdue.  If you want to force flush_digests to send out
 a digest of a particular list, you can create the file ".digest.force" in
 that list's directory.	During the next run of flush_digests, it will
 remove .digest.force and push out the digest (if any) regardless of its age.
+
+If you create a file named digest.admin in either the main directory of
+the digested list or in the archive/latest directory belonging to it, it
+will be picked up by the next flush_digests and included up front to the
+actual digest under the heading "Administrivia".
+The digest.admin file in the main directory of the digested list will be
+automatically removed after the digest has been pushed out.
+The archive/latest/digest.admin will not be removed and is included in
+every digest.
 
 If you want to give your subscribers the choice of receiving digests or not.
 This is what you can do:
@@ -574,7 +583,7 @@ a -dist alias anymore.
 A recent version can be picked up at various comp.sources.misc archives.
 The latest version can be obtained directly from the ftp-archive at:
 
-	ftp.informatik.rwth-aachen.de (137.226.112.172)
+	ftp.informatik.rwth-aachen.de
 
 as (g)zipped tar file:	   /pub/packages/procmail/SmartList.tar.gz
 as compressed tar file:	   /pub/packages/procmail/SmartList.tar.Z

@@ -1,4 +1,4 @@
-#$Id: rc.main,v 1.5 1994/05/26 13:46:23 berg Exp $
+#$Id: rc.main,v 1.6 1994/05/26 14:11:34 berg Exp $
 
 MAILDIR=.etc				# chdir to the defaults directory
 

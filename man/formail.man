@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.21 1994/05/26 13:46:54 berg Exp $
+.Id $Id: formail.man,v 1.22 1994/05/26 14:12:00 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME

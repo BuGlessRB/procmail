@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.44 1994/05/26 13:45:46 berg Exp $
+#$Id: install.sh,v 1.45 1994/05/26 14:10:58 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \

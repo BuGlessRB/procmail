@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.37 1994/05/26 13:48:18 berg Exp $";
+ "$Id: regexp.c,v 1.38 1994/05/26 14:13:34 berg Exp $";
 #endif
 #include "includes.h"
 #include "robust.h"
@@ -413,7 +413,7 @@ nostack:    { switch(reg->opc-OPB)
 		    break;	    /* push spawned branch on the work-stack */
 		 case OPC_EPS-OPB:reg->spawn=stack;reg=(stack=reg)+1;continue;
 		 case OPC_JUMP-OPB:reg=reg->next;continue;
-		 case OPC_FIN-OPB:return(char*)str;    /* one past the match */
+		 case OPC_FIN-OPB:return (char*)str;   /* one past the match */
 		 case OPC_SEMPTY-OPB:goto empty_stack;
 		 case OPC_TSWITCH-OPB:goto pcstack_switch;
 		 case OPC_BOTEXT-OPB:

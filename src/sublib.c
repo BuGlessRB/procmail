@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: sublib.c,v 1.11 1994/05/26 13:48:29 berg Exp $";
+ "$Id: sublib.c,v 1.12 1994/05/26 14:13:43 berg Exp $";
 #endif
 #include "includes.h"
 #include "sublib.h"
@@ -47,7 +47,7 @@ char*strpbrk(st,del)const char*const st,*del;
   for(f=0;*del;)
      if((t=strchr(st,*del++))&&(!f||t<f))
 	f=t;
-  return(char*)f;
+  return (char*)f;
 }
 #endif
 

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.79 1994/05/26 13:48:12 berg Exp $";
+ "$Id: procmail.c,v 1.80 1994/05/26 14:15:16 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -1053,5 +1053,5 @@ mailed: retval=EX_OK;			  /* we're home free, mail delivered */
 }
 
 eqFrom_(a)const char*const a;
-{ return!strncmp(a,From_,STRLEN(From_));
+{ return !strncmp(a,From_,STRLEN(From_));
 }

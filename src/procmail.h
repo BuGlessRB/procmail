@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.23 1994/05/26 13:48:15 berg Exp $*/
+/*$Id: procmail.h,v 1.24 1994/05/26 14:13:30 berg Exp $*/
 
 #include "includes.h"
 

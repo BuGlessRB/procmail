@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: common.c,v 1.17 1994/05/26 13:47:17 berg Exp $";
+ "$Id: common.c,v 1.18 1994/05/26 14:12:26 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -40,7 +40,7 @@ char*skpspace(chp)const char*chp;
 { for(;;chp++)
      switch(*chp)
       { case ' ':case '\t':continue;
-	default:return(char*)chp;
+	default:return (char*)chp;
       }
 }
 

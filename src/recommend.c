@@ -2,7 +2,7 @@
  *	recommend	Analyses the installation, and makes		*
  *			recommendations about suid/sgid modes		*
  ************************************************************************/
-/*$Id: recommend.c,v 1.7 1994/05/26 13:48:17 berg Exp $*/
+/*$Id: recommend.c,v 1.8 1994/05/26 14:13:32 berg Exp $*/
 #include "includes.h"				       /* also for fprintf() */
 
 #ifndef SYSTEM_MBOX
@@ -20,7 +20,7 @@ char*lastdirsep(filename)const char*filename;	 /* finds the next character */
 { const char*p;					/* following the last DIRSEP */
   while(p=strpbrk(filename,dirsep))
      filename=p+1;
-  return(char*)filename;
+  return (char*)filename;
 }
 
 main(argc,argv)const int argc;const char*const argv[];

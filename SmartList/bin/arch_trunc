@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_trunc,v 1.4 1994/05/26 13:45:53 berg Exp $
+#$Id: arch_trunc,v 1.5 1994/05/26 14:11:07 berg Exp $
 
 echo=echo		# /bin/echo
 ls=ls			# /bin/ls

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.31 1994/05/26 13:47:40 berg Exp $";
+ "$Id: goodies.c,v 1.32 1994/05/26 14:12:51 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"

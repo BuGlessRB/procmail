@@ -1,4 +1,4 @@
-/*$Id: exopen.h,v 1.11 1994/05/26 13:47:27 berg Exp $*/
+/*$Id: exopen.h,v 1.12 1994/05/26 14:12:36 berg Exp $*/
 
 int
  unique Q((const char*const full,char*p,const mode_t mode,const verbos,

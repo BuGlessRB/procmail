@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.6 1994/05/26 13:47:10 berg Exp $
+#$Id: Makefile,v 1.7 1994/05/26 14:12:19 berg Exp $
 
 HIDEMAKE=$(MAKE)
 

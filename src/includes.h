@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.39 1994/05/26 13:47:46 berg Exp $*/
+/*$Id: includes.h,v 1.40 1994/05/26 14:12:58 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -380,6 +380,11 @@ extern void*memmove();
 #ifdef NOmkdir
 #undef NOmkdir
 #define mkdir(dir,mode) (-1)
+#endif
+
+#ifdef NOwaitpid
+#undef NOwaitpid
+#define waitpid(pid,stat_loc,options)	0
 #endif
 
 #ifdef NOmemmove

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.46 1994/05/26 13:47:33 berg Exp $";
+ "$Id: formail.c,v 1.47 1994/05/26 14:12:41 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/05/26 13:47:33 $";
+static /*const*/char rcsdate[]="$Date: 1994/05/26 14:12:41 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -668,7 +668,7 @@ onlyhead:
 }
 
 eqFrom_(a)const char*const a;
-{ return!strncmp(a,From_,STRLEN(From_));
+{ return !strncmp(a,From_,STRLEN(From_));
 }
 
 int breakfield(line,len)const char*const line;size_t len;  /* look where the */

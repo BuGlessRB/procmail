@@ -9,7 +9,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: flush_digests,v 1.12 1994/05/26 13:46:01 berg Exp $
+#$Id: flush_digests,v 1.13 1994/05/26 14:11:15 berg Exp $
 
 test=test		# /bin/test
 mkdir=mkdir		# /bin/mkdir
@@ -79,7 +79,7 @@ then
 	$echo "" >>$Issue
      fi
      $cat $digestbody $digesttrailer >>$Issue 2>/dev/null
-     $rm -f $digesttrailer $digestbody $digestadmin $digestadmin2
+     $rm -f $digesttrailer $digestbody $digestadmin
      $SENDMAIL <$Issue
      cd archive
      $rm -f _dummy_ \

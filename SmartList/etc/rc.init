@@ -46,7 +46,7 @@
 # rc.out	optional rcfile for any local transformations on outgoing
 #		submissions
 
-#$Id: rc.init,v 1.31 1994/05/26 13:46:21 berg Exp $
+#$Id: rc.init,v 1.32 1994/05/26 14:11:32 berg Exp $
 
 DELIVERED=yes	# we're in control of the mail now, tell sendmail to go away
 

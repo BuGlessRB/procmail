@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.29 1994/05/26 13:47:12 berg Exp $
+#$Id: Makefile.0,v 1.30 1994/05/26 14:12:20 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O) \

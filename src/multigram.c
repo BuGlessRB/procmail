@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.50 1994/05/26 13:48:04 berg Exp $";
+ "$Id: multigram.c,v 1.51 1994/05/26 14:13:15 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/05/26 13:48:04 $";
+static /*const*/char rcsdate[]="$Date: 1994/05/26 14:13:15 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -181,7 +181,7 @@ static char*lastdirsep(filename)const char*filename;
 { const char*p;					/* following the last DIRSEP */
   while(p=strpbrk(filename,dirsep))
      filename=p+1;
-  return(char*)filename;
+  return (char*)filename;
 }
 						   /* check rc.lock file age */
 static int rclock(file,stbuf)const char*const file;struct stat*const stbuf;
@@ -273,7 +273,7 @@ main(argc,argv)int argc;char*argv[];
   if(argc)			      /* sanity check, any arguments at all? */
    { char*chp;						 /* suid flist prog? */
      if(ISPROGRAM(chp=lastdirsep(argv[0]),flist))
-      { struct stat stbuf;char*arg;
+      { struct stat stbuf;char*arg;uid_t euid;
 	static const char request[]=REQUEST,listid[]=LISTID,
 	 rcrequest[]=RCREQUEST,rcpost[]=RCPOST,list[]=LIST,
 	 defdir[]=DEFAULTS_DIR,targetdir[]=TARGETDIR,
@@ -283,7 +283,7 @@ main(argc,argv)int argc;char*argv[];
 	;{ struct passwd*pass;uid_t euid;
 	   if((euid=geteuid())==ROOT_uid)
 	    { if(!(pass=getpwnam(listid)))
-	       { nlog("User \");elog(listid);elog("\"");goto bailout;
+	       { nlog("User \"");elog(listid);elog("\"");goto bailout;
 	       }
 	     /*
 	      * continue as the compile-time-determined list maintainer

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.51 1994/05/26 13:48:00 berg Exp $";
+ "$Id: misc.c,v 1.52 1994/05/26 14:13:10 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -136,6 +136,10 @@ void yell(a,b)const char*const a,*const b;		/* log if VERBOSE=on */
 
 void newid P((void))
 { thepid=getpid();oldtime=0;
+}
+
+void zombiecollect P((void))
+{ while(waitpid((pid_t)-1,(int*)0,WNOHANG)>0);	      /* collect any zombies */
 }
 
 void nlog(a)const char*const a;
@@ -305,7 +309,7 @@ char*lastdirsep(filename)const char*filename;	 /* finds the next character */
 { const char*p;					/* following the last DIRSEP */
   while(p=strpbrk(filename,dirsep))
      filename=p+1;
-  return(char*)filename;
+  return (char*)filename;
 }
 
 char*cat(a,b)const char*const a,*const b;
@@ -319,7 +323,7 @@ char*tstrdup(a)const char*const a;
 
 const char*tgetenv(a)const char*const a;
 { const char*b;
-  return(b=getenv(a))?b:"";
+  return (b=getenv(a))?b:"";
 }
 
 char*cstr(a,b)char*const a;const char*const b;	/* dynamic buffer management */
@@ -482,7 +486,7 @@ char*egrepin(expr,source,len,casesens)char*expr;const char*source;
       len>0?(size_t)len:(size_t)0,!casesens);
      free(expr);
    }
-  return(char*)source;
+  return (char*)source;
 }
 
 const struct passwd*savepass(spass,uid)struct passwd*const spass;
@@ -497,7 +501,7 @@ const struct passwd*savepass(spass,uid)struct passwd*const spass;
      spass->pw_shell=cstr(spass->pw_shell,tpass->pw_shell);
 ret: return spass;
    }
-  return(const struct passwd*)0;
+  return (const struct passwd*)0;
 }
 
 int enoughprivs(passinvk,euid,egid,uid,gid)const struct passwd*const passinvk;

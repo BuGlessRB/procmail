@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.32 1994/05/26 13:47:43 berg Exp $*/
+/*$Id: header.h,v 1.33 1994/05/26 14:12:54 berg Exp $*/
 
 X(returnpath,		"Return-Path:")				  /* RFC 822 */
 X(received,		"Received:")				/* ditto ... */

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: fields.c,v 1.15 1994/05/26 13:47:29 berg Exp $";
+ "$Id: fields.c,v 1.16 1994/05/26 14:12:38 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -26,7 +26,7 @@ struct field*findf(p,ah)const struct field*const p;register struct field**ah;
 	   *ah=0,(*(ah=addfield(ah,chp,i)))->fld_next=h,(h= *ah)->fld_ref=0;
 	return h;
       }
-  return(struct field*)0;
+  return (struct field*)0;
 }
 
 void clear_uhead(hdr)register struct field*hdr;

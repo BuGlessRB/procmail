@@ -7,7 +7,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: donatelist,v 1.4 1994/05/26 13:46:00 berg Exp $
+#$Id: donatelist,v 1.5 1994/05/26 14:11:14 berg Exp $
 
 defaults=.etc
 

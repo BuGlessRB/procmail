@@ -79,3 +79,8 @@
 	       crontab entry (instead of flush_digests directly)
 	    Allow for carbon copies to the maintainer of unsubscription
 	       requests
+	    Documented and slightly changed the behaviour of the digest.admin
+	       administrivia files
+	    If possible, the lists are now installed relative to the home
+	       directory of the `list' account
+	    Install the examples directory to .examples

@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: removelist,v 1.6 1994/05/26 13:46:07 berg Exp $
+#$Id: removelist,v 1.7 1994/05/26 14:11:21 berg Exp $
 
 defaults=.etc
 

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.20 1994/05/26 13:46:57 berg Exp $
+#$Id: mansed,v 1.21 1994/05/26 14:12:03 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -78,7 +78,7 @@ expr "X$DEST" : '.*[18]$' >$DEVNULL && cat <<HERE
 This program is part of the
 .I procmail mail-processing-package
 (@PM_VERSION@) available at your nearest USENET comp.sources.misc archive, or
-at ftp.informatik.rwth-aachen.de (137.226.112.172) as
+at ftp.informatik.rwth-aachen.de as
 .BR pub/packages/procmail/procmail.tar.gz .
 .Sh MAILINGLIST
 There exists a mailinglist for questions relating to any program in the

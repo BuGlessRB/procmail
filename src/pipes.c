@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.30 1994/05/26 13:48:08 berg Exp $";
+ "$Id: pipes.c,v 1.31 1994/05/26 14:13:18 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -47,6 +47,7 @@ void ftimeout P((void))
 void resettmout P((void))
 { if(alrmtime)				       /* any need to reset timeout? */
      alarm((unsigned)(alrmtime=0));			    /* reset timeout */
+  zombiecollect();
 }
 
 static void stermchild P((void))

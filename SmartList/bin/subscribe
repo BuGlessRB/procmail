@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands
-#$Id: subscribe,v 1.22 1994/05/26 13:46:11 berg Exp $
+#$Id: subscribe,v 1.23 1994/05/26 14:11:25 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo

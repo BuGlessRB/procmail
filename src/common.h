@@ -1,4 +1,4 @@
-/*$Id: common.h,v 1.9 1994/05/26 13:47:18 berg Exp $*/
+/*$Id: common.h,v 1.10 1994/05/26 14:12:28 berg Exp $*/
 
 void
  shexec P((const char*const*argv)),

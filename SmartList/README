@@ -38,7 +38,7 @@ A recent version of both packages can be picked up at various
 comp.sources.misc archives.
 The latest versions can be obtained directly from the ftp-archive at:
 
-	ftp.informatik.rwth-aachen.de (137.226.112.172)
+	ftp.informatik.rwth-aachen.de
 
 as (g)zipped tar files:	   /pub/packages/procmail/procmail.tar.gz
 			   /pub/packages/procmail/SmartList.tar.gz

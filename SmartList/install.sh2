@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh2  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh2		  # we're in a buggy zsh
-#$Id: install.sh2,v 1.7 1994/05/26 13:45:47 berg Exp $
+#$Id: install.sh2,v 1.8 1994/05/26 14:11:00 berg Exp $
 
 umask 022
 
@@ -15,8 +15,8 @@ target=`../src/gethome "$listid" "$target"` || exit 1
 
 echo "Hardwiring '$target' as the list directory"
 case "$target" in
-   /*) echo "*not* relative to the home directory of '$listid'."
-   *) echo "relative to the home directory of '$listid'."
+   /*) echo "*not* relative to the home directory of '$listid'." ;;
+   *) echo "relative to the home directory of '$listid'." ;;
 esac
 
 hfile=targetdir.h

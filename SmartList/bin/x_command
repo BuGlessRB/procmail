@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: x_command,v 1.14 1994/05/26 13:46:14 berg Exp $
+#$Id: x_command,v 1.15 1994/05/26 14:11:28 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test

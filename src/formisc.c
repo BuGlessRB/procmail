@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.25 1994/05/26 13:47:37 berg Exp $";
+ "$Id: formisc.c,v 1.26 1994/05/26 14:12:45 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -153,6 +153,13 @@ void startprog(argv)const char*Const*const argv;
       }
      pipe(poutfd);
      ;{ int maxchild=(unsigned long)children*CHILD_FACTOR,excode;
+	while(children&&waitpid((pid_t)-1,&excode,WNOHANG)>0)
+	   if(!WIFSTOPPED(excode))		      /* collect any zombies */
+	    { children--;
+	      if((excode=WIFEXITED(excode)?
+		  WEXITSTATUS(excode):-WTERMSIG(excode))!=EX_OK)
+		 retval=excode;
+	    }
 	while((child=fork())==-1&&children)	       /* reap some children */
 	   for(--children;(excode=waitfor((pid_t)0))!=NO_PROCESS;)
 	    { if(excode!=EX_OK)

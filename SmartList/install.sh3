@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh3  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh3		  # we're in a buggy zsh
-#$Id: install.sh3,v 1.32 1994/05/26 13:45:49 berg Exp $
+#$Id: install.sh3,v 1.33 1994/05/26 14:11:02 berg Exp $
 
 umask 022
 
@@ -13,7 +13,7 @@ chmod go+x "$target"			# the aliases won't work otherwise
 chmod g+s "$target" 2>/dev/null		# try to let the group id be inherited
 
 FRAGILE="rc.init "
-DIRS="etc"
+DIRS="etc examples"
 
 TMPFLIST="$target/$bindir/flist.$$"
 

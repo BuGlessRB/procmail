@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.7 1994/05/26 13:46:51 berg Exp $
+#$Id: Makefile.0,v 1.8 1994/05/26 14:11:59 berg Exp $
 
 all: $(MANSS)
 

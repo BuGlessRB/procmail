@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.16 1994/05/26 13:48:22 berg Exp $";
+ "$Id: robust.c,v 1.17 1994/05/26 14:13:37 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -73,7 +73,7 @@ void tfree(p)void*const p;
 
 pid_t sfork P((void))			/* this fork can survive a temporary */
 { pid_t i;int r;			   /* "process table full" condition */
-  elog("");r=noforkretry;			  /* flush log, just in case */
+  zombiecollect();elog("");r=noforkretry;	  /* flush log, just in case */
   while((i=fork())==-1)
    { lcking|=lck_FORK;
      if(!(r<0||r--))
@@ -101,7 +101,7 @@ int opena(a)const char*const a;
   return ropen(a,O_WRONLY|O_APPEND|O_CREAT,NORMperm);
 #else
   ;{ int fd;
-     return(fd=ropen(a,O_WRONLY,0))<0?creat(a,NORMperm):fd;
+     return (fd=ropen(a,O_WRONLY,0))<0?creat(a,NORMperm):fd;
    }
 #endif
 }
@@ -152,12 +152,13 @@ int rwrite(fd,a,len)const int fd,len;const void*const a;
 
 void ssleep(seconds)const unsigned seconds;
 { long t;
-  sleep(seconds);
+  zombiecollect();sleep(seconds);
   if(alrmtime)
      if((t=alrmtime-time((time_t*)0))<=1)	  /* if less than 1s timeout */
 	ftimeout();				  /* activate it by hand now */
      else		    /* set it manually again, to avoid problems with */
 	alarm((unsigned)t);	/* badly implemented sleep library functions */
+  zombiecollect();
 }
 
 void doumask(mask)const mode_t mask;

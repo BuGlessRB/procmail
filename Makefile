@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.54 1994/05/26 13:45:21 berg Exp $
+#$Id: Makefile,v 1.55 1994/05/26 14:10:40 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
