@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.45 1994/02/18 18:43:13 berg Exp $
+#$Id: rc.submit,v 1.46 1994/02/21 16:57:02 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -24,7 +24,8 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 * < $size_limit
 * $$reject_bias
 * !$^($X_COMMAND:|X-Loop: $listaddr|Precedence:.*junk)
-* -99^0 ^FROM_MAILER
+* -100^0 ^FROM_MAILER
+* 1^0
 { }
 
 #
@@ -35,16 +36,17 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 :0 A
 * 9876543210^0 ^\
       Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)\>))
-* -99^0 ^\
-      Subject:[	 ]*((archive:?([	 ]+(\
+* -100^0 ^\
+      Subject:([	 ]*(archive:?([	 ]+(\
 	  (send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|\
 	  list|show|search|[fe]?grep|find|maxfiles|help|info)\
-	 ([	 ]|$)|[	 ]*$)|(help|info)[	 ]*$)|\
-       ( (add .* to|(delete|remove) .* from|\
+	 ([	 ]|$)|[	 ]*$)|\
+	(help|info|add|signo(n|ff)|(un)sub)[	 ]*$)|\
+       .*( (add .* to|(delete|remove) .* from|\
 	 take .* off|put .* on) .* [a-z-]*list|subscri(be|ption))\>)
 * -50^0 ^Subject:[	 ]*\(none\)$
 *  50^0 ^Subject:.*[a-z]
-*  24^2 >2048
+*  25^2 >2048
 {
 
 #
@@ -54,14 +56,15 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 
 :0 B
 * $$=^0
-* -24^0 ^^([	 ]*$)*\
-      [	 ]*((archive:?([	 ]+(\
+* -25^0 ^^([	 ]*$)*\
+      ([	 ]*(archive:?([	 ]+(\
 	  (send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|\
 	  list|show|search|[fe]?grep|find|maxfiles|help|info)\
-	 ([	 ]|$)|[	 ]*$)|(help|info)[	 ]*$)|\
-       ( (add .* to|(delete|remove) .* from|\
+	 ([	 ]|$)|[	 ]*$)|\
+	(help|info)[	 ]*$|\
+	(add|signo(n|ff)|(un)sub).*)|\
+       .*( (add .* to|(delete|remove) .* from|\
 	 take .* off|put .* on) .* [a-z-]*list|subscri(be|ption))\>)
-* 1^0
 {
   #
   # Then check to see if sender is on the accept list (if foreign_submit

@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh3  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh3		  # we're in a buggy zsh
-#$Id: install.sh3,v 1.26 1994/02/16 18:22:20 berg Exp $
+#$Id: install.sh3,v 1.27 1994/02/21 16:56:58 berg Exp $
 
 umask 022
 
@@ -49,8 +49,8 @@ then
 	   (cd $a && $ln ../.etc/unsubscribe.txt unsubscribe.txt 2>/dev/null )
 	  if sed -e \
 's/^\([	 ]*undigested_list\)[	 ]*\(=[^#]*\$list@\$domain[	 ]\)/#\1\2/' \
-	    -e 's/=\([	 ]*\)<0/\1/' \
-	    -e 's/=\([	 ]*\)>0/=\1yes/' \
+	    -e '/foreign_submit/,/X_COMMAND/ s/=\([	 ]*\)<0/\1/' \
+	    -e '/foreign_submit/,/X_COMMAND/ s/=\([	 ]*\)>0/=\1yes/' \
 	    -e 's/\(cc_requests[	 ]*=[	 ]*\)c/\1yes/' \
 	    <$a/rc.custom >$a/#rc.custom &&
 	   cat $a/#rc.custom >$a/rc.custom &&

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.67 1994/02/09 19:11:27 berg Exp $";
+ "$Id: procmail.c,v 1.68 1994/02/21 16:57:14 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -733,7 +733,12 @@ mininfty:	       score=MIN32,i=0;
 		     { if(scoreany)
 			{ charNUM(num,long);
 			  nlog("Score: ");ltstr(7,(long)(score-lscore),num);
-			  elog(num);elog(" ");ltstr(7,(long)score,num);
+			  elog(num);elog(" ");
+			  ;{ long iscore=score;
+			     ltstr(7,iscore,num);
+			     if(!iscore&&score>0)
+				num[7-2]='+';		/* show +0 for (0,1) */
+			   }
 			  elog(num);
 			}
 		       else
@@ -744,7 +749,8 @@ mininfty:	       score=MIN32,i=0;
 		     }
 skiptrue:;	  }
 	       }
-	      lastscore=score;				   /* save it for $= */
+	      if(!(lastscore=score)&&score>0)		   /* save it for $= */
+		 lastscore=1;				 /* round up +0 to 1 */
 	      if(scored&&i&&score<=0)
 		 i=0;				     /* it was not a success */
 	    }
