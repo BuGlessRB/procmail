@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.12 1993/12/08 17:33:55 berg Exp $
+#$Id: mansed,v 1.13 1993/12/23 13:01:38 berg Exp $
 
 test 5 != $# &&
  echo "Don't start this script directly, use \`make'" && exit 1
@@ -65,7 +65,7 @@ This program is part of the
 .I procmail mail-processing-package
 (@PM_VERSION@) available at your nearest USENET comp.sources.misc archive, or
 at ftp.informatik.rwth-aachen.de (137.226.112.172) as
-.BR pub/unix/procmail.tar.Z .
+.BR pub/packages/procmail/procmail.tar.zip .
 .Sh MAILINGLIST
 There exists a mailinglist for questions relating to any program in the
 procmail package:

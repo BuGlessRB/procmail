@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.33 1993/12/08 17:33:31 berg Exp $
+#$Id: install.sh,v 1.34 1993/12/23 13:01:24 berg Exp $
 
 SHELL=/bin/sh
 export SHELL
@@ -92,8 +92,10 @@ export listid
 if test $AM_ROOT = yes
 then
   case $installerid in
-     [0-9]*) . ./install.sh2;;
-     *) su $installerid 4>&0 <install.sh2 ;;
+     [0-9]*) exec 4>&0
+	 . ./install.sh2
+	 exec 4>&- ;;
+     *) su $installerid 4>&0 <install.sh2 || exit 1;;
   esac
   if echo ls | su $listid 2>&1 | fgrep install.sh2 >/dev/null
   then
@@ -137,4 +139,9 @@ else
   echo "edit $target/.etc/rc.init to make sure"
 fi
 echo "that \`PATH', \`domain' and \`listmaster' reflect your installation."
+if test -f $target/.etc/rc.init.new
+then
+  echo "Then remove the $target/.etc/rc.lock file."
+  touch "$target/.etc/rc.lock"
+fi
 echo '**********************************************************************'

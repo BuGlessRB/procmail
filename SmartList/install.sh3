@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh install.sh3  # we're in a csh, feed myself to sh
 $O || exec /bin/sh install.sh3		  # we're in a buggy zsh
-#$Id: install.sh3,v 1.19 1993/12/08 17:33:34 berg Exp $
+#$Id: install.sh3,v 1.20 1993/12/23 13:01:28 berg Exp $
 
 umask 022
 
@@ -16,29 +16,42 @@ DIRS="etc"
 
 TMPFLIST="$target/$bindir/flist.$$"
 
-echo "Preserving any old files: $FRAGILE"
+if test -f "$target/.etc/rc.init"
+then
+  echo "I see that you are upgrading"
+  echo "Creating $target/.etc/rc.lock file now"
+  echo "in order to stall any new mails while we are upgrading"
 
-for a in $FRAGILE
-do
-  test -f "$target/.etc/$a" &&
-   mv -f "$target/.etc/$a" "$target/.etc/$a.old"
-done
+  touch "$target/.etc/rc.lock"
 
-echo Fixing up any incompatibilities with older versions...
+  echo "Pausing for eight seconds (to give already submitted mails a chance"
+  echo "to be delivered)..."
+  sleep 8
 
-( cd "$target"
-  touch .etc/unsubscribe.txt
-  for a in *
+  echo "Preserving any old files: $FRAGILE"
+
+  for a in $FRAGILE
   do
-     if test -d $a
-     then
-	test -f $a/rc.out || touch $a/rc.out
-	test -f $a/accept || (cd $a && $ln dist accept 2>/dev/null )
-	test -f $a/unsubscribe.txt ||
-	 (cd $a && $ln ../.etc/unsubscribe.txt unsubscribe.txt 2>/dev/null )
-     fi
+     test -f "$target/.etc/$a" &&
+      mv -f "$target/.etc/$a" "$target/.etc/$a.old"
   done
-)
+
+  echo Fixing up any incompatibilities with older versions...
+
+  ( cd "$target"
+    touch .etc/unsubscribe.txt
+    for a in *
+    do
+       if test -d $a
+       then
+	  test -f $a/rc.out || touch $a/rc.out
+	  test -f $a/accept || (cd $a && $ln dist accept 2>/dev/null )
+	  test -f $a/unsubscribe.txt ||
+	   (cd $a && $ln ../.etc/unsubscribe.txt unsubscribe.txt 2>/dev/null )
+       fi
+    done
+  )
+fi
 
 echo Installing...
 

@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.31 1993/12/13 15:52:44 berg Exp $
+.Id $Id: procmail.man,v 1.32 1993/12/23 13:01:41 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -481,8 +481,8 @@ entry, then HOME will default to @RootDir@, LOGNAME will default to #uid and
 SHELL will default to @BinSh@.
 .PP
 When in explicit delivery mode, procmail will generate a leading `@FROM@'
-line if none is present.  If one is already present@TRUSTED_IDS@ procmail will
-leave it intact.
+line if none is present.  If one is already present procmail will leave it
+intact.@TRUSTED_IDS@
 .PP
 For security reasons procmail will only use an absolute or $HOME relative
 rcfile if it is either owned by the recipient and not world writeable, or if

@@ -1,4 +1,4 @@
-.Id $Id: procmailrc.man,v 1.30 1993/12/08 17:33:57 berg Exp $
+.Id $Id: procmailrc.man,v 1.31 1993/12/23 13:01:44 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -151,7 +151,8 @@ Invert the condition.
 .B $
 Evaluate the remainder according to
 .BR sh (1)
-substitution rules inside double quotes, then reparse it.
+substitution rules inside double quotes, skip leading whitespace,
+then reparse it.
 .Tp
 .B ?
 Use the exitcode of the specified program.

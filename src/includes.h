@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.31 1993/12/08 17:34:14 berg Exp $*/
+/*$Id: includes.h,v 1.32 1993/12/23 13:01:59 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -357,6 +357,13 @@ extern void*memmove();
 #define memmove(to,from,count) smemmove(to,from,count)
 #endif
 
+#ifdef SLOWstrstr
+#ifdef strstr
+#undef strstr
+#endif
+#define strstr(haystack,needle) sstrstr(haystack,needle)
+#endif
+
 #ifndef P
 #define P(args)		args
 #endif
@@ -378,6 +385,12 @@ extern void*memmove();
 #define charNUM(num,v)	char num[8*sizeof(v)*4/10+1+1]
 
 #define mx(a,b)		((a)>(b)?(a):(b))
+
+typedef unsigned char uschar;	     /* sometimes uchar is already typedef'd */
+#ifdef uchar
+#undef uchar
+#endif
+#define uchar uschar
 
 #ifdef NO_const
 #undef NO_const

@@ -1,4 +1,4 @@
-$Id: Manual,v 1.18 1993/12/08 17:33:27 berg Exp $
+$Id: Manual,v 1.19 1993/12/23 13:01:21 berg Exp $
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
@@ -120,6 +120,10 @@ more precautions than these.  Besides, if someone indeed manages to sneek in
 a bogus X-Command:, it will never go unnoticed since the mailing list
 maintainer (and only the maintainer) will always receive the X-Processed:
 mail.
+
+For your convenience, a sample script "doxcommand" is present in the
+example directory.  It can be used to easily generate these X-Command mails.
+Do remember to readprotect this script once the password has been changed.
 
 
 3. Customisation
@@ -321,7 +325,10 @@ and one for thelist-request@domain.
 
 Whenever mail arrives for either address, the following happens:
 	- flist is started suid root with thelist as its argument
-		- changes its uid and gid to that of the list account
+		- changes its current directory to that of the internally
+		  main list directory
+		- changes its uid and gid to that of the (internally
+		  hardcoded) list account
 		- changes its current directory to that of thelist
 		- waits until both ../.etc/rc.lock and rc.lock are gone or
 		  are old enough (17 minutes)

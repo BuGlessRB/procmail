@@ -1,12 +1,6 @@
-/*$Id: procmail.h,v 1.19 1993/11/24 19:46:55 berg Exp $*/
+/*$Id: procmail.h,v 1.20 1993/12/23 13:02:16 berg Exp $*/
 
 #include "includes.h"
-
-typedef unsigned char uschar;	     /* sometimes uchar is already typedef'd */
-#ifdef uchar
-#undef uchar
-#endif
-#define uchar uschar
 
 #ifdef console
 #define DEFverbose 1

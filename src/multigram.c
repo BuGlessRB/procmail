@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.38 1993/12/13 15:53:10 berg Exp $";
+ "$Id: multigram.c,v 1.39 1993/12/23 13:02:08 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/12/13 15:53:10 $";
+static /*const*/char rcsdate[]="$Date: 1993/12/23 13:02:08 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -195,11 +195,12 @@ main(minweight,argv)char*argv[];
   const char*addit=0;
   struct match{char*fuzz,*hard;int metric;long lentry;off_t offs1,offs2;}
    **best,*curmatch=0;
-  unsigned best_matches,charoffs=0,remov=0,renam=0,
+  unsigned best_matches,charoffs=0,remov=0,renam=0,incomplete=0,
    chkmetoo=(char*)progid-(char*)progid;
   int lastfrom;
   static const char usage[]=
-"Usage: multigram [-cdmr] [-b nnn] [-l nnn] [-w nnn] [-ax address] filename\n";
+"Usage: multigram [-cdimr] [-b nnn] [-l nnn] [-w nnn] [-ax address] filename\n"
+   ;
   if(minweight)			      /* sanity check, any arguments at all? */
    { char*chp;
      if(!strcmp(chp=lastdirsep(argv[0]),flist))		 /* suid flist prog? */
@@ -374,6 +375,7 @@ statd:		    if((size+=stbuf.st_size)>maxsize)	  /* digest too big? */
 	   switch(c= *chp++)
 	    { case 'c':charoffs=1;continue;
 	      case 'd':remov=1;continue;
+	      case 'i':incomplete=1;continue;
 	      case 'r':renam=1;continue;
 	      case 'm':chkmetoo=1;continue;
 	      case 'a':
@@ -407,6 +409,7 @@ statd:		    if((size+=stbuf.st_size)>maxsize)	  /* digest too big? */
 \n\t-b nnn\t\tmaximum no. of best matches shown\
 \n\t-c\t\tdisplay offsets in characters\
 \n\t-d\t\tdelete address from list\
+\n\t-i\t\tcheck for incomplete addresses too\
 \n\t-m\t\tcheck for metoo\
 \n\t-l nnn\t\tlower bound metric\
 \n\t-r\t\trename address on list\
@@ -485,9 +488,14 @@ usg:
 	   break;
 	 }
 	while(--echp>chp);    /* roughly check if it could be a mail address */
-	if(lastfrom<=0&&!strpbrk(chp,"@/")&&(!strchr(chp,'!')||
-	 strchr(chp,'|')||strchr(chp,',')||strstr(chp,".."))&&
-	 !(*chp=='<'&&*echp=='>'))
+	if(lastfrom<=0&&
+	   !strpbrk(chp,"@/")&&			 /* RFC-822 or X-400 address */
+	   (!strchr(chp,'!')||			   /* UUCP bang path address */
+	    strchr(chp,'|')||
+	    strchr(chp,',')||
+	    strstr(chp,".."))&&
+	   !(*chp=='<'&&*echp=='>')&&		  /* RFC-822 machine literal */
+	   !(incomplete&&strchr(chp,'.')))		      /* domain name */
 	 { if(lastfrom<0)
 	      lastfrom=!strcmp(SHFROM,chp);
 	   continue;			  /* apparently not an email address */

@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.33 1993/12/13 15:52:14 berg Exp $*/
+/*$Id: config.h,v 1.34 1993/12/23 13:01:14 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -35,10 +35,11 @@
 /* every user & group appearing in TRUSTED_IDS is allowed to use the -f option
    if the list is empty (just a terminating 0), everyone can use it
    TRUSTED_IDS should be defined as a comma-separated null-terminated
-   list of strings */
+   list of strings;  if unauthorised users use the -f option, an extra
+   Received: field will be added in the body */
 
 #define TRUSTED_IDS	{"root","daemon","uucp","mail","x400","network",\
-			 "list","lists",0}
+			 "list","lists","news",0}
 
 /*#define NO_USER_TO_LOWERCASE_HACK	/* uncomment if your getpwnam() is
 					   case insensitive or if procmail
@@ -80,7 +81,7 @@
 
 #define ROOT_uid	0
 
-#define UPDATE_MASK	S_IXOTH
+#define UPDATE_MASK	S_IXOTH	   /* bit set on mailboxes when mail arrived */
 #define INIT_UMASK	(S_IRWXG|S_IRWXO)			   /* == 077 */
 #define NORMperm	\
  (S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH|UPDATE_MASK)
@@ -97,6 +98,7 @@
 #define BLKSIZ		1024
 #define STDBUF		128
 #endif /* SMALLHEAP */
+#define FAKE_FIELD	"Received: "
 #define HOSTNAMElen	9	  /* nr of significant chararacters for HOST */
 #define BOGUSprefix	"BOGUS."	     /* prepended to bogus mailboxes */
 #define PROCMAILRC	".procmailrc"

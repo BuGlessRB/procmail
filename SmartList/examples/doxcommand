@@ -8,7 +8,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Customise to taste.						#
 #########################################################################
-#$Id: doxcommand,v 1.1 1993/12/22 19:47:00 berg Exp $
+#$Id: doxcommand,v 1.2 1993/12/23 13:01:35 berg Exp $
 
 
 listrequest=yourlist-request@some.where
@@ -23,6 +23,8 @@ $test $# = 0 && $echo "Usage: doxcommand command [argument] ..." 1>&2
 
 command="$1"
 shift
+
+# Allow for abbreviations or misspellings (people are lazy by nature :-)
 
 case "$1" in
   s*) command=subscribe ;;

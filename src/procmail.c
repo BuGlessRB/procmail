@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.57 1993/12/13 15:53:15 berg Exp $";
+ "$Id: procmail.c,v 1.58 1993/12/23 13:02:12 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -158,8 +158,6 @@ conflopt:  nlog("Conflicting options\n"),elog(pmusage);
 		   if(!strcmp(chp2,*kp++))    /* is it among the privileged? */
 		      goto privileged;
 	      privs=0;
-	      if(Deliverymode)
-		fromwhom=0;
 	    }
 	 }
 privileged:				       /* move stdout out of the way */
@@ -187,40 +185,63 @@ privileged:				       /* move stdout out of the way */
 	qsignal(SIGINT,sbounce);qsignal(SIGHUP,sbounce);
 	qsignal(SIGQUIT,slose);signal(SIGALRM,(void(*)())ftimeout);
 	ultstr(0,(unsigned long)uid,buf);
-	chp2=fromwhom?
-	 fromwhom:!passinvk||!*passinvk->pw_name?buf:passinvk->pw_name;
-	;{ time_t t;char*chp3;
-	   t=time((time_t*)0);chp3=ctime(&t);		 /* the current time */
-	   strncpy(buf2,chp2,i=linebuf-strlen(chp3)-2);buf2[i]='\0';
-	    strcat(strcat(buf2,"  "),chp3);
-	 }
-	;{ size_t already;
+	chp2=!passinvk||!*passinvk->pw_name?buf:passinvk->pw_name;
+	filled=0;
+	;{ const char*fwhom;size_t lfr,linv;
+	   fwhom=fromwhom?fromwhom:chp2;
 	   thebody=themail=
-	    malloc((already=STRLEN(From_)+strlen(buf2))+linebuf);
-	   filled=0;
+	    malloc(2*linebuf+(lfr=strlen(fwhom))+(linv=strlen(chp2)));
 	   if(Deliverymode||fromwhom)  /* need to peek for a leading From_ ? */
-	    { char*rstart;int r;			     /* skip garbage */
+	    { char*rstart;int r;static const char Fakefield[]=FAKE_FIELD;
+	      ;{ time_t t;				 /* the current time */
+		 t=time((time_t*)0);strcat(strcpy(buf2,"  "),ctime(&t));
+	       }
+	      lfr+=STRLEN(From_)+(r=strlen(buf2));
+	      if(privs)					 /* privileged user? */
+		 linv=0;	      /* yes, so no need to insert Received: */
+	      else
+		 linv+=STRLEN(Fakefield)+r;
 	      while(1==(r=rread(STDIN,themail,1))&&*themail=='\n');
-	      i=0;
+	      i=0;rstart=themail;			     /* skip garbage */
 	      if(r>0&&STRLEN(From_)<=(i=rread(	      /* is it a From_ line? */
-	       STDIN,(rstart=themail)+1,linebuf-2)+1)&&eqFrom_(themail))
-		 if(fromwhom||!privs)
-		    do				       /* discard From_ line */
-		       if(!i--&&(i=rread(STDIN,rstart=themail,linebuf-1)-1)<0)
-			{ i=0;break;
-			}
-		    while(*rstart++!='\n');
+	       STDIN,rstart+1,linebuf-2-1)+1)&&eqFrom_(themail))
+	       { rstart[i]='\0';
+		 if(!(rstart=strchr(rstart,'\n')))
+		    goto nonewl;		     /* drop long From_ line */
+		 i-=++rstart-themail;
+		 if(fromwhom)			       /* discard From_ line */
+		  { for(;!(rstart=strchr(themail,'\n'));themail[i]='\0')
+nonewl:		       if((i=rread(STDIN,themail,linebuf-2))<=0)
+			  break;
+		    i=rstart?i-(++rstart-themail):0;
+		  }
 		 else			       /* leave the From_ line alone */
-		  { already=0;goto leaveFrom;
-		  }	   /* move the read-ahead text beyond our From_ line */
-	      tmemmove(themail+already,rstart,i);strcpy(themail,From_);
-	      tmemmove(themail+STRLEN(From_),buf2,already-STRLEN(From_));
-leaveFrom:    filled=already+i;
+		  { lfr=0;
+		    if(linv)
+		     { filled=linv+i;i-=(lfr=rstart-themail);
+		       goto leaveFrom;
+		     }
+		  }
+	       }
+	      filled=lfr+linv+i;
+	      if(lfr||linv)	 /* move the read text beyond our From_ line */
+leaveFrom:     { r= *rstart;tmemmove(themail+lfr+linv,rstart,i);
+		 if(!linv)
+		    strcat(strcpy(themail,From_),fwhom);
+		 else
+		  { if(lfr)
+		     { strcat(strcat(strcpy(themail,From_),fwhom),buf2);
+		       rstart=strchr(themail,'\0');
+		     }	    /* insert a Received: field to distinguish fakes */
+		    strcat(strcpy(rstart,Fakefield),chp2);
+		  }			  /* overwrite the trailing \0 again */
+		 strcat(themail,buf2);themail[lfr+linv]=r;
+	       }
 	    }
 	 }
 	readmail(0,0L);			      /* read in the mail completely */
 	if(Deliverymode)
-	   do
+	   do			  /* chp should point to the first recipient */
 	    { chp2=chp;
 #ifndef NO_USER_TO_LOWERCASE_HACK
 	      for(;*chp;chp++)		  /* kludge recipient into lowercase */
@@ -241,7 +262,7 @@ leaveFrom:    filled=already+i;
 	   while(chp=(char*)argv[argc]);
 	gargv=argv+argc;			 /* save it for nextrcfile() */
 	if(Deliverymode)
-	 { if(!(pass=getpwnam(chp2)))
+	 { if(!(pass=getpwnam(chp2)))  /* chp2 should point to the recipient */
 	    { nlog("Unknown user");logqnl(chp2);return EX_NOUSER;
 	    }
 	   if(euid==ROOT_uid||
@@ -447,8 +468,8 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 	      * is not world writeable, or if the the directory it is in is
 	      * not world writeable or does not have the sticky bit set
 	      */
-	      i= *(chp=lastdirsep(buf));      /* /dev/null is a special case */
-	      if(lstat(buf,&stbuf)||
+	      i= *(chp=lastdirsep(buf));
+	      if(lstat(buf,&stbuf)||	      /* /dev/null is a special case */
 		 ((stbuf.st_uid!=uid||stbuf.st_mode&S_IWOTH)&&
 		   strcmp(devnull,buf)&&(*chp='\0',stat(buf,&stbuf)||
 		  (stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)&&
@@ -537,7 +558,7 @@ noconcat:     i=flags[ALSO_NEXT_RECIPE]?lastcond:1;	  /* init test value */
 		  { int negate,scoreany;double weight,xponent,lscore;
 		    negate=scoreany=0;lscore=score;
 		    for(chp=buf2+1;;strcpy(buf2,buf))
-		     { switch(*(sgetcp=buf2))
+copydone:	     { switch(*(sgetcp=buf2))
 			{ case '0':case '1':case '2':case '3':case '4':
 			  case '5':case '6':case '7':case '8':case '9':
 			  case '-':case '+':case '.':case ',':
@@ -639,7 +660,8 @@ jinregs:			   regsp=regs;	/* start over and look again */
 			      }
 			     break;
 			   }
-			  case '$':*buf2='"';readparse(buf,sgetc,2);continue;
+			  case '$':*buf2='"';readparse(buf,sgetc,2);
+			     strcpy(buf2,skpspace(buf));goto copydone;
 			  case '!':negate^=1;chp2=skpspace(chp);
 copyrest:		     strcpy(buf,chp2);continue;
 			  case '?':pwait=2;metaparse(chp);inittmout(buf);
@@ -683,8 +705,8 @@ copyrest:		     strcpy(buf,chp2);continue;
 					 filled>pivot)^
 					negate))
 				i=0;
-			   }					/* leftovers */
-			}					/* leftovers */
+			   }
+			}
 		       break;
 		     }
 		    if(score>MAX32)		/* chop off at plus infinity */
@@ -729,7 +751,13 @@ progrm:	   if(testb('!'))				 /* forward the mail */
 		 skiprc++;
 	      readparse(chp+1,getb,0);
 	      if(i)
+	       { if(startchar==themail)
+		  { startchar[filled]='\0';		     /* just in case */
+		    if(eqFrom_(startchar))    /* leave off any leading From_ */
+		       while(i= *startchar++,--tobesent&&i!='\n');
+		  }				 /* it confuses some mailers */
 		 goto forward;
+	       }
 	      skiprc--;
 	    }
 	   else if(testb('|'))				    /* pipe the mail */

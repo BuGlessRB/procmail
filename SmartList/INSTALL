@@ -51,15 +51,32 @@ Next, make sure that you are running as root (su root) and execute the
 
 If you are setting up the mailinglists under your own account, simply
 creating a separate directory and running the install.sh script should
-suffice.  Depending on the setuid semantics of your system (i.e. if
-they follow the posix semantics) the .bin/flist program needs to be
-setuid root anyway.
+suffice.
 
 This script will then create two subdirectories (.bin and .etc) in
 /home/list.  These directories will be filled with the files contained
 in the bin and etc subdirectories here.	 It will also make sure that
 the "multigram" program is compiled from the procmail*/src directory and
 copied into /home/list/.bin.
+
+	The only program/binary that contains harcoded information is
+	the /home/.bin/flist program.  It contains both the name of the user
+	that owns the lists ("list" in this case) and the absolute path to
+	the mailinglist directory (/home/list in this case).  This is
+	needed for security reasons.
+
+	This means that if either the name of the user or the name
+	of the directory changes, you'll have to reinstall the mailinglist
+	scripts (or at least the flist binary).	 You can treat it as if it
+	were an upgrade, see paragraph 5 below for more information.
+
+	This also means that if you like to have several main mailinglist
+	directories, you'll need a separately installed flist binary
+	for each one of them.  Simply install.sh to every directory anew.
+	To conserve space, or to centralise administration, you can then
+	(hard)link all files in all the .bin and .etc directories with
+	their counterparts (except the flist binaries and anything linked
+	to them of course).
 
 Furthermore install.sh will link /home/list/.etc/rc.main to
 /home/list/.procmailrc.	 This is of course superfluous (but nondestructive) if
@@ -121,23 +138,23 @@ the two sendmailOPT* assigments following it.
 5. Upgrading from previous versions of these scripts
    -------------------------------------------------
 
-Before you start the upgrade, create the file /home/list/.etc/rc.lock
-Now do a ps and see if any procmail-list instances are currently
-running.  Wait till they are gone.  Now touch the rc.lock file once more.
-You now have 17 minutes to complete the upgrade.  If it should take
-longer, touch the rc.lock file every so often.	As soon as the difference
-between its mtime and the current time exceeds 17 minutes, the flist
-programs start delivering mail to the lists again.
-
 You can simply use the install.sh script again to install directly over
 the old installation IF you customised ONLY the master rc.init and rc.custom
 files.	Once you ran the install.sh script, you'll have to merge the changes
 you made to the old rc.init file (still there) into the rc.init.new file.
+
+Since the install.sh script created the .etc/rc.lock file for you,
+you have 17 minutes to do that.	 If it should take longer, touch the rc.lock
+file every so often.  As soon as the difference between its mtime and the
+current time exceeds 17 minutes, the flist programs start delivering mail to
+the lists again.
+
 Then cat (yes, use `cat', because you have to preserve any hardlinks) the
 rc.init.new file into the rc.init file.
-There are some new entries in the new rc.custom file template.	Since they
-are commented out (i.e. rc.init already provides defaults) their omission
-in the old rc.custom files should not cause any problems.
+
+If there are any new entries in the new rc.custom file template, their
+omission in the old rc.custom files should not cause any problems (i.e. the
+new rc.init already provides the new defaults).
 
 If you customised more than just the rc.init or rc.custom files, you'll
 have to make diffs between the old versions of the scripts, then install

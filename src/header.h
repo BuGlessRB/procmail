@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.24 1993/10/29 16:42:30 berg Exp $*/
+/*$Id: header.h,v 1.25 1993/12/23 13:01:57 berg Exp $*/
 
 static const char
  returnpath[]=		"Return-Path:",				  /* RFC 822 */
@@ -46,6 +46,10 @@ static const char
  text[]=		"Text:",
  via[]=			"Via:",
  x400received[]=	"X400-Received:",
+ x400originator[]=	"X400-Originator:",
+ x400rcipients[]=	"X400-Recipients:",
+ x400mtsidentifier[]=	"X400-Mts-Identifier:",
+ x400contenttype[]=	"X400-Content-Type:",
  priority[]=		"Priority:",			    /* ELM extension */
  fcc[]=			"Fcc:",				   /* Mush extension */
  resent[]=		"Resent:",			     /* MH extension */
@@ -102,8 +106,9 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
   bsl(res_messageid),bsl(inreplyto),bsl(references),bsl(keywords),bsl(subject),
   bsl(scomments),bsl(ncrypted),bsl(errorsto),bsl(retreceiptto),
   bsl(precedence),bsl(fullname),bsl(postddate),bsl(recvddate),bsl(mssage),
-  bsl(text),bsl(via),bsl(x400received),bsl(priority),bsl(fcc),bsl(resent),
-  bsl(forwarded),bsl(replied),bsl(article),bsl(path),bsl(summary),
+  bsl(text),bsl(via),bsl(x400received),bsl(x400originator),bsl(x400rcipients),
+  bsl(x400mtsidentifier),bsl(x400contenttype),bsl(priority),bsl(fcc),
+  bsl(resent),bsl(forwarded),bsl(replied),bsl(article),bsl(path),bsl(summary),
   bsl(organisation),bsl(aorganization),bsl(newsgroups),bsl(followupto),
   bsl(approved),bsl(lines),bsl(expires),bsl(control),bsl(distribution),
   bsl(xref),bsl(originator),bsl(nntppostinghost),bsl(submittedby),bsl(title),

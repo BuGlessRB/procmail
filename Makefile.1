@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.23 1993/12/13 15:52:11 berg Exp $
+#$Id: Makefile.1,v 1.24 1993/12/23 13:01:09 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -8,7 +8,7 @@ make:
 	@$(SHELL) -c "exit 0"
 
 .PRECIOUS: Makefile
-.INIT: Makefile
+.INIT: _init
 
 bins: config.check src/Makefile
 	cd src; $(MAKE) $(NBINS)
@@ -115,7 +115,7 @@ clean: config.check
 	-for a in $(SUBDIRS); do cd $$a; $(MAKE) $@; cd ..; done; exit 0
 	cd mailinglist; $(RM) targetdir.h list.id.* id.test
 	$(RM) $(MANS) $(BINS) install.man install.bin suid.sh _Makefile \
-	 core autoconf.h.tmp
+	 *core* autoconf.h.tmp
 
 realclean: clean _init
 	$(RM) config.check

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.37 1993/11/24 19:46:39 berg Exp $";
+ "$Id: mailfold.c,v 1.38 1993/12/23 13:02:02 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -291,29 +291,25 @@ void readmail(rhead,tobesent)const long tobesent;
 	   rhead=1;	 /* yup, we read in a new header as well as new mail */
 	mailread=0;dfilled=thebody-themail;themail=readdyn(themail,&filled);
       }
-     pastend=filled+(thebody=themail);
+     *(pastend=filled+(thebody=themail))='\0';		   /* terminate mail */
      while(thebody<pastend&&*thebody++=='\n');	     /* skip leading garbage */
      realstart=thebody;
      if(rhead)			      /* did we read in a new header anyway? */
       { confield.filled=0;concnd='\n';
-	while(thebody=
-	 egrepin("[^\n]\n[\n\t ]",thebody,(long)(pastend-thebody),1))
-	   if(thebody[-1]!='\n')		  /* mark continuated fields */
-	      app_val(&confield,(off_t)(--thebody-1-themail));
-	   else
-	      goto eofheader;		   /* empty line marks end of header */
+	while(thebody=strchr(thebody,'\n'))
+	   switch(*++thebody)			  /* mark continuated fields */
+	    { case '\t':case ' ':app_val(&confield,(off_t)(thebody-1-themail));
+	      default:continue;		   /* empty line marks end of header */
+	      case '\n':thebody++;goto eofheader;
+	    }
 	thebody=pastend;      /* provide a default, in case there is no body */
 eofheader:;
       }
      else			       /* no new header read, keep it simple */
 	thebody=themail+dfilled; /* that means we know where the body starts */
-   }
-  ;{ int f1stchar;    /* to make sure that the first From_ line is uninjured */
-     f1stchar= *realstart;*(chp=realstart)='\0';escFrom_.filled=0;
-     while(chp=egrepin(FROM_EXPR,chp,(long)(pastend-chp),1))
-      { while(*--chp!='\n');		       /* where did this line start? */
-	app_val(&escFrom_,(off_t)(++chp-themail));chp++;	   /* bogus! */
-      }
-     *realstart=f1stchar;mailread=1;
-   }
+   }		      /* to make sure that the first From_ line is uninjured */
+  chp=realstart;escFrom_.filled=0;
+  while(chp=strstr(chp,FROM_EXPR))
+     app_val(&escFrom_,(off_t)(++chp-themail));	       /* bogus From_ found! */
+  mailread=1;
 }

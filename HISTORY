@@ -170,6 +170,8 @@
 		  of prospective subscribers (allows tighter control)
 	       Tuned the procbounce script (it does what I mean now
 		  and it got more verbose in its diagnostics)
+	       Taught procbounce about the more information deprived
+		  bounce messages (it can handle almost every bounce now)
 	       Changes to the arch_retrieve script:
 		  - allow the archive directory to be a symbolic link itself
 		  - friendlier help command

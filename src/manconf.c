@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.28 1993/12/13 15:53:06 berg Exp $*/
+/*$Id: manconf.c,v 1.29 1993/12/23 13:02:05 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -118,8 +118,10 @@ yourself.");
    ,prestenv,".",""," and ");
   plist("KEEPENV",", except for the values of ",keepenv,"",""," and ");
   plist("TRUSTED_IDS",
-   ", and procmail is invoked with one of the following user or group ids: ",
-   trusted_ids,",",""," or ");
+  "  If procmail is not invoked with one of the following user or group ids: ",
+   trusted_ids,", but still has to generate or accept a new `@FROM@' line,\1\
+it will generate an additional `@FAKE_FIELD@' line to help distinguish\1\
+fake mails.",""," or ");
   plist("KERNEL_LOCKING",
    "consistently uses the following kernel locking strategies: ",krnllocks,"",
    "doesn't use any additional kernel locking strategies"," and ");
@@ -165,6 +167,7 @@ See also:\1.BR DROPPRIVS .":"");
   pname("INIT_UMASK");printf("0%lo/g\n",INIT_UMASK);
   pn("DEFlinebuf",DEFlinebuf);
   ps("BOGUSprefix",BOGUSprefix);
+  ps("FAKE_FIELD",FAKE_FIELD);
   ps("PROCMAILRC",PROCMAILRC);
   pn("HOSTNAMElen",HOSTNAMElen);
   pn("DEFsuspend",DEFsuspend);
