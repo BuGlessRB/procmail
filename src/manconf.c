@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.70 2000/11/27 07:09:23 guenther Exp $*/
+/*$Id: manconf.c,v 1.71 2001/06/03 22:11:26 guenther Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -309,6 +309,7 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
   pc("FM_QPREFIX",FM_QPREFIX);
   pc("FM_CONCATENATE",FM_CONCATENATE);
   pc("FM_ZAPWHITE",FM_ZAPWHITE);
+  pc("FM_LOGSUMMARY",FM_LOGSUMMARY);
   pc("FM_FORCE",FM_FORCE);
   pc("FM_REPLY",FM_REPLY);
   pc("FM_KEEPB",FM_KEEPB);
