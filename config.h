@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.81 1999/02/24 07:20:09 guenther Exp $*/
+/*$Id: config.h,v 1.82 1999/02/26 21:11:54 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -31,6 +31,12 @@
  * *not* take place
  */
 #define PRESTENV	{"IFS","ENV","PWD",DEFPATH,0}
+
+/*#define GROUP_PER_USER			/* uncomment this if each
+						   user has his or her own
+	group and procmail can therefore trust a $HOME/.procmailrc that
+	is group writable or contained in a group writable home directory
+	if the group involved is the user's default group. */
 
 /************************************************************************
  * Only edit below this line if you have viewed/edited this file before *

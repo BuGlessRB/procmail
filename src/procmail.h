@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.37 1999/02/11 17:10:57 guenther Exp $*/
+/*$Id: procmail.h,v 1.38 1999/02/26 21:11:56 guenther Exp $*/
 
 #include "includes.h"
 
@@ -6,6 +6,12 @@
 #define DEFverbose 1
 #else
 #define DEFverbose 0
+#endif
+
+#ifdef GROUP_PER_USER
+#define NO_CHECK_stgid 0
+#else
+#define NO_CHECK_stgid 1
 #endif
 
 #ifndef DEFsendmail

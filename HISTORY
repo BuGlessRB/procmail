@@ -420,6 +420,7 @@
 		 not in privileged mailfilter mode
 	       - Don't use a .procmailrc if it's group-writable or in a
 		 group-writable directory
+	       - hardlink in a an NFS-resistant manner
 	    Worked around a compiler bug old HP compilers (pointer-unsigned),
 	       caused the Content-Length: field to be mangled on some older
 	       HP/UX systems (not on every mail)

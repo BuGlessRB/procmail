@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.136 1999/02/25 21:57:04 guenther Exp $";
+ "$Id: procmail.c,v 1.137 1999/02/26 21:11:55 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -605,16 +605,17 @@ susp_rc:      closerc();nlog(susprcf);logqnl(buf);
 	      * default rcfile then we also outlaw group writibility.
 	      */
 	    { register char c= *(chp=lastdirsep(buf));
-	      i=i==2?S_IWGRP|S_IXGRP:0;
 	      if(((stbuf.st_uid!=uid&&stbuf.st_uid!=ROOT_uid||
-		   stbuf.st_mode&(i&S_IWGRP|S_IWOTH)&&
-		  strcmp(devnull,buf))||      /* /dev/null is a special case */
+		   stbuf.st_mode&S_IWOTH||
+		   i&&stbuf.st_mode&S_IWGRP&&(NO_CHECK_stgid||stbuf.st_gid!=gid)
+		  )&&strcmp(devnull,buf)||    /* /dev/null is a special case */
 		 (*chp='\0',stat(buf,&stbuf))||
 #ifdef CAN_chown
 		 !(stbuf.st_mode&S_ISVTX)&&
 #endif
 		 ((stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)||
-		  i&&(stbuf.st_mode&i)==i)))
+		  i&&(stbuf.st_mode&(S_IWGRP|S_IXGRP))==(S_IWGRP|S_IXGRP)
+		   &&(NO_CHECK_stgid||stbuf.st_gid!=gid))))
 	       { *chp=c;
 		 goto susp_rc;
 	       }
