@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.42 2000/10/25 21:43:45 guenther Exp $
+.Id $Id: formail.man,v 1.43 2001/01/28 00:46:14 guenther Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -191,12 +191,15 @@ at the Message-ID.
 .I "\fB\-@FM_EXTRACT@\fP headerfield"
 Extract the contents of this
 .I headerfield
-from the header, display it as a single line.
+from the header.  Line continuations will be left intact; if you
+want the value on a single line then you'll also need the
+.B \-@FM_CONCATENATE@
+option.
 .TP
 .I "\fB\-@FM_EXTRC_KEEP@\fP headerfield"
 Same as
 .BR \-@FM_EXTRACT@ ,
-but also preserves the field name.
+but also preserves/includes the field name.
 .TP
 .I "\fB\-@FM_ADD_IFNOT@\fP headerfield"
 Append a custom
@@ -263,7 +266,8 @@ of the original message.  If the sender is expecting a reply or the
 reply is being generated in response to the contents of the original
 message then the \-@FM_TRUST@ option should be used.
 .PP
-RFC822, the original standard governing the format of Internet mail
+.BR RFC822 ,
+the original standard governing the format of Internet mail
 messages, did not specify whether Resent header fields (those that
 begin with `Resent\-', such as `Resent\-From:') should be considered
 when generating a reply.  Since then, the recommended usage of the
@@ -386,6 +390,25 @@ this autoreply feature on mails coming through mailinglists.  Depending
 on the format of the incoming mail (which in turn depends on both the
 original sender's mail agent and the mailinglist setup) formail could
 decide to generate an autoreply header that replies to the list.
+.PP
+In the tradition of UN*X utilities, formail will do exactly what
+you ask it to, even if it results in a
+.RB non- RFC822
+compliant message.  In particular, formail will let you generate
+header fields whose name ends in a space instead of a colon.  While
+this is correct for the leading `@FROM@' line, that line is not a
+header field so much as the message separator for the mbox mailbox
+format.  Multiple occurences of such a line or any other colonless
+header field will be considered by many mail programs, including
+formail itself, as the beginning of a new message.  Others will
+consider the message to be corrupt.  Because of this, you should
+not use the
+.B \-@FM_REN_INSERT@
+option with the `@FROM@' line as the resulting renamed line,
+`@OLD_PREFIX@@FROM@', will probably not do what you want it to.  If
+you want to save the original `@FROM@' line, rename it with the
+.B \-@FM_ReNAME@
+option to a legal header field such as `X-From_:'.
 .SH BUGS
 When formail has to generate a leading `@FROM@' line it normally will contain
 the current date.  If formail is given the option `\-@FM_ADD_IFNOT@ Date:',
