@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.94 1999/06/17 06:04:09 guenther Exp $";
+ "$Id: formail.c,v 1.95 1999/06/17 06:29:59 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/06/17 06:04:09 $";
+static /*const*/char rcsdate[]="$Date: 1999/06/17 06:29:59 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -215,10 +215,8 @@ static char*getsender(namep,fldp,headreply)char*namep;struct field*fldp;
      tmp=malloc(j=fldp->Tot_len-j);tmemmove(tmp,chp,j);(chp=tmp)[j-1]='\0';
      if(sest[i].head==From_)
       { char*pastad;
-#if 0			/* trust is always 1 now.  What does saddr mean? */
-	if(trust||!(saddr=strchr(chp,'\n')))	     /* skip the first line? */
-#endif
-	   saddr=chp;						  /* no need */
+	if(strchr(saddr=chp,'\n'))		     /* multiple From_ lines */
+	   nowm-=2;				    /* aren't as trustworthy */
 	if(*saddr=='\n'&&(pastad=strchr(saddr,' ')))
 	   saddr=pastad+1;			/* reposition at the address */
 	chp=saddr;
