@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.94 1994/08/23 17:37:34 berg Exp $";
+ "$Id: procmail.c,v 1.95 1994/08/23 17:53:36 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -652,7 +652,7 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 	      if(chdir(chp=buf))      /* no, well, then try an initial chdir */
 	       { chderr(buf);
 		 if(chdir(chp=(char*)tgetenv(home)))
-		    chderr(chp),chp=curdir;
+		    chderr(chp),chp=(char*)curdir;
 	       }
 	      setmaildir(chp);
 	    }
