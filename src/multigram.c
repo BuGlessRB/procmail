@@ -8,7 +8,9 @@
  *	This program also contains some swiss-army-knife mailinglist	*
  *	support features.						*
  *									*
- *	Most notably:	flist	A program that should be setuid root.	*
+ *	Most notably:	flist	A program that should be setuid root	*
+ *	or setuid to the list user and setgid to the list user's	*
+ *	primary group.							*
  *									*
  *	Seems to be relatively bug free.				*
  *									*
@@ -17,9 +19,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.91 1999/04/19 06:42:23 guenther Exp $";
+ "$Id: multigram.c,v 1.92 1999/11/18 01:58:14 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/04/19 06:42:23 $";
+static /*const*/char rcsdate[]="$Date: 1999/11/18 01:58:14 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
