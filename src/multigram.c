@@ -15,9 +15,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.19 1993/01/22 14:38:15 berg Exp $";
+ "$Id: multigram.c,v 1.20 1993/01/28 15:18:37 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/22 14:38:15 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/28 15:18:37 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -141,7 +141,7 @@ main(minweight,argv)char*argv[];
   struct match{char*fuzz,*hard;int metric;long lentry,offs1,offs2;}
    **best,*curmatch=0;
   unsigned best_matches,maxgram,maxweight,charoffs=0,remov=0,renam=0,
-   chkmetoo=(char*)progid-(char*)progid,progsel=0;
+   chkmetoo=(char*)progid-(char*)progid;
   int lastfrom;
   static const char usage[]=
  "Usage: multigram [-cdmr] [-b nnn] [-l nnn] [-w nnn] [-a address] filename\n";
@@ -347,7 +347,7 @@ shftleft:     tmemmove(chp,chp+1,strlen(chp));
 		    if(!strncmp(++hrd,fzz+1,gramsize))	      /* own string? */
 		     { if(cminlen>gramsize+1)
 			  cminlen--;
-		       goto dble_gram;		    /* skip until it's last */
+		       goto dble_gram;		     /* skip until it's last */
 		     }
 		 for(hrd=hardstr.itext;hrd=strchr(hrd,*fzz);)	/* otherwise */
 		    if(!strncmp(++hrd,fzz+1,gramsize))	 /* search it in the */

@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.13 1993/01/28 14:22:14 berg Exp $*/
+/*$Id: manconf.c,v 1.14 1993/01/28 15:18:33 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -115,7 +115,7 @@ yourself.");
    ", and procmail is invoked with one of the following user or group ids: ",
    trusted_ids,",",""," or ");
   plist("KERNEL_LOCKING",
-   "consistenly uses the following kernel locking strategies:",krnllocks,"",
+   "consistenly uses the following kernel locking strategies: ",krnllocks,"",
    "doesn't use any additional kernel locking strategies"," and ");
 #ifdef LD_ENV_FIX
   ps("LD_ENV_FIX","\1.PP\1For security reasons, procmail will wipe out all\
