@@ -10,13 +10,14 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: led,v 1.1 1994/09/15 18:19:32 berg Exp $
+#$Id: led,v 1.2 1994/09/20 17:05:18 berg Exp $
 
 test=test				# /bin/test
 touch=touch				# /bin/touch
 rm=rm					# /bin/rm
 ls=ls					# /bin/ls
 echo=echo				# /bin/echo
+kill=kill				# /bin/kill
 basename=basename			# /bin/basename
 dirname=dirname				# /bin/dirname
 lockfile=lockfile			# /usr/local/bin/lockfile
@@ -24,12 +25,20 @@ lockfile=lockfile			# /usr/local/bin/lockfile
 test -z "$VISUAL" && VISUAL=$EDITOR
 test -z "$VISUAL" && VISUAL=vi
 
+if test $# = 0
+then
+  exec $VISUAL
+fi
+
+childpid=""
 lockfiles=""
+nlockfiles=""
 touchfiles=""
 
 TMPF=/tmp/led.$$
 
-trap "$rm -f $TMPF \$lockfiles; exit 1" 1 2 3 15
+trap "$test -z \"\$childpid\" || $kill \$childpid 2>/dev/null
+ $rm -f $TMPF \$lockfiles; exit 1" 1 2 3 15
 
 $touch $TMPF
 
@@ -65,13 +74,37 @@ do
   esac
 done
 
-$test ! -z "$lockfiles" && $lockfile $lockfiles
+if $test -z "$lockfiles" || $lockfile $lockfiles
+then
+:
+else
+  exit 1
+fi
 
-$test ! -z "$touchfiles" && $touch $touchfiles
+$test -z "$touchfiles" || $touch $touchfiles
+
+if $test ! -z "$lockfiles" -o ! -z "$touchfiles"
+then
+  parent=$$
+  exec 9>&2 2>/dev/null
+   ( while $kill -0 $parent
+     do
+	$sleep 64
+	$touch $touchfiles $lockfiles
+     done
+   ) &
+  childpid=$!
+  exec 2>&9 9>&-
+fi
 
 $VISUAL "$@"
-( exec <$TMPF
-  while read info
+( exec 4<$TMPF
+  test -z "$SHELL" && SHELL=/bin/sh
+  test -z "$PS1" && PS1="$ "
+  PS1="Type 'exit' to resume checking after you have corrected it.
+$PS1"
+  export PS1
+  while read info <&4
   do
      set dummy $info
      file=$2
@@ -86,10 +119,19 @@ $VISUAL "$@"
 	$echo "Your editor messed up the attributes of '$file'." 1>&2
 	$echo "I now see: '$newinfo', the way it was: '$info'." 1>&2
 	$echo 1>&2 \
-	    "If you don't correct this, SmartList might not operate correctly!"
+		"If you don't fix this, SmartList might not operate correctly!"
+	$echo 1>&2 "I'll give you the opportunity to do so now."
+	$echo 1>&2 ""
+	$SHELL 4>&-
+	$echo 1>&2 "Checking the rest of the files ..."
      fi
   done
 )
+
+exec 9>&2 2>/dev/null
+$test -z "$childpid" || $kill $childpid
+wait
+exec 2>&9 9>&-
 $rm -f _dummy_ $lockfiles $TMPF
 
 trap 1 2 3 15
