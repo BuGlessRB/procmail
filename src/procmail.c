@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.130 1999/02/12 05:54:02 guenther Exp $";
+ "$Id: procmail.c,v 1.131 1999/02/12 19:22:40 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -482,7 +482,10 @@ Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
 	;{ const char*const*kp;static const char*const prestenv[]=PRESTENV;
 	   for(kp=prestenv;*kp;)	/* preset some environment variables */
 	    { strcpy((char*)(sgetcp=buf2),*kp++);
-	      readparse(buf,sgetc,2)||sputenv(buf);
+	      if(readparse(buf,sgetc,2))
+		 setoverflow();
+	      else
+		 sputenv(buf);
 	    }
 	 }
       }		/* set fdefault and find out the name of our system lockfile */
@@ -834,7 +837,7 @@ nolock:			{ nlog("Couldn't determine implicit lockfile from");
 	      if(!i)						/* no match? */
 		 skiprc++;		  /* temporarily disable subprograms */
 	      if(readparse(chp,getb,0))
-fail:	       { succeed=0;
+fail:	       { succeed=0;setoverflow();
 		 goto setlsucc;
 	       }
 	      if(i)
@@ -887,7 +890,9 @@ nextrc:	      if(poprc()||wipetcrc())
 	   if(testB('='))			   /* removal or assignment? */
 	    { *chp='=';
 	      if(readparse(++chp,getb,1))
+	       { setoverflow();
 		 continue;
+	       }
 	    }
 	   else
 	      *++chp='\0';		     /* throw in a second terminator */
