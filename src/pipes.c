@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.54 1999/01/20 06:52:52 guenther Exp $";
+ "$Id: pipes.c,v 1.55 1999/01/20 06:56:03 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -243,14 +243,8 @@ char*readdyn(bf,filled)char*bf;long*const filled;
 	lcking|=lck_MEMORY,nomemerr();
 #endif				       /* dynamically adjust the buffer size */
 		       /* use the real realloc so that we can retry failures */
-     while(EXPBLKSIZ&&blksiz>BLKSIZ)
-      { np=(realloc)(bf,*filled+blksiz);
-	fprintf(stderr,"procmail: readdyn1 %p %p %lu bytes\n",np,bf,
-		(unsigned long)(*filled+blksiz));
-	if(np)
-	   break;
+     while(EXPBLKSIZ&&blksiz>BLKSIZ&&!(np=(realloc)(bf,*filled+blksiz)))
 	blksiz>>=1;				  /* try a smaller increment */
-      }
      bf=EXPBLKSIZ&&np?np:realloc(bf,*filled+blksiz);		 /* last try */
 jumpback:;
      ;{ int got,left=blksiz;
@@ -279,10 +273,7 @@ eoffound:
 	pipw=waitfor(pidchild);		      /* reap your child in any case */
    }
   pidchild=0;					/* child must be gone by now */
-  np=(realloc)(bf,*filled+1);
-  fprintf(stderr,"procmail: readdyn2 %p %p %lu bytes\n",np,bf,
-	  (unsigned long)(*filled+1));
-  return np?np:bf;
+  return (np=(realloc)(bf,*filled+1))?np:bf;  /* minimise+1 for housekeeping */
 }
 
 char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
