@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.80 1998/11/18 11:36:22 srb Exp $";
+ "$Id: misc.c,v 1.81 1999/01/02 19:24:47 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -591,7 +591,7 @@ void rcst_nosgid P((void))
 
 static void inodename(stbuf,i)const struct stat*const stbuf;const size_t i;
 { static const char bogusprefix[]=BOGUSprefix;char*p;
-  p=strchr(strcpy(strcpy(buf+i,bogusprefix)+i+STRLEN(bogusprefix),
+  p=strchr(strcpy(strcpy(buf+i,bogusprefix)+STRLEN(bogusprefix),
    getenv(lgname)),'\0');
   *p++='.';ultoan((unsigned long)stbuf->st_ino,p);	  /* i-node numbered */
 }
