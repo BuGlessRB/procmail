@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.21 1993/04/19 10:36:08 berg Exp $
+#$Id: Makefile,v 1.22 1993/04/19 10:41:26 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -17,10 +17,10 @@ MAN1DIR	  = $(MANDIR)/man$(MAN1SUFFIX)
 MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 
 #LOCKINGTEST=/tmp .	# Uncomment and add any directories you see fit.
-			# If LOCKINGTEST is undefined, autoconf will not
-			# prompt you to enter additional directories.
-			# See INSTALL for more information about the
-			# significance of the locking tests.
+#			If LOCKINGTEST is undefined, autoconf will not
+#			prompt you to enter additional directories.
+#			See INSTALL for more information about the
+#			significance of the locking tests.
 
 # Things that can be made are:
 
@@ -52,7 +52,7 @@ MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 # Optional system libraries we search for
 SEARCHLIBS = -ldir -lx -lsocket -lnet -linet -lnsl_s -lnsl_i -lnsl -lgen\
  -lsockdns -lsun
-			# -lresolv	# not really needed, is it?
+#			-lresolv	# not really needed, is it?
 
 CFLAGS0 = -O #-ansi -pedantic #-Wid-clash-6
 LDFLAGS0= -s
