@@ -461,17 +461,18 @@
 		 and SWITCHRC
 	       - Indicate whether GROUP_PER_USER was defined in the -v output
 	    Changes to formail:
-	       - Readjusted the weights used when autoreplying to better
-		 match current mail standards
-	       - Make the -t option a no-op (it was never really clear when
-		 it should or should not be used)
-	       - New option: -E (used with -r to reply to the envelope sender)
+	       - Replies without the -t flag go to the envelope sender
+	       - Replies without "-a Resent-" and -t flag ignore the
+		 Resent-* headers
+	       - Prevent corrupt idcaches by suppressing the -n option when
+		 splitting with the -D option
+	       - Accept and strip whitespace between the fieldname and colon
 	    Changes to mailstat:
 	       - Work around the detab done on checkin to CVS
 	       - Recognize maildir mailboxes
 	    Changes to autoconf:
 	       - Don't assume realloc(0,size) works (doesn't on SunOS 4)
-	    Stoped using `implicit int' (for C9x)
+	    Stopped using `implicit int' (for C9x)
 	    Cache gethostname() or uname() output
 	    Change the form of tempfile names to make them `more' unique
 	    Update list of mirrors in the README

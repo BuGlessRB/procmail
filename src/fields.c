@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: fields.c,v 1.26 1997/04/03 01:58:41 srb Exp $";
+ "$Id: fields.c,v 1.27 1999/06/17 06:04:08 guenther Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -39,8 +39,20 @@ struct field**addfield(pointer,text,totlen)struct field**pointer;
 { register struct field*p,**pp;int idlen;
   for(pp=pointer;*pp;pp= &(*pp)->fld_next);   /* skip to the end of the list */
   (*pp=p=malloc(FLD_HEADSIZ+totlen))->fld_next=0;idlen=breakfield(text,totlen);
-  p->id_len=idlen>0?idlen:pp==&rdheader?0:-idlen;	    /* copy contents */
-  tmemmove(p->fld_text,text,p->Tot_len=totlen);
+  if(idlen>0)					 /* spaces before the colon? */
+   { if(text[(p->id_len=idlen)-1]!=HEAD_DELIMITER&&!eqFrom_(text))
+      { const char*q=strchr(text+idlen,HEAD_DELIMITER)+1;
+	tmemmove(p->fld_text,text,idlen);	       /* we always zap them */
+	p->fld_text[idlen-1]=HEAD_DELIMITER;
+	tmemmove(p->fld_text+idlen,q,totlen-(q-text));
+	p->Tot_len=totlen-(q-text)+idlen;
+	goto ret;
+      }
+   }
+  else
+     p->id_len=pp==&rdheader?0:-idlen;
+  tmemmove(p->fld_text,text,p->Tot_len=totlen);		    /* copy contents */
+ret:
   return pp;
 }
 

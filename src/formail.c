@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.93 1999/06/09 07:44:21 guenther Exp $";
+ "$Id: formail.c,v 1.94 1999/06/17 06:04:09 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/06/09 07:44:21 $";
+static /*const*/char rcsdate[]="$Date: 1999/06/17 06:04:09 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -48,19 +48,24 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
 /*
  *	sender determination fields in order of importance/reliability
  *	reply-address determination fields (wrepl specifies the weight
- *	for regular replies, werepl specifies the weight for envelope replies)
+ *	for header replies and wrrepl specifies the weight for header
+ *	replies where Resent- header are used, while the position in the
+ *	table index specifies the weight for envelope replies)
  *
  *	I bet this is the first time you see a bar graph in C-source-code :-)
  */
-static const struct {const char*head;int len,wrepl,werepl;}sest[]=
-{ sslbar(replyto	,"********"	,"**"		),
-  sslbar(Fromm		,"*******"	,"*"		),
-  sslbar(sender		,"******"	,"***"		),
-  sslbar(returnpath	,"*****"	,"********"	),
-  sslbar(From_		,"****"		,"*******"	),
-  sslbar(errorsto	,"***"		,"******"	),
-  sslbar(retreceiptto	,"**"		,"*****"	),
-  sslbar(path		,"*"		,"****"		)
+static const struct {const char*head;int len,wrepl,wrrepl;}sest[]=
+{ sslbar(res_from	,"*"		,"**********"	),
+  sslbar(res_replyto	,"*"		,"***********"	),
+  sslbar(res_sender	,"*"		,"*********"	),
+  sslbar(Fromm		,"********"	,"*******"	),
+  sslbar(replyto	,"*********"	,"********"	),
+  sslbar(sender		,"*******"	,"******"	),
+  sslbar(path		,"**"		,"*"		),
+  sslbar(retreceiptto	,"***"		,"**"		),
+  sslbar(errorsto	,"****"		,"***"		),
+  sslbar(returnpath	,"******"	,"*****"	),
+  sslbar(From_		,"*****"	,"****"		),
 };
 
 static struct saved rex[]=
@@ -199,14 +204,14 @@ static int artheadr P((void))	     /* could it be the start of an article? */
   return 0;
 }
 			     /* lifted out of main() to reduce main()'s size */
-static char*getsender(namep,fldp,envelope)char*namep;struct field*fldp;
- const int envelope;
+static char*getsender(namep,fldp,headreply)char*namep;struct field*fldp;
+ const int headreply;
 { char*chp;int i,nowm;size_t j;static int lastm;
   chp=fldp->fld_text;j=fldp->id_len;i=maxindex(sest);
   while((sest[i].len!=j||strnIcmp(sest[i].head,chp,j))&&i--);
   if(i>=0&&(i!=maxindex(sest)||fldp==rdheader))		  /* found anything? */
    { char*saddr;char*tmp;			     /* determine the weight */
-     nowm=envelope?sest[i].werepl:areply?sest[i].wrepl:i;chp+=j;
+     nowm=areply&&headreply?headreply==1?sest[i].wrepl:sest[i].wrrepl:i;chp+=j;
      tmp=malloc(j=fldp->Tot_len-j);tmemmove(tmp,chp,j);(chp=tmp)[j-1]='\0';
      if(sest[i].head==From_)
       { char*pastad;
@@ -353,7 +358,7 @@ dupfound:
 static PROGID;
 
 int main(lastm,argv)int lastm;const char*const argv[];
-{ int i,split=0,force=0,bogus=1,every=0,envelope=0,digest=0,nowait=0,keepb=0,
+{ int i,split=0,force=0,bogus=1,every=0,headreply=0,digest=0,nowait=0,keepb=0,
    minfields=(char*)progid-(char*)progid,conctenate=0,babyl=0,babylstart,
    berkeley=0,forgetclen;
   off_t maxlen,ctlength;FILE*idcache=0;pid_t thepid;
@@ -368,9 +373,7 @@ int main(lastm,argv)int lastm;const char*const argv[];
 	   goto usg;
 	for(;;)
 	 { switch(lastm= *chp++)
-	    { case FM_TRUST:			 /* we always trust them now */
-		 continue;
-	      case FM_ENVELOPE:envelope=1;
+	    { case FM_TRUST:headreply=1;
 		 continue;
 	      case FM_REPLY:areply=1;
 		 continue;
@@ -492,6 +495,11 @@ nextarg:;
       }
 parsedoptions:
   escaplen=strlen(escap);mystdout=stdout;signal(SIGPIPE,SIG_IGN);
+  if(nowait&&idcache&&split)
+   { nowait=childlimit=0;
+     if(!quiet)
+	nlog("No-wait option ignored to prevent corrupted idcache\n");
+   }
 #ifdef SIGCHLD
   signal(SIGCHLD,SIG_DFL);
 #endif
@@ -546,6 +554,13 @@ xusg:
   fcntlength=0;addfield(&fcntlength,cntlength,STRLEN(cntlength));   /* ditto */
   fFrom_=0;addfield(&fFrom_,From_,STRLEN(From_));
   fsubject=0;addfield(&fsubject,subject,STRLEN(subject));	 /* likewise */
+  if(headreply)				/* determine the specific reply type */
+   { struct field*fresent_;
+     fresent_=0;addfield(&fresent_,RESENT_,STRLEN(RESENT_));
+     if(findf(fresent_,&aheader))				/* -aResent- */
+	headreply++;
+     free(fresent_);
+   }
   forgetclen=digest||		      /* forget Content-Length: for a digest */
 	     berkeley||				      /* for Berkeley format */
 	     keepb&&			    /* if we're keeping the body and */
@@ -603,7 +618,7 @@ startover:
 	 }
 	if(conctenate)
 	   concatenate(fldp);		    /* save fields for later perusal */
-	namep=getsender(namep,fldp,envelope);
+	namep=getsender(namep,fldp,headreply);
 	i=maxindex(rex);chp=fldp->fld_text;j=fldp->id_len;
 	while((rex[i].lenr!=j||strnIcmp(rex[i].headr,chp,j))&&i--);
 	chp+=j;
@@ -871,9 +886,17 @@ int breakfield(line,len)const char*const line;size_t len;  /* look where the */
    { switch(*p++)
       { default:len--;
 	   continue;
-	case HEAD_DELIMITER:len=p-line;
+	case HEAD_DELIMITER:
+good:	   len=p-line;
 	   return len==1?0:len;					  /* eureka! */
-	case ' ':p--;					/* no spaces allowed */
+	case ' ':case '\t':
+	   ;{ const char*q=p;	/* whitespace is okay right before the colon */
+	      while(--len&&(*q==' '||*q=='\t'))
+		 q++;
+	      if(len&&*q==HEAD_DELIMITER)
+		 goto good;
+	      p--;
+	    }					   /* it was bogus after all */
       }
      break;
    }
