@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.25 1993/01/19 11:55:04 berg Exp $
+#$Id: autoconf,v 1.26 1993/01/19 18:30:33 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -698,7 +698,7 @@ main(argc)
 	       host->h_addr_list[0]&&host->h_addrtype==AF_INET&&
 	       host->h_length)
 	       { int j=host->h_length;
-		 const unsigned char*ad=host->h_addr_list[0];
+		 const unsigned char*ad=(void*)host->h_addr_list[0];
 		 printf("#define IP_localhost {");
 		 do printf("%d,",*ad++);
 		 while(--j);
@@ -724,11 +724,13 @@ main(argc)
    }
 #ifdef SYSTEM_MBOX
   if(argc==2)
-     printf("#define SYSTEM_MAILBOX %s\n",SYSTEM_MBOX),return 1;
+   { printf("#define SYSTEM_MAILBOX %s\n",SYSTEM_MBOX);return 1;
+   }
 #endif
 #ifdef DEFsendmail
   if(argc==3)
-     printf("#define SENDMAIL %s\n",DEFsendmail),return 1;
+   { printf("#define SENDMAIL %s\n",DEFsendmail);return 1;
+   }
 #endif
   return 0;
 }

@@ -11,9 +11,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.15 1993/01/19 11:55:17 berg Exp $";
+ "$Id: multigram.c,v 1.16 1993/01/19 18:30:38 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/19 11:55:17 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/19 18:30:38 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -169,7 +169,8 @@ main(minweight,argv)char*argv[];
 	      *chp= *request;
 	   Endpmexec(3)=argstr(xenvlpto,arg);setuid(stbuf.st_uid);
 	   setgid(stbuf.st_gid);rclock(GLOCKFILE,&stbuf);
-	   rclock(LLOCKFILE,&stbuf);execve(pmexec[0],pmexec,environ);
+	   rclock(LLOCKFILE,&stbuf);
+	   execve(pmexec[0],(char*const*)pmexec,environ);
 	   nlog("Couldn't exec \"");elog(pmexec[0]);elog("\"\n");
 	   return EX_UNAVAILABLE;
 	 }

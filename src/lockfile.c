@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.12 1993/01/13 16:17:16 berg Exp $";
+ "$Id: lockfile.c,v 1.13 1993/01/19 18:30:36 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/13 16:17:16 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/19 18:30:36 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -166,12 +166,14 @@ xusg:		       retval=EX_USAGE;goto nfailure;
 			{ cp=ma;goto stilv;		    /* yes, lock it! */
 			}
 		    case 'u':			       /* unlock the mailbox */
-		       if(unlink(ma));
+		       if(unlink(ma))
 			{ nlog("Can't unlock \"");elog(ma);elog("\"");
 			  if(*cp=='l')	 /* they messed up, give them a hint */
 			     elog(" again,\n already dropped my privileges");
 			  elog("\n");
 			}
+		       else
+			  virgin=0;
 		  }
 	       }
 	      case '\0':;

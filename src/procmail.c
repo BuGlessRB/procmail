@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.22 1993/01/19 12:37:28 berg Exp $";
+ "$Id: procmail.c,v 1.23 1993/01/19 18:30:40 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -113,11 +113,11 @@ last_option:
 	   *--ep= *--emax,*emax=0;			/* copy from the end */
    }
 #endif /* LD_ENV_FIX */
-  ;{ struct passwd*pass,*passinvk,spassinvk;
+  ;{ struct passwd*pass,*passinvk,spassinvk;uid_t euid=geteuid();
      if(passinvk=getpwuid(uid=getuid()))	    /* save it by copying it */
 	tmemmove(&spassinvk,passinvk,sizeof spassinvk),passinvk= &spassinvk;
      Privileged=1;gid=getgid();
-     if(*trusted_ids&&uid!=geteuid())
+     if(*trusted_ids&&uid!=euid)
       { struct group*grp;const char*const*kp;
 	if(passinvk)			      /* check out the invoker's uid */
 	   for(chp2=passinvk->pw_name,kp=trusted_ids;*kp;)
@@ -207,7 +207,7 @@ Frominserted:
       { if(!(pass=getpwnam(chp2)))
 	 { nlog("Unknown user");logqnl(chp2);return EX_NOUSER;
 	 }
-	if(passinvk&&passinvk->pw_uid==pass->pw_uid||geteuid()==ROOT_uid)
+	if(passinvk&&passinvk->pw_uid==pass->pw_uid||euid==ROOT_uid)
 	   goto Setuser;
       }
      if(pass=passinvk)
@@ -217,7 +217,7 @@ Setuser:
 	*/
       { gid=pass->pw_gid;uid=pass->pw_uid;setdef(home,pass->pw_dir);
 	setdef(lgname,chp= *pass->pw_name?pass->pw_name:buf);
-	if(geteuid()==ROOT_uid)
+	if(euid==ROOT_uid)
 	   initgroups(chp,gid);
 	endgrent();setdef(shell,*pass->pw_shell?pass->pw_shell:binsh);
       }
@@ -272,7 +272,8 @@ Setuser:
      if(!Privileged&&!(stbuf.st_mode&S_IWGRP))	/* lockfile unrightful owner */
       { succeed=1;
 boglock:
-	rename(buf2,buf); /* try to rename the bogus lockfile out of the way */
+	if(!Privileged)	  /* try to rename the bogus lockfile out of the way */
+	   rename(buf2,buf);
       }
      else
 	succeed=1;				 /* mailbox a symbolic link? */
