@@ -5,7 +5,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.9 1993/01/15 14:40:45 berg Exp $
+#$Id: createlist,v 1.10 1993/01/15 16:05:56 berg Exp $
 
 defaults=.etc
 
@@ -117,8 +117,8 @@ do
   $ln ../$defaults/$a $a
 done
 
-$mkdir achive
-$mkdir latest
+$mkdir archive
+$mkdir archive/latest
 
 $sed -e "/^maintainer/ s/=/=	$maintainer/" <../$defaults/rc.custom \
  >rc.custom
