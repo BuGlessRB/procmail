@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.54 1994/06/13 16:12:26 berg Exp $";
+ "$Id: multigram.c,v 1.55 1994/06/13 18:08:53 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/06/13 16:12:26 $";
+static /*const*/char rcsdate[]="$Date: 1994/06/13 18:08:53 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -274,13 +274,13 @@ main(argc,argv)int argc;char*argv[];
   if(argc)			      /* sanity check, any arguments at all? */
    { char*chp;						 /* suid flist prog? */
      if(ISPROGRAM(chp=lastdirsep(argv[0]),flist))
-      { struct stat stbuf;struct passwd*pass;char*arg;uid_t euid;
+      { struct stat stbuf;struct passwd*pass;char*arg;
 	static const char request[]=REQUEST,listid[]=LISTID,
 	 rcrequest[]=RCREQUEST,rcpost[]=RCPOST,list[]=LIST,
 	 defdir[]=DEFAULTS_DIR,targetdir[]=TARGETDIR,
 	 *pmexec[]={PROCMAIL,RCSUBMIT,RCINIT,0,0,0,rcrequest,rcpost,0};
 #define Endpmexec(i)	(pmexec[maxindex(pmexec)-(i)])
-	progname=flist;*chp='\0';euid=geteuid();
+	progname=flist;*chp='\0';
 	if(argc!=2)			       /* wrong number of arguments? */
 	 { elog("\
 Usage: flist listname[-request]\n\
@@ -321,7 +321,7 @@ bailout:      elog(" unknown\n");return EX_NOUSER;
 	   if(chdir(chp=pass->pw_dir))
 	      goto nochdir;
 	 }
-	if(*(chp=targetdir)&&chdir(chp))
+	if(*(chp=(char*)targetdir)&&chdir(chp))
 nochdir: { nlog("Couldn't chdir to");logqnl(targetdir);return EX_NOPERM;
 	 }
 	if(stat(defdir,&stbuf))

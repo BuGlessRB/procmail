@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.34 1994/06/13 16:12:09 berg Exp $
+#$Id: arch_retrieve,v 1.35 1994/06/13 18:08:46 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -211,7 +211,7 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 		   -i"From: $listreq" -A"X-Loop: $listaddr" \
 		   <$tmprequest
 		  $test ! -z "$wrongaddress" && $echo "$wrongaddress"
-		  flist -v 2>&1 | sed -e "/^User:/ q"
+		  flist -v 2>&1 | sed -e "/^User:/,$ d"
 		  echo ""
 		  procmail -v 2>&1
 		) | $SENDMAIL $sendmailOPT -t ;;
