@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.72 1994/04/08 15:22:40 berg Exp $";
+ "$Id: procmail.c,v 1.73 1994/04/08 15:23:32 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -477,7 +477,7 @@ fishy:	    { nlog("Couldn't create");logqnl(chp);sputenv(orgmail);
 	 }					/* bad news, be conservative */
 	umask(INIT_UMASK);
       }
-     while(chp=(char*)argv[argc])   /* interpret command line specs first */
+     while(chp=(char*)argv[argc])      /* interpret command line specs first */
        /*
 	*	really change the uid now, since it would not be safe to
 	*	evaluate the extra command line arguments otherwise
