@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.13 1993/03/04 15:31:14 berg Exp $
+#$Id: rc.submit,v 1.14 1993/04/02 12:38:23 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -28,7 +28,7 @@ INCLUDERC=$RC_CUSTOM
 	 (help|info)[	 ]*$)|[^:]*( (add .* to|remove .* from|take .* off|\
 	 put .* on) .* list|subscri(be|ption))
 	$!^X-Loop: $listaddr
-	$!$FROM_MAILER_DAEMON
+	!^Precedence:.*junk|^FROM_MAILER
 METOO=	| formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 	    -xResent-Reply-To: -xResent-Sender: -xResent-From: | \
 	   multigram -b1 -m -l$submit_threshold dist

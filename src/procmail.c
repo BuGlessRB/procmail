@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.28 1993/03/05 14:40:17 berg Exp $";
+ "$Id: procmail.c,v 1.29 1993/04/02 12:39:15 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -31,7 +31,7 @@ static /*const*/char rcsid[]=
 static const char fdefault[]="DEFAULT",orgmail[]="ORGMAIL",
  sendmail[]="SENDMAIL",From_[]=FROM,exflags[]=RECFLAGS,
  systm_mbox[]=SYSTEM_MBOX,pmusage[]=PM_USAGE,DEFdeflock[]=DEFdefaultlock;
-char*buf,*buf2,*globlock,*loclock,*tolock,*lastfolder;
+char*buf,*buf2,*globlock,*loclock,*tolock;
 const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
  shellmetas[]="SHELLMETAS",lockext[]="LOCKEXT",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*sgetcp,*rcfile=PROCMAILRC,
@@ -141,7 +141,7 @@ privileged:
      opnlog(console);
 #endif
      setbuf(stdin,(char*)0);buf=malloc(linebuf);buf2=malloc(linebuf);
-     lastfolder=cstr(lastfolder,"");thepid=getpid();
+     thepid=getpid();
 #ifdef SIGXCPU
      signal(SIGXCPU,SIG_IGN);signal(SIGXFSZ,SIG_IGN);
 #endif
@@ -437,6 +437,7 @@ noconcat:  i=flags[ALSO_NEXT_RECIPE]?lastcond:1;	  /* init test value */
 			   *regsp,regs[]=
 			    { {FROMDkey,FROMDsubstitute},
 			      {TOkey,TOsubstitute},
+			      {FROMMkey,FROMMsubstitute},
 			      {0,0}
 			    };
 			  ;{ char*tg;
@@ -593,9 +594,9 @@ noloclock:    inittmout(buf);
 	   if(i)
 	    { strcpy(buf2,buf);
 	      if(locknext)
-		 lcllock();
-	      strcpy(buf2,buf);		     /* write to a file or directory */
-	      if(dump(deliver(buf2),startchar,tobesent)&&!ignwerr)
+		 lcllock();		     /* write to a file or directory */
+	      if(dump(deliver(buf,strchr(buf,'\0')+1),startchar,tobesent)&&
+	       !ignwerr)
 		 writeerr(buf);
 	      else if(succeed=1,!flags[CONTINUE])
 		 goto mailed;
@@ -623,14 +624,14 @@ nomore_rc:
   concon('\n');succeed=0;
   if(*(chp=(char*)tgetenv(fdefault)))			     /* DEFAULT set? */
    { setuid(uid);firstchd();asenvcpy(DEFdeflock);	    /* implicit lock */
-     if(dump(deliver(chp),themail,filled))			  /* default */
+     if(dump(deliver(chp,(char*)0),themail,filled))		  /* default */
 	writeerr(buf);
      else
 	succeed=1;
    }
   if(!succeed&&*(chp=(char*)tgetenv(orgmail)))	       /* if all else failed */
-     if(dump(deliver(chp),themail,filled))	/* don't panic, try the last */
-	writeerr(buf);						   /* resort */
+     if(dump(deliver(chp,(char*)0),themail,filled))	      /* don't panic */
+	writeerr(buf);				      /* try the last resort */
      else
 	succeed=1;
   if(succeed)					     /* should we panic now? */

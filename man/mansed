@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.6 1992/11/24 15:59:43 berg Exp $
+#$Id: mansed,v 1.7 1993/04/02 12:38:29 berg Exp $
 
 test 5 != $# &&
  echo "Don't start this script directly, use \`make'" && exit 1
@@ -78,7 +78,13 @@ Stephen R. van den Berg at RWTH-Aachen, Germany
 +MY_ALT_MAIL_ADDR+
 .Re
 HERE
- )| sed -f man.sed >"$DEST"
+ )| sed -f man.sed |
+ if test -f man.sed.1
+ then
+   sed -f man.sed.0 | sed -f man.sed.1
+ else
+   sed -f man.sed.0
+ fi >"$DEST"
 
 if test -f "$DEST"
 then

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.19 1993/02/04 12:44:55 berg Exp $";
+ "$Id: mailfold.c,v 1.20 1993/04/02 12:38:52 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -77,15 +77,96 @@ writefin:
    }			   /* return an error even if nothing was to be sent */
   tofile=0;return i&&!len?-1:len;
 }
+
+static dirfile(chp,linkonly)char*const chp;const int linkonly;
+{ if(chp)
+   { long i=0;			     /* first let us try to prime i with the */
+#ifndef NOopendir		     /* highest MH folder number we can find */
+     long j;DIR*dirp;struct dirent*dp;char*chp2;
+     yell("Opening directory",buf);
+     if(dirp=opendir(buf))
+      { while(dp=readdir(dirp))		/* there still are directory entries */
+	   if((j=strtol(dp->d_name,&chp2,10))>i&&!*chp2)
+	      i=j;			    /* yep, we found a higher number */
+	closedir(dirp);				     /* aren't we neat today */
+      }
+     else
+	readerr(buf);
+#endif /* NOopendir */
+     ;{ int ok;
+	do ultstr(0,++i,chp);		       /* find first empty MH folder */
+	while((ok=link(buf2,buf))&&errno==EEXIST);
+	if(linkonly)
+	 { if(ok)
+	      goto nolnk;
+	   goto ret;
+	 }
+      }
+     unlink(buf2);goto opn;
+   }
+  stat(buf2,&stbuf);
+  ultoan((unsigned long)stbuf.st_ino,	      /* filename with i-node number */
+   strchr(strcat(buf,tgetenv(msgprefix)),'\0'));
+  if(linkonly)
+   { if(link(buf2,buf))
+nolnk:	nlog("Couldn't make link to"),logqnl(buf);
+     goto ret;
+   }
+  if(!myrename(buf2,buf))	       /* rename it, we need the same i-node */
+opn: return opena(buf);
+ret:
+  return -1;
+}
 				       /* open file or new file in directory */
-deliver(boxname)char*const boxname;
-{ struct stat stbuf;
-  tofile=to_FILE;strcpy(buf,boxname);	 /* boxname can be found back in buf */
-  return stat(buf,&stbuf)||!S_ISDIR(stbuf.st_mode)?
-   (tofile=strcmp(devnull,buf)?to_FOLDER:0,opena(buf)):dirmail();
+deliver(boxname,linkfolder)char*boxname,*linkfolder;
+{ struct stat stbuf;char*chp;int mhdir;
+  tofile=to_FILE;
+  if(boxname!=buf)
+     strcpy(buf,boxname);		 /* boxname can be found back in buf */
+  if(*(chp=buf))
+     chp=strchr(buf,'\0')-1;
+  if(mhdir=chp-1>=buf&&chp[-1]==*MCDIRSEP_&&*chp==chCURDIR)
+     chp[-1]='\0';
+  if(stat(boxname,&stbuf)&&mhdir&&mkdir(buf,NORMdirperm)||
+   !S_ISDIR(stbuf.st_mode))
+   { if(linkfolder)
+	concatenate(linkfolder),skipped(linkfolder);
+     tofile=strcmp(devnull,buf)?to_FOLDER:0;return opena(boxname);
+   }
+  if(linkfolder)
+   { for(boxname=linkfolder;*boxname!=TMNATE;)
+	while(*boxname++);
+     boxname++;
+     linkfolder=
+      tmemmove(malloc(boxname-linkfolder),linkfolder,boxname-linkfolder);
+   }
+  if(mhdir)				/* buf should contain directory name */
+     *chp='\0',chp[-1]= *MCDIRSEP_,strcpy(buf2,buf);	   /* it ended in /. */
+  else
+     chp=0,strcpy(buf2,strcat(buf,MCDIRSEP_));
+  ;{ int fd= -1;
+     if(unique(buf2,strchr(buf2,'\0'),NORMperm,verbose)&&
+      (fd=dirfile(chp,0))>=0&&linkfolder)
+	for(strcpy(buf2,buf),boxname=linkfolder;*boxname!=TMNATE;)
+	 { strcpy(buf,boxname);
+	   if(*(chp=buf))
+	      chp=strchr(buf,'\0')-1;
+	   if(mhdir=chp-1>=buf&&chp[-1]==*MCDIRSEP_&&*chp==chCURDIR)
+	      chp[-1]='\0';
+	   else
+	      chp=0;
+	   if(stat(boxname,&stbuf))
+	      mkdir(buf,NORMdirperm);
+	   dirfile(chp,1);
+	   while(*boxname++);
+	 }
+     if(linkfolder)
+	free(linkfolder);
+     return fd;
+   }
 }
 
-void logabstract P((void))
+void logabstract(lstfolder)const char*const lstfolder;
 { if(logopened)		      /* make sure that this doesn't get mailed back */
    { char*chp,*chp2;int i;static const char sfolder[]=FOLDER;
      if(mailread)			  /* is the mail completely read in? */
@@ -106,7 +187,7 @@ void logabstract P((void))
 	 }
       }
      elog(sfolder);
-     i=strlen(strncpy(buf,lastfolder,MAXfoldlen))+STRLEN(sfolder);
+     i=strlen(strncpy(buf,lstfolder,MAXfoldlen))+STRLEN(sfolder);
      buf[MAXfoldlen]='\0';detab(buf);elog(buf);i-=i%TABWIDTH;	/* last dump */
      do elog(TABCHAR);
      while((i+=TABWIDTH)<LENoffset);
@@ -152,9 +233,9 @@ void logabstract P((void))
      if(lasttell>=0)					   /* was it a file? */
 	ultstr(0,lasttell,buf2),catlim(buf2);			      /* yep */
      catlim(COMSATxtrsep);				 /* custom seperator */
-     if(lasttell>=0&&!strchr(dirsep,*lastfolder))      /* relative filename? */
-	catlim(tgetenv(maildir)),catlim(_MCDIRSEP);   /* prepend current dir */
-     catlim(lastfolder);s=socket(AF_INET,SOCK_DGRAM,UDP_protocolno);
+     if(lasttell>=0&&!strchr(dirsep,*lstfolder))       /* relative filename? */
+	catlim(tgetenv(maildir)),catlim(MCDIRSEP_);   /* prepend current dir */
+     catlim(lstfolder);s=socket(AF_INET,SOCK_DGRAM,UDP_protocolno);
      sendto(s,buf,strlen(buf),0,(const void*)&addr,sizeof(addr));rclose(s);
      yell("Notified comsat:",buf);
    }
@@ -212,38 +293,4 @@ eofheader:;
       }
      *realstart=f1stchar;mailread=1;
    }
-}
-
-dirmail P((void))			/* buf should contain directory name */
-{ char*chp;struct stat stbuf;
-  if((chp=strchr(buf,'\0')-1)-1>=buf&&chp[-1]==*_MCDIRSEP&&*chp==chCURDIR)
-     *chp='\0',strcpy(buf2,buf);			   /* it ended in /. */
-  else
-     chp=0,strcpy(buf2,strcat(buf,_MCDIRSEP));
-  if(unique(buf2,strchr(buf2,'\0'),NORMperm,verbose))
-   { if(chp)
-      { long i=0;		     /* first let us try to prime i with the */
-#ifndef NOopendir		     /* highest MH folder number we can find */
-	long j;DIR*dirp;struct dirent*dp;char*chp2;
-	*chp='\0';yell("Opening directory",buf);
-	if(dirp=opendir(buf))
-	 { while(dp=readdir(dirp))	/* there still are directory entries */
-	      if((j=strtol(dp->d_name,&chp2,10))>i&&!*chp2)
-		 i=j;			    /* yep, we found a higher number */
-	   closedir(dirp);			     /* aren't we neat today */
-	 }
-	else
-	   readerr(buf);
-#endif /* NOopendir */
-	do ultstr(0,++i,chp);		       /* find first empty MH folder */
-	while(link(buf2,buf)&&errno==EEXIST);
-	unlink(buf2);goto opn;
-      }
-     stat(buf2,&stbuf);
-     ultoan((unsigned long)stbuf.st_ino,      /* filename with i-node number */
-      strchr(strcat(buf,tgetenv(msgprefix)),'\0'));
-     if(!myrename(buf2,buf))	       /* rename it, we need the same i-node */
-opn:	return opena(buf);
-   }
-  return -1;
 }

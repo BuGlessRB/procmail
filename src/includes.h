@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.18 1993/03/02 14:41:10 berg Exp $*/
+/*$Id: includes.h,v 1.19 1993/04/02 12:38:49 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -55,9 +55,10 @@
 #endif
 #include <errno.h>		/* EINTR EEXIST ENFILE EACCES EAGAIN */
 #ifndef SYSEXITS_H_MISSING
-#include <sysexits.h>		/* EX_OK EX_USAGE EX_NOUSER EX_UNAVAILABLE
-				/* EX_OSERR EX_OSFILE EX_CANTCREAT EX_IOERR
-				   EX_TEMPFAIL EX_NOPERM */
+#include <sysexits.h>		/* EX_OK EX_USAGE EX_NOINPUT EX_NOUSER
+				/* EX_UNAVAILABLE EX_OSERR EX_OSFILE
+				   EX_CANTCREAT EX_IOERR EX_TEMPFAIL EX_NOPERM
+				   */
 #endif
 
 #ifdef STDLIB_H_MISSING
@@ -98,9 +99,10 @@ char*strpbrk();
 #endif
 #ifdef SYSEXITS_H_MISSING
 		/* Standard exit codes, original list maintained
-		   by Eric Allman (eric@berkeley, ucbvax!eric)	 */
+		   by Eric Allman (eric@berkeley.edu) */
 #define EX_OK		0
 #define EX_USAGE	64
+#define EX_NOINPUT	66
 #define EX_NOUSER	67
 #define EX_UNAVAILABLE	69
 #define EX_OSERR	71

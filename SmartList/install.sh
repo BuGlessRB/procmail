@@ -1,13 +1,13 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.13 1993/03/04 15:30:54 berg Exp $
+#$Id: install.sh,v 1.14 1993/04/02 12:38:18 berg Exp $
 
-test $# != 1 && echo "Usage: install.sh target-directory" && exit 1
+test $# != 1 && echo "Usage: install.sh target-directory [.bin]" && exit 1
 
 target="$1"
 
 test ! -d "$target" && echo "Please create the target directory first" &&
- exit 2
+ echo "Make sure that the target directory has the right owner" && exit 2
 
 FRAGILE="rc.init "
 DIRS="bin etc"

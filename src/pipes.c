@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.12 1993/01/19 11:55:20 berg Exp $";
+ "$Id: pipes.c,v 1.13 1993/04/02 12:39:13 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -149,9 +149,7 @@ long pipin(line,source,len)char*const line;char*source;long len;
   pidchild=0;
   if(!sh)
      concatenate(line);
-  if(asgnlastf)
-     asgnlastf=0,lastfolder=cstr(lastfolder,line);
-  return len;
+  setlastfolder(line);return len;
 }
 
 char*readdyn(bf,filled)char*bf;long*const filled;
@@ -217,10 +215,16 @@ char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
 void exectrap(tp)const char*const tp;
 { if(*tp)
    { int newret;
-     metaparse(tp);inittmout(buf);
+     metaparse(tp);concon('\n');inittmout(buf);
      if(!(pidchild=sfork()))	     /* connect stdout to stderr before exec */
-      { signal(SIGTERM,SIG_DFL);signal(SIGINT,SIG_DFL);signal(SIGHUP,SIG_DFL);
-	signal(SIGQUIT,SIG_DFL);rclose(STDOUT);rdup(STDERR);callnewprog(buf);
+      { int poutfd[2];
+	Stdout=buf;childsetup();rpipe(poutfd);rclose(STDOUT);pidfilt=thepid;
+	getstdin(PRDO);
+	if(!(pidchild=sfork()))			/* fork off sending procmail */
+	 { rclose(STDIN);rclose(STDERR);dump(PWRO,themail,filled);
+	   exit(lexitcode);		/* finished dumping to stdin of TRAP */
+	 }					 /* call up the TRAP program */
+	rclose(PWRO);rdup(STDERR);forkerr(pidchild,buf);callnewprog(buf);
       }
      if(!forkerr(pidchild,buf)&&(newret=waitfor(pidchild))!=EX_OK)
 	retval=newret;			       /* supersede the return value */

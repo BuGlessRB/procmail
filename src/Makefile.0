@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.11 1993/02/11 13:10:43 berg Exp $
+#$Id: Makefile.0,v 1.12 1993/04/02 12:38:41 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O)
@@ -82,6 +82,7 @@ misc.$(O): shell.h misc.h pipes.h common.h cstdio.h exopen.h regexp.h goodies.h
 misc.$(O): locking.h mailfold.h
 
 multigram.$(O): ../autoconf.h ../config.h includes.h sublib.h shell.h ecommon.h
+multigram.$(O): targetdir.h
 
 pipes.$(O): ../autoconf.h ../config.h includes.h procmail.h robust.h shell.h
 pipes.$(O): misc.h pipes.h common.h cstdio.h goodies.h mailfold.h
@@ -110,14 +111,15 @@ recommend: recommend.$(O) sublib.$(O)
 ../man/man.sed: manconf.c ../autoconf.h ../config.h includes.h procmail.h
 ../man/man.sed: ../patchlevel.h
 	@$(CC) $(CFLAGS) -o _autotst manconf.c $(LDFLAGS)
-	@./_autotst >$@
+	@./_autotst $@ $@.0 $@.1
 	@$(RM) _autotst
 
 clean:
+	$(RM) -r _locktest
 	$(RM) procmail.$(O) $(PM_OBJ) lockfile.$(O) $(LF_OBJ) formail.$O \
 	 $(FM_OBJ) multigram.$(O) $(BINSS) multigram ../autoconf.h _autotst* \
 	 lookfor _locktst* grepfor recommend recommend.$(O) manconf _Makefile \
-	 lock.log core
+	 lock.log core targetdir.h
 
 Makefile: ../Makefile Makefile.0
 	@echo "You have made changes to the master Makefile, in order for"

@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.9 1993/02/10 17:08:12 berg Exp $*/
+/*$Id: procmail.h,v 1.10 1993/04/02 12:39:18 berg Exp $*/
 
 #include "includes.h"
 
@@ -29,7 +29,7 @@ typedef unsigned char uschar;	     /* sometimes uchar is already typedef'd */
 #define rc_INIT		(-3)
 
 #define MCDIRSEP	(dirsep+STRLEN(dirsep)-1)      /* most common DIRSEP */
-#define _MCDIRSEP	(dirsep+STRLEN(DIRSEP)-1)
+#define MCDIRSEP_	(dirsep+STRLEN(DIRSEP)-1)
 
 #define lck_LOCKFILE	1	  /* crosscheck the order of this with msg[] */
 #define lck_ALLOCLIB	2		      /* in sterminate() in retint.c */
@@ -51,8 +51,7 @@ struct dyna_long{size_t filled,tspace;long*offs;};
 int
  eqFrom_ P((const char*const a));
 
-extern char*buf,*buf2,*globlock,*loclock,*tolock,*lastfolder,*Stdout,*themail,
- *thebody;
+extern char*buf,*buf2,*globlock,*loclock,*tolock,*Stdout,*themail,*thebody;
 extern const char shellflags[],shell[],lockfile[],lockext[],newline[],binsh[],
  unexpeof[],shellmetas[],*const*gargv,*sgetcp,*rcfile,dirsep[],msgprefix[],
  devnull[],lgname[],executing[],oquote[],cquote[],whilstwfor[],procmailn[],

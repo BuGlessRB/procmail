@@ -7,6 +7,8 @@
  *	contain embedded whitespace.					*
  *	This program also contains some swiss-army-knife mailinglist	*
  *	support features.						*
+ *
+ *	Most notably:	flist	A program that should be setuid root.	*
  *									*
  *	Seems to be relatively bug free.				*
  *									*
@@ -15,13 +17,15 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.24 1993/03/05 14:40:14 berg Exp $";
+ "$Id: multigram.c,v 1.25 1993/04/02 12:39:10 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/03/05 14:40:14 $";
+static /*const*/char rcsdate[]="$Date: 1993/04/02 12:39:10 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
 #include "ecommon.h"
+
+#include "targetdir.h"				  /* should define TARGETDIR */
 
 #define BUFSTEP		16
 #define COPYBUF		16384
@@ -43,6 +47,7 @@ static /*const*/char rcsdate[]="$Date: 1993/03/05 14:40:14 $";
 #define RCPOST		"./../.etc/rc.post"
 #define RCINIT		"RC_INIT=rc.init"
 #define XENVELOPETO	"X_ENVELOPE_TO="
+#define PATH		"PATH="
 #define LIST		"list="
 
 #define metoo_SENDMAIL		"-om"
@@ -113,7 +118,6 @@ static void elog(a)const char*const a;
 static const char idhash[]="idhash",flist[]="flist",senddigest[]="senddigest",
  dirsep[]=DIRSEP;
 static const char*progname="multigram";
-#define HARDLINKS	4			   /* four distinct programs */
 
 void nlog(a)const char*const a;		    /* log error with identification */
 { elog(progname);elog(": ");elog(a);
@@ -151,37 +155,51 @@ main(minweight,argv)char*argv[];
   if(minweight)			      /* sanity check, any arguments at all? */
    { char*chp;
      if(!strcmp(chp=lastdirsep(argv[0]),flist))		 /* suid flist prog? */
-      { struct stat stbuf;
-	progname=flist;*chp='\0';  /* security check, HARDLINKS==hardlinks!? */
-	if(!chdir(argv[0])&&!lstat(flist,&stbuf)&&S_ISREG(stbuf.st_mode)&&
-	 stbuf.st_mode&S_ISUID&&stbuf.st_uid==geteuid()&&
-	 stbuf.st_nlink==HARDLINKS&&!chdir(chPARDIR))
-	 { static const char request[]=REQUEST,xenvlpto[]=XENVELOPETO,
-	    rcrequest[]=RCREQUEST,rcpost[]=RCPOST,list[]=LIST,
-	    *pmexec[]={PROCMAIL,RCSUBMIT,RCINIT,0,0,rcrequest,rcpost,0};
+      { struct stat stbuf;char*arg;
+	static const char request[]=REQUEST,
+	 rcrequest[]=RCREQUEST,rcpost[]=RCPOST,list[]=LIST,
+	 defdir[]=DEFAULTSDIR,targetdir[]=TARGETDIR,
+	 *pmexec[]={PROCMAIL,RCSUBMIT,RCINIT,0,0,0,rcrequest,rcpost,0};
 #define Endpmexec(i)	(pmexec[maxindex(pmexec)-(i)])
-	   char*arg;
-	   if(minweight!=2)		       /* wrong number of arguments? */
-	    { elog("Usage: flist listname[-request]\n");return EX_USAGE;
-	    }
-	   chp=strchr(arg=argv[1],'\0');	       /* check for -request */
-	   if(chp-arg>STRLEN(request)&&!strcmp(chp-=STRLEN(request),request))
-	      *chp='\0',pmexec[1]=rcrequest,Endpmexec(1)=0,Endpmexec(2)=rcpost;
-	   else
-	      chp=0;
-	   if(chdir(arg))		     /* goto the list's subdirectory */
-	      pmexec[1]=RCMAIN,Endpmexec(2)=0,chdir(DEFAULTS_DIR);
-	   Endpmexec(4)=argstr(list,arg);	    /* pass on the list name */
-	   if(chp)				  /* was it a -request list? */
-	      *chp= *request;		     /* then restore the leading '-' */
-	   Endpmexec(3)=argstr(xenvlpto,arg);setuid(stbuf.st_uid);
-	   setgid(stbuf.st_gid);rclock(GLOCKFILE,&stbuf);	    /* stall */
-	   rclock(LLOCKFILE,&stbuf);
-	   execve(pmexec[0],(char*const*)pmexec,environ);  /* start procmail */
-	   nlog("Couldn't exec \"");elog(pmexec[0]);elog("\"\n");
-	   return EX_UNAVAILABLE;				    /* panic */
+	progname=flist;*chp='\0';
+	if(chdir(targetdir))
+	 { nlog("Couldn't chdir to \"");elog(targetdir);elog("\"\n");
+	   return EX_NOPERM;
 	 }
-	nlog("Missing permissions\n");return EX_NOPERM;
+	if(stat(defdir,&stbuf))
+	 { nlog("Can't find \"");elog(defdir);elog("\" in \"");
+	   elog(targetdir);elog("\"\n");return EX_NOINPUT;
+	 }
+	if(minweight!=2)		       /* wrong number of arguments? */
+	 { elog("Usage: flist listname[-request]\n");return EX_USAGE;
+	 }
+	chp=strchr(arg=argv[1],'\0');		       /* check for -request */
+	if(chp-arg>STRLEN(request)&&!strcmp(chp-=STRLEN(request),request))
+	   *chp='\0',pmexec[1]=rcrequest,Endpmexec(1)=0,Endpmexec(2)=rcpost;
+	else
+	   chp=0;
+	if(!strcmp(arg,chPARDIR)||strpbrk(arg,dirsep))
+	 { nlog("Bogus listname\n");return EX_NOPERM;
+	 }
+	setgid(stbuf.st_gid);
+	;{ uid_t ownuid=stbuf.st_uid;
+	   if(stat(arg,&stbuf))
+	      setgid(stbuf.st_gid),setuid(stbuf.st_uid);
+	   setuid(ownuid);
+	 }
+	if(chdir(arg))			     /* goto the list's subdirectory */
+	   pmexec[1]=RCMAIN,Endpmexec(2)=0,chdir(defdir);
+	Endpmexec(5)=argstr(PATH,argv[0]);
+	Endpmexec(4)=argstr(list,arg);		    /* pass on the list name */
+	if(chp)					  /* was it a -request list? */
+	   *chp= *request;		     /* then restore the leading '-' */
+	Endpmexec(3)=argstr(XENVELOPETO,arg);
+	rclock(GLOCKFILE,&stbuf);
+	rclock(LLOCKFILE,&stbuf);
+		    /* stall */
+	execve(pmexec[0],(char*const*)pmexec,environ);	/* start procmail */
+	nlog("Couldn't exec \"");elog(pmexec[0]);elog("\"\n");
+	return EX_UNAVAILABLE;					    /* panic */
       }
      setgid(getgid());setuid(getuid());		  /* revoke suid permissions */
      if(!strcmp(chp,idhash))				  /* idhash program? */

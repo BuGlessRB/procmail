@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.20 1993/03/05 14:40:11 berg Exp $";
+ "$Id: misc.c,v 1.21 1993/04/02 12:38:59 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -21,6 +21,7 @@ static /*const*/char rcsid[]=
 #include "locking.h"
 #include "mailfold.h"
 
+const char lastfolder[]="LASTFOLDER";
 struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
  {"LOCKTIMEOUT",DEFlocktimeout},{"SUSPEND",DEFsuspend},
  {"NORESRETRY",DEFnoresretry},{"TIMEOUT",DEFtimeout},{"VERBOSE",DEFverbose}};
@@ -137,11 +138,13 @@ void terminate P((void))
      fakedelivery=0,retval=retvl2;
   if(getpid()==thepid)
    { if(retval!=EX_OK)
-      { tofile=0;lasttell= -1;		 /* make sure that logabstract knows */
-	lastfolder=fakedelivery?"**Lost**":		/* don't free() here */
-	 retval==EX_TEMPFAIL?"**Requeued**":"**Bounced**";
+      { tofile=0;lasttell= -1;			  /* mark it for logabstract */
+	logabstract(fakedelivery?"**Lost**":
+	 retval==EX_TEMPFAIL?"**Requeued**":"**Bounced**");
       }
-     logabstract();closerc();
+     else
+	logabstract(tgetenv(lastfolder));
+     closerc();
      if(!(lcking&lck_ALLOCLIB))			/* don't reenter malloc/free */
 	exectrap(tgetenv("TRAP"));
      nextexit=2;unlock(&loclock);unlock(&globlock);fdunlock();
@@ -260,6 +263,16 @@ char*cstr(a,b)char*const a;const char*const b;	/* dynamic buffer management */
 { if(a)
      free(a);
   return tstrdup(b);
+}
+
+void setlastfolder(folder)const char*const folder;
+{ if(asgnlastf)
+   { char*chp;
+     asgnlastf=0;
+     strcpy(chp=malloc(STRLEN(lastfolder)+1+strlen(folder)+1),lastfolder);
+     chp[STRLEN(lastfolder)]='=';
+     sputenv(strcpy(chp+STRLEN(lastfolder)+1,folder));free(chp);
+   }
 }
 
 char*skpspace(chp)const char*chp;

@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.10 1993/02/02 15:27:15 berg Exp $*/
+/*$Id: misc.h,v 1.11 1993/04/02 12:39:01 berg Exp $*/
 
 void
  elog P((const char*const newt)),
@@ -22,6 +22,7 @@ void
  catlim P((const char*src)),
  setdef P((const char*const name,const char*const contents)),
  metaparse P((const char*p)),
+ setlastfolder P((const char*const folder)),
  asenvcpy P((char*src)),
  asenv P((const char*const chp)),
  concatenate P((char*p));
@@ -42,6 +43,7 @@ const char
 long
  renvint P((const long i,const char*const env));
 
+extern const char lastfolder[];
 extern didchd;
 
 #define MAXvarvals	maxindex(strenvvar)

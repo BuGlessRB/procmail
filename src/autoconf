@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.36 1993/03/12 16:54:40 berg Exp $
+#$Id: autoconf,v 1.37 1993/04/02 12:38:44 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -33,6 +33,7 @@
 #	#define NOstrpbrk
 #	#define NOopendir
 #	#define NOrename
+#	#define mkdir(d,m) (-1)
 #	#define NOuname
 #	#define NOstrstr
 #	#define NOstrtol
@@ -486,8 +487,8 @@ $MV _autotst _locktst
 cat 2>&1 <<HERE
 ==============================================================================
 In order for the kernel-locking tests to work as intended I have to be able to
-test-lock files on as many different filesystems as possible (for more
-information about this, READ PARAGRAPH TWO in INSTALL).
+test-lock files on as many semantically different filesystems as possible (for
+more information about this, READ PARAGRAPH TWO in INSTALL).
 
 Please add writeable directories to the list.  You should only add directories
 that reside on filesystems that have unique characterics.  E.g. if you have
@@ -661,7 +662,7 @@ cat >_autotst.c <<HERE
 main(){char a[2];
  endpwent();endgrent();memmove(a,"0",1);bcopy("0",a,1);strcspn(a,"0");
  strtol("0",(char**)0,10);strchr("0",'0');strpbrk(a,"0");rename(a,"0");
- opendir("0");initgroups("0",0);strstr("0","0");
+ opendir("0");initgroups("0",0);strstr("0","0");mkdir("0",0);
 #ifndef NOuname
  {struct utsname b;uname(&b);}
 #endif
@@ -672,7 +673,8 @@ main(){char a[2];
  return 0;}
 HERE
 
-echo 'Testing for memmove, strchr, strpbrk, strcspn, strtol, strstr & opendir'
+echo 'Testing for memmove, strchr, strpbrk, strcspn, strtol, strstr,'
+echo '	rename, opendir & mkdir'
 if $MAKE _autotst.$O >_autotst.rrr 2>&1
 then
 :
@@ -714,6 +716,7 @@ grepfor opendir "
 			   selected in MH-folders by procmail */
 "
 grepfor rename '#define NOrename'
+grepfor mkdir '#define mkdir(d,m) (-1)'
 grepfor strchr '#define strchr(s,c) index(s,c)'
 grepfor uname "\
 #define NOuname		 \

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.13 1993/01/13 15:20:55 berg Exp $";
+ "$Id: goodies.c,v 1.14 1993/04/02 12:38:47 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -162,7 +162,7 @@ escaped:      *p++=i;
 	      goto ieofstr;
 	    }
 	   else if(i=='-')				   /* $- =lastfolder */
-	    { strcpy(p,lastfolder);
+	    { strcpy(p,tgetenv(lastfolder));
 ieofstr:      i='\0';goto eofstr;
 	    }
 	   else

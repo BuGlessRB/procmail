@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.10 1993/01/29 13:32:49 berg Exp $
+.Id $Id: procmailex.man,v 1.11 1993/04/02 12:38:34 berg Exp $
 .de Sx
 .PP
 .ne \\$1
@@ -25,7 +25,7 @@ you can check the NOTES section in
 or look at the example rcfiles part of the procmail source distribution
 (procmail*/examples/?procmailrc).
 .Sh EXAMPLES
-Sort out all mail coming from the scuba-dive mailling list into the mailfolder
+Sort out all mail coming from the scuba-dive mailing list into the mailfolder
 scubafile (uses the locallockfile scubafile.lock).
 .Sx 3
 ::

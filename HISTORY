@@ -193,3 +193,8 @@
 	       in a regexp
 	    Extended recommend.c, it advises changing the permissions on
 	       the system mail spool directory as well now (if needed)
+	    Procmail can now deliver to multiple directories (using hardlinks)
+	    Added the LASTFOLDER variable to procmail
+	    Flist can and should be setuid root now, POSIX setuid semantics
+	       require it <sigh>
+	    Programs started from within TRAP can read the mail from stdin

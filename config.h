@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.20 1993/03/02 14:40:26 berg Exp $*/
+/*$Id: config.h,v 1.21 1993/04/02 12:38:12 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -80,6 +80,7 @@
 #define INIT_UMASK	(S_IRWXG|S_IRWXO)			   /* == 077 */
 #define NORMperm	(S_IRUSR|S_IWUSR|S_IRGRP|S_IWGRP|S_IROTH|S_IWOTH)
 	     /* == 0666, normal mode bits used to create files, before umask */
+#define NORMdirperm	(S_IRWXU|S_IRWXG|S_IRWXO)		  /* == 0777 */
 #define LOCKperm	0	  /* mode bits used while creating lockfiles */
 #define MAX_LOCK_SIZE	0	  /* lockfiles are expected not to be longer */
 #ifndef SMALLHEAP
@@ -104,6 +105,11 @@
 (((Resent-)?(From|Sender)|X-Envelope-From):|From )(.*[^.%@a-z0-9])?(\
 Post(ma(st(er)?|n)|office)|Mailer|daemon|mmdf|root|uucp|LISTSERV|owner|\
 request|bounce|serv(ices?|er))([^.!:a-z0-9]|$))"     /* matches most daemons */
+#define FROMMkey	"^FROM_MAILER"
+#define FROMMsubstitute "^(((Resent-)?(From|Sender)|X-Envelope-From):|From )\
+(.*[^.%@a-z0-9])?(\
+Post(ma(st(er)?|n)|office)|Mailer|daemon|mmdf|root|uucp|serv(ices?|er))\
+([^.!:a-z0-9]|$)"			      /* matches most mailer-daemons */
 #define DEFshellmetas	"&|<>~;?*[]"		    /* never put '$' in here */
 #define DEFmaildir	"$HOME"
 #define DEFdefault	"$ORGMAIL"
@@ -120,7 +126,7 @@ request|bounce|serv(ices?|er))([^.!:a-z0-9]|$))"     /* matches most daemons */
 #define COMSATprotocol	"udp" /* if you change this, comsat() needs patching */
 #define COMSATxtrsep	":"		 /* mailbox-spec extension separator */
 #define SERV_ADDRsep	'@'	      /* when overriding in COMSAT=serv@addr */
-#define DEFcomsat	"no"		      /* when an rcfile is specified */
+#define DEFcomsat	"no"		/* when an rcfile has been specified */
 
 #define BinSh		"/bin/sh"
 #define RootDir		"/"

@@ -33,9 +33,9 @@
 # rc.request	rcfile used when processing requests
 # rc.custom	rcfile that contains all the customisations per list
 
-#$Id: rc.init,v 1.9 1993/03/04 15:31:11 berg Exp $
+#$Id: rc.init,v 1.10 1993/04/02 12:38:21 berg Exp $
 
-PATH=.:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
+PATH=.:$PATH:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises
 
 defaults=.etc
@@ -69,15 +69,6 @@ listmaster=
 defaults=.etc				# the name of the defaults directory
 #LOGFILE=../$defaults/log		# uncomment in case of emergency
 #VERBOSE=yes				# uncomment in case of real emergency
-
-	# The following should catch all the unwanted mailer-daemons bouncing
-	# mail to us unexpectedly.
-
-FROM_MAILER_DAEMON='^(Precedence:.*junk|'\
-'(((Resent-)?(From|Sender)|X-Envelope-From):|From )'\
-'(.*[^.%@a-z0-9])?('\
-'Post(ma(st(er)?|n)|office)|Mailer|daemon|mmdf|root|uucp|serv(ices?|er)'\
-')([^.!:a-z0-9]|$))'
 
 RC_INIT					# clear this one from the environment
 					# so that we include this file only

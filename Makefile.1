@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.14 1993/02/18 17:19:31 berg Exp $
+#$Id: Makefile.1,v 1.15 1993/04/02 12:38:10 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -8,7 +8,7 @@ make:
 	@$(SHELL) -c "exit 0"
 
 bins: config.check src/Makefile
-	cd src; $(MAKE) $(NBINS) multigram
+	cd src; $(MAKE) $(NBINS)
 
 mans: config.check man/Makefile
 	cd man; $(MAKE) $(NMANS)

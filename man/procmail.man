@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.14 1993/03/05 14:40:05 berg Exp $
+.Id $Id: procmail.man,v 1.15 1993/04/02 12:38:32 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -238,7 +238,7 @@ Lock failure on "x"
 Can only occur if you specify some real weird (and illegal) lockfilenames
 or if the
 .B lockfile
-could not be created because of insufficient permissions or noexistent
+could not be created because of insufficient permissions or nonexistent
 subdirectories.
 .Tp
 Missing name
@@ -276,7 +276,7 @@ Truncating "x" and retrying lock
 .Tp
 Reiterating kernel-lock
 While attempting several locking methods, one of these failed.  Procmail will
-reiterate untill they all succeed in rapid succession.
+reiterate until they all succeed in rapid succession.
 .Tp
 Rescue of unfiltered data succeeded/failed
 A filter returned unsuccessfully, procmail tried to get back the original text.
@@ -375,7 +375,7 @@ For security reasons procmail will only use an rcfile if it is owned by the
 recipient or if the directory it is contained in, is not world writeable.
 .PP
 If +SYSTEM_MBOX+ is a bogus mailbox (i.e. does not belong to the recipient,
-is unwritable, is a symbolic link or is a hard link), procmail will upon
+is unwriteable, is a symbolic link or is a hard link), procmail will upon
 startup try to rename it into a file starting with `+BOGUSprefix+' and
 ending in an inode-sequence-code.  If this turns out to be impossible,
 .B ORGMAIL
