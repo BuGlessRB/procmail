@@ -3,14 +3,14 @@
  *									*
  *	Seems to be relatively bug free.				*
  *									*
- *	Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.87 1999/02/14 04:43:30 srb Exp $";
+ "$Id: formail.c,v 1.88 1999/02/16 21:13:36 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/02/14 04:43:30 $";
+static /*const*/char rcsdate[]="$Date: 1999/02/16 21:13:36 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"

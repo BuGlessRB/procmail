@@ -1,12 +1,12 @@
 /************************************************************************
  *	Collection of library-worthy routines				*
  *									*
- *	Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.55 1999/02/12 05:53:57 guenther Exp $";
+ "$Id: goodies.c,v 1.56 1999/02/16 21:13:38 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"

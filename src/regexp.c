@@ -3,12 +3,12 @@
  *									*
  *	Seems to be perfect.						*
  *									*
- *	Copyright (c) 1991-1997, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1991-1999, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.63 1998/11/09 05:06:15 guenther Exp $";
+ "$Id: regexp.c,v 1.64 1999/02/16 21:13:47 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"

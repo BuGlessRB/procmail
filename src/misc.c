@@ -1,12 +1,12 @@
 /************************************************************************
  *	Miscellaneous routines used by procmail				*
  *									*
- *	Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.84 1999/02/14 04:43:34 srb Exp $";
+ "$Id: misc.c,v 1.85 1999/02/16 21:13:43 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -308,8 +308,10 @@ int alphanum(c)const unsigned c;
 
 char*pmrc2buf P((void))
 { sgetcp=pmrc;
+  nlog("pmrc=");logqnl(pmrc);
   if(readparse(buf,sgetc,2))
      buf[0]='\0';
+  nlog("buf=");logqnl(buf);
   return buf;
 }
 

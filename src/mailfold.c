@@ -1,12 +1,12 @@
 /************************************************************************
  *	Routines that deal with the mailfolder(format)			*
  *									*
- *	Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.74 1999/02/14 04:43:33 srb Exp $";
+ "$Id: mailfold.c,v 1.75 1999/02/16 21:13:41 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
