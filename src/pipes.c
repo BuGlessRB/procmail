@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.45 1998/11/06 05:35:40 guenther Exp $";
+ "$Id: pipes.c,v 1.46 1998/11/06 06:21:01 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -235,8 +235,8 @@ builtin:
 }
 
 char*readdyn(bf,filled)char*bf;long*const filled;
-{ int i;long oldsize;
-  oldsize= *filled;
+{ int i;long oldsize= *filled;
+#ifndef INEFFICIENTrealloc
   goto jumpin;
   do
    { *filled+=i;				/* change listed buffer size */
@@ -249,6 +249,30 @@ jumpin:
 jumpback:;
    }
   while(0<(i=rread(STDIN,bf+*filled,BLKSIZ)));			/* read mail */
+#else
+  long blksiz=BLKSIZ,rlen;
+  int mul=16;
+  char *p;
+  goto jumpin;
+  do
+   { blksiz*=mul;
+     if(mul>2)
+	mul>>=1;
+jumpin:
+#ifdef SMALLHEAP
+     if((size_t)*filled>=(size_t)(*filled+blksiz))
+	lcking|=lck_MEMORY,nomemerr();
+#endif
+     bf=realloc(bf,*filled+blksiz);
+jumpback:;
+     rlen=blksiz;	/* because blksiz will get so huge, I'll be paranoid */
+     while(rlen&&0<(i=rread(STDIN,bf+*filled,rlen)))		/* read mail */
+      { rlen-=i;
+	*filled+=i;
+      }
+   }
+  while(!rlen);
+#endif
   if(pidchild>0)
    { if(!Stdout)
       { getstdin(PRDB);			       /* filter ready, get backpipe */
