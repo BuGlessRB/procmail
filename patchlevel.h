@@ -10,3 +10,6 @@ And of course, subscription and information requests for this list to:\n\
 
 /* If the formatting or number of newlines of VERSION substantially changes,
    src/manconf.c needs to be changed as well */
+
+/* change to whatever the procmail version is */
+#define VERSIONNUMBER "v3.11pre8"
