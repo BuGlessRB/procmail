@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.69 2001/06/07 21:03:50 guenther Exp $";
+ "$Id: pipes.c,v 1.70 2001/06/21 11:59:29 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -189,7 +189,7 @@ perr:	      progerr(line,excode,pwait==4);  /* I'm going to tell my mommy! */
      Stdout=realloc(Stdout,&Stdfilled+1);
      tmemmove(Stdout,temp.p,Stdfilled+1);
      freeblock(&temp);
-     retStdout(Stdout,!backblock&&pwait&&pipw);
+     retStdout(Stdout,pwait&&pipw,!backblock);
      return pipw;
    }
   return 0;		    /* we stay behind to read back the filtered text */

@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.53 2001/06/21 09:43:50 guenther Exp $*/
+/*$Id: procmail.h,v 1.54 2001/06/21 11:59:31 guenther Exp $*/
 
 #include "includes.h"
 
@@ -87,13 +87,11 @@ extern struct varstr{const char*const sname,*sval;}strenstr[];
 #define sendmail	(strenstr[7].sval)
 #define flagsendmail	(strenstr[8].sval)
 /* #define PM_version	(strenstr[9].sval) */
-#define lgname		(strenstr[10].sname)		/* this is the name! */
-#define lgnameval	(strenstr[10].sval)
 
 
-extern char*buf,*buf2,*loclock,*Stdout,*thebody;
+extern char*buf,*buf2,*loclock,*thebody;
 extern const char shell[],lockfile[],newline[],binsh[],unexpeof[],*const*gargv,
- *const*restargv,*sgetcp,pmrc[],*rcfile,dirsep[],devnull[],empty[],
+ *const*restargv,*sgetcp,pmrc[],*rcfile,dirsep[],devnull[],empty[],lgname[],
  executing[],oquote[],cquote[],whilstwfor[],procmailn[],Mail[],home[],host[],
  *defdeflock,*argv0,exceededlb[],curdir[],slogstr[],conflicting[],orgmail[],
  insufprivs[],errwwriting[],Version[];

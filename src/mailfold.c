@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.100 2001/06/07 21:03:44 guenther Exp $";
+ "$Id: mailfold.c,v 1.101 2001/06/21 11:59:27 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -185,13 +185,7 @@ exlb: { nlog(exceededlb);setoverflow();
      if(rlink(buf2,buf,0)) /* hardlink the new file, it's a directory folder */
 nolnk:	nlog("Couldn't make link to"),logqnl(buf);
      else
-didlnk:
-      { size_t len;char*p;
-	Stdout=buf;primeStdout(empty);
-	len=Stdfilled+strlen(Stdout+Stdfilled);
-	p=realloc(Stdout,(Stdfilled=len+1+strlen(buf))+1);
-	p[len]=' ';strcpy(p+len+1,buf);retbStdout(p);
-      }
+didlnk: appendlastvar(buf);		     /* lastvar is "LASTFOLDER" here */
      goto ret;
    }
   if(!rename(buf2,buf))		       /* rename it, we need the same i-node */

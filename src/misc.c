@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.113 2001/06/21 09:43:47 guenther Exp $";
+ "$Id: misc.c,v 1.114 2001/06/21 11:59:28 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -23,10 +23,7 @@ static /*const*/char rcsid[]=
 #include "mcommon.h"
 #include "goodies.h"
 #include "locking.h"
-#include "../patchlevel.h"
-#ifndef NO_COMSAT
-#include "network.h"
-#endif
+#include "comsat.h"
 #include "mailfold.h"
 #include "lastdirsep.h"
 #include "memblk.h"
@@ -58,7 +55,7 @@ void elog(newt)const char*const newt;
 	   goto flush;					/* then flush it now */
       }				    /* okay, we now have enough buffer space */
      tmemmove(old+lold,newt,lnew);		      /* append the new text */
-     lnew=0;lold=i		    /* the text in newt is now in the buffer */
+     lnew=0;lold=i;		    /* the text in newt is now in the buffer */
      if(old[i-1]!='\n')			    /* if we don't need to flush now */
 	return;						  /* then we're done */
    }
@@ -232,16 +229,6 @@ int nextrcfile P((void))	/* next rcfile specified on the command line */
   return 0;
 }
 
-static void catlim(src)register const char*src;
-{ register char*dest=buf;register size_t lim=linebuf;
-  while(lim&&*dest)
-     dest++,lim--;
-  if(lim)
-   { while(--lim&&(*dest++= *src++));
-     *dest='\0';
-   }
-}
-
 char*tstrdup(a)const char*const a;
 { int i;
   i=strlen(a)+1;
@@ -287,80 +274,31 @@ static void sterminate P((void))
 int fakedelivery;
 
 void Terminate P((void))
-{ const char*chp;
-  ignoreterm();
-  if(retvl2!=EXIT_SUCCESS)
-     fakedelivery=0,retval=retvl2;
+{ ignoreterm();
   if(getpid()==thepid)
    { const char*lstfolder;
      if(retval!=EXIT_SUCCESS)
-      { lasttell= -1;				  /* mark it for logabstract */
+      { lasttell= -1;				   /* mark it for sendcomsat */
 	lstfolder=fakedelivery?"**Lost**":
 	 retval==EX_TEMPFAIL?"**Requeued**":"**Bounced**";
+	sendcomsat(lstfolder);
       }
      else
-	lstfolder=tgetenv(lastfolder);
-     logabstract(lstfolder);
-#ifndef NO_COMSAT
-     if(strlen(chp=tgetenv(lgname))+2<=linebuf)	  /* first pass length check */
-      { int s;struct sockaddr_in addr;char*chad;	     /* @ seperator? */
-	strcpy(buf,chp);
-	strcat(buf,"@");		     /* start setting up the message */
-	if(chad=strchr(chp=(char*)scomsat,SERV_ADDRsep))
-	   *chad++='\0';	      /* split it up in service and hostname */
-	else if(!renvint(-1L,chp))		/* or is it a false boolean? */
-	   goto nocomsat;			       /* ok, no comsat then */
-	else
-	   chp=empty;			  /* set to yes, so take the default */
-	if(!chad||!*chad)					  /* no host */
-#ifndef IP_localhost
-	   chad=COMSAThost;				      /* use default */
-#else /* IP_localhost */
-	 { static const unsigned char ip_localhost[]=IP_localhost;
-	   addr.sin_family=AF_INET;
-	   tmemmove(&addr.sin_addr,ip_localhost,sizeof ip_localhost);
-	 }
-	else
-#endif /* IP_localhost */
-	 { const struct hostent*host;	      /* what host?  paranoid checks */
-	   if(!(host=gethostbyname(chad))||!host->h_0addr_list)
-	    { endhostent();		     /* host can't be found, too bad */
-	      goto nocomsat;
-	    }
-	   addr.sin_family=host->h_addrtype;	     /* address number found */
-	   tmemmove(&addr.sin_addr,host->h_0addr_list,host->h_length);
-	   endhostent();
-	 }
-	if(!*chp)					       /* no service */
-	   chp=BIFF_serviceport;			/* new balls please! */
-	s=strtol(chp,&chad,10);
-	if(chp==chad)			       /* the service is not numeric */
-	 { const struct servent*serv;
-	   if(!(serv=getservbyname(chp,COMSATprotocol)))   /* so get its no. */
-	    { endservent();
-	      goto nocomsat;
-	    }
-	   addr.sin_port=serv->s_port;endservent();
-	 }
-	else
-	   addr.sin_port=htons((short)s);		    /* network order */
-	if(lasttell>=0)					   /* was it a file? */
-	   ultstr(0,(unsigned long)lasttell,buf2),catlim(buf2);	      /* yep */
-	catlim(COMSATxtrsep);				 /* custom seperator */
-	if(lasttell>=0&&!strchr(dirsep,*lstfolder))    /* relative filename? */
-	   catlim(tgetenv(maildir)),catlim(MCDIRSEP_);	   /* prepend curdir */
-	catlim(lstfolder);s=socket(PF_INET,SOCK_DGRAM,UDP_protocolno);
-	sendto(s,buf,strlen(buf),0,(const void*)&addr,sizeof(addr));rclose(s);
-	yell("Notified comsat:",buf);
+      { lstfolder=tgetenv(lastfolder);
+	sendcomsat(0);
       }
-nocomsat:
-#endif /* NO_COMSAT */
-     shutdesc();
-     if(!(lcking&lck_ALLOCLIB))			/* don't reenter malloc/free */
+     logabstract(lstfolder);
+     if(!nextexit)			/* these are unsafe from sighandlers */
+      { shutdesc();
 	exectrap(traps);
-     nextexit=2;unlock(&loclock);unlock(&globlock);fdunlock();
+	fdunlock();
+      }
+     nextexit=2;unlock(&loclock);unlock(&globlock);
    }					/* flush the logfile & exit procmail */
-  elog(empty);exit(fakedelivery==2?EXIT_SUCCESS:retval);
+  elog(empty);
+  _exit(retvl2!=EXIT_SUCCESS?retvl2:		      /* unsuccessful child? */
+   fakedelivery==2?EXIT_SUCCESS:		   /* told to throw it away? */
+   retval);					/* okay, use the real status */
 }
 
 void suspend P((void))

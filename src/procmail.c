@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.174 2001/06/21 09:43:49 guenther Exp $";
+ "$Id: procmail.c,v 1.175 2001/06/21 11:59:30 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -37,6 +37,7 @@ static /*const*/char rcsid[]=
 #include "lmtp.h"
 #include "foldinfo.h"
 #include "variables.h"
+#include "comsat.h"
 #include "from.h"
 
 static const char*const nullp,exflags[]=RECFLAGS,drcfile[]="Rcfile:",
@@ -47,14 +48,13 @@ char*buf,*buf2,*loclock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*const*restargv= &nullp,*sgetcp,
  pmrc[]=PROCMAILRC,*rcfile,dirsep[]=DIRSEP,devnull[]=DevNull,empty[]="",
- executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",
+ lgname[]="LOGNAME",executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",
  procmailn[]="procmail",whilstwfor[]=" whilst waiting for ",home[]="HOME",
  host[]="HOST",*defdeflock=empty,*argv0=empty,curdir[]={chCURDIR,'\0'},
  slogstr[]="%s \"%s\"",conflicting[]="Conflicting ",orgmail[]="ORGMAIL",
  insufprivs[]="Insufficient privileges\n",
  exceededlb[]="Exceeded LINEBUF\n",errwwriting[]="Error while writing to",
  Version[]=VERSION;
-char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,rc= -1,
  privileged=priv_START,lexitcode=EXIT_SUCCESS,ignwerr,crestarg,savstdout,
  berkeley,mailfilter,erestrict,Deliverymode,ifdepth;   /* depth of outermost */
@@ -223,7 +223,7 @@ nodevnull:
 #ifdef console
 	opnlog(console);
 #endif
-	setbuf(stdin,(char*)0);mallocbuffers(linebuf,1);
+	setbuf(stdin,(char*)0);allocbuffers(linebuf,1);
 #ifdef SIGXCPU
 	signal(SIGXCPU,SIG_IGN);signal(SIGXFSZ,SIG_IGN);
 #endif
@@ -317,7 +317,7 @@ dorcpt:	   if(enoughprivs(passinvk,euid,egid,auth_whatuid(pass),
 	   if(presenviron)		      /* preserving the environment? */
 	      etcrc=0;				    /* don't read etcrc then */
 	   if(suppmunreadable)			     /* command-line rcfile? */
-	      etcrc=0,scomsat=DEFcomsat;	  /* forget etcrc and comsat */
+	      etcrc=0,setcomsat(DEFcomsat);	  /* forget etcrc and comsat */
 	   if(mailfilter)
 	    { if(!suppmunreadable)
 	       { nlog("Missing rcfile\n");
@@ -483,7 +483,7 @@ nomore_rc:
       { int len;
 	setuid(uid);			   /* make sure we have enough space */
 	if(linebuf<(len=strlen(chp)+strlen(lockext)+UNIQnamelen))
-	   mallocbuffers(linebuf=len,1);   /* to perform the lock & delivery */
+	   allocbuffers(linebuf=len,1);	   /* to perform the lock & delivery */
 	if(writefolder(chp,(char*)0,themail.p,filled,0,1))	  /* default */
 	   succeed=1;
       }						       /* if all else failed */
@@ -758,9 +758,7 @@ nolock:		     { nlog("Couldn't determine implicit lockfile from");
 		  }
 	       }
 	      else if(Stdout)			  /* capturing stdout again? */
-	       { if(!pipthrough(buf,startchar,tobesent))
-		    succeed=1,postStdout();	  /* only parse if no errors */
-	       }
+		 succeed=!pipthrough(buf,startchar,tobesent);
 	      else if(!pipin(buf,startchar,tobesent,1))	  /* regular program */
 	       { succeed=1;
 		 if(flags[CONTINUE])
@@ -852,7 +850,7 @@ nolock:		     { nlog("Couldn't determine implicit lockfile from");
 			}
 		     }
 		  }
-		 goto jsetlsucc;		/* definitely no logabstract */
+		 goto setlsucc;			/* definitely no logabstract */
 	       }
 	      continue;
 	    }
@@ -878,8 +876,7 @@ frmailed:      { if(ifstack.vals)
 	       }
 logsetlsucc:  if(succeed&&flags[CONTINUE]&&lgabstract==2)
 		 logabstract(tgetenv(lastfolder));
-setlsucc:     rawnonl=0;
-jsetlsucc:    lastsucc=succeed;lasttell= -1;		       /* for comsat */
+setlsucc:     rawnonl=0;lastsucc=succeed;lasttell= -1;	       /* for comsat */
 	      resettmout();			  /* clear any pending timer */
 	    }
 	   skiprc&=~1;				     /* reenable subprograms */

@@ -545,10 +545,11 @@
 	       tempfile names
 	    Called nice() when shouldn't have
 	    Workaround SunOS 4.x compiler again
-2001/06/07: v3.20pre
+2001/06/21: v3.20pre
 	    Changes to procmail:
-	       - Support LMTP for delivery mode
-	       - Use mmap() for `large' messages
+	       - SECURITY: don't do unsafe things from signal handlers
+	       - Support LMTP for delivery mode (though not enabled by default)
+	       - Use mmap() for `large' messages (ditto)
 	       - SWITCHRC=zero-length-file didn't always abort the current
 		 rcfile
 	       - A race to create the mailspool would bounce one of the
@@ -585,6 +586,7 @@
 	    Clarified procmail's treatment of $@ and $#
 	    Fixed a man page formatting problem
 	    Use long, not off_t, with fseek()/ftell()
+	    Increase our paranoia: start to use strlcat()
 	    The default MAILDIR is now configurable separately from the
 	       default rcfile location
 	    Include an RPM spec file in the examples directory for automated

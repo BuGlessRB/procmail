@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.13 2001/06/07 21:03:55 guenther Exp $";
+ "$Id: variables.c,v 1.14 2001/06/21 11:59:32 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -20,6 +20,7 @@ static /*const*/char rcsid[]=
 #include "goodies.h"
 #include "misc.h"
 #include "locking.h"		/* for lockit() */
+#include "comsat.h"
 #include "variables.h"
 
 struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
@@ -29,8 +30,7 @@ struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
 struct varstr strenstr[]={{"SHELLMETAS",DEFshellmetas},{"LOCKEXT",DEFlockext},
  {"MSGPREFIX",DEFmsgprefix},{"COMSAT",empty},{"TRAP",empty},
  {"SHELLFLAGS",DEFshellflags},{"DEFAULT",DEFdefault},{"SENDMAIL",DEFsendmail},
- {"SENDMAILFLAGS",DEFflagsendmail},{"PROCMAIL_VERSION",PM_VERSION},
- {"LOGNAME",empty}};
+ {"SENDMAILFLAGS",DEFflagsendmail},{"PROCMAIL_VERSION",PM_VERSION}};
 
 #define MAXvarvals	 maxindex(strenvvar)
 #define MAXvarstrs	 maxindex(strenstr)
@@ -38,7 +38,9 @@ struct varstr strenstr[]={{"SHELLMETAS",DEFshellmetas},{"LOCKEXT",DEFlockext},
 const char lastfolder[]="LASTFOLDER",maildir[]="MAILDIR";
 int didchd;
 long Stdfilled;
-char *cslastf;		  /* ComSat LASTFolder: full path for comsat message */
+char*Stdout;
+
+static void asenvtext P((const char*const chp));      /* needed by retStdout */
 
 static const char slinebuf[]="LINEBUF",pmoverflow[]="PROCMAIL_OVERFLOW=yes",
  exitcode[]="EXITCODE";
@@ -87,16 +89,25 @@ void primeStdout(varname)const char*const varname;   /* changes are allowed! */
   Stdfilled=ioffsetof(struct dynstring,ename[0])+strlen(varname);
 }
 
-void retStdout(newmyenv,unset)			/* see note on primeStdout() */
- char*const newmyenv;int unset;
-{ if(unset)					     /* on second thought... */
+void retStdout(newmyenv,fail,unset)		/* see note on primeStdout() */
+ char*const newmyenv;int fail,unset;
+{ char*var,*p;
+  if(fail&&unset)				     /* on second thought... */
    { myenv=((struct dynstring*)newmyenv)->enext;	 /* pull it back out */
      free(newmyenv);*lastenv=Stdout=0;
      return;
    }
-  if(newmyenv[Stdfilled-1]=='\n')	       /* strip one trailing newline */
+  else if(!fail&&newmyenv[Stdfilled-1]=='\n')  /* strip one trailing newline */
      Stdfilled--;
   retbStdout(newmyenv);
+  var=newmyenv+ioffsetof(struct dynstring,ename[0]);	    /* setup to copy */
+  p=strchr(var,'=');			       /* the variable name into buf */
+  tmemmove(buf,var,p-var);			     /* so that we can check */
+  buf[p-var]='\0';						/* for magic */
+  if(fail)
+     asenvtext(p+1);	  /* we always have to update the pointers for these */
+  else
+     asenv(p+1);					 /* invoke any magic */
 }
 
 void retbStdout(newmyenv)char*const newmyenv;	/* see note on primeStdout() */
@@ -104,9 +115,13 @@ void retbStdout(newmyenv)char*const newmyenv;	/* see note on primeStdout() */
   Stdout=0;
 }
 
-void postStdout P((void))		 /* throw it into the keyword parser */
-{ const char*p;size_t i;
-  p= *lastenv;tmemmove(buf,p,i=strchr(p,'=')-p);buf[i]='\0';asenv(p+i+1);
+		 /* Append a space and then `value' to the last variable set */
+void appendlastvar(value)const char*const value;
+{ size_t len;char*p;
+  Stdout=value;primeStdout(empty);
+  len=Stdfilled+strlen(Stdout+Stdfilled);	     /* Skip over the header */
+  p=realloc(Stdout,(Stdfilled=len+1+strlen(value))+1);
+  p[len]=' ';strcpy(p+len+1,buf);retbStdout(p);	  /* WARNING: no magic here! */
 }
 
 const char*eputenv(src,dst)const char*const src;char*const dst;
@@ -128,7 +143,7 @@ const char*tgetenv(a)const char*const a;
 }
 
 void setoverflow P((void))
-{ sputenv(tstrdup(pmoverflow));
+{ sputenv(pmoverflow);
 }
 
 void cleanupenv(preserve)int preserve;
@@ -189,7 +204,7 @@ void initdefenv(pass,fallback,do_presets)auth_identity*pass;
    { setdef(lgname,fallback);setdef(shell,binsh);
      setdef(home,ROOT_DIR);setdef(orgmail,DEAD_LETTER);
    }
-  lgnameval=tgetenv(lgname);			       /* kludge a safe copy */
+  setlgcs(tgetenv(lgname));		  /* make sure sendcomsat has a copy */
   if(do_presets)
    { static const char*const prestenv[]=PRESTENV;
      const char*const*pp;
@@ -200,6 +215,7 @@ void initdefenv(pass,fallback,do_presets)auth_identity*pass;
      while(i--);
      setdef(host,hostname());		       /* the other standard presets */
      sputenv(lastfolder);
+     sputenv(scomsat);setcomsat(empty);
      sputenv(exitcode);
      for(pp=prestenv;*pp;pp++)			     /* non-standard presets */
 	eputenv(*pp,buf);
@@ -233,28 +249,13 @@ void setmaildir(newdir)const char*const newdir;		    /* destroys buf2 */
 }
 
 void setlastfolder(folder)const char*const folder;
-{ char*chp,*p;int abspath;size_t len,dlen,flen=strlen(folder);
-  if((abspath=strchr(dirsep,*folder))||			   /* absolute path? */
-   (len=dlen=strlen(tgetenv(maildir)))<STRLEN(lastfolder)) /* short MAILDIR? */
-     len=STRLEN(lastfolder);		       /* make room for "LASTFOLDER" */
-  chp=malloc(len+1+len+1);		    /* +1 for '=' or '/', +1 for NUL */
-  strcpy(chp,lastfolder);
-  chp[STRLEN(lastfolder)]='=';strcpy(chp+STRLEN(lastfolder)+1,folder);
-  sputenv(chp);						  /* set environment */
-#ifndef NO_COMSAT		 /* setup full path of lastfolder for comsat */
-  if(!abspath)				  /* so that it has the correct path */
-   { strcpy(chp,maildir);		    /* (MAILDIR might change...) and */
-     p=chp+dlen;			  /* to make the Terminate() routine */
-     *p++=MCDIRSEP_;			/* safe to call from signal handlers */
-   }
-  else
-     p=chp;
-  strcpy(p,folder);
-  p=cslastf;			       /* swap global cslastf with new value */
-  cslastf=chp;
-  chp=p;
-#endif
-  free(chp);
+{ char*chp;size_t len;
+  setlfcs(folder);
+  len=STRLEN(lastfolder)+2+strlen(folder);
+  strcpy(chp=malloc(len),lastfolder);
+  strlcat(chp,"=",len);
+  strlcat(chp,folder,len);
+  sputenv(chp);free(chp);
 }
 
 int setexitcode(trapisset)int trapisset;
@@ -310,10 +311,12 @@ int asenvcpy(src)char*src;
   return 0;
 }
 
-void mallocbuffers(lineb,setenv)size_t lineb;int setenv;
+void allocbuffers(lineb,setenv)size_t lineb;int setenv;
 { if(buf)
-   { free(buf);
+   { char*p=buf;
+     buf=0;			    /* make sure buf is either valid or NULL */
      free(buf2);
+     free(p);
    }
   buf=malloc(lineb+XTRAlinebuf);buf2=malloc(lineb+XTRAlinebuf);
   if(setenv)
@@ -324,6 +327,14 @@ void mallocbuffers(lineb,setenv)size_t lineb;int setenv;
    }
 }
 
+static void asenvtext(chp)const char*const chp;
+{ int i=MAXvarstrs;
+  do						 /* several text assignments */
+     if(!strcmp(buf,strenstr[i].sname))
+	strenstr[i].sval=chp;
+  while(i--);
+}
+
 void asenv(chp)const char*const chp;
 { static const char logfile[]="LOGFILE",Log[]="LOG",sdelivered[]="DELIVERED",
    includerc[]="INCLUDERC",eumask[]="UMASK",dropprivs[]="DROPPRIVS",
@@ -332,7 +343,7 @@ void asenv(chp)const char*const chp;
    { long lineb;			 /* signed to catch negative numbers */
      if((lineb=renvint(0L,chp))<MINlinebuf)
 	lineb=MINlinebuf;			       /* check minimum size */
-     mallocbuffers(linebuf=lineb,0);
+     allocbuffers(linebuf=lineb,0);
    }
   else if(!strcmp(buf,maildir))
    { if(chdir(chp))
@@ -348,6 +359,10 @@ void asenv(chp)const char*const chp;
      elog(chp);
   else if(!strcmp(buf,exitcode))
      setxit=1;
+  else if(!strcmp(buf,lgname))
+     setlgcs(chp);
+  else if(!strcmp(buf,lastfolder))
+     setlfcs(chp);
   else if(!strcmp(buf,shift))
    { int i;
      if((i=renvint(0L,chp))>0)
@@ -366,8 +381,8 @@ void asenv(chp)const char*const chp;
   else if(!strcmp(buf,sdelivered))			    /* fake delivery */
    { if(renvint(0L,chp))				    /* is it really? */
       { onguard();
-	if((thepid=sfork())>0)			/* signals may cause trouble */
-	   nextexit=2,lcking&=~lck_LOCKFILE,exit(retvl2);
+	if((thepid=sfork())>0)
+	   _exit(retvl2);			   /* parent: do not pass go */
 	if(!forkerr(thepid,procmailn))
 	   fakedelivery=1;
 	newid();offguard();
@@ -392,7 +407,7 @@ void asenv(chp)const char*const chp;
      if(strcmp(chp,name=hostname()))
       { yell("HOST mismatched",name);
 	if(rc<0)				  /* if no rcfile opened yet */
-	   retval=EXIT_SUCCESS,Terminate(0);	  /* exit gracefully as well */
+	   retval=EXIT_SUCCESS,Terminate();	  /* exit gracefully as well */
 	closerc();
       }
    }
@@ -402,11 +417,7 @@ void asenv(chp)const char*const chp;
 	if(!strcmp(buf,strenvvar[i].name))
 	   strenvvar[i].val=renvint(strenvvar[i].val,chp);
      while(i--);
-     i=MAXvarstrs;
-     do						 /* several text assignments */
-	if(!strcmp(buf,strenstr[i].sname))
-	   strenstr[i].sval=chp;
-     while(i--);
+     asenvtext(chp);			    /* delegate the text assignments */
    }
 }
 
@@ -419,10 +430,10 @@ long renvint(i,env)const long i;const char*const env;
 	 { case ' ':case '\t':case '\n':case '\v':case '\f':case '\r':
 	      continue;				  /* skip leading whitespace */
 	   case 'o':case 'O':
-	      if(!strncasecmp(p+1,"n",(size_t)1))
+	      if(!strncasecmp(p+1,"n",1))
 	   case 'y':case 'Y':case 't':case 'T':case 'e':case 'E':
 		 t=1;
-	      else if(!strncasecmp(p+1,"ff",(size_t)2))
+	      else if(!strncasecmp(p+1,"ff",2))
 	   case 'n':case 'N':case 'f':case 'F':case 'd':case 'D':
 		 t=0;
 	      else
