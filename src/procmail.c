@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.93 1994/08/18 13:45:16 berg Exp $";
+ "$Id: procmail.c,v 1.94 1994/08/23 17:37:34 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -548,7 +548,7 @@ bogusbox:	  { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
 fishy:	    { nlog("Couldn't create");logqnl(chp);
 no_mbox:      sputenv(orgmail);
 	      if(!strcmp(chp,fdefault))			/* DEFAULT the same? */
-		 free(fdefault),fdefault="";			 /* so panic */
+		 free((char*)fdefault),fdefault="";		 /* so panic */
 	      break;
 	    }
 	 }					/* bad news, be conservative */
@@ -603,7 +603,7 @@ fake_rc:	 readerr(buf);
 	      suppmunreadable=0;
 findrc:	      i=0;		    /* should we keep the current directory? */
 	      if(rcfile==pmrc)		    /* the default .procmailrc file? */
-		 strcpy(rcfile=buf2,pmrc2buf());
+		 strcpy((char*)(rcfile=buf2),pmrc2buf());
 	      if(strchr(dirsep,*rcfile)||		   /* absolute path? */
 		 (mailfilter||*rcfile==chCURDIR&&strchr(dirsep,rcfile[1]))&&
 		 (i=1))				     /* mailfilter or ./ pfx */

@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.49 1994/08/23 14:47:31 berg Exp $*/
+/*$Id: manconf.c,v 1.50 1994/08/23 17:37:30 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -10,7 +10,7 @@
 
 static char pm_version[]=VERSION,ffileno[]=DEFfileno;
 const char dirsep[]=DIRSEP,pmrc[]=PROCMAILRC;
-const char pmrc2[]=PROCMAILRC;
+char pmrc2[]=PROCMAILRC;			     /* need a writable copy */
 static const char*const keepenv[]=KEEPENV,*const prestenv[]=PRESTENV,
  *const trusted_ids[]=TRUSTED_IDS,*const etcrc=ETCRC,
  *const krnllocks[]={
