@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.72 1994/10/26 19:37:26 berg Exp $";
+ "$Id: formail.c,v 1.73 1994/10/31 17:30:23 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/10/26 19:37:26 $";
+static /*const*/char rcsdate[]="$Date: 1994/10/31 17:30:23 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -275,7 +275,7 @@ static char*getsender(namep,fldp,trust)char*namep;struct field*fldp;
 	      goto pnewname;
 	 }
 	else if(sest[i].head==returnpath)		/* nill Return-Path: */
-	 { saddr=daemon;nowm=maxindex(sest)+2;			 /* override */
+	 { saddr=(char*)daemon;nowm=maxindex(sest)+2;		 /* override */
 pnewname:  lastm=nowm;saddr=strcpy(malloc(strlen(saddr)+1),saddr);
 	   if(namep)
 	      free(namep);
