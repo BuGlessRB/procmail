@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.135 1999/02/25 19:19:15 guenther Exp $";
+ "$Id: procmail.c,v 1.136 1999/02/25 21:57:04 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -568,6 +568,9 @@ pm_overflow:	  { strcpy(buf,pmrc);
 		 else
 		    strcpy(chp,rcfile);			/* append the rcfile */
 	       }
+	      if(mailfilter!=2&&(rcstate==rc_NOSGID||	 /* nothing special? */
+		  !rcstate&&!stat(buf,&stbuf)))	  /* don't need privilege or */
+		 setids();		  /* it's accessible?  Transmogrify! */
 	    }
 	   while(0>bopen(buf));			   /* try opening the rcfile */
 	   if(rcstate!=rc_NORMAL&&mailfilter!=2)      /* if it isn't special */
@@ -579,14 +582,14 @@ pm_overflow:	  { strcpy(buf,pmrc);
 #ifndef NOfstat
 	   if(fstat(rc,&stbuf))				    /* the right way */
 #else
-	   if(lstat(buf,&stbuf))			  /* the best we can */
+	   if(stat(buf,&stbuf))				  /* the best we can */
 #endif
 	    { static const char susprcf[]="Suspicious rcfile";
 susp_rc:      closerc();nlog(susprcf);logqnl(buf);
 	      syslog(LOG_ALERT,slogstr,susprcf,buf);
 	      goto fake_rc;
 	    }
-	   if(mailfilter==2)		     /* change now if we haven't yet */
+	   if(mailfilter==2)		 /* change now if we haven't already */
 	      setids();
 	   restrict=1;			      /* possibly restrict execs now */
 	   if(i==1)		  /* opened rcfile in the current directory? */
