@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.7 1992/11/11 13:57:47 berg Exp $
+#$Id: Makefile.1,v 1.8 1992/11/12 11:37:51 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -8,7 +8,7 @@ make:
 	@$(SHELL) -c "exit 0"
 
 bins: config.check src/Makefile
-	cd src; $(MAKE) $(NBINS)
+	cd src; $(MAKE) $(NBINS) multigram
 
 mans: config.check man/Makefile
 	cd man; $(MAKE) $(NMANS)
@@ -20,9 +20,14 @@ procmail: config.check src/Makefile man/Makefile
 	cd src; $(MAKE) ../new/$@ ../new/mailstat
 	cd man; $(MAKE) ../new/$@.1 ../new/$@rc.5 ../new/$@ex.5
 
+mailstat: procmail
+
 formail lockfile: config.check src/Makefile man/Makefile
 	cd src; $(MAKE) ../new/$@
 	cd man; $(MAKE) ../new/$@.1
+
+multigram: config.check src/Makefile man/Makefile
+	cd src; $(MAKE) $@
 
 config.check: config.h
 	@echo Housekeeping file >$@

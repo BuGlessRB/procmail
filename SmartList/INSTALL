@@ -48,7 +48,8 @@ content (see "man procmail", the NOTES section at the end).
 
 	Next, edit the /home/list/.listadmin/listrc.main file.	Make sure that
 	"domain" is set to the right value, and you can optionally specify a
-	"listmaster".
+	"listmaster";  also check if the PATH is correct and make sure
+	that the procmail and formail are in the path.
 
 After this, you are all set.  Log in as (or su to) the "list" user and make
 sure that /home/list/.bin is in your path.  Then type something like:

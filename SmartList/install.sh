@@ -1,7 +1,7 @@
 #! /bin/sh
 : || exec /bin/sh ./install.sh $argv:q # we're in a csh, feed myself to sh
 
-#$Id: install.sh,v 1.1 1992/11/11 19:34:32 berg Exp $
+#$Id: install.sh,v 1.2 1992/11/12 11:38:02 berg Exp $
 
 test $# != 1 && echo "Usage: install.sh target-directory" && exit 1
 
@@ -16,8 +16,8 @@ for a in bin listadmin
 do
   mkdir "$target/.$a"
   cp $a/* "$target/.$a"
-  test $a = bin && chmod 755 "$target/.$a"/*
-  ls -ld "$target/.$a" "$target/.$a"/*
+  test $a = bin && chmod 755 $target/.$a/*
+  ls -ld "$target/.$a" $target/.$a/*
 done
 
 cd ../src
@@ -31,6 +31,6 @@ ln "$target/.listadmin/listrc.main" "$target/.procmailrc"
 
 echo '**********************************************************************'
 echo "Finished installing, now you should"
-echo "edit $a/.listadmin/listrc.main"
-echo "to make sure that `domain' and `listmaster' reflect your installation."
+echo "edit $a/.listadmin/listrc.main to make sure"
+echo "that \`PATH', \`domain' and \`listmaster' reflect your installation."
 echo '**********************************************************************'

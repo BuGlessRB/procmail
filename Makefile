@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.11 1992/11/11 20:16:00 berg Exp $
+#$Id: Makefile,v 1.12 1992/11/12 11:37:48 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -48,7 +48,7 @@ USRINCLUDE = /usr/include
 PLIB	= /lib/lib
 PUSRLIB = /usr/lib/lib
 
-CFLAGS0 = -O #-ansi -pedantic -Wid-clash-6
+CFLAGS0 = -O #-ansi -pedantic #-Wid-clash-6
 LDFLAGS0= -s
 
 CFLAGS1 = $(CFLAGS0) #-posix -Xp
@@ -60,8 +60,8 @@ O	= o
 # library archive file extension
 A	= a
 RM	= /bin/rm -f
-MV	= /bin/mv -f
-LN	= /bin/ln -f
+MV	= mv -f
+LN	= ln -f
 INSTALL = cp
 DEVNULL = /dev/null
 
@@ -89,5 +89,5 @@ init:
 makefiles makefile Makefiles Makefile: init
 
 bins mans install.bin install.man install recommend suid clean realclean \
-deinstall autoconf.h procmail formail lockfile: init
+deinstall autoconf.h $(BINSS) multigram: init
 	$(HIDEMAKE) make $@

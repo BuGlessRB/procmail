@@ -1,7 +1,7 @@
 #! /bin/sh
 : || exec /bin/sh ./autoconf $argv:q # we're in a csh, feed myself to sh
 
-#$Id: autoconf,v 1.13 1992/11/11 19:34:57 berg Exp $
+#$Id: autoconf,v 1.14 1992/11/12 11:38:15 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -165,7 +165,7 @@ HERE
 
 echo 'Initiating fcntl()/kernel-locking-support tests'
 echo   '********************************************************************'
-echo   '* If your system has a mounted a REMOTE filesystem (like per NFS), *'
+echo   '* If your system has mounted a REMOTE filesystem (like per NFS),   *'
 echo   '* then it would be advisable to compile these sources from within  *'
 echo   '* that filesystem, otherwise the locking tests might produce false *'
 echo   '* results (locking capability is file-system dependent)		   *'
@@ -221,7 +221,9 @@ cat >_autotst.c <<HERE
 #define TIME_OUT_SEC	16			 /* initial timeout per lock */
 #define NR_of_forks	8			 /* concurrent test-programs */
 #define NR_of_lockfiles 2		  /* lockfiles used in testing (<=4) */
-#define GOBBLE		256
+#define GROW		3			    /* when timing got worse */
+#define DECAY		7/8			   /* when timing got better */
+#define GOBBLE		256			 /* for the SunOS crash test */
 
 #define SHIFT_childno	3
 #define MASK_fileno	((1<<SHIFT_childno)-1)
@@ -301,11 +303,11 @@ main()
      for(j=NR_of_lockfiles;lckdfil[--j]=0,j;); /* give all children a chance */
      close(pip[1]);timeout=0;sleep(1);kill(getppid(),SIGKILL);
      signal(SIGALRM,(void(*)())stimeout);
-     dtimet=(((unsigned)time((char*)0)-otimet)*3)+TIME_OUT_SEC;
+     dtimet=(((unsigned)time((char*)0)-otimet)*GROW)+TIME_OUT_SEC;
      do
       { unlink("_locktst.alive");alarm(dtimet+2);		 /* watchdog */
-	dtimet=(otimet=((unsigned)time((char*)0)-otimet)*3)>dtimet?
-	 otimet:dtimet*7/8+1;				   /* load dependent */
+	dtimet=(otimet=time((char*)0)-otimet)>dtimet?
+	 otimet*GROW:otimet+(dtimet-otimet)*DECAY+1;	   /* load dependent */
 	otimet=time((char*)0);
       }
      while(1==read(pip[0],&curflag,1)&&(j=lckdfil[i=(curflag&MASK_fileno)>>1],

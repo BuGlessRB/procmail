@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.11 1992/11/11 16:35:37 berg Exp $";
+ "$Id: procmail.c,v 1.12 1992/11/12 11:38:25 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -28,8 +28,8 @@ static /*const*/char rcsid[]=
 #include "locking.h"
 #include "mailfold.h"
 
-static const char tokey[]=TOkey,fromdaemon[]=FROMDkey,fdefault[]="DEFAULT",
- orgmail[]="ORGMAIL",sendmail[]="SENDMAIL",From_[]=FROM,exflags[]=RECFLAGS,
+static const char fdefault[]="DEFAULT",orgmail[]="ORGMAIL",
+ sendmail[]="SENDMAIL",From_[]=FROM,exflags[]=RECFLAGS,
  systm_mbox[]=SYSTEM_MBOX,pmusage[]=PM_USAGE;
 char*buf,*buf2,*globlock,*loclock,*tolock,*lastfolder;
 const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
@@ -581,7 +581,7 @@ nomore_rc:
   concon('\n');succeed=0;
   if(*(chp=(char*)tgetenv(fdefault)))			     /* DEFAULT set? */
    { setuid(uid);firstchd();asenvcpy(DEFdefaultlock);	    /* implicit lock */
-     if(dump(deliver(chp,themail,filled)))			  /* default */
+     if(dump(deliver(chp),themail,filled))			  /* default */
 	writeerr(buf);
      else
 	succeed=1;

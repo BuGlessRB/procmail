@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: fields.c,v 1.8 1992/11/11 16:35:07 berg Exp $";
+ "$Id: fields.c,v 1.9 1992/11/12 11:38:21 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -63,7 +63,7 @@ void flushfield(pointer)register struct field**pointer;	 /* delete and print */
      q=p->fld_next,lputssn(p->fld_text,p->tot_len),free(p);
 }
 
-void dispfield(p)const register struct field*p;
+void dispfield(p)register const struct field*p;
 { for(;p;p=p->fld_next)			     /* print list non-destructively */
      if(p->id_len<p->tot_len-1)			 /* any contents to display? */
 	lputssn(p->fld_text,p->tot_len);

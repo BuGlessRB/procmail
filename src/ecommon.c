@@ -2,6 +2,9 @@
 #include "ecommon.h"
 #include "common.h"
 
+void
+ nlog P((const char*const a));
+
 static const char outofmem[]="Out of memory\n";
 
 void*tmalloc(len)const size_t len;
