@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.62 1994/01/14 17:57:51 berg Exp $";
+ "$Id: procmail.c,v 1.63 1994/01/18 17:29:47 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -126,7 +126,7 @@ conflopt:  nlog("Conflicting options\n"),elog(pmusage);
 	static const char*const keepenv[]=KEEPENV;
 	for(kp=keepenv;*kp;kp++)		     /* preserve a happy few */
 	   for(i=strlen(*kp),ep=emax;chp2=(char*)*ep;ep++)
-	      if(!strncmp(*kp,chp2,i)&&(chp2[i]=='='||chp2[i-1]=='_'))
+	      if(!strncmp(*kp,chp2,(size_t)i)&&(chp2[i]=='='||chp2[i-1]=='_'))
 	       { *emax++=chp2;break;
 	       }
 	*emax=0;					    /* drop the rest */
@@ -164,7 +164,7 @@ conflopt:  nlog("Conflicting options\n"),elog(pmusage);
 	    }
 	 }
 privileged:				       /* move stdout out of the way */
-	endgrent();endpwent();umask(INIT_UMASK);savstdout=rdup(STDOUT);
+	endgrent();umask(INIT_UMASK);savstdout=rdup(STDOUT);
 	fclose(stdout);rclose(STDOUT);			/* just to make sure */
 	if(0>opena(devnull))
 	 { writeerr(devnull);return EX_OSFILE;	     /* couldn't open stdout */
@@ -210,11 +210,11 @@ privileged:				       /* move stdout out of the way */
 	      while(1==(r=rread(STDIN,themail,1))&&*themail=='\n');
 	      i=0;rstart=themail;			     /* skip garbage */
 	      if(r>0&&STRLEN(From_)<=(i=rread(	      /* is it a From_ line? */
-	       STDIN,rstart+1,linebuf-2-1)+1)&&eqFrom_(themail))
+	       STDIN,rstart+1,(int)(linebuf-2-1))+1)&&eqFrom_(themail))
 	       { rstart[i]='\0';
 		 if(!(rstart=strchr(rstart,'\n')))
 		  { do				     /* drop long From_ line */
-		     { if((i=rread(STDIN,themail,linebuf-2))<=0)
+		     { if((i=rread(STDIN,themail,(int)(linebuf-2)))<=0)
 			  break;
 		       themail[i]='\0';
 		     }

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.24 1993/11/24 19:46:50 berg Exp $";
+ "$Id: pipes.c,v 1.25 1994/01/18 17:29:41 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -234,7 +234,7 @@ char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
   rclose(PWRI);p=dest;
   if(!forkerr(pidchild,name))
    { name=tstrdup(name);
-     while(0<(i=rread(PRDI,p,max))&&(p+=i,max-=i));	    /* read its lips */
+     while(0<(i=rread(PRDI,p,(int)max))&&(p+=i,max-=i));    /* read its lips */
      if(0<rread(PRDI,p,1))
 	nlog("Excessive output quenched from"),logqnl(name);
      rclose(PRDI);free(name);

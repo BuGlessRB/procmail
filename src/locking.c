@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.25 1994/01/12 17:22:03 berg Exp $";
+ "$Id: locking.c,v 1.26 1994/01/18 17:29:32 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -122,7 +122,7 @@ void unlock(lockp)char**const lockp;
 					/* an NFS secure exclusive file open */
 xcreat(name,mode,tim,chownit)const char*const name;const mode_t mode;
  time_t*const tim;const int chownit;
-{ char*p;int j= -2,i;
+{ char*p;int j= -2;size_t i;
   i=lastdirsep(name)-name;strncpy(p=malloc(i+UNIQnamelen),name,i);
   if(unique(p,p+i,mode,verbose))       /* try and rename the unique filename */
    { if(chownit&&chown(p,uid,sgid))			 /* try and chown it */

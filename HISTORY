@@ -148,3 +148,5 @@
 	       - Fixed the "procmail"-mailer definition in the procmail man
 		 page
 	       - Created a new procmailsc man page
+	       - Fixed a bug in lockfile, the exitcode was not correct if
+		 you used -! with more than one file

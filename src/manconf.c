@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.30 1994/01/11 13:17:24 berg Exp $*/
+/*$Id: manconf.c,v 1.31 1994/01/18 17:29:35 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -164,7 +164,7 @@ See also:\1.BR DROPPRIVS .":"");
   ps("console","sender");
   ps("aconsole",".");
 #endif
-  pname("INIT_UMASK");printf("0%lo/g\n",INIT_UMASK);
+  pname("INIT_UMASK");printf("0%lo/g\n",(unsigned long)INIT_UMASK);
   pn("DEFlinebuf",DEFlinebuf);
   ps("BOGUSprefix",BOGUSprefix);
   ps("FAKE_FIELD",FAKE_FIELD);

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.23 1993/12/08 17:34:12 berg Exp $";
+ "$Id: goodies.c,v 1.24 1994/01/18 17:29:25 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -301,7 +301,8 @@ static struct lienv{struct lienv*enext;char ename[255];}*myenv;
 static char**lastenv;
 			      /* smart putenv, the way it was supposed to be */
 void sputenv(a)const char*const a;
-{ static alloced;int i,remove;char*split,**preenv;struct lienv*curr,**last;
+{ static alloced;size_t i;int remove;char*split,**preenv;
+  struct lienv*curr,**last;
   yell("Assigning",a);remove=0;
   if(!(split=strchr(a,'=')))			   /* assignment or removal? */
      remove=1,split=strchr(a,'\0');

@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.19 1994/01/18 14:06:42 berg Exp $";
+ "$Id: lockfile.c,v 1.20 1994/01/18 17:29:29 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/01/18 14:06:42 $";
+static /*const*/char rcsdate[]="$Date: 1994/01/18 17:29:29 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -35,7 +35,7 @@ static void failure P((void))				      /* signal trap */
 }
 				    /* see locking.c for comment on xcreat() */
 static xcreat(name,tim)const char*const name;time_t*const tim;
-{ char*p,*q;int j= -1,i;struct stat stbuf;
+{ char*p,*q;int j= -1;size_t i;struct stat stbuf;
   for(q=(char*)name;p=strpbrk(q,dirsep);q=p+1);
   i=q-name;
   if(!(p=malloc(i+UNIQnamelen)))

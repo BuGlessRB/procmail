@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.41 1994/01/12 17:22:06 berg Exp $";
+ "$Id: misc.c,v 1.42 1994/01/18 17:29:38 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -31,7 +31,7 @@ static fakedelivery;
 static char*globlock;
 		       /* line buffered to keep concurrent entries untangled */
 void elog(newt)const char*const newt;
-{ int lnew,i;static lold;static char*old;char*p;
+{ int lnew;size_t i;static lold;static char*old;char*p;
 #ifndef O_CREAT
   lseek(STDERR,(off_t)0,SEEK_END);	  /* locking should be done actually */
 #endif
@@ -41,7 +41,7 @@ void elog(newt)const char*const newt;
   if(p=lold?realloc(old,i):malloc(i))			 /* unshelled malloc */
    { memmove((old=p)+lold,newt,(size_t)lnew);			   /* append */
      if(p[(lold=i)-1]=='\n')					     /* EOL? */
-	rwrite(STDERR,p,i),lold=0,free(p);		/* flush the line(s) */
+	rwrite(STDERR,p,(int)i),lold=0,free(p);		/* flush the line(s) */
    }
   else						   /* no memory, force flush */
 flush:
