@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.70 1999/04/02 19:33:39 guenther Exp $
+.Id $Id: procmailrc.man,v 1.71 1999/04/13 07:46:07 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -532,6 +532,18 @@ rcfile, users of
 should make sure that only trusted users have write access to the included
 rcfile or the directory it is in.
 .TP
+.B SWITCHRC
+Names an rcfile (relative to the current directory) to which processing
+will be switched.  If the named rcfile doesn't exist or is not a normal
+file or /dev/null then an error will be logged and processing will
+continue in the current rcfile.  Otherwise, processing of the current
+rcfile will be aborted and the named rcfile started.  Unsetting
+.B SWITCHRC
+aborts processing of the current rcfile as if it had ended at the
+assignment.  As with
+.BR INCLUDERC ,
+no checking is done on the permissions or ownership of the rcfile.
+.TP
 .B PROCMAIL_VERSION
 The version number of the running procmail binary.
 .TP
@@ -691,8 +703,8 @@ When the
 or
 .B \-@MAILFILTOPT@
 options are used, "$@" will expand to respectively the specified argument
-(list); but only when passed as in the argument list to a
-program.
+(list); but only when passed as in the argument list to a program, and
+then only one such occurence will be expanded.
 .PP
 Procmail does not support the expansion of `~'.
 .PP

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.77 1999/04/02 19:33:38 guenther Exp $
+.Id $Id: procmail.man,v 1.78 1999/04/13 07:46:06 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -297,12 +297,23 @@ Flag x is not compatible with some other flag on this recipe.
 Couldn't create "x"
 The system mailbox was missing and could not/will not be created.
 .TP
+Couldn't create maildir part "x"
+The maildir folder "x" is missing one or more required subdirectories and
+procmail could not create them.
+.TP
+Couldn't create or rename temp file "x"
+An error occured in the mechanics of  delivering to the directory folder "x".
+.TP
 Couldn't determine implicit lockfile from "x"
 There were no `>>' redirectors to be found, using simply `$LOCKEXT' as
 locallockfile.
 .TP
+Couldn't read "x"
+Procmail was unable to open an rcfile or it was not a regular file, or
+procmail couldn't open an MH directory to find the highest numbered file.
+.TP
 Couldn't unlock "x"
-Lockfile was already gone, or write permission to the directory were the
+Lockfile was already gone, or write permission to the directory where the
 lockfile is has been denied.
 .TP
 Deadlock attempted on "x"
@@ -416,9 +427,16 @@ Program that was started by procmail returned nnn instead of
 EXIT_SUCCESS (=@EX_OK@);
 if nnn is negative, then this is the signal the program died on.
 .TP
+Quota exceeded while writing "x"
+The filesize quota for the recipient on the filesystem containing "x"
+does not permit delivering the message to the file.
+.TP
 Renaming bogus "x" into "x"
 The system mailbox of the recipient was found to be bogus, procmail performed
 evasive actions.
+.TP
+Rescue of unfiltered data succeeded/failed
+A filter returned unsuccessfully, procmail tried to get back the original text.
 .TP
 Skipped: "x"
 Couldn't do anything with "x" in the rcfile (syntax error), ignoring it.
@@ -432,10 +450,6 @@ rcfile was not used).
 .TP
 Terminating prematurely whilst waiting for .\|.\|.
 Procmail received a signal while it was waiting for .\|.\|.
-.TP
-Quota exceeded while writing "x"
-The filesize quota for the recipient on the filesystem containing "x"
-does not permit delivering the message to the file.
 .TP
 Timeout, terminating "x"
 Timeout has occurred on program or filter "x".
@@ -451,8 +465,10 @@ to its former size.
 Truncating "x" and retrying lock
 "x" does not seem to be a valid filename or the file is not empty.
 .TP
-Rescue of unfiltered data succeeded/failed
-A filter returned unsuccessfully, procmail tried to get back the original text.
+Unable to treat as directory "x"
+Either the suffix on "x" would indicate that it should be an MH or
+maildir folder, or it was listed as an second folder into which to link,
+but it already exists and is not a directory.
 .TP
 Unexpected EOL
 Missing closing quote, or trying to escape EOF.

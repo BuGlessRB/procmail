@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.84 1999/04/13 04:50:41 guenther Exp $";
+ "$Id: mailfold.c,v 1.85 1999/04/13 07:46:08 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -205,6 +205,10 @@ int foldertype(chp)char*const chp;
   return to_DIR;		 /* or maybe to_FILE, if it's already a file */
 }
 
+static void direrr(line)const char*const line;
+{ nlog("Unable to treat as directory");logqnl(line);
+}
+
 				       /* open file or new file in directory */
 int writefolder(boxname,linkfolder,source,len,ignwerr)char*boxname,*linkfolder;
  const char*source;long len;const int ignwerr;
@@ -226,9 +230,7 @@ int writefolder(boxname,linkfolder,source,len,ignwerr)char*boxname,*linkfolder;
 	chmod(boxname,stbuf.st_mode|UPDATE_MASK);
      if(!S_ISDIR(stbuf.st_mode))	 /* it exists and is not a directory */
       { if(to_shouldbedir(tofile))
-	 { nlog("File exists: ignoring directory specification on");
-	   logqnl(boxname);
-	 }
+	   direrr(boxname);
 	goto makefile;				/* no, create a regular file */
       }
    }
@@ -319,7 +321,7 @@ failed:	   unlink(buf);lasttell= -1;
 	   chp=strchr(buf,'\0')-1;
 	tofile=foldertype(chp);
 	if(trymkdir(buf))			      /* make sure it exists */
-baddir:	 { nlog("Unable to link into non-directory");logqnl(buf);   /* next! */
+baddir:	 { direrr(buf);						    /* next! */
 	   continue;
 	 }
 	if(numask&&!lstat(buf,&stbuf)&&!(stbuf.st_mode&UPDATE_MASK))
