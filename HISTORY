@@ -491,8 +491,8 @@
 	       - Root owned lockfiles aren't bogus
 	       - A lone trailing '$' wasn't terminated properly when expanded
 	    Changes to formail:
-	       - Replies without the -t flag go to the envelope sender
-	       - Replies without "-a Resent-" and -t flag ignore the
+	       - Replies without the -t option go to the envelope sender
+	       - Replies without "-a Resent-" and -t option ignore the
 		 Resent-* headers
 	       - Prevent corrupt idcaches by suppressing the -n option when
 		 splitting with the -D option
@@ -509,7 +509,7 @@
 	    Changed the form of tempfile names to make them `more' unique
 	     and deal with filename length limits more gracefully
 	    Updated the FAQ and the list of mirrors in the README
-	    Documented the exact behavior of lockfile's -! flag
+	    Documented the exact behavior of lockfile's -! option
 	    Documented the suggested usage of -r vs -rt
 2000/08/25: v3.15
 	    Changes to procmail:
@@ -588,7 +588,7 @@
 	    Changes to lockfile:
 	       - Include the system mailbox lockfile path in the -v output
 	       - Resist attempts to use a setuid lockfile command
-	       - Fix infinite loop on -l, -r, or -s flag with no value
+	       - Fix infinite loop on -l, -r, or -s option with no value
 	    Documented formail's treatment of >From_ lines as continuations
 	       of the From_ line and warned of problems caused by non-RFC822
 	       field names like 'Old-From '
@@ -627,3 +627,4 @@
 	    Changes to procmail:
 	       - Don't coredump in comsat code if interrupted early
 	       - Correctly handle COMSAT=on
+	       - Once used the 'H' flag would never be cleared

@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.183 2001/08/31 04:57:36 guenther Exp $";
+ "$Id: procmail.c,v 1.184 2001/09/14 05:54:19 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -652,8 +652,7 @@ commint:do skipspace();					  /* skip whitespace */
 	      nrcond= -1;
 	   if(tolock)		 /* clear temporary buffer for lockfile name */
 	      free(tolock);
-	   for(i=maxindex(flags);i;i--)			  /* clear the flags */
-	      flags[i]=0;
+	   bbzero(flags,maxindex(flags));		  /* clear the flags */
 	   for(tolock=0,locknext=0;;)
 	    { chp=skpspace(chp);
 	      switch(i= *chp++)
