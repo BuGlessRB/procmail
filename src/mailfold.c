@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.40 1994/01/28 11:57:15 berg Exp $";
+ "$Id: mailfold.c,v 1.41 1994/03/01 13:45:21 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -284,7 +284,10 @@ void readmail(rhead,tobesent)const long tobesent;
      if(rhead)					/* only read in a new header */
       { dfilled=mailread=0;chp=readdyn(malloc(1),&dfilled);filled-=tobesent;
 	if(tobesent<dfilled)		   /* adjust buffer size (grow only) */
-	   themail=realloc(themail,dfilled+filled);
+	 { realstart=themail;
+	   thebody=(themail=realloc(themail,dfilled+filled))+
+	    (thebody-realstart);
+	 }
 	tmemmove(themail+dfilled,thebody,filled);tmemmove(themail,chp,dfilled);
 	free(chp);themail=realloc(themail,1+(filled+=dfilled));
       }

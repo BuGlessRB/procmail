@@ -134,6 +134,8 @@
 		 with the word `procmail'
 	       - Fixed the BSD support for kernel-locking only operation
 	       - Taught the regexp engine about \< and \>
+	       - Fixed bug on NS; caused three bytes to be zeroed when
+		 filtering headers only
 	    Changes to formail:
 	       - Fixed a sender-determination-weight problem, it mixed up
 		 the weights when autoreplying and when regenerating the From_

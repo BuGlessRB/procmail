@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.41 1994/02/22 15:23:00 berg Exp $
+#$Id: rc.request,v 1.42 1994/03/01 13:45:05 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -189,7 +189,11 @@ LOCKFILE				# we don't need the lockfile anymore
 INCLUDERC=$RC_LOCAL_REQUEST_30
 
 :0 wfh
-| formail -A"X-Envelope-To: $X_ENVELOPE_TO" -a"X-Diagnostic: Unprocessed"
+* !^X-(Diagnostic|Processed):
+| formail -A"X-Diagnostic: Unprocessed"
+
+:0 wfh
+| formail -A"X-Envelope-To: $X_ENVELOPE_TO"
 
 #
 # If this list does not have a maintainer e-mail address, drop things in

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.36 1994/02/18 18:43:20 berg Exp $
+.Id $Id: procmailrc.man,v 1.37 1994/03/01 13:45:15 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -119,7 +119,9 @@ completion of the immediately preceding recipe as well.
 .Tp
 .B @ELSE_DO@
 This recipe only executes if the immediately preceding recipe was not
-executed.  This allows you to specify `else' actions.
+executed.  Execution of this recipe also disables any immediately
+following recipes with the '@ELSE_DO@' flag.  This allows you to specify
+`else if' actions.
 The number of conditions that are expected to follow default to none.
 .Tp
 .B @ERROR_DO@

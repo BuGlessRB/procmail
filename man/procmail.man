@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.39 1994/02/18 18:43:17 berg Exp $
+.Id $Id: procmail.man,v 1.40 1994/03/01 13:45:12 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -267,6 +267,9 @@ There was no corresponding opening brace (nesting block).
 .TP
 Conflicting options
 Not all option combinations are useful
+.TP
+Conflicting x suppressed
+Flag x is not compatible with some other flag on this recipe.
 .TP
 Couldn't create "x"
 The system mailbox was missing and could not/will not be created.

@@ -46,7 +46,7 @@
 # rc.out	optional rcfile for any local transformations on outgoing
 #		submissions
 
-#$Id: rc.init,v 1.28 1994/02/22 15:22:58 berg Exp $
+#$Id: rc.init,v 1.29 1994/03/01 13:44:59 berg Exp $
 
 PATH=.:$PATH:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises
@@ -96,6 +96,10 @@ listaddr=$list@$domain
 listreq=$list-request@$domain
 listdist=$list-dist@$domain
 
+alt_sendmail
+#alt_sendmail=yes			# uncomment if $listdist can not be
+					# aliased to expand the dist file
+
 sendmailOPT="-oem -odb -oi -om -f$listreq"
 sendmailOPTp=-oep
 ########################
@@ -114,7 +118,7 @@ sendmailOPTp=-oep
 # understands the -t option of sendmail, then you have to uncomment the
 # following line:
 #
-#sendmailOPT sendmailOPTp SENDMAIL=SedHomeDir/.bin/sendmails
+#sendmailOPT sendmailOPTp SENDMAIL=SedHomeDir/.bin/sendmails alt_sendmail=yes
 #
 ########################
 

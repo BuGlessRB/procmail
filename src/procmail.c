@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.68 1994/02/21 16:57:14 berg Exp $";
+ "$Id: procmail.c,v 1.69 1994/03/01 13:45:26 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -32,7 +32,9 @@ static /*const*/char rcsid[]=
 static const char fdefault[]="DEFAULT",orgmail[]="ORGMAIL",*const nullp,
  sendmail[]="SENDMAIL",From_[]=FROM,exflags[]=RECFLAGS,drcfile[]="Rcfile:",
  systm_mbox[]=SYSTEM_MBOX,pmusage[]=PM_USAGE,DEFdeflock[]=DEFdefaultlock,
- *etcrc=ETCRC,misrecpt[]="Missing recipient\n";
+ *etcrc=ETCRC,misrecpt[]="Missing recipient\n",extrns[]="Extraneous ",
+ ignrd[]=" ignored\n",conflicting[]="Conflicting ",
+ suppressed[]=" suppressed\n";
 char*buf,*buf2,*loclock,*tolock;
 const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
  shellmetas[]="SHELLMETAS",lockext[]="LOCKEXT",newline[]="\n",binsh[]=BinSh,
@@ -119,7 +121,7 @@ last_option:
 	 { mailfilter=0;goto conflopt;
 	 }
 	if(crestarg)				     /* -m will supersede -a */
-conflopt:  nlog("Conflicting options\n"),elog(pmusage);
+conflopt:  nlog(conflicting),elog("options\n"),elog(pmusage);
       }
      if(!Deliverymode)
 	idhint=getenv(lgname);
@@ -555,6 +557,12 @@ commint:   do skipspace();				  /* skip whitespace */
 		  }
 		 concatenate(chp);skipped(chp);break;	/* display leftovers */
 	       }
+	      if(flags[ERROR_DO]&&flags[ELSE_DO])
+		 nlog(conflicting),elog("else-if-flag"),elog(suppressed);
+	      if(flags[ERROR_DO]&&flags[ALSO_N_IF_SUCC])
+	       { nlog(conflicting);elog("also-if-succeeded-flag");
+		 elog(suppressed);
+	       }
 	      if(nrcond<0)    /* assume appropriate default nr of conditions */
 		 nrcond=!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC]&&
 			!flags[ELSE_DO]&&!flags[ERROR_DO];
@@ -756,7 +764,9 @@ skiptrue:;	  }
 	    }
 	   if(!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC])
 	      lastcond=i;		   /* save the outcome for posterity */
-	   prevcond=i;startchar=themail;tobesent=filled;
+	   if(!prevcond||!flags[ELSE_DO])
+	      prevcond=i;	 /* same here, for `else if' like constructs */
+	   startchar=themail;tobesent=filled;
 	   if(flags[PASS_HEAD])			    /* body, header or both? */
 	    { if(!flags[PASS_BODY])
 		 tobesent=thebody-themail;
@@ -834,8 +844,7 @@ forward:	 if(locknext)
 	   else if(testb(EOF))
 	      nlog("Incomplete recipe");
 	   else		   /* dump the mail into a mailbox file or directory */
-	    { static const char extrns[]="Extraneous ",ignrd[]=" ignored\n";
-	      if(flags[FILTER])
+	    { if(flags[FILTER])
 		 flags[FILTER]=0,nlog(extrns),elog("filter-flag"),elog(ignrd);
 	      if(chp=gobenv(buf))	   /* can it be an environment name? */
 	       { if(skipspace())
@@ -858,6 +867,7 @@ forward:	 if(locknext)
 	       (*chp++='{',*chp='\0',testb(' ')||testb('\t')||testb('\n')))
 	       {  if(locknext)
 		    nlog(extrns),elog("locallockfile"),elog(ignrd);
+		 app_val(&ifstack,(off_t)prevcond);	    /* push prevcond */
 		 app_val(&ifstack,(off_t)lastcond);	    /* push lastcond */
 		 if(!i)						/* no match? */
 		    skiprc++;		      /* increase the skipping level */
@@ -915,13 +925,14 @@ frmailed:	  { if(ifstack.offs)
 	    }
 	 }
 	else if(testb('}'))					/* end block */
-	 { prevcond=1;
-	   if(skiprc)					    /* just skipping */
-	      prevcond=0,skiprc--;			   /* decrease level */
-	   if(ifstack.filled)		      /* restore lastcond from stack */
-	      lastcond=ifstack.offs[--ifstack.filled];
+	 { if(ifstack.filled)		      /* restore lastcond from stack */
+	    { lastcond=ifstack.offs[--ifstack.filled];
+	      prevcond=ifstack.offs[--ifstack.filled];	 /* prevcond as well */
+	    }
 	   else
 	      nlog("Closing brace unexpected\n");	      /* stack empty */
+	   if(skiprc)					    /* just skipping */
+	      skiprc--;					   /* decrease level */
 	 }
 	else				    /* then it must be an assignment */
 	 { if(!(chp=gobenv(buf)))

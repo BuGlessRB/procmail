@@ -65,3 +65,7 @@
 	       any
 	    Mail to digested lists will be automatically reposted on the
 	       undigested list (if any)
+	    Provided for an alt_sendmail variable in rc.init, to switch
+	       between the two sendmail invocations
+	    Adding the X-Diagnostic: Unprocessed if no further processing
+	       seems to have taken place

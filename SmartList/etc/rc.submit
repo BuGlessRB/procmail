@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.49 1994/02/24 12:56:38 berg Exp $
+#$Id: rc.submit,v 1.50 1994/03/01 13:45:08 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -189,13 +189,15 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      #
 
      :0 w: dist.lock
+     * $${alt_sendmail:+!}
      ! $sendmailOPT $listdist
 
-     #! $sendmailOPT `sed -e '/^(.*)$/ d' dist` ;
-     # alternate sendmail call (if you don't have file-including aliases)
-     # If you need to use this one, be sure to uncomment its counterpart
-     # in .bin/digest as well!
+     #
+     # Alternate sendmail call (if you don't have file-including aliases)
+     #
 
+     :0 Ew: dist.lock
+     ! $sendmailOPT `sed -e '/^(.*)$/ d' dist` ;
 
      :0 wfh
      | formail -A "X-Diagnostic: $SENDMAIL $listdist failed"
@@ -203,7 +205,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      HOST=continue_with_rc.request
    }
 
-  :0 A wfh
+  :0 E wfh
   | formail -A "X-Diagnostic: Not on the accept list"
 
   :0 A ch
