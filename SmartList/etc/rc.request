@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.14 1993/04/21 15:02:23 berg Exp $
+#$Id: rc.request,v 1.15 1993/04/26 13:36:44 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -27,7 +27,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 :4whc
 < 8192
 $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
-!^Subject:(.*[^a-z])?(Re:|erro|problem|((can)?not|.*n't)([^a-z]|$))
+!^Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)([^a-z]|$))
 !^FROM_DAEMON
 | formail -rt -xTo: >tmp.from
 
@@ -57,7 +57,8 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 #
 
 	:1HBA
-	^^(.+$)*Subject:[	 ]*(archive([^a-z-]|$)|$(.+$)*^[	 ]*\
+	^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
+	 ((archive([	 ]|$))|(archive[	 ]+)?\
 	 ((send|get)(me)?|gimme|retrieve|mail|ls|dir(ectory)?|list|show)\
 	 ([	 ]|$))
 	| arch_retrieve
@@ -67,9 +68,9 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 #
 
 	:1HBA:dist.lock
-	^^(.+$)*Subject:[	 ]*((($.+)*$(^[	 ]*)+)?(remove|unsub)|\
-	 ($(.*$)*)?(.*[^a-z])?(unsubscri|(remove .* from|take .* off) .* list\
-	 ([^a-z]|$)))
+	^^(.+$)*Subject:[	 ]*(($(.+$)*(^[	 ]*)+)?(delete|remove|unsub)|\
+	 ($(.*$)*)?(.*[^a-z])?(unsubscri|\
+	 ((delete|remove) .* from|take .* off) .* list([^a-z]|$)))
 	| unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from`
 
 #
@@ -80,7 +81,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 
 	:3HBA:dist.lock
 	^^(.+$)*Subject:[	 ]*\
-	 ((($.+)*$(^[	 ]*)+)?(add|sub(scri|	| |$)?)|\
+	 (($(.+$)*(^[	 ]*)+)?(add|sub(scri|	| |$)?)|\
 	 ($(.*$)*)?(.*[^a-z])?(subscri|(add .* to|put .* on) .* list\
 	 ([^a-z]|$)))
 	!?multigram -b1 -l$reject_threshold reject
@@ -92,7 +93,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 #
 
 	:1HBA
-	^^(.+$)*Subject:[	 ]*(($.+)*$(^[	 ]*)+)?\
+	^^(.+$)*Subject:[	 ]*($(.+$)*(^[	 ]*)+)?\
 	 [a-z,.	 ]*(help|info(rm(ation)?)?)([^a-z]|$)
 	| (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
 	   cat help.txt) | $SENDMAIL $sendmailOPT -t
@@ -101,7 +102,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 # Check if there is no envelope From_ address, in that case add one.
 #
 
-:fh
+:fhw
 !^^From .
 | formail
 
