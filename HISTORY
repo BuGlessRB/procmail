@@ -298,7 +298,7 @@
 	    Fixed bug in lockfile, the exitcode was not correct if
 	       you used -! (I hope this finally fixes this -! problem)
 	    Using execv() instead of execve()
-1997/04/28: v3.11pre8
+1995/05/17: v3.11pre3
 	    Changes to procmail:
 	       - varname ?? < nnn conditions didn't have the expected effect
 	       - Regression bug since v3.06, procmail -m /etc/procmailrcs
@@ -327,63 +327,13 @@
 	       - Severe tweaking on ^FROM_MAILER and ^FROM_DAEMON to reduce
 		 false matches
 	       - Allow for broken From_ lines with a missing sender address
-	       - Avoid the NFS delay on directory and MH folders
-	       - KEEPENV didn't work reliably for more than one variable
-	       - New macro ^TO_, delimits addresses more accurately than ^TO
-	       - Don't try to fix the system mailbox permissions too soon,
-		 this should put a stop to the numerous confusion reports
-	       - SENDMAILFLAGS, new environment variable
-	       - Support -y as a substitute kludge for -Y
-	       - Fixed parsing of $@' when not doublequoted
-	       - Cater for a race condition that occurs if two procmails
-		 try to create an empty system mailbox (bogus BOGUS.* files)
-	       - SysV autoforwarding mailboxes didn't work, regression bug in
-		 v3.10
-	       - Autocreating the last dirmember of the spooldir didn't
-		 (always?) work due to the trailing /
-	       - Kernel lockf() method doesn't change the position of the
-		 filepointer anymore (results in more accurate lockingtests)
-	       - Multiple directory folders are assigned to LASTFOLDER
-	       - Don't strip leading or trailing \n in a $MATCH
-	       - Refuse to open directories for INCLUDERC files
-	       - Syslog failed -o attempts
-	       - Don't log non-delivering recipes, even with 'c' flag
-	       - Use BOGUS.$LOGNAME.inode for bogus files to ease recovery
-	       - Define RESTRICT_EXEC to restrict execution of programs
-	       - Perform continuous checks on heap overflow
-	       - Catch overly long rcfile names
-	       - new variable PROCMAIL_VERSION
-	       - LOGABSTRACT=all no longer logs filtering or variable capture
-		 actions
 	    Changes to formail:
 	       - Slightly extended the number of known header fields
 	       - Eliminated the conflict with the 4.4BSD daemon libidentifier
-	       - Fix off-by-one error when zapping whitespace
-	    New Makefile variable VISIBLE_BASE
-	    Added support for a parallelising make
-	    Changed manconf.c to cater for broken systems that have a 100 line
-	       limit for sed (instead of a 100 command limit)
-	    Worked around an nroff-coredumping problem with IRIX
-	    Fixed some portability problems with the Makefiles for the OSF make
-	    Changes to formail:
 	       - In an MMDF environment formail -b didn't behave correctly
 	       - Extracted another function from main() to make it smaller
 	       - Process address groups correctly
 	       - Process From_ lines with embedded commas correctly
-	       - Return failure if the autoreply could not find a proper
-		 return address
-	       - Multiple -U options sometimes had unfortunate side effects
-	       - When splitting and a maximum number of messages was being
-		 specified, formail erroneously returned EX_IOERR
-	       - Avoid splitting empty messages
-	       - Skip leading spaces when checking for duplicates (will break
-		 checks with old id-databases)
-	       - Generated Message-IDs don't contain "s anymore
-	       - -z option allows for leading tab instead of space
-	    Worked around old shells not supporting negated classes
-	    Extended the FAQ
-	    Updated examples/advanced docs for meta-argument setup in
-	       a traditional v5.* sendmail setup
 	    Changes to autoconf:
 	       - Catch NeXTstep 3.2 missing DIR definition
 	       - Detect & work around Ultrix 4.3 "ANSI" C compiler
@@ -394,16 +344,77 @@
 	       - Worked around a HERE document quoting bug in some shells
 	       - Fixed the empty argument "shift" problem
 	       - Detect & work around BSD 4.4 brain damaged setrgid()
-	       - If running on a system with good old BSD semantics for
-		 setrgid(), use the extra features offered
-	       - Detect & work around inefficient realloc() implementations
+	    New Makefile variable VISIBLE_BASE
+	    Added support for a parallelising make
+	    Changed manconf.c to cater for broken systems that have a 100 line
+	       limit for sed (instead of a 100 command limit)
+	    Fixed some portability problems with the Makefiles for the OSF make
+	    Worked around old shells not supporting negated classes
+	    Extended the FAQ
+	    Updated examples/advanced docs for meta-argument setup in
+	       a traditional v5.* sendmail setup
 	    Fixed potential memory corruption bug for machines that have
 	       sizeof(off_t)>sizeof(off_t*) (has been around for ages)
 	    The man pages were remade upon every make, fixed
+1995/10/29: v3.11pre4
+	    Changes to procmail:
+	       - Avoid the NFS delay on directory and MH folders
+	       - KEEPENV didn't work reliably for more than one variable
+	       - New macro ^TO_, delimits addresses more accurately than ^TO
+	       - Don't try to fix the system mailbox permissions too soon,
+		 this should put a stop to the numerous confusion reports
+	       - SENDMAILFLAGS, new environment variable
+	       - Support -y as a substitute kludge for -Y
+	       - Fixed parsing of $@' when not doublequoted
+	    Changes to formail:
+	       - Return failure if the autoreply could not find a proper
+		 return address
+	       - Multiple -U options sometimes had unfortunate side effects
+	       - When splitting and a maximum number of messages was being
+		 specified, formail erroneously returned EX_IOERR
+	       - Avoid splitting empty messages
+	    Changes to autoconf:
+	       - If running on a system with good old BSD semantics for
+		 setrgid(), use the extra features offered
 	    Changed the Mprocmail example, use $g instead of $f
+1997/04/28: v3.11pre7
+	    Changes to procmail:
+	       - Cater for a race condition that occurs if two procmails
+		 try to create an empty system mailbox (bogus BOGUS.* files)
+	       - SysV autoforwarding mailboxes didn't work, regression bug in
+		 v3.10
+	       - Autocreating the last dirmember of the spooldir didn't
+		 (always?) work due to the trailing /
+	       - Kernel lockf() method doesn't change the position of the
+		 filepointer anymore (results in more accurate lockingtests)
+	       - Multiple directory folders are assigned to LASTFOLDER
+	       - Don't strip trailing \n in a $MATCH
+	       - Refuse to open directories for INCLUDERC files
+	       - Syslog failed -o attempts
+	       - Don't log non-delivering recipes, even with 'c' flag
+	    Changes to formail:
+	       - Skip leading spaces when checking for duplicates (will break
+		 checks with old id-databases)
+	    Worked around an nroff-coredumping problem with IRIX
 	    Corrected the last(?) "make -n" glitch
 	    Fixed library detection loop for some Solaris 2.[3-5] setups
 	    Changes to procmail and lockfile: use the authenticate library
 	       for easier integration with custom authentication and mailbox
 	       locations
+1997/04/28: v3.11pre8
+	    Changes to procmail:
+	       - Use BOGUS.$LOGNAME.inode for bogus files to ease recovery
+	       - Define RESTRICT_EXEC to restrict execution of programs
+	       - Perform continuous checks on heap overflow
+	       - Catch overly long rcfile names
+	       - new variable PROCMAIL_VERSION
+	       - LOGABSTRACT=all no longer logs filtering or variable capture
+		 actions
+	       - Don't strip leading \n in a $MATCH
+	    Changes to formail:
+	       - Generated Message-IDs don't contain "s anymore
+	       - Fix off-by-one error when zapping whitespace
+	       - -z option allows for leading tab instead of space
+	    Changes to autoconf:
+	       - Detect & work around inefficient realloc() implementations
 	    Mailstat returns grand totals as well now

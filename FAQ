@@ -270,6 +270,8 @@ http://www.cis.ohio-state.edu/hypertext/faq/usenet/mail/filtering-faq/faq.html
 	at which time formail will be updated to work with both the new
 	and the old standards.
 
+	Individual recipes and rcfiles may need to be checked for
+	unsafe date handling.
 
 19. None of the above topics cover my problem.	Should I panic?
 
