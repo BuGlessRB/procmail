@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.archive,v 1.7 1994/02/18 18:43:08 berg Exp $
+#$Id: rc.archive,v 1.8 1994/02/22 15:22:55 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -28,7 +28,13 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 /dev/null
 
 :0 h
-* $^FROM_DAEMON|^X-Loop: $listaddr
+* !^X-Loop: $listaddr
+* $$daemon_bias
+* -100^0 ^FROM_DAEMON
+* 1^0
+{ }
+
+:0 Eh
 /dev/null
 
 #
