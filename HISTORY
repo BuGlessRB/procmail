@@ -243,6 +243,8 @@
 		 procmail omit the check for a system mailbox
 	       - Allow easy reconfiguration of the default rcfile location
 	       - Extend the list of internals displayed with -v
+	       - The mail fed to the TRAP command contained some spurious
+		 nul characters, fixed
 	    Optionally allow the automatic installation of compressed man pages
 	    Formail v3.00 and later occasionally seemed to hang if used in
 	       a chain of pipes and fed with more text than it needed, fixed

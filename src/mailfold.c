@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.54 1994/08/12 17:34:06 berg Exp $";
+ "$Id: mailfold.c,v 1.55 1994/08/23 12:16:12 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -201,24 +201,26 @@ void logabstract(lstfolder)const char*const lstfolder;
 { if(lgabstract>0||logopened&&lgabstract)  /* don't mail it back unrequested */
    { char*chp,*chp2;int i;static const char sfolder[]=FOLDER;
      if(mailread)			  /* is the mail completely read in? */
-      { *thebody='\0';		       /* terminate the header, just in case */
+      { i= *thebody;*thebody='\0';     /* terminate the header, just in case */
 	if(eqFrom_(chp=themail))		       /* any "From " header */
 	 { if(chp=strchr(themail,'\n'))
-	      *chp++='\0';
+	      *chp='\0';
 	   else
 	      chp=thebody;			  /* preserve mailbox format */
-	   elog(themail);elog(newline);			     /* (any length) */
+	   elog(themail);elog(newline);*chp='\n';	     /* (any length) */
 	 }
+	*thebody=i;			   /* eliminate the terminator again */
 	if(!(lcking&lck_ALLOCLIB)&&		/* don't reenter malloc/free */
 	 (chp=egrepin(NSUBJECT,chp,(long)(thebody-chp),0)))
-	 { for(chp2= --chp;*--chp2!='\n'&&*chp2;);
-	   if(chp-++chp2>MAXSUBJECTSHOW)	    /* keep it within bounds */
-	      chp2[MAXSUBJECTSHOW]='\0';
-	   *chp='\0';detab(chp2);elog(" ");elog(chp2);elog(newline);
+	 { size_t subjlen;
+	   for(chp2= --chp;*--chp2!='\n';);
+	   if((subjlen=chp-++chp2)>MAXSUBJECTSHOW)
+	      subjlen=MAXSUBJECTSHOW;		    /* keep it within bounds */
+	   ((char*)tmemmove(buf,chp2,subjlen))[subjlen]='\0';detab(buf);
+	   elog(" ");elog(buf);elog(newline);
 	 }
       }
-     elog(sfolder);
-     i=strlen(strncpy(buf,lstfolder,MAXfoldlen))+STRLEN(sfolder);
+     elog(sfolder);i=strlen(strncpy(buf,lstfolder,MAXfoldlen))+STRLEN(sfolder);
      buf[MAXfoldlen]='\0';detab(buf);elog(buf);i-=i%TABWIDTH;	/* last dump */
      do elog(TABCHAR);
      while((i+=TABWIDTH)<LENoffset);

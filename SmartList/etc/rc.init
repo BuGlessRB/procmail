@@ -37,8 +37,8 @@
 #		the various info.txt files are optionally gathered in
 #		order to advertise the availability of the mailinglists
 # subscribe.txt file sent to new subscribers
-# subscribe.file file containing an arbitrary number of archive server commands
-#		to be executed on behalf of new subscribers
+# subscribe.files file containing an arbitrary number of archive server
+#		commands to be executed on behalf of new subscribers
 # unsubscribe.txt file sent to unsubscribers
 # accept.txt	file sent to people not on the accept list
 # archive.txt	file sent to people requesting help from the archive server
@@ -52,7 +52,7 @@
 #		conjunction with the RC_LOCAL_* variables which can be set
 #		in rc.init or rc.custom files)
 
-#$Id: rc.init,v 1.37 1994/06/30 16:30:32 berg Exp $
+#$Id: rc.init,v 1.38 1994/08/23 12:16:00 berg Exp $
 
 DELIVERED=yes	# we're in control of the mail now, tell sendmail to go away
 

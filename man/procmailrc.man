@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.45 1994/08/18 13:44:44 berg Exp $
+.Id $Id: procmailrc.man,v 1.46 1994/08/23 12:16:05 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -20,19 +20,43 @@ of which have special meanings to procmail), and recipes.  In their most
 simple appearance, the recipes are simply one line regular expressions
 that are searched for in the header of the arriving mail, the first recipe
 that matches is used to determine where the mail has to go (usually a file).
-.PP
-If a matching recipe does not specify any special flags (like `@FILTER@' or
-`@CONTINUE@') and the recipe is successful (i.e. no write failures or other
-calamities), then processing of the rcfile will cease at this point, and
-procmail will consider the mail to have been delivered.  If processing falls
-off the end of the rcfile, procmail will deliver the mail to
+If processing falls off the end of the rcfile, procmail will deliver the mail
+to
 .BR $DEFAULT .
 .PP
-This enables you to presort your mail extremely straightforward into several
-mailfolders.  Bear in mind though that the mail can arrive concurrently in
-these mailfolders (if several procmail programs happen to run at the same time,
-not unlikely if a lot of mail arrives), to make sure this does not result in a
-mess, proper use of lockfiles is highly recommended.
+There are two kinds of recipes: delivering and non-delivering recipes.
+If a
+.I delivering recipe
+is found to match, procmail considers the mail (you guessed it) delivered and
+will
+.I cease processing
+the rcfile after executing the action line of the recipe.
+If a
+.I non-delivering recipe
+is found to match, processing of the rcfile will
+.I continue
+after the action line of this recipe has been executed.
+.PP
+Delivering recipes are those that cause header and/or body of the mail to
+be written into a file, to be absorbed by a program or to be forwarded
+to a mailaddress.
+.PP
+Non-delivering recipes are those that cause the output of a program or
+filter to be captured or that mark the start of a nesting block.
+.PP
+You can tell procmail to treat a
+.I delivering recipe
+as if it were a non-delivering recipe by specifying the `@CONTINUE@' flag on
+such a recipe.  This will make procmail
+.I continue
+processing the rcfile even if it just delivered to this recipe.
+.PP
+By using any number of recipes you can presort your mail extremely
+straightforward into several mailfolders.  Bear in mind though that the mail
+can arrive concurrently in these mailfolders (if several procmail programs
+happen to run at the same time, not unlikely if a lot of mail arrives), to
+make sure this does not result in a mess, proper use of lockfiles is highly
+recommended.
 .PP
 The environment variable
 .B assignments
