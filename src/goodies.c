@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.56 1999/02/16 21:13:38 guenther Exp $";
+ "$Id: goodies.c,v 1.57 1999/03/30 06:05:41 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -46,7 +46,7 @@ static const char*evalenv P((void))	/* expects the variable name in buf2 */
 int readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
  const int sarg;
 { static int i,skipbracelev,bracegot;int got,bracelev,qbracelev,overflow;
-  char*startb,*const fencepost=buf+linebuf-XTRAlinebuf,
+  charNUM(num,long),*startb,*const fencepost=buf+linebuf-XTRAlinebuf,
      *const fencepost2=buf2+linebuf-XTRAlinebuf;
   static char*skipback;static const char*oldstartb;
   overflow=bracelev=qbracelev=0;All_args=0;
@@ -242,13 +242,13 @@ closebrace:	       if(!startb)
 			  startb="";
 		  }
 		 goto ibreak;					  /* $$ =pid */
-	      case '$':ultstr(0,(unsigned long)thepid,startb);
+	      case '$':ultstr(0,(unsigned long)thepid,startb=num);
 		 goto ieofstr;
-	      case '?':ltstr(0,(long)lexitcode,startb);
+	      case '?':ltstr(0,(long)lexitcode,startb=num);
 		 goto ieofstr;
-	      case '#':ultstr(0,(unsigned long)crestarg,startb);
+	      case '#':ultstr(0,(unsigned long)crestarg,startb=num);
 		 goto ieofstr;
-	      case '=':ltstr(0,lastscore,startb);
+	      case '=':ltstr(0,lastscore,startb=num);
 ieofstr:	 i='\0';
 		 goto copyit;
 	      case '_':startb=incnamed?incnamed->ename:"";

@@ -241,3 +241,6 @@
 	    Recognize more queue warning messages
 	    Obtain the SmartList version number directly from patchlevel.h
 	    Concatenate the header and body in a more efficient manner
+	    Changes to multigram:
+	       - Correctly locate '@' in addresses to look for `close' domains
+	       - choplist wasn't counting addresses correctly
