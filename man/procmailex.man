@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.34 1994/08/12 17:33:44 berg Exp $
+.Id $Id: procmailex.man,v 1.35 1994/08/24 17:27:07 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -115,21 +115,22 @@ mail) into the file postm, using postm.lock as the locallockfile.
 postm
 .Ex
 A simple autoreply recipe.  It makes sure that neither mail from any daemon
-(like bouncing mail or mail from mailing-lists), nor mail coming from yourself
-will be autoreplied.  If this precaution would not be taken, disaster could
-result (`ringing' mail).  In order for this recipe to autoreply to all the
-incoming mail, you should of course insert it before all other recipes in your
-rcfile.  However, it is advisable to put it
+(like bouncing mail or mail from mailing-lists), nor autoreplies coming from
+yourself will be autoreplied to.  If this precaution would not be taken,
+disaster could result (`ringing' mail).  In order for this recipe to autoreply
+to all the incoming mail, you should of course insert it before all other
+recipes in your rcfile.  However, it is advisable to put it
 .I after
 any recipes that process the mails from subscribed mailinglists; it generally
 is not a good idea to generate autoreplies to mailinglists (yes, the
 !^FROM_DAEMON regexp should already catch those, but if the mailinglist
 doesn't follow accepted conventions, this might not be enough).
-.Sx 4
+.Sx 6
 :0 @PASS_HEAD@ @CONTINUE@
 * !^FROM_DAEMON
-* !^@FROM@+YOUR_USERNAME
-| (formail \-@FM_REPLY@ \-@FM_ADD_ALWAYS@"Precedence: junk";\e
+* !^X-Loop: your@own.mail.address
+| (formail \-@FM_REPLY@ \-@FM_ADD_ALWAYS@"Precedence: junk" \e
+    \-@FM_ADD_ALWAYS@"X-Loop: your@own.mail.address" ; \e
    echo "Mail received.") | $SENDMAIL \-t
 .Ex
 A more complicated autoreply recipe that implements the functional equivalent
@@ -145,12 +146,12 @@ database and an autoreply will be sent.  To reliably extract the name of the
 sender, I let formail generate an autoreply header (thereby making it figure
 out the most appropriate sender address), and then telling it to extract the
 value of the `To:' field.
-.Sx 17
+.Sx 19
 SHELL=/bin/sh    # for other shells, this might need adjustment
 
 :0
 * !^FROM_DAEMON
-* !^@FROM@+YOUR_USERNAME
+* !^X-Loop: your@own.mail.address
 {
   FROM=`formail \-@FM_REPLY@@FM_EXTRACT@ To:`
   ALREADYSENT=$HOME/vacation     # the vacation database
@@ -158,11 +159,12 @@ SHELL=/bin/sh    # for other shells, this might need adjustment
   :0 @CONTINUE@:                       # the lockfile is important
   * !? fgrep \-e "$FROM" $ALREADYSENT
   | echo $FROM >>$ALREADYSENT; \e
-    (formail \-@FM_REPLY@@FM_ADD_ALWAYS@"Precedence: junk"; \e
-      echo "I received your mail,"; \e
-      echo "but I won't be back until Monday."; \e
-      echo "-- "; cat $HOME/.signature \e
-    ) | $SENDMAIL \-t
+    (formail \-@FM_REPLY@@FM_ADD_ALWAYS@"Precedence: junk" \e
+       \-@FM_ADD_ALWAYS@"X-Loop: your@own.mail.address" ; \e
+     echo "I received your mail,"; \e
+     echo "but I won't be back until Monday."; \e
+     echo "-- "; cat $HOME/.signature \e
+    ) | $SENDMAIL \-oi \-t
 }
 .Ex
 Store all messages concerning TeX in separate, unique filenames, in a directory

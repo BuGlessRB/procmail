@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.42 1994/08/18 13:45:22 berg Exp $";
+ "$Id: regexp.c,v 1.43 1994/08/24 17:27:17 berg Exp $";
 #endif
 #include "includes.h"
 #include "robust.h"
@@ -399,9 +399,9 @@ struct eps*bregcomp(a,ign_case)const char*const a;const unsigned ign_case;
 #define PC(this,t)	(*(struct eps**)((char*)(this)+(t)))
 
 static void cleantail(thiss,th1)register struct eps*thiss;const unsigned th1;
-{ register struct eps*reg;
-  while(thiss=PC(reg=thiss,th1))		   /* wipe out list till you */
-     PC(reg,th1)=0,reg=reg->next;			    /* reach tswitch */
+{ register struct eps**reg;
+  while(thiss= *(reg= &PC(thiss,th1)))		   /* wipe out list till you */
+     *reg=0;						    /* reach tswitch */
 }
 
 char*bregexec(code,text,str,len,ign_case)struct eps*code;
