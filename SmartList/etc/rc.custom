@@ -20,10 +20,15 @@ maintainer	=
 
 #reject_threshold=	$match_threshold # to determine if you may subscribe
 #submit_threshold=	$match_threshold # to determine if you may submit
-#foreign_submit =	not		# uncomment this assignment if you
+#foreign_submit =	yes
+##foreign_submit			# uncomment this line if you
 					# *don't* want to allow
 					# non-subscribers to submit
 
 #X_COMMAND	=	X-Command
 #X_COMMAND_PASSWORD =			# put the password for
 					# X-Command mails here
+
+RC_CUSTOM				# clear this one from the environment
+					# so that we include this file only
+					# once

@@ -6,7 +6,7 @@
 # shortly before writing out the new version of this file (remove the lockfile
 # afterwards of course)
 
-#$Id: rc.request,v 1.5 1993/01/20 14:24:55 berg Exp $
+#$Id: rc.request,v 1.6 1993/01/20 15:10:42 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -140,7 +140,7 @@ $^X-Loop: $listaddr
 	| formail -A "X-Diagnostic: Already on the subscriber list" \
 	   -A "X-Diagnostic: `multigram -b1 -l$reject_threshold dist`"
 
-|0fh
+:0fh
 | formail -A"X-Envelope-To: $X_ENVELOPE_TO"
 
 #
