@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.124 1998/12/17 07:32:07 guenther Exp $";
+ "$Id: procmail.c,v 1.125 1998/12/17 07:41:11 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -73,8 +73,6 @@ ret: return spass;
 
 #if 1
 #define wipetcrc()	(etcrc&&(etcrc=0,closerc(),1))
-#undef fdefault
-#define fdefault	(*(const char*volatile*)&strenstr[6].sval)
 #else
 static int wipetcrc P((void))	  /* stupid function to avoid a compiler bug */
 { if(etcrc)
