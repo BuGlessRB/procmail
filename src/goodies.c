@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.47 1998/11/06 05:35:31 guenther Exp $";
+ "$Id: goodies.c,v 1.48 1998/11/18 03:41:15 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -49,6 +49,7 @@ void readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
   char*startb,*const fencepost=buf+linebuf-XTRAlinebuf;
   static char*skipback;static const char*oldstartb;
   warned=bracelev=qbracelev=0;All_args=0;
+  fencepost[1]='\0';
   for(got=NOTHING_YET;;)		    /* buf2 is used as scratch space */
 loop:
    { i=fgetc();
@@ -296,8 +297,7 @@ simplsplit: { if(sarg)
 	       }
 	    }
 	   else
-copyit:	    { strncpy(p,startb,fencepost-p-1);		   /* simply copy it */
-	      *fencepost='\0';
+copyit:	    { strncpy(p,startb,fencepost-p+1);		   /* simply copy it */
 eofstr:	      if(got<=SKIPPING_SPACE)		/* can only occur if sarg!=0 */
 		 got=NORMAL_TEXT;
 	      p=strchr(p,'\0');
