@@ -1,6 +1,11 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: delink,v 1.1 1993/01/15 16:59:55 berg Exp $
+#########################################################################
+#	delink		Gracefully disconnects a hardlinked file	#
+#									#
+#	Created by S.R. van den Berg, The Netherlands			#
+#########################################################################
+#$Id: delink,v 1.2 1993/05/05 13:05:38 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test

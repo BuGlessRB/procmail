@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.32 1993/04/27 17:34:10 berg Exp $";
+ "$Id: procmail.c,v 1.33 1993/05/05 13:06:33 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -41,7 +41,7 @@ const char shellflags[]="SHELLFLAGS",shell[]="SHELL",lockfile[]="LOCKFILE",
  *defdeflock;
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EX_OK,sh,pwait,lcking,rc=rc_INIT,
- ignwerr,lexitcode=EX_OK,asgnlastf;
+ ignwerr,lexitcode=EX_OK,asgnlastf,accspooldir;
 size_t linebuf=mx(DEFlinebuf+XTRAlinebuf,STRLEN(systm_mbox)<<1);
 volatile int nextexit;			       /* if termination is imminent */
 pid_t thepid;
@@ -249,7 +249,8 @@ Setuser:
      *	do we need sgidness to access the mail-spool directory/files?
      */
      if(!stat(buf,&stbuf))
-      { if((uid!=stbuf.st_uid&&stbuf.st_gid==getegid()||(rc=rc_NOSGID,0))&&
+      { accspooldir=stbuf.st_mode&(S_IWGRP|S_IWOTH);
+	if((uid!=stbuf.st_uid&&stbuf.st_gid==getegid()||(rc=rc_NOSGID,0))&&
 	 (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH))==(S_IWGRP|S_IXGRP))
 	 { umask(INIT_UMASK&~S_IRWXG);goto keepgid;	  /* group-writeable */
 	 }
@@ -623,7 +624,9 @@ noloclock:    inittmout(buf);asgnlastf=1;
 nomore_rc:
   concon('\n');succeed=0;
   if(*(chp=(char*)tgetenv(fdefault)))			     /* DEFAULT set? */
-   { setuid(uid);firstchd();asenvcpy((char*)DEFdeflock);    /* implicit lock */
+   { setuid(uid);firstchd();
+     if(strcmp(chp,devnull))			     /* don't lock /dev/null */
+	asenvcpy((char*)DEFdeflock);			    /* implicit lock */
      if(dump(deliver(chp,(char*)0),themail,filled))		  /* default */
 	writeerr(buf);
      else

@@ -5,10 +5,18 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.16 1993/04/27 17:33:34 berg Exp $
+#$Id: rc.request,v 1.17 1993/05/05 13:05:49 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
+
+#
+# Check if there is no envelope From_ address, in that case add one.
+#
+
+:wfh
+!^^From .
+| formail
 
 LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 			# also makes sure that the load doesn't go sky-high
@@ -28,7 +36,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 < 8192
 $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 !^Subject:(.*[^a-z])?(Re:|erro|change|problem|((can)?not|.*n't)([^a-z]|$))
-!^FROM_DAEMON
+!^FROM_DAEMON|^^From foo@bar .
 | formail -rt -xTo: >tmp.from
 
 #
@@ -99,14 +107,6 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 	   cat help.txt) | $SENDMAIL $sendmailOPT -t
 
 #
-# Check if there is no envelope From_ address, in that case add one.
-#
-
-:wfh
-!^^From .
-| formail
-
-#
 # Could it be a bounce message from a daemon?  Hand it down to procbounce
 # which will evaluate it.
 #
@@ -143,7 +143,7 @@ LOCKFILE				# we don't need the lockfile anymore
 | formail -A "X-Diagnostic: Submission size exceeds $size_limit bytes"
 
 :wfh
-^FROM_DAEMON
+^FROM_DAEMON|^^From foo@bar .
 | formail -A "X-Diagnostic: Mail coming from a daemon, ignored"
 
 :HB wfh

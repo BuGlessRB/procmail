@@ -1,4 +1,4 @@
-.Id $Id: formail.man,v 1.9 1993/04/27 17:33:39 berg Exp $
+.Id $Id: formail.man,v 1.10 1993/05/05 13:05:52 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -8,6 +8,8 @@ formail \- mail (re)formatter
 .RI [ "\fB\@FM_SKIP@\fPskip" ]
 .RI [ "\fB\@FM_TOTAL@\fPtotal" ]
 .RB [ \-@FM_BOGUS@@FM_CONCATENATE@@FM_FORCE@@FM_REPLY@@FM_KEEPB@@FM_TRUST@@FM_NOWAIT@@FM_EVERY@@FM_DIGEST@@FM_QUIET@ ]
+.RB [ \-@FM_QPREFIX@
+.IR prefix ]
 .RB [ \-@FM_MINFIELDS@
 .IR "min fields" ]
 .if n .ti +0.5i
@@ -53,6 +55,9 @@ bogus `@FROM@' lines with a `@ESCAP@'.
 .Tp 0.5i
 .B \-@FM_BOGUS@
 Don't escape any bogus mailbox headers (i.e. lines starting with `@FROM@').
+.Tp
+.I "\fB\-@FM_QPREFIX@\fP prefix"
+Define a different quotation prefix.  If unspecified it defaults to `@ESCAP@'.
 .Tp
 .B \-@FM_CONCATENATE@
 Concatenate continued fields in the header.  Might be convenient when

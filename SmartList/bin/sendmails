@@ -1,0 +1,42 @@
+#! /bin/sh
+: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+#########################################################################
+#	sendmails	Poor man's sendmail.				#
+#									#
+#	If you only have /bin/mail and lack a sendmail compatible	#
+#	mailer.								#
+#									#
+#	Created by S.R. van den Berg, The Netherlands			#
+#########################################################################
+#$Id: sendmails,v 1.1 1993/05/05 13:05:40 berg Exp $
+
+test=test		# /bin/test
+echo=echo		# /bin/echo
+sed=sed			# /bin/sed
+rm=rm			# /bin/rm
+formail=formail		# /usr/local/bin/formail
+
+sendmail=/bin/mail		# Your substitute sendmail
+
+SMparseheader=no
+
+while $test $# != 0 &&
+  case "$1" in
+     -t) SMparseheader=yes;;	# We only parse the -t option
+     -*) ;;			# Ignore all other options
+     *) $test a = b;;		# False!
+  esac
+do
+  shift
+done
+
+if $test $SMparseheader = yes
+then
+  umask 077
+  TMPF=/tmp/sms.$$
+  trap "$rm -f $TMPF;exit 1" 1 2 3 15
+  $sendmail $* `$sed -n -e "w $TMPF" -e '1,/^$/ p' | $formail -xTo:` <$TMPF
+  $rm -f $TMPF
+else
+  exec $sendmail $*
+fi

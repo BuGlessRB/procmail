@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.22 1993/04/21 15:01:56 berg Exp $*/
+/*$Id: config.h,v 1.23 1993/05/05 13:05:24 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -82,7 +82,7 @@
 	     /* == 0666, normal mode bits used to create files, before umask */
 #define NORMdirperm	(S_IRWXU|S_IRWXG|S_IRWXO)		  /* == 0777 */
 #define LOCKperm	0	  /* mode bits used while creating lockfiles */
-#define MAX_LOCK_SIZE	0	  /* lockfiles are expected not to be longer */
+#define MAX_LOCK_SIZE	16	  /* lockfiles are expected not to be longer */
 #ifndef SMALLHEAP
 #define DEFlinebuf	2048		 /* default max expanded line length */
 #define BLKSIZ		16384		  /* blocksize while reading/writing */
@@ -199,7 +199,7 @@ Post(ma(st(er)?|n)|office)|Mailer|daemon|mmdf|root|uucp|serv(ices?|er))\
 #define IGNORE_WRITERR		    11
 
 #define UNIQ_PREFIX	'_'	  /* prepended to temporary unique filenames */
-#define ESCAP		'>'
+#define ESCAP		">"
 
 		/* some formail-specific configuration options: */
 
@@ -209,6 +209,7 @@ Post(ma(st(er)?|n)|office)|Mailer|daemon|mmdf|root|uucp|serv(ices?|er))\
 #define FM_SKIP		'+'		      /* skip the first nnn messages */
 #define FM_TOTAL	'-'	    /* only spit out a total of nnn messages */
 #define FM_BOGUS	'b'			 /* leave bogus Froms intact */
+#define FM_QPREFIX	'p'			  /* define quotation prefix */
 #define FM_CONCATENATE	'c'	      /* concatenate continued header-fields */
 #define FM_FORCE	'f'   /* force formail to accept an arbitrary format */
 #define FM_REPLY	'r'		    /* generate an auto-reply header */
@@ -230,10 +231,11 @@ Post(ma(st(er)?|n)|office)|Mailer|daemon|mmdf|root|uucp|serv(ices?|er))\
 #define FM_DEL_INSERT	'I'			/* delete and insert a field */
 #define FM_ReNAME	'R'				   /* rename a field */
 #define FM_USAGE	"\
-Usage: formail [+nnn] [-nnn] [-bcfrktnedq] [-m nnn] [-l folder]\
- [-xXaAiI field]\n\t[-R ofield nfield] [-s prg arg ...]\n"
+Usage: formail [+nnn] [-nnn] [-bcfrktnedq] [-p prefix] [-m nnn] [-l folder]\n\
+\t[-xXaAiI field] [-R ofield nfield] [-s prg arg ...]\n"
 #define FM_HELP		\
  "\t-b\tdon't escape bogus mailbox headers\
+\n\t-p prefix\tdefine quotation prefix\
 \n\t-c\tconcatenate continued header-fields\
 \n\t-f\tforce formail to pass along any non-mailbox format\
 \n\t-r\tgenerate an auto-reply header, preserve fields with -i\

@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.20 1993/04/13 15:44:08 berg Exp $*/
+/*$Id: includes.h,v 1.21 1993/05/05 13:06:23 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -8,9 +8,6 @@
 
 #ifndef _HPUX_SOURCE
 #define _HPUX_SOURCE	      /* sad, but needed on HP-UX when compiling -Aa */
-#endif
-#ifndef _CONVEX_SOURCE
-#define _CONVEX_SOURCE			  /* same story with Convex and -std */
 #endif
 
 #include <sys/types.h>		/* pid_t mode_t uid_t gid_t */

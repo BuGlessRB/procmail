@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.22 1993/04/27 17:33:59 berg Exp $";
+ "$Id: formail.c,v 1.23 1993/05/05 13:06:15 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/04/27 17:33:59 $";
+static /*const*/char rcsdate[]="$Date: 1993/05/05 13:06:15 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -117,7 +117,8 @@ static PROGID;
 main(lastm,argv)const char*const argv[];
 { int i,split=0,force=0,bogus=1,every=0,areply=0,trust=0,digest=0,nowait=0,
    keepb=0,minfields=(char*)progid-(char*)progid,conctenate=0;
-  size_t j,lnl;char*chp,*namep;struct field*fldp,*fp2,**afldp,*fdate;
+  size_t j,lnl,escaplen;char*chp,*namep,*escap=ESCAP;
+  struct field*fldp,*fp2,**afldp,*fdate;
   if(lastm)			       /* sanity check, any argument at all? */
 #define Qnext_arg()	if(!*chp&&!(chp=(char*)*++argv))goto usg
      while(chp=(char*)*++argv)
@@ -158,6 +159,7 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		  }
 		 continue;
 	      case FM_BOGUS:bogus=0;continue;
+	      case FM_QPREFIX:Qnext_arg();escap=chp;break;
 	      case FM_ADD_IFNOT:case FM_ADD_ALWAYS:case FM_REN_INSERT:
 	      case FM_DEL_INSERT:case FM_EXTRACT:case FM_EXTRC_KEEP:
 	      case FM_ReNAME:Qnext_arg();
@@ -195,7 +197,7 @@ invfield:	     { nlog("Invalid field-name:");logqnl(chp?chp:"");
 	 }
       }
 parsedoptions:
-  mystdout=stdout;signal(SIGPIPE,SIG_IGN);
+  escaplen=strlen(escap);mystdout=stdout;signal(SIGPIPE,SIG_IGN);
   if(split)
    { oldstdout=dup(STDOUT);fclose(stdout);startprog((const char*Const*)argv);
      if(!minfields)			       /* no user specified minimum? */
@@ -383,7 +385,7 @@ fromanyway:
 	    *pstrspn(chp+k," \t")!='\n')
 	      goto accuhdr;		     /* ok, postmark found, split it */
 	   if(bogus)						   /* disarm */
-	      lputcs(ESCAP);
+	      lputssn(escap,escaplen);
 	 }
 	else if(split&&digest&&(lnl||every)&&digheadr())	  /* digest? */
 accuhdr: { for(i=minfields;--i&&readhead()&&digheadr(););   /* found enough? */
@@ -428,7 +430,10 @@ putsp:	lputcs(' ');
 	   rdheader=0;
 	   do			       /* careful, they can contain newlines */
 	    { fp2=fldp->fld_next;chp=fldp->fld_text;
-	      do lputcs(ESCAP),lputssn(chp,(p=strchr(chp,'\n')+1)-chp);
+	      do
+	       { lputssn(escap,escaplen);
+		 lputssn(chp,(p=strchr(chp,'\n')+1)-chp);
+	       }
 	      while((chp=p)<fldp->fld_text+fldp->tot_len);
 	      free(fldp);					/* delete it */
 	    }
@@ -436,7 +441,7 @@ putsp:	lputcs(' ');
 	 }
 	else
 	 { if(buffilled>1)	  /* we don't escape empty lines, looks neat */
-	      lputcs(ESCAP);
+	      lputssn(escap,escaplen);
 	   goto flbuf;
 	 }
      else if(rdheader)

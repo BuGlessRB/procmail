@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.25 1993/04/21 16:38:22 berg Exp $";
+ "$Id: mailfold.c,v 1.26 1993/05/05 13:06:28 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -31,11 +31,11 @@ static volatile mailread;	/* if the mail is completely read in already */
 static struct dyna_long escFrom_,confield;	  /* escapes, concatenations */
 			       /* inserts escape characters on outgoing mail */
 static long getchunk(s,fromw,len)const int s;const char*fromw;const long len;
-{ long dist,dif;int i;static char esc[]={ESCAP};
+{ long dist,dif;int i;static const char esc[]=ESCAP;
   dist=fromw-themail;			/* where are we now in transmitting? */
   for(dif=len,i=0;i<escFrom_.filled;)	    /* let's see if we can find this */
      if(!(dif=escFrom_.offs[i++]-dist))			 /* this exact spot? */
-      { rwrite(s,esc,sizeof esc);lastdump++;			/* escape it */
+      { rwrite(s,esc,STRLEN(esc));lastdump++;			/* escape it */
 	if(i>=escFrom_.filled)				      /* last block? */
 	   return len;				/* yes, give all what's left */
 	dif=escFrom_.offs[i]-dist;break;	     /* the whole next block */

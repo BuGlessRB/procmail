@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.11 1993/04/21 15:02:44 berg Exp $*/
+/*$Id: procmail.h,v 1.12 1993/05/05 13:06:37 berg Exp $*/
 
 #include "includes.h"
 
@@ -58,7 +58,8 @@ extern const char shellflags[],shell[],lockfile[],lockext[],newline[],binsh[],
  devnull[],lgname[],executing[],oquote[],cquote[],whilstwfor[],procmailn[],
  Mail[],home[],maildir[],*defdeflock;
 extern long filled;
-extern sh,pwait,retval,retvl2,lcking,rc,ignwerr,lexitcode,asgnlastf;
+extern sh,pwait,retval,retvl2,lcking,rc,ignwerr,lexitcode,asgnlastf,
+ accspooldir;
 extern size_t linebuf;
 extern volatile nextexit;
 extern pid_t thepid;

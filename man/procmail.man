@@ -1,4 +1,4 @@
-.Id $Id: procmail.man,v 1.17 1993/04/27 17:33:45 berg Exp $
+.Id $Id: procmail.man,v 1.18 1993/05/05 13:05:56 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -290,6 +290,10 @@ The specified recipient does not have a corresponding uid.
 .Tp 2.3i
 Assigning "x"
 Environment variable assignment.
+.Tp
+Bypassed locking "x"
+The mail spool directory was not accessible to procmail, it relied solely
+on kernel locks.
 .Tp
 Executing "x"
 Starting program "x".  If it is started by procmail directly (without an

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.13 1993/02/11 12:08:34 berg Exp $";
+ "$Id: locking.c,v 1.14 1993/05/05 13:06:25 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -24,9 +24,15 @@ void lockit(name,lockp)char*name;char**const lockp;
    }				  /* to prevent deadlocks (I hate deadlocks) */
   if(!*name)
      return;
-  name=tstrdup(name); /* allocate now, so we won't hang on memory *and* lock */
   if(!strcmp(name,defdeflock))	       /* is it the system mailbox lockfile? */
-     setgid(sgid);		       /* try and get some extra permissions */
+#ifdef fdlock
+     if(!accspooldir)
+      { yell("Bypassed locking",name);return;
+      }
+     else
+#endif
+	setgid(sgid);		       /* try and get some extra permissions */
+  name=tstrdup(name); /* allocate now, so we won't hang on memory *and* lock */
   for(lcking|=lck_LOCKFILE;;)
    { yell("Locking",name);	    /* in order to cater for clock skew: get */
      if(!xcreat(name,LOCKperm,&t,(int*)0))     /* time t from the filesystem */
@@ -96,9 +102,12 @@ void lcllock P((void))				    /* lock a local lockfile */
 void unlock(lockp)char**const lockp;
 { lcking|=lck_LOCKFILE;
   if(*lockp)
-   { yell("Unlocking",*lockp);
-     if(!strcmp(*lockp,defdeflock))    /* is it the system mailbox lockfile? */
-	setgid(sgid);		       /* try and get some extra permissions */
+   { if(!strcmp(*lockp,defdeflock))    /* is it the system mailbox lockfile? */
+	if(!accspooldir)
+	   goto no_lock;
+	else
+	   setgid(sgid);	       /* try and get some extra permissions */
+     yell("Unlocking",*lockp);
      if(unlink(*lockp))
 	nlog("Couldn't unlock"),logqnl(*lockp);
      if(rc!=rc_INIT)				     /* we opened any rcfile */
@@ -107,6 +116,7 @@ void unlock(lockp)char**const lockp;
 	free(*lockp);
      *lockp=0;
    }
+no_lock:
   lcking&=~lck_LOCKFILE;
   if(nextexit==1)	    /* make sure we are not inside terminate already */
      elog(newline),terminate();

@@ -1,4 +1,4 @@
-$Id: Manual,v 1.9 1993/04/21 16:38:07 berg Exp $
+$Id: Manual,v 1.10 1993/05/05 13:05:34 berg Exp $
 
 		Written by Stephen R. van den Berg.
 					berg@pool.informatik.rwth-aachen.de
@@ -39,8 +39,11 @@ it creates an archive server.
 
 The fourth command removes all traces of the "testing" mailinglist again.
 
-There is one other convenience-utility that can be used: "delink"
-It will unlink a file from its hardlinked counterpart(s).
+There are two other convenience-utilitis that can be used:
+	delink
+		It will unlink a file from its hardlinked counterpart(s).
+	showlink
+		It will display what groups of files are linked together.
 
 
 2. Remote maintenance of mailinglists

@@ -35,40 +35,18 @@
 1992/04/30: v2.70
 	    Made procmail & lockfile clock skew independent (important during
 	       LOCKTIMEOUT)
-	    Made procmail accept multiple recipients (this was not as trivial
-	       as it sounds!), in order for complete compatibility with mailers
-	       like smail 2.x
 	    Made special entries in config.h for semi-permanent environment-
 	       variable overrides
-	    A complete rewrite of formail, the code got bigger, the runtime
-	       requirement got bigger, it got slower, but, it's more structured
-	       (so much for structured programming :-)
 1992/07/01: v2.71
-	    Sharpened the autoconf "const" check, to catch buggy AIX compilers
-	    Made the MAILBOX_SEPARATORS more orthogonal (i.e. you can define
-	       one or both now)
-	    Enhanced the MH directory delivery mode, procmail uses the MH
-	       method of finding the next number now (this requires procmail
-	       to read the directory)
-	    Fixed a problem on byte-aligned machines with the 'i' flag
 	    Now throwing away all environment variables starting with LD_
 	       (not just LD_LIBRARY_PATH), but only on those machines that
 	       have the security hole (i.e. SunOS)
-	    Created logfile summariser (in shell-script form), by popular
-	       demand (examples/mailstat)
 	    Gave procmail, formail, lockfile and mailstat a more verbose
 	       command line help (called up by -h or -?)
 1993/02/04: v2.80
 	    Started using CVS to manage the source (god's gift to programmers)
-	    In procmail, lockfile and formail I built in a sanity check now,
-	       in case they would be called with argc==0
-	    Provided an *extensive* generic mailinglist example (well, it's
-	       more than an example really :-)
-	    Created the mailinglist swiss-army-knife utility "multigram"
-	    Extended the man pages (including more examples)
 	    Substantially changed the examples/advanced mailer integration
 	       instructions (especially for smail)
-	    Provided for brain damaged compilers that misparse #include lines
 	    Enhanced lockfile a lot:
 	       - the -r option really specifies *re*tries now
 	       - concatenated and/or seperate options are allowed now
@@ -213,3 +191,4 @@
 		 semantics require it <sigh>
 	       - Added support for multiple architectures
 	       - Updated and extended the Manual file (reading recommended)
+	       - Added the showlink convenience utility

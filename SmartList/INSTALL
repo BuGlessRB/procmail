@@ -1,19 +1,25 @@
-!! Special note for people upgrading from an older version of the scripts: !!
-!! look at the end of this file.					   !!
+Discusses:
+		1. Prerequisites
+		2. Installing the scripts
+		3. Sharing the scripts on multiple architectures
+		4. If you don't have a sendmail compatible mailer
+		5. Upgrading from previous versions of these scripts
 
-Before you start installing mailinglists there are some things you should
-consider:
+				---
 
-- In order to make sure that the mailinglist scripts work reliably for both
+1. Prerequisites
+   -------------
+
+In order to make sure that the mailinglist scripts work reliably for both
 remote and local mail, they have to be run under someone's account.
 The recommended procedure would be to create a new account and group named
 "list" that is only going to be used to manage the mailinglist stuff.
 
-- If you are unable/unwilling to create a new user just for the mailinglist
+If you are unable/unwilling to create a new user just for the mailinglist
 stuff, then the mailinglist scripts should be installed in a separate
 subdirectory.  This user will still be able to receive regular mail.
 
-- In the mailinglist scripts I made use of the -f option of sendmail.  This
+In the mailinglist scripts I made use of the -f option of sendmail.  This
 option makes sure that the sender address on the envelope (the From_ line)
 contains the proper list address.  In order for this option to work, the
 user using it (either "list" or the regular user the lists run under) must
@@ -24,8 +30,10 @@ Tlist
 
 Restarting sendmail is not necessary.
 
+				---
 
-Now, back to installing the mailinglist scripts:
+2. Installing the scripts
+   ----------------------
 
 Suppose you have created this pseudo user "list" with a specified home
 directory of /home/list
@@ -42,14 +50,6 @@ This script will then create two subdirectories (.bin and .etc) in
 in the bin and etc subdirectories here.	 It will also make sure that
 the "multigram" program is compiled from the procmail*/src directory and
 copied into /home/list/.bin.
-
-	For people that want to run the lists on a shared filesystem across
-	different architectures there exists the possibility of using several
-	.bin directories.  Simply use something like:
-		sh install.sh /home/list .bin.sun4
-	to install to a different .bin directory.  Repeat the complete
-	procmail and mailinglist installation for every architecture,
-	specifying a different .bin directory every time.
 
 Furthermore install.sh will link /home/list/.etc/rc.main to
 /home/list/.procmailrc.	 This is of course superfluous (but nondestructive) if
@@ -72,34 +72,63 @@ quick reference.
 
 				---
 
-Special notes for people upgrading from an older version of these scripts:
+3. Sharing the scripts on multiple architectures
+   ---------------------------------------------
 
-- Before you start the upgrade, create the file /home/list/.etc/rc.lock
-  Now do a ps and see if any procmail-list instances are currently
-  running.  Wait till they are gone.  Now touch the rc.lock file once more.
-  You know have 17 minutes to complete the upgrade.  If it should take
-  longer, touch the rc.lock file every so often.  As soon as the difference
-  between its mtime and the current time exceeds 17 minutes, the flist
-  programs start delivering mail to the lists again.
+For people that want to run the lists on a shared filesystem across different
+architectures there exists the possibility of using several .bin directories.
+Simply use something like:
+	sh install.sh /home/list .bin.sun4
+to install to a different .bin directory.  Repeat the complete procmail and
+mailinglist installation for every architecture, specifying a different .bin
+directory every time.
 
-- You can simply use the install.sh script again to install directly over
-  the old installation IF you customised ONLY the master rc.init and rc.custom
-  files.  Once you ran the install.sh script, you'll have to merge the changes
-  you made to the old rc.init file (still there) into the rc.init.new file.
-  Then cat (yes, use `cat', because you have to preserve the hardlinks) the
-  rc.init.new file into the rc.init file.
+				---
 
-  There are some new entries in the new rc.custom file template.  Since they
-  are commented out (i.e. rc.init already provides defaults) their omission
-  in the old rc.custom files should not cause any problems.
+4. If you don't have a sendmail compatible mailer
+   ----------------------------------------------
 
-- If you customised more than just the rc.init or rc.custom files, you'll
-  have to make diffs between the old versions of the scripts, then install
-  the new scripts and then apply back the diffs (probably by hand).
+As is, these scripts are preconfigured to use sendmail (or a compatible
+mailer like smail) to actually transport the mails.  If your system only
+supplies a /bin/rmail or /bin/mail to transport mails, then several of
+the options used when invoking sendmail will not work.
 
-  The reason why parts of the old scripts cannot operate with the new scripts
-  is because they expect several new environment variables to be set (like
-  digest selection or not).  The new rc.init sets them of course.
+For these cases you have to edit the /home/list/.etc/rc.init file.
+Look for a SENDMAIL assignment.	 Supplied with these scripts is a poor man's
+sendmail.  It was installed in the .bin directory belonging to the
+list.  Make sure that the SENDMAIL assignment points at the sendmails script.
+And, of course, don't forget to uncomment the SENDMAIL assignment and
+the two sendmailOPT* assigments following it.
 
-- After you are finished, remove the rc.lock file again.  If it is older
-  than 17 minutes it is ignored anyway, but it's cleaner this way.
+				---
+
+5. Upgrading from previous versions of these scripts
+   -------------------------------------------------
+
+Before you start the upgrade, create the file /home/list/.etc/rc.lock
+Now do a ps and see if any procmail-list instances are currently
+running.  Wait till they are gone.  Now touch the rc.lock file once more.
+You know have 17 minutes to complete the upgrade.  If it should take
+longer, touch the rc.lock file every so often.	As soon as the difference
+between its mtime and the current time exceeds 17 minutes, the flist
+programs start delivering mail to the lists again.
+
+You can simply use the install.sh script again to install directly over
+the old installation IF you customised ONLY the master rc.init and rc.custom
+files.	Once you ran the install.sh script, you'll have to merge the changes
+you made to the old rc.init file (still there) into the rc.init.new file.
+Then cat (yes, use `cat', because you have to preserve the hardlinks) the
+rc.init.new file into the rc.init file.
+There are some new entries in the new rc.custom file template.	Since they
+are commented out (i.e. rc.init already provides defaults) their omission
+in the old rc.custom files should not cause any problems.
+
+If you customised more than just the rc.init or rc.custom files, you'll
+have to make diffs between the old versions of the scripts, then install
+the new scripts and then apply back the diffs (probably by hand).
+The reason why parts of the old scripts cannot operate with the new scripts
+is because they expect several new environment variables to be set (like
+digest selection or not).  The new rc.init sets them of course.
+
+After you are finished, remove the rc.lock file again.	If it is older
+than 17 minutes it is ignored anyway, but it's cleaner this way.

@@ -1,0 +1,80 @@
+#! /bin/sh
+: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+#########################################################################
+#	showlink	Displays all links to a file			#
+#									#
+#	Created by S.R. van den Berg, The Netherlands			#
+#									#
+#	If you can figure out and understand everything in this script, #
+#	you can consider yourself an awk guru!				#
+#########################################################################
+#$Id: showlink,v 1.1 1993/05/05 13:05:43 berg Exp $
+
+defaults=.etc
+
+echo=echo		# /bin/echo
+test=test		# /bin/test
+ls=ls			# /bin/ls
+awk=awk			# /usr/bin/awk
+dirname=dirname		# /bin/dirname
+basename=basename	# /bin/basename
+showlink=showlink	# /home/list/.bin/showlink
+
+EX_USAGE=64
+
+$test 0 = $# && $echo "Usage: showlink filename ..." 1>&2 && exit $EX_USAGE
+
+case $# in
+  1) if $test -d "$1"
+     then
+	cd "$1"
+	set dummy *
+	shift
+	$test ! -d $defaults -a -d ../$defaults && cd ..
+	for a in "$@"
+	do $ls -di $defaults/$a .bin*/$a */$a 2>/dev/null
+	done
+     else
+	file="`$basename \"$1\"`"
+	cd="`$dirname \"$1\"`"
+	$test ! -d $defaults -a -d ../$defaults && cd ..
+	$ls -di $defaults/$file .bin*/$file */$file 2>/dev/null
+     fi;;
+  *) $ls -di "$@";;
+esac | $awk '
+BEGIN {
+    count[0]=0;
+  }
+  { for(start=1;substr($0,start++,1)==" ";);
+    fname[$1"#"(++count[$1])]=substr($0,length($1)+start);
+  }
+END {
+    for(inode in count)
+     { if((i=count[inode])>1)
+	{ bn=fname[inode"#"1];
+	  for(start=length(bn);start>0&&"/"!=substr(bn,start,1);start--);
+	  printf("Links to %s:\n",(bn=substr(bn,start+1)));
+	  lbn=length(bn="/"bn);linel=0;
+	  for(;i;i--)
+	   { if((lcn=length(cn=fname[inode"#"i]))>lbn)
+		if(substr(cn,lcn+1-lbn,lbn)==bn)
+		   lcn=length(cn=substr(cn,1,lcn+1-lbn));
+	     if(!linel)
+		printf(" >");
+	     else if(linel+lcn>=76)
+	      { printf("\n >");linel=0;
+	      }
+	     linel+=19;
+	     if((lcn-=18)>0)
+	      { linel+=lcn;linel+=lcn=19-lcn%19;
+	      }
+	     else
+		lcn=0;
+	     if(linel>76)
+		linel=76;
+	     printf("%"lcn"s %18s","",cn);
+	   }
+	  printf("\n");
+	}
+     }
+  }'

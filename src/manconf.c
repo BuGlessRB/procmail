@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.22 1993/04/27 17:34:08 berg Exp $*/
+/*$Id: manconf.c,v 1.23 1993/05/05 13:06:30 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -58,8 +58,8 @@ static void pname(name)const char*const name;
 { static cmdcount;
   if(!cmdcount)
      freopen(*++gargv,"w",stdout),cmdcount=64;
-  cmdcount--;putchar('s');putchar('/');putchar('\\');putchar('@');
-  putsesc(name);putchar('\\');putchar('@');putchar('/');
+  cmdcount--;putchar('s');putchar('/');putchar('@');putsesc(name);putchar('@');
+  putchar('/');
 }
 
 static void pnr(name,value)const char*const name;const long value;
@@ -205,12 +205,13 @@ is case sensitive, and some users have login names with uppercase letters in\
   pc("IGNORE_WRITERR",RECFLAGS[IGNORE_WRITERR]);
   ps("FROM_EXPR",FROM_EXPR);
   pc("UNIQ_PREFIX",UNIQ_PREFIX);
-  pc("ESCAP",ESCAP);
+  ps("ESCAP",ESCAP);
   ps("UNKNOWN",UNKNOWN);
   ps("OLD_PREFIX",OLD_PREFIX);
   pc("FM_SKIP",FM_SKIP);
   pc("FM_TOTAL",FM_TOTAL);
   pc("FM_BOGUS",FM_BOGUS);
+  pc("FM_QPREFIX",FM_QPREFIX);
   pc("FM_CONCATENATE",FM_CONCATENATE);
   pc("FM_FORCE",FM_FORCE);
   pc("FM_REPLY",FM_REPLY);

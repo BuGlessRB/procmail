@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.42 1993/04/19 15:14:00 berg Exp $
+#$Id: autoconf,v 1.43 1993/05/05 13:06:07 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -911,7 +911,7 @@ exit 1
 HERE
 chmod 0755 lookfor
 
-if lookfor sendmail || lookfor smail
+if lookfor sendmail || lookfor smail || lookfor rmail || lookfor mail
 then
 :
 elif _autotst 2 3 >>$ACONF

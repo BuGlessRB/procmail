@@ -1,4 +1,4 @@
-/*$Id: exopen.h,v 1.4 1992/11/13 11:19:54 berg Exp $*/
+/*$Id: exopen.h,v 1.5 1993/05/05 13:06:12 berg Exp $*/
 
 const char*
  hostname P((void));
@@ -13,4 +13,5 @@ int
 #define bitsSERIAL	(6*charsSERIAL)
 #define maskSERIAL	((1L<<bitsSERIAL)-1)
 #define rotbSERIAL	2
-#define mrotbSERIAL	((1L<<rotbSERIAL)-1)
+#define irotbSERIAL	(1L<<bitsSERIAL-rotbSERIAL)
+#define mrotbSERIAL	((maskSERIAL&irotbSERIAL-1)+irotbSERIAL)
