@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.38 1997/04/11 10:29:06 srb Exp $";
+ "$Id: formisc.c,v 1.39 1999/02/14 04:43:32 srb Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -210,7 +210,7 @@ void nofild P((void))
 }
 
 void nlog(a)const char*const a;
-{ elog(NAMEPREFIX);elog(a);
+{ elog(formailn);elog(": ");elog(a);
 }
 
 void logqnl(a)const char*const a;

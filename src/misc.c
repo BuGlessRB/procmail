@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.83 1999/02/12 05:54:00 guenther Exp $";
+ "$Id: misc.c,v 1.84 1999/02/14 04:43:34 srb Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -320,8 +320,7 @@ void setmaildir(newdir)const char*const newdir;		    /* destroys buf2 */
 }
 
 void setoverflow P((void))
-{ static const char overflow[]="PROCMAIL_OVERFLOW=yes";
-  sputenv(overflow);
+{ sputenv("PROCMAIL_OVERFLOW=yes");
 }
 
 void srequeue P((void))
@@ -348,7 +347,8 @@ void catlim(src)register const char*src;
 
 void setdef(name,contents)const char*const name,*const contents;
 { strcat(strcat(strcpy((char*)(sgetcp=buf2),name),"="),contents);
-  readparse(buf,sgetc,2)||sputenv(buf);
+  if(!readparse(buf,sgetc,2))
+     sputenv(buf);
 }
 
 void metaparse(p)const char*p;				    /* result in buf */
@@ -790,8 +790,8 @@ noconcat:
 	       continue;
 	     }
 	    if(skippedempty&&testB(':'))
-	     { nlog("Missing action\n");
-	       i=2;goto ret;
+	     { nlog("Missing action\n");i=2;
+	       goto ret;
 	     }
 	    break;		     /* no more conditions, time for action! */
 	  }

@@ -1,8 +1,8 @@
-/*$Id: formail.h,v 1.14 1996/12/21 03:28:24 srb Exp $*/
+/*$Id: formail.h,v 1.15 1999/02/14 04:43:31 srb Exp $*/
 
 #define Bsize		128
 
-#define NAMEPREFIX	"formail: "
+#define FORMAILN	"formail"
 #define HEAD_DELIMITER	':'
 
 #define Re		(re+1)
@@ -15,7 +15,7 @@
 
 struct saved {const char*const headr;const int lenr;int rexl;char*rexp;};
 
-extern const char binsh[],sfolder[],couldntw[];
+extern const char binsh[],sfolder[],couldntw[],formailn[];
 extern char ffileno[];
 extern int errout,oldstdout,quiet,zap,buflast,lenfileno;
 extern long initfileno;

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.86 1999/01/26 07:48:15 guenther Exp $";
+ "$Id: formail.c,v 1.87 1999/02/14 04:43:30 srb Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/01/26 07:48:15 $";
+static /*const*/char rcsdate[]="$Date: 1999/02/14 04:43:30 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -89,7 +89,7 @@ static const char emboxsep[]=eMAILBOX_SEPARATOR;
 #endif /* eMAILBOX_SEPARATOR */
 
 const char binsh[]=BinSh,sfolder[]=FOLDER,
- couldntw[]="Couldn't write to stdout";
+ couldntw[]="Couldn't write to stdout",formailn[]=FORMAILN;
 int errout,oldstdout,quiet=1,zap,buflast,lenfileno;
 long initfileno;
 char ffileno[LEN_FILENO_VAR+8*sizeof(initfileno)*4/10+1+1]=DEFfileno;
@@ -433,7 +433,7 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		 continue;
 	      case FM_QPREFIX:Qnext_arg();escap=chp;
 		 break;
-	      case FM_VERSION:elog("formail");elog(VERSION);
+	      case FM_VERSION:elog(formailn);elog(VERSION);
 		 goto xusg;
 	      case FM_ADD_IFNOT:case FM_ADD_ALWAYS:case FM_REN_INSERT:
 	      case FM_DEL_INSERT:case FM_EXTRACT:case FM_EXTRC_KEEP:
