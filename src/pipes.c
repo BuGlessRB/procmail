@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.63 1999/12/12 08:50:58 guenther Exp $";
+ "$Id: pipes.c,v 1.64 2000/09/28 01:23:34 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -17,6 +17,7 @@ static /*const*/char rcsid[]=
 #include "common.h"
 #include "mcommon.h"
 #include "goodies.h"
+#include "foldinfo.h"
 #include "mailfold.h"
 
 const char exitcode[]="EXITCODE";
@@ -61,8 +62,8 @@ static void stermchild P((void))
      kill(pidfilt,SIGTERM);
   rawnonl=1;				       /* give back the raw contents */
   if(PWRB<0);						/* previously unset? */
-  else if(dump(PWRB,backblock,backlen))	  /* pump data back via the backpipe */
-     nlog(rescdata),elog("failed\n");
+  else if(dump(PWRB,ft_PIPE,backblock,backlen))	       /* pump data back via */
+     nlog(rescdata),elog("failed\n");			     /* the backpipe */
   else if(verbose||pwait!=4)		/* are we not looking the other way? */
      nlog(rescdata),elog("succeeded\n");
   exit(lexitcode);
@@ -160,8 +161,8 @@ int pipthrough(line,source,len)char*line,*source;const long len;
      rclose(PWRI);rclose(PRDO);
      if(forkerr(pidfilt,line))
 	rclose(PWRO),stermchild();
-     if(dump(PWRO,source,len)&&!ignwerr)  /* send in the text to be filtered */
-	writeerr(line),lexitcode=EX_IOERR,stermchild();
+     if(dump(PWRO,ft_PIPE,source,len)&&!ignwerr)	 /* send in the text */
+	writeerr(line),lexitcode=EX_IOERR,stermchild();	   /* to be filtered */
      ;{ int excode;	      /* optionally check the exitcode of the filter */
 	if(pwait&&(excode=waitfor(pidfilt))!=EXIT_SUCCESS)
 	 { pidfilt=0;
@@ -235,7 +236,7 @@ long pipin(line,source,len)char*const line;char*source;long len;
    { rclose(PWRO);
      return -1;					    /* dump mail in the pipe */
    }
-  if((len=dump(PWRO,source,len))&&(!ignwerr||(len=0)))
+  if((len=dump(PWRO,ft_PIPE,source,len))&&(!ignwerr||(len=0)))
      writeerr(line);		       /* pipe was shut in our face, get mad */
   ;{ int excode;			    /* optionally check the exitcode */
      if(pwait&&(excode=waitfor(pidchild))!=EXIT_SUCCESS)
@@ -252,51 +253,38 @@ builtin:
   return len;
 }
 
-char*readdyn(mb,filled,oldfilled)memblk*const mb;long*const filled;
- const long oldfilled;
-{ int blksiz=BLKSIZ,ok;long oldsize= *filled;unsigned int shift=EXPBLKSIZ;
-  for(;;)
-   {
-#ifdef SMALLHEAP
-     if((size_t)*filled>=(size_t)(*filled+blksiz))
-	lcking|=lck_MEMORY,nomemerr(*filled);
-#endif				       /* dynamically adjust the buffer size */
-     while(EXPBLKSIZ&&(ok=0,blksiz>BLKSIZ)&&	   /* backed up all the way? */
-      !(ok=resizeblock(mb,*filled+blksiz,1)))	  /* no?  Then try this size */
-	blksiz>>=1;			 /* failed!  Try a smaller increment */
-     if(!EXPBLKSIZ||!ok)
-	resizeblock(mb,*filled+blksiz,0);	    /* last (maybe only) try */
-jumpback:;
-     ;{ int got,left=blksiz;
-	do
-	   if(0>=(got=rread(STDIN,mb->p+*filled,left)))		/* read mail */
-	      goto eoffound;
-	while(*filled+=got,left-=got);		/* change listed buffer size */
-      }
-     if(EXPBLKSIZ&&shift)				 /* room for growth? */
-      { int newbs=blksiz;newbs<<=shift--;	/* capped exponential growth */
-	if(blksiz<newbs)				  /* no overflowing? */
-	   blksiz=newbs;				    /* yes, take me! */
-      }
-   }
-eoffound:
+static char*read_read(p,left,data)char*p;long left;void*data;
+{ long got;
+  do
+     if(0>=(got=rread(STDIN,p,left)))				/* read mail */
+	return p;
+  while(p+=got,left-=got);			/* change listed buffer size */
+  return 0;
+}
+
+static int read_cleanup(mb,filledp,origfilled,data)memblk*mb;
+ long*filledp,origfilled;void*data;
+{ long oldfilled= *(long*)data;
   if(pidchild>0)
    { if(PRDB>=0)
       { getstdin(PRDB);			       /* filter ready, get backpipe */
 	if(1==rread(STDIN,buf,1))		      /* backup pipe closed? */
-	 { resizeblock(mb,*filled=oldfilled,0);
-	   mb->p[oldsize]= *buf;
-	   *filled=oldsize++;
+	 { resizeblock(mb,*filledp=oldfilled,0);
+	   mb->p[origfilled]= *buf;
+	   *filledp=origfilled++;
 	   PRDB= -1;pwait=2;		      /* break loop, definitely reap */
-	   goto jumpback;		       /* filter goofed, rescue data */
+	   return 1;			       /* filter goofed, rescue data */
 	 }
       }
      if(pwait)
 	pipw=waitfor(pidchild);		      /* reap your child in any case */
    }
   pidchild=0;					/* child must be gone by now */
-  resizeblock(mb,*filled+1,1);		      /* minimise+1 for housekeeping */
-  return mb->p;
+  return 0;
+}
+
+char*readdyn(mb,filled,oldfilled)memblk*const mb;long*const filled,oldfilled;
+{ return read2blk(mb,filled,&read_read,&read_cleanup,&oldfilled);
 }
 
 char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
@@ -309,7 +297,7 @@ char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
      rclose(PWRI);rclose(PRDO);
      if(forkerr(pidfilt,name))
 	rclose(PWRO),stermchild();
-     dump(PWRO,themail.p,filled);waitfor(pidfilt);exit(lexitcode);
+     dump(PWRO,ft_PIPE,themail.p,filled);waitfor(pidfilt);exit(lexitcode);
    }
   rclose(PWRI);p=dest;
   if(!forkerr(pidchild,name))
@@ -349,7 +337,7 @@ void exectrap(tp)const char*const tp;
      rclose(PRDO);					     /* neat & clean */
      if(!forkerr(pidchild,buf))
       { int newret;
-	dump(PWRO,themail.p,filled);	      /* try and shove down the mail */
+	dump(PWRO,ft_PIPE,themail.p,filled);  /* try and shove down the mail */
 	if((newret=waitfor(pidchild))!=EXIT_SUCCESS&&forceret==-2)
 	   retval=newret;		       /* supersede the return value */
 	pidchild=0;

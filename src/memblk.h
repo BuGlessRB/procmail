@@ -7,11 +7,16 @@ typedef struct memblk {
 #endif
 } memblk;
 
+typedef char*(read_func_type)(char*,long,void*);
+typedef int(cleanup_func_type)(memblk*,long*,long,void*);
+
 void
  makeblock P((memblk*const,const long)), /* create block of the given length */
  freeblock P((memblk*const));				    /* deallocate it */
 int
  resizeblock P((memblk*,const long,const int)); /* change the allocated size */
+char
+ *read2blk P((memblk*,long*const,read_func_type*,cleanup_func_type*,void*));
 
 #ifdef USE_MMAP
 extern int ISprivate;		     /* is themail a private copy or shared? */

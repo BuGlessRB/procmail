@@ -1,4 +1,4 @@
-/*$Id: fields.h,v 1.7 1994/07/26 17:35:15 berg Exp $*/
+/*$Id: fields.h,v 1.8 2000/09/28 01:23:20 guenther Exp $*/
 
 struct field
  *findf P((const struct field*const p,struct field**ah)),
@@ -6,6 +6,7 @@ struct field
   const size_t totlen)),
  *delfield P((struct field**pointer));
 void
+ cleanheader P((void)),
  clear_uhead P((struct field*hdr)),
  concatenate P((struct field*const fldp)),
  flushfield P((struct field**pointer)),

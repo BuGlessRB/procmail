@@ -7,7 +7,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: memblk.c,v 1.1 1999/12/12 08:50:57 guenther Exp $"
+ "$Id: memblk.c,v 1.2 2000/09/28 01:23:30 guenther Exp $"
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -114,4 +114,40 @@ mmap:	if((mb->p=mmap(0,len+1,P_RW,MAP_SHARED,mb->fd,0))==MAP_FAILED)
   mb->p[len]='\0';
 ret1:
   return 1;
+}
+
+char*read2blk(mb,filledp,read_func,cleanup_func,data)memblk*const mb;
+ read_func_type*read_func;cleanup_func_type*cleanup_func;
+ long*const filledp;void*data;
+{ int blksiz=BLKSIZ,ok;unsigned int shift=EXPBLKSIZ;
+  long filled= *filledp,origfilled=filled;
+  if(filled<mb->len)		 /* skip the initial resize if we have space */
+     goto jumpin;
+  for(;;)
+   { if((size_t)filled>=(size_t)(filled+blksiz))       /* check for overflow */
+	lcking|=lck_MEMORY,nomemerr(filled);
+				       /* dynamically adjust the buffer size */
+     while(EXPBLKSIZ&&(ok=0,blksiz>BLKSIZ)&&	   /* backed up all the way? */
+      !(ok=resizeblock(mb,filled+blksiz,1)))	  /* no?  Then try this size */
+	blksiz>>=1;			 /* failed!  Try a smaller increment */
+     if(!EXPBLKSIZ||!ok)
+	resizeblock(mb,filled+blksiz,0);	    /* last (maybe only) try */
+jumpin:
+     ;{ char*newlast;
+	if(newlast=(*read_func)(mb->p+filled,mb->len-filled,data))
+	 { filled=newlast-mb->p;
+	   break;
+	 }
+	filled=mb->len;
+      }
+     if(EXPBLKSIZ&&shift)				 /* room for growth? */
+      { int newbs=blksiz;newbs<<=shift--;	/* capped exponential growth */ if(blksiz<newbs)				  /* no overflowing? */
+	   blksiz=newbs;				    /* yes, take me! */
+      }
+   }
+  if(cleanup_func&&(*cleanup_func)(mb,&filled,origfilled,data))
+     goto jumpin;
+  resizeblock(mb,filled+1,1);		      /* minimise+1 for housekeeping */
+  *filledp=filled;				 /* write back the new value */
+  return mb->p;
 }

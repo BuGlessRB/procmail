@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.45 1999/12/12 08:51:02 guenther Exp $*/
+/*$Id: procmail.h,v 1.46 2000/09/28 01:23:37 guenther Exp $*/
 
 #include "includes.h"
 
@@ -14,11 +14,21 @@
 #define NO_CHECK_stgid 1
 #endif
 
+#ifdef TOGGLE_SGID_OK
+#define CAN_toggle_sgid 1
+#else
+#define CAN_toggle_sgid 0
+#endif
+
 #ifndef DEFsendmail
 #define DEFsendmail SENDMAIL
 #endif
 #ifndef DEFflagsendmail
 #define DEFflagsendmail "-oi"
+#endif
+
+#ifndef DEFSPATH
+#define DEFSPATH	defSPATH
 #endif
 
 #ifndef DEFPATH
@@ -29,10 +39,12 @@
 #define ETCRC	0
 #endif
 
-#define MAX32	((long)(~(unsigned long)0>>1))
-#define MIN32	(-(long)MAX32)
+#define mAX32	 ((long)(~(unsigned long)0>>1))			 /* LONG_MAX */
+#define maxMAX32 2147483647L		 /* the largest we'll use = (2^31)-1 */
+#define MAX32	 (mAX32>maxMAX32&&maxMAX32>0?maxMAX32:mAX32)   /* the minmax */
+#define MIN32	 (-(long)MAX32)
 
-#define XTRAlinebuf	2	     /* surplus of LINEBUF (see readparse()) */
+#define XTRAlinebuf	2     /* surplus of LINEBUF (assumed by readparse()) */
 #ifdef MAXPATHLEN
 #if MAXPATHLEN>DEFlinebuf		/* to protect people from themselves */
 #undef DEFlinebuf
@@ -86,7 +98,7 @@ extern const char shell[],lockfile[],newline[],binsh[],unexpeof[],*const*gargv,
  *const*restargv,*sgetcp,pmrc[],*rcfile,dirsep[],devnull[],empty[],lgname[],
  executing[],oquote[],cquote[],whilstwfor[],procmailn[],Mail[],home[],host[],
  *defdeflock,*argv0,exceededlb[],slogstr[],conflicting[],orgmail[],
- errwwriting[],Version[];
+ insufprivs[],errwwriting[],Version[];
 extern long filled,lastscore;
 extern int sh,pwait,retval,retvl2,lcking,rcstate,rc,ignwerr,lexitcode,
  asgnlastf,accspooldir,crestarg,skiprc,savstdout,berkeley,mailfilter,erestrict,

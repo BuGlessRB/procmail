@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.39 1999/10/24 06:30:36 guenther Exp $
+.Id $Id: formail.man,v 1.40 2000/09/28 01:23:06 guenther Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -258,7 +258,7 @@ RFC822, the original standard governing the format of Internet mail
 messages, did not specify whether Resent header fields (those that
 begin with `Resent\-', such as `Resent\-From:') should be considered
 when generating a reply.  Since then, the recommended usage of the
-Resent headers has changed to consider them as purely informational and
+Resent headers has evolved to consider them as purely informational and
 not for use when normally generating a reply.  While formail now
 ignores Resent headers when generating header replies, versions of
 formail prior to 3.14 gave such headers a high precedence.  If the old
@@ -371,10 +371,6 @@ Too many open files on this machine.
 Invalid field-name: "x"
 The specified field-name "x" contains control characters, or cannot be a
 partial field-name for this option.
-.TP
-No-wait option ignored to prevent corrupt idcache
-The -@FM_NOWAIT@ and -@FM_DUPLICATE@ options cannot be safely used together,
-so the former was ignored.
 .SH WARNINGS
 You can save yourself and others a lot of grief if you try to avoid using
 this autoreply feature on mails coming through mailinglists.  Depending
@@ -394,7 +390,7 @@ it in this case, include \fB\-@FM_ADD_IFNOT@ '@FROM@'\fP.
 .PP
 If formail is not called as the first program in a pipe and it is told to
 split up the input in several messages, then formail will not terminate until
-the program it receives the input from terminates itself.
+the program it receives the input from closes its output or terminates itself.
 .PP
 If formail is instructed to generate an autoreply mail, it will
 .B never

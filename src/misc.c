@@ -2,11 +2,13 @@
  *	Miscellaneous routines used by procmail				*
  *									*
  *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1999-2000, Philip Guenther, The United States	*
+ *							of America	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.100 1999/12/12 08:50:57 guenther Exp $";
+ "$Id: misc.c,v 1.101 2000/09/28 01:23:32 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -84,11 +86,25 @@ void shutdesc P((void))
 { rclose(savstdout);closelog();closerc();
 }
 
+void checkroot(c,Xid)const int c;const unsigned long Xid;
+{ uid_t eff;
+  if((eff=geteuid())!=ROOT_uid&&getuid()!=ROOT_uid)
+     return;
+  syslog(LOG_CRIT,"set%cid(%lu) failed with ruid/euid = %lu/%lu",c,Xid,
+   (unsigned long)getuid(),eff);
+  nlog(insufprivs);
+  exit(EX_NOPERM);
+}
+
 void setids P((void))
 { if(rcstate!=rc_NORMAL)
-   { if(setRgid(gid))	/* due to these !@#$%^&*() POSIX semantics, setgid() */
-	setgid(gid);	   /* sets the saved gid as well; we can't use that! */
-     setruid(uid);setuid(uid);setegid(gid);rcstate=rc_NORMAL;
+   { if(setRgid(gid)&&	/* due to these !@#$%^&*() POSIX semantics, setgid() */
+      setgid(gid))	   /* sets the saved gid as well; we can't use that! */
+	checkroot('g',(unsigned long)gid);	 /* did setgid fail as root? */
+     setruid(uid);
+     if(setuid(uid))				     /* "This cannot happen" */
+	checkroot('u',(unsigned long)uid);			/* Whoops... */
+     setegid(gid);rcstate=rc_NORMAL;
 #if !DEFverbose
      verbose=0;			/* to avoid peeking in rcfiles using SIGUSR1 */
 #endif
@@ -225,7 +241,7 @@ void Terminate P((void))
   if(getpid()==thepid)
    { const char*lstfolder;
      if(retval!=EXIT_SUCCESS)
-      { tofile=0;lasttell= -1;			  /* mark it for logabstract */
+      { lasttell= -1;				  /* mark it for logabstract */
 	lstfolder=fakedelivery?"**Lost**":
 	 retval==EX_TEMPFAIL?"**Requeued**":"**Bounced**";
       }
@@ -433,10 +449,10 @@ int asenvcpy(src)char*src;
      *	really change the uid now, since it would not be safe to
      *	evaluate the extra command line arguments otherwise
      */
-   { erestrict=1;setids();strcpy(buf,src);src=buf+(chp-src);
-     strcpy((char*)(sgetcp=buf2),++src);
-     if(!readparse(src,sgetc,2))
-      { chp=sputenv(buf);src[-1]='\0';
+   { erestrict=1;setids();chp++;strncpy(buf,src,chp-src);
+     src=buf+(chp-src);
+     if(chp=eputenv(chp,src))
+      { src[-1]='\0';
 	asenv(chp);
       }
      return 1;
@@ -449,11 +465,11 @@ void mallocbuffers(lineb,setenv)size_t lineb;int setenv;
    { free(buf);
      free(buf2);
    }
-  buf=malloc(lineb);buf2=malloc(lineb);
+  buf=malloc(lineb+XTRAlinebuf);buf2=malloc(lineb+XTRAlinebuf);
   if(setenv)
    { char*chp;
      *(chp=strcpy(buf,slinebuf)+STRLEN(slinebuf))='=';
-     ultstr(0,lineb-XTRAlinebuf,chp+1);
+     ultstr(0,lineb,chp+1);
      sputenv(buf);
    }
 }
@@ -463,9 +479,10 @@ void asenv(chp)const char*const chp;
    includerc[]="INCLUDERC",eumask[]="UMASK",dropprivs[]="DROPPRIVS",
    shift[]="SHIFT",switchrc[]="SWITCHRC";
   if(!strcmp(buf,slinebuf))
-   { if((linebuf=renvint(0L,chp)+XTRAlinebuf)<MINlinebuf+XTRAlinebuf)
-	linebuf=MINlinebuf+XTRAlinebuf;		       /* check minimum size */
-     mallocbuffers(linebuf,0);
+   { long lineb;			 /* signed to catch negative numbers */
+     if((lineb=renvint(0L,chp))<MINlinebuf)
+	lineb=MINlinebuf;			       /* check minimum size */
+     mallocbuffers(linebuf=lineb,0);
    }
   else if(!strcmp(buf,maildir))
      if(chdir(chp))
@@ -538,23 +555,26 @@ long renvint(i,env)const long i;const char*const env;
 { const char*p;long t;
   t=strtol(env,(char**)&p,10);			  /* parse like a decimal nr */
   if(p==env)
-   { for(;;p++)					  /* skip leading whitespace */
+     for(;;p++)
       { switch(*p)
-	 { case '\t':case ' ':
-	      continue;
+	 { case ' ':case '\t':case '\n':case '\v':case '\f':case '\r':
+	      continue;				  /* skip leading whitespace */
+	   case 'o':case 'O':
+	      if(!strnIcmp(p+1,"n",(size_t)1))
+	   case 'y':case 'Y':case 't':case 'T':case 'e':case 'E':
+		 t=1;
+	      else if(!strnIcmp(p+1,"ff",(size_t)2))
+	   case 'n':case 'N':case 'f':case 'F':case 'd':case 'D':
+		 t=0;
+	      else
+	   default:
+		 t=i;
+	      break;
+	   case 'a':case 'A':t=2;
+	      break;
 	 }
 	break;
       }
-     t=i;
-     if(!strnIcmp(p,"a",(size_t)1))
-	t=2;
-     else if(!strnIcmp(p,"on",(size_t)2)||!strnIcmp(p,"y",(size_t)1)||
-      !strnIcmp(p,"t",(size_t)1)||!strnIcmp(p,"e",(size_t)1))
-	t=1;
-     else if(!strnIcmp(p,"off",(size_t)3)||!strnIcmp(p,"n",(size_t)1)||
-      !strnIcmp(p,"f",(size_t)1)||!strnIcmp(p,"d",(size_t)1))
-	t=0;
-   }
   return t;
 }
 
@@ -619,152 +639,6 @@ const char*newdynstring(adrp,chp)struct dynstring**const adrp;
 void rcst_nosgid P((void))
 { if(!rcstate)
      rcstate=rc_NOSGID;
-}
-
-			     /* lifted out of main() to reduce main()'s size */
-int screenmailbox(chp,egid,Deliverymode)
- char*chp;const gid_t egid;const int Deliverymode;
-{ char ch;struct stat stbuf;
- /*
-  *	  do we need sgidness to access the mail-spool directory/files?
-  */
-  chp=lastdirsep(strcpy(buf,chp));		   /* strip off the basename */
-  if(chp<buf+3)
-     chp=buf+1;
-  else if(!chp[0]||(chp[0]==chCURDIR&&!chp[1]))		/* take into account */
-     for(chp-=2;chp>buf+1&&!strchr(dirsep,*chp);chp--);	  /* the folder type */
-  else								/* indicator */
-     chp--;
-  ch=*chp;*chp='\0';sgid=gid;
-  if(!stat(buf,&stbuf))
-   { unsigned wwsdir;
-     if(accspooldir=(wwsdir=			/* world writable spool dir? */
-	   (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH|S_IXOTH))==
-	   (S_IWGRP|S_IXGRP|S_IWOTH|S_IXOTH))
-	  <<1|						 /* note it in bit 1 */
-	 uid==stbuf.st_uid)	   /* we own the spool dir, note it in bit 0 */
-#ifdef TOGGLE_SGID_OK
-	;
-#endif
-	rcst_nosgid();			     /* we don't *need* setgid privs */
-     if(uid!=stbuf.st_uid&&		 /* we don't own the spool directory */
-	(stbuf.st_mode&S_ISGID||!wwsdir))	  /* it's not world writable */
-      { if(stbuf.st_gid==egid)			 /* but we have setgid privs */
-	   doumask(GROUPW_UMASK);		   /* make it group-writable */
-	goto keepgid;
-      }
-     else if(stbuf.st_mode&S_ISGID)
-keepgid:			   /* keep the gid from the parent directory */
-	if((sgid=stbuf.st_gid)!=egid)
-	   setgid(sgid);     /* we were started nosgid, but we might need it */
-   }
-  else				/* panic, mail-spool directory not available */
-   { setids();mkdir(buf,NORMdirperm);	     /* try creating the last member */
-   }
-  *chp=ch;
- /*
-  *	  check if the default-mailbox-lockfile is owned by the
-  *	  recipient, if not, mark it for further investigation, it
-  *	  might need to be removed
-  */
-  if(*(chp=buf))
-     chp=strchr(buf,'\0')-1;
-  for(;;)
-   { ;{ int defaulttype=foldertype(chp,0,0,&stbuf);   /* what type of folder */
-	if(defaulttype==to_NOTYET)				 /* is this? */
-	 { if(errno!=EACCES||(setids(),lstat(buf,&stbuf)))
-	      goto nobox;
-	 }
-	else if(!to_checkcloser(defaulttype))
-	 { setids();
-	   if(defaulttype<0)
-	      goto fishy;
-	   goto nl;					   /* no lock needed */
-	 }
-      }
-    /*
-     *	  check if the original/default mailbox of the recipient
-     *	  exists, if it does, perform some security checks on it
-     *	  (check if it's a regular file, check if it's owned by
-     *	  the recipient), if something is wrong try and move the
-     *	  bogus mailbox out of the way, create the
-     *	  original/default mailbox file, and chown it to
-     *	  the recipient
-     */
-     ;{ int checkiter=1;
-	for(;;)
-	 { if(stbuf.st_uid!=uid||		      /* recipient not owner */
-	      !(stbuf.st_mode&S_IWUSR)||	     /* recipient can write? */
-	      S_ISLNK(stbuf.st_mode)||			/* no symbolic links */
-	      (S_ISDIR(stbuf.st_mode)?	      /* directories, yes, hardlinks */
-		!(stbuf.st_mode&S_IXUSR):stbuf.st_nlink!=1))	       /* no */
-	     /*
-	      * If another procmail is about to create the new
-	      * mailbox, and has just made the link, st_nlink==2
-	      */
-	      if(checkiter--)		    /* maybe it was a race condition */
-		 suspend();		 /* close eyes, and hope it improves */
-	      else			/* can't deliver to this contraption */
-	       { int i=lastdirsep(buf)-buf;
-		 strncpy(buf2,buf,i);buf2[i]='\0';
-		 if(rnmbogus(buf,&stbuf,i,1))
-		    goto fishy;
-		 goto nobox;
-	       }
-	   else
-	      break;
-	   if(lstat(buf,&stbuf))
-	      goto nobox;
-	 }					/* SysV type autoforwarding? */
-	if(Deliverymode&&(stbuf.st_mode&S_ISUID||
-	 !S_ISDIR(stbuf.st_mode)&&stbuf.st_mode&S_ISGID))
-	 { nlog("Autoforwarding mailbox found\n");
-	   exit(EX_NOUSER);
-	 }
-	else
-	 { if(!(stbuf.st_mode&OVERRIDE_MASK)&&
-	      stbuf.st_mode&cumask&
-	       (accspooldir?~(mode_t)0:~(S_IRGRP|S_IWGRP)))	/* hold back */
-	    { static const char enfperm[]=
-	       "Enforcing stricter permissions on";
-	      nlog(enfperm);logqnl(buf);
-	      syslog(LOG_NOTICE,slogstr,enfperm,buf);setids();
-	      chmod(buf,stbuf.st_mode&=~cumask);
-	    }
-	   break;				  /* everything is just fine */
-	 }
-      }
-nobox:
-     if(!(accspooldir&1))	     /* recipient does not own the spool dir */
-      { if(!xcreat(buf,NORMperm,(time_t*)0,doCHOWN|doCHECK))	   /* create */
-	   break;		   /* mailbox... yes we could, fine, proceed */
-	if(!lstat(buf,&stbuf))			     /* anything in the way? */
-	   continue;			       /* check if it could be valid */
-      }
-     setids();						   /* try some magic */
-     if(!xcreat(buf,NORMperm,(time_t*)0,doCHECK))		/* try again */
-	break;
-     if(lstat(buf,&stbuf))			      /* nothing in the way? */
-fishy:
-      { nlog("Couldn't create");logqnl(buf);
-	return 0;
-      }
-   }
-  if(!S_ISDIR(stbuf.st_mode))
-   { int isgrpwrite=stbuf.st_mode&S_IWGRP;
-     strcpy(chp=strchr(buf,'\0'),lockext);
-     defdeflock=tstrdup(buf);
-     if(!isgrpwrite&&!lstat(defdeflock,&stbuf)&&stbuf.st_uid!=uid&&
-      stbuf.st_uid!=ROOT_uid)
-      { int i=lastdirsep(buf)-buf;
-	strncpy(buf2,buf,i);buf2[i]='\0';     /* try & rename bogus lockfile */
-	rnmbogus(defdeflock,&stbuf,i,0);		   /* out of the way */
-      }
-     *chp='\0';
-   }
-  else
-nl:  defdeflock=empty;					   /* no lock needed */
-  return 1;
 }
 
 			     /* lifted out of main() to reduce main()'s size */

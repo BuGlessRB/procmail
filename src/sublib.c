@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: sublib.c,v 1.20 1999/12/12 08:51:05 guenther Exp $";
+ "$Id: sublib.c,v 1.21 2000/09/28 01:23:40 guenther Exp $";
 #endif
 #include "includes.h"
 #include "sublib.h"
@@ -129,7 +129,7 @@ ret0:
 #ifdef NOstrtol
 long strtol(start,ptr,base)const char*start,**const ptr;int base;
 { long result;const char*str=start;unsigned i;int sign,found;
-  if(base>=36||base<(sign=found=result=0))
+  if(base<(sign=found=result=0)||base>=36)
      goto fault;
   for(;;str++)					  /* skip leading whitespace */
    { switch(*str)
@@ -174,11 +174,9 @@ fault:
 }
 #else /* NOstrtol */
 #ifndef SLOWstrstr
-#ifndef NOstpcpy
 #ifndef NOstrpbrk
 #ifndef NOmemmove
 int sublib_dummy_var;		      /* to prevent insanity in some linkers */
-#endif
 #endif
 #endif
 #endif

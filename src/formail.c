@@ -3,14 +3,16 @@
  *									*
  *	Seems to be relatively bug free.				*
  *									*
- *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-2000, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1999-2000, Philip Guenther, The United States	*
+ *							of America	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.97 1999/10/24 06:32:08 guenther Exp $";
+ "$Id: formail.c,v 1.98 2000/09/28 01:23:21 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/10/24 06:32:08 $";
+static /*const*/char rcsdate[]="$Date: 2000/09/28 01:23:21 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -194,7 +196,9 @@ static int digheadr P((void))
 { char*chp;int i;size_t j;struct field*fp;
   for(fp=rdheader;fp->fld_next;fp=fp->fld_next);	 /* skip to the last */
   i=maxindex(cdigest);chp=fp->fld_text;j=fp->id_len;
-  while((cdigest[i].lnr!=j||strnIcmp(cdigest[i].hedr,chp,j))&&i--);
+  while(chp[j-2]==' '||chp[j-2]=='\t')	     /* whitespace before the colon? */
+     j--;
+  while((cdigest[i].lnr!=j||strnIcmp(cdigest[i].hedr,chp,j-1))&&i--);
   return i>=0||j>STRLEN(old_)&&!strnIcmp(old_,chp,STRLEN(old_))||
    j>STRLEN(x_)&&!strnIcmp(x_,chp,STRLEN(x_));
 }
@@ -446,13 +450,13 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		 i=breakfield(chp,lnl=strlen(chp));
 		 switch(lastm)
 		  { case FM_ADD_IFNOT:
-		       if(i>0)			   /* the only partial field */
-			  break;			  /* allowed with -a */
-		       else if(i!=-STRLEN(Resent_)||-i!=lnl||  /* is Resent- */
-			strnIcmp(chp,Resent_,STRLEN(Resent_)+1))
-			  goto invfield;
+		       if(i>0)
+			  break;
+		       if(i!=-STRLEN(Resent_)||-i!=lnl|| /* the only partial */
+			strnIcmp(chp,Resent_,STRLEN(Resent_)+1))    /* field */
+			  goto invfield;       /* allowed with -a is Resent- */
 		       headreply|=2;
-		       goto nextarg;		/* don't add to the list */
+		       goto nextarg;		    /* don't add to the list */
 		    default:
 		       if(-i!=lnl)	  /* it is not an early ending field */
 		    case FM_ADD_ALWAYS:
@@ -505,11 +509,6 @@ nextarg:;
       }
 parsedoptions:
   escaplen=strlen(escap);mystdout=stdout;signal(SIGPIPE,SIG_IGN);
-  if(nowait&&idcache&&split)
-   { nowait=childlimit=0;
-     if(!quiet)
-	nlog("No-wait option ignored to prevent corrupted idcache\n");
-   }
 #ifdef SIGCHLD
   signal(SIGCHLD,SIG_DFL);
 #endif
@@ -590,6 +589,7 @@ xusg:
   else
 startover:
      while(readhead());				 /* read in the whole header */
+  cleanheader();
   ;{ size_t lenparkedbuf;void*parkedbuf;int wasafrom_;
      if(rdheader)
       { char*tmp,*tmp2;
@@ -845,7 +845,11 @@ putsp:	lputcs(' ');
 	    { fp2=fldp->fld_next;chp=fldp->fld_text;
 	      do
 	       { lputssn(escap,escaplen);
-		 lputssn(chp,(p=strchr(chp,'\n')+1)-chp);
+		 if(p=memchr(chp,'\n',fldp->Tot_len))
+		    p++;
+		 else
+		    p=(char*)fldp->fld_text+fldp->Tot_len;
+		 lputssn(chp,p-chp);
 	       }
 	      while((chp=p)<(char*)fldp->fld_text+fldp->Tot_len);
 	      free(fldp);					/* delete it */
@@ -887,22 +891,25 @@ int eqFrom_(a)const char*const a;
 
 int breakfield(line,len)const char*const line;size_t len;  /* look where the */
 { const char*p=line;			   /* fieldname ends (RFC 822 specs) */
-  while(len&&*p&&!iscntrl(*p))		    /* no control characters allowed */
-   { switch(*p++)
+  while(len)
+   { switch(*p)
       { default:len--;
+	   if(iscntrl(*p))		    /* no control characters allowed */
+	      break;
+	   p++;
 	   continue;
 	case HEAD_DELIMITER:
-good:	   len=p-line;
-	   return len==1?0:len;					  /* eureka! */
-	case ' ':case '\t':
-	   ;{ const char*q=p;	/* whitespace is okay right before the colon */
-	      while(--len&&(*q==' '||*q=='\t'))
+	   len=p-line;
+	   return len?len+1:0;					  /* eureka! */
+	case ' ':case '\t':	/* whitespace is okay right before the colon */
+	   if(p>line)	    /* but only if we've seen something else already */
+	    { const char*q=++p;
+	      while(--len&&(*q==' '||*q=='\t'))		     /* skip forward */
 		 q++;
-	      if(len&&*q==HEAD_DELIMITER)
-		 goto good;
+	      if(len&&*q==HEAD_DELIMITER)			/* it's okay */
+		 return q-line+1;
 	      if(eqFrom_(line))			      /* special case, From_ */
 		 return STRLEN(From_);
-	      p--;
 	    }					   /* it was bogus after all */
       }
      break;

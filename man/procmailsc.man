@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailsc.man,v 1.10 1994/10/07 15:24:32 berg Exp $
+.Id $Id: procmailsc.man,v 1.11 2000/09/28 01:23:10 guenther Exp $
 .TH PROCMAILSC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -29,7 +29,7 @@ Whereas both
 .B w
 and
 .B x
-are real numbers between \-2147483647.0 and 2147483647.0.
+are real numbers between @MIN32@.0 and @MAX32@.0 inclusive.
 
 .SH "Weighted regular expression conditions"
 The first time the regular expression is found, it will add
@@ -242,11 +242,11 @@ function in your mathematical library.
 .PP
 Floating point numbers in `engineering' format (e.g. 12e5) are not accepted.
 .SH MISCELLANEOUS
-As soon as `plus infinity' (2147483647) is reached, any subsequent
+As soon as `plus infinity' (@MAX32@) is reached, any subsequent
 .I weighted
 conditions will simply be skipped.
 .PP
-As soon as `minus infinity' (\-2147483647) is reached, the condition will
+As soon as `minus infinity' (@MIN32@) is reached, the condition will
 be considered as `no match' and the recipe will terminate early.
 .SH NOTES
 If in a regular expression weighted formula

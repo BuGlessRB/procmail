@@ -1,4 +1,4 @@
-/*$Id: common.h,v 1.10 1994/05/26 14:12:28 berg Exp $*/
+/*$Id: common.h,v 1.11 2000/09/28 01:23:14 guenther Exp $*/
 
 void
  shexec P((const char*const*argv)),
@@ -8,7 +8,7 @@ char
  *skpspace P((const char*chp));
 int
  waitfor Q((const pid_t pid)),
- strnIcmp P((const char*a,const char*b,size_t l));
+ strnIcmp Q((const char*a,const char*b,size_t l));
 
 #ifdef NOstrcspn
 int

@@ -1,4 +1,4 @@
-/*$Id: pipes.h,v 1.11 1999/12/12 08:50:59 guenther Exp $*/
+/*$Id: pipes.h,v 1.12 2000/09/28 01:23:35 guenther Exp $*/
 
 struct memblk;					       /* predeclare the tag */
 void
@@ -11,7 +11,7 @@ int
 long
  pipin P((char*const line,char*source,long len));
 char
- *readdyn P((struct memblk*const mb,long*const filled,const long oldfilled)),
+ *readdyn P((struct memblk*const mb,long*const filled,long oldfilled)),
  *fromprog Q((char*name,char*const dest,size_t max));
 
 extern const char exitcode[];

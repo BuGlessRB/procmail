@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.44 1999/11/16 06:35:06 guenther Exp $*/
+/*$Id: misc.h,v 1.45 2000/09/28 01:23:33 guenther Exp $*/
 
 struct dyna_long{int filled,tspace;union{int i;off_t o;long l;}*vals;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -14,6 +14,7 @@ void
  elog P((const char*const newt)),
  ignoreterm P((void)),
  shutdesc P((void)),
+ checkroot P((const int c,const unsigned long Xid)),
  setids P((void)),
  writeerr P((const char*const line)),
  progerr P((const char*const line,int xitcode,int okay)),
@@ -42,7 +43,7 @@ void
  setdef P((const char*const name,const char*const contents)),
  metaparse P((const char*p)),
  setlastfolder P((const char*const folder)),
- mallocbuffers P((size_t lineb,int setenv)),
+ mallocbuffers Q((size_t lineb,int setenv)),
  asenv P((const char*const chp)),
  concatenate P((char*p)),
  squeeze P((char*target)),
@@ -55,7 +56,6 @@ int
  alphanum P((const unsigned c)),
  enoughprivs Q((const auth_identity*const passinvk,const uid_t euid,
   const gid_t egid,const uid_t uid,const gid_t gid)),
- screenmailbox Q((char*chp,const gid_t egid,const int Deliverymode)),
  conditions P((char flags[],const int prevcond,const int lastsucc,
   const int lastcond,int nrcond));
 char

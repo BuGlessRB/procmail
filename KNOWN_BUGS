@@ -9,4 +9,8 @@ regexp matching bug
 
 Incorrect usage of -lnsl and -lsocket
     libsocket and libnsl should be avoided if not needed as they're
-    broken under at least one version of IRIX
+    broken under at least one version of IRIX.	If your procmail
+    binary doesn't reliably find user's home directories, or otherwise
+    appears to have problems accessing the passwd file, try removing
+    -lnsl and -lsocket from the SEARCHLIBS variable in the Makefile,
+    then recompile.

@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.123 1999/12/12 08:50:47 guenther Exp $
+#$Id: autoconf,v 1.124 2000/09/28 01:23:13 guenther Exp $
 
 # All possible entries in autoconf.h:
 
@@ -83,6 +83,7 @@
 #	#define buggy_SENDMAIL
 #	#define DEFflagsendmail ""
 #Ok	#define CF_no_procmail_yet
+#Ok	#define defSPATH "PATH=/bin:/usr/bin:/usr/local/bin"
 #Ok	#define defPATH "PATH=$HOME/bin:/bin:/usr/bin:/usr/local/bin"
 #Ok	#define INEFFICIENTrealloc
 #Ok	#define PM_VERSION "n.nn"
@@ -1262,14 +1263,14 @@ openerr:
 #define MAXT(type)	(~(type)0>>1)
      sscanf(argv[1],"%u",&diff);  /* what did our previous incarnation want? */
      if(!diff)			   /* first run?  initialise the environment */
-      { char*envs,**nenviron;
+      { char*envs,**nenviron,**nenv;
 	diff=MAX_ENVMEM/sizeof arg+1;
 	if(!(nenviron=malloc(diff*sizeof*environ+MAX_ENVMEM)))
 	   goto printit;			      /* oops, panic already */
-	envs=(char*)((environ=nenviron)+diff);
+	envs=(char*)((nenv=nenviron)+diff);
 	while(--diff)				       /* put in some colour */
 	   sprintf(*nenviron++=envs,arg,diff),envs+=sizeof arg;
-	*environ="PATH=.";*nenviron=0;diff=argc;	   /* start doubling */
+	*(environ=nenv)="PATH=.";*nenviron=0;diff=argc;	   /* start doubling */
       }
      if(MAX_ARGMEM/sizeof arg<=argc)			 /* we are satisfied */
       { einfo=" /* soft limit */";		  /* no reason to hog memory */
@@ -1394,7 +1395,7 @@ cat /usr/lib/sendmail.cf /etc/sendmail.cf /etc/mail/sendmail.cf 2>$DEVNULL |
  grep '^V' >$DEVNULL ||
  echo '#define buggy_SENDMAIL' >>$ACONF
 
-lpath='PATH=$HOME/bin:/bin'
+lpath='/bin'
 bins="/bin"
 
 for newd in /usr/bin /usr/ucb /usr/5bin $BINDIR /local/bin /usr/local/bin \
@@ -1411,7 +1412,8 @@ do
   fi
 done
 
-echo "#define defPATH \"$lpath\"" >>$ACONF
+echo "#define defPATH \"PATH=\$HOME/bin:$lpath\"" >>$ACONF
+echo "#define defSPATH \"SPATH=$lpath\"" >>$ACONF
 
 sed -n -e 's/^ v\([^ ]*\) .*$/#define PM_VERSION "\1"/p' \
  ../patchlevel.h >>$ACONF

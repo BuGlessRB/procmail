@@ -1,12 +1,12 @@
 /************************************************************************
  *	Routines to deal with the header-field objects in formail	*
  *									*
- *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1990-2000, S.R. van den Berg, The Netherlands	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: fields.c,v 1.28 1999/11/02 03:50:58 guenther Exp $";
+ "$Id: fields.c,v 1.29 2000/09/28 01:23:19 guenther Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -29,6 +29,19 @@ struct field*findf(p,ah)const struct field*const p;register struct field**ah;
   return (struct field*)0;
 }
 
+void cleanheader P((void))		  /* zorch whitespace before the ':' */
+{ struct field**pp,*p;char*cp;int idlen;
+  for(pp=&rdheader;p= *pp;pp= &(*pp)->fld_next)
+     if((cp=p->fld_text+p->id_len-1,*cp==HEAD_DELIMITER)&&	    /* has : */
+	(*--cp==' '||*cp=='\t'))				   /* has ws */
+      { char*q=cp++;int diff;
+	while(*--q==' '||*q=='\t');		      /* find the field name */
+	tmemmove(++q,cp,p->Tot_len-p->id_len+1);		   /* zappo! */
+	p->id_len-=(diff=cp-q);
+	p->Tot_len-=diff;
+      }
+}
+
 void clear_uhead(hdr)register struct field*hdr;
 { for(;hdr;hdr=hdr->fld_next)
      hdr->fld_ref=0;
@@ -39,20 +52,8 @@ struct field**addfield(pointer,text,totlen)struct field**pointer;
 { register struct field*p,**pp;int idlen;
   for(pp=pointer;*pp;pp= &(*pp)->fld_next);   /* skip to the end of the list */
   (*pp=p=malloc(FLD_HEADSIZ+totlen))->fld_next=0;idlen=breakfield(text,totlen);
-  if(idlen>0)					 /* spaces before the colon? */
-   { if(text[(p->id_len=idlen)-1]!=HEAD_DELIMITER&&!eqFrom_(text))
-      { const char*q=strchr(text+idlen,HEAD_DELIMITER)+1;
-	tmemmove(p->fld_text,text,idlen);	       /* we always zap them */
-	p->fld_text[idlen-1]=HEAD_DELIMITER;
-	tmemmove(p->fld_text+idlen,q,totlen-(q-text));
-	p->Tot_len=totlen-(q-text)+idlen;
-	goto ret;
-      }
-   }
-  else
-     p->id_len=pp==&rdheader?0:-idlen;
-  tmemmove(p->fld_text,text,p->Tot_len=totlen);		    /* copy contents */
-ret:
+  p->id_len=idlen>0?idlen:pp==&rdheader?0:-idlen;	    /* copy contents */
+  tmemmove(p->fld_text,text,p->Tot_len=totlen);
   return pp;
 }
 
@@ -108,15 +109,16 @@ void dispfield(p)register const struct field*p;
 }
 		    /* try and append one valid field to rdheader from stdin */
 int readhead P((void))
-{ getline();
-  if(eqFrom_(buf))					/* it's a From_ line */
+{ int idlen;
+  getline();
+  if((idlen=breakfield(buf,buffilled))<=0) /* not the start of a valid field */
+     return 0;
+  if(idlen==STRLEN(FROM)&&eqFrom_(buf))			/* it's a From_ line */
    { if(rdheader)
 	return 0;			       /* the From_ line was a fake! */
      for(;buflast=='>';getline());	    /* gather continued >From_ lines */
    }
   else
-   { if(breakfield(buf,buffilled)<=0)	   /* not the start of a valid field */
-	return 0;
      for(;;getline())		      /* get the rest of the continued field */
       { switch(buflast)			     /* will this line be continued? */
 	 { case ' ':case '\t':				  /* yep, it sure is */
@@ -124,7 +126,6 @@ int readhead P((void))
 	 }
 	break;
       }
-   }
   addbuf();			  /* phew, got the field, add it to rdheader */
   return 1;
 }

@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.44 1999/12/12 08:50:55 guenther Exp $";
+ "$Id: lockfile.c,v 1.45 2000/09/28 01:23:25 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/12/12 08:50:55 $";
+static /*const*/char rcsdate[]="$Date: 2000/09/28 01:23:25 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -155,6 +155,7 @@ xusg:		       retval=EX_USAGE;
 		       else
 			  virgin=0;
 		  }
+
 	       }
 	      case '\0':;
 	    }
@@ -164,7 +165,10 @@ xusg:		       retval=EX_USAGE;
 	unlink(cp);
      else
       { time_t t;int permanent;
-	setgid(getgid());		      /* just to be on the safe side */
+	if(setgid(getgid()))		      /* just to be on the safe side */
+	 { nlog("Unable to give up special permissions");
+	   return EX_OSERR;
+	 }
 stilv:	virgin=0;permanent=nfsTRY;
 	while(0>xcreat(cp,&t))				     /* try and lock */
 	 { struct stat stbuf;

@@ -9,7 +9,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lmtp.c,v 1.3 1999/12/17 07:17:14 guenther Exp $"
+ "$Id: lmtp.c,v 1.4 2000/09/28 01:23:24 guenther Exp $"
 #endif
 #include "procmail.h"
 #ifdef LMTP
@@ -27,9 +27,8 @@ static /*const*/char rcsid[]=
 
 lhlo		=> print stuff
 mail from:	=> fork
-		   Generate From_ line (just ignore size & body type)
-rcpt to:	=> deduce pass entry, push it somewhere (static limit,
-			returning tempfail beyond?)
+		   Generate From_ line (just body type)
+rcpt to:	=> deduce pass entry, push it somewhere
 data		=> process data till end, if we run out of mem, give 552
 			(or 452?) response
 bdat		=> allocate requested size buffer & read it in, or 552/452
@@ -49,13 +48,13 @@ rset		=> if in child, die.
 #define INITIAL_RCPTS	10
 #define INCR_RCPTS	20
 
-static int lreaddyn P((long size));
+static int lreaddyn P((void));
 
 int ctopfd,childserverpid;
 char*overread;
 size_t overlen;
 
-static int nliseol;		/* is a plain \n the EOL delimiter? */
+static int nliseol;			 /* is a plain \n the EOL delimiter? */
 static char*bufcur;
 static const char
  lhlomsg[]=
@@ -65,9 +64,11 @@ static const char
 250-PIPELINING\r\n\
 250-CHUNKING\r\n\
 250 ENHANCEDSTATUSCODES\r\n",
- mustintroducemsg[]="503 5.5.1 You must introduce yourself first\r\n",
  nomemmsg[]="452 4.3.0 insufficient system storage\r\n",
- quitmsg[]="221 2.3.0 Goodbye!\r\n";
+ quitmsg[]="221 2.3.0 Goodbye!\r\n",
+ baduser[]="550 5.1.1 mailbox unknown\r\n",
+ protogood[]="250 2.5.0 command succeeded\r\n",
+ protobad[]="503 5.5.1 command unexpected\r\n";
 
 static void bufwrite(buffer,len,flush)
 const char*buffer;int len;int flush;
@@ -78,17 +79,15 @@ const char*buffer;int len;int flush;
 	exit(EX_OSERR);
    }
   else
-   { tmemmove(bufcur,buffer,len);
-     bufcur+=len;
-   }
+     bufcur=(char*)tmemmove(bufcur,buffer,len)+len;
 }
 #define bufinit		bufcur=buf2
-#define skiptoeol	do c=getB(); while(c!='\n');  /* skip to end-o'-line */
+#define skiptoeol	do c=getL(); while(c!='\n');  /* skip to end-o'-line */
 
 static int unexpect(str)const char*str;
 { char c;
   while(*str!='\0')
-   { if((c=getB())-'A'<='Z'-'A'&&c>='A')c+='a'-'A';
+   { if((c=getL())-'a'<='z'-'a'&&c>='a')c-='a'-'A';
      if(c!=*str)
       { if(c!='\n')
 	   skiptoeol;
@@ -98,10 +97,11 @@ static int unexpect(str)const char*str;
    }
   return 0;
 }
+#define NOTcommand(command,offset)	unexpect((msgcmd=command)+offset)
 
 static long slurpnumber P((void))
 { int c;long total=0;		/* strtol would require buffering the number */
-  while((c=getB())-'0'>=0&&c-'0'<10)
+  while((c=getL())-'0'>=0&&c-'0'<10)
    { total*=10;
      total+=c-'0';
    }
@@ -119,26 +119,26 @@ static long slurpnumber P((void))
 /* This is stricter than it needs to be, but not as strict as the rfcs */
 static char *slurpaddress P((void))
 { char*p=buf,c,*const last=buf+linebuf-1;     /* -1 to leave room for the \0 */
-  do{*p=getB();}while(*p==' ');
+  do{*p=getL();}while(*p==' ');
   if(*p!='<')
    { if(*p!='\n')
 	skiptoeol;
      return 0;
    }
   while(++p<last)
-     switch(*p=getB())
+     switch(*p=getL())
       { case '\\':
 	   if(++p==last)
 	      goto syntax_error;
-	   *p++=getB();
+	   *p++=getL();
 	   continue;
 	case '"':
 	   while(++p<last)
-	      switch(*p=getB())
+	      switch(*p=getL())
 	       { case '\\':
 		    if(++p==last)
 		       goto syntax_error;
-		    *p=getB();
+		    *p=getL();
 		    continue;
 		 case '"':
 		    break;
@@ -232,74 +232,63 @@ linebuf MUST be at least 256, and should be at least 1024 or so for buffering
    'overread' to 'ctopfd', and exit.  If something unrecoverable goes
    wrong, and it can't do the necessary calls to lmtpresponse(), then
    it should exit with some non-zero status.  The parent will then
-   syslog it, and exit with EX_SOFTWARE.  (See getB() in cstdio.c) */
+   syslog it, and exit with EX_SOFTWARE.  (See getL() in cstdio.c) */
 struct auth_identity **lmtp(lrout,invoker,privs)
 struct auth_identity***lrout;char*invoker;int privs;
-{ const char*newsendmailflags=0,*msg;
+{ static const char cLHLO[]="LHLO ",cMAIL[]="MAIL FROM:",cRCPT[]="RCPT TO:",
+   cDATA[]="DATA",cBDAT[]="BDAT",cRSET[]="RSET",cVRFY[]="VRFY ",cQUIT[]="QUIT",
+   cNOOP[]="NOOP";
+  const char*msg,*msgcmd;int flush=0,c,lmtp_state=S_START;long size=0;
   auth_identity**rcpts,**lastrcpt,**currcpt;
-  char*from=0,c;
-  int flush=0,lmtp_state=S_START;
-  long size=0;
 
-  restartbuf(STDIN);overread=0;overlen=0;nliseol=1;
+  pushfd(STDIN);overread=0;overlen=0;nliseol=1;
   bufinit;ctopfd=-1;					 /* setup our output */
   currcpt=rcpts=malloc(INITIAL_RCPTS*sizeof*rcpts);
   lastrcpt=INITIAL_RCPTS+currcpt;
   bufwrite("220 ",4,0);bufwrite(procmailn,strlen(procmailn),0);
-  bufwrite(Version,strchr(Version,',')-Version,0);
+  bufwrite(Version,strchr(Version,'\n')-Version,0);
   bufwrite(" LMTP\r\n",7,1);
-
   while(1)
-   { if(lmtp_state!=S_RCPT&&lmtp_state!=S_BDAT)	    /* clean up our state if */
-      { if(from)free(from);			/* we're not doing something */
-	newsendmailflags=from=0;size=0;				/* right now */
-      }
-     do{c=getB();}while(c==' ');
+   { do{c=getL();}while(c==' ');
      switch(c)
       { case 'l': case 'L':
-	   if(unexpect("hlo "))		 /* we require the space even though */
-	      goto unknown_command;  /* we'll just ignore the hostname given */
+	   if(NOTcommand(cLHLO,1))
+	      goto unknown_command;
 	   ;{ int sawcrnl=0;		      /* autodetect \r\n vs plain \n */
-	      do
-	       { c=getB();
+	      while((c=getL())!='\n')
 		 if(c=='\r')
-		  { c=getB();
+		  { c=getL();			      /* they lose on \r\r\n */
 		    if(c=='\n')
 		     { sawcrnl=1;
 		       break;
 		     }
 		  }
-	       }
-	      while(c!='\n');
 	      flush=1;
 	      if(lmtp_state!=S_START)
-	       { msg="503 5.5.1 LHLO already issued\r\n";
+	       { msg=protobad;
 		 goto message;
 	       }
-	      if(sawcrnl)
-		 nliseol=0;
+	      else
+	       { lmtp_state=S_MAIL;
+		 msg=lhlomsg;msgcmd=0;
+		 if(sawcrnl)
+		    nliseol=0;
+	       }
 	    }
-	   lmtp_state=S_MAIL;
-	   msg=lhlomsg;
 	   goto message;
 	case 'm': case 'M':
-	   if(unexpect("ail from:"))
+	   if(NOTcommand(cMAIL,1))
 	      goto unknown_command;
-	   ;{ int pipefds[2];
-	      switch(lmtp_state)
-	       { case S_RCPT:case S_BDAT:
-		    skiptoeol;
-		    msg="503 5.5.1 MAIL sender already specified\r\n";
-		    goto message;
-		 case S_START:
-		    skiptoeol;
-		    msg=mustintroducemsg;
-		    goto message;
+	   ;{ int pipefds[2];char*from;
+	      if(lmtp_state!=S_MAIL)
+	       { skiptoeol;msg=protobad;
+		 goto message;
 	       }
 	      if(!(from=slurpaddress()))
 	       { msg="553 5.1.7 Unable to parse MAIL address\r\n";
 		 goto message;
 	       }
+	      size=0;
 	      goto jumpin;
 	      do
 	       { switch(c)
@@ -313,20 +302,20 @@ struct auth_identity***lrout;char*invoker;int privs;
 		    case 'b':case 'B':
 		       if(unexpect("ody="))			  /* rfc1652 */
 			  goto unknown_param;
-		       while((c=getB())!='\r')		      /* just ignore */
+		       while((c=getL())!='\r')		      /* just ignore */
 			  switch(c)		      /* the parameter as we */
 			   { case ' ':goto jumpin;	/* can't do anything */
 			     case '\n':goto jumpout;	   /* useful with it */
 			   }
 		    case '\r':
-		       if((c=getB())=='\n')
+		       if((c=getL())=='\n')
 			  continue;
 		    default:
 		       skiptoeol;
 unknown_param:	       msg="504 5.5.4 unknown MAIL parameter or bad value\r\n";
 		       goto message;
 		  }
-jumpin:		 do c=getB();
+jumpin:		 do c=getL();
 		 while(c==' ');
 		}
 	      while(c!='\n');
@@ -345,13 +334,9 @@ jumpout:      rpipe(pipefds);
 		 bufwrite(0,0,1);	  /* free up buf2 for lmtpFrom() */
 		 lmtpFrom(from+1,invoker,privs);
 		 /* bufinit;	only needed if buf2 might be realloced */
-		 if(from)
-		    free(from),from=0;
-		 if(!size)
-		    size=filled;
-		 else if(!resizeblock(&themail,size+=filled+3,1))
-		 /* try for the memory now */
-		  { status=1;		      /* +3 for the "." CRLF */
+		 free(from);
+		 if(size&&!resizeblock(&themail,size+=filled+3,1))/* try for */
+		  { status=1;	      /* the memory now, +3 for the "." CRLF */
 		    bufwrite(nomemmsg,STRLEN(nomemmsg),1);
 		  }
 		 if(rwrite(pipefds[1],&status,sizeof(status))!=sizeof(status))
@@ -359,7 +344,7 @@ jumpout:      rpipe(pipefds);
 		 if(status)
 		    exit(0);
 		 lmtp_state=S_RCPT;
-		 msg="250 2.5.0 MAIL sender ok\r\n";
+		 msg=protogood;
 		 goto message;
 	       }
 	      rclose(pipefds[1]);
@@ -367,7 +352,7 @@ jumpout:      rpipe(pipefds);
 	       { char status=1;
 		 rread(pipefds[0],&status,sizeof(status));
 		 if(!status)
-		  { restartbuf(pipefds[0]);	   /* pick up what the child */
+		  { pushfd(pipefds[0]);		   /* pick up what the child */
 		    lmtp_state=S_MAIL;			/* left lying around */
 		    bufinit;
 		  }
@@ -378,20 +363,20 @@ jumpout:      rpipe(pipefds);
 	      goto message;
 	    }
 	case 'r': case 'R':
-	   if((c=getB())=='s'||c=='S')
-	    { if(unexpect("et"))
+	   if((c=getL())=='s'||c=='S')
+	    { if(NOTcommand(cRSET,2))
 		 goto unknown_command;
 	      skiptoeol;
 	      if(lmtp_state!=S_START)
 		 lmtp_state=S_MAIL;
-	      msg="250 2.5.0 RSET OK\r\n";
+	      msg=protogood;
 	      goto message;
 	    }
-	   if((c!='c'&&c!='C')||unexpect("pt to:"))
+	   if((c!='c'&&c!='C')||NOTcommand(cRCPT,2))
 	      goto unknown_command;
 	   if(lmtp_state!=S_RCPT)
 	    { skiptoeol;
-	      msg="503 5.5.1 Need MAIL before RCPT\r\n";
+	      msg=protobad;
 	      /* don't change lmtp_state */
 	      goto message;
 	    }
@@ -403,49 +388,38 @@ jumpout:      rpipe(pipefds);
 	   ;{ char *path,*mailbox;auth_identity*temp;
 		    /* if it errors, extractaddress() will free its argument */
 	      if(!(path=slurpaddress())||!(mailbox=extractaddress(path)))
-	       { msg="550 5.1.3 RCPT address syntax error\r\n";
+	       { msg="550 5.1.3 address syntax error\r\n";
 		 goto message;
 	       }
 /* if we were to handle ESMTP params on the RCPT verb, we would do so here */
 	      skiptoeol;
 	      if(!(temp=auth_finduser(mailbox,0)))
-	       { msg="550 5.1.1 RCPT mailbox unknown\r\n";
+	       { msg="550 5.1.1 mailbox unknown\r\n";
 		 free(path);
 		 goto message;
 	       }
 	      auth_copyid(*currcpt=auth_newid(),temp);
 	      free(path);
 	      currcpt++;
-	      msg="250 2.1.5 RCPT ok\r\n";
+	      msg="250 2.1.5 ok\r\n";
 	      goto message;
 	    }
 	case 'd': case 'D':
 	   flush=1;
-	   if(unexpect("ata"))
+	   if(NOTcommand(cDATA,1))
 	      goto unknown_command;
 	   skiptoeol;
-	   switch(lmtp_state)
-	    { case S_START:
-		 msg=mustintroducemsg;
-		 goto message;
-	      case S_MAIL:
-		 msg="503 5.5.1 DATA from whom?\r\n";
-		 goto message;
-	      case S_BDAT:
-		 msg="503 5.5.1 DATA after BDAT is illegal\r\n";
-		 /* rfc1830 says that a RSET is needed at this point */
-		 /* we'll just ignore the invalid DATA command */
-		 goto message;
+	   if(lmtp_state!=S_RCPT)
+	    { msg=protobad;
+	      goto message;
 	    }
 	   if(currcpt==rcpts)
-	    { msg="554 5.5.1 DATA to whom?\r\n";
+	    { msg="554 5.5.1 to whom?\r\n";
 	      goto message;
 	    }
 	   msg="354 Enter DATA terminated with a solo \".\"\r\n";
 	   bufwrite(msg,strlen(msg),1);
-	   if(newsendmailflags)
-	      flagsendmail=newsendmailflags;
-	   if(!(lreaddyn(size)))
+	   if(!(lreaddyn()))
 	    { /*
 	       * At this point we either have more data to read which we
 	       * can't fit, or, worse, we've lost part of the command stream.
@@ -466,44 +440,40 @@ deliver:   readmail(2,0L);		/* fix up things */
 	   *lrout=(currcpt-lastrcpt)+rcpts;
 	   return rcpts;
 	case 'b': case 'B':		/* rfc1830's BDAT */
-	   if(unexpect("dat"))
+	   if(NOTcommand(cBDAT,1))
 	      goto unknown_command;
-	   if((c=getB())!=' ')
+	   if((c=getL())!=' ')
 	    { if(c!='\n')
 		 skiptoeol;
-	      msg="504 5.5.4 BDAT octets count missing\r\n";
+	      msg="504 5.5.4 octets count missing\r\n";
 	      goto message;
 	    }
-	   switch(lmtp_state)
-	    { case S_START:
-		 msg=mustintroducemsg;
-		 goto message;
-	      case S_MAIL:
-		 msg="503 5.5.1 BDAT from whom?\r\n";
-		 goto message;
+	   if(lmtp_state<S_RCPT)
+	    { msg=protobad;
+	      goto message;
 	    }
 	   if(currcpt==rcpts)
-	    { msg="554 5.5.1 BDAT to whom?\r\n";
+	    { msg="554 5.5.1 to whom?\r\n";
 	      goto message;
 	    }
 	   ;{ int last=0;
 	      long length=slurpnumber();
 	      if(length<0)
-	       { msg="555 5.5.4 bad value for BDAT octet count\r\n";
+	       { msg="555 5.5.4 octet count bad\r\n";
 		 goto message;
 	       }
-	      do{c=getB();}while(c==' ');
+	      do{c=getL();}while(c==' ');
 	      if(c=='l'||c=='L')
 	       { if(unexpect("ast"))
 		  {
-bad_bdat_param:	    msg="504 5.5.4 unknown BDAT parameter\r\n";
+bad_bdat_param:	    msg="504 5.5.4 parameter unknown\r\n";
 		    goto message;
 		  }
 		 last=1;
-		 c=getB();
+		 c=getL();
 	       }
 	      if(!nliseol&&c=='\r')
-		 c=getB();
+		 c=getL();
 	      if(c!='\n')
 	       { skiptoeol;
 		 goto bad_bdat_param;
@@ -512,12 +482,12 @@ bad_bdat_param:	    msg="504 5.5.4 unknown BDAT parameter\r\n";
 	       { if(!resizeblock(&themail,size=filled+length+BLKSIZ,1))
 		  { int i;				/* eat the BDAT data */
 		    while(length>linebuf)
-		     { i=rread(STDIN,buf,linebuf);
+		     { i=readLe(buf,linebuf);
 		       if(i<0)
 			  goto quit;
 		       length-=i;
 		     }
-		    if(length&&0>rread(STDIN,buf,length))
+		    if(length&&0>readLe(buf,length))
 		       goto quit;
 		    lmtp_state=S_MAIL;
 		    msg=nomemmsg;
@@ -526,7 +496,7 @@ bad_bdat_param:	    msg="504 5.5.4 unknown BDAT parameter\r\n";
 		  }
 	       }
 	      while(length>0)
-	       { int i=rread(STDIN,themail.p+filled,length);
+	       { int i=readLe(themail.p+filled,length);
 		 if(!i)
 		    exit(EX_NOINPUT);
 		 else if(i<0)
@@ -550,57 +520,63 @@ bad_bdat_param:	    msg="504 5.5.4 unknown BDAT parameter\r\n";
 		  }
 		 goto deliver;
 	       }
-	      msg="250 2.5.0 BDAT chunk okay\r\n";
+	      msg=protogood;
 	      goto message;
 	    }
 	case 'v': case 'V':
-	   if(unexpect("rfy "))
+	   if(NOTcommand(cVRFY,1))
 	      goto unknown_command;
 	   flush=1;
 	   ;{ char *path,*mailbox;
 	      auth_identity *temp;
 	      if(!(path=slurpaddress())||!(mailbox=extractaddress(path)))
-	       { msg="501 5.1.3 VRFY address syntax error\r\n";
+	       { msg="501 5.1.3 address syntax error\r\n";
 		 goto message;
 	       }
 	      skiptoeol;
 	      if(!(temp=auth_finduser(mailbox,0)))
-	       { msg="550 5.1.1 VRFY user unknown\r\n";
+	       { msg="550 5.1.1 user unknown\r\n";
 		 free(path);
 		 goto message;
 	       }
 	      free(path);
-	      msg="252 2.5.0 VRFY successful\r\n";
+	      msg="252 2.5.0 successful\r\n";
 	      goto message;
 	    }
 	case 'q': case 'Q':
-	   if(unexpect("uit"))
+	   if(NOTcommand(cQUIT,1))
 	      goto unknown_command;
 quit:	   if(ctopfd>=0)	   /* we're the kid: tell the parent to quit */
-	    { static const char quitrn[]="quit\r\n";
-	      rwrite(ctopfd,quitrn,STRLEN(quitrn));
+	    { rwrite(ctopfd,cQUIT,STRLEN(cQUIT));
 	      rclose(ctopfd);
 	    }
 	   else
 	      bufwrite(quitmsg,STRLEN(quitmsg),1);
 	   exit(0);
 	case 'n': case 'N':
-	   if(unexpect("oop"))
+	   if(NOTcommand(cNOOP,1))
 	      goto unknown_command;
 	   skiptoeol;
 	   flush=1;
-	   msg="200 2.0.0 NOOP?	 Nope\r\n";
+	   msg="200 2.0.0 ? Nope\r\n";
 	   goto message;
 	default:
 	   skiptoeol;
 unknown_command:
 	case '\n':
-	   msg="500 5.5.1 Unknown command given\r\n";
+	   msg="500 5.5.1 Unknown command given\r\n";msgcmd=0;
 	   flush=1;
-message:   bufwrite(msg,strlen(msg),flush||endoread());
-	   flush=0;
-	   continue;
+	   break;
       }
+message:
+     bufwrite(msg,10,0);msg+=10;
+     if(msgcmd)					  /* insert the command name */
+      { msg--;
+	bufwrite(msgcmd,4,0);
+	msgcmd=0;
+      }
+     bufwrite(msg,strlen(msg),flush||endoread());
+     flush=0;
    }
 }
 
@@ -624,10 +600,9 @@ static struct{const char*mess;int len;}ret2LMTP[]=
 };
 
 void lmtpresponse(retcode)int retcode;
-{ static const char success[]="250 2.5.0 Message delivered\r\n";
-  const char*message;int len;
+{ const char*message;int len;
   if(!retcode)
-     message=success,len=STRLEN(success);
+     message=protogood,len=STRLEN(protogood);
   else
    { if(retcode<0)
 	retcode=EX_SOFTWARE;
@@ -639,6 +614,7 @@ void lmtpresponse(retcode)int retcode;
      exit(EX_OSERR);
 }
 
+#define IS_READERR	(-1)
 #define IS_NORMAL	0
 #define IS_CR		1
 #define IS_CRBOL	2
@@ -647,127 +623,107 @@ void lmtpresponse(retcode)int retcode;
 #define IS_NLBOL	5
 #define IS_NLDOT	6
 
-int lreaddyn(size)long size;
-{ int blksiz=BLKSIZ,state,ok,left;unsigned int shift=EXPBLKSIZ;
-  state=nliseol?IS_NLBOL:IS_CRBOL;
-  if(left=size-filled)			    /* did we have an initial guess? */
-   { size=filled;				 /* hopefully avoid resizing */
-     goto jumpin;
-   }
-  for(;;)
-   {
-#ifdef SMALLHEAP
-     if((size_t)size>=(size_t)(size+blksiz))
-	lcking|=lck_MEMORY,nomemerr(size);
-#endif				       /* dynamically adjust the buffer size */
-     while(EXPBLKSIZ&&(ok=0,blksiz>BLKSIZ)&&	   /* backed up all the way? */
-      !(ok=resizeblock(&themail,size+blksiz,1)))       /* then try this size */
-	blksiz>>=1;			    /* nope, try a smaller increment */
-     if(!EXPBLKSIZ||!ok)
-	resizeblock(&themail,size+blksiz,0);	    /* last (maybe only) try */
-     left=blksiz;
-jumpin:
-     ;{ int got;
-	do
-	 { register char*in,*out,*q,*last;
-	   if(0>=(got=rread(STDIN,themail.p+size,left)))	/* read mail */
-	      return 0;
-	   last=(in=out=themail.p+size)+got;
-	   /*
-	    * A state machine to read SMTP data.  If 'nliseol' is
-	    * set then \n is the end-o'-line character and \r is not
-	    * special at all.  If 'nliseol' isn't set, then \r\n is the
-	    * end-o'-line string, and \n is only special in it.	 \r's are
-	    * stripped from \r\n, but are otherwise preserved.
-	    */
-	   switch(state)
-	    { case IS_CR:   goto is_cr;
-	      case IS_CRBOL:goto is_crbol;
-	      case IS_CRDOT:goto is_crdot;
-	      case IS_DOTCR:goto is_dotcr;
-	      case IS_NLBOL:goto is_nlbol;
-	      case IS_NLDOT:goto is_nldot;
-	      case IS_NORMAL:break;
-	    }
+static char*lmtp_read(char*p,long left,void*statep)
+{ int got,state= *(int*)statep;
+  register char*in,*q,*last;
+  do
+   { if(0>=(got=readL(p,left)))					/* read mail */
+      { state=IS_READERR;
+	return p;
+      }
+     last=(in=p)+got;
+     /*
+      * A state machine to read LMTP data.  If 'nliseol' is
+      * set then \n is the end-o'-line character and \r is not
+      * special at all.	 If 'nliseol' isn't set, then \r\n is the
+      * end-o'-line string, and \n is only special in it.  \r's are
+      * stripped from \r\n, but are otherwise preserved.
+      */
+     switch(state)
+      { case IS_CR:   goto is_cr;
+	case IS_CRBOL:goto is_crbol;
+	case IS_CRDOT:goto is_crdot;
+	case IS_DOTCR:goto is_dotcr;
+	case IS_NLBOL:goto is_nlbol;
+	case IS_NLDOT:goto is_nldot;
+	case IS_NORMAL:break;
+      }
 #define EXIT_LOOP(s)	{state=(s);goto loop_exit;}
-	   if(!nliseol)
-	      while(in<last)
-		 if((q=memchr(in,'\r',last-in))?q>in:!!(q=last))
-		  { if(in!=out)
-		       memmove(out,in,q-in);
-		    out+=q-in;in=q;
-		  }
-		 else						       /* CR */
-		  {
-found_cr:	    *out++=*in++;		   /* tenatively save the \r */
-		    if(in==last)
-		       EXIT_LOOP(IS_CR)
-is_cr:		    if(*in!='\n')
-		       continue;
-		    out[-1]=*in++;			 /* overwrite the \r */
-		    if(in==last)				     /* CRLF */
-		       EXIT_LOOP(IS_CRBOL)
-is_crbol:	    if(*in=='\r')				 /* CRLF CR? */
-		       goto found_cr;
-		    if(*in!='.')
-		     { *out++=*in++;
-		       continue;
-		     }
-		    if(++in==last)				 /* CRLF "." */
-		       EXIT_LOOP(IS_CRDOT)
-is_crdot:	    if((*out++=*in++)!='\r')
-		       continue;
-		    if(in==last)			      /* CRLF "." CR */
-		       EXIT_LOOP(IS_DOTCR)
-is_dotcr:	    if(*in=='\n')			    /* CRLF "." CRLF */
-		     { out--;			   /* remove the trailing \r */
-		       goto found_end;
-		     }
-		  }
-	   else /* nliseol */
-	      while(in<last)
-		 if((q=memchr(in,'\r',last-in))?q>in:!!(q=last))
-		  { if(in!=out)
-		       memmove(out,in,q-in);
-		    out+=q-in;in=q;
-		  }
-		 else						       /* LF */
-		  { do
-		     { *out++=*in++;
-is_nlbol:	       ;
-		     }
-		    while(in<last&&*in=='\n');
-		    if(in==last)
-		       EXIT_LOOP(IS_NLBOL)
-		    if(*in!='.')
-		     { *out++=*in++;
-		       continue;
-		     }
-		    if(++in==last)				   /* LF "." */
-		       EXIT_LOOP(IS_NLDOT)
-is_nldot:	    if(*in=='\n')				/* LF "." LF */
-found_end:	     { size=out-themail.p;
-		       if((overlen=last-++in)>0) /* should never be negative */
-			  tmemmove(overread=malloc(overlen),in,overlen);
-		       goto eoffound;
-		     }
-		    *out++=*in++;
-		  }
-	   state=IS_NORMAL;	 /* we must have fallen out because in==last */
+     if(!nliseol)
+	while(in<last)
+	   if((q=memchr(in,'\r',last-in))?q>in:!!(q=last))
+	    { if(in!=p)
+		 memmove(p,in,q-in);
+	      p+=q-in;in=q;
+	    }
+	   else							      /* CR */
+	    {
+found_cr:     *p++=*in++;			   /* tenatively save the \r */
+	      if(in==last)
+		 EXIT_LOOP(IS_CR)
+is_cr:	      if(*in!='\n')
+		 continue;
+	      p[-1]=*in++;				 /* overwrite the \r */
+	      if(in==last)					     /* CRLF */
+		 EXIT_LOOP(IS_CRBOL)
+is_crbol:     if(*in=='\r')					 /* CRLF CR? */
+		 goto found_cr;
+	      if(*in!='.')
+	       { *p++=*in++;
+		 continue;
+	       }
+	      if(++in==last)					 /* CRLF "." */
+		 EXIT_LOOP(IS_CRDOT)
+is_crdot:     if((*p++=*in++)!='\r')
+		 continue;
+	      if(in==last)				      /* CRLF "." CR */
+		 EXIT_LOOP(IS_DOTCR)
+is_dotcr:     if(*in=='\n')				    /* CRLF "." CRLF */
+	       { p--;				   /* remove the trailing \r */
+		 goto found_end;
+	       }
+	    }
+     else /* nliseol */
+	while(in<last)
+	   if((q=memchr(in,'\n',last-in))?q>in:!!(q=last))
+	    { if(in!=p)
+		 memmove(p,in,q-in);
+	      p+=q-in;in=q;
+	    }
+	   else							       /* LF */
+	    { do
+	       { *p++=*in++;
+is_nlbol:	 ;
+	       }
+	      while(in<last&&*in=='\n');
+	      if(in==last)
+		 EXIT_LOOP(IS_NLBOL)
+	      if(*in!='.')
+	       { *p++=*in++;
+		 continue;
+	       }
+	      if(++in==last)					   /* LF "." */
+		 EXIT_LOOP(IS_NLDOT)
+is_nldot:     if(*in=='\n')					/* LF "." LF */
+found_end:     { if((overlen=last-++in)>0) /* should never be negative */
+		    tmemmove(overread=malloc(overlen),in,overlen);
+		 return p;
+	       }
+	      *p++=*in++;
+	    }
+     state=IS_NORMAL;		 /* we must have fallen out because in==last */
 loop_exit:
-	   got-=in-out;			     /* correct for what disappeared */
-	 }
-	while(size+=got,left-=got);		/* change listed buffer size */
-      }
-     if(EXPBLKSIZ&&shift)				 /* room for growth? */
-      { int newbs=blksiz;newbs<<=shift--;	/* capped exponential growth */
-	if(blksiz<newbs)				  /* no overflowing? */
-	   blksiz=newbs;				    /* yes, take me! */
-      }
+     got-=in-p;				     /* correct for what disappeared */
    }
-eoffound:
-  resizeblock(&themail,(filled=size)+1,1);    /* minimise+1 for housekeeping */
-  return 1;
+  while(left-=got);				/* change listed buffer size */
+  *(long*)statep=state;					       /* save state */
+  return 0;
+}
+
+static int lreaddyn()
+{ int state=nliseol?IS_NLBOL:IS_CRBOL;
+  read2blk(&themail,&filled,&lmtp_read,(cleanup_func_type*)0,&state);
+  return state!=IS_READERR;
 }
 #else
 int lmtp_dummy_var;		      /* to prevent insanity in some linkers */

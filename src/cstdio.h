@@ -1,4 +1,4 @@
-/*$Id: cstdio.h,v 1.14 1999/12/12 08:50:49 guenther Exp $*/
+/*$Id: cstdio.h,v 1.15 2000/09/28 01:23:16 guenther Exp $*/
 
 void
  pushrc P((const char*const name)),
@@ -19,9 +19,13 @@ int
 
 extern struct dynstring*incnamed;
 
+#ifdef LMTP
 /* extensions for LMTP */
 void
- restartbuf P((int fd));
+ pushfd P((int fd));
 int
- getB P((void)),
- endoread P((void));
+ endoread P((void)),
+ getL P((void)),
+ readL P((char*,const int)),
+ readLe P((char*,int));
+#endif

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.65 1999/12/12 08:50:52 guenther Exp $";
+ "$Id: goodies.c,v 1.66 2000/09/28 01:23:22 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -46,8 +46,8 @@ static const char*evalenv P((void))	/* expects the variable name in buf2 */
 int readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
  const int sarg;
 { static int i,skipbracelev,bracegot;int got,bracelev,qbracelev,overflow;
-  charNUM(num,long),*startb,*const fencepost=buf+linebuf-XTRAlinebuf,
-     *const fencepost2=buf2+linebuf-XTRAlinebuf;
+  charNUM(num,long),*startb,*const fencepost=buf+linebuf,
+     *const fencepost2=buf2+linebuf;
   static char*skipback;static const char*oldstartb;
   overflow=bracelev=qbracelev=0;All_args=0;
   for(got=NOTHING_YET;;)		    /* buf2 is used as scratch space */
@@ -313,6 +313,16 @@ copyit:	    { strncpy(p,startb,fencepost-p+2);		   /* simply copy it */
 eeofstr:   if(i)			     /* already read next character? */
 	      goto newchar;
 	   continue;
+#if 0					      /* autodetect quoted specials? */
+	case '~':
+	   if(got==NORMAL_TEXT&&p[-1]!='='&&p[-1]!=':')
+	      break;
+	case '&':case '|':case '<':case '>':case ';':
+	case '?':case '*':case '[':
+	   if(got<=NORMAL_TEXT)
+	      sh=1;
+	   break;
+#endif
 	case ' ':case '\t':
 	   switch(got)
 	    { case NORMAL_TEXT:
@@ -445,4 +455,9 @@ void retbStdout(newmyenv)char*const newmyenv;	/* see note on primeStdout() */
 void postStdout P((void))		 /* throw it into the keyword parser */
 { const char*p;size_t i;
   p= *lastenv;tmemmove(buf,p,i=strchr(p,'=')-p);buf[i]='\0';asenv(p+i+1);
+}
+
+const char*eputenv(src,dst)const char*const src;char*const dst;
+{ sgetcp=src;
+  return readparse(dst,sgetc,2)?0:sputenv(buf);
 }

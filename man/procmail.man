@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.80 1999/11/04 23:26:14 guenther Exp $
+.Id $Id: procmail.man,v 1.81 2000/09/28 01:23:08 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -693,14 +693,10 @@ send usenet/news.answers/mail/filtering-faq
 In this case your $HOME/@DOT_FORWARD@ (beware, it
 .B has
 to be world readable) file should contain the line below.  Be sure to include
-the single and double quotes, and it
-.I must
-be an
+the single and double quotes, and unless you know your site to be running
+smrsh (the SendMail Restricted SHell), it must be an
 .I absolute
-path.  The \fB#\fP\fIYOUR_USERNAME\fP is not actually a parameter that is
-required by procmail, in fact, it will be discarded by sh before procmail ever
-sees it; it is however a necessary kludge against overoptimising sendmail
-programs:
+path.@FW_comment@
 .PP
 .na
 .nf

@@ -6,18 +6,23 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.47 1999/12/15 08:52:43 guenther Exp $";
+ "$Id: cstdio.c,v 1.48 2000/09/28 01:23:15 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
 #include "cstdio.h"
 #include "misc.h"
 #include "lmtp.h"
+#include "shell.h"
 
 static uchar rcbuf[STDBUF],*rcbufp,*rcbufend;	  /* buffer for custom stdio */
 static off_t blasttell;
 static struct dyna_long inced;				  /* includerc stack */
 struct dynstring*incnamed;
+
+static void refill(offset)const int offset;		/* refill the buffer */
+{ rcbufp=rcbuf+(rcbuf>=(rcbufend=rcbuf+rread(rc,rcbuf,STDBUF))?1:offset);
+}
 
 void pushrc(name)const char*const name;		      /* open include rcfile */
 { if(*name&&strcmp(name,devnull))
@@ -38,28 +43,30 @@ rerr:	   readerr(name);
 }
 
 void changerc(name)const char*const name;		    /* change rcfile */
-{ if(*name&&strcmp(name,devnull))
-   { struct stat stbuf;int orc;uchar*orbp,*orbe;
-     if(stat(name,&stbuf)||!S_ISREG(stbuf.st_mode))   /* skip irregularities */
-	goto rerr;
-     if(stbuf.st_size)		  /* only if size>0, try to open the new one */
-      { if(orbp=rcbufp,orbe=rcbufend,orc=rc,bopen(name)<0)
-	 { rcbufp=orbp;rcbufend=orbe;rc=orc;   /* we couldn't, so restore rc */
-rerr:	   readerr(name);
-	 }
-	else
-	 { struct dynstring*dp;
-	   if(dp=incnamed->enext)		      /* fixup the name list */
-	      incnamed->enext=dp->enext,free(dp);
-	   rclose(orc);
-	   ifstack.filled=ifdepth;    /* act like all the braces were closed */
-	 }
-	goto ret;
-      }
+{ if(!*name||!strcmp(name,devnull))
+pr:{ ifstack.filled=ifdepth;	   /* lose all the braces to avoid a warning */
+     poprc();		 /* drop the current rcfile and restore the previous */
+     return;
    }
-  ifstack.filled=ifdepth;					/* see above */
-  poprc();		 /* drop the current rcfile and restore the previous */
-ret:;
+  if(!strcmp(name,incnamed->ename))		    /* just restart this one */
+     lseek(rc,0,SEEK_SET),refill(0);
+  else
+   { struct stat stbuf;int orc;uchar*orbp,*orbe;struct dynstring*dp;
+     if(stat(name,&stbuf)||!S_ISREG(stbuf.st_mode))
+rerr: { readerr(name);				      /* skip irregularities */
+	return;
+      }
+     if(!stbuf.st_size)			    /* avoid opening trivial rcfiles */
+	goto pr;
+     if(orbp=rcbufp,orbe=rcbufend,orc=rc,bopen(name)<0)
+      { rcbufp=orbp;rcbufend=orbe;rc=orc;		    /* restore state */
+	goto rerr;
+      }
+     rclose(orc);				/* success! drop the old and */
+     if(dp=incnamed->enext)			      /* fixup the name list */
+	incnamed->enext=dp->enext,free(dp);
+   }
+  ifstack.filled=ifdepth;			     /* close all the braces */
 }
 
 void duprcs P((void))		/* `duplicate' all the fds of opened rcfiles */
@@ -82,10 +89,6 @@ static void closeonerc P((void))
 { struct dynstring*last;
   if(rc>=0)
      rclose(rc),rc= -1,last=incnamed,incnamed=last->enext,free(last);
-}
-
-static void refill(offset)const int offset;
-{ rcbufp=rcbuf+(rcbuf==(rcbufend=rcbuf+rread(rc,rcbuf,STDBUF))?1:offset);
 }
 
 int poprc P((void))
@@ -115,7 +118,7 @@ int bopen(name)const char*const name;				 /* my fopen */
      if(!strchr(dirsep,*name)&&
 	*(md=(char*)tgetenv(maildir))&&
 	strchr(dirsep,*md)&&
-	(len=strlen(md))+strlen(name)+2+XTRAlinebuf<linebuf)
+	(len=strlen(md))+strlen(name)+2<linebuf)
       { strcpy(buf2,md);*(md=buf2+len)= *dirsep;strcpy(++md,name);
 	md=buf2;				    /* then prepend $MAILDIR */
       }
@@ -203,31 +206,91 @@ int getlline(target,end)char*target,*end;
 #ifdef LMTP
 static int origfd= -1;
 
-void restartbuf(fd)int fd;
+/* flush the input buffer and switch to a new input fd */
+void pushfd(fd)int fd;
 { origfd=rc;rc=fd;
   rcbufend=rcbufp;
 }
 
-int getB P((void))
-{ int c;
-  for(;;rclose(rc),rc=origfd,origfd=0,rcbufend=rcbufp)
-   { if(rcbufp==rcbufend)
-	refill(0);
-     c=rcbufp<rcbufend?(int)*rcbufp++:EOF;
-     if(c!=EOF)
-	return c;
-     if(0>origfd)
-	exit(EX_NOINPUT);
-     ;{ int retcode;
-	if((retcode=waitfor(childserverpid))!=EXIT_SUCCESS)
-	 { syslog(LOG_WARNING,"LMTP child failed: exit code %d",retcode);
-	   exit(EX_SOFTWARE);	    /* give up, give up, wherever you are */
+/* restore the original input fd */
+static int popfd P((void))
+{ rclose(rc);rc=origfd;
+  if(0>origfd)
+     return 0;
+  origfd= -1;
+  return 1;
+}
+
+/*
+ * Are we at the end of an input read?	If so, we'll need to flush our
+ * output buffer to prevent a possible deadlock from the pipelining
+ */
+int endoread P((void))
+{ return rcbufp>=rcbufend;
+}
+
+/*
+ * refill the LMTP input buffer, switching back to the original input
+ * stream if needed
+ */
+void refillL P((void))
+{ int retcode;
+  refill(0);
+  if(rcbufp>=rcbufend)				     /* we must have run out */
+   { if(popfd())				      /* try the original fd */
+      { refill(0);					  /* fill the buffer */
+	if(rcbufp<rcbufend)		   /* looks good, clean up the child */
+	 { if((retcode=waitfor(childserverpid))==EXIT_SUCCESS)
+	      return;	     /* successfully switched and the child was fine */
+	   syslog(LOG_WARNING,"LMTP child failed: exit code %d",retcode);
+	   exit(EX_SOFTWARE);	       /* give up, give up, wherever you are */
 	 }
       }
+     exit(EX_NOINPUT);				     /* we ran out of input! */
    }
 }
 
-int endoread P((void))
-{ return rcbufp==rcbufend;
+/* Like getb(), except for the LMTP input stream */
+int getL P((void))
+{ if(rcbufp==rcbufend)
+     refillL();
+  return (int)*rcbufp++;
 }
+
+/* read a bunch of characters from the LMTP input stream */
+int readL(p,len)char*p;const int len;
+{ size_t min;
+  if(rcbufp==rcbufend)
+     refillL();
+  min=rcbufend-rcbufp;
+  if(min>len)
+     min=len;
+  tmemmove(p,rcbufp,min);
+  rcbufp+=min;
+  return min;
+}
+
+/*
+ * read exactly len bytes from the LMTP input stream
+ * return 1 on success, 0 on EOF, and -1 on read error
+ */
+int readLe(p,len)char*p;int len;
+{ long got=rcbufend-rcbufp;
+  if(got>0)				      /* first, copy from the buffer */
+   { if(got>len)			       /* is that more than we need? */
+	got=len;
+     tmemmove(p,rcbufp,got);
+     rcbufp+=got;
+     p+=got;len-=got;
+   }
+  while(len)					   /* read the rest directly */
+   { if(0>(got=rread(rc,p,len)))
+	return -1;
+     if(!got&&!popfd())
+	return 0;
+     p+=got;len-=got;
+   }
+  return 1;
+}
+
 #endif

@@ -8,11 +8,13 @@
  *	Seems to be perfect.						*
  *									*
  *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
+ *	Copyright (c) 1999-2000, Philip Guenther, The United States	*
+ *							of America	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.156 1999/12/15 08:52:46 guenther Exp $";
+ "$Id: procmail.c,v 1.157 2000/09/28 01:23:36 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -33,13 +35,13 @@ static /*const*/char rcsid[]=
 #include "lastdirsep.h"
 #include "authenticate.h"
 #include "lmtp.h"
+#include "foldinfo.h"
 
 static const char*const nullp,From_[]=FROM,exflags[]=RECFLAGS,
  drcfile[]="Rcfile:",pmusage[]=PM_USAGE,*etcrc=ETCRC,
  misrecpt[]="Missing recipient\n",extrns[]="Extraneous ",ignrd[]=" ignored\n",
  pardir[]=chPARDIR,curdir[]={chCURDIR,'\0'},twospaces[]="  ",
- insufprivs[]="Insufficient privileges\n",
- Fakefield[]=FAKE_FIELD,
+ defspath[]=DEFSPATH,defpath[]=DEFPATH,Fakefield[]=FAKE_FIELD,
  attemptst[]="Attempt to fake stamp by";
 char*buf,*buf2,*loclock,*tolock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
@@ -49,14 +51,15 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  procmailn[]="procmail",whilstwfor[]=" whilst waiting for ",home[]="HOME",
  host[]="HOST",*defdeflock=empty,*argv0=empty,pathtoolong[]=" path too long",
  slogstr[]="%s \"%s\"",conflicting[]="Conflicting ",orgmail[]="ORGMAIL",
+ insufprivs[]="Insufficient privileges\n",
  exceededlb[]="Exceeded LINEBUF\n",errwwriting[]="Error while writing to",
  Version[]=VERSION;
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rcstate,rc= -1,
- ignwerr,lexitcode=EXIT_SUCCESS,asgnlastf,accspooldir,crestarg,skiprc,
- savstdout,berkeley,mailfilter,erestrict,Deliverymode,ifdepth;
+ ignwerr,lexitcode=EXIT_SUCCESS,asgnlastf,crestarg,skiprc,savstdout,berkeley,
+ mailfilter,erestrict,Deliverymode,ifdepth;	       /* depth of outermost */
 struct dyna_long ifstack;
-size_t linebuf=mx(DEFlinebuf+XTRAlinebuf,1024/*STRLEN(systm_mbox)<<1*/);
+size_t linebuf=mx(DEFlinebuf,1024/*STRLEN(systm_mbox)<<1*/);
 volatile int nextexit;			       /* if termination is imminent */
 pid_t thepid;
 long filled,lastscore;	       /* the length of the mail, and the last score */
@@ -78,11 +81,12 @@ ret: return spass;
 }
 
 #if 0
-#define wipetcrc()	(etcrc&&(etcrc=0,closerc(),1))
+#define wipetcrc()	(etcrc&&(etcrc=0,closerc(),eputenv(defpath,buf),1))
 #else
 static int wipetcrc P((void))	  /* stupid function to avoid a compiler bug */
 { if(etcrc)
    { etcrc=0;closerc();
+     eputenv(defpath,buf);
      return 1;
    }
   return 0;
@@ -281,6 +285,7 @@ nodevnull:
 #else
 	verbon();verboff();
 #endif
+	suppmunreadable=verbose;
 #ifdef SIGCHLD
 	signal(SIGCHLD,SIG_DFL);
 #endif
@@ -433,7 +438,7 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 		  }
 	    }
 	   while(chp=(char*)argv[argc]);
-	gargv=argv+argc;suppmunreadable=verbose; /* save it for nextrcfile() */
+	gargv=argv+argc;			 /* save it for nextrcfile() */
 	if(Deliverymode)	/* try recipient without changing case first */
 	 { if(!(pass=auth_finduser(chp2,-1)))	    /* chp2 is the recipient */
 	    { static const char unkuser[]="Unknown user";
@@ -542,15 +547,14 @@ Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
 	initdefenv();
 	;{ const char*const*kp;static const char*const prestenv[]=PRESTENV;
 	   for(kp=prestenv;*kp;)	/* preset some environment variables */
-	    { strcpy((char*)(sgetcp=buf2),*kp++);
-	      if(readparse(buf,sgetc,2))
+	      if(!eputenv(*kp++,buf))
 		 setoverflow();
-	      else
-		 sputenv(buf);
-	    }
 	 }
-      }		/* set fdefault and find out the name of our system lockfile */
-     sgetcp=fdefault;
+      }
+     /*
+      * Processing point of proposed /etc/procmail.conf file
+      */
+     sgetcp=fdefault;	    /* setup DEFAULT and ORGMAIL and check the spool */
      if(readparse(buf,sgetc,2))		   /* uh, Houston, we have a problem */
       { nlog(orgmail);elog(pathtoolong);elog(newline);
 	syslog(LOG_CRIT,"%s%s for LINEBUF for uid \"%lu\"\n",orgmail,
@@ -558,7 +562,7 @@ Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
 	fdefault=empty;
 	goto nix_sysmbox;
       }
-     fdefault=tstrdup(buf);sgid=egid;accspooldir=3;	/* presumed innocent */
+     fdefault=tstrdup(buf);sgid=egid;
      chp=(char*)getenv(orgmail);
      if(mailfilter||!screenmailbox(chp,egid,Deliverymode))
 nix_sysmbox:
@@ -566,7 +570,7 @@ nix_sysmbox:
 	if(!strcmp(chp,fdefault))			/* DEFAULT the same? */
 	   free((char*)fdefault),fdefault=empty;		 /* so panic */
       }						/* bad news, be conservative */
-     doumask(INIT_UMASK);
+     doumask(INIT_UMASK);eputenv(defpath,buf);
      while(chp=(char*)argv[argc])      /* interpret command line specs first */
       { argc++;
 	if(!asenvcpy(chp)&&mailfilter)
@@ -585,6 +589,7 @@ nix_sysmbox:
 	   if(rcstate!=rc_NORMAL)
 	      verbose=0;		    /* no peeking in /etc/procmailrc */
 #endif
+	   eputenv(defspath,buf);
 	   goto startrc;
 	 }
 	etcrc=0;					     /* no such file */
@@ -661,17 +666,18 @@ susp_rc:      closerc();nlog(susprcf);logqnl(buf);
 	      * reasons we only accept it if it is owned by the recipient or
 	      * root and is not world writable, and the directory it is in is
 	      * not world writable or has the sticky bit set.  If this is the
-	      * default rcfile then we also outlaw group writibility.
+	      * default rcfile then we also outlaw group writability.
 	      */
 	    { register char c= *(chp=lastdirsep(buf));
-	      if(((stbuf.st_uid!=uid&&stbuf.st_uid!=ROOT_uid||
-		   stbuf.st_mode&S_IWOTH||
-		   i&&stbuf.st_mode&S_IWGRP&&(NO_CHECK_stgid||stbuf.st_gid!=gid)
+	      if(((stbuf.st_uid!=uid&&stbuf.st_uid!=ROOT_uid||	/* check uid */
+		   stbuf.st_mode&S_IWOTH||	       /* writable by others */
+		   i&&stbuf.st_mode&S_IWGRP		/* writable by group */
+		    &&(NO_CHECK_stgid||stbuf.st_gid!=gid)
 		  )&&strcmp(devnull,buf)||    /* /dev/null is a special case */
-		 (*chp='\0',stat(buf,&stbuf))||
-#ifndef CAN_chown
-		 !(stbuf.st_mode&S_ISVTX)&&
-#endif
+		 (*chp='\0',stat(buf,&stbuf))||	      /* check the directory */
+#ifndef CAN_chown				   /* sticky and can't chown */
+		 !(stbuf.st_mode&S_ISVTX)&&	   /* means we don't care if */
+#endif					     /* it's group or world writable */
 		 ((stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)||
 		  i&&(stbuf.st_mode&(S_IWGRP|S_IXGRP))==(S_IWGRP|S_IXGRP)
 		   &&(NO_CHECK_stgid||stbuf.st_gid!=gid))))
@@ -1018,7 +1024,7 @@ nomore_rc:
      if(*(chp=(char*)fdefault))				     /* DEFAULT set? */
       { int len;
 	setuid(uid);			   /* make sure we have enough space */
-	if(linebuf<(len=strlen(chp)+strlen(lockext)+XTRAlinebuf+UNIQnamelen))
+	if(linebuf<(len=strlen(chp)+strlen(lockext)+UNIQnamelen))
 	   mallocbuffers(linebuf=len,1);   /* to perform the lock & delivery */
 	if(writefolder(chp,(char*)0,themail.p,filled,0,1))	  /* default */
 	   succeed=1;

@@ -511,23 +511,41 @@
 	    Updated the FAQ and the list of mirrors in the README
 	    Documented the exact behavior of lockfile's -! flag
 	    Documented the suggested usage of -r vs -rt
-1999/12/11: v3.14.1
+2000/08/25: v3.15
 	    Changes to procmail:
 	       - v3.14 broke compilation on systems without lstat() or
 		 that didn't declare it
-	       - MH and maildir style spools not supported correctly
-	       - v3.14 changed '!' actions too much: revert to v3.13 but
-		 continue to split SENDMAILFLAGS
+	       - Rewrite folder type parsing: corrects handling of MH and
+		 maildir style spools
+	       - v3.14 changed '!' actions too much: revert to v3.13 behavior
+		 but continue to split SENDMAILFLAGS
 	       - Contents of skipped nested blocks could affect 'E', 'e', 'a',
-		 and 'A' flags
+		 and 'A' flags when they shouldn't have
 	       - Prevent peeking into buffers on "Out of memory" errors
 	       - Unquoted $\var expansions could alter the interpretation of
 		 the following whitespace
+	       - Prevent attempts to set LINEBUF to really huge values
+	       - Optimize SWITCHRC = $_
+	       - Use a secure PATH when processing /etc/procmailrc
+	       - Prevent attempts to exercise a Linux kernel security hole
+	       - Use 2^31-1 as the maximum score, even if LONG_MAX is larger
+	    Changes to formail:
+	       - Allow -n with -D and -s again -- corruption couldn't happen
+		 after all
+	       - Don't strip pre-colon whitespace until header is identified
+	       - Properly handle NULs in the body when generating an autoreply
+		 that keeps the body (could coredump)
+	    Changes to autoconf:
+	       - Avoid coredump on systems where sprintf() calls getenv()
 	    Documented that $\var expansions are never split on whitespace
+	    More manpage tweaks
+	    Worked around linkers that don't support compile-time stripping
+	       (for MacOS X)
 	    Removed ':' and '@' from list of characters that can appear in
-	     tempfile names
+	       tempfile names
 	    Called nice() when shouldn't have
-1999/12/11: v3.20pre
+	    Workaround SunOS 4.x compiler again
+2000/09/23: v3.20pre
 	    Changes to procmail:
 	       - Support LMTP
 	       - Use mmap() for large messages

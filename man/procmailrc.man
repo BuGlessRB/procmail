@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.76 1999/12/12 08:50:43 guenther Exp $
+.Id $Id: procmailrc.man,v 1.77 2000/09/28 01:23:09 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -272,6 +272,11 @@ hardlinks).
 .TP 2.2i
 .B "LOGNAME, HOME and SHELL"
 Your (the recipient's) defaults
+.TP
+.B PATH \&@DEFpath@
+.br
+(Except during the processing of an @ETCRC@ file, when it will be set
+to `\&@DEFspath@'.)
 .TP
 .B SHELLMETAS
 \&@DEFshellmetas@
@@ -657,6 +662,11 @@ override the defaults, you either have to put them in the
 .B rcfile
 or on the command line as arguments.
 .PP
+The @ETCRC@ file cannot change the PATH setting seen by user rcfiles
+as the value is reset when procmail finishes the @ETCRC@ file.  While
+future enhancements are expected in this area, recompiling procmail
+with the desired value is currently the only correct solution.
+.PP
 Environment variables set
 .B inside
 the shell-interpreted-`|' action part of a recipe will
@@ -748,6 +758,10 @@ block does not work as expected.
 .PP
 When capturing stdout from a recipe into an environment variable, exactly
 one trailing newline will be stripped.
+.PP
+Some non-optimal and non-obvious regexps set MATCH to an incorrect
+value.  The regexp can be made to work by removing one or more unneeded
+'*', '+', or '?' operator on the left-hand side of the \e/ token.
 .SH MISCELLANEOUS
 If the regular expression contains `\fB@TO_key@\fP' it will be substituted by
 .na

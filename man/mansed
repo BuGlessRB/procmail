@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.29 1998/11/18 11:36:19 srb Exp $
+#$Id: mansed,v 1.30 2000/09/28 01:23:07 guenther Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -106,12 +106,8 @@ procmail-announce-request@procmail.org
 (this is a readonly list).
 HERE
 cat <<HERE
-.SH AUTHOR
-Stephen R. van den Berg
-.RS
-@MY_MAIL_ADDR@
-.\" @MY_ALT_MAIL_ADDR@
-.RE
+.SH AUTHORS
+@AUTHORS@
 .\".if n .pl -(\n(.tu-1i)
 .rm SH
 .rn Sh SH

@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.73 1997/04/28 00:27:40 srb Exp $
+#$Id: Makefile,v 1.74 2000/09/28 01:23:00 guenther Exp $
 
 # BASENAME should point to where the whole lot will be installed
 # change BASENAME to your home directory if need be
@@ -103,6 +103,7 @@ LN	= ln
 BSHELL	= /bin/sh
 INSTALL = cp
 DEVNULL = /dev/null
+STRIP	= strip
 
 SUBDIRS = src man
 BINSS	= procmail lockfile formail mailstat
@@ -127,7 +128,8 @@ init:
  "$(CC)" "$(CFLAGS1)" "$(LDFLAGS1)" "$(BINSS)" \
  "$(MANS1S)" \
  "$(MANS5S)" "$(SUBDIRS)" \
- "$(VISIBLE_BINDIR)"
+ "$(VISIBLE_BINDIR)" \
+ "$(STRIP)"
 
 makefiles makefile Makefiles Makefile: init
 	@$(BSHELL) -c "exit 0"

@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.89 1999/12/12 08:50:41 guenther Exp $*/
+/*$Id: config.h,v 1.90 2000/09/28 01:23:02 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -14,23 +14,37 @@
  * upon startup of procmail, e.g. you could define KEEPENV as follows:
  * #define KEEPENV	{"TZ","LANG",0}
  * environment variables ending in an _ will designate the whole group starting
- * with this prefix (e.g. "LC_").
+ * with this prefix (e.g. "LC_").  Note that keeping LANG and or the LC_
+ * variables is not recommended for most installations due to the security
+ * considerations/dependencies present in the use of locales other than
+ * the "C" locale.
  */
 #define KEEPENV		{"TZ",0}
 
-/*#define DEFPATH	"PATH=$HOME/bin:/bin:/usr/bin"	/* uncomment and/or
-							   change if you
-	do not want the autoconf generated defPATH setting to be used in
-	PRESTENV below. */
+/* procmail is compiled with two definitions of the PATH variable.  The first
+ * definition is used while processing the /etc/procmailrc file and should
+ * only contain trustable (i.e., system) directories.  Otherwise the second
+ * definition is used.	Note that the /etc/procmailrc file cannot change the
+ * PATH seen by user's rcfiles: the second definition will be applied upon the
+ * completion of the /etc/procmailrc file (future versions of procmail are
+ * expected to provide better runtime configuration control).  The autoconf
+ * process attempts to determine reasonable values for these versions of PATH
+ * and setts the defSPATH and defPATH variables accordingly.  If you want to
+ * override those settings you should uncomment and possibly change the
+ * DEFSPATH and DEFPATH defines below
+ */
+/*#define DEFSPATH	"PATH=/bin:/usr/bin"			/* */
+/*#define DEFPATH	"PATH=$HOME/bin:/bin:/usr/bin"		/* */
 
 /* every environment variable appearing in PRESTENV will be set or wiped
  * out of the environment (variables without an '=' sign will be thrown
  * out), e.g. you could define PRESTENV as follows:
- * #define PRESTENV	{"IFS","ENV","PWD","PATH=$HOME/bin:/bin:/usr/bin",0}
+ * #define PRESTENV	{"IFS","ENV","PWD",0}
  * any side effects (like setting the umask after an assignment to UMASK) will
- * *not* take place
+ * *not* take place.  Do *not* define PATH here -- use the DEFSPATH and
+ * DEFPATH defines above instead
  */
-#define PRESTENV	{"IFS","ENV","PWD",DEFPATH,0}
+#define PRESTENV	{"IFS","ENV","PWD",0}
 
 /*#define GROUP_PER_USER			/* uncomment this if each
 						   user has his or her own
@@ -77,7 +91,7 @@
    If you want mail delivery to custom mail-spool-files, edit the
    src/authenticate.c file and change the content of:  auth_mailboxname()
    (either directly, or through changing the definitions in the same file
-   of MAILSPOOLDIR, MAILSPOOLHASH or MAILSPOOLHOME) */
+   of MAILSPOOLDIR, MAILSPOOLSUFFIX, MAILSPOOLHASH or MAILSPOOLHOME) */
 
 /*#define DEFsendmail	"/bin/mail"	/* uncomment and/or change if the
 					   autoconfigured default SENDMAIL is
@@ -197,8 +211,9 @@ MMGR)\
 #define DIRSEP		"/"		 /* directory separator symbols, the */
 				   /* last one should be the most common one */
 #define MAILDIRtmp	"/tmp"			   /* maildir subdirectories */
-#define MAILDIRnew	"/new"
 #define MAILDIRcur	"/cur"
+#define MAILDIRnew	"/new"
+#define MAILDIRLEN	STRLEN(MAILDIRnew)
 
 #define EOFName		" \t\n#`'\");"
 
