@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.11 1992/11/19 12:32:59 berg Exp $";
+ "$Id: goodies.c,v 1.12 1992/12/03 14:15:17 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -35,7 +35,7 @@ const char test[]="test";
  * sarg==1 : environment assignment parsing, parse up till first whitespace
  * sarg==2 : normal parsing, split up arguments by single spaces
  */
-readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
+void readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
  const int sarg;
 { static i;int got;char*startb;
   for(got=NOTHING_YET;;)		    /* buf2 is used as scratch space */

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.13 1992/12/03 13:33:44 berg Exp $";
+ "$Id: formail.c,v 1.14 1992/12/03 14:15:14 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1992/12/03 13:33:44 $";
+static /*const*/char rcsdate[]="$Date: 1992/12/03 14:15:14 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -253,7 +253,7 @@ foundfrom:
 	 chp-1==strpbrk(saddr,"([\">,; \t\n"))	      /* strip '<' and '>' ? */
 	   saddr++,chp--;      /* check length of the address and extract it */
 	if(chp<=saddr&&sest[i].head==returnpath)	/* nill Return-Path: */
-	   chp=(saddr="<>")+2,nowm=maxindex(sest)+2;		 /* override */
+	   chp=(char*)(saddr="<>")+2,nowm=maxindex(sest)+2;	 /* override */
 	if((i=chp-saddr)>0&&(!namel||nowm>lastm))
 	 { tmemmove(namep=realloc(namep,i+1),saddr,namel=i);
 	   lastm=mystrstr(namep,".UUCP",end)?nowm-maxindex(sest)-3:nowm;

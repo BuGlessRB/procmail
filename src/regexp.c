@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.6 1992/12/01 15:46:40 berg Exp $";
+ "$Id: regexp.c,v 1.7 1992/12/03 14:15:25 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -292,7 +292,7 @@ struct eps*bregcomp(a,ign_case)const char*a;
 char*bregexec(code,text,len,ign_case)struct eps*code;const uchar*const text;
  size_t len;
 { register struct eps*reg,*t,*stack,*other,*thiss;unsigned i,th1,ot1;
-  const char*str;
+  const uchar*str;
   if(code[1].opc==OPC_EPS)
      code++;		   /* two epsilons at the start would be superfluous */
   (thiss=code)->stack=0;th1=ioffsetof(struct eps,spawn);

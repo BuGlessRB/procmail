@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.7 1992/12/02 17:27:00 berg Exp $*/
+/*$Id: header.h,v 1.8 1992/12/03 14:15:23 berg Exp $*/
 
 static const char
  returnpath[]=		"Return-Path:",				  /* RFC 822 */
@@ -60,7 +60,7 @@ static const char
  originator[]=		"Originator:",
  nntppostinghost[]=	"Nntp-Posting-Host:",
  title[]=		"Title:",	      /* antiquated USENET extension */
- articleid[]=		"Article-I.D.:",			/* ditto ... */
+ Articleid[]=		"Article-I.D.:",			/* ditto ... */
  posted[]=		"Posted:",
  cnttype[]=		"Content-Type:",	       /* Internet extension */
  encoding[]=		"Encoding:",				/* ditto ... */
@@ -82,7 +82,7 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
   bsl(article),bsl(path),bsl(summary),bsl(organisation),bsl(aorganization),
   bsl(newsgroups),bsl(followupto),bsl(approved),bsl(lines),bsl(expires),
   bsl(control),bsl(distribution),bsl(xref),bsl(originator),
-  bsl(nntppostinghost),bsl(title),bsl(articleid),bsl(posted),bsl(cnttype),
+  bsl(nntppostinghost),bsl(title),bsl(Articleid),bsl(posted),bsl(cnttype),
   bsl(encoding),bsl(mimeversion),bsl(cnttransferenc),bsl(cntid),
   bsl(cntdescription),bsl(transportoptions),bsl(defltoptions),bsl(status)
 };
