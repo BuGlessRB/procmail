@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.98 1999/11/04 23:26:20 guenther Exp $";
+ "$Id: misc.c,v 1.99 1999/11/18 01:59:48 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -751,7 +751,8 @@ fishy:
    { int isgrpwrite=stbuf.st_mode&S_IWGRP;
      strcpy(chp=strchr(buf,'\0'),lockext);
      defdeflock=tstrdup(buf);
-     if(!isgrpwrite&&!lstat(defdeflock,&stbuf)&&stbuf.st_uid!=uid)
+     if(!isgrpwrite&&!lstat(defdeflock,&stbuf)&&stbuf.st_uid!=uid&&
+      stbuf.st_uid!=ROOT_uid)
       { int i=lastdirsep(buf)-buf;
 	strncpy(buf2,buf,i);buf2[i]='\0';     /* try & rename bogus lockfile */
 	rnmbogus(defdeflock,&stbuf,i,0);		   /* out of the way */

@@ -488,6 +488,7 @@
 	       - dyna_long code now meets strict ANSI restrictions
 	       - 'W' flag changes "Program failure" to "Non-zero exitcode"
 	       - Nested blocks must open and close within the same rcfile
+	       - Root owned lockfiles aren't bogus
 	    Changes to formail:
 	       - Replies without the -t flag go to the envelope sender
 	       - Replies without "-a Resent-" and -t flag ignore the
