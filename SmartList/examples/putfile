@@ -2,9 +2,12 @@
 #########################################################################
 #	putfile		Small mailserver that stores files		#
 #									#
+#	This script has not been tested yet, it is not unlikely that it #
+#	still contains bugs.						#
+#									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: putfile,v 1.2 1994/08/26 12:32:29 berg Exp $
+#$Id: putfile,v 1.3 1994/08/29 12:39:03 berg Exp $
 
 #
 # This script can either be:
