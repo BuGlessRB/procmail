@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.170 2001/02/20 10:43:28 guenther Exp $";
+ "$Id: procmail.c,v 1.171 2001/06/03 21:57:09 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -42,15 +42,14 @@ static /*const*/char rcsid[]=
 static const char*const nullp,exflags[]=RECFLAGS,drcfile[]="Rcfile:",
  pmusage[]=PM_USAGE,*etcrc=ETCRC,misrecpt[]="Missing recipient\n",
  extrns[]="Extraneous ",ignrd[]=" ignored\n",pardir[]=chPARDIR,
- curdir[]={chCURDIR,'\0'},defspath[]=DEFSPATH,defpath[]=DEFPATH,
- defmaildir[]=DEFmaildir;
+ defspath[]=DEFSPATH,defpath[]=DEFPATH,defmaildir[]=DEFmaildir;
 char*buf,*buf2,*loclock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*const*restargv= &nullp,*sgetcp,
  pmrc[]=PROCMAILRC,*rcfile,dirsep[]=DIRSEP,devnull[]=DevNull,empty[]="",
  lgname[]="LOGNAME",executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",
  procmailn[]="procmail",whilstwfor[]=" whilst waiting for ",home[]="HOME",
- host[]="HOST",*defdeflock=empty,*argv0=empty,
+ host[]="HOST",*defdeflock=empty,*argv0=empty,curdir[]={chCURDIR,'\0'},
  slogstr[]="%s \"%s\"",conflicting[]="Conflicting ",orgmail[]="ORGMAIL",
  insufprivs[]="Insufficient privileges\n",
  exceededlb[]="Exceeded LINEBUF\n",errwwriting[]="Error while writing to",
@@ -284,14 +283,12 @@ nodevnull:
 		       waitfor(pidchild)!=EXIT_SUCCESS)
 		       retvl2=retval;
 		    pidchild=0;		      /* loop for the next recipient */
-		    bzero((char*)argv[argc],strlen(argv[argc]));
 		  }
 		 else
 		  { newid();
 		    private(0);				    /* time to share */
 		    lockblock(&themail);
-		    while(argv[++argc])	    /* skip till end of command line */
-		       bzero((char*)argv[argc],strlen(argv[argc]));
+		    while(argv[++argc]);    /* skip till end of command line */
 		    break;
 		  }
 	      else
