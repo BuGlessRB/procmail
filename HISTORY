@@ -499,6 +499,7 @@
 	    Changes to mailstat:
 	       - Work around the detab done on checkin to CVS
 	       - Recognize maildir mailboxes
+	       - Don't use a tempfile
 	    Changes to autoconf:
 	       - Don't assume realloc(0,size) works (doesn't under SunOS 4)
 	    Stopped using `implicit int' (for C9x)
