@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: subscribe,v 1.9 1993/02/11 13:48:46 berg Exp $
+#$Id: subscribe,v 1.10 1993/02/11 14:00:14 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -17,12 +17,11 @@ tmprequest=tmp.request
 tmpfrom=tmp.from
 subscribetxt=subscribe.txt
 
-wrongaddress=""
-
 case "$X_ENVELOPE_TO" in
-  *$list-request*) wrongaddress="
+  *$list-request*) wrongaddress="" ;;
+  *) wrongaddress="
 WARNING:
-	Please try to use the $listreq address
+	Please try to use '$listreq'
 	the next time when issuing (un)subscribe requests.
 " ;;
 esac
