@@ -93,3 +93,7 @@
 	    Changed procbounce to send a final unsubscription message to
 	       people that were taken off the list due to too many bounces
 	    Allow reply_to to override the Reply-To: field in the digest
+	    Support for default help text responses
+	    Allow for unsubscription assistance
+	    Full blown MIME support for the archive server (binary files,
+	       arbitrary length, autosplitting, full MIME-encapsulation)

@@ -30,6 +30,12 @@ maintainer	=
 #reject_threshold=     $match_threshold # for rejecting subscriptions
 #submit_threshold=    $medium_threshold # for permitting submissions
 
+#unsub_assist
+##unsub_assist	=	8		# uncomment (and change perhaps) this
+					# line to enable unsubscription
+					# assistance; it specifies the no. of
+					# multigram matches an unsuccessful
+					# unsubscriber will receive back
 #foreign_submit =	yes
 ##foreign_submit			# uncomment this line if you
 					# want to restrict submitting to
@@ -41,6 +47,10 @@ maintainer	=
 #auto_subscribe =	yes
 ##auto_subscribe			# uncomment to disable unattended
 					# subscription handling
+#auto_help
+##auto_help	=	yes		# uncomment to enable default help
+					# responses to all undecipherable
+					# requests
 #moderated_flag
 ##moderated_flag=	yes		# uncomment this to make the list
 					# moderated (you must create a

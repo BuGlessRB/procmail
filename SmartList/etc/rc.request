@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.51 1994/06/06 12:27:20 berg Exp $
+#$Id: rc.request,v 1.52 1994/06/07 13:23:21 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -77,7 +77,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 
   cc_unsubrequests="${cc_unsubrequests:+$maintainer}"
 
-  :0 HB w:dist.lock
+  :0 EHB w:dist.lock
   * ^^(.+$)*Subject:[	 ]*(((\(none\))?$(.+$)*(^[ ]*)+)?\
       (Please +)?(signoff|delete|remove|unsub)|\
      ((\(none\))?$(.*$)*)?(.*[^a-z])?(unsubscri|\
@@ -92,7 +92,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 # already be on the mailinglist.  If not, add him(/her/it?).
 #
 
-  :0 HB
+  :0 EHB
   * $!${auto_subscribe:+!}
   * ^^(.+$)*Subject:[	 ]*(\
      ((\(none\))?$(.+$)*(^[	 ]*)+)?
@@ -118,13 +118,27 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 # optional info.txt file.
 #
 
-  :0 hHB w ${cc_requests:+c}
+  :0 EhHB w ${cc_requests:+c}
   * ^^(.+$)*Subject:[	 ]*((\(none\))?$(.+$)*(^[	 ]*)+)?\
      [a-z,.	 ]*(help|info(rm(ation)?)?)\>
   | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
      cat help.txt info.txt 2>/dev/null ) | $SENDMAIL $sendmailOPT -t
 
   INCLUDERC=$RC_LOCAL_REQUEST_20
+
+  LOGABSTRACT=yes
+
+#
+# If auto_help is set, anything undecipherable gets back the help.txt and the
+# optional info.txt file.
+#
+
+  :0 EhB w ${cc_requests:+c}
+  * $!${auto_help:+!}
+  * $!X-Loop: $listaddr
+  | (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
+     cat help.txt info.txt 2>/dev/null ) | $SENDMAIL $sendmailOPT -t
+
 }
 
 LOGABSTRACT=yes
@@ -156,8 +170,8 @@ LOGABSTRACT=yes
   /dev/null
 
   :0 AhBD
-  * $^X-Loop: $listaddr \(bounce\)
-  * ^Subject: You have been removed from
+  * $^(..?)?X-Loop: $listaddr \(bounce\)
+  * ^(..?)?Subject: You have been removed from
   /dev/null
 
   #

@@ -19,14 +19,16 @@ Contents:
 		3f.Moderated lists
 		3g.List of lists
 		3h.Positively discriminate certain daemons
-		3i.Schematic overview of what goes on behind the scenes
+		3i.Default help text replies
+		3j.Unsubscribe assistance
+		3k.Schematic overview of what goes on behind the scenes
 		4. The archive server
 		5. The format of the dist file
 		6. Multigram and the thresholds in rc.init/rc.custom
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.34 1994/06/01 17:21:31 berg Exp $
+$Id: Manual,v 1.35 1994/06/07 13:22:25 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -364,7 +366,39 @@ can just specify a weight.  You'll then have to make sure that the variable
 is set only when mail from your special daemons arrives.
 
 
-3i.Schematic overview of what goes on behind the scenes
+3i.Default help text replies
+   -------------------------
+
+By uncommenting the appropriate "auto_help" line in the rc.custom file the
+list will respond to every undecipherable request message as if it requested
+help.  Messages that will still get through to the maintainer are those:
+- that seem to come from a daemon.
+- which look like a reply.
+
+Depending on the typical audience you have on the list, enabling this might
+not be a good idea.
+
+
+3j.Unsubscribe assistance
+   ----------------------
+
+By uncommenting the appropriate "unsub_assist" line in the rc.custom file
+you can turn on the unsubscribe assistance.  If the someone is trying to
+unsubscribe from the list, but his mailaddress could not be found, he
+will receive back a number of multigram matches (determined by the value
+of unsub_assist) between his unsubscribe message and the dist file.
+
+If you'd like to enable this feature, please keep the following points
+in mind:
+- People can get excerpts of the dist file this way.
+- Malevolent individuals might become encouraged to unsubscribe lots
+  of people from your list.  This will not go by unnoticed, of course.
+  It will be logged and the innocent subscribers will receive a copy
+  of the unsubscribe request they didn't send.	Nevertheless, it can cause
+  considerable inconvenience.
+
+
+3k.Schematic overview of what goes on behind the scenes
    ----------------------------------------------------
 
 Suppose you have two entries in the aliases file, one for thelist@domain

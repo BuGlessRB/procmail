@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: x_command,v 1.15 1994/05/26 14:11:28 berg Exp $
+#$Id: x_command,v 1.16 1994/06/07 13:22:50 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -42,8 +42,10 @@ do
   esac
   case "_$1" in
      _subscribe)
-	 $echo \
-	  "X-Diagnostic: `$echo \"From $2\" | $multigram -b1 -l-32767 dist`"
+	 $echo "The prospective subscriber address generates the following"
+	 $echo "multigram matches to the current list:"
+	 $echo "From $2" | $multigram -b8 -l-32767 dist`"
+	 $echo ""
 	 $echo "From $2 " >$tmprequest
 	 $echo "From: $listreq" >>$tmprequest
 	 $echo "Reply-To: $2" >>$tmprequest
@@ -69,8 +71,10 @@ do
 	 $unsubscribe <$tmprequest | $SENDMAIL $sendmailOPT `cat $tmpfrom`
 	 shift ;;
      _checkdist)
-	 $echo "Multigram checking the dist file for $2:"
+	 $echo "Multigram checking the dist file for matches with"
+	 $echo "$2:"
 	 $echo "From $2" | $multigram -b8 -l-32767 dist
+	 $echo ""
 	 shift ;;
      _showdist)
 	 $echo "--- Current subscribers:"
