@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.37 1994/02/09 19:11:00 berg Exp $
+#$Id: rc.request,v 1.38 1994/02/16 17:46:33 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -75,7 +75,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 #
 
   :0 HB w:dist.lock
-  * ^^(.+$)*Subject:[	 ]*(($(.+$)*(^[ ]*)+)?\
+  * ^^(.+$)*Subject:[	 ]*(((\(none\))?$(.+$)*(^[ ]*)+)?\
      (signoff|delete|remove|unsub)|\
      ($(.*$)*)?(.*[^a-z])?(unsubscri|\
      ((delete|remove) .* from|take .* off) .* [a-z-]*list([^a-z]|$)))
