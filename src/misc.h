@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.35 1997/04/28 00:27:47 srb Exp $*/
+/*$Id: misc.h,v 1.36 1999/01/29 22:04:59 guenther Exp $*/
 
 struct dyna_long{size_t filled,tspace;off_t*offs;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -55,7 +55,7 @@ char
  *tstrdup P((const char*const a)),
  *pmrc2buf P((void)),
  *cstr P((char*const a,const char*const b)),
- *gobenv P((char*chp)),
+ *gobenv P((char*chp,char*end)),
  *egrepin P((char*expr,const char*source,const long len,int casesens));
 const char
  *tgetenv P((const char*const a)),

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.81 1999/01/02 19:24:47 guenther Exp $";
+ "$Id: misc.c,v 1.82 1999/01/29 22:04:58 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -307,7 +307,9 @@ int alphanum(c)const unsigned c;
 }
 
 char*pmrc2buf P((void))
-{ sgetcp=pmrc;readparse(buf,sgetc,2);
+{ sgetcp=pmrc;
+  if(readparse(buf,sgetc,2))
+     buf[0]='\0';
   return buf;
 }
 
@@ -341,23 +343,22 @@ void catlim(src)register const char*src;
 
 void setdef(name,contents)const char*const name,*const contents;
 { strcat(strcat(strcpy((char*)(sgetcp=buf2),name),"="),contents);
-  readparse(buf,sgetc,2);sputenv(buf);
+  readparse(buf,sgetc,2)||sputenv(buf);
 }
 
 void metaparse(p)const char*p;				    /* result in buf */
 { if(sh=!!strpbrk(p,shellmetas))
      strcpy(buf,p);			 /* copy literally, shell will parse */
   else
-#ifndef GOT_bin_test
    { sgetcp=p=tstrdup(p);
-     readparse(buf,sgetc,0);				/* parse it yourself */
-     if(!strcmp(test,buf))
-	strcpy(buf,p),sh=1;			       /* oops, `test' found */
+     if(readparse(buf,sgetc,0)				/* parse it yourself */
+#ifndef GOT_bin_test
+	||!strcmp(test,buf)
+#endif
+	)
+	strcpy(buf,p),sh=1;		   /* oops, overflow or `test' found */
      free((char*)p);
    }
-#else
-     sgetcp=p,readparse(buf,sgetc,0);
-#endif
 }
 
 void concatenate(p)register char*p;
@@ -399,12 +400,16 @@ void setlastfolder(folder)const char*const folder;
    }
 }
 
-char*gobenv(chp)char*chp;
+char*gobenv(chp,end)char*chp,*end;
 { int found,i;
-  found=0;
+  found=0;end--;
   if(alphanum(i=getb())&&!numeric(i))
-     for(found=1;*chp++=i,alphanum(i=getb()););
+     for(found=1;*chp++=i,chp<end&&alphanum(i=getb()););
   *chp='\0';ungetb(i);
+  if(chp==end)							 /* overflow */
+   { nlog(exceededlb);
+     return end+1;
+   }
   switch(i)
    { case ' ':case '\t':case '\n':case '=':
 	if(found)
@@ -421,8 +426,11 @@ int asenvcpy(src)char*src;
      *	evaluate the extra command line arguments otherwise
      */
    { restrict=1;setids();strcpy(buf,src);src=buf+(chp-src);
-     strcpy((char*)(sgetcp=buf2),++src);readparse(src,sgetc,2);
-     chp=sputenv(buf);src[-1]='\0';asenv(chp);
+     strcpy((char*)(sgetcp=buf2),++src);
+     if(!readparse(src,sgetc,2))
+      { chp=sputenv(buf);src[-1]='\0';
+	asenv(chp);
+      }
      return 1;
    }
   return 0;
@@ -777,12 +785,14 @@ noconcat:
 	       continue;
 	     }
 	    if(skippedempty&&testB(':'))
-	     { nlog("Missing action\n");i=2;
-	       goto ret;
+	     { nlog("Missing action\n");
+	       i=2;goto ret;
 	     }
 	    break;		     /* no more conditions, time for action! */
 	  }
-      skipspace();getlline(buf2);
+      skipspace();
+      if(getlline(buf2))
+	 i=0;				       /* assume failure on overflow */
       if(i)					 /* check out all conditions */
        { int negate,scoreany;double weight,xponent,lscore;
 	 char*lstartchar=startchar;long ltobesent=tobesent,sizecheck=filled;
@@ -911,7 +921,9 @@ jinregs:		regsp=regs;		/* start over and look again */
 		   }
 		  break;
 		}
-	       case '$':*buf2='"';squeeze(chp);readparse(buf,sgetc,2);
+	       case '$':*buf2='"';squeeze(chp);
+		  if(readparse(buf,sgetc,2)&&(i=0,1))
+		     break;
 		  strcpy(buf2,skpspace(buf));
 		  goto copydone;
 	       case '!':negate^=1;chp2=skpspace(chp);
@@ -931,9 +943,11 @@ copyrest:	  strcpy(buf,chp2);
 		      i=0;
 		   strcpy(buf2,buf);
 		   break;
-	       case '>':case '<':readparse(buf,sgetc,2);
+	       case '>':case '<':
 		{ long pivot;
-		   ;{ char*chp3;
+		  if(readparse(buf,sgetc,2)&&(i=0,1))
+		     break;
+		  ;{ char*chp3;
 		     pivot=strtol(buf+1,&chp3,10);chp=chp3;
 		   }
 		  skipped(skpspace(chp));strcpy(buf2,buf);

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.49 1998/11/18 10:03:31 srb Exp $";
+ "$Id: goodies.c,v 1.50 1999/01/29 22:04:56 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -37,23 +37,22 @@ static const char*evalenv P((void))	/* expects the variable name in buf2 */
 #define SINGLE_QUOTED	3
 
 #define fgetc() (*fpgetc)()	   /* some compilers previously choked on it */
-#define CHECKINC()	(fencepost<p?(p=fencepost):0)
+#define CHECKINC() (fencepost<p?(overflow||skiprc++,overflow=1,p=fencepost):0)
 
 /* sarg==0 : normal parsing, split up arguments like in /bin/sh
  * sarg==1 : environment assignment parsing, parse up till first whitespace
  * sarg==2 : normal parsing, split up arguments by existing whitespace
  */
-void readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
+int readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
  const int sarg;
-{ static int i,skipbracelev,bracegot;int got,bracelev,qbracelev,warned;
-  char*startb,*const fencepost=buf+linebuf-XTRAlinebuf;
+{ static int i,skipbracelev,bracegot;int got,bracelev,qbracelev,overflow;
+  char*startb,*const fencepost=buf+linebuf-XTRAlinebuf,
+     *const fencepost2=buf2+linebuf-XTRAlinebuf;
   static char*skipback;static const char*oldstartb;
-  warned=bracelev=qbracelev=0;All_args=0;
+  overflow=bracelev=qbracelev=0;All_args=0;
   for(got=NOTHING_YET;;)		    /* buf2 is used as scratch space */
 loop:
-   { i=fgetc();fencepost[1]='\0';
-     if(CHECKINC()&&!warned)	    /* doesn't catch everything, just a hint */
-	warned=1,nlog("Exceeded LINEBUF\n");
+   { i=fgetc();fencepost[1]='\0';CHECKINC();
 newchar:
      switch(i)
       { case EOF:	/* check sarg too to prevent warnings in the recipe- */
@@ -62,7 +61,9 @@ early_eof:    nlog(unexpeof);
 ready:	   if(got!=SKIPPING_SPACE||sarg)  /* not terminated yet or sarg==2 ? */
 	      *p++='\0';
 	   Tmnate=p;
-	   return;
+	   if(overflow)
+	      skiprc--,nlog(exceededlb);
+	   return overflow;
 	case '\\':
 	   if(got==SINGLE_QUOTED)
 	      break;
@@ -105,11 +106,12 @@ forcebquote:	 case EOF:case '`':
 		       if(!(sh=!!strpbrk(startb,shellmetas)))
 			{ const char*save=sgetcp,*sAll_args;
 			  sgetcp=p=tstrdup(startb);sAll_args=All_args;
-			  readparse(startb,sgetc,0);All_args=sAll_args;
+			  if(readparse(startb,sgetc,0)		/* overflow? */
 #ifndef GOT_bin_test
-			  if(!strcmp(test,startb))
-			     strcpy(startb,p),sh=1;    /* oops, `test' found */
+			   ||!strcmp(test,startb)      /* oops, `test' found */
 #endif
+			   )strcpy(startb,p),sh=1;
+			  All_args=sAll_args;
 			  free(p);sgetcp=save;		       /* chopped up */
 			}	    /* drop source buffer, read from program */
 		       startb=fromprog(
@@ -192,7 +194,13 @@ escaped:      CHECKINC();*p++=i;
 		 continue;
 	      case '{':						  /* ${name} */
 		 while(EOF!=(i=fgetc())&&alphanum(i))
+		  { if(startb>=fencepost2)
+		     { startb=buf+2;
+		       overflow||skiprc++;
+		       overflow=1;
+		     }
 		    *startb++=i;
+		  }
 		 *startb='\0';
 		 if(numeric(*buf2)&&buf2[1])
 		    goto badsub;
@@ -254,7 +262,14 @@ ibreak:		 i='\0';
 		 if(i=='\\')
 		    quoted=1,i=fgetc();
 		 if(alphanum(i))				    /* $name */
-		  { do *startb++=i;
+		  { do
+		     { if(startb>=fencepost2)
+			{ startb=buf+2;
+			  overflow||skiprc++;
+			  overflow=1;
+			}
+		       *startb++=i;
+		     }
 		    while(EOF!=(i=fgetc())&&alphanum(i));
 		    if(i==EOF)
 			i='\0';

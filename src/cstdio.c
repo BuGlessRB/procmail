@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.33 1997/04/03 01:58:41 srb Exp $";
+ "$Id: cstdio.c,v 1.34 1999/01/29 22:04:54 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -84,13 +84,15 @@ int bopen(name)const char*const name;				 /* my fopen */
   return rc;
 }
 
-int getbl(p)char*p;						  /* my gets */
-{ int i;char*q;
-  for(q=p;;)
+int getbl(p,end)char*p,*end;					  /* my gets */
+{ int i,overflow=0;char*q;
+  for(q=p,end--;;)
    { switch(i=getb())
       { case '\n':case EOF:*q='\0';
-	   return p!=q;			     /* did we read anything at all? */
+	   return overflow?-1:p!=q;	     /* did we read anything at all? */
       }
+     if(q==end)	    /* check here so that a trailing backslash won't be lost */
+	q=p,overflow=1;
      *q++=i;
    }
 }
@@ -138,10 +140,22 @@ void skipline P((void))
       }
 }
 
-void getlline(target)char*target;
-{ char*chp2;
-  for(;getbl(chp2=target)&&*(target=strchr(target,'\0')-1)=='\\';
-   *target++='\n')					   /* read line-wise */
-     if(chp2!=target)					  /* non-empty line? */
-	target++;			      /* then preserve the backslash */
+int getlline(target)char*target;
+{ char*chp2,*end;int overflow;
+  for(end=target+linebuf,overflow=0;;*target++='\n')
+     switch(getbl(chp2=target,end))			   /* read line-wise */
+      { case -1:overflow=1;
+	case 1:
+	   if(*(target=strchr(target,'\0')-1)=='\\')
+	    { if(chp2!=target)				  /* non-empty line? */
+		 target++;		      /* then preserve the backslash */
+	      if(target>end-2)			  /* space enough for getbl? */
+		 target=end-linebuf,overflow=1;		/* toss what we have */
+	      continue;
+	    }
+	case 0:
+	   if(overflow)
+	      nlog(exceededlb);
+	   return overflow;
+      }
 }

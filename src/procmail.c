@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.127 1999/01/23 06:29:20 guenther Exp $";
+ "$Id: procmail.c,v 1.128 1999/01/29 22:05:00 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -46,7 +46,8 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  lgname[]="LOGNAME",executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",
  procmailn[]="procmail",whilstwfor[]=" whilst waiting for ",home[]="HOME",
  host[]="HOST",*defdeflock,*argv0="",errwwriting[]="Error while writing to",
- slogstr[]="%s \"%s\"",conflicting[]="Conflicting ",orgmail[]="ORGMAIL";
+ slogstr[]="%s \"%s\"",conflicting[]="Conflicting ",orgmail[]="ORGMAIL",
+ exceededlb[]="Exceeded LINEBUF\n",pathtoolong[]=" path too long";
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rcstate,rc= -1,
  ignwerr,lexitcode=EXIT_SUCCESS,asgnlastf,accspooldir,crestarg,skiprc,
@@ -71,7 +72,7 @@ ret: return spass;
   return (auth_identity*)0;
 }
 
-#if 1
+#if 0
 #define wipetcrc()	(etcrc&&(etcrc=0,closerc(),1))
 #else
 static int wipetcrc P((void))	  /* stupid function to avoid a compiler bug */
@@ -480,15 +481,24 @@ Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
 	initdefenv();
 	;{ const char*const*kp;static const char*const prestenv[]=PRESTENV;
 	   for(kp=prestenv;*kp;)	/* preset some environment variables */
-	    { strcpy((char*)(sgetcp=buf2),*kp++);readparse(buf,sgetc,2);
-	      sputenv(buf);
+	    { strcpy((char*)(sgetcp=buf2),*kp++);
+	      readparse(buf,sgetc,2)||sputenv(buf);
 	    }
 	 }
       }		/* set fdefault and find out the name of our system lockfile */
-     sgetcp=fdefault;readparse(buf,sgetc,2);fdefault=tstrdup(buf);
+     sgetcp=fdefault;
+     if(readparse(buf,sgetc,2))		   /* uh, Houston, we have a problem */
+      { nlog(orgmail);elog(pathtoolong);elog(newline);
+	syslog(LOG_CRIT,"%s%s for LINEBUF for uid \"%lu\"\n",orgmail,
+	 pathtoolong,(unsigned long)uid);
+	fdefault="";
+	goto nix_sysmbox;
+      }
+     fdefault=tstrdup(buf);
      strcpy(chp2=strchr(strcpy(buf,chp=(char*)getenv(orgmail)),'\0'),lockext);
      defdeflock=tstrdup(buf);sgid=egid;accspooldir=3;	/* presumed innocent */
      if(mailfilter||!screenmailbox(chp,chp2,egid,Deliverymode))
+nix_sysmbox:
       { rcst_nosgid();sputenv(orgmail);	 /* nix delivering to system mailbox */
 	if(!strcmp(chp,fdefault))			/* DEFAULT the same? */
 	   free((char*)fdefault),fdefault="";			 /* so panic */
@@ -539,13 +549,18 @@ fake_rc:	 readerr(buf);
 	      suppmunreadable=0;
 findrc:	      i=0;		    /* should we keep the current directory? */
 	      if(rcfile==pmrc)		    /* the default .procmailrc file? */
-		 strcpy((char*)(rcfile=buf2),pmrc2buf());
+		 if(*strcpy((char*)(rcfile=buf2),pmrc2buf())=='\0')
+pm_overflow:	  { strcpy(buf,pmrc);
+		    goto fake_rc;
+		  }
 	      if(strchr(dirsep,*rcfile)||		   /* absolute path? */
 		 (mailfilter||*rcfile==chCURDIR&&strchr(dirsep,rcfile[1]))&&
 		 (i=1))				     /* mailfilter or ./ pfx */
 		 *buf='\0';		/* do not put anything in front then */
 	      else		     /* prepend default procmailrc directory */
-		 *lastdirsep(pmrc2buf())='\0';
+		 if(*lastdirsep(pmrc2buf())='\0',buf[0]=='\0')
+		    goto pm_overflow;
+
 	      strcat(buf,rcfile);			/* append the rcfile */
 	      if(mailfilter!=2&&			 /* nothing special? */
 		 (stat(buf,&stbuf)?			      /* accessible? */
@@ -589,6 +604,12 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 	   if(!didchd)			       /* have we done this already? */
 	    { if((chp=lastdirsep(pmrc2buf()))>buf)	/* not the root dir? */
 		 chp[-1]='\0';		     /* eliminate trailing separator */
+	      if(buf[0]=='\0')					   /* arrrg! */
+	       { nlog("procmailrc");elog(pathtoolong);elog(newline);
+		 syslog(LOG_CRIT,"procmailrc%s for LINEBUF for uid \"%lu\"\n",
+		  pathtoolong,(unsigned long)uid);
+		 goto nomore_rc;		    /* just save it and pray */
+	       }
 	      if(chdir(chp=buf))      /* no, well, then try an initial chdir */
 	       { chderr(buf);
 		 if(chdir(chp=(char*)tgetenv(home)))
@@ -611,7 +632,8 @@ commint:   do skipspace();				  /* skip whitespace */
 	   static char flags[maxindex(exflags)];
 	   do
 	    { int nrcond;
-	      readparse(buf,getb,0);
+	      if(readparse(buf,getb,0))
+		 goto nextrc;			      /* give up on this one */
 	      ;{ char*chp3;
 		 nrcond=strtol(buf,&chp3,10);chp=chp3;
 	       }
@@ -665,7 +687,8 @@ progrm:	   if(testB('!'))				 /* forward the mail */
 	      chp=strchr(strcpy(buf,sendmail),'\0');
 	      if(*flagsendmail)
 		 chp=strchr(strcpy(chp+1,flagsendmail),'\0');
-	      readparse(chp+1,getb,0);
+	      if(readparse(chp+1,getb,0))
+		 goto fail;
 	      if(i)
 	       { if(startchar==themail)
 		  { startchar[filled]='\0';		     /* just in case */
@@ -679,7 +702,8 @@ progrm:	   if(testB('!'))				 /* forward the mail */
 	      skiprc--;
 	    }
 	   else if(testB('|'))				    /* pipe the mail */
-	    { getlline(buf2);			 /* get the command to start */
+	    { if(getlline(buf2))		 /* get the command to start */
+		 goto commint;
 	      if(i)
 	       { metaparse(buf2);
 		 if(!sh&&buf+1==Tmnate)		      /* just a pipe symbol? */
@@ -696,13 +720,16 @@ forward:	 if(locknext)
 			     buf2[i]='\0';
 			     if(sh)	 /* expand any environment variables */
 			      { chp=tstrdup(buf);sgetcp=buf2;
-				readparse(buf,sgetc,0);strcpy(buf2,buf);
-				strcpy(buf,chp);free(chp);
+				if(readparse(buf,sgetc,0))
+				 { *buf2='\0';
+				   goto nolock;
+				 }
+				strcpy(buf2,buf);strcpy(buf,chp);free(chp);
 			      }
 			     break;
 			   }
 		       if(!*buf2)
-			{ nlog("Couldn't determine implicit lockfile from");
+nolock:			{ nlog("Couldn't determine implicit lockfile from");
 			  logqnl(buf);
 			}
 		     }
@@ -734,11 +761,15 @@ forward:	 if(locknext)
 	   else if(testB(EOF))
 	      nlog("Incomplete recipe\n");
 	   else		   /* dump the mail into a mailbox file or directory */
-	    { int ofiltflag;
+	    { int ofiltflag;char*end=buf+linebuf-4;	/* reserve some room */
 	      if(ofiltflag=flags[FILTER])
 		 flags[FILTER]=0,nlog(extrns),elog("filter-flag"),elog(ignrd);
-	      if(chp=gobenv(buf))	   /* can it be an environment name? */
-	       { if(skipspace())
+	      if(chp=gobenv(buf,end))	   /* can it be an environment name? */
+	       { if(chp==end)
+		  { getlline(buf);
+		    goto fail;
+		  }
+		 if(skipspace())
 		    chp++;		   /* keep pace with argument breaks */
 		 if(testB('='))		      /* is it really an assignment? */
 		  { int c;
@@ -803,7 +834,10 @@ forward:	 if(locknext)
 	       }
 	      if(!i)						/* no match? */
 		 skiprc++;		  /* temporarily disable subprograms */
-	      readparse(chp,getb,0);
+	      if(readparse(chp,getb,0))
+fail:	       { succeed=0;
+		 goto setlsucc;
+	       }
 	      if(i)
 	       { if(ofiltflag)	       /* protect who use bogus filter-flags */
 		    startchar=themail,tobesent=filled;	    /* whole message */
@@ -838,15 +872,24 @@ jsetlsucc:	 lastsucc=succeed;lasttell= -1;		       /* for comsat */
 	      skiprc--;					   /* decrease level */
 	 }
 	else				    /* then it must be an assignment */
-	 { if(!(chp=gobenv(buf)))
+	 { char*end=buf+linebuf;
+	   if(!(chp=gobenv(buf,end)))
 	    { if(!*buf)					/* skip a word first */
-		 getbl(buf);				      /* then a line */
+		 getbl(buf,buf+linebuf);		      /* then a line */
 	      skipped(buf);				/* display leftovers */
 	      continue;
 	    }
+	   if(chp==end)				      /* overflow => give up */
+nextrc:	      if(poprc()||wipetcrc())
+		 continue;
+	      else
+		 break;
 	   skipspace();
 	   if(testB('='))			   /* removal or assignment? */
-	      *chp='=',readparse(++chp,getb,1);
+	    { *chp='=';
+	      if(readparse(++chp,getb,1))
+		 continue;
+	    }
 	   else
 	      *++chp='\0';		     /* throw in a second terminator */
 	   if(!skiprc)
