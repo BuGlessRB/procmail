@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.115 2001/06/23 08:18:48 guenther Exp $";
+ "$Id: misc.c,v 1.116 2001/06/26 08:44:34 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -38,14 +38,14 @@ void elog(newt)const char*const newt;
      lold=lmax=0;		       /* so give up on any buffered message */
   i=lold+(lnew=strlen(newt));	   /* calculate additional and total lengths */
   if(lnew&&				/* if this is not a forced flush and */
-   (i<lmax||		      /* either we have enough room in the buffer or */
-    (i<=MAXlogbuf&&			 /* the buffer won't get too big and */
+   (lmax>=i||		      /* either we have enough room in the buffer or */
+    (MAXlogbu>=if&&			 /* the buffer won't get too big and */
      !nextexit)))	    /* we're not in a signal handler, then it's safe */
    { if(i>lmax)				      /* to use or expand the buffer */
       { char*p;size_t newmax=lmax*2;	 /* exponential expansion by default */
-	if(newmax<i)				   /* ...unless we need more */
+	if(i>newmax)				   /* ...unless we need more */
 	   newmax=i;
-	if(newmax<MINlogbuf)		    /* ...or that would be too small */
+	if(MINlogbuf>newmax)		    /* ...or that would be too small */
 	   newmax=MINlogbuf;
 	lcking|=lck_LOGGING;		      /* about to change old or lmax */
 	if(p=lmax?frealloc(old,newmax):fmalloc(newmax))/* fragile allocation */
