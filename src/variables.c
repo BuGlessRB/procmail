@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.21 2001/08/27 08:44:01 guenther Exp $";
+ "$Id: variables.c,v 1.22 2001/08/27 08:53:15 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -375,10 +375,7 @@ void asenv(chp)const char*const chp;
      setlfcs(chp);
   else if(!strcmp(buf,scomsat))
    { if(!setcomsat(chp))
-      { char*p=buf+STRLEN(scomsat);		/* set it to "no" on failure */
-	*p++='=';strcpy(p,offvalue);
-	sputenv(buf);
-      }
+	setdef(scomsat,offvalue);		/* set it to "no" on failure */
    }
   else if(!strcmp(buf,shift))
    { int i;
