@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.112 1995/03/31 17:30:59 berg Exp $";
+ "$Id: procmail.c,v 1.113 1995/05/16 19:56:42 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -731,7 +731,7 @@ forward:	 if(locknext)
 		    skiprc++;		      /* increase the skipping level */
 		 else
 		  { if(locknext)
-		     { lcllock();
+		     { *buf2='\0';lcllock();
 		       if(!pwait)	/* try and protect the user from his */
 			  pwait=2;		   /* blissful ignorance :-) */
 		     }

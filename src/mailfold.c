@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.64 1995/04/10 19:28:35 berg Exp $";
+ "$Id: mailfold.c,v 1.65 1995/05/16 19:56:35 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -35,9 +35,11 @@ static const char*fifrom(fromw,lbound,ubound)
   i= *ubound;*ubound='\0';fromw=strstr(mx(fromw,lbound),from_expr);*ubound=i;
   return fromw;
 }
+
+static int doesc;
 			       /* inserts escape characters on outgoing mail */
 static long getchunk(s,fromw,len)const int s;const char*fromw;const long len;
-{ static const char esc[]=ESCAP,*ffrom,*endp;static int doesc;
+{ static const char esc[]=ESCAP,*ffrom,*endp;
   if(doesc)		       /* still something to escape since last time? */
      doesc=0,rwrite(s,esc,STRLEN(esc)),lastdump++;		/* escape it */
   ffrom=0;					 /* start with a clean slate */
@@ -48,7 +50,7 @@ static long getchunk(s,fromw,len)const int s;const char*fromw;const long len;
 	endp=(char*)ffrom;		  /* make sure we stay within bounds */
      ffrom=fifrom(fromw,restbody,endp);			  /* scan body block */
    }
-  return ffrom?(doesc=1,(ffrom-fromw)+1):len;	 /* +1 to write out the '\n' */
+  return ffrom?(doesc=1,(ffrom-fromw)+1L):len;	 /* +1 to write out the '\n' */
 }
 
 long dump(s,source,len)const int s;const char*source;long len;
@@ -57,7 +59,8 @@ long dump(s,source,len)const int s;const char*source;long len;
   if(s>=0)
    { if(tofile&&(lseek(s,(off_t)0,SEEK_END),fdlock(s)))
 	nlog("Kernel-lock failed\n");
-     lastdump=len;part=tofile==to_FOLDER&&!rawnonl?getchunk(s,source,len):len;
+     lastdump=len;doesc=0;
+     part=tofile==to_FOLDER&&!rawnonl?getchunk(s,source,len):len;
      lasttell=lseek(s,(off_t)0,SEEK_END);
      if(!rawnonl)
       { smboxseparator(s);			       /* optional separator */
@@ -344,8 +347,11 @@ eofheader:
 }
 			  /* tries to locate the timestamp on the From_ line */
 char*findtstamp(start,end)const char*start,*end;
-{ start=skpspace(start);start+=strcspn(start," \t\n");	/* jump over address */
-  if(skpspace(start)>=(end-=25))		       /* enough space left? */
+{ end-=25;
+  if(*start==' '&&(++start==end||*start==' '&&++start==end))
+     return (char*)start-1;
+  start=skpspace(start);start+=strcspn(start," \t\n");	/* jump over address */
+  if(skpspace(start)>=end)			       /* enough space left? */
      return (char*)start;	 /* no, too small for a timestamp, stop here */
   while(!(end[13]==':'&&end[15]==':')&&--end>start);	  /* search for :..: */
   ;{ int spc=0;						 /* found it perhaps */

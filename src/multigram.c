@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.77 1995/03/31 17:30:55 berg Exp $";
+ "$Id: multigram.c,v 1.78 1995/05/16 19:56:39 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1995/03/31 17:30:55 $";
+static /*const*/char rcsdate[]="$Date: 1995/05/16 19:56:39 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -117,7 +117,14 @@ static size_t readstr(file,p,linewise)FILE*const file;struct string*p;
 	   continue;					   /* next character */
 	case EOF:;
       }
-     tcoffset+=tccount;p->text[len]='\0';    /* terminate buffer in any case */
+     tcoffset+=tccount;
+     for(;p->text[len]='\0',len;--len)	     /* terminate buffer in any case */
+      { switch(p->text[len-1])			     /* trailing whitespace? */
+	 { case ' ':case '\t':				      /* wipe it out */
+	      continue;
+	 }
+	break;
+      }
      if(linewise&&len)
 	for(i=0;!remov_delim&&!i;i=1)
 	   if(!strcmp(p->text+i,rem1str)&&

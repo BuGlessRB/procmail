@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.43 1995/03/20 15:30:28 berg Exp $";
+ "$Id: locking.c,v 1.44 1995/05/16 19:56:32 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -175,12 +175,16 @@ int fdlock(fd)
    ssleep((unsigned)locksleep))
 #endif
    { zombiecollect();
-#ifndef NOfcntl_lock
-     flck.l_type=F_WRLCK;flck.l_whence=SEEK_SET;flck.l_len=0;
-     flck.l_start=tell(fd);
-#endif
 #ifdef USElockf
      oldlockoffset=tell(fd);
+#endif
+#ifndef NOfcntl_lock
+     flck.l_type=F_WRLCK;flck.l_whence=SEEK_SET;flck.l_len=0;
+#ifdef USElockf
+     flck.l_start=oldlockoffset;
+#else
+     flck.l_start=tell(fd);
+#endif
 #endif
      lcking|=lck_KERNEL;
 #ifndef NOfcntl_lock

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.24 1995/03/20 15:30:06 berg Exp $";
+ "$Id: exopen.c,v 1.25 1995/05/16 19:56:28 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -74,7 +74,7 @@ int hlink(old,newn)const char*const old,*const newn;
 { if(link(old,newn))				      /* try a real hardlink */
    { int i,serrno;struct stat stbuf;
      serrno=errno;i=lstat(old,&stbuf);SETerrno(serrno);
-     if(i&&S_ISLNK(stbuf.st_mode))		/* no stat or symbolic link? */
+     if(i||S_ISLNK(stbuf.st_mode))		/* no stat or symbolic link? */
 	goto retfail;				     /* yuk, don't accept it */
      if(stbuf.st_nlink!=2)
       { if(serrno!=EXDEV)		       /* failure due to filesystem? */

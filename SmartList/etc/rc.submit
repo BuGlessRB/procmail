@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.77 1995/04/03 19:00:34 berg Exp $
+#$Id: rc.submit,v 1.78 1995/05/16 19:56:23 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -28,7 +28,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 	 ^(((Resent-)?(From|Sender)|X-Envelope-From):|>?From )\
 	  ([^>]*[^(.%@a-z0-9])?(\
 	   LIST(SERV|proc)|NETSERV|bounce|autoanswer|echo|mirror\
-	  )(([^).!:a-z0-9][-_a-z0-9]*)?[%@	 ][^<)]*(\(.*\).*)?)?$[^>]
+	  )(([^).!:a-z0-9][-_a-z0-9]*)?[%@>	 ][^<)]*(\(.*\).*)?)?$([^>]|$)
 * 1^0
 {
 

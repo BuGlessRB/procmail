@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.57 1995/04/11 19:41:46 berg Exp $";
+ "$Id: regexp.c,v 1.58 1995/05/16 19:56:46 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -535,7 +535,7 @@ foundbom:	       reg=epso(reg,sizeof(union seps));start=(const char*)str;
 		       continue;
 		    case OPC_FILL-OPB:		/* nop, nothing points at it */
 		       if(thiss==Ceps&tswitch)
-			  goto setmatch;     /* so the stack is always empty */
+			  goto checkmatch;   /* so the stack is always empty */
 		    case OPC_SEMPTY-OPB:
 		       goto Empty_stack;
 		    case OPC_TSWITCH-OPB:
@@ -584,23 +584,24 @@ wrapup:
 	   thiss=other;other=Ceps&tswitch;
 	   goto Empty_stack;			 /* check if we just matched */
       }
+checkmatch:
      if(eom)
-      { static char match[]=MATCHVAR;size_t mlen;char*q;
+      { static char match[]=MATCHVAR;char*q;
 setmatch:
 	if(bom<(char*)text)
 	   bom=(const char*)text;
 	if(eom>--pend)
 	   eom=pend;
-	mlen=eom-bom;match[STRLEN(match)-1]='\0';
+	len=eom-bom;match[STRLEN(match)-1]='\0';
 	if(getenv(match)==(const char*)text)	     /* anal retentive match */
-	   tmemmove(q=(char*)text,bom,mlen),q[len]='\0',bom=q;
+	   tmemmove(q=(char*)text,bom,len),q[len]='\0',bom=q;
 	else
 	 { char*p;
 	   match[STRLEN(match)-1]='=';
 	   if(*bom=='\n')
 	      bom++;				/* strip one leading newline */
-	   primeStdout(match);p=realloc(Stdout,(Stdfilled+=mlen)+1);
-	   tmemmove(q=p+Stdfilled-(int)mlen,bom,mlen);retStdout(p);
+	   primeStdout(match);p=realloc(Stdout,(Stdfilled+=len)+1);
+	   tmemmove(q=p+Stdfilled-(int)len,bom,len);retStdout(p);
 	 }
 	yell("Matched",q);
       }
