@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.64 1998/11/06 05:35:28 guenther Exp $
+.Id $Id: procmailrc.man,v 1.65 1998/11/16 16:28:52 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -307,6 +307,9 @@ The current hostname
 .br
 (If an rcfile is specified on the command line)
 .TP
+.B PROCMAIL_VERSION
+\&@VERSIONNUMBER@
+.TP
 .B LOCKEXT
 \&@DEFlockext@@PRESTENV@@LD_ENV_FIX@
 .SS Environment
@@ -518,6 +521,9 @@ Names an rcfile (relative to the current directory) which will be included
 here as if it were part of the current rcfile.  Unlimited nesting is
 permitted.
 .TP
+.B PROCMAIL_VERSION
+The version number of the running procmail binary.
+.TP
 .B COMSAT
 .BR Comsat (8)/ biff (1)
 notification is on by default, it can be turned off by setting this variable
@@ -675,9 +681,7 @@ Procmail does not support the expansion of `~'.
 .PP
 A line buffer of length $LINEBUF is used when processing the
 .IR rcfile ,
-any expansions
-.B have
-to fit within this limit; if they don't, behaviour is undefined.
+any expansions that don't fit within this limit will be truncated.
 .PP
 If the global lockfile has a
 .I relative
