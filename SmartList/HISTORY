@@ -141,7 +141,7 @@
 	    Most notably, formail v3.04 could cause problems on some machines
 	       where sendmail does not remove the leading From_ line on
 	       mail being forwarded
-1994/08/23: v3.06pre3
+1994/08/24: v3.06pre3
 	    Removed the auto-encoding from mimencap.local, it was already
 	       (and better) done in mimencap itself
 	    Multigram truncates the dist file after unsubscribing someone

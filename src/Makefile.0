@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.35 1994/08/19 18:15:05 berg Exp $
+#$Id: Makefile.0,v 1.36 1994/08/24 18:52:05 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O) \
@@ -38,12 +38,10 @@ multigram: multigram.$(O) $(MG_OBJ) setid
 _autotst: _autotst.$(O) sublib.c sublib.h
 	$(CC) $(CFLAGS) $@.$(O) -o $@ $(LDFLAGS)
 
-# to fully support "make -n"
-HIDEMAKE = $(MAKE)
-
 ../autoconf.h: autoconf Makefile
+	@echo No this was not make -n >make_n
 	$(SHELL) ./autoconf $(SHELL) "$(RM)" "$(MV)" $(DEVNULL) \
-	 "$(FGREP)" "$(HIDEMAKE)" $(O) "$(LOCKINGTEST)" \
+	 "$(FGREP)" "$(MAKE)" $(O) "$(LOCKINGTEST)" \
 	 "$(BINDIR)" $@
 
 autoconf.h: ../autoconf.h
@@ -155,7 +153,7 @@ clean:
 	 $(FM_OBJ) multigram.$(O) $(MG_OBJ) $(BINSS) multigram ../autoconf.h \
 	 _autotst* lookfor _locktst* grepfor recommend recommend.$(O) manconf \
 	 _Makefile lock.log *core* targetdir.h setid setid.$(O) gethome \
-	 gethome.$(O)
+	 gethome.$(O) make_n
 
 Makefile: ../Makefile Makefile.0
 	@echo "You have made changes to the master Makefile, in order for"

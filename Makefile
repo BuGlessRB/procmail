@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.60 1994/08/18 18:12:21 berg Exp $
+#$Id: Makefile,v 1.61 1994/08/24 18:51:45 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -106,10 +106,8 @@ MANS5S	= procmailrc procmailsc procmailex
 
 # Makefile - mark, don't (re)move this, a sed script needs it
 
-HIDEMAKE=$(MAKE)
-
 all: init
-	$(HIDEMAKE) make $@
+	$(MAKE) make $@
 
 make:
 	@$(BSHELL) -c "exit 0"
@@ -117,10 +115,11 @@ make:
 .PRECIOUS: Makefile
 
 init:
+	@echo No this was not make -n >make_n
 	$(BSHELL) ./initmake $(BSHELL) "$(SHELL)" "$(RM)" "$(MV)" "$(LN)" \
 	 "$(SEARCHLIBS)" \
 	 "$(LIBPATHS)" \
-	 $(DEVNULL) "$(HIDEMAKE)" $(O) \
+	 $(DEVNULL) "$(MAKE)" $(O) \
 	 "$(CC)" "$(CFLAGS1)" "$(LDFLAGS1)" "$(BINSS)" \
 	 "$(MANS1S)" \
 	 "$(MANS5S)" "$(SUBDIRS)" \
@@ -132,4 +131,4 @@ makefiles makefile Makefiles Makefile: init
 help target targets \
 bins mans install.bin install.man install recommend install-suid clean setid \
 realclean veryclean clobber deinstall autoconf.h $(BINSS) multigram: init
-	$(HIDEMAKE) make $@
+	$(MAKE) make $@
