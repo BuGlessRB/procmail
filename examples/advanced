@@ -23,11 +23,11 @@ depending on from which machine it is called) two executables of procmail,
 I have the following suggestion to use as a .forward file (examples are for
 sparc and sun3 architectures):
 
-"|IFS=' ';if /usr/bin/sparc;then exec /home/berg/bin.sun4/procmail;else exec /home/berg/bin.sun3/procmail;fi #YOUR_LOGIN_NAME"
+|"IFS=' ';if /usr/bin/sparc;then exec /home/berg/bin.sun4/procmail;else exec /home/berg/bin.sun3/procmail;fi #YOUR_LOGIN_NAME"
 
 or alternatively:
 
-"|IFS=' ';exec /home/berg/bin.`/usr/bin/arch`/procmail #YOUR_LOGIN_NAME"
+|"IFS=' ';exec /home/berg/bin.`/usr/bin/arch`/procmail #YOUR_LOGIN_NAME"
 
 Please note, in the .forward file there can NOT be any newlines between
 the doublequotes, i.e. the former example *has* to be typed in as one long
@@ -39,7 +39,7 @@ appropriate; in that case put something like the following two lines in your
 .forward file:
 
 YOUR_LOGIN_NAME@your.favourite.machine
-"|IFS=' ';if test .`/bin/uname -n` = .your.favourite.machine; then /exec /home/berg/bin/procmail; else exit 0; fi #YOUR_LOGIN_NAME"
+|"IFS=' ';if test .`/bin/uname -n` = .your.favourite.machine; then /exec /home/berg/bin/procmail; else exit 0; fi #YOUR_LOGIN_NAME"
 
 The leading dots are important.	 Check what `/bin/uname -n` returns on
 your.favourite.machine, and substitute that for your.favourite.machine in the

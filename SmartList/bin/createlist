@@ -5,7 +5,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.12 1993/01/28 15:18:25 berg Exp $
+#$Id: createlist,v 1.13 1993/02/19 15:04:25 berg Exp $
 
 defaults=.etc
 
@@ -152,7 +152,7 @@ flist=$listdir/.bin/flist
 
 echo "Now make the following entries in your /usr/lib/aliases file:" 1>&2
 echo \#########################################################################
-echo "$list: \"|IFS=' ';exec $flist $list\""
-echo "$list-request: \"|IFS=' ';exec $flist $list-request\""
+echo "$list: |\"IFS=' ';exec $flist $list\""
+echo "$list-request: |\"IFS=' ';exec $flist $list-request\""
 echo "$list-dist: :include:$listdir/$list/dist"
 echo \#########################################################################

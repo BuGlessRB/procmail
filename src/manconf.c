@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.17 1993/02/11 12:08:38 berg Exp $*/
+/*$Id: manconf.c,v 1.18 1993/02/19 15:04:30 berg Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -102,7 +102,7 @@ yourself.");
 #ifndef MAILBOX_SEPARATOR
   ps("DOT_FORWARD",".forward");
   ps("FW_content",
-   "\"|IFS=' ';exec /usr/local/bin/procmail #YOUR_LOGIN_NAME\"");
+   "|\"IFS=' ';exec /usr/local/bin/procmail #YOUR_LOGIN_NAME\"");
 #else
   ps("DOT_FORWARD",".maildelivery");
   ps("FW_content",
