@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.73 2001/08/27 08:43:59 guenther Exp $";
+ "$Id: pipes.c,v 1.74 2001/09/18 22:01:27 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -145,7 +145,9 @@ int pipthrough(line,source,len)char*line,*source;const long len;
   if(Stdout)
    { *(eq=strchr(Stdout,'\0')-1)='\0';			     /* chop the '=' */
      if(!(backblock=getenv(Stdout)))			/* no current value? */
-	PRDB=PWRB= -1;
+      { PRDB=PWRB= -1;
+	backlen=0;
+      }
      else
       { backlen=strlen(backblock);
 	goto pip;
@@ -155,9 +157,7 @@ int pipthrough(line,source,len)char*line,*source;const long len;
 pip: rpipe(pbackfd);
   rpipe(pinfd);						 /* main pipes setup */
   if(!(pidchild=sfork()))			/* create a sending procmail */
-   { if(Stdout&&backblock)
-	backlen=strlen(backblock);
-     else
+   { if(!Stdout)
 	backblock=source,backlen=len;
      childsetup();rclose(PRDI);rclose(PRDB);
      rpipe(poutfd);rclose(STDOUT);
