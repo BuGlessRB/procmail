@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.133 2001/06/17 04:06:25 guenther Exp $
+#$Id: autoconf,v 1.134 2001/06/21 09:28:03 guenther Exp $
 
 # All possible entries in autoconf.h:
 
@@ -79,7 +79,7 @@
 #	#define _GUID_T
 #Ok	#define UDP_protocolno 17
 #Ok	#define BIFF_serviceport "512"
-#Ok	#define IP_localhost {127,0,0,1,}
+#Ok	#define IP_localhost {127,0,0,1}
 #	#define WMACROS_NON_POSIX
 #	#define oBRAIN_DAMAGE
 #Ok	#define GOT_bin_test
@@ -800,7 +800,7 @@ then
   cat <<HERE
 
 Your system appears to not (correctly) support at least one of:
-const, volatile, function prototypes, any enum types.  Future
+const, volatile, function prototypes, and enum types.  Future
 versions of procmail will probably require support for all of them,
 so you should either upgrade your compiler to one that's compliant
 with the ISO C standard (the standard's over 10 years old, for
@@ -1260,8 +1260,9 @@ int main(argc,argv)int argc;const char*argv[];
 	       { int j=host->h_length;
 		 const unsigned char*ad=(void*)host->h_0addr_list;
 		 printf("#define IP_localhost {");
-		 do printf("%d,",*ad++);
-		 while(--j);
+		 printf("%d",*ad++);
+		 while(--j)
+		    printf(",%d",*ad++);
 		 puts("}");
 	       }
 	    }
