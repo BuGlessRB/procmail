@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.65 1995/05/16 19:56:35 berg Exp $";
+ "$Id: mailfold.c,v 1.66 1995/06/27 22:07:21 srb Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -65,7 +65,7 @@ long dump(s,source,len)const int s;const char*source;long len;
      if(!rawnonl)
       { smboxseparator(s);			       /* optional separator */
 #ifndef NO_NFS_ATIME_HACK	       /* if it is a file, trick NFS into an */
-	if(part&&tofile)				    /* a_time<m_time */
+	if(part&&tofile==to_FILE)			    /* a_time<m_time */
 	 { struct stat stbuf;
 	   rwrite(s,source++,1);len--;part--;		     /* set the trap */
 	   if(fstat(s,&stbuf)||stbuf.st_mtime==stbuf.st_atime)	  /* needed? */
@@ -101,7 +101,7 @@ writefin:
 }
 
 static int dirfile(chp,linkonly)char*const chp;const int linkonly;
-{ const static char lkingto[]="Linking to";
+{ static const char lkingto[]="Linking to";
   if(chp)
    { long i=0;			     /* first let us try to prime i with the */
 #ifndef NOopendir		     /* highest MH folder number we can find */

@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.78 1995/05/16 19:56:39 berg Exp $";
+ "$Id: multigram.c,v 1.79 1995/06/27 22:07:21 srb Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1995/05/16 19:56:39 $";
+static /*const*/char rcsdate[]="$Date: 1995/06/27 22:07:21 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -772,7 +772,7 @@ usg:
    { int meter;long linentry;off_t offs1,offs2;
      unsigned hfile;
      ;{ char*chp;
-	const static char tpunctuation[]="@\\/!#$%^&*-_=+|~`';:,.?{}";
+	static const char tpunctuation[]="@\\/!#$%^&*-_=+|~`';:,.?{}";
 #define punctuation	(tpunctuation+3)
 	chp=fuzzstr.text;
 	if(!dodomain)			    /* still have to do with domain? */
@@ -906,7 +906,7 @@ dupl_addr:;
 	else
 #endif
 	printf("%3ld %-34s %5d %s\n",
-	 charoffs?mp->offs1:mp->lentry,mp->hard,mp->metric,mp->fuzz);
+	 (long)(charoffs?mp->offs1:mp->lentry),mp->hard,mp->metric,mp->fuzz);
      if((mp= *best)->metric>=minweight)
       { struct match*worse;
 	if(renam)

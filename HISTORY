@@ -327,6 +327,7 @@
 	       - Severe tweaking on ^FROM_MAILER and ^FROM_DAEMON to reduce
 		 false matches
 	       - Allow for broken From_ lines with a missing sender address
+	       - Avoid the NFS delay on directory and MH folders
 	    Changes to formail:
 	       - Slightly extended the number of known header fields
 	       - Eliminated the conflict with the 4.4BSD daemon libidentifier

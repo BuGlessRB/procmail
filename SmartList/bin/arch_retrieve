@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.50 1995/03/20 14:49:50 berg Exp $
+#$Id: arch_retrieve,v 1.51 1995/06/27 22:07:18 srb Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -197,19 +197,19 @@ $oldwrongaddress"
 	    shift
 	    case "$*" in
 	       *[/\ ]..[/\ ]*|..[/\ ]*|*[/\ ]..|..|[-/]*|*\ /*)
-		  $echo "$from ILLEGAL ls $line" >>$tmpfrom
+		  $echo "$from ILLEGAL $line" >>$tmpfrom
 		  $test -z "$ILLEGAL" && ILLEGAL="$line";;
 	       *)
 		  $touch tmp.lock
-		  $echo "$from ls $line" >>$tmpfrom
+		  $echo "$from $line" >>$tmpfrom
 		   ( $formail -rt -I"Subject: archive retrieval: ls $1" \
 		      -i"From: $listreq" -A"X-Loop: $listaddr" \
  -i"Reply-To: Please.write.a.new.mail.instead.of.replying@FIRST.WORD.archive" \
-		      -i"Content-ID: <$line%$listreq>" \
+		      -i"Content-ID: <$*%$listreq>" \
 		      -I"Precedence: bulk" <$tmprequest
 		     $test ! -z "$wrongaddress" && $echo "$wrongaddress"
 		     cd $archivedir
-		     $echo "ls -l $line"
+		     $echo "ls -l $*"
 		     $echo "BEGIN---------------cut here------------------"
 		     $ls -lL "$@" 2>&1 | $sed -e $breakoff_ls'a\
 Truncating after '$breakoff_ls' names...' -e ${breakoff_ls}q

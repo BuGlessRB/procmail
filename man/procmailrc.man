@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.57 1995/03/20 14:51:18 berg Exp $
+.Id $Id: procmailrc.man,v 1.58 1995/06/27 22:07:19 srb Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -203,9 +203,10 @@ decimal) number of bytes.
 Analogous to '<'.
 .TP
 .B "variablename \fI??\fP"
-Match the remainder against the value of this environment variable (this cannot
-be a pseudo variable).  Special cases are `B', `H', `HB' and `BH', which
-merely override the default header/body search area defined for this recipe.
+Match the remainder of this condition against the value of this environment
+variable (which cannot be a pseudo variable).  A special case is if
+variablename is equal to `B', `H', `HB' or `BH'; this merely overrides the
+default header/body search area defined by the initial flags on this recipe.
 .TP
 .B \e
 To quote any of the above at the start of the line.

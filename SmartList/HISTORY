@@ -222,3 +222,4 @@
 	       subscriber
 	    If someone (accidentally) removes the dist file, the subscribe
 	       script will recreate an empty one (and log a warning)
+	    Get rid of X-Confirm-Reading-To: fields on submissions

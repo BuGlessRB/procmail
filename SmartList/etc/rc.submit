@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.78 1995/05/16 19:56:23 berg Exp $
+#$Id: rc.submit,v 1.79 1995/06/27 22:07:19 srb Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -62,7 +62,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
        .*( (join|leave|add .* to|(delete|remove) .* from|\
 	 (take|sign) .* off|(put|sign) .* on) .* [a-z-]*list|\
 	 ((un|de)-?|sub?)s(cr|c|r)i(be|ption))\>)
-* -50^0 ^Subject:[	 ]*[(<]none[>)]$
+* -50^0 ^Subject:[	 ]*[(<]no(ne| subject \(file transmission)[>)]$
 *  50^0 ^Subject:.*[a-z]
 * -100^0 B ?? ^^([	 ]|$)*\
       ((((archives?:?($|[	 ]+)|\
@@ -207,7 +207,8 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
 						# do this one by itself.
      :0 wfh
      | formail -b -IFrom\  -IReceived: -IReturn-Receipt-To: -IErrors-To: \
-	-IX-Pmrqc: -IAcknowledge-To: -IRead-Receipt-To: -IX-Diagnostic: \
+	-IX-Pmrqc: -IX-Confirm-Reading-To: -IAcknowledge-To: \
+	-IRead-Receipt-To: -IX-Diagnostic: \
 	-iStatus: -iReturn-Path: -iX-Envelope-To: -iX-Envelope-From: \
 	-I"Precedence: list" -I"Resent-Sender: $listreq" \
 	-uDate: -aMessage-ID: -aResent-Message-ID: \
