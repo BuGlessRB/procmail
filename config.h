@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.39 1994/02/08 16:24:30 berg Exp $*/
+/*$Id: config.h,v 1.40 1994/02/09 19:10:49 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -237,6 +237,7 @@ root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
 #define FM_MINFIELDS	'm'    /* the number of fields that have to be found */
 #define DEFminfields	2	    /* before a header is recognised as such */
 #define FM_DIGEST	'd'				 /* split up digests */
+#define FM_BABYL	'B'		/* split up BABYL format rmail files */
 #define FM_QUIET	'q'		    /* ignore write errors on stdout */
 #define FM_EXTRACT	'x'			   /* extract field contents */
 #define FM_EXTRC_KEEP	'X'				    /* extract field */
@@ -248,7 +249,7 @@ root|uucp|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>])"
 #define FM_USAGE	"\
 Usage: formail [-bcfrktq] [-p prefix] [-l folder] [-xXaAiI field]\n\
 \t[-R ofield nfield]\n\
-   Or: formail [+nnn] [-nnn] [-bcfrktnedq] [-p prefix] [-m nnn] [-l folder]\n\
+   Or: formail [+nnn] [-nnn] [-bcfrktnedqB] [-p prefix] [-m nnn] [-l folder]\n\
 \t[-xXaAiI field] [-R ofield nfield] -s [prg [arg ...]]\n"
 #define FM_HELP		\
  "\t-b\tdon't escape bogus mailbox headers\
@@ -264,7 +265,7 @@ Usage: formail [-bcfrktq] [-p prefix] [-l folder] [-xXaAiI field]\n\
 \n\t+nnn\tskip the first nnn\t-nnn\toutput at most nnn messages\
 \n\t-n\tdon't wait for every prg while splitting\
 \n\t-e\tdon't require empty lines to precede a header\
-\n\t-d\taccept digest format\
+\n\t-d\taccept digest format\t-B\taccept BABYL rmail format\
 \n\t-m nnn\tmin fields threshold (default 2) for start of message\
 \n\t-x field   extract contents\t-X field   extract fully\
 \n\t-a field   add if not present\t-A field   add in any case\

@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.39 1994/02/08 16:13:38 berg Exp $
+#$Id: install.sh,v 1.40 1994/02/09 19:10:55 berg Exp $
 
 SHELL=/bin/sh
 export SHELL
@@ -103,17 +103,30 @@ then
      [0-9]*) exec 4>&0
 	 . ./install.sh2
 	 exec 4>&- ;;
-     *) su $installerid 4>&0 <install.sh2 || exit 1;;
+     *) if echo ls | su $installerid | fgrep install.sh2 /dev/null
+	then
+	:
+	else
+	   echo "Oops, panic..."
+	   echo "I just did an 'su $installerid' and I can't read and access"
+	   echo "the current directory anymore."
+	   echo "Please check to see if '$installerid' has sufficient"
+	   echo "permissions to do so.	Also, make sure that some"
+	   echo "sneaky .*shrc file does NOT change the directory."
+	   exit 64
+	fi
+	su $installerid 4>&0 <install.sh2 || exit 1;;
   esac
   if echo ls | su $listid 2>&1 | fgrep install.sh2 >/dev/null
   then
   :
   else
-     echo "It seems that the user \"$listid\" is not able to access"
-     echo "files in the current directory (procmail/mailinglist/.)."
-     echo "You have to make sure that at least while the install.sh"
-     echo "scripts are running, the procmail source tree is accessible"
-     echo "AND readable for that user."
+     echo "Oops, panic..."
+     echo "I just did an 'su $listid' and I can't read and access the"
+     echo "current directory anymore."
+     echo "Please check to see if '$listid' has sufficient"
+     echo "permissions to do so.  Also, make sure that some"
+     echo "sneaky .*shrc file does NOT change the directory."
      exit 64
   fi
   su $listid <install.sh3

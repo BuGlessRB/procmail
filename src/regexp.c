@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.31 1994/02/08 16:15:03 berg Exp $";
+ "$Id: regexp.c,v 1.32 1994/02/09 19:11:30 berg Exp $";
 #endif
 #include "includes.h"
 #include "robust.h"
@@ -30,6 +30,10 @@ static /*const*/char rcsid[]=
 #define R_RANGE		'-'
 #define R_END_CLASS	']'
 #define R_ESCAPE	'\\'
+
+#define R_BEG_WORD	'<'
+#define R_END_WORD	'>'
+#define NO_WORD_CLASS	"[^a-zA-Z0-9_\n]"
 
 #define BITS_P_CHAR		8
 #define OPB			(1<<BITS_P_CHAR)
@@ -171,8 +175,13 @@ static void psimp(e)const struct eps*const e;
 	 }
 	goto fine2;
      case R_ESCAPE:					  /* quote something */
-	if(!*++p)					 /* nothing to quote */
-	   p--;
+	switch(*++p)
+	 { case R_BEG_WORD:case R_END_WORD:
+	    { char*pold=p;
+	      p=NO_WORD_CLASS;psimp(e);p=pold+1;return;
+	    }
+	   case '\0':p--;				 /* nothing to quote */
+	 }
    }
   if(e)						      /* a regular character */
    { r->opc=case_ignore&&(unsigned)*p-'A'<'Z'-'A'?*p+'a'-'A':*p;

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.66 1994/02/08 16:14:59 berg Exp $";
+ "$Id: procmail.c,v 1.67 1994/02/09 19:11:27 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -492,20 +492,22 @@ findrc:	      i=0;		    /* should we keep the current directory? */
 	      * not world writable or does not have the sticky bit set
 	      */
 	      i= *(chp=lastdirsep(buf));
-	      if(lstat(buf,&stbuf)||	      /* /dev/null is a special case */
+	      if(lstat(buf,&stbuf)||
 		 ((stbuf.st_uid!=uid||stbuf.st_mode&S_IWOTH)&&
-		   strcmp(devnull,buf)&&(*chp='\0',stat(buf,&stbuf)||
-		  (stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)&&
-		   !(stbuf.st_mode&S_ISVTX))))
+		  strcmp(devnull,buf)&&	      /* /dev/null is a special case */
+		  (*chp='\0',stat(buf,&stbuf)||
+		   (stbuf.st_mode&(S_IWOTH|S_IXOTH))==(S_IWOTH|S_IXOTH)&&
+		    !(stbuf.st_mode&S_ISVTX))))
 	       { *chp=i;rclose(rc);nlog("Suspicious rcfile\n");goto fake_rc;
 	       }
+	      *chp=i;
 	    }
 	  /*
 	   *	set uid back to recipient in any case, since we might just
 	   *	have opened his/her .procmailrc (don't remove these, since
 	   *	the rcfile might have been created after the first stat)
 	   */
-	   *chp=i;yell(drcfile,buf);setids();firstchd();
+	   yell(drcfile,buf);setids();firstchd();
 startrc:   succeed=lastcond=prevcond=0;
 	 }
 	unlock(&loclock);goto commint;		/* unlock any local lockfile */

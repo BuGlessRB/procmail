@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.37 1994/02/08 16:14:18 berg Exp $
+.Id $Id: procmail.man,v 1.38 1994/02/09 19:11:06 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -398,6 +398,9 @@ VERBOSE variable.
 [pid] time & date
 Procmail's pid and a timestamp.  Generated whenever procmail logs a
 diagnostic and at least a second has elapsed since the last timestamp.
+.TP
+Acquiring kernel-lock
+Procmail now tries to kernel-lock the most recently opened file(descriptor).
 .TP
 Assigning "x"
 Environment variable assignment.

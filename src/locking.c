@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.27 1994/02/08 16:14:46 berg Exp $";
+ "$Id: locking.c,v 1.28 1994/02/09 19:11:23 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -163,6 +163,8 @@ static off_t oldlockoffset;
 
 fdlock(fd)
 { int ret;
+  if(verbose)
+     nlog("Acquiring kernel-lock\n");
 #if REITfcntl+REITflock+REITlockf>1
   for(;!toutflag;verbose&&(nlog("Reiterating kernel-lock\n"),0),
    ssleep((unsigned)locksleep))

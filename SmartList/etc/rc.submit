@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.42 1994/02/08 16:14:01 berg Exp $
+#$Id: rc.submit,v 1.43 1994/02/09 19:11:02 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -38,7 +38,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
   # is not set).
   #
 
-  :0 A
+  :0
   * 1^1 !$${foreign_submit:+!}
   * 2^0 ? formail -X"From " -xFrom: -xReply-To: -xSender: -xResent-From: \
 	   -xResent-Reply-To: -xResent-Sender: -xReturn-Path: | \
@@ -102,7 +102,7 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      #
 
      :0
-     * $archive_hist^0
+     * $$archive_hist^0
      * !^X-Mailing-List:
       {
 	:0 c

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.34 1994/01/11 13:17:08 berg Exp $";
+ "$Id: formail.c,v 1.35 1994/02/09 19:11:17 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/01/11 13:17:08 $";
+static /*const*/char rcsdate[]="$Date: 1994/02/09 19:11:17 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -118,7 +118,8 @@ static PROGID;
 
 main(lastm,argv)const char*const argv[];
 { int i,split=0,force=0,bogus=1,every=0,areply=0,trust=0,digest=0,nowait=0,
-   keepb=0,minfields=(char*)progid-(char*)progid,conctenate=0,retval=EX_OK;
+   keepb=0,minfields=(char*)progid-(char*)progid,conctenate=0,retval=EX_OK,
+   babyl=0;
   size_t j,lnl,escaplen;char*chp,*namep,*escap=ESCAP;
   struct field*fldp,*fp2,**afldp,*fdate;
   if(lastm)			       /* sanity check, any argument at all? */
@@ -134,6 +135,7 @@ main(lastm,argv)const char*const argv[];
 	      case FM_REPLY:areply=1;continue;
 	      case FM_FORCE:force=1;continue;
 	      case FM_EVERY:every=1;continue;
+	      case FM_BABYL:babyl=1;
 	      case FM_DIGEST:digest=1;continue;
 	      case FM_NOWAIT:nowait=1;continue;
 	      case FM_KEEPB:keepb=1;continue;
@@ -221,6 +223,11 @@ xusg:
   do rex[i].rexp=malloc(1);
   while(i--);
   fdate=0;addfield(&fdate,date,STRLEN(date)); /* fdate is only for searching */
+  if(babyl)						/* skip BABYL leader */
+   { while(getchar()!='\037'||getchar()!='\f'||getchar()!='\n')
+	while(getchar()!='\n');
+     while(getchar()!='\n');
+   }
   while((buflast=getchar())=='\n');		     /* skip leading garbage */
   if(!readhead())					    /* start looking */
    {
@@ -236,8 +243,18 @@ xusg:
 startover:
      while(readhead());				 /* read in the whole header */
   ;{ size_t lenparkedbuf;void*parkedbuf;
-     if(rdheader&&!strncmp(rdheader->fld_text,Article_,STRLEN(Article_)))
-	((char*)rdheader->fld_text)[STRLEN(Article_)-1]=HEAD_DELIMITER;
+     if(rdheader)
+      { char*tmp,*tmp2;
+	if(!strncmp(tmp=(char*)rdheader->fld_text,Article_,STRLEN(Article_)))
+	   tmp[STRLEN(Article_)-1]=HEAD_DELIMITER;
+	else if(babyl&&
+		!force&&
+		!strncmp(tmp,mailfrom,STRLEN(mailfrom))&&
+		eqFrom_(tmp2=skpspace(tmp+STRLEN(mailfrom))))
+	 { rdheader->id_len=STRLEN(From_);
+	   tmemmove(tmp,tmp2,rdheader->tot_len-=tmp2-tmp);
+	 }
+      }
      namep=0;totallen=0;i=maxindex(rex);		     /* proper field */
      do rex[i].rexl=0;
      while(i--);				 /* all state has been reset */
@@ -387,6 +404,10 @@ newnamep:	 if(namep)
   lnl=1;					  /* last line was a newline */
   if(buffilled==1)		   /* the header really ended with a newline */
      buffilled=0;	      /* throw it away, since we already inserted it */
+  if(babyl)
+   { int c,lc;					/* ditch pseudo BABYL header */
+     for(lc=0;c=getchar(),c!='\n'||lc!='\n';lc=c);
+   }
   while(buffilled||!lnl||buflast!=EOF)	 /* continue the quest, line by line */
    { if(!buffilled)				      /* is it really empty? */
 	readhead();				      /* read the next field */
