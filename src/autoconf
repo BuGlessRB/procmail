@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.35 1993/02/10 19:21:41 berg Exp $
+#$Id: autoconf,v 1.36 1993/03/12 16:54:40 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -82,15 +82,16 @@ test 1 != $# &&
 
 export SHELL PATH
 
+OLDTESTDIRS=""
 tailpid=""
 
 if test -f $ACONF
 then
-  trap "cp $ACONF $ACONF.tmp;
-   test ! -z "$tailpid" && kill $tailpid; exit 1" 1 2 3 15
+  trap "cp $ACONF $ACONF.tmp; $RM -r \$OLDTESTDIRS
+   test ! -z \"\$tailpid\" && kill \$tailpid; exit 1" 1 2 3 15
 else
-  trap "$RM $ACONF.tmp;mv $ACONF $ACONF.tmp;
-   test ! -z "$tailpid" && kill $tailpid; exit 1" 1 2 3 15
+  trap "$RM -r \$OLDTESTDIRS $ACONF.tmp;mv $ACONF $ACONF.tmp;
+   test ! -z \"\$tailpid\" && kill \$tailpid; exit 1" 1 2 3 15
 fi
 
 if test ! -z "$LD_LIBRARY_PATH"
@@ -184,12 +185,6 @@ main(){
 HERE
 
 echo 'Initiating fcntl()/kernel-locking-support tests'
-echo   '********************************************************************'
-echo   '* If your system has mounted a REMOTE filesystem (like per NFS),   *'
-echo   '* then it would be advisable to compile these sources from within  *'
-echo   '* that filesystem, otherwise the locking tests might produce false *'
-echo   '* results (locking capability is file-system dependent)		   *'
-echo   '********************************************************************'
 if $MAKE _autotst.$O >$DEVNULL 2>&1
 then
 :
@@ -254,6 +249,7 @@ cat >_autotst.c <<HERE
 #define MIN_locks	128	  /* minimum of consecutive successful locks */
 #define SLEEP_loop	64		      /* iterations in the busy loop */
 #define SLEEP_delay	0		  /* sleep() time per busy iteration */
+#define SLEEP_retreat	1		 /* extra sleep() when quota reached */
 #define TIME_OUT_SEC	16			 /* initial timeout per lock */
 #define NR_of_forks	8			 /* concurrent test-programs */
 #define NR_of_lockfiles 2		  /* lockfiles used in testing (<=4) */
@@ -261,6 +257,7 @@ cat >_autotst.c <<HERE
 #define DECAY		7/8			   /* when timing got better */
 #define GOBBLE		256			 /* for the SunOS crash test */
 
+#define LOCKS_per_child (((MIN_locks+NR_of_forks-1)/NR_of_forks+1)/2)
 #define SHIFT_childno	3
 #define MASK_fileno	((1<<SHIFT_childno)-1)
 #define MASK_childno	(~MASK_fileno)
@@ -292,78 +289,85 @@ unsigned psrand()
 { return(unsigned)(seed*=69069L)>>8;
 }
 
-main()
-{ int goodlock,testlock,i,pip[2];unsigned otimet,dtimet;
+main(argc,argv)char*argv[];
+{ int goodlock,testlock,i,pip[2],pipw[2];unsigned otimet,dtimet;
   static char filename[]="_locktst.l0";
   close(0);goodlock=0;testlock=FIRST_lock;
   if(fork())				 /* try to ditch the controlling tty */
      return EX_OK;	/* mainly to prevent rather messy kernel-diagnostics */
   setsid();				       /* from appearing on your tty */
   do
-   { otimet=time((char*)0);signal(SIGTERM,SIG_DFL);dolock=goodlock|testlock;
-     if(fork())	      /* discard the old body, let "init" adopt our children */
-      { close(1);close(2);i=NR_of_lockfiles;
-	do			       /* prime the lock, see if it vanishes */
-	 { filename[sizeof filename-2]='0'+--i;
-	   lseek(goodlock=open(filename,O_WRONLY),0L,SEEK_END);
-	   fdlock(goodlock);
+   { int countlocks;
+     argc=1;dolock=goodlock|testlock;
+     do
+      { char*curdir;
+	curdir=argv[argc];otimet=time((char*)0);signal(SIGTERM,SIG_DFL);
+	if(fork())    /* discard the old body, let "init" adopt our children */
+	 { close(1);close(2);i=NR_of_lockfiles;chdir(curdir);
+	   chdir("_locktest");
+	   do			       /* prime the lock, see if it vanishes */
+	    { filename[sizeof filename-2]='0'+--i;
+	      lseek(goodlock=open(filename,O_WRONLY),0L,SEEK_END);
+	      fdlock(goodlock);
+	    }
+	   while(i);
+	   for(;;)				/* synchronising "busy"-wait */
+	      sleep(TIME_OUT_SEC);	   /* until the games can be started */
 	 }
-	while(i);
-	for(;;)					/* synchronising "busy"-wait */
-	   sleep(TIME_OUT_SEC);		   /* until the games can be started */
-      }
-     sleep(1);pipe(pip);i=NR_of_forks;*child=0;
-     fprintf(stderr,"\nStarting test %x\n",dolock);
-     while((child[--i]=fork())&&i);		       /* divide and conquer */
-     if(!*child)
-      { unsigned char lockflag;int fd,childno=i<<SHIFT_childno;
-	close(pip[0]);close(1);seed=time((char*)0)+getpid()|1;
-	for(;;)						   /* and lock away! */
-	 { filename[sizeof filename-2]='0'+(i=psrand()%NR_of_lockfiles);
-	   lockflag=childno|i<<1|1;
-	   lseek(fd=open(filename,O_WRONLY),0L,SEEK_END);
-	   if(sfdlock(fd))
-	      lockflag&=~1,fprintf(stderr,"XX%02x",lockflag);
-	   write(pip[1],&lockflag,1);
-	   fprintf(stderr,"%2x%02x",i,childno>>SHIFT_childno);
-	   lseek(fd,0L,SEEK_END);write(fd,&lockflag,1);
-	   for(i=SLEEP_loop;i;i--,time((char*)0),sleep(SLEEP_delay));
-	   lockflag&=~1;write(pip[1],&lockflag,1);
-	   if(fdunlock()||close(fd))
-	    { write(pip[1],&lockflag,1);fprintf(stderr,"XX%02x",lockflag);
-	      return 1;
+	sleep(1);pipe(pip);pipe(pipw);i=NR_of_forks;*child=0;
+	fprintf(stderr,"\nStarting test %x on %s\n",dolock,curdir);
+	while((child[--i]=fork())&&i);		       /* divide and conquer */
+	if(!*child)
+	 { unsigned char lockflag;int fd,childno=i<<SHIFT_childno;
+	   int mylocks=LOCKS_per_child;
+	   close(pipw[0]);close(pip[0]);close(1);
+	   seed=time((char*)0)+getpid()|1;chdir(curdir);chdir("_locktest");
+	   close(pipw[1]);
+	   for(;;)					   /* and lock away! */
+	    { filename[sizeof filename-2]='0'+(i=psrand()%NR_of_lockfiles);
+	      lockflag=childno|i<<1|1;
+	      lseek(fd=open(filename,O_WRONLY),0L,SEEK_END);
+	      if(sfdlock(fd))
+		 lockflag&=~1,fprintf(stderr,"XX%02x",lockflag);
+	      write(pip[1],&lockflag,1);
+	      fprintf(stderr,"%2x%02x",i,childno>>SHIFT_childno);
+	      lseek(fd,0L,SEEK_END);write(fd,&lockflag,1);
+	      for(i=SLEEP_loop;i;i--,time((char*)0),sleep(SLEEP_delay));
+	      lockflag&=~1;write(pip[1],&lockflag,1);
+	      if(fdunlock()||close(fd))
+	       { write(pip[1],&lockflag,1);fprintf(stderr,"XX%02x",lockflag);
+		 return 1;
+	       }
+	      if(--mylocks<0)
+		 sleep(SLEEP_retreat);
 	    }
 	 }
-      }
-     ;{ unsigned char lckdfil[NR_of_lockfiles],curflag;
-	int j,countlocks=MIN_locks;	       /* give all children a chance */
-	for(j=NR_of_lockfiles;lckdfil[--j]=0,j;);
-	close(pip[1]);timeout=0;sleep(1);kill(getppid(),SIGKILL);
-	fdcollect=pip[0];signal(SIGALRM,(void(*)())stimeout);
-	dtimet=(((unsigned)time((char*)0)-otimet)*GROW)+TIME_OUT_SEC;
-	do
-	 { unlink("_locktst.alive");alarm(dtimet+2);		 /* watchdog */
-	   dtimet=(otimet=time((char*)0)-otimet)>dtimet?
-	    otimet*GROW:otimet+(dtimet-otimet)*DECAY+1;	   /* load dependent */
-	   otimet=time((char*)0);
+	;{ unsigned char lckdfil[NR_of_lockfiles],curflag;
+	   int j;			       /* give all children a chance */
+	   countlocks=MIN_locks;close(pip[1]);close(pipw[1]);
+	   for(j=NR_of_lockfiles;lckdfil[--j]=0,j;);
+	   timeout=0;sleep(1);read(pipw[0],&curflag,1);close(pipw[0]);
+	   kill(getppid(),SIGKILL);fdcollect=pip[0];
+	   signal(SIGALRM,(void(*)())stimeout);
+	   dtimet=(((unsigned)time((char*)0)-otimet)*GROW)+TIME_OUT_SEC;
+	   do
+	    { unlink("_locktst.alive");alarm(dtimet+2);		 /* watchdog */
+	      dtimet=(otimet=time((char*)0)-otimet)>dtimet?
+	       otimet*GROW:otimet+(dtimet-otimet)*DECAY+1; /* load dependent */
+	      otimet=time((char*)0);
+	    }
+	   while(1==read(fdcollect,&curflag,1)&&
+	    (j=lckdfil[i=(curflag&MASK_fileno)>>1],!timeout)&&
+	    ((j^(lckdfil[i]=curflag))==1||!(j&1)&&curflag&1)&&--countlocks);
+	   alarm(0);killchildren();close(fdcollect);
+	   fprintf(stdout,
+	    "/*locktype: %x, countlocks: %x, timeout %x, watchdog %x, %s*/\n",
+	    dolock,countlocks,timeout,dtimet,curdir);fflush(stdout);
 	 }
-	while(1==read(fdcollect,&curflag,1)&&
-	 (j=lckdfil[i=(curflag&MASK_fileno)>>1],!timeout)&&
-	 ((j^(lckdfil[i]=curflag))==1||!(j&1)&&curflag&1)&&--countlocks);
-	alarm(0);killchildren();close(fdcollect);
-#ifdef FAIR_LOCK_CHECK
-	j=NR_of_lockfiles;
-	do
-	   if(!lckdfil[--j])			    /* was the locking fair? */
-	      countlocks+=MIN_locks;				     /* nope */
-	while(j);
-#endif
-	fprintf(stdout,
-	 "/*locktype: %x, countlocks: %x, timeout %x, watchdog %x*/\n",dolock,
-	 countlocks,timeout,dtimet);fflush(stdout);
-	if(!countlocks)			    /* Hurray!	Locking was flawless */
-	   goodlock=dolock;			  /* make a mark on our colt */
       }
+     while(!countlocks&&argv[++argc]);
+     if(!countlocks)			    /* Hurray!	Locking was flawless */
+	goodlock=dolock;			  /* make a mark on our colt */
    }
   while(testlock>>=1);
   if(!(goodlock&MSK_fcntl))			      /* report our findings */
@@ -478,10 +482,64 @@ fi
 $MV _locktst _locktst.$$ 2>$DEVNULL
 $RM _autotst.$O _autotst.rrr locktst* 2>$DEVNULL
 $MV _autotst _locktst
-for a in 0 1 2 3
-do echo dummy_file >_locktst.l$a
+
+cat 2>&1 <<HERE
+==============================================================================
+In order for the kernel-locking tests to work as intended I have to be able to
+test-lock files on as many different filesystems as possible (for more
+information about this, READ PARAGRAPH TWO in INSTALL).
+
+Please add writeable directories to the list.  You should only add directories
+that reside on filesystems that have unique characterics.  E.g. if you have
+several remote NFS partitions, pick some unique client-server pairs, there is
+little use in picking the same server twice from the same client-machine.
+An excellent candidate would be a remotely mounted mail spool directory.
+==============================================================================
+HERE
+
+testdirs="/tmp ."
+b=dummy
+while test ! -z "$b"
+do
+  echo 2>&1 ""
+  b=""
+  OLDTESTDIRS="$TESTDIRS"
+  TESTDIRS=""
+  for a in $testdirs
+  do $RM -r $a/_locktest
+     if mkdir $a/_locktest
+     then
+	b="$b $a"
+	TESTDIRS="$TESTDIRS $a/_locktest"
+     else
+	echo 2>&1 "Can't create $a/_locktest"
+     fi
+  done
+  OLDTESTDIRS="$TESTDIRS"
+  testdirs="$b"
+  echo 2>&1 ""
+  echo 2>&1 "I will temporarily use a testdirectory named _locktest"
+  echo 2>&1 "in the following directories:"
+  echo 2>&1 ""
+  echo 2>&1 $testdirs
+  echo 2>&1 ""
+  echo 2>&1 "If you would like to add any, please specify them below,"
+  echo 2>&1 "press return to continue:"
+  echo 2>&1 ""
+  read b
+  testdirs="$testdirs $b"
 done
-_locktst >_locktst.rrr 2>lock.log	# this will finish in the background
+
+for b in $TESTDIRS
+do
+  for a in 0 1 2 3
+  do echo dummy_file >$b/_locktst.l$a
+  done
+done
+
+echo 2>&1 ""
+
+_locktst $testdirs >_locktst.rrr 2>lock.log	# will finish in the background
 echo 'Proceeding with kernel-locking-support tests in the background'
 
 test -f $USRINC/sys/socket.h -a -f $USRINC/netdb.h -a -f $USRINC/netinet/in.h||
@@ -869,6 +927,7 @@ then
   $RM core
 fi
 
+$RM -r $OLDTESTDIRS
 $RM _autotst* _locktst* lookfor grepfor 2>$DEVNULL
 
 echo =============================autoconf.h===================================

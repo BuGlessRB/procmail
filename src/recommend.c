@@ -2,7 +2,7 @@
  *	recommend	Analyses the installation, and makes		*
  *			recommendations about suid/sgid modes		*
  ************************************************************************/
-/*$Id: recommend.c,v 1.4 1992/11/13 12:58:32 berg Exp $*/
+/*$Id: recommend.c,v 1.5 1993/03/12 16:54:43 berg Exp $*/
 #include "includes.h"				       /* also for fprintf() */
 
 #ifndef SYSTEM_MBOX
@@ -25,7 +25,7 @@ char*lastdirsep(filename)const char*filename;	 /* finds the next character */
 
 main(argc,argv)const int argc;const char*const argv[];
 { struct group*grp;struct stat stbuf;gid_t gid=NOBODY_gid;
-  const char*const*p;mode_t sgid=0;
+  const char*const*p;mode_t sgid=0;int chmdir=0;
   if(argc!=3)
    { fprintf(stderr,"Please run this program via 'make recommend'\n");
      return EX_USAGE;
@@ -38,7 +38,10 @@ main(argc,argv)const int argc;const char*const argv[];
 	break;
       }
   if(!stat(systm_mbox,&stbuf)&&!(stbuf.st_mode&S_IWOTH))
-     sgid=S_ISGID,gid=stbuf.st_gid;
+   { sgid=S_ISGID;gid=stbuf.st_gid;
+     if(!(stbuf.st_mode&S_IWGRP))
+	chmdir=1;
+   }
   if(gid!=stbuf.st_gid)
      sgid=0;
   printf("chown root %s\n",argv[1]);
@@ -49,6 +52,9 @@ main(argc,argv)const int argc;const char*const argv[];
 	printf("chgrp %u %s %s\n",(int)gid,argv[1],argv[2]);
   printf("chmod %o %s\n",sgid|S_ISUID|PERMIS,argv[1]);
   if(sgid)
-     printf("chmod %o %s\n",sgid|PERMIS,argv[2]);
+   { printf("chmod %o %s\n",sgid|PERMIS,argv[2]);
+     if(chmdir)
+	printf("chmod g+w %s.\n",systm_mbox);
+   }
   return EX_OK;
 }

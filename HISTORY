@@ -24,8 +24,6 @@
 	    Reached the doubtful milestone of having a source file (regexp.c)
 	       which provokes a compiler error on an old compiler
 	       (if using the optimiser)
-	    Ignoring leading spaces on condition lines now (means that
-	       everything can be indented in the rcfile)
 1991/10/22: v2.31
 1991/12/05: v2.40
 	    Made procmail capable of healing the recipient's mail spool file
@@ -40,34 +38,18 @@
 	    Made procmail accept multiple recipients (this was not as trivial
 	       as it sounds!), in order for complete compatibility with mailers
 	       like smail 2.x
-	    Expanded the mail-delivery-agent instructions in examples/advanced,
-	       this includes specific intstructions for smail 2.x
 	    Made special entries in config.h for semi-permanent environment-
 	       variable overrides
 	    A complete rewrite of formail, the code got bigger, the runtime
 	       requirement got bigger, it got slower, but, it's more structured
 	       (so much for structured programming :-)
-	    Made procmail check the permissions of its invoker, generate
-	       an overriding From_ line if necessary, and consequently made it
-	       accept the -f option (fromwhom), and also the alternate obsolete
-	       -r option of course
-	    Wiped out the ./include tree, made autoconf check it instead (the
-	       compile line looks so terribly clean now :-)
-	    Procmail makes an additional security check on the rcfiles before
-	       accepting them (owner and permissions, see man page)
 1992/07/01: v2.71
 	    Sharpened the autoconf "const" check, to catch buggy AIX compilers
 	    Made the MAILBOX_SEPARATORS more orthogonal (i.e. you can define
 	       one or both now)
-	    Added the -A option to formail, the only option that was missing
-	       (to be able to boldly add header fields)
-	    Fixed some typos and extended the procmailex man page by a popular
-	       example
 	    Enhanced the MH directory delivery mode, procmail uses the MH
 	       method of finding the next number now (this requires procmail
 	       to read the directory)
-	    Fixed a typo in the WIFEXITED substitute macro (for non-POSIX
-	       systems), should fix all erroneous "program failed" messages
 	    Fixed a problem on byte-aligned machines with the 'i' flag
 	    Now throwing away all environment variables starting with LD_
 	       (not just LD_LIBRARY_PATH), but only on those machines that
@@ -209,3 +191,5 @@
 	    Fixed a conflict with the NeXT Mach 2.1 library (openlog)
 	    Made the internal egrep in procmail warn about mismatching parens
 	       in a regexp
+	    Extended recommend.c, it advises changing the permissions on
+	       the system mail spool directory as well now (if needed)
