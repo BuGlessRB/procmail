@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.55 1994/10/28 15:03:32 berg Exp $
+.Id $Id: procmailrc.man,v 1.56 1994/10/31 18:02:12 berg Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -602,7 +602,7 @@ or on the command line as arguments.
 .PP
 Environment variables set
 .B inside
-the action part of a recipe will
+the shell-interpreted-`|' action part of a recipe will
 .B not
 retain their value after the recipe has finished since they are set in a
 subshell of procmail.  To make sure the value of an environment variable is
@@ -646,8 +646,8 @@ When the
 or
 .B \-@MAILFILTOPT@
 options are used, "$@" will expand to respectively the specified argument
-or the sender and recipient list; but only when passed as in the
-argument list to a program.@UPPERCASE_USERNAMES@
+(list); but only when passed as in the argument list to a
+program.@UPPERCASE_USERNAMES@
 .PP
 Procmail does not support the expansion of `~'.
 .PP

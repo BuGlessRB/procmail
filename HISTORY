@@ -253,7 +253,7 @@
 	    Sharpened the autoconf const check, AIX 3.2.3 managed to slip past
 	       it again
 	    Made sure that "make -n" with any make works as expected
-1994/10/28: v3.10
+1994/10/31: v3.10
 	    Changes to procmail:
 	       - Minor corrections to the semantics of the 'a' and 'e' flags
 	       - Minor correction to the semantics of the -o option
