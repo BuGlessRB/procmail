@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.50 1994/06/03 18:25:17 berg Exp $
+#$Id: rc.request,v 1.51 1994/06/06 12:27:20 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -79,7 +79,7 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
 
   :0 HB w:dist.lock
   * ^^(.+$)*Subject:[	 ]*(((\(none\))?$(.+$)*(^[ ]*)+)?\
-      (signoff|delete|remove|unsub)|\
+      (Please +)?(signoff|delete|remove|unsub)|\
      ((\(none\))?$(.*$)*)?(.*[^a-z])?(unsubscri|\
       ((delete|remove) .* from|take .* off) .* [a-z-]*list\>))
   | unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from` ${cc_unsubrequests}
@@ -95,7 +95,8 @@ LOCKFILE=tmp.lock	# for reusing tmp.(request|from)
   :0 HB
   * $!${auto_subscribe:+!}
   * ^^(.+$)*Subject:[	 ]*(\
-     ((\(none\))?$(.+$)*(^[	 ]*)+)?(signon|add|sub(scri|[	 ]|$)?)|\
+     ((\(none\))?$(.+$)*(^[	 ]*)+)?
+      (Please +)?(signon|add|sub(scri|[	 ]|$)?)|\
      ((\(none\))?$(.*$)*)?\
       (.*[^a-z])?(subscri|(add .* to|put .* on) .* [a-z-]*list\>))
   * !? multigram -b1 -l$reject_threshold reject

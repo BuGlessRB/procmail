@@ -92,3 +92,4 @@
 	       archive.txt file
 	    Changed procbounce to send a final unsubscription message to
 	       people that were taken off the list due to too many bounces
+	    Allow reply_to to override the Reply-To: field in the digest
