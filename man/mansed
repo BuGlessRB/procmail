@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: mansed,v 1.22 1994/08/12 17:33:38 berg Exp $
+#$Id: mansed,v 1.23 1994/08/18 19:16:26 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -26,12 +26,15 @@ then
 fi
 
 (cat <<\HERE
-.TH STUPID groff mandoc hack
 .\"if n .pl +(135i-\n(.pu)
 .de Id
 .ds Rv \\$3
 .ds Dt \\$4
 ..
+.ex
+HERE
+sed -e '/^\.TH/ q' <$SRC
+cat <<\HERE
 .rn SH Sh
 .de SH
 .br
@@ -71,9 +74,8 @@ fi
 .RE
 .PP
 ..
-.ex
 HERE
-cat "$SRC"
+sed -e '1,/^\.TH/ d' <$SRC
 expr "X$DEST" : '.*[18]$' >$DEVNULL && cat <<HERE
 .Sh SOURCE
 This program is part of the
