@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.30 1993/06/23 12:56:05 berg Exp $";
+ "$Id: mailfold.c,v 1.31 1993/06/25 11:09:38 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -149,11 +149,11 @@ makefile:
      tofile=strcmp(devnull,buf)?to_FOLDER:0;return opena(boxname);
    }
   if(linkfolder)		    /* any additional directories specified? */
-   { for(boxname=linkfolder;boxname!=Tmnate;)
-	while(*boxname++);		       /* calculate the total length */
-     boxname++;
-     linkfolder=			       /* copy the names into safety */
-      tmemmove(malloc(boxname-linkfolder),linkfolder,boxname-linkfolder);
+   { size_t blen;
+     if(blen=Tmnate-linkfolder)		       /* copy the names into safety */
+	Tmnate=(linkfolder=tmemmove(malloc(blen),linkfolder,blen))+blen;
+     else
+	linkfolder=0;
    }
   if(mhdir)				/* buf should contain directory name */
      *chp='\0',chp[-1]= *MCDIRSEP_,strcpy(buf2,buf);	   /* it ended in /. */

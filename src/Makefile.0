@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.17 1993/06/23 12:55:52 berg Exp $
+#$Id: Makefile.0,v 1.18 1993/06/25 11:09:33 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O)
@@ -114,7 +114,8 @@ recommend: recommend.$(O) sublib.$(O)
 
 ../man/man.sed: manconf.c ../autoconf.h ../config.h includes.h procmail.h
 ../man/man.sed: ../patchlevel.h
-	@$(CC) $(CFLAGS) "-DBINDIR=$(BINDIR)" -o _autotst manconf.c $(LDFLAGS)
+	@$(CC) $(CFLAGS) "-DBINDIR=\"$(BINDIR)\"" -o _autotst manconf.c \
+	 $(LDFLAGS)
 	@./_autotst $@ $@.0 $@.1
 	@$(RM) _autotst
 

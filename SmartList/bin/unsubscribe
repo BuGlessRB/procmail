@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: unsubscribe,v 1.15 1993/06/04 13:49:12 berg Exp $
+#$Id: unsubscribe,v 1.16 1993/06/25 11:09:26 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -58,7 +58,11 @@ fi
 $echo "$fromaddr" >>$tmpfrom
 
 $echo
-$echo "Transcript of unsubscription request follows:"
+$echo "If this wasn't your intention, reply to this mail now (quoting it"
+$echo "entirely (for diagnostic purposes), and of course adding any"
+$echo "comments you see fit)."
 $echo
+$echo "Transcript of unsubscription request follows:"
+$echo "-- "
 
 $sed -e 's/^\(.\)/>\1/' $tmprequest

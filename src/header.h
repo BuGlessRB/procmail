@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.20 1993/06/21 14:24:22 berg Exp $*/
+/*$Id: header.h,v 1.21 1993/06/25 11:09:36 berg Exp $*/
 
 static const char
  returnpath[]=		"Return-Path:",				  /* RFC 822 */
@@ -66,15 +66,18 @@ static const char
  xref[]=		"Xref:",
  originator[]=		"Originator:",
  nntppostinghost[]=	"NNTP-Posting-Host:",
+ submittedby[]=		"Submitted-by:",
  title[]=		"Title:",	      /* antiquated USENET extension */
  aRticleid[]=		"Article-I.D.:",			/* ditto ... */
  posted[]=		"Posted:",
  cnttype[]=		"Content-Type:",	       /* Internet extension */
  encoding[]=		"Encoding:",				/* ditto ... */
+ cntmd5[]=		"Content-MD5:",
  mimeversion[]=		"MIME-Version:",		   /* MIME extension */
  cnttransferenc[]=	"Content-Transfer-Encoding:",		/* ditto ... */
  cntid[]=		"Content-ID:",
  cntdescription[]=	"Content-Description:",
+ cntdisposition[]=	"Content-Disposition:",
  transportoptions[]=	"Transport-Options:",	    /* SysV mailer extension */
  defltoptions[]=	"Default-Options:",
  cntlength[]=		"Content-Length:",
@@ -101,10 +104,11 @@ static const struct {const char*hedr;int lnr;}cdigest[]=
   bsl(forwarded),bsl(replied),bsl(article),bsl(path),bsl(summary),
   bsl(organisation),bsl(aorganization),bsl(newsgroups),bsl(followupto),
   bsl(approved),bsl(lines),bsl(expires),bsl(control),bsl(distribution),
-  bsl(xref),bsl(originator),bsl(nntppostinghost),bsl(title),bsl(aRticleid),
-  bsl(posted),bsl(cnttype),bsl(encoding),bsl(mimeversion),bsl(cnttransferenc),
-  bsl(cntid),bsl(cntdescription),bsl(transportoptions),bsl(defltoptions),
-  bsl(cntlength),bsl(rference),bsl(msgtype),bsl(autoforwardedfrom),
-  bsl(autofcount),bsl(endofheader),bsl(orgaforwfrom),bsl(orgdate),
-  bsl(notdeliveredto),bsl(reportversion),bsl(status),bsl(readreceiptto)
+  bsl(xref),bsl(originator),bsl(nntppostinghost),bsl(submittedby),bsl(title),
+  bsl(aRticleid),bsl(posted),bsl(cnttype),bsl(encoding),bsl(cntmd5),
+  bsl(mimeversion),bsl(cnttransferenc),bsl(cntid),bsl(cntdescription),
+  bsl(cntdisposition),bsl(transportoptions),bsl(defltoptions),bsl(cntlength),
+  bsl(rference),bsl(msgtype),bsl(autoforwardedfrom),bsl(autofcount),
+  bsl(endofheader),bsl(orgaforwfrom),bsl(orgdate),bsl(notdeliveredto),
+  bsl(reportversion),bsl(status),bsl(readreceiptto)
 };
