@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailsc.man,v 1.13 2001/06/04 00:33:55 guenther Exp $
+.Id $Id: procmailsc.man,v 1.14 2001/06/23 08:22:28 guenther Exp $
 .TH PROCMAILSC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -157,10 +157,10 @@ more the mail is favoured, but the maximum extra score due to Elvis will
 be 4000, no matter how often he is mentioned), lots of quoted lines are
 disliked, smileys are appreciated (the score for those will reach a maximum
 of 3500), those three people usually don't send
-interesting mails, the mails should preferably be small (e.g. 2000 bytes long
+interesting mails, the mails should preferably be small (e.g., 2000 bytes long
 mails will score \-100, 4000 bytes long mails do \-800).
 As you see, if some of the uninteresting people send mail, then the mail
-still has a chance of landing in the priority folder, e.g. if it is about
+still has a chance of landing in the priority folder, e.g., if it is about
 a meeting, or if it contains at least two smileys.
 .Sx 11
 :0 @HEAD_GREP@@BODY_GREP@
@@ -240,7 +240,7 @@ that causes an overflow, procmail is at the mercy of the
 .BR pow (3)
 function in your mathematical library.
 .PP
-Floating point numbers in `engineering' format (e.g. 12e5) are not accepted.
+Floating point numbers in `engineering' format (e.g., 12e5) are not accepted.
 .SH MISCELLANEOUS
 As soon as `plus infinity' (@MAX32@) is reached, any subsequent
 .I weighted

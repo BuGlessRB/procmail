@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.52 2001/06/04 00:01:11 guenther Exp $
+.Id $Id: procmailex.man,v 1.53 2001/06/23 08:22:27 guenther Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -285,7 +285,7 @@ the benefits of the unseen sequence.
 * @BODY_GREP@ ?? spam
 | rcvstore +spamfold
 .Ex
-When delivering to emacs folders (i.e. mailfolders managed by any emacs
+When delivering to emacs folders (i.e., mailfolders managed by any emacs
 mail package, e.g. RMAIL or VM) directly, you should use emacs-compatible
 lockfiles.  The emacs mailers are a bit braindamaged in that respect, they get
 very upset if someone delivers to mailfolders which they already have in their
@@ -367,7 +367,7 @@ Likewise:
 | lpr
 .Ex
 Suppose you have two accounts, you use both accounts regularly, but they are
-in very distinct places (i.e. you can only read mail that arrived at either one
+in very distinct places (i.e., you can only read mail that arrived at either one
 of the accounts).  You would like to forward mail arriving at account one to
 account two, and the other way around.  The first thing that comes to mind is
 using .forward files at both sites; this won't work of course, since you will

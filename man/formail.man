@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.44 2001/06/03 23:38:05 guenther Exp $
+.Id $Id: formail.man,v 1.45 2001/06/23 08:22:24 guenther Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -74,7 +74,7 @@ bogus `@FROM@' lines with a `@ESCAP@'.
 Formail will print its version number and exit.
 .TP
 .B \-@FM_BOGUS@
-Don't escape any bogus mailbox headers (i.e. lines starting with `@FROM@').
+Don't escape any bogus mailbox headers (i.e., lines starting with `@FROM@').
 .TP
 .I "\fB\-@FM_QPREFIX@\fP prefix"
 Define a different quotation prefix.  If unspecified it defaults to `@ESCAP@'.
@@ -95,7 +95,7 @@ Zap leading and trailing whitespace on fields extracted with
 .BR \-@FM_EXTRACT@ .
 .TP
 .B \-@FM_FORCE@
-Force formail to simply pass along any non-mailbox format (i.e. don't
+Force formail to simply pass along any non-mailbox format (i.e., don't
 generate a `@FROM@' line as the first line).
 .TP
 .B \-@FM_REPLY@
@@ -141,11 +141,11 @@ running processes.
 .TP
 .B \-@FM_EVERY@
 Do not require empty lines to be preceding the header of a new message
-(i.e.  the messages could start on every line).
+(i.e.,  the messages could start on every line).
 .TP
 .B \-@FM_DIGEST@
 Tell formail that the messages it is supposed to split need not be in
-strict mailbox format (i.e. allows you to split digests/articles or
+strict mailbox format (i.e., allows you to split digests/articles or
 non-standard mailbox formats).  This disables recognition of the
 .B Content-Length:
 field.

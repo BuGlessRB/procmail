@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.87 2001/06/04 00:33:53 guenther Exp $
+.Id $Id: procmail.man,v 1.88 2001/06/23 08:22:26 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -60,7 +60,7 @@ mailbox.@ETCRC_desc@
 If running suid root or with root privileges, procmail will be able to
 perform as a functionally enhanced, backwards compatible mail delivery agent.
 .PP
-Procmail can also be used as a general purpose mail filter, i.e. provisions
+Procmail can also be used as a general purpose mail filter, i.e., provisions
 have been made to enable procmail to be invoked in a special sendmail rule.
 .PP
 The rcfile format is described in detail in the
@@ -108,7 +108,7 @@ configuration and exit.
 .B \-@PRESERVOPT@
 Preserve any old environment.  Normally procmail clears the environment
 upon startup@KEEPENV@.  However, in any case: any default values will override
-any preexisting environment variables, i.e. procmail will not pay any attention
+any preexisting environment variables, i.e., procmail will not pay any attention
 to any predefined environment variables, it will happily overwrite them
 with its own defaults.  For the list of environment variables that procmail
 will preset see the
@@ -118,7 +118,7 @@ list of preset environment variables shrinks to just: LOGNAME, HOME, SHELL,
 ORGMAIL and MAILDIR.
 .TP
 .B \-@TEMPFAILOPT@
-Make procmail fail softly, i.e. if procmail cannot deliver the mail to
+Make procmail fail softly, i.e., if procmail cannot deliver the mail to
 any of the destinations you gave, the mail will not bounce, but will return
 to the mailqueue.  Another delivery-attempt will be made at some time in
 the future.
@@ -157,7 +157,7 @@ This turns on explicit delivery mode, delivery will be to the local user
 This, of course, only is possible if procmail has root
 privileges@SETRUID@.
 Procmail will setuid to the intended recipients and delivers the mail as
-if it were invoked by the recipient with no arguments (i.e. if no rcfile
+if it were invoked by the recipient with no arguments (i.e., if no rcfile
 is found, delivery is like ordinary mail).  This option is incompatible with
 .BR \-@PRESERVOPT@ .
 .TP
@@ -573,7 +573,7 @@ mailbox (unless of course, your mail shell uses the same lockfiles (local
 or global) you specified in your rcfile).
 .PP
 In the unlikely event that you absolutely need to kill procmail before it has
-finished, first try and use the regular kill command (i.e.
+finished, first try and use the regular kill command (i.e.,
 .I not
 kill \-9, see the subsection
 .I Signals
@@ -583,7 +583,7 @@ might not get removed.
 .PP
 Beware when using the
 .B \-@TEMPFAILOPT@
-option, if procmail repeatedly is unable to deliver the mail (e.g. due to
+option, if procmail repeatedly is unable to deliver the mail (e.g., due to
 an incorrect rcfile), the system mailqueue could fill up.  This could
 aggravate both the local postmaster and other users.@ETCRC_warn@@ETCRCS_warn@
 .PP
@@ -593,7 +593,7 @@ domain. It can be done if you manage to configure your MTA to add some
 headers with the envelope recipient data in order to tell Procmail who
 a message is for, but this is usually not the right thing to do.
 Perhaps you want to investigate if your MTA offers `virtual user
-tables', or see e.g. the `multidrop' facility of Fetchmail.
+tables', or see check out the `multidrop' facility of Fetchmail.
 .SH BUGS
 After removing a lockfile by force, procmail waits $SUSPEND seconds before
 creating a new lockfile so that another process that decides to remove the
@@ -647,7 +647,7 @@ world writable, and the directory it is contained in is not world
 writable.  The @PROCMAILRC@ file has the additional constraint of not
 being group-writable or in a group-writable directory.@RESTRICT_EXEC@
 .PP
-If @MAILSPOOLDIR@$LOGNAME is a bogus mailbox (i.e. does not belong to the
+If @MAILSPOOLDIR@$LOGNAME is a bogus mailbox (i.e., does not belong to the
 recipient, is unwritable, is a symbolic link or is a hard link), procmail will
 upon startup try to rename it into a file starting
 with `@BOGUSprefix@$LOGNAME.' and
@@ -679,7 +679,7 @@ To make `egrepping' of headers more consistent, procmail concatenates all
 continued header fields; but only internally.  When delivering the mail, line
 breaks will appear as before.
 .PP
-If procmail is called under a name not starting with `procmail' (e.g. if it
+If procmail is called under a name not starting with `procmail' (e.g., if it
 is linked to another name and invoked as such), it comes up in explicit
 delivery mode, and expects the recipients' names as command line arguments
 (as if \-@DELIVEROPT@ had been specified).
@@ -703,7 +703,7 @@ Calling up procmail with the \-@HELPOPT1@ or \-@HELPOPT2@ options will cause
 it to display a command-line help and recipe flag quick-reference page.
 .PP
 There exists an excellent newbie FAQ about mailfilters (and procmail
-in particular), it is being maintained by Nancy McGough <nancym@ii.com>
+in particular); it is being maintained by Nancy McGough <nancym@ii.com>
 and can be obtained by sending a mail to mail-server@rtfm.mit.edu with
 the following in the body:
 .RS
