@@ -1,9 +1,9 @@
-#$Id: Makefile.0,v 1.44 1995/10/30 02:09:18 srb Exp $
+#$Id: Makefile.0,v 1.45 1997/01/01 14:52:51 srb Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O) \
- acommon.$(O) mcommon.$(O) lastdirsep.$(O)
-LF_OBJ=exopen.$(O) sublib.$(O) acommon.$(O) mcommon.$(O)
+ acommon.$(O) mcommon.$(O) lastdirsep.$(O) authenticate.$(O)
+LF_OBJ=exopen.$(O) sublib.$(O) acommon.$(O) mcommon.$(O) authenticate.$(O)
 FM_OBJ=common.$(O) fields.$(O) formisc.$(O) sublib.$(O) ecommon.$(O) \
  acommon.$(O)
 MG_OBJ=sublib.$(O) ecommon.$(O) mcommon.$(O) hsort.$(O) lastdirsep.$(O)
@@ -52,6 +52,9 @@ targetdir.h:
 	exit 64
 
 acommon.$(O): ../autoconf.h ../config.h includes.h acommon.h robust.h shell.h
+
+authenticate.$(O): ../autoconf.h ../config.h includes.h shell.h authenticate.h
+	$(CC) -c -DPROCMAIL $(CFLAGS) $*.c
 
 common.$(O): ../autoconf.h ../config.h includes.h procmail.h sublib.h robust.h
 common.$(O): shell.h misc.h common.h

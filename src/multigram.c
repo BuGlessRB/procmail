@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.81 1996/12/21 03:28:32 srb Exp $";
+ "$Id: multigram.c,v 1.82 1997/01/01 14:52:53 srb Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1996/12/21 03:28:32 $";
+static /*const*/char rcsdate[]="$Date: 1997/01/01 14:52:53 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -174,7 +174,7 @@ static void revstr(p)register char*p;		       /* reverse the string */
    }
 }
 
-static void makelow(str)register char*str;
+static void castlower(str)register char*str;
 { for(;*str;str++)
      if((unsigned)*str-'A'<='Z'-'A')
 	*str+='a'-'A';
@@ -197,7 +197,7 @@ static void lowcase(str)struct string*const str;	   /* make lowercase */
    }				     /* this improves the boundary behaviour */
   else
      q=tstrdup(str->text);
-  makelow(str->itext=q);
+  castlower(str->itext=q);
 }
 
 static void elog(a)const char*const a;

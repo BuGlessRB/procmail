@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.57 1996/12/27 02:53:25 srb Exp $*/
+/*$Id: manconf.c,v 1.58 1997/01/01 14:52:52 srb Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -38,9 +38,7 @@ static char*skltmark(nl,current)char**current;
 
 static void putcesc(i)
 { switch(i)
-   { case '|':case ':':printf("\\\\h'-\\\\w' 'u' ");	 /* breaking nospace */
-	break;
-     case '\\':i='e';
+   { case '\\':i='e';
 	goto twoesc;
      case '\1':i='\n';lines--;		    /* \1 doubles for nroff newlines */
 	goto singesc;
@@ -58,8 +56,15 @@ singesc:
 }
 
 static void putsesc(a)const char*a;
-{ while(*a)
-     putcesc(*a++);
+{ int c,k;
+  for(c=0;;putcesc(c=k))
+     switch(k= *a++)
+      { case '|':case ':':
+	   if(c!=' ')	 /* only insert these if there wasn't a space before */
+	      printf("\\\\h'-\\\\w' 'u' ");		 /* breaking nospace */
+	case '\0:
+	   return;
+      }
 }
 
 const char*const*gargv;
