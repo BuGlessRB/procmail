@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.73 1999/11/04 23:26:15 guenther Exp $
+.Id $Id: procmailrc.man,v 1.74 1999/11/18 01:49:32 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -526,10 +526,11 @@ This command is most useful to extract extra arguments passed to procmail
 when acting as a generic mailfilter.
 .TP
 .B INCLUDERC
-Names an rcfile (relative to the current directory) which will be included
-here as if it were part of the current rcfile.  Unlimited nesting is
-permitted.  As no checking is done on the permissions or ownership of the
-rcfile, users of
+Names an rcfile (relative to the current directory) which will be
+included here as if it were part of the current rcfile.  Nesting is
+permitted and only limited by systems resources (memory and file
+descriptors).  As no checking is done on the permissions or ownership
+of the rcfile, users of
 .B INCLUDERC
 should make sure that only trusted users have write access to the included
 rcfile or the directory it is in.
