@@ -1,4 +1,4 @@
-/*$Id: sublib.h,v 1.9 1994/05/26 14:13:44 berg Exp $*/
+/*$Id: sublib.h,v 1.10 1999/04/19 06:42:29 guenther Exp $*/
 
 #ifdef NOmemmove
 void
@@ -17,5 +17,5 @@ char
 
 #ifdef NOstrtol
 long
- strtol P((const char*start,const char**const ptr));
+ strtol P((const char*start,const char**const ptr,int base));
 #endif

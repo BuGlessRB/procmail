@@ -1,4 +1,4 @@
-/*$Id: robust.h,v 1.8 1994/05/26 14:13:39 berg Exp $*/
+/*$Id: robust.h,v 1.9 1999/04/19 06:42:26 guenther Exp $*/
 
 void
  *tmalloc Q((const size_t len)),
@@ -13,9 +13,9 @@ int
  opena P((const char*const a)),
  ropen Q((const char*const name,const mode,const mode_t mask)),
  rpipe P((int fd[2])),
- rdup P((const p)),
- rclose P((const fd)),
- rread P((const fd,void*const a,const len)),
- rwrite P((const fd,const void*const a,const len));
+ rdup P((const int p)),
+ rclose P((const int fd)),
+ rread P((const int fd,void*const a,const int len)),
+ rwrite P((const int fd,const void*const a,const int len));
 
 extern mode_t cumask;

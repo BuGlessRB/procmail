@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.89 1999/03/26 02:45:56 guenther Exp $";
+ "$Id: formail.c,v 1.90 1999/04/19 06:42:13 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/03/26 02:45:56 $";
+static /*const*/char rcsdate[]="$Date: 1999/04/19 06:42:13 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -353,7 +353,7 @@ dupfound:
 
 static PROGID;
 
-main(lastm,argv)int lastm;const char*const argv[];
+int main(lastm,argv)int lastm;const char*const argv[];
 { int i,split=0,force=0,bogus=1,every=0,trust=0,digest=0,nowait=0,keepb=0,
    minfields=(char*)progid-(char*)progid,conctenate=0,babyl=0,babylstart,
    berkeley=0,forgetclen;

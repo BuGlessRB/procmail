@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.90 1999/03/30 18:17:40 guenther Exp $";
+ "$Id: multigram.c,v 1.91 1999/04/19 06:42:23 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/03/30 18:17:40 $";
+static /*const*/char rcsdate[]="$Date: 1999/04/19 06:42:23 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -296,7 +296,7 @@ dble_gram:;
   return meter;
 }
 
-main(argc,argv)int argc;char*argv[];
+int main(argc,argv)int argc;char*argv[];
 { struct string fuzzstr,hardstr,excstr,exc2str;FILE*hardfile,**hfiles;
   const char*addit=0,*ldomain=0;char**nargv;size_t lldomain;
   struct match{char*fuzz,*hard;int metric;long lentry;off_t offs1,offs2;

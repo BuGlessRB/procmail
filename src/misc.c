@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.93 1999/04/13 06:32:08 guenther Exp $";
+ "$Id: misc.c,v 1.94 1999/04/19 06:42:21 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -443,16 +443,16 @@ int asenvcpy(src)char*src;
   return 0;
 }
 
-void mallocbuffers(linebuf,setenv)size_t linebuf;int setenv;
+void mallocbuffers(lineb,setenv)size_t lineb;int setenv;
 { if(buf)
    { free(buf);
      free(buf2);
    }
-  buf=malloc(linebuf);buf2=malloc(linebuf);
+  buf=malloc(lineb);buf2=malloc(lineb);
   if(setenv)
    { char*chp;
      *(chp=strcpy(buf,slinebuf)+STRLEN(slinebuf))='=';
-     ultstr(0,linebuf-XTRAlinebuf,chp+1);
+     ultstr(0,lineb-XTRAlinebuf,chp+1);
      sputenv(buf);
    }
 }

@@ -2,7 +2,7 @@
  *	recommend	Analyses the installation, and makes		*
  *			recommendations about suid/sgid modes		*
  ************************************************************************/
-/*$Id: recommend.c,v 1.14 1998/11/06 05:35:43 guenther Exp $*/
+/*$Id: recommend.c,v 1.15 1999/04/19 06:42:25 guenther Exp $*/
 #include "includes.h"
 
 #ifndef SYSTEM_MBOX
@@ -16,7 +16,7 @@ const char dirsep[]=DIRSEP,
  *const checkf[]={"/bin/mail","/bin/lmail","/usr/lib/sendmail",
  "/usr/lib/smail",0};
 
-main(argc,argv)const int argc;const char*const argv[];
+int main(argc,argv)const int argc;const char*const argv[];
 { struct group*grp;struct stat stbuf;gid_t gid=(gid_t)-1;
   const char*const*p;mode_t sgid=0;int chmdir=0;
   if(argc!=3)
@@ -46,9 +46,9 @@ main(argc,argv)const int argc;const char*const argv[];
 	printf("chgrp %s %s %s\n",grp->gr_name,argv[1],argv[2]);
      else
 	printf("chgrp %u %s %s\n",(unsigned)gid,argv[1],argv[2]);
-  printf("chmod %o %s\n",sgid|S_ISUID|PERMIS,argv[1]);
+  printf("chmod %lo %s\n",(unsigned long)(sgid|S_ISUID|PERMIS),argv[1]);
   if(sgid)
-     printf("chmod %o %s\n",sgid|PERMIS,argv[2]);
+     printf("chmod %lo %s\n",(unsigned long)(sgid|PERMIS),argv[2]);
   else if(chmdir==1)
      goto nogchmod;
   if(chmdir)

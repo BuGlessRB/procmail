@@ -1,4 +1,4 @@
-/*$Id: mcommon.h,v 1.1 1994/04/05 15:35:03 berg Exp $*/
+/*$Id: mcommon.h,v 1.2 1999/04/19 06:42:20 guenther Exp $*/
 
 void
- qsignal P((const sig,void(*action)(void)));
+ qsignal P((const int sig,void(*action)(void)));

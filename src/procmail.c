@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.142 1999/04/06 02:36:22 guenther Exp $";
+ "$Id: procmail.c,v 1.143 1999/04/19 06:42:24 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -84,7 +84,7 @@ static int wipetcrc P((void))	  /* stupid function to avoid a compiler bug */
 }
 #endif
 
-main(argc,argv)const char*const argv[];
+int main(argc,argv)const char*const argv[];
 { register char*chp,*chp2;register int i;int suppmunreadable;
 #if 0				/* enable this if you want to trace procmail */
   kill(getpid(),SIGSTOP);/*raise(SIGSTOP);*/

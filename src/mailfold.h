@@ -1,14 +1,14 @@
-/*$Id: mailfold.h,v 1.16 1999/04/03 19:30:45 guenther Exp $*/
+/*$Id: mailfold.h,v 1.17 1999/04/19 06:42:18 guenther Exp $*/
 
 long
- dump P((const s,const char*source,long len));
+ dump P((const int s,const char*source,long len));
 int
  foldertype P((char*const chp)),
  writefolder P((char*boxname,char*linkfolder,const char*source,const long len,
-  const ignwerr));
+  const int ignwerr));
 void
  logabstract P((const char*const lstfolder)),
- concon P((const ch)),
+ concon P((const int ch)),
  readmail P((int rhead,const long tobesent));
 char
  *findtstamp P((const char*start,const char*end));

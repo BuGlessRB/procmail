@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: sublib.c,v 1.18 1997/04/03 01:58:49 srb Exp $";
+ "$Id: sublib.c,v 1.19 1999/04/19 06:42:28 guenther Exp $";
 #endif
 #include "includes.h"
 #include "sublib.h"
@@ -127,7 +127,7 @@ ret0:
 #endif
 			    /* strtol replacement which lacks range checking */
 #ifdef NOstrtol
-long strtol(start,ptr,base)const char*start,**const ptr;
+long strtol(start,ptr,base)const char*start,**const ptr;int base;
 { long result;const char*str=start;unsigned i;int sign,found;
   if(base>=36||base<(sign=found=result=0))
      goto fault;

@@ -3,10 +3,10 @@
  *			of the list user.				*
  *	This program is used by the SmartList installation script only. *
  ************************************************************************/
-/*$Id: gethome.c,v 1.7 1994/08/23 12:16:10 berg Exp $*/
+/*$Id: gethome.c,v 1.8 1999/04/19 06:42:16 guenther Exp $*/
 #include "includes.h"
 
-main(argc,argv)const int argc;const char*const argv[];
+int main(argc,argv)const int argc;const char*const argv[];
 { struct stat homest;
   ;{ struct passwd*p;
      if(argc!=3||!(p=getpwnam(argv[1])))

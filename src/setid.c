@@ -3,12 +3,12 @@
  *			uid/gid (can only be executed by root)		*
  *	This program is used by the SmartList installation script only. *
  ************************************************************************/
-/*$Id: setid.c,v 1.10 1994/10/18 17:36:25 berg Exp $*/
+/*$Id: setid.c,v 1.11 1999/04/19 06:42:27 guenther Exp $*/
 #include "includes.h"
 
 #define CHECK_FILE	"install.sh"
 
-main(argc,argv)const int argc;const char*const argv[];
+int main(argc,argv)const int argc;const char*const argv[];
 { struct passwd*p;char*nargv[2];
   if(argc!=2&&argc!=3||geteuid()||!(p=getpwnam(argv[1])))
    { fprintf(stderr,"Usage: setid user [directory]\n");

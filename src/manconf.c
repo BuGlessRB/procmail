@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.64 1999/01/20 17:58:23 guenther Exp $*/
+/*$Id: manconf.c,v 1.65 1999/04/19 06:42:19 guenther Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -26,7 +26,7 @@ static const char*const keepenv[]=KEEPENV,*const prestenv[]=PRESTENV,
 #endif
   0};
 
-static char*skltmark(nl,current)char**current;
+static char*skltmark(nl,current)int nl;char**current;
 { char*from= *current,*p;
   while(nl--)					 /* skip some newlines first */
      from=strchr(from,'\n')+1;
@@ -36,7 +36,7 @@ static char*skltmark(nl,current)char**current;
   return from;
 }
 
-static void putcesc(i)
+static void putcesc(i)int i;
 { switch(i)
    { case '\\':i='e';
 	goto twoesc;
@@ -117,7 +117,7 @@ static void pc(name,value)const char*const name;const int value;
 { pname(name);putcesc(value);putsg();
 }
 
-main(argc,argv)const char*const argv[];
+int main(argc,argv)int argc;const char*const argv[];
 { char*p;
   gargv=argv+1;
 #ifdef CF_no_procmail_yet

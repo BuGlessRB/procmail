@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.39 1999/04/05 17:35:04 guenther Exp $*/
+/*$Id: misc.h,v 1.40 1999/04/19 06:42:22 guenther Exp $*/
 
 struct dyna_long{size_t filled,tspace;off_t*offs;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -35,7 +35,7 @@ void
  setdef P((const char*const name,const char*const contents)),
  metaparse P((const char*p)),
  setlastfolder P((const char*const folder)),
- mallocbuffers P((size_t linebuf,int setenv)),
+ mallocbuffers P((size_t lineb,int setenv)),
  asenv P((const char*const chp)),
  concatenate P((char*p)),
  squeeze P((char*target)),
@@ -50,8 +50,8 @@ int
   const gid_t egid,const uid_t uid,const gid_t gid)),
  screenmailbox Q((char*chp,char*const chp2,const gid_t egid,
   const Deliverymode)),
- conditions P((const char flags[],const prevcond,const lastsucc,const lastcond,
-  int nrcond));
+ conditions P((const char flags[],const int prevcond,const int lastsucc,
+  const int lastcond,int nrcond));
 char
  *cat P((const char*const a,const char*const b)),
  *tstrdup P((const char*const a)),
