@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: initmake,v 1.15 1993/01/13 15:19:42 berg Exp $
+#$Id: initmake,v 1.16 1993/01/20 19:46:02 berg Exp $
 
 PATH=.:$PATH
 BSHELL=$1
@@ -134,12 +134,14 @@ chmod 0755 checklib
 test ! -f $USRINC/dirent.h -a ! -f $USRINC/ndir.h -a -f $USRINC/sys/ndir.h ||
  LDFLAGS=`checklib dir`
 LDFLAGS=`checklib x`
-LDFLAGS=`checklib net`
-LDFLAGS=`checklib inet`
+LDFLAGS=`checklib net`			# why did everyone have to think up
+LDFLAGS=`checklib inet`			# their own name?
 LDFLAGS=`checklib nsl_s`
+LDFLAGS=`checklib nsl_i`
 LDFLAGS=`checklib nsl`
 LDFLAGS=`checklib gen`
 LDFLAGS=`checklib socket`
+LDFLAGS=`checklib sockdns`
 #LDFLAGS=`checklib resolv`		# not really needed, is it?
 LDFLAGS=`checklib sun`
 $RM checklib

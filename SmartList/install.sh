@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.8 1993/01/15 14:40:37 berg Exp $
+#$Id: install.sh,v 1.9 1993/01/20 19:46:05 berg Exp $
 
 test $# != 1 && echo "Usage: install.sh target-directory" && exit 1
 
@@ -28,6 +28,8 @@ do
   cp $a/* "$target/.$a"
 done
 
+chmod 640 "$target/.etc/rc.custom" "$target/.etc/rc.init"
+
 for a in $FRAGILE
 do
   if test -f "$target/.etc/$a.old"
@@ -38,7 +40,6 @@ do
 done
 
 cp Manual "$target/.etc"
-
 mv -f "$target/.bin/procmail" "$target/.bin/.procmail" 2>/dev/null
 chmod 755 $target/.bin/*
 mv -f "$target/.bin/.procmail" "$target/.bin/procmail" 2>/dev/null
