@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.19 2001/08/25 04:38:41 guenther Exp $";
+ "$Id: variables.c,v 1.20 2001/08/25 04:45:45 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -302,11 +302,19 @@ int asenvcpy(src)char*src;
      *	really change the uid now, since it would not be safe to
      *	evaluate the extra command line arguments otherwise
      */
-   { erestrict=1;setids();chp++;memcpy(buf,src,chp-src);
-     src=buf+(chp-src);
-     if(chp=eputenv(chp,src))
-      { src[-1]='\0';
-	asenv(chp);
+   { size_t len=chp++-src+1;			      /* variable name + '=' */
+     erestrict=1;setids();				   /* always do this */
+     if(len>linebuf-XTRAlinebuf-1)			/* too long of name? */
+      { setoverflow();
+	nlog("Assignment to variable with excessively long name skipped\n");
+      }
+     else
+      { memcpy(buf,src,len);
+	src=buf+len;
+	if(chp=eputenv(chp,src))
+	 { src[-1]='\0';
+	   asenv(chp);
+	 }
       }
      return 1;
    }

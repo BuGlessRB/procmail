@@ -612,6 +612,8 @@
 	       - Version 3.20 broke compilation with K&R compilers
 	       - Regression bug: procmail -p -m was overridding PATH
 	       - Version 3.20 broke maildir delivery
-	       - Generate safe filenames when the hostname contains / or :
+	       - Catch overly long command line variable assignments
 	    Some fixes to the man pages
 	    More paranoia: start to use strlcpy()
+	    Generate safe temp and maildir filenames when the hostname
+	       contains / or : by mapping them to \ooo
