@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.50 1999/02/27 07:43:08 guenther Exp $
+.Id $Id: procmailex.man,v 1.51 1999/03/02 01:27:52 guenther Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -137,14 +137,14 @@ recipes in your rcfile.  However, it is advisable to put it
 .I after
 any recipes that process the mails from subscribed mailinglists; it generally
 is not a good idea to generate autoreplies to mailinglists (yes, the
-!^FROM_DAEMON regexp should already catch those, but if the mailinglist
+!@FROMDkey@ regexp should already catch those, but if the mailinglist
 doesn't follow accepted conventions, this might
 .I not
 be
 .IR enough ).
 .Sx 6
 :0 @PASS_HEAD@ @CONTINUE@
-* !^FROM_DAEMON
+* !@FROMDkey@
 * !^X-Loop: your@own.mail.address
 | (formail \-@FM_REPLY@ \-@FM_DEL_INSERT@"Precedence: junk" \e
     \-@FM_ADD_ALWAYS@"X-Loop: your@own.mail.address" ; \e
@@ -174,7 +174,7 @@ SHELL=/bin/sh    # for other shells, this might need adjustment
  # Perform a quick check to see if the mail was addressed to us
 * $^To:.*\e<$\eLOGNAME\e>
  # Don't reply to daemons and mailinglists
-* !^FROM_DAEMON
+* !@FROMDkey@
  # Mail loops are evil
 * !^X-Loop: your@own.mail.address
 | formail \-@FM_REPLY@@FM_DUPLICATE@ 8192 vacation.cache
@@ -390,7 +390,7 @@ loops.
 :0
 * !^@FROM@+YOUR_USERNAME
 * !^Subject:.*Re:
-* !^FROM_DAEMON
+* !@FROMDkey@
 * ^Subject:.*retrieve
 | (formail \-@FM_REPLY@ ; cat info_file) | $SENDMAIL \-oi \-t
 .Ex
@@ -410,7 +410,7 @@ loosen this last restriction).
 * ^Subject: send file [0-9a-z]
 * !^X-Loop: yourname@your.main.mail.address
 * !^Subject:.*Re:
-* !^FROM_DAEMON
+* !@FROMDkey@
 * !^Subject: send file .*[/.]\e.
 {
   MAILDIR=$HOME/fileserver # chdir to the fileserver directory
