@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.137 1999/02/26 21:11:55 guenther Exp $";
+ "$Id: procmail.c,v 1.138 1999/04/02 19:05:03 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -114,6 +114,9 @@ main(argc,argv)const char*const argv[];
 		    elog("\nDefault rcfile:\t\t");elog(pmrc);
 		    elog("\nYour system mailbox:\t");
 		    elog(auth_mailboxname(auth_finduid(getuid(),0)));
+		    ;{ charNUM(num,linebuf);ultstr(0,linebuf-XTRAlinebuf,num);
+		       elog("\nDefault LINEBUF:\t");elog(num);
+		     }
 		    elog(newline);
 		    return EXIT_SUCCESS;
 		 case HELPOPT1:case HELPOPT2:elog(pmusage);elog(PM_HELP);
@@ -248,7 +251,7 @@ nodevnull:
 #ifdef console
 	opnlog(console);
 #endif
-	setbuf(stdin,(char*)0);buf=malloc(linebuf);buf2=malloc(linebuf);
+	setbuf(stdin,(char*)0);mallocbuffers(linebuf);
 #ifdef SIGXCPU
 	signal(SIGXCPU,SIG_IGN);signal(SIGXFSZ,SIG_IGN);
 #endif
@@ -718,11 +721,8 @@ progrm:	   if(testB('!'))				 /* forward the mail */
 	      if(i)
 	       { if(startchar==themail)
 		  { startchar[filled]='\0';		     /* just in case */
-		    if(eqFrom_(startchar))    /* leave off any leading From_ */
-		       do
-			  while(i= *startchar++,--tobesent&&i!='\n');
-		       while(*startchar=='>');
-		  }				 /* it confuses some mailers */
+		    startchar=skipFrom_(oldstart=startchar,&tobesent);
+		  }   /* leave off leading From_ -- it confuses some mailers */
 		 goto forward;
 	       }
 	      skiprc--;
@@ -867,9 +867,11 @@ fail:	       { succeed=0;setoverflow();
 	      if(i)
 	       { if(ofiltflag)	       /* protect who use bogus filter-flags */
 		    startchar=themail,tobesent=filled;	    /* whole message */
-tostdout:	 strcpy(buf2,buf);rawnonl=flags[RAW_NONL];
-		 if(locknext)
-		    lcllock();		     /* write to a file or directory */
+tostdout:	 rawnonl=flags[RAW_NONL];
+		 if(locknext)		     /* write to a file or directory */
+		  { strcpy(buf2,buf);
+		    lcllock();
+		  }
 		 inittmout(buf);	  /* to break messed-up kernel locks */
 		 if(writefolder(buf,strchr(buf,'\0')+1,startchar,tobesent,
 		     ignwerr)&&
@@ -932,8 +934,14 @@ nomore_rc:
   ;{ int succeed;
      concon('\n');succeed=0;
      if(*(chp=(char*)fdefault))				     /* DEFAULT set? */
-      { setuid(uid);
-	if(strcmp(chp,devnull)&&strcmp(chp,"|"))  /* neither /dev/null nor | */
+      { int len,tlen;
+	setuid(uid);
+	len=strlen(chp);
+	if(linebuf<(tlen=(len=strlen(chp))+strlen(lockext)+
+	 XTRAlinebuf+UNIQnamelen))
+	   mallocbuffers(linebuf=tlen);	   /* make sure we have enough space */
+	if(strcmp(chp,devnull)&&strcmp(chp,"|")&& /* neither /dev/null nor | */
+	 (strcpy(buf,chp),to_dotlock(foldertype(buf+len))))/* but yet a file */
 	 { cat(chp,lockext);
 	   if(!globlock||strcmp(buf,globlock))		  /* already locked? */
 	      lockit(tstrdup(buf),&loclock);		    /* implicit lock */
@@ -954,4 +962,16 @@ mailed: rawnonl=0,retval=EXIT_SUCCESS;	  /* we're home free, mail delivered */
 
 int eqFrom_(a)const char*const a;
 { return !strncmp(a,From_,STRLEN(From_));
+}
+
+char*skipFrom_(startchar,&tobesentp)char*startchar;long*tobesentp;
+{ long tobesent;
+  if(eqFrom_(startchar))
+   { tobesent= *tobesentp;
+     do
+	while(i= *startchar++,--tobesent&&i!='\n');
+     while(*startchar=='>');
+     *tobesentp=tobesent;
+   }
+  return startchar;
 }

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.89 1999/03/30 06:05:42 guenther Exp $";
+ "$Id: misc.c,v 1.90 1999/04/02 19:05:01 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -441,6 +441,14 @@ int asenvcpy(src)char*src;
   return 0;
 }
 
+void mallocbuffers(linebuf)size_t linebuf;
+{ if(buf)
+   { free(buf);
+     free(buf2);
+   }
+  buf=malloc(linebuf);buf2=malloc(linebuf);
+}
+
 void asenv(chp)const char*const chp;
 { static const char slinebuf[]="LINEBUF",logfile[]="LOGFILE",Log[]="LOG",
    sdelivered[]="DELIVERED",includerc[]="INCLUDERC",eumask[]="UMASK",
@@ -448,7 +456,7 @@ void asenv(chp)const char*const chp;
   if(!strcmp(buf,slinebuf))
    { if((linebuf=renvint(0L,chp)+XTRAlinebuf)<MINlinebuf+XTRAlinebuf)
 	linebuf=MINlinebuf+XTRAlinebuf;		       /* check minimum size */
-     free(buf);free(buf2);buf=malloc(linebuf);buf2=malloc(linebuf);
+     mallocbuffers(linebuf);
    }
   else if(!strcmp(buf,maildir))
      if(chdir(chp))

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.31 1999/02/21 19:37:12 guenther Exp $";
+ "$Id: exopen.c,v 1.32 1999/04/02 19:04:57 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -57,19 +57,23 @@ int unique(full,p,mode,verbos,chownit)const char*const full;char*p;
 #endif
 	 chown(full,uid,sgid))
       { rclose(i);unlink(full);			 /* forget it, no permission */
-ret0:	return 0;
+ret0:	return chownit&doFD?-1:0;
       }
    }
   if(chownit&doLOCK)
      rwrite(i,"0",1);			   /* pid 0, `works' across networks */
+  if(doFD)
+     return i;
   rclose(i);
   return 1;
 }
 				     /* rename MUST fail if already existent */
 int myrename(old,newn)const char*const old,*const newn;
-{ int i,serrno;
-  i=hlink(old,newn);serrno=errno;unlink(old);SETerrno(serrno);
-  return i;
+{ int fd,serrno;
+  fd=hlink(old,newn);serrno=errno;unlink(old);
+  if(fd>0)rclose(fd-1);
+  SETerrno(serrno);
+  return fd<0?-1:0;
 }
 
 						     /* NFS-resistant link() */
@@ -84,8 +88,10 @@ int rlink(old,newn,st)const char*const old,*const newn;struct stat*st;
 	S_ISLNK(sto.st_mode)))			    /* symlinks are also bad */
       { SETerrno(serrno);
 	if(st&&ret>0)
-	   *st=sto;				       /* save the stat data */
-	return ret;				    /* it was a real failure */
+	 { *st=sto;				       /* save the stat data */
+	   return ret;				    /* it was a real failure */
+	 }
+	return -1;
       }
      /*SETerrno(serrno);*/   /* we really succeeded, don't bother with errno */
    }
@@ -99,9 +105,7 @@ int hlink(old,newn)const char*const old,*const newn;
 #ifdef O_CREAT				       /* failure due to filesystem? */
      if(stbuf.st_nlink<2&&errno==EXDEV&&     /* try it by conventional means */
 	0<=(fd=ropen(newn,O_WRONLY|O_CREAT|O_EXCL,stbuf.st_mode)))
-      { rclose(fd);
-	return 0;
-      }
+	return fd+1;
 #endif
      return -1;
    }

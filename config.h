@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.82 1999/02/26 21:11:54 guenther Exp $*/
+/*$Id: config.h,v 1.83 1999/04/02 19:04:54 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -180,6 +180,9 @@ MMGR)\
 #define chPARDIR	".."			     /* the parent directory */
 #define DIRSEP		"/"		 /* directory separator symbols, the */
 				   /* last one should be the most common one */
+#define MAILDIRtmp	"/tmp"			   /* maildir subdirectories */
+#define MAILDIRnew	"/new"
+#define MAILDIRcur	"/cur"
 
 #define EOFName		" \t\n#`'\");"
 

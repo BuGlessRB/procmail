@@ -1,4 +1,4 @@
-/*$Id: exopen.h,v 1.14 1999/02/21 19:37:13 guenther Exp $*/
+/*$Id: exopen.h,v 1.15 1999/04/02 19:04:58 guenther Exp $*/
 
 int
  unique Q((const char*const full,char*p,const mode_t mode,const verbos,
@@ -18,3 +18,4 @@ int
 #define doCHOWN		1
 #define doCHECK		2
 #define doLOCK		4
+#define doFD		8

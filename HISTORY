@@ -447,3 +447,7 @@
 	       - weights<1 didn't work if floats changed accuracy when stored
 	    Worked around a bug in the Dunix 4.0e compiler (pointer addition
 	       not commutative)
+1999/04/02: v3.14pre
+	    Added support for Maildir mailboxes to procmail and mailstat
+	    Changes to procmail:
+	       - Include LINEBUF in procmail -v output
