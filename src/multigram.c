@@ -11,9 +11,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.13 1993/01/15 14:41:18 berg Exp $";
+ "$Id: multigram.c,v 1.14 1993/01/18 16:11:10 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/15 14:41:18 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/18 16:11:10 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -147,7 +147,8 @@ main(minweight,argv)char*argv[];
       { struct stat stbuf;
 	*chp='\0';
 	if(!chdir(argv[0])&&!lstat(flist,&stbuf)&&S_ISREG(stbuf.st_mode)&&
-	 stbuf.st_mode&S_ISUID&&stbuf.st_uid==geteuid()&&!chdir(chPARDIR))
+	 stbuf.st_mode&S_ISUID&&stbuf.st_uid==geteuid()&&stbuf.st_nlink==3&&
+	 !chdir(chPARDIR))
 	 { static const char request[]=REQUEST,xenvlpto[]=XENVELOPETO,
 	    rcrequest[]=RCREQUEST,rcpost[]=RCPOST,list[]=LIST,
 	    *pmexec[]={PROCMAIL,RCSUBMIT,RCINIT,0,0,rcrequest,rcpost,0};
@@ -220,11 +221,16 @@ main(minweight,argv)char*argv[];
 \n\t-l nnn\t\tlower bound metric\
 \n\t-r\t\trename address on list\
 \n\t-w nnn\t\twindow width used when matching\n");return EX_USAGE;
+	      case '-':
+		 if(!*chp)
+		  { chp= *++argv;goto lastopt;
+		  }
 	      default:goto usg;
 	      case '\0':;
 	    }
 	   break;
 	 }
+lastopt:
      if(!chp||*++argv||renam+remov+!!addit>1)
 	goto usg;
      if(!(hardfile=fopen(chp,remov||renam||addit?"r+":"r")))

@@ -6,7 +6,7 @@
 # shortly before writing out the new version of this file (remove the lockfile
 # afterwards of course)
 
-#$Id: rc.submit,v 1.6 1993/01/15 18:16:03 berg Exp $
+#$Id: rc.submit,v 1.7 1993/01/18 16:11:05 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -29,7 +29,7 @@ INCLUDERC=$RC_CUSTOM
     (add .* to|remove .* from|take .* off|put .* on) .* list|subscri(be|ption))
 	$!^X-Loop: $listaddr
 	$!$FROM_MAILER_DAEMON
-METOO=| multigram -b1 -m -l$submit_threshold dist
+METOO=	| multigram -b1 -m -l$submit_threshold dist
 
 #
 # Check if we are the first mailinglist to distribute this message, if so
@@ -59,7 +59,7 @@ METOO=| multigram -b1 -m -l$submit_threshold dist
 	   -I"Precedence: bulk" -i"Resent-Sender: $listreq" \
 	   -i"Resent-From: $listaddr" -IReceived: -A"X-Loop: $listaddr" \
 	   -a"Subject: Unidentified subject!" \
-	   -a"X-Mailing-List: $listaddr $ARCHIVE"
+	   -a"X-Mailing-List: <$listaddr> $ARCHIVE"
 
 #
 # The following recipe will distribute the message to the subscribers.

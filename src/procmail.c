@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.19 1993/01/13 16:17:25 berg Exp $";
+ "$Id: procmail.c,v 1.20 1993/01/18 16:11:13 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -61,24 +61,33 @@ main(argc,argv)const char*const argv[];
   Deliverymode=0;
   if(argc)			       /* sanity check, any argument at all? */
    { Deliverymode=strcmp(lastdirsep(argv[0]),procmailn);
-     for(Presenviron=argc=0;(chp=(char*)argv[++argc])&&*chp=='-';)
+     for(Presenviron=argc=0;(chp2=(char*)argv[++argc])&&*chp2=='-';)
 	for(;;)					       /* processing options */
-	 { switch(*++chp)
+	 { switch(*++chp2)
 	    { case VERSIONOPT:elog(VERSION);return EX_OK;
 	      case HELPOPT1:case HELPOPT2:elog(pmusage);elog(PM_HELP);
 		 elog(PM_QREFERENCE);return EX_USAGE;
 	      case PRESERVOPT:Presenviron=1;continue;
 	      case TEMPFAILOPT:retval=EX_TEMPFAIL;continue;
 	      case FROMWHOPT:case ALTFROMWHOPT:
-		 if(*++chp)
-		    fromwhom=chp;
-		 else if(chp=(char*)argv[argc+1])
-		    argc++,fromwhom=chp;
+		 if(*++chp2)
+		    fromwhom=chp2;
+		 else if(chp2=(char*)argv[argc+1])
+		    argc++,fromwhom=chp2;
 		 else
 		    nlog("Missing name\n");
 		 break;
-	      case DELIVEROPT:Deliverymode=1;chp++;goto last_option;
-	      default:nlog("Unrecognised options:");logqnl(chp);
+	      case DELIVEROPT:
+		 if(!*(chp= ++chp2)&&!(chp=(char*)argv[++argc]))
+		    nlog("Missing recipient\n");
+		 else
+		    Deliverymode=1;
+		 break;
+	      case '-':
+		 if(!*chp2)
+		  { argc++;goto last_option;
+		  }
+	      default:nlog("Unrecognised options:");logqnl(chp2);
 		 elog(pmusage);elog("Processing continued\n");
 	      case '\0':;
 	    }
@@ -103,8 +112,6 @@ last_option:
 	*--ep= *--emax,*emax=0;				/* copy from the end */
  }
 #endif /* LD_ENV_FIX */
-  if(Deliverymode&&(!chp||(!*chp&&!(chp=(char*)argv[++argc]))))
-     Deliverymode=0,nlog("Missing recipient\n");
  {struct passwd*pass,*passinvk,spassinvk;
   if(passinvk=getpwuid(uid=getuid()))		    /* save it by copying it */
      tmemmove(&spassinvk,passinvk,sizeof spassinvk),passinvk= &spassinvk;
