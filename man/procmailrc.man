@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.65 1998/11/16 16:28:52 guenther Exp $
+.Id $Id: procmailrc.man,v 1.66 1998/12/15 17:19:31 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -308,7 +308,7 @@ The current hostname
 (If an rcfile is specified on the command line)
 .TP
 .B PROCMAIL_VERSION
-\&@VERSIONNUMBER@
+\&@PM_VERSION@
 .TP
 .B LOCKEXT
 \&@DEFlockext@@PRESTENV@@LD_ENV_FIX@
