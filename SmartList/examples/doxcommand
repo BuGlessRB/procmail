@@ -1,0 +1,45 @@
+#! /bin/sh
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
+#########################################################################
+#	doxcommand	To send of X-Command mails			#
+#									#
+#	Created by S.R. van den Berg, The Netherlands			#
+#									#
+#	Customise to taste.						#
+#########################################################################
+#$Id: doxcommand,v 1.1 1993/12/22 19:47:00 berg Exp $
+
+
+listrequest=yourlist-request@some.where
+maintainer=yourname@some.where
+password=x_command_password
+
+test=test			# /bin/test
+echo=echo			# /bin/echo
+sendmail=/usr/lib/sendmail	# /usr/lib/sendmail
+
+$test $# = 0 && $echo "Usage: doxcommand command [argument] ..." 1>&2
+
+command="$1"
+shift
+
+case "$1" in
+  s*) command=subscribe ;;
+  u*) command=unsubscribe ;;
+  c*) command=checkdist ;;
+  showd*|sd*|shd*) command=showdist ;;
+  showl*|sl*|shl*) command=showlog ;;
+  w*) command=wipelog ;;
+  h*) command=help ;;
+  i*) command=info ;;
+  *) $echo "Unknown command, use any of the following:" 1>&2
+     $echo "subscribe, unsubscribe, checkdist, showdist, showlog," 1>&2
+     $echo "wipelog, help or info." 1>&2
+     exit 64
+esac
+
+$sendmail $listrequest <<HERE
+Subject: X-Processed: $command $*
+X-Command: $maintainer $password $command $*
+HERE

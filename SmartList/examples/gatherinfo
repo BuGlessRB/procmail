@@ -1,0 +1,44 @@
+#! /bin/sh
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
+#########################################################################
+#	gatherinfo	To collect the info.txt files from various	#
+#			mailinglists					#
+#									#
+#	Created by S.R. van den Berg, The Netherlands			#
+#########################################################################
+#$Id: gatherinfo,v 1.1 1993/12/22 19:47:03 berg Exp $
+
+test=test		# /bin/test
+ln=ln			# /bin/ln
+rm=rm			# /bin/rm
+cp=cp			# /bin/cp
+echo=echo		# /bin/echo
+
+getfile="$ln -s"
+
+maindir="$1"
+targetdir="$2"
+
+$test $# != 2 -o ! -d "$maindir" -o ! -d "$targetdir" &&
+ $echo "Usage: gatherinfo main-listdirectory targetdirectory" 1>&2 &&
+ exit 64
+
+for a in $targetdir/*
+do
+  $test ! -d "$a" && $rm -f "$a"
+done
+
+set dummy `cd "$maindir"; echo *`
+shift
+
+for a in "$@"
+do
+  from="$maindir/$a/info.txt"
+  to="$targetdir/$a"
+  if $test -f "$from"
+  then
+     $rm -f "$to"
+     $getfile "$from" "$to"
+  fi
+done
