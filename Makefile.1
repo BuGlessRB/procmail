@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.13 1993/02/10 19:37:23 berg Exp $
+#$Id: Makefile.1,v 1.14 1993/02/18 17:19:31 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -74,7 +74,6 @@ $(MANS): mans
 $(BINS): bins
 
 install.man: $(MANS)
-	@echo Housekeeping file >install.man
 	@-mkdir $(MANDIR) 2>$(DEVNULL); exit 0
 	@-mkdir $(MAN1DIR) 2>$(DEVNULL); exit 0
 	@-mkdir $(MAN5DIR) 2>$(DEVNULL); exit 0
@@ -83,12 +82,13 @@ install.man: $(MANS)
 	  do $(INSTALL) new/$$a.1 $(MAN1DIR)/$$a.$(MAN1SUFFIX); done
 	@for a in $(MANS5S); \
 	  do $(INSTALL) new/$$a.5 $(MAN5DIR)/$$a.$(MAN5SUFFIX); done
+	@echo Housekeeping file >install.man
 
 install.bin: $(BINS)
 	@-mkdir $(BINDIR) 2>$(DEVNULL); exit 0
 	@chmod 0755 $(BINS)
-	@echo Housekeeping file >install.bin
 	$(INSTALL) $(BINS) $(BINDIR)
+	@echo Housekeeping file >install.bin
 
 install: install.man install.bin
 	@echo

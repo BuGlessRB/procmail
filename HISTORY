@@ -179,7 +179,7 @@
 		 time cache for trivial get*byname() calls
 	       - reached the doubtful milestone of consistently crashing the
 		 kernel on a Convex by running the locktst program
-1993/02/11: v2.81
+1993/02/18: v2.81
 	    Fixed a major inconvenience when generating the Makefiles in
 	       initmake
 	    Loosened the formats accepted for (un)subscription requests (some
@@ -197,3 +197,5 @@
 	       have world-writeable /usr/mail directories)
 	    Procmail ignores locallockfiles if the file that has to be locked
 	       turns out to be /dev/null
+	    Added a paragraph to the mailinglist/Manual (explaining multigram
+	       and threshold values)
