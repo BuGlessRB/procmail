@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.64 1994/09/09 16:58:21 berg Exp $";
+ "$Id: formail.c,v 1.65 1994/09/09 17:32:56 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/09/09 16:58:21 $";
+static /*const*/char rcsdate[]="$Date: 1994/09/09 17:32:56 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -419,7 +419,7 @@ startover:
      while(i--);			      /* reset all state information */
      clear_uhead(uheader);clear_uhead(Uheader);
      wasafrom_=!force&&rdheader&&eqFrom_(rdheader->fld_text);procfields();
-     for(fldp= *(afldp= &rdheader);fldp;fldp= *(afldp= &(*afldp)->fld_next))
+     for(fldp= *(afldp= &rdheader);fldp;)
       { int nowm;	      /* go through the linked list of header-fields */
 	if(zap)
 	 { chp=fldp->fld_text+(j=fldp->id_len);
@@ -430,7 +430,7 @@ startover:
 		 tmemmove(chp+1,chp,i-j);*chp=' ';
 	       }
 	      else if(fldp->tot_len<=j+2)
-	       { *afldp=fldp->fld_next;free(fldp);
+	       { *afldp=fldp->fld_next;free(fldp);fldp= *afldp;
 		 continue;
 	       }
 	 }
@@ -531,6 +531,7 @@ pnewname:	 if(namep)
 	 { tmemmove(rex[i].rexp=realloc(rex[i].rexp,(rex[i].rexl=j)+1),chp,j);
 	   rex[i].rexp[j]='\0';			     /* add a terminating \0 */
 	 }
+	fldp= *(afldp= &fldp->fld_next);
       }
      if(idcache)
       { int dupid=0;
@@ -585,11 +586,11 @@ dupfound:  fseek(idcache,(off_t)0,SEEK_SET);	 /* rewind, for any next run */
      tmemmove(parkedbuf=malloc(buffilled),buf,lenparkedbuf=buffilled);
      buffilled=0;    /* moved the contents of buf out of the way temporarily */
      if(areply)		      /* autoreply requested, we clean up the header */
-      { for(fldp= *(afldp= &rdheader);		 /* remove all fields except */
-	    fldp;			       /* those mentioned as -i ...: */
-	    fldp= *(afldp= &(*afldp)->fld_next))
+      { for(fldp= *(afldp= &rdheader);fldp;)
 	   if(!(fp2=findf(fldp,&iheader))||fp2->id_len<fp2->tot_len-1)
-	      *afldp=fldp->fld_next,free(fldp);
+	      *afldp=fldp->fld_next,free(fldp),fldp= *afldp;   /* remove all */
+	   else					/* except the ones mentioned */
+	      fldp= *(afldp= &fldp->fld_next);		       /* as -i ...: */
 	loadbuf(to,STRLEN(to));loadchar(' ');	   /* generate the To: field */
 	if(namep)	       /* did we find a valid return address at all? */
 	   loadbuf(namep,strlen(namep));	      /* then insert it here */
