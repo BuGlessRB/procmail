@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.37 1999/01/20 17:58:22 guenther Exp $";
+ "$Id: lockfile.c,v 1.38 1999/01/26 07:48:16 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/01/20 17:58:22 $";
+static /*const*/char rcsdate[]="$Date: 1999/01/26 07:48:16 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -96,7 +96,7 @@ again:
 		       goto checkrdec;
 		  }
 	      case VERSIONOPT:elog("lockfile");elog(VERSION);
-		  return EXIT_SUCCESS;
+		  goto xusg;
 	      case HELPOPT1:case HELPOPT2:elog(usage);
 		 elog(
  "\t-v\tdisplay the version number and exit\

@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.85 1999/01/23 07:30:45 guenther Exp $";
+ "$Id: formail.c,v 1.86 1999/01/26 07:48:15 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/01/23 07:30:45 $";
+static /*const*/char rcsdate[]="$Date: 1999/01/26 07:48:15 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -434,7 +434,7 @@ number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 	      case FM_QPREFIX:Qnext_arg();escap=chp;
 		 break;
 	      case FM_VERSION:elog("formail");elog(VERSION);
-		 return EXIT_SUCCESS;
+		 goto xusg;
 	      case FM_ADD_IFNOT:case FM_ADD_ALWAYS:case FM_REN_INSERT:
 	      case FM_DEL_INSERT:case FM_EXTRACT:case FM_EXTRC_KEEP:
 	      case FM_FIRST_UNIQ:case FM_LAST_UNIQ:case FM_ReNAME:Qnext_arg();
