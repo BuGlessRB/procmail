@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.58 1998/11/10 00:34:31 srb Exp $*/
+/*$Id: includes.h,v 1.59 1998/11/19 23:12:06 srb Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -333,6 +333,10 @@ extern int uname();					 /* so we fix it :-) */
 #endif /* NOuname */
 				 /* NEWS OS 5.X has the wrong prototype here */
 #define Fdopen(fd,type)		((FILE*)fdopen(fd,type))
+
+#ifdef u
+#undef u				       /* and the winner is: AIX 3.2 */
+#endif
 
 #ifndef strchr		   /* for very old K&R compatible include files with */
 #ifdef P						/* new K&R libraries */
