@@ -1,6 +1,3 @@
-The mmap() code has security problems
-    The memory region is writable by other recipients
-
 TIMEOUT doesn't always work
     If a shell is invoked then procmail may wait while executing a
     command for longer than TIMEOUT specifies.

@@ -2,7 +2,7 @@ typedef struct memblk {
     char*p;						  /* where it starts */
     long len;					 /* currently allocated size */
 #ifdef USE_MMAP
-    long filelen;				     /* how long is the file */
+    off_t filelen;				     /* how long is the file */
     int fd;					   /* file which is mmap()ed */
 #endif
 } memblk;
@@ -12,10 +12,11 @@ typedef int(cleanup_func_type) P((memblk*,long*,long,void*));
 
 void
  makeblock P((memblk*const,const long)), /* create block of the given length */
- freeblock P((memblk*const));				    /* deallocate it */
-int
+ freeblock P((memblk*const)),				    /* deallocate it */
+ lockblock P((memblk*const));	   /* protect this block from future changes */
+int							  /* by this process */
  resizeblock P((memblk*,const long,const int)); /* change the allocated size */
-char
+char		      /* dynamically grow a block to fit data as it comes in */
  *read2blk P((memblk*,long*const,read_func_type*,cleanup_func_type*,void*));
 
 #ifdef USE_MMAP

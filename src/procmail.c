@@ -8,13 +8,13 @@
  *	Seems to be perfect.						*
  *									*
  *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
- *	Copyright (c) 1999-2000, Philip Guenther, The United States	*
+ *	Copyright (c) 1999-2001, Philip Guenther, The United States	*
  *							of America	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.169 2001/02/20 09:35:24 guenther Exp $";
+ "$Id: procmail.c,v 1.170 2001/02/20 10:43:28 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -249,7 +249,9 @@ nodevnull:
 	    { if(!(pidchild=sfork()))
 	       { setupsigs();
 		 pass= *currcpt++;
-		 if(currcpt==lastrcpt)			/* last one out gets */
+		 if(currcpt!=lastrcpt)	   /* make sure the early recipients */
+		    lockblock(&themail);	 /* can't write to the block */
+		 else					/* last one out gets */
 		    private(1);				     /* the original */
 		 while(currcpt<lastrcpt)
 		    auth_freeid(*currcpt++);
@@ -282,15 +284,18 @@ nodevnull:
 		       waitfor(pidchild)!=EXIT_SUCCESS)
 		       retvl2=retval;
 		    pidchild=0;		      /* loop for the next recipient */
-		    bzero(argv[argc],strlen(argv[argc]));
+		    bzero((char*)argv[argc],strlen(argv[argc]));
 		  }
 		 else
 		  { newid();
 		    private(0);				    /* time to share */
+		    lockblock(&themail);
 		    while(argv[++argc])	    /* skip till end of command line */
-		       bzero(argv[argc],strlen(argv[argc]));
+		       bzero((char*)argv[argc],strlen(argv[argc]));
 		    break;
 		  }
+	      else
+		 private(1);		   /* last one out gets the original */
 	    }
 	   while(chp=(char*)argv[argc]);
 	gargv=argv+argc;			 /* save it for nextrcfile() */
@@ -381,7 +386,7 @@ nospecial:	     { static const char densppr[]=
 	 }
 	if(pass)	      /* set preferred uid to the intended recipient */
 Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
-	   if(euid==ROOT_uid&&(chp=auth_username(pass))&&*chp)
+	   if(euid==ROOT_uid&&(chp=(char*)auth_username(pass))&&*chp)
 	      initgroups(chp,gid);
 	   endgrent();
 	 }
