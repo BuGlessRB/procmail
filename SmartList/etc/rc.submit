@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.submit,v 1.60 1994/06/14 13:48:56 berg Exp $
+#$Id: rc.submit,v 1.61 1994/06/22 19:05:14 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -195,7 +195,9 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      INCLUDERC=$RC_LOCAL_SUBMIT_20
 
      #
-     # The following recipe will distribute the message to the subscribers.
+     # The following recipe will distribute the message to the subscribers
+     # using the native $SENDMAIL, but only if you disabled the alternative
+     # sendmail (choplist).
      #
 
      :0 w: dist.lock
@@ -203,7 +205,8 @@ INCLUDERC=$RC_LOCAL_SUBMIT_00
      ! $sendmailOPT $listdist
 
      #
-     # Alternate sendmail call (if you don't have file-including aliases)
+     # Alternate sendmail call (used by default), does not use the file-
+     # including -dist alias.
      #
 
      :0 Ew: dist.lock

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.52 1994/05/26 14:13:10 berg Exp $";
+ "$Id: misc.c,v 1.53 1994/06/22 19:05:35 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -88,7 +88,7 @@ void setids P((void))
 }
 
 void writeerr(line)const char*const line;
-{ nlog("Error while writing to");logqnl(line);
+{ nlog(errwwriting);logqnl(line);
 }
 
 int forkerr(pid,a)const pid_t pid;const char*const a;

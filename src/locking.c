@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.38 1994/06/06 17:33:38 berg Exp $";
+ "$Id: locking.c,v 1.39 1994/06/22 19:05:32 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -60,6 +60,10 @@ void lockit(name,lockp)char*name;char**const lockp;
 	   else
 	      triedforce=0;		 /* legitimate iteration, clear flag */
 	   break;
+	case ENOSPC:		   /* no space left, treat it as a transient */
+#ifdef EDQUOT						      /* NFS failure */
+	case EDQUOT:		      /* maybe it was a short term shortage? */
+#endif
 	case ENOENT:case ENOTDIR:case EIO:case EACCES:
 	   if(--permanent)
 	      goto ds;
@@ -75,10 +79,6 @@ void lockit(name,lockp)char*name;char**const lockp;
 #endif
 	default:
 faillock:  nlog("Lock failure on");logqnl(name);goto term;
-	case ENOSPC:;
-#ifdef EDQUOT
-	case EDQUOT:;
-#endif
       }
      permanent=nfsTRY;
 ds:  ssleep((unsigned)locksleep);

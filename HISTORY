@@ -210,3 +210,13 @@
 	    No changes, version number bump to keep in sync with SmartList
 1994/06/16: v3.02
 	    Made formail quiet (by default) about Content-Length mismatches
+	    The version number in patchlevel.h for this version was incorrect
+	       and still displayed v3.01 (yes, silly, I know)
+1994/06/21: v3.03
+	    Limit the no. of retries on lockfiles if the recipient is over
+	       quota (procmail & lockfile)
+	    Removed some superfluous "procmail:" prefixes in the middle of
+	       an error message
+	    Utilise a syslog daemon (if present) to log some critical errors
+	       (mostly attempted security violations and errors which are
+	       fatal but can't occur (like an unwritable /dev/null))

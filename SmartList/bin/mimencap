@@ -5,7 +5,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: mimencap,v 1.7 1994/06/17 18:04:29 berg Exp $
+#$Id: mimencap,v 1.8 1994/06/22 19:05:10 berg Exp $
 
 DEFAULT=|
 
@@ -22,8 +22,8 @@ INCLUDERC=../SedBinDir/mimencap.local
   * [^- -~-]
   {
     :0 B
-    * [^- -~-][^- -~-][^- -~-][^- -~-][^- -~-][^- -~-]\
-       [^- -~-][^- -~-]
+    * [^- -~-][^- -~-][^- -~-][^- -~-][^- -~-]\
+       [^- -~-][^- -~-][^- -~-]
     {
       :0 wfb
       | $mimencode -b
@@ -57,4 +57,4 @@ INCLUDERC=../SedBinDir/mimencap.local
 :0 wfh
 | $formail -fb -a "MIME-Version: 1.0" -a "Content-Type: text/plain" | \
   $sed -e '/^Content-Type:/ a\
-; dir="'$dir'"; name="'$name\"
+\	; dir="'$dir'"; name="'$name\"

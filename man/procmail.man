@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.48 1994/06/03 18:25:21 berg Exp $
+.Id $Id: procmail.man,v 1.49 1994/06/22 19:05:18 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -390,7 +390,7 @@ Program failure (nnn) of "x"
 Program that was started by procmail returned nnn instead of EX_OK (=@EX_OK@);
 if nnn is negative, then this is the signal the program died on.
 .TP
-Renaming bogus mailbox "x" into "x"
+Renaming bogus "x" into "x"
 The system mailbox of the recipient was found to be bogus, procmail performed
 evasive actions.
 .TP

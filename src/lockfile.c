@@ -13,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.26 1994/05/26 14:13:00 berg Exp $";
+ "$Id: lockfile.c,v 1.27 1994/06/22 19:05:30 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/05/26 14:13:00 $";
+static /*const*/char rcsdate[]="$Date: 1994/06/22 19:05:30 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
@@ -206,10 +206,6 @@ outofmem:	 retval=EX_OSERR,nlog("Out of memory");
 		    elog(cp);elog("\"\n");sleep(suspend);	/* important */
 		  }
 		 else					   /* no forcing now */
-	      case ENOSPC:
-#ifdef EDQUOT
-	      case EDQUOT:
-#endif
 		    switch(retries)    /* await your turn like everyone else */
 		     { case 0:nlog("Sorry");retval=EX_CANTCREAT;
 			  goto lfailure;      /* patience exhausted, give up */
@@ -217,6 +213,10 @@ outofmem:	 retval=EX_OSERR,nlog("Out of memory");
 		       case -1:sleep(sleepsec);		     /* wait and see */
 		     }
 		 break;
+	      case ENOSPC:
+#ifdef EDQUOT
+	      case EDQUOT:
+#endif
 	      case ENOENT:case ENOTDIR:case EIO:case EACCES:
 		 if(!--permanent)	 /* NFS sporadically generates these */
 		  { sleep(sleepsec);continue;		      /* unwarranted */

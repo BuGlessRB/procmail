@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.81 1994/06/03 18:25:36 berg Exp $";
+ "$Id: procmail.c,v 1.82 1994/06/22 19:05:38 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -35,7 +35,7 @@ static const char orgmail[]="ORGMAIL",*const nullp,From_[]=FROM,
  exflags[]=RECFLAGS,drcfile[]="Rcfile:",systm_mbox[]=SYSTEM_MBOX,
  pmusage[]=PM_USAGE,*etcrc=ETCRC,misrecpt[]="Missing recipient\n",
  extrns[]="Extraneous ",ignrd[]=" ignored\n",conflicting[]="Conflicting ",
- pardir[]=chPARDIR,suppressed[]=" suppressed\n",
+ pardir[]=chPARDIR,suppressed[]=" suppressed\n",slogstr[]="%s \"%s\"",
  insufprivs[]="Insufficient privileges\n";
 char*buf,*buf2,*loclock,*tolock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
@@ -43,7 +43,7 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  *rcfile=PROCMAILRC,dirsep[]=DIRSEP,devnull[]=DevNull,lgname[]="LOGNAME",
  executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",procmailn[]="procmail",
  whilstwfor[]=" whilst waiting for ",home[]="HOME",maildir[]="MAILDIR",
- host[]="HOST",*defdeflock,*argv0="";
+ host[]="HOST",*defdeflock,*argv0="",errwwriting[]="Error while writing to";
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EX_OK,sh,pwait,lcking,rcstate,rc= -1,ignwerr,
  lexitcode=EX_OK,asgnlastf,accspooldir,crestarg,skiprc,savstdout;
@@ -64,6 +64,7 @@ main(argc,argv)const char*const argv[];
   ;{ int presenviron,Deliverymode,override;char*fromwhom=0;
      const char*idhint=0;gid_t egid=getegid();
      Deliverymode=mailfilter=override=0;
+     openlog(procmailn,LOG_PID,LOG_MAIL);		  /* for the syslogd */
      if(argc)			       /* sanity check, any argument at all? */
       { Deliverymode=strncmp(lastdirsep(argv0=argv[0]),procmailn,
 	 STRLEN(procmailn));
@@ -171,7 +172,8 @@ privileged:				       /* move stdout out of the way */
 	endgrent();doumask(INIT_UMASK);savstdout=rdup(STDOUT);
 	fclose(stdout);rclose(STDOUT);			/* just to make sure */
 	if(0>opena(devnull))
-	 { writeerr(devnull);return EX_OSFILE;	     /* couldn't open stdout */
+	 { writeerr(devnull);syslog(LOG_EMERG,slogstr,errwwriting,devnull);
+	   return EX_OSFILE;			     /* couldn't open stdout */
 	 }
 #ifdef console
 	opnlog(console);
@@ -301,7 +303,9 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 	gargv=argv+argc;suppmunreadable=verbose; /* save it for nextrcfile() */
 	if(Deliverymode)
 	 { if(!(pass=getpwnam(chp2)))  /* chp2 should point to the recipient */
-	    { nlog("Unknown user");logqnl(chp2);return EX_NOUSER;
+	    { static const char unkuser[]="Unknown user";
+	      nlog(unkuser);logqnl(chp2);
+	      syslog(LOG_ERR,slogstr,unkuser,chp2);return EX_NOUSER;
 	    }
 	   if(enoughprivs(passinvk,euid,egid,pass->pw_uid,pass->pw_gid))
 	      goto Setuser;
@@ -344,7 +348,11 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 			stbuf.st_gid)||		   /* can we do this at all? */
 		       S_ISDIR(stbuf.st_mode)||		  /* no directories! */
 		       !savepass(&spassinvk,stbuf.st_uid))   /* user exists? */
-nospecial:	       nlog("Denying special privileges for"),logqnl(rcfile);
+nospecial:	     { static const char densppr[]=
+			"Denying special privileges for";
+		       nlog(densppr);logqnl(rcfile);
+		       syslog(LOG_ALERT,slogstr,densppr,rcfile);
+		     }
 		    else
 		       passinvk= &spassinvk;	    /* no security violation */
 		  }				      /* accept new identity */
@@ -418,6 +426,8 @@ keepgid:      sgid=stbuf.st_gid;   /* keep the gid from the parent directory */
 	*/
 	for(;;)
 	 { ;{ int mboxstat;
+	      static const char renbogus[]="Renamed bogus \"%s\" into \"%s\"",
+	       renfbogus[]="Couldn't rename bogus \"%s\" into \"%s\"";
 	      ;{ int goodlock;
 		 if(!(goodlock=lstat(defdeflock,&stbuf)||stbuf.st_uid==uid))
 		    ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
@@ -438,7 +448,10 @@ keepgid:      sgid=stbuf.st_gid;   /* keep the gid from the parent directory */
 		  { mboxstat=1;
 		    if(!(stbuf.st_mode&S_IWGRP))
 boglock:	       if(!goodlock)	      /* try & rename bogus lockfile */
-			  rename(defdeflock,buf);	   /* out of the way */
+			  if(rename(defdeflock,buf))	   /* out of the way */
+			     syslog(LOG_EMERG,renfbogus,defdeflock,buf);
+			  else
+			     syslog(LOG_ALERT,renbogus,defdeflock,buf);
 		  }
 	       }
 	      if(mboxstat>0||mboxstat<0&&(setids(),!lstat(chp,&stbuf)))
@@ -450,10 +463,13 @@ boglock:	       if(!goodlock)	      /* try & rename bogus lockfile */
 		 else if(stbuf.st_uid!=uid)	      /* recipient not owner */
 bogusbox:	  { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
 		     strchr(strcpy(buf+i,BOGUSprefix),'\0'));	    /* bogus */
-		    nlog("Renaming bogus mailbox \"");nlog(chp);
-		    nlog("\" into");logqnl(buf);
+		    nlog("Renaming bogus mailbox \"");elog(chp);
+		    elog("\" into");logqnl(buf);
 		    if(rename(chp,buf))	   /* try and move it out of the way */
-		       goto fishy;  /* rename failed, something's fishy here */
+		     { syslog(LOG_EMERG,renfbogus,chp,buf);goto fishy;
+		     }		    /* rename failed, something's fishy here */
+		    else
+		       syslog(LOG_ALERT,renbogus,chp,buf);
 		  }				/* SysV type autoforwarding? */
 		 else if(Deliverymode&&stbuf.st_mode&(S_ISGID|S_ISUID))
 		  { nlog("Autoforwarding mailbox found\n");return EX_NOUSER;

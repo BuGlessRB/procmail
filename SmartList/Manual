@@ -28,7 +28,7 @@ Contents:
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.35 1994/06/07 13:22:25 berg Exp $
+$Id: Manual,v 1.36 1994/06/22 19:05:07 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -490,6 +490,12 @@ any immediately following fields will become part of the header.
 All other files are MIME-encapsulated before transmission.  You should take
 a look at /home/list/.bin/mimencap.local if you want to extend or customise
 the recognised file types.
+
+The MIME-encapsulation is automatic and depends on the availability of the
+metamail package in the PATH defined in rc.init.  The programs from this
+package which need to be available are: mimencode and splitmail.
+If mimencode is not found on the PATH, the files will be sent out with a
+standard wrapper around them.
 
 If you put links in the "scuba/archive" tree, you can allow the archive
 server to retrieve files from other parts of the filesystem.
