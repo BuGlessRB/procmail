@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.175 2001/06/21 11:59:30 guenther Exp $";
+ "$Id: procmail.c,v 1.176 2001/06/23 08:23:49 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -163,7 +163,7 @@ setarg:		       app_valp(newargv,(const char*)chp2);
 		    goto last_option;
 #endif
 		 case '-':
-		    if(!*chp2)
+		    if(!*++chp2)
 		     { argc++;
 		       goto last_option;
 		     }
