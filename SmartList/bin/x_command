@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: x_command,v 1.2 1993/01/13 20:17:46 berg Exp $
+#$Id: x_command,v 1.3 1993/01/15 14:40:54 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
@@ -12,9 +12,10 @@ subscribe=unsubscribe	# ../.bin/unsubscribe
 tmprequest=tmp.request
 tmpfrom=tmp.from
 dist=dist
+log=log
 
 $test -z "$listaddr" &&
- $echo "Don't start this script directly, it is used in listrc.sub" && exit 64
+ $echo "Don't start this script directly, it is used in rc.request" && exit 64
 
 $formail -R$X_COMMAND: X-Processed:
 
@@ -35,19 +36,27 @@ do
 	 $echo "From: $listreq" >>$tmprequest
 	 $echo "Reply-To: $2" >>$tmprequest
 	 $echo "To: $listreq" >>$tmprequest
-	 $echo "Subject: subscribe $2" >>$tmprequest
+	 $echo "Subject: unsubscribe $2" >>$tmprequest
 	 $echo "$maintainer" "$2" >$tmpfrom
 	 $unsubscribe <$tmprequest | $SENDMAIL $sendmailOPT `cat $tmpfrom`
 	 shift ;;
-     _distfile)
+     _showdist)
 	 $echo "--- Current subscribers:"
 	 $cat $dist
 	 $echo "--- End of subscriber list" ;;
+     _showlog)
+	 $echo "--- Current log:"
+	 $cat $log
+	 $echo "--- End of log" ;;
+     _wipelog)
+	 $cat /dev/null >$log ;;
      _help|_info)
 	 $echo "Known $X_COMMAND keywords:"
 	 $echo "	subscribe mailaddress"
 	 $echo "	unsubscribe mailaddress"
-	 $echo "	distfile  (shows the complete distfile)"
+	 $echo "	showdist"
+	 $echo "	showlog"
+	 $echo "	wipelog"
 	 $echo "	help"
 	 $echo "	info" ;;
      _$X_COMMAND_PASSWORD|_$maintainer) ;;

@@ -5,7 +5,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.8 1993/01/13 20:17:44 berg Exp $
+#$Id: createlist,v 1.9 1993/01/15 14:40:45 berg Exp $
 
 defaults=.etc
 
@@ -17,7 +17,6 @@ sed=sed			# /bin/sed
 pwd=pwd			# /bin/pwd
 cat=cat			# /bin/cat
 rm=rm			# /bin/rm
-ln=ln			# /bin/ln
 cp=cp			# /bin/cp
 ls=ls			# /bin/ls
 chmod=chmod		# /bin/chmod
@@ -68,8 +67,15 @@ then
      exit $EX_UNAVAILABLE
   fi
   $rm -f .bin/procmail
-  $ln -s $procmail .bin/procmail || $ln $procmail .bin/procmail ||
-   $cp $procmail .bin/procmail
+  $ln -s $procmail .bin/procmail 2>/dev/null ||
+  $ln $procmail .bin/procmail 2>/dev/null ||
+   ( $cat >.bin/procmail <<HERE
+#! /bin/sh
+:
+exec $procmail "\$@"
+HERE
+     $chmod 755 .bin/procmail
+   )
 fi
 
 domain=`$sed -n -e 's/^[^#]*domain= *\([^	 ]*\).*$/\1/p' \
@@ -111,6 +117,9 @@ do
   $ln ../$defaults/$a $a
 done
 
+$mkdir achive
+$mkdir latest
+
 $sed -e "/^maintainer/ s/=/=	$maintainer/" <../$defaults/rc.custom \
  >rc.custom
 echo "(Only addresses below this line can be automatically removed)" >>dist
@@ -122,7 +131,7 @@ cd ..
 echo 1>&2
 echo "Installed the following files (mostly hardlinked):" 1>&2
 echo 1>&2
-$ls -l $list/* 1>&2
+$ls -ld $list/* $list/*/* 1>&2
 echo 1>&2
 
 listuser=`$ls -ld $defaults | ( read a b user d; echo $user )`

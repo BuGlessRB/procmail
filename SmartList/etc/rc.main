@@ -1,0 +1,10 @@
+#$Id: rc.main,v 1.2 1993/01/15 14:41:01 berg Exp $
+
+MAILDIR=.etc				# chdir to the defaults directory
+
+INCLUDERC=rc.init
+
+:0fh
+| formail -A"X-Diagnostic: Non-existing mailinglist $X_ENVELOPE_TO"
+
+INCLUDERC=rc.post

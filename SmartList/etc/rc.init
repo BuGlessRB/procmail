@@ -30,7 +30,7 @@
 # rc.request	rcfile used when processing requests
 # rc.custom	rcfile that contains all the customisations per list
 
-#$Id: rc.init,v 1.1 1993/01/13 15:20:11 berg Exp $
+#$Id: rc.init,v 1.2 1993/01/15 14:40:59 berg Exp $
 
 PATH=.:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises
@@ -94,6 +94,9 @@ sendmailOPT="-oem -odb -oi -f$listreq"
 # -oep	print error messages
 ########################
 
+size_limit	=	524288		# sanity cutoff value for submissions
+archive_hist	=	2		# number of messages left archived
+archive_log	=	log		# log file for archive retrievals
 maxhist		=	8		# bounce history limit
 minbounce	=	3		# no. of bounces before removal
 cutoff_bounce	=	256		# lines to keep in bounce processing

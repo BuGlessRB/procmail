@@ -8,10 +8,7 @@ The recommended procedure would be to create a new account and group named
 
 - If you are unable/unwilling to create a new user just for the mailinglist
 stuff, then the mailinglist scripts should be installed in a separate
-subdirectory.  You then have to edit the .listadmin/listrc.main file to
-make sure that mail arriving for this person first gets checked to see if
-it was for one of the mailinglists, and if it wasn't, that only then
-the regular procmailrc processing takes place.
+subdirectory.  This user will still be able to receive regular mail.
 
 - In the mailinglist scripts I made use of the -f option of sendmail.  This
 option makes sure that the sender address on the envelope (the From_ line)
@@ -27,42 +24,33 @@ Restarting sendmail is not necessary.
 
 Now, back to installing the mailinglist scripts:
 
-Suppose you have create this pseudo user "list" and its home directory would
+Suppose you have created this pseudo user "list" and its home directory would
 be /home/list
 Simply execute the "install.sh" script (preferably as user "list") present in
 this directory by typing something like:
 
 	sh install.sh /home/list
 
-This script will then create two subdirectories (.bin and .listadmin) in
+This script will then create two subdirectories (.bin and .etc) in
 /home/list.  These directories will be filled with the files contained
-in the bin and listadmin subdirectories here.  It will also make sure that
+in the bin and etc subdirectories here.	 It will also make sure that
 the "multigram" program is compiled from the procmail/src directory and
 copied into /home/list/.bin.  Furthermore it will link
-/home/list/.listadmin/listrc.main to /home/list/.procmailrc.
+/home/list/.etc/rc.main to /home/list/.procmailrc.  The latter is of
+course superfluous if you are still using this account to receive
+regular mail.
 
 Depending on your mail configuration, if procmail has not been integrated
 in the maildelivery system (see procmail/examples/advanced for more information
 on that topic) you also have to create a .forward file with an appropriate
-content (see "man procmail", the NOTES section at the end).
+content (see "man procmail", the NOTES section at the end).  This, however,
+is only necessary if you created a seperate "list" account.
 
-	Next, edit the /home/list/.listadmin/listrc.main file.	Make sure that
+	Next, edit the /home/list/.etc/rc.init file.	Make sure that
 	"domain" is set to the right value, and you can optionally specify a
 	"listmaster";  also check if the PATH is correct and make sure
 	that the procmail and formail are in the path.
 
-After this, you are all set.  Log in as (or su to) the "list" user and make
-sure that /home/list/.bin is in your path.  Then type something like:
-
-	createlist testing
-
-You will then have just created a mailinglist with two useful addresses:
-
-	testing and testing-request
-
-To remove this list again, type something like:
-
-	removelist testing
-
-Also try using the createlist program without arguments to see the optional
-extra argument.
+For further instructions, you should read the "Manual" file, it has
+been copied to the /home/list/.etc directory as well, and can serve as a
+quick reference.

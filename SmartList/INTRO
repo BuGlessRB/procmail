@@ -1,4 +1,4 @@
-$Id: INTRO,v 1.3 1992/12/02 17:26:09 berg Exp $
+$Id: INTRO,v 1.4 1993/01/15 14:40:32 berg Exp $
 
 			How to set up mailing lists
 			---------------------------
@@ -217,6 +217,8 @@ edit them to taste.  Perhaps you could send your changes to the procmail
 mailinglist if you feel that they could be useful to others.
 
 To get started I suggest you read the INSTALL file in this directory.
+
+For operating instructions you should read the Manual file in this directory.
 
 
 P.S. Any suggestions/corrections/improvements on this document are welcome.

@@ -1,0 +1,159 @@
+$Id: Manual,v 1.1 1993/01/15 14:40:34 berg Exp $
+
+Contents:
+---------	1. Creating and removing mailinglists
+		2. Remote maintenance of mailinglists
+		3. Customisation
+		4. The archive server
+
+
+1. Creating and removing mailinglists
+   ----------------------------------
+
+Make sure that the .bin directory is in your PATH.  Now you can issue
+commands like:
+
+	createlist testing
+	createlist testing joe@somewhere.edu
+	removelist testing
+
+The first command creates a mailinglist with two useful addresses:
+
+	testing
+	testing-request
+
+The second command does the same, but it also specifies joe@somewhere.edu
+to be the responsible contact person for this list.
+
+The third command removes all traces of the "testing" mailinglist again.
+
+
+2. Remote maintenance of mailinglists
+   ----------------------------------
+
+To facilitate remote maintenance of some mailinglists by their maintainers
+I have created the .bin/x_command script.  It parses mails sent to the
+-request address and can execute some administrative commands.
+
+The mail should be sent to the -request address of a mailinglist and
+should contain a field in the header looking like this:
+
+X-Command: joe@somewhere.edu password command
+
+"command" can be anything of the following:
+
+	subscribe mailaddress
+	unsubscribe mailaddress
+	showdist			To list the distfile
+	showlog				To list the log
+	wipelog				To clear the log
+	help				To show this command summary
+	info				Ditto
+
+The exact fieldname defaults to "X-Command", but can be customised to
+whatever you want.
+
+The password defaults to "password", but can/should be changed.
+
+The "joe@somewhere.edu" is always the mail address of the maintainer.  Note
+that this has to match what was specified on the command line of
+"createlist" when the list was created.
+
+Note that the X-Command: field has to be part of the header, when it's
+in the body of the mail, it has no effect.
+
+Anytime an X-Command: mail has been processed, the results will be
+mailed back to the maintainer of the list, and the X-Command: field
+will have been renamed to X-Processed:.
+
+Although this remote-facility is convenient, some might argue that it
+presents a security hole.  Well, in order to make this hole as small as
+possible, you can keep the password secret.  Also, the exact mailaddress
+of the maintainer might not be publicly known.	You can simply change
+the X-Command field into something else like X-MyCommand.  Above all, since
+faking mail is a well known possibility it would be ridiculous to take
+more precautions than these.
+
+
+3. Customisation
+   -------------
+
+The mailinglists can be customised in several ways:
+
+- For all the lists:
+	- Since all the lists share the same help.txt, subscibe.txt, rc.init,
+	  rc.submit and rc.request files (hardlinked), any change to them
+	  will affect all lists.
+	- Since all the lists have the .bin directory in their PATH, any
+	  change to one of the Bourne shell scripts in there will affect
+	  them all.
+- Per list:
+	- Every list directory contains an "rc.custom" rcfile which can
+	  be edited to your hearts content to customise certain parameters
+	  for this list only.
+	- For graver customisation you can remove the hardlink to any of the
+	  files in a list directory and provide that list with its own copy
+	  in order to edit that to taste.
+	- Since the current directory is in the PATH before the .bin
+	  directory you can create per-list copies of any of the Bourne shell
+	  scripts in .bin which can then be changed without affecting the
+	  other lists.
+- Per group of lists:
+	- The same applies as when customising per list, but you should
+	  then hardlink the appropriate files among the group of list
+	  directories.
+
+If you are not using the remote-maintenance facility and you start editing
+or customising scripts/files by hand, then you should make sure that there
+doesn't arrive any mail to those lists that are affected by your changes.
+
+If you are editing while the system is running you can temporarily put
+incoming mails on hold;	 you can do this:
+
+- for all the lists by creating the file:	.etc/rc.lock
+- only for one list by creating the file:	rc.lock
+  in the list directory of that list.
+
+The .bin/flist command checks to see if these rc.lock files exist AND are
+not older than 17 minutes before delivering the mail.  So, if you create
+an rc.lock file, mails to that (or all) lists will stall for the next
+17 minutes.  If you need more time, touch the file every so often.
+You should remove the rc.lock files again after finishing your editing.
+
+
+4. The archive server
+   ------------------
+
+All mail (except mail being forwarded from another mailinglist) sent to any
+of the lists is archived.  The archiving is fairly straightforward.
+E.g. if you have a list called "scuba", then all submissions are archived
+in scuba/archive/latest/.  The mails will be stored one-mail-per-file each.
+The files will be numbered.
+
+Now, normally, only the last two mails will be kept around, the others
+are periodically removed.  This in order to keep down the archiving costs
+for people with limited diskspace.  To disable archiving completely,
+edit the rc.submit file.  To simply make the archive-history longer,
+edit the rc.custom file.  To get more sophisticated archiving, like grouping
+submissions monthly, you should either create a cron job or edit the
+.bin/arch_trunc file.
+
+The archive server can be accessed per mailinglist by sending mail
+to the -request address with the following Subject:
+
+	Subject: archive
+
+The body of the mail or the rest of the subject line can then be
+filed with requests to the archive server.  It basically understands
+three commands:
+
+	get file ...
+	ls directory ...
+	help
+
+The archive server does a thorough check on the commands and the files
+that are requested.  This to ensure that it does not access any files
+outside the "scuba/archive" directory.	Any text-file that you put below
+the "scuba/archive" directory can now be retrieved by the archive commands.
+
+The whole archive server can be found in the .bin/arch_retrieve script.

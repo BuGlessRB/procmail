@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.11 1993/01/13 15:20:58 berg Exp $*/
+/*$Id: includes.h,v 1.12 1993/01/15 14:41:15 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -50,10 +50,9 @@
 #endif
 #include <errno.h>		/* EINTR EEXIST ENFILE EACCES EAGAIN */
 #ifndef SYSEXITS_H_MISSING
-#include <sysexits.h>		/* EX_OK EX_USAGE EX_NOINPUT EX_NOUSER
-				   EX_UNAVAILABLE EX_OSERR EX_OSFILE
-				   EX_CANTCREAT EX_IOERR EX_TEMPFAIL
-				   EX_NOPERM */
+#include <sysexits.h>		/* EX_OK EX_USAGE EX_NOUSER EX_UNAVAILABLE
+				   EX_OSERR EX_OSFILE EX_CANTCREAT EX_IOERR
+				   EX_TEMPFAIL EX_NOPERM */
 #endif
 
 #ifdef STDLIB_H_MISSING
@@ -97,7 +96,6 @@ char*strpbrk();
 		   by Eric Allman (eric@berkeley, ucbvax!eric)	 */
 #define EX_OK		0
 #define EX_USAGE	64
-#define EX_NOINPUT	66
 #define EX_NOUSER	67
 #define EX_UNAVAILABLE	69
 #define EX_OSERR	71

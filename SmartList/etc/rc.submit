@@ -6,7 +6,7 @@
 # shortly before writing out the new version of this file (remove the lockfile
 # afterwards of course)
 
-#$Id: rc.submit,v 1.2 1993/01/13 20:17:53 berg Exp $
+#$Id: rc.submit,v 1.3 1993/01/15 14:41:08 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -17,28 +17,44 @@ INCLUDERC=$RC_CUSTOM
 #	It does not look like an administrative request.
 #	It wasn't sent by this list itself.
 #	It wasn't sent by a daemon (misdirected bounce message perhaps).
-#
-
-:5wfh
-$!^$X_COMMAND:
-!^TO.*-request
-!^Subject:( *(help|info) *$|.*( \
-    (add .* to|remove .* from|take .* off|put .* on) .* list|subscri(be|ption))
-$!^X-Loop: $listaddr
-$!$FROM_MAILER_DAEMON
-| formail -b -IReceived: -IReturn-Receipt-To: -IErrors-To: -iReturn-Path: \
-   -iX-Envelope-To: -iX-Envelope-From: -A"Precedence: bulk" \
-   -i"Resent-Sender: $listreq" -i"Resent-From: $listaddr" -IReceived: \
-   -A"X-Loop: $listaddr" -a"Subject: Unidentified subject!" \
-   -a"X-MailingList: $listaddr"
-
-#
-# Now check to see if sender is a subscriber of this mailinglist, and while
+# Then check to see if sender is a subscriber of this mailinglist, and while
 # doing so, also check if this subscriber wants to receive copies.
 #
 
-	:AWh
-  METOO=| multigram -b1 -m -l$submit_threshold dist
+:6Wh
+	< $size_limit
+	$!^$X_COMMAND:
+	!^TO.*-request
+	!^Subject:( *(help|info) *$|.*( \
+    (add .* to|remove .* from|take .* off|put .* on) .* list|subscri(be|ption))
+	$!^X-Loop: $listaddr
+	$!$FROM_MAILER_DAEMON
+METOO=| multigram -b1 -m -l$submit_threshold dist
+
+#
+# Check if we are the first mailinglist to distribute this message, if so
+# archive the message.
+#
+
+	:1 ${foreign_submit}
+	!^X-Mailing-List:
+	archive/latest/.
+
+#
+# Truncate the archive to the correct size.
+#
+
+	:1 ${foreign_submit}
+	!^X-Mailing-List:
+	ARCHIVE=| arch_trunc "$-"
+
+	: ${foreign_submit} fh
+	| formail -b -IReceived: -IReturn-Receipt-To: -IErrors-To: \
+	   -iReturn-Path: -iX-Envelope-To: -iX-Envelope-From: \
+	   -A"Precedence: bulk" -i"Resent-Sender: $listreq" \
+	   -i"Resent-From: $listaddr" -IReceived: -A"X-Loop: $listaddr" \
+	   -a"Subject: Unidentified subject!" \
+	   -a"X-Mailing-List: $listaddr $ARCHIVE"
 
 #
 # The following recipe will distribute the message to the subscribers.

@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: unsubscribe,v 1.3 1992/12/01 15:31:55 berg Exp $
+#$Id: unsubscribe,v 1.4 1993/01/15 14:40:52 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -10,7 +10,7 @@ formail=formail		# /usr/local/bin/formail
 multigram=multigram	# ../.bin/multigram
 
 $test -z "$listaddr" &&
- $echo "Don't start this script directly, it is used in listrc.sub" && exit 64
+ $echo "Don't start this script directly, it is used in rc.request" && exit 64
 
 tmprequest=tmp.request
 tmpfrom=tmp.from

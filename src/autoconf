@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.23 1993/01/13 20:17:58 berg Exp $
+#$Id: autoconf,v 1.24 1993/01/15 14:41:13 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -711,9 +711,9 @@ main(argc)
       { puts("#define SMALLHEAP");return 1;
       }
 #ifdef _GUID_T						      /* ISC cc hack */
-     ;{ struct pass*p;
+     ;{ struct passwd*p;
 	if(sizeof(int)>sizeof(uid_t)&&(p=getpwnam("root"))&&(*p->pw_dir!='/'||
-	 (*p->pw_shell&&!(p->pw_shell)[1]))
+	 (*p->pw_shell&&!(p->pw_shell)[1])))
 	   puts("#define _GUID_T\ntypedef int uid_t;\ntypedef int gid_t;");
       }
 #endif

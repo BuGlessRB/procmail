@@ -1,0 +1,102 @@
+#! /bin/sh
+: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+#$Id: arch_retrieve,v 1.1 1993/01/15 14:40:41 berg Exp $
+
+echo=echo		# /bin/echo
+ls=ls			# /bin/ls
+sed=sed			# /bin/sed
+cat=cat			# /bin/cat
+formail=formail		# /usr/local/bin/formail
+
+$test -z "$listaddr" &&
+ $echo "Don't start this script directly, it is used in rc.request" && exit 64
+
+tmprequest=tmp.request
+tmpfrom=tmp.from
+
+cd archive
+
+from=`$echo "arch_retrieve:" \`$cat $tmpfrom\` requested`
+$cat /dev/null >$tmpfrom
+
+$formail -k -xSubject: |
+ $sed -e '/^--/,$ d' -e 's/^[	 ]*archive\/*/ /g'  |
+ ( sendhelp=no
+   while read line
+   do
+      set dummy $line
+      shift
+      case "$1" in
+	 send|sendme|get|getme|gimme|retrieve|mail|\
+	 SEND|SENDME|GET|GETME|GIMME|RETRIEVE|MAIL)
+	    while shift; $test ! -z "$1"
+	    do
+	       $echo $from "$1" >>$tmpfrom
+	       case "$1" in
+		  */../*|../*|*/..) ;;
+		  *)
+		   ( $formail -rt -I"Subject: archive retrieval: $1" \
+		      -i"Sender: $listreq" -i"From: $listaddr" \
+		      -A"X-Loop: $listaddr" <$tmprequest
+		     if $test -f "$1"
+		     then
+			$echo "File: $1"
+			$echo "BEGIN---------------cut here------------------"
+			$cat "$1"
+			$echo "END-----------------cut here------------------"
+		     else
+			$echo "File $1 is not available."
+		     fi
+		   ) | $SENDMAIL $sendmailOPT -t ;;
+	       esac
+	    done ;;
+	 ls|dir|directory|list|show|\
+	 LS|DIR|DIRECTORY|LIST|SHOW)
+	    while shift; $test ! -z "$1"
+	    do
+	       $echo $from "$1" ls >>$tmpfrom
+	       case "$1" in
+		  */../*|../*|*/..) ;;
+		  *)
+		   ( $formail -rt -I"Subject: archive retrieval: ls $1" \
+		      -i"Sender: $listreq" -i"From: $listaddr" \
+		      -A"X-Loop: $listaddr" <$tmprequest
+		     if $test -r "$1"
+		     then
+			$echo "ls -l $1"
+			$echo "BEGIN---------------cut here------------------"
+			$ls -l "$1"
+			$echo "END-----------------cut here------------------"
+		     else
+			$echo "File or directory $1 is not available."
+		     fi
+		   ) | $SENDMAIL $sendmailOPT -t ;;
+	       esac
+	    done ;;
+	 *) sendhelp=yes ;;
+      esac
+   done
+   if $test yes = $sendhelp
+   then
+       ( $formail -rt -I"Subject: archive retrieval: ls $1" \
+	  -i"Sender: $listreq" -i"From: $listaddr" \
+	  -A"X-Loop: $listaddr" <$tmprequest
+	  $echo "This archive server knows the following commands:"
+	  $echo ""
+	  $echo "get filename ..."
+	  $echo "ls directory ..."
+	  $echo ""
+	 $echo "Aliases for 'get': send, sendme, getme, gimme, retrieve, mail"
+	 $echo "Aliases for 'ls': dir, directory, list, show"
+	  $echo ""
+	  $echo "Examples:"
+	  $echo "ls latest"
+	  $echo "get latest/12"
+       ) | $SENDMAIL $sendmailOPT -t ;;
+   fi
+ )
+
+if $test ! -z "$archive_log"
+then
+  $cat $tmpfrom >>$archive_log
+fi

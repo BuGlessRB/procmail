@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.7 1993/01/13 20:17:40 berg Exp $
+#$Id: install.sh,v 1.8 1993/01/15 14:40:37 berg Exp $
 
 test $# != 1 && echo "Usage: install.sh target-directory" && exit 1
 
@@ -37,9 +37,11 @@ do
   fi
 done
 
-mv -f "$target/.bin/procmail" "$target/.bin/.procmail"
+cp Manual "$target/.etc"
+
+mv -f "$target/.bin/procmail" "$target/.bin/.procmail" 2>/dev/null
 chmod 755 $target/.bin/*
-mv -f "$target/.bin/.procmail" "$target/.bin/procmail"
+mv -f "$target/.bin/.procmail" "$target/.bin/procmail" 2>/dev/null
 
 for a in $DIRS
 do

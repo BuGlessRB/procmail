@@ -11,9 +11,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.12 1993/01/13 20:18:01 berg Exp $";
+ "$Id: multigram.c,v 1.13 1993/01/15 14:41:18 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/13 20:18:01 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/15 14:41:18 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -30,10 +30,12 @@ static /*const*/char rcsdate[]="$Date: 1993/01/13 20:18:01 $";
 
 #define PROCMAIL	"../.bin/procmail"	  /* some configurable paths */
 #define GLOCKFILE	"../.etc/rc.lock"
+#define RCMAIN		"./.etc/rc.main"
 #define LLOCKFILE	"rc.lock"
 #define REQUEST		"-request"
 #define RCSUBMIT	"./rc.submit"
 #define RCREQUEST	"./rc.request"
+#define RCPOST		"./rc.post"
 #define RCINIT		"RC_INIT=rc.init"
 #define XENVELOPETO	"X_ENVELOPE_TO="
 #define LIST		"list="
@@ -147,28 +149,28 @@ main(minweight,argv)char*argv[];
 	if(!chdir(argv[0])&&!lstat(flist,&stbuf)&&S_ISREG(stbuf.st_mode)&&
 	 stbuf.st_mode&S_ISUID&&stbuf.st_uid==geteuid()&&!chdir(chPARDIR))
 	 { static const char request[]=REQUEST,xenvlpto[]=XENVELOPETO,
-	    list[]=LIST,*pmexec[]={PROCMAIL,RCSUBMIT,RCINIT,0,0,0};
+	    rcrequest[]=RCREQUEST,rcpost[]=RCPOST,list[]=LIST,
+	    *pmexec[]={PROCMAIL,RCSUBMIT,RCINIT,0,0,rcrequest,rcpost,0};
+#define Endpmexec(i)	(pmexec[maxindex(pmexec)-(i)])
 	   char*arg;
 	   if(minweight!=2)
 	    { elog("Usage: flist listname[-request]\n");return EX_USAGE;
 	    }
 	   chp=strchr(arg=argv[1],'\0');
 	   if(chp-arg>STRLEN(request)&&!strcmp(chp-=STRLEN(request),request))
-	      *chp='\0',pmexec[1]=RCREQUEST;
+	      *chp='\0',pmexec[1]=rcrequest,Endpmexec(1)=0,Endpmexec(2)=rcpost;
 	   else
 	      chp=0;
 	   if(chdir(arg))
-	    { nlog("Couldn't chdir to \"");elog(arg);elog("\"\n");
-	      return EX_NOINPUT;
-	    }
-	   pmexec[maxindex(pmexec)-2]=argstr(list,arg);
+	      pmexec[1]=RCMAIN,Endpmexec(2)=0;
+	   Endpmexec(4)=argstr(list,arg);
 	   if(chp)
 	      *chp= *request;
-	   pmexec[maxindex(pmexec)-1]=argstr(xenvlpto,arg);
-	   setuid(stbuf.st_uid);setgid(stbuf.st_gid);
-	   rclock(GLOCKFILE,&stbuf);rclock(LLOCKFILE,&stbuf);
-	   execve(pmexec[0],pmexec,environ);nlog("Couldn't exec \"");
-	   elog(pmexec[0]);elog("\"\n");return EX_UNAVAILABLE;
+	   Endpmexec(3)=argstr(xenvlpto,arg);setuid(stbuf.st_uid);
+	   setgid(stbuf.st_gid);rclock(GLOCKFILE,&stbuf);
+	   rclock(LLOCKFILE,&stbuf);execve(pmexec[0],pmexec,environ);
+	   nlog("Couldn't exec \"");elog(pmexec[0]);elog("\"\n");
+	   return EX_UNAVAILABLE;
 	 }
 	nlog("Missing permissions\n");return EX_NOPERM;
       }

@@ -6,7 +6,7 @@
 # shortly before writing out the new version of this file (remove the lockfile
 # afterwards of course)
 
-#$Id: rc.request,v 1.2 1993/01/13 20:17:51 berg Exp $
+#$Id: rc.request,v 1.3 1993/01/15 14:41:05 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -38,6 +38,14 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 
 	:Ac
 	| cat >tmp.request
+
+#
+# Is it an archival retrieval command?
+#
+
+	:1A
+	^Subject:[	 ]*archive[^a-z-]
+	| arch_retrieve
 
 #
 # Is it an unsubscription request?
@@ -101,6 +109,10 @@ LOGFILE=log				# log -request arrivals
 #
 
 :fh
+!< $size_limit
+| formail -A "X-Diagnostic: Submission size exceeds $size_limit bytes"
+
+:fh
 ^FROM_DAEMON
 | formail -A "X-Diagnostic: Mail coming from a daemon, ignored"
 
@@ -143,5 +155,8 @@ request
 :0w
 | formail -R"From X-Envelope-From:" -iReturn-Receipt-To: \
    | $SENDMAIL $sendmailOPT -oep $maintainer
+
+:0fh
+| formail -A"X-Diagnostic: Maintainer $maintainer could not be reached"
 
 HOST=continue_with_../.etc/rc.post

@@ -6,7 +6,12 @@
 
 maintainer	=
 
+#LOGFILE=log				# uncomment in case of emergency
+#VERBOSE=yes				# uncomment in case of real emergency
 
+#size_limit	=	524288		# sanity cutoff value for submissions
+#archive_hist	=	2		# number of messages left archived
+#archive_log	=	log		# log file for archive retrievals
 #maxhist	=	8		# bounce history limit
 #minbounce	=	3		# no. of bounces before removal
 #cutoff_bounce	=	256		# lines to keep in bounce processing

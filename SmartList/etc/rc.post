@@ -1,0 +1,16 @@
+#$Id: rc.post,v 1.2 1993/01/15 14:41:03 berg Exp $
+MAILDIR=../$defaults		# back to the defaults directory
+LOGFILE=log			# enabled by default, because when processing
+				# reaches this point, some unusual circumstance
+				# has occurred.
+
+::
+?test -z "$listmaster"
+request
+
+:0w
+| formail -R"From X-Envelope-From:" -iReturn-Receipt-To: \
+   | $SENDMAIL $sendmailOPT -oep $listmaster
+
+:0:
+request

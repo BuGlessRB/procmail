@@ -1,17 +1,16 @@
 Summary of what the mailinglist scripts in here provide:
 	+ The overseeable management of an arbitrary number of mailinglists
-	+ Convenient and simple creating of new mailinglists
+	+ Convenient and simple creation of new mailinglists
 	+ Convenient and simple removal of existing mailinglists
 	+ Fully automated subscription/unsubscription/help-request processing
 	  (no operator intervention needed)
 	+ Enough intelligence to overcome the stupidity of some subscribers
-	  (will direct subscribe and subscribe requests away from the regular
-	  list and automatically onto the -request address)
+	  (will direct subscribe and unsubscribe requests away from the
+	  regular list and automatically onto the -request address)
 	+ No hardwired format for (un)subscribe requests (i.e. new subscribers
 	  need not be educated, unsubscribing users do not need to remember
 	  any particular syntax)
-	+ Only subscribers to a list can submit messages (the others go to the
-	  maintainer of the list, who can then decide)
+	+ Submissions can be limited to subscribers only
 	+ The fully automated subscription mechanism allows for a reject list
 	  of unwanted subscribers
 	+ Joint management of several mailinglists possible (through hardlinked
@@ -22,6 +21,9 @@ Summary of what the mailinglist scripts in here provide:
 	  that couldn't be handled by the list automatically are then
 	  forwarded to his mail address (instead of being accumulated in
 	  a file)
+	+ Allows for remote maintenance of any mailinglist by a
+	  listmaintainer
+	+ Integrated archiving service
 	+ Integrated diagnostic aid to give hints to the maintainer about
 	  possible problems
 	+ *Intelligent* autoremoval of addresses from the list that cause
