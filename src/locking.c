@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: locking.c,v 1.51 1999/02/16 21:13:40 guenther Exp $";
+ "$Id: locking.c,v 1.52 1999/03/30 06:17:18 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -108,7 +108,7 @@ void lcllock P((void))				    /* lock a local lockfile */
 	lckfile=tstrdup(tolock);
      else
       { int len=strlen(buf2);
-	strcpy(len+strcpy(lckfile=malloc(len+strlen(lockext)+1),buf2),lockext);
+	strcpy(strcpy(lckfile=malloc(len+strlen(lockext)+1),buf2)+len,lockext);
       }
      if(globlock&&!strcmp(lckfile,globlock))	 /* same as global lockfile? */
       { nlog("Deadlock attempted on");logqnl(lckfile);

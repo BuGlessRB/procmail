@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.57 1999/03/30 06:05:41 guenther Exp $";
+ "$Id: goodies.c,v 1.58 1999/03/30 06:17:17 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -280,7 +280,7 @@ finsb:		    *startb='\0';
 		    if(!(startb=(char*)evalenv()))
 		       startb="";
 		    if(quoted)
-		     { p=2+strcpy(p,"()");	/* protect leading character */
+		     { p=strcpy(p,"()")+2;	/* protect leading character */
 		       for(;CHECKINC(),*startb;*p++= *startb++)
 			  if(strchr("(|)*?+.^$[\\",*startb))	/* specials? */
 			     *p++='\\';		      /* take them literally */

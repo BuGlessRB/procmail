@@ -445,3 +445,5 @@
 	       - Variable expansion of builtin numeric variables in
 		 conditions could overwrite the condition
 	       - weights<1 didn't work if floats changed accuracy when stored
+	    Worked around a bug in the Dunix 4.0e compiler (pointer addition
+	       not commutative)
