@@ -57,8 +57,8 @@ do not have a separate group for the list, you have to make sure that you
 change the setting of UMASK in the rc.init file.  By default the group
 to which the "list" user belongs can write in many of the files.
 
-Next, make sure that you are running as root (su root) and execute the
-"install.sh" script present in this directory by typing something like:
+Next, execute the "install.sh" script present in this directory by typing
+something like:
 
 	sh install.sh /home/list
 
@@ -154,11 +154,8 @@ the two sendmailOPT* assigments following it.
    ---------------------------------------------
 
 You can simply use the install.sh script again to install directly over
-the old installation IF you customised ONLY the master rc.init and rc.custom
-files.
-
-	Just like during the initial installation of SmartList, the upgrade
-	is best performed as root (i.e. su root prior to starting install.sh).
+the old installation IF you customised ONLY the rc.init, rc.custom and
+various *.txt files.
 
 Once you ran the install.sh script, you'll have to merge the changes
 you made to the old rc.init file (still there) into the rc.init.new file.
