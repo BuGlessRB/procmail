@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.59 1998/11/19 23:12:06 srb Exp $*/
+/*$Id: includes.h,v 1.60 1999/02/07 20:37:09 guenther Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -498,7 +498,8 @@ extern void*memmove();
 #define STRLEN(x)	(sizeof(x)-1)
 #define ioffsetof(s,m)	((int)offsetof(s,m))
 #define numeric(x)	((unsigned)(x)-'0'<='9'-'0')
-#define charNUM(num,v)	char num[8*sizeof(v)*4/10+1+1]
+#define sizeNUM(v)	(8*sizeof(v)*4/10+1+1)
+#define charNUM(num,v)	char num[sizeNUM(v)]
 
 #define mx(a,b)		((a)>(b)?(a):(b))
 

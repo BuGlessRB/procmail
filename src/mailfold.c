@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.71 1998/11/06 05:35:35 guenther Exp $";
+ "$Id: mailfold.c,v 1.72 1999/02/07 20:37:10 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -116,6 +116,10 @@ static int dirfile(chp,linkonly)char*const chp;const int linkonly;
      else
 	readerr(buf);
 #endif /* NOopendir */
+     if(chp-buf+sizeNUM(i)-XTRAlinebuf>linebuf)
+exlb: { nlog(exceededlb);
+	goto ret;
+      }
      ;{ int ok;
 	do ultstr(0,++i,chp);		       /* find first empty MH folder */
 	while((ok=linkonly?link(buf2,buf):hlink(buf2,buf))&&errno==EEXIST);
@@ -130,9 +134,12 @@ static int dirfile(chp,linkonly)char*const chp;const int linkonly;
      goto opn;
    }
   ;{ struct stat stbuf;
+     char*p=strchr(buf,'\0');
+     if(p-buf+strlen(msgprefix)+sizeNUM(stbuf.st_ino)-XTRAlinebuf>linebuf)
+	goto exlb;
      stat(buf2,&stbuf);
      ultoan((unsigned long)stbuf.st_ino,      /* filename with i-node number */
-      strchr(strcat(buf,msgprefix),'\0'));
+      strchr(strcat(p,msgprefix),'\0'));
    }
   if(linkonly)
    { yell(lkingto,buf);
@@ -198,6 +205,10 @@ makefile:
      *chp='\0',chp[-1]= *MCDIRSEP_,strcpy(buf2,buf);	   /* it ended in /. */
   else					 /* fixup directory name, append a / */
      strcat(chp,MCDIRSEP_),strcpy(buf2,buf),chp=0;
+  if(strlen(buf2)+UNIQnamelen>linebuf)
+   { nlog(exceededlb);
+     return -1;
+   }
   ;{ int fd= -1;		/* generate the name for the first directory */
      if(unique(buf2,strchr(buf2,'\0'),NORMperm,verbose,0)&&
       (fd=dirfile(chp,0))>=0&&linkfolder)	 /* save the file descriptor */
