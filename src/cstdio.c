@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.43 1999/11/16 06:35:05 guenther Exp $";
+ "$Id: cstdio.c,v 1.44 1999/11/19 05:59:42 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -46,7 +46,10 @@ void changerc(name)const char*const name;		    /* change rcfile */
 rerr:	   readerr(name);
 	 }
 	else
-	 { rclose(orc);
+	 { struct dynstring*dp;
+	   if(dp=incnamed->enext)		      /* fixup the name list */
+	      incnamed->enext=dp->enext,free(dp);
+	   rclose(orc);
 	   ifstack.filled=ifdepth;    /* act like all the braces were closed */
 	 }
 	goto ret;
