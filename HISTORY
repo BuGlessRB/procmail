@@ -86,7 +86,7 @@
 	    Forgot to redirect output of a test in autoconf to /dev/null
 	    Reached the doubtful milestone to sometimes crash an Ultrix
 	       machine (due to the lockingtests, not procmail itself)
-1994/04/05: v2.92
+1994/05/05: v3.00
 	    Changes to procmail:
 	       - Changed the semantics of the TRAP keyword.  In order to
 		 make procmail accept the exitcode it returns, you now have
@@ -143,6 +143,11 @@
 	       - -p is not supported alongside -d anymore
 	       - /etc/procmailrcs/ is the place for optional privileged
 		 rcfiles in -m mailfilter mode
+	       - Switched the meanings of SIGUSR1 and SIGUSR2
+	       - The 'a' flag didn't work correctly after filter recipes
+	       - Changed the permissions on the lockfile, writing zero in it
+	       - Check the permissions on the existing system mailbox, correct
+		 them if necessary
 	    Changes to formail:
 	       - Fixed a sender-determination-weight problem, it mixed up
 		 the weights when autoreplying and when regenerating the From_

@@ -1,0 +1,100 @@
+# procmail rcfile
+#########################################################################
+#	mimencap.local	Encapsulates a file in the necessary MIME	#
+#			wrapper						#
+#									#
+#	Created by S.R. van den Berg, The Netherlands			#
+#									#
+#	Customise to taste.						#
+#	This file is not automatically replaced during an upgrade of	#
+#	SmartList.							#
+#########################################################################
+#$Id: mimencap.local,v 1.1 1994/05/05 15:53:14 berg Exp $
+
+# What we have at our disposal are:
+#
+#	$archivedir	The relative base directory for the archives.
+#			We could set the current directory to this.
+#	$filename	The name of the file, relative to the archive base.
+#
+#	Content-ID: <$filename%$listreq>
+#			In the header of the mail (so we can egrep for the
+#			name).
+
+#
+# Some sample templates follow:
+#
+# Note that some types are mere conjectures, i.e. there is no such official
+# type yet.
+#
+
+:0 wfh
+* ^Content-ID: <[^%]*\.rtf%
+| $formail -I "Content-Type: text/richtext"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.TeX%
+| $formail -I "Content-Type: text/TeX"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.dvi%
+| $formail -I "Content-Type: text/dvi"
+
+:0 EB wfh
+* ^^(From .+$(>From .+$)*)?	\
+  [-_a-z0-9]+:.*$([	 ].*$)* \
+  [-_a-z0-9]+:.*$([	 ].*$)*
+| $formail -I "Content-Type: message/rfc822"
+
+:0 EB wfh
+* ^^%!
+| $formail -I "Content-Type: application/postscript"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.gif%
+| $formail -I "Content-Type: image/gif"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.tar%
+| $formail -I "Content-Type: application/tar"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.zip%
+| $formail -I "Content-Type: application/zip"
+
+:0 E wfh
+* ^Content-ID: <[^%]*\.gz%
+| $formail -I "Content-Type: application/gzip"
+
+#########################################################
+# If any of them matched, encode and output the message #
+#########################################################
+
+:0
+* ^Content-Type:
+{
+  :0
+  * !^Content-Transfer-Encoding:
+  {
+    :0 B
+    * [^- -~-]
+    {
+      :0 wfb
+      | $mimencode
+
+      :0 wfh
+      | $formail -I "Content-Encoding: base64"
+    }
+  }
+
+  :0 wfh
+  * !^MIME-Version:
+  | $formail -I "MIME-Version: 1.0"
+
+  :0
+  |
+}
+
+#
+# Simply drop off the end, to proceed with default processing.
+#

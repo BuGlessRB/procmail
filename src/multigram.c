@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.48 1994/04/12 13:21:54 berg Exp $";
+ "$Id: multigram.c,v 1.49 1994/05/05 15:54:25 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/04/12 13:21:54 $";
+static /*const*/char rcsdate[]="$Date: 1994/05/05 15:54:25 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -64,7 +64,7 @@ struct string{char*text,*itext;size_t textlen,buflen;};
 
 static remov_delim,maxgram;
 
-strnIcmp(a,b,l)const char*a,*b;size_t l;			     /* stub */
+int strnIcmp(a,b,l)const char*a,*b;size_t l;			     /* stub */
 { return strncmp(a,b,l);
 }
 		    /* read a string from a file into a struct string buffer */
@@ -184,7 +184,7 @@ static char*lastdirsep(filename)const char*filename;
   return(char*)filename;
 }
 						   /* check rc.lock file age */
-static rclock(file,stbuf)const char*const file;struct stat*const stbuf;
+static int rclock(file,stbuf)const char*const file;struct stat*const stbuf;
 { int waited=0;
   while(!stat(file,stbuf)&&time((time_t*)0)-stbuf->st_mtime<DEFlocktimeout)
      waited=1,sleep(DEFlocksleep);		     /* wait, if appropriate */
@@ -216,7 +216,7 @@ shftleft:
 
 static PROGID;
 
-static matchgram(fuzzstr,hardstr)
+static int matchgram(fuzzstr,hardstr)
 const struct string*const fuzzstr;struct string*const hardstr;
 { size_t minlen,maxlen;unsigned maxweight;int meter;
   register size_t gramsize;

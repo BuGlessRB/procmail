@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.27 1994/04/14 12:32:49 berg Exp $
+#$Id: arch_retrieve,v 1.28 1994/05/05 15:52:47 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -11,6 +11,8 @@ sed=sed			# /bin/sed
 cat=cat			# /bin/cat
 egrep=egrep		# /bin/egrep
 nice=nice		# /bin/nice
+mimesend		# SedHomeDir/.bin/mimesend
+mimencode=mimencode	# /usr/local/bin/mimencode	# metamail MIME package
 formail=formail		# /usr/local/bin/formail
 
 $test -z "$listaddr" &&
@@ -28,6 +30,8 @@ tmpfrom=tmp.from
 
 archivedir=archive
 
+export tmprequest archivedir	# for mimesend
+
 standalone=$1
 
 from=`$echo "arch_retrieve:" \`$cat $tmpfrom\` requested`
@@ -37,8 +41,16 @@ case "$X_ENVELOPE_TO" in
   *$list-request*) wrongaddress="" ;;
   *) wrongaddress="WARNING:
 	Please try to use '$listreq'
-	the next time when issuing archive server requests.
-" ;;
+	the next time when issuing archive server requests." ;;
+esac
+
+#
+# Check if mimencode is available
+#
+
+case `( exec 2>&1; exec $mimencode -)` in
+   Usage:*) ;;
+   *) mimencode="";;
 esac
 
 $formail -k -xSubject: |
@@ -47,8 +59,8 @@ $formail -k -xSubject: |
  (  oldwrongaddress="$wrongaddress"
     wrongaddress="WARNING:
 	Please make sure to start the Subject: of requests to the archive-
-	server with the word archive.
-$wrongaddress"
+	server with the word archive.${wrongaddress:+
+$wrongaddress}"
    sendhelp=""
    ILLEGAL=""
    while read line
@@ -91,22 +103,38 @@ $wrongaddress"
 			$echo $from ILLEGAL "$1" >>$tmpfrom
 			$test -z "$ILLEGAL" && ILLEGAL="$1";;
 		     *) $echo $from "$1" >>$tmpfrom
+			if $test -z "$mimencode"
+			then
 		      ( $formail -rt -I"Subject: archive retrieval: $1" \
 			 -i"From: $listreq" -A"X-Loop: $listaddr" \
 			 -i"Content-ID: <$1%$listreq>" \
-			 -I"Precedence: bulk" <$tmprequest
-			$test ! -z "$wrongaddress" && $echo "$wrongaddress"
+			 -I"Precedence: bulk" -X "" <$tmprequest
 			cd $archivedir
 			if $test -f "./$1"
 			then
-			   $echo "File: $1"
-			   $echo "BEGIN--------------cut here-----------------"
-			   $cat "./$1"
-			   $echo "END----------------cut here-----------------"
+			   case `$sed -e 1q <"./$1"` in
+			      Content-[Tt]ype:*) $test ! -z "$wrongaddress" &&
+					       $echo "$wrongaddress"
+				 $cat "./$1" ;;
+			      *) $echo ""
+				 $test ! -z "$wrongaddress" &&
+				  $echo "$wrongaddress"
+				 $echo "File: $1"
+				 $echo "BEGIN------------cut here-------------"
+				 $cat "./$1"
+				 $echo "END--------------cut here-------------"
+				 ;;
+			   esac
 			else
+			   $echo ""
+			   $test ! -z "$wrongaddress" && $echo "$wrongaddress"
 			   $echo "File $1 is not available."
 			fi
-		      ) | $SENDMAIL $sendmailOPT -t ;;
+		      ) | $SENDMAIL $sendmailOPT -t
+			else
+			   $mimesend "$1"
+			fi
+		      ;;
 		  esac
 		  shift
 	       done

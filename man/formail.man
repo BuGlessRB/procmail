@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.18 1994/04/05 15:33:45 berg Exp $
+.Id $Id: formail.man,v 1.19 1994/05/05 15:53:21 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -274,8 +274,8 @@ File table full
 Too many open files on this machine.
 .TP
 Invalid field-name: "x"
-The specified field-name "x" does not contain a colon or contains control
-characters.
+The specified field-name "x" contains control characters, or cannot be a
+partial field-name for this option.
 .SH WARNINGS
 You can save yourself and others a lot of mischief if you try to avoid using
 this autoreply feature on mails coming through mailinglists.  Depending

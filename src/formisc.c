@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formisc.c,v 1.23 1994/04/05 15:34:35 berg Exp $";
+ "$Id: formisc.c,v 1.24 1994/05/05 15:53:54 berg Exp $";
 #endif
 #include "includes.h"
 #include "formail.h"
@@ -97,7 +97,7 @@ void loadchar(c)const int c;		      /* append one character to buf */
   buf[buffilled++]=c;
 }
 
-getline P((void))			   /* read a newline-terminated line */
+int getline P((void))			   /* read a newline-terminated line */
 { if(buflast!=EOF)			     /* do we still have a leftover? */
      loadchar(buflast);				  /* load it into the buffer */
   if(buflast!='\n')

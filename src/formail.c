@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.42 1994/04/12 16:28:06 berg Exp $";
+ "$Id: formail.c,v 1.43 1994/05/05 15:53:49 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/04/12 16:28:06 $";
+static /*const*/char rcsdate[]="$Date: 1994/05/05 15:53:49 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -115,7 +115,7 @@ static void logfolder P((void))	 /* estimate the no. of characters needed to */
    }
 }
     /* checks if the last field in rdheader looks like a known digest header */
-static digheadr P((void))
+static int digheadr P((void))
 { char*chp;int i;size_t j;struct field*fp;
   for(fp=rdheader;fp->fld_next;fp=fp->fld_next);	 /* skip to the last */
   i=maxindex(cdigest);chp=fp->fld_text;j=fp->id_len;
@@ -124,7 +124,7 @@ static digheadr P((void))
    j>STRLEN(x_)&&!strnIcmp(x_,chp,STRLEN(x_));
 }
 
-static artheadr P((void))	     /* could it be the start of an article? */
+static int artheadr P((void))	     /* could it be the start of an article? */
 { if(!rdheader&&!strncmp(buf,Article_,STRLEN(Article_)))
    { addbuf();rdheader->id_len=STRLEN(Article_);return 1;
    }
@@ -644,7 +644,7 @@ eqFrom_(a)const char*const a;
 { return!strncmp(a,From_,STRLEN(From_));
 }
 
-breakfield(line,len)const char*const line;size_t len;	   /* look where the */
+int breakfield(line,len)const char*const line;size_t len;  /* look where the */
 { const char*p=line;			   /* fieldname ends (RFC 822 specs) */
   if(eqFrom_(p))				      /* special case, From_ */
      return STRLEN(From_);

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.76 1994/04/14 12:12:20 berg Exp $";
+ "$Id: procmail.c,v 1.77 1994/05/05 15:54:42 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -168,7 +168,7 @@ conflopt:  nlog(conflicting),elog("options\n"),elog(pmusage);
 	    }
 	 }
 privileged:				       /* move stdout out of the way */
-	endgrent();umask(INIT_UMASK);savstdout=rdup(STDOUT);
+	endgrent();doumask(INIT_UMASK);savstdout=rdup(STDOUT);
 	fclose(stdout);rclose(STDOUT);			/* just to make sure */
 	if(0>opena(devnull))
 	 { writeerr(devnull);return EX_OSFILE;	     /* couldn't open stdout */
@@ -405,7 +405,7 @@ Setuser: { gid=pass->pw_gid;uid=pass->pw_uid;
 	       (rcstate=rc_NOSGID,0))&&
 	      (stbuf.st_mode&(S_IWGRP|S_IXGRP|S_IWOTH))==(S_IWGRP|S_IXGRP))
 	    { if(!Deliverymode)		     /* we aren't the only deliverer */
-		 umask(INIT_UMASK&~S_IRWXG);	   /* make it group-writable */
+		 doumask(INIT_UMASK&~S_IRWXG);	   /* make it group-writable */
 	      goto keepgid;
 	    }
 	   else if(stbuf.st_mode&S_ISGID)
@@ -450,6 +450,8 @@ boglock:	       if(!goodlock)	      /* try & rename bogus lockfile */
 		 else if(stbuf.st_uid!=uid)	      /* recipient not owner */
 bogusbox:	  { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
 		     strchr(strcpy(buf+i,BOGUSprefix),'\0'));	    /* bogus */
+		    nlog("Renaming bogus mailbox \"");nlog(chp);
+		    nlog("\" into");logqnl(buf);
 		    if(rename(chp,buf))	   /* try and move it out of the way */
 		       goto fishy;  /* rename failed, something's fishy here */
 		  }				/* SysV type autoforwarding? */
@@ -457,7 +459,12 @@ bogusbox:	  { ultoan((unsigned long)stbuf.st_ino,	  /* i-node numbered */
 		  { nlog("Autoforwarding mailbox found\n");return EX_NOUSER;
 		  }
 		 else
+		  { if(stbuf.st_mode&cumask)
+		     { nlog("Enforcing stricter permissions on");logqnl(chp);
+		       setids();chmod(chp,stbuf.st_mode&=~cumask);
+		     }
 		    break;			  /* everything is just fine */
+		  }
 	    }
 	   if(!(accspooldir&1))	     /* recipient does not own the spool dir */
 	    { if(!xcreat(chp,NORMperm,(time_t*)0,doCHOWN|doCHECK)) /* create */
@@ -475,7 +482,7 @@ fishy:	    { nlog("Couldn't create");logqnl(chp);sputenv(orgmail);
 	      break;
 	    }
 	 }					/* bad news, be conservative */
-	umask(INIT_UMASK);
+	doumask(INIT_UMASK);
       }
      while(chp=(char*)argv[argc])      /* interpret command line specs first */
        /*
@@ -884,10 +891,10 @@ forward:	 if(locknext)
 		 if(flags[FILTER])
 		  { if(startchar==themail&&tobesent!=filled)  /* if only 'h' */
 		     { if(!pipthrough(buf,startchar,tobesent))
-			  succeed=1,readmail(1,tobesent);
+			  readmail(1,tobesent),succeed=!pipw;
 		     }
 		    else if(!pipthrough(buf,startchar,tobesent))
-		       succeed=1,filled=startchar-themail,readmail(0,0L);
+		       filled=startchar-themail,readmail(0,0L),succeed=!pipw;
 		  }
 		 else if(Stdout)		  /* capturing stdout again? */
 		  { if(!pipthrough(buf,startchar,tobesent))
@@ -901,7 +908,8 @@ forward:	 if(locknext)
 	   else if(testb(EOF))
 	      nlog("Incomplete recipe\n");
 	   else		   /* dump the mail into a mailbox file or directory */
-	    { if(flags[FILTER])
+	    { int ofiltflag;
+	      if(ofiltflag=flags[FILTER])
 		 flags[FILTER]=0,nlog(extrns),elog("filter-flag"),elog(ignrd);
 	      if(chp=gobenv(buf))	   /* can it be an environment name? */
 	       { if(skipspace())
@@ -970,7 +978,9 @@ forward:	 if(locknext)
 		 skiprc++;		  /* temporarily disable subprograms */
 	      readparse(chp,getb,0);
 	      if(i)
-tostdout:      { strcpy(buf2,buf);
+	       { if(ofiltflag)	 /* protect those who use bogus filter-flags */
+		    startchar=themail,tobesent=filled; /* save whole message */
+tostdout:	 strcpy(buf2,buf);
 		 if(locknext)
 		    lcllock();		     /* write to a file or directory */
 		 inittmout(buf);	  /* to break messed-up kernel locks */

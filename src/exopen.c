@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: exopen.c,v 1.18 1994/04/14 12:12:08 berg Exp $";
+ "$Id: exopen.c,v 1.19 1994/05/05 15:53:44 berg Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -15,7 +15,7 @@ static /*const*/char rcsid[]=
 #include "common.h"
 #include "exopen.h"
 
-unique(full,p,mode,verbos,chownit)const char*const full;char*p;
+int unique(full,p,mode,verbos,chownit)const char*const full;char*p;
  const mode_t mode;const int verbos,chownit;
 { unsigned long retry=mrotbSERIAL;int i;struct stat filebuf;
   int nicediff,didnice=0;
@@ -64,12 +64,12 @@ ret0:	return 0;
   rclose(i);return 1;
 }
 				     /* rename MUST fail if already existent */
-myrename(old,newn)const char*const old,*const newn;
+int myrename(old,newn)const char*const old,*const newn;
 { int i,serrno;
   i=hlink(old,newn);serrno=errno;unlink(old);errno=serrno;return i;
 }
 		 /* hardlink with fallback for systems that don't support it */
-hlink(old,newn)const char*const old,*const newn;
+int hlink(old,newn)const char*const old,*const newn;
 { if(link(old,newn))				      /* try a real hardlink */
    { int i,serrno;struct stat stbuf;
      serrno=errno;i=lstat(old,&stbuf);errno=serrno;

@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.47 1994/04/14 12:11:42 berg Exp $*/
+/*$Id: config.h,v 1.48 1994/05/05 15:52:25 berg Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -112,18 +112,18 @@
 #define DEFsuspend	16		 /* multi-purpose 'idle loop' period */
 #define DEFlocksleep	8
 #define TOkey		"^TO"
-#define TOsubstitute	\
- "(^((Resent-)?(To|Cc|Bcc)|(X-Envelope|Apparently)-To):(.*[^a-zA-Z])?)"
+#define TOsubstitute	"(^((Resent-)?(To|Cc|Bcc)|\
+(X-Envelope|Apparently(-Resent)?)-To):(.*[^a-zA-Z])?)"
 #define FROMDkey	"^FROM_DAEMON"		     /* matches most daemons */
 #define FROMDsubstitute "(^(Precedence:.*(junk|bulk|list)|\
-(((Resent-)?(From|Sender)|X-Envelope-From):|>?From )(.*[^.%@a-z0-9])?(\
+(((Resent-)?(From|Sender)|X-Envelope-From):|>?From )(.*[^(.%@a-z0-9])?(\
 Post(ma?(st(e?r)?|n)|office)|Mail(er)?|daemon|mmdf|root|uucp|LISTSERV|owner|\
-request|bounce|serv(ices?|er)|Admin(istrator)?)([^.!:a-z0-9].*)?$[^>]))"
+request|bounce|serv(ices?|er)|Admin(istrator)?)([^).!:a-z0-9].*)?$[^>]))"
 #define FROMMkey	"^FROM_MAILER"	      /* matches most mailer-daemons */
 #define FROMMsubstitute "(^(((Resent-)?(From|Sender)|X-Envelope-From):|\
 >?From )(.*[^(.%@a-z0-9])?(Post(ma(st(er)?|n)|office)|Mail(er)?|daemon|mmdf|\
 root|uucp|serv(ices?|er)|Admin(istrator)?)([^).!:a-z0-9].*)?$[^>])"
-#define DEFshellmetas	"&|<>~;?*[\\\n"		    /* never put '$' in here */
+#define DEFshellmetas	"&|<>~;?*["		    /* never put '$' in here */
 #define DEFmaildir	"$HOME"
 #define DEFdefault	"$ORGMAIL"
 #define DEFmsgprefix	"msg."

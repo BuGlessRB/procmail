@@ -22,7 +22,7 @@ Contents:
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.29 1994/04/12 13:20:47 berg Exp $
+$Id: Manual,v 1.30 1994/05/05 15:52:39 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -351,8 +351,8 @@ and one for thelist-request@domain.
 
 Whenever mail arrives for either address, the following happens:
 	- flist is started suid root with thelist as its argument
-		- changes its current directory to that of the internally
-		  main list directory
+		- changes its current directory to that of the (internally
+		  hardcoded) main list directory
 		- changes its uid and gid to that of the (internally
 		  hardcoded) list account
 		- changes its current directory to that of thelist
@@ -426,10 +426,22 @@ outside the "scuba/archive" directory.	Any text-file that you put in
 the "scuba/archive" directory (or any of its subdirectories) can now be
 retrieved by the archive commands.
 
+If a file requested via the archive server starts with a header containing
+`Content-Type:', then the file is sent out as is, without encapsulation.
+This allows you to prepare the files in special formats that are directly
+supported by the recipient's mailuser agent.  The leading Content-Type: and
+any immediately following fields will become part of the header.
+
+All other files are MIME-encapsulated before transmission.  You should take
+a look at /home/list/.bin/mimencap.local if you want to extend or customise
+the recognised file types.
+
 If you put links in the "scuba/archive" tree, you can allow the archive
 server to retrieve files from other parts of the filesystem.
 
 The whole archive server can be found in the .bin/arch_retrieve script.
+The archive server can be extended with arbitrary commands via the
+examples/retrieve.local script that comes with the distribution.
 
 
 5. The format of the dist file
@@ -551,6 +563,9 @@ mail to the subscribers concurrently.  The various limits that can be
 imposed on this process can be tuned in the rc.init file.
 
 Most sendmails will do a worse job without choplist as a preprocessor.
+
+A side effect of using choplist as a preprocessor is that there is no need for
+a -dist alias anymore.
 
 
 8. FTP addresses & the SmartList mailinglist

@@ -1,0 +1,38 @@
+# procmail rcfile
+#########################################################################
+#	mimencap	Encapsulates a file in the necessary MIME	#
+#			wrapper						#
+#									#
+#	Created by S.R. van den Berg, The Netherlands			#
+#########################################################################
+#$Id: mimencap,v 1.1 1994/05/05 15:52:53 berg Exp $
+
+DEFAULT=|
+
+:0
+* ^Content-Type:
+|
+
+INCLUDERC=../SedBinDir/mimencap.local
+
+:0
+* !^Content-Transfer-Encoding:
+{
+  :0 B
+  * [^- -~-]
+  {
+    :0 wfb
+    | $mimencode -q
+
+    :0 wfh
+    | $formail -I "MIME-Version: 1.0" \
+       -I "Content-Transfer-Encoding: quoted-printable"
+
+    :0
+    |
+  }
+}
+
+:0 wfh
+* !^MIME-Version:
+| $formail -I "MIME-Version: 1.0"

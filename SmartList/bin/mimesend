@@ -1,0 +1,66 @@
+#! /bin/sh
+: &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
+$O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
+#########################################################################
+#	mimesend	Sends a MIME encapsulated file			#
+#									#
+#	Created by S.R. van den Berg, The Netherlands			#
+#########################################################################
+#$Id: mimesend,v 1.1 1994/05/05 15:52:57 berg Exp $
+
+echo=echo		# /bin/echo
+test=test		# /bin/test
+rm=rm			# /bin/rm
+splitmail=splitmail	# /usr/local/bin/splitmail	# MIME metamail package
+mimencode=mimencode	# /usr/local/bin/mimencode	# MIME metamail package
+formail=formail		# /usr/local/bin/formail
+
+$test 1 != $# && $echo "Usage: mimesend filename" 1>&2 &&
+ exit 64
+
+$test -z "$archivedir" &&
+ $echo "mimesend: some environment variables need to be set" 1>&2 && exit 64
+
+TMPF=/tmp/ms$$.
+
+trap "$rm -f \$TMPF*; exit 1" 1 2 3 15
+
+$rm -f $TMPF*
+
+filename=$1
+
+export filename archivedir mimencode formail	# for mimencap
+
+( $formail -rt -I"Subject: archive retrieval: $1" \
+   -i"From: $listreq" -A"X-Loop: $listaddr" \
+   -i"Content-ID: <$filename%$listreq>" \
+   -I"Precedence: bulk" -X "" <$tmprequest
+  $test ! -z "$wrongaddress" && $echo "$wrongaddress"
+  cd $archivedir
+  if $test -f "./$filename"
+  then
+     $cat "./$filename"
+  else
+     $echo "MIME-Version: 1.0"
+     $echo "Content-Type: text/plain"
+     $echo ""
+     $echo "File $filename is currently not available."
+  fi
+) | $formail -fb | $procmail -pm ./../SedBinDir/mimencap | $splitmail -p $TMPF
+
+set dummy $TMPF*
+shift
+
+if $test $# = 1
+then
+  $SENDMAIL $sendmailOPT -t <$1
+else
+  for a in "$@"
+  do
+     $formail -A"X-Loop: $listaddr" -I"Precedence: bulk" <"$a" |
+      $SENDMAIL $sendmailOPT -t
+     $rm -f "$a"
+  done
+fi
+
+$rm -f $TMPF*

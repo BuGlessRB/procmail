@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.44 1994/04/14 12:23:49 berg Exp $
+.Id $Id: procmail.man,v 1.45 1994/05/05 15:53:25 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -91,11 +91,11 @@ Force a timeout (see
 .TP
 .B USR1
 Equivalent to a
-.BR VERBOSE =off.
+.BR VERBOSE =on.
 .TP
 .B USR2
 Equivalent to a
-.BR VERBOSE =on.
+.BR VERBOSE =off.
 .SH OPTIONS
 .TP 0.5i
 .B \-@VERSIONOPT@
@@ -297,6 +297,10 @@ Deadlock attempted on "x"
 The locallockfile specified on this recipe is equal to a still active
 $LOCKFILE.@ETCRCS_error@
 .TP
+Enforcing stricter permissions on "x"
+The system mailbox of the recipient was found to be unsecured, procmail
+secured it.
+.TP
 Error while writing to "x"
 Nonexistent subdirectory, no write permission, pipe died or disk full.
 .TP
@@ -385,6 +389,10 @@ usual.
 Program failure (nnn) of "x"
 Program that was started by procmail returned nnn instead of EX_OK (=@EX_OK@);
 if nnn is negative, then this is the signal the program died on.
+.TP
+Renaming bogus mailbox "x" into "x"
+The system mailbox of the recipient was found to be bogus, procmail performed
+evasive actions.
 .TP
 Skipped: "x"
 Couldn't do anything with "x" in the rcfile (syntax error), ignoring it.

@@ -9,7 +9,7 @@
  *	it in the next release.						*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.29 1994/04/12 15:55:26 berg Exp $*/
+/*$Id: header.h,v 1.30 1994/05/05 15:54:02 berg Exp $*/
 
 X(returnpath,		"Return-Path:")				  /* RFC 822 */
 X(received,		"Received:")				/* ditto ... */
@@ -44,6 +44,8 @@ X(recvddate,		"Received-Date:")
 X(mssage,		"Message:")
 X(text,			"Text:")
 X(via,			"Via:")
+X(apparentlyto,		"Apparently-To:")
+X(apresto,		"Apparently-Resent-To:")
 X(x400received,		"X400-Received:")
 X(x400originator,	"X400-Originator:")
 X(x400rcipients,	"X400-Recipients:")
@@ -82,6 +84,17 @@ X(cnttransferenc,	"Content-Transfer-Encoding:")		/* ditto ... */
 X(cntid,		"Content-ID:")
 X(cntdescription,	"Content-Description:")
 X(cntdisposition,	"Content-Disposition:")
+X(accept,		"Accept:")			   /* HTTP extension */
+X(spublic,		"Public:")				/* ditto ... */
+X(allow,		"Allow:")		      /* or is it Allowed: ? */
+X(lastmodified,		"Last-Modified:")
+X(uri,			"URI:")
+X(vversion,		"Version:")
+X(derivedfrom,		"Derived-From:")
+X(cntlanguage,		"Content-Language:")	     /* or is it Language: ? */
+X(cost,			"Cost:")
+X(wwwlink,		"WWW-Link:")			 /* or is it Link: ? */
+X(acknowledgeto,	"Acknowledge-To:")		   /* MMDF extension */
 X(transportoptions,	"Transport-Options:")	    /* SysV mailer extension */
 X(defltoptions,		"Default-Options:")
 X(cntlength,		"Content-Length:")
