@@ -20,6 +20,9 @@ src/autoconf	The shell script that seizes your compiler and machine,
 		and then creates a file called autoconf.h describing the
 		kludges that are going to be applied for your installation.
 
+new/*		After a "make", all the files that will be installed can be
+		found here (for inspection, if you like).
+
 man/*		Yes, the man pages (made in a labour camp) and two additional
 		files which make these man pages auto-adapting.
 man/Makefile.0	Used by initmake to customise the Makefile.
@@ -38,7 +41,9 @@ examples/advanced
 		Some extra info for network mounted mailboxes, examples of
 		advanced .procmailrc expressions and using procmail as
 		a local delivery agent.
-mailinlist/*	All you need to start up a mailinglist.
-mailinglist/intro
+mailinglist/*	All you need to start up a mailinglist.
+mailinglist/FEATURES
+		A summary of all the things this mailinglist package will take
+		care of.
+mailinglist/INTRO
 		Comprehensive introduction on maintaining a mailinglist.
-examples/listrc Model-rcfile for use in mailinglists.
