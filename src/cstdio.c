@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: cstdio.c,v 1.37 1999/04/13 06:32:06 guenther Exp $";
+ "$Id: cstdio.c,v 1.38 1999/04/13 06:35:44 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -49,7 +49,7 @@ rerr:	   readerr(name);
    }
   skiprc=0;						  /* bye bye braces! */
   poprc();		 /* drop the current rcfile and restore the previous */
-ret:
+ret:;
 }
 
 void duprcs P((void))		/* `duplicate' all the fds of opened rcfiles */
