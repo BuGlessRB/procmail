@@ -19,9 +19,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.93 1999/11/22 05:40:45 guenther Exp $";
+ "$Id: multigram.c,v 1.94 2000/06/12 04:52:36 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/11/22 05:40:45 $";
+static /*const*/char rcsdate[]="$Date: 2000/06/12 04:52:36 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -342,8 +342,9 @@ Usage: flist listname[-request]\n\
 	     /*
 	      * continue as the compile-time-determined list maintainer
 	      */
-	      setgid(pass->pw_gid);initgroups(listid,pass->pw_gid);
-	      setuid(pass->pw_uid);
+	      if(setgid(pass->pw_gid)||initgroups(listid,pass->pw_gid)||
+	       setuid(pass->pw_uid))		 /* this can fail on certain */
+		 return EX_OSERR;	 /* broken systems e.g. Linux 2.2.14 */
 	    }
 	   else if(!(pass=getpwuid(euid)))
 	    { nlog("Euid");fprintf(stderr," %d",(int)euid);
@@ -411,7 +412,9 @@ nochdir: { nlog("Couldn't chdir to");logqnl(chp);
     /*
      *	revoke any suid permissions now, since we're not flist
      */
-     setgid(getgid());setuid(getuid());
+     if((setgid(getgid())&&getgid()!=getegid())||
+      (setuid(getuid())&&getuid()!=geteuid()))
+	return EX_OSERR;		       /* this _really_ can't happen */
      if(ISPROGRAM(chp,idhash))				  /* idhash program? */
       { unsigned long hash=0;int i;
 	progname=idhash;
