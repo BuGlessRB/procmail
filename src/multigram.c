@@ -3,6 +3,8 @@
  *									*
  *	It uses multigrams to intelligently filter out mail addresses	*
  *	from the garbage in any arbitrary mail.				*
+ *	This program also contains some swiss-army-knife mailinglist	*
+ *	support features.						*
  *									*
  *	Seems to be relatively bug free.				*
  *									*
@@ -11,9 +13,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.16 1993/01/19 18:30:38 berg Exp $";
+ "$Id: multigram.c,v 1.17 1993/01/20 14:25:10 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1993/01/19 18:30:38 $";
+static /*const*/char rcsdate[]="$Date: 1993/01/20 14:25:10 $";
 #include "includes.h"
 #include "sublib.h"
 #include "shell.h"
@@ -50,10 +52,10 @@ struct string{char*text,*itext;size_t buflen;};
 
 static remov_delim;
 
-strnIcmp(a,b,l)const char*a,*b;size_t l;
+strnIcmp(a,b,l)const char*a,*b;size_t l;			     /* stub */
 { return strncmp(a,b,l);
 }
-
+		    /* read a string from a file into a struct string buffer */
 static size_t readstr(file,p,linewise)FILE*const file;struct string*p;
  const int linewise;
 { size_t len;int i,firstspc;
@@ -63,26 +65,26 @@ static size_t readstr(file,p,linewise)FILE*const file;struct string*p;
       { case ' ':case '\t':case '\n':
 	   if(!len)				  /* only skip leading space */
 	      continue;
-	   if(!linewise)
-	      break;
-	   if(!firstspc)
-	    { if(i=='\n')
-	       { p->text[len]='\0';
-		 if(++len==p->buflen)
+	   if(!linewise)		      /* do we need a complete line? */
+	      break;				       /* no, a word will do */
+	   if(!firstspc)			     /* already seen spaces? */
+	    { if(i=='\n')			     /* no, so check for EOL */
+	       { p->text[len]='\0';	  /* terminate the first word, split */
+		 if(++len==p->buflen)		 /* still buffer space left? */
 		    p->text=realloc(p->text,p->buflen+=BUFSTEP);
 		 break;
 	       }
 	      i='\0';firstspc=1;
-	    }
+	    }			 /* not the first word on the line, continue */
 	   if(i=='\n')
 	      break;
-	default:p->text[len]=i;
-	   if(++len==p->buflen)
+	default:p->text[len]=i;		      /* regular character, store it */
+	   if(++len==p->buflen)			   /* watch our buffer space */
 	      p->text=realloc(p->text,p->buflen+=BUFSTEP);
-	   continue;
+	   continue;					   /* next character */
 	case EOF:;
       }
-     p->text[len]='\0';
+     p->text[len]='\0';			 /* terminate the buffer in any case */
      if(linewise&&!remov_delim&&!strcmp(p->text,rem1str)&&
       !strcmp(p->text+sizeof rem1str,rem2str))	       /* special delimiter? */
 	remov_delim=1;
@@ -94,7 +96,7 @@ static char*tstrdup(p)const char*const p;
 { return strcpy(malloc(strlen(p)+1),p);
 }
 
-static void lowcase(str)struct string*const str;
+static void lowcase(str)struct string*const str;	   /* make lowercase */
 { register char*p;
   for(p=str->itext=tstrdup(str->text);*p;p++)
      if((unsigned)*p-'A'<'Z'-'A')
@@ -104,11 +106,11 @@ static void lowcase(str)struct string*const str;
 static void elog(a)const char*const a;
 { fputs(a,stderr);
 }
-
+							/* the program names */
 static const char idhash[]="idhash",flist[]="flist",dirsep[]=DIRSEP;
 static const char*progname="multigram";
 
-void nlog(a)const char*const a;
+void nlog(a)const char*const a;		    /* log error with identification */
 { elog(progname);elog(": ");elog(a);
 }
 						 /* finds the next character */
@@ -118,14 +120,14 @@ static char*lastdirsep(filename)const char*filename;
      filename=p+1;
   return(char*)filename;
 }
-
+						   /* check rc.lock file age */
 static void rclock(file,stbuf)const char*const file;struct stat*const stbuf;
 { while(!stat(file,stbuf)&&time((time_t*)0)-stbuf->st_mtime<DEFlocktimeout)
-     sleep(DEFlocksleep);
+     sleep(DEFlocksleep);			     /* wait, if appropriate */
 }
 
-static char*argstr(first,last)const char*first,*last;
-{ char*chp;size_t i;
+static char*argstr(first,last)const char*first,*last;		/* construct */
+{ char*chp;size_t i;				   /* an argument assignment */
   strcpy(chp=malloc((i=strlen(first))+strlen(last)+1),first);
   strcpy(chp+i,last);return chp;
 }
@@ -143,9 +145,9 @@ main(minweight,argv)char*argv[];
  "Usage: multigram [-cdmr] [-b nnn] [-l nnn] [-w nnn] [-a address] filename\n";
   if(minweight)			      /* sanity check, any arguments at all? */
    { char*chp;
-     if(!strcmp(chp=lastdirsep(argv[0]),flist))
+     if(!strcmp(chp=lastdirsep(argv[0]),flist))		 /* suid flist prog? */
       { struct stat stbuf;
-	*chp='\0';
+	*chp='\0';			    /* security check, 3 hardlinks!? */
 	if(!chdir(argv[0])&&!lstat(flist,&stbuf)&&S_ISREG(stbuf.st_mode)&&
 	 stbuf.st_mode&S_ISUID&&stbuf.st_uid==geteuid()&&stbuf.st_nlink==3&&
 	 !chdir(chPARDIR))
@@ -154,35 +156,35 @@ main(minweight,argv)char*argv[];
 	    *pmexec[]={PROCMAIL,RCSUBMIT,RCINIT,0,0,rcrequest,rcpost,0};
 #define Endpmexec(i)	(pmexec[maxindex(pmexec)-(i)])
 	   char*arg;
-	   if(minweight!=2)
+	   if(minweight!=2)		       /* wrong number of arguments? */
 	    { elog("Usage: flist listname[-request]\n");return EX_USAGE;
 	    }
-	   chp=strchr(arg=argv[1],'\0');
+	   chp=strchr(arg=argv[1],'\0');	       /* check for -request */
 	   if(chp-arg>STRLEN(request)&&!strcmp(chp-=STRLEN(request),request))
 	      *chp='\0',pmexec[1]=rcrequest,Endpmexec(1)=0,Endpmexec(2)=rcpost;
 	   else
 	      chp=0;
-	   if(chdir(arg))
-	      pmexec[1]=RCMAIN,Endpmexec(2)=0;
-	   Endpmexec(4)=argstr(list,arg);
-	   if(chp)
-	      *chp= *request;
+	   if(chdir(arg))		     /* goto the list's subdirectory */
+	      pmexec[1]=RCMAIN,Endpmexec(2)=0;	   /* oops, nonexistant list */
+	   Endpmexec(4)=argstr(list,arg);	    /* pass on the list name */
+	   if(chp)				  /* was it a -request list? */
+	      *chp= *request;		     /* then restore the leading '-' */
 	   Endpmexec(3)=argstr(xenvlpto,arg);setuid(stbuf.st_uid);
-	   setgid(stbuf.st_gid);rclock(GLOCKFILE,&stbuf);
+	   setgid(stbuf.st_gid);rclock(GLOCKFILE,&stbuf);	    /* stall */
 	   rclock(LLOCKFILE,&stbuf);
-	   execve(pmexec[0],(char*const*)pmexec,environ);
+	   execve(pmexec[0],(char*const*)pmexec,environ);  /* start procmail */
 	   nlog("Couldn't exec \"");elog(pmexec[0]);elog("\"\n");
-	   return EX_UNAVAILABLE;
+	   return EX_UNAVAILABLE;				    /* panic */
 	 }
 	nlog("Missing permissions\n");return EX_NOPERM;
       }
-     setuid(getuid());
-     if(!strcmp(chp,idhash))
+     setgid(getgid());setuid(getuid());		  /* revoke suid permissions */
+     if(!strcmp(chp,idhash))				  /* idhash program? */
       { unsigned long hash=0;int i;
 	if(minweight!=1)
 	 { elog("Usage: idhash\n");return EX_USAGE;
 	 }
-	while(i=fgetc(stdin),!feof(stdin))
+	while(i=fgetc(stdin),!feof(stdin))		       /* hash away! */
 	   hash=hash*67067L+i;
 	printf("%lx",hash);return EX_OK;
       }
@@ -237,7 +239,7 @@ lastopt:
      if(!(hardfile=fopen(chp,remov||renam||addit?"r+":"r")))
       { nlog("Couldn't open \"");elog(chp);elog("\"\n");return EX_IOERR;
       }
-#ifdef SPEEDBUF
+#ifdef SPEEDBUF				   /* allocate a bigger stdio buffer */
      setvbuf(hardfile,malloc(SPEEDBUF),_IOFBF,(size_t)SPEEDBUF);
 #endif
    }
@@ -245,19 +247,19 @@ lastopt:
 usg:
    { elog(usage);return EX_USAGE;
    }
-  if(addit)
-   { int lnl;long lasttell;
+  if(addit)			      /* special subfunction, to add entries */
+   { int lnl;long lasttell;				 /* to the dist file */
      for(lnl=1,lasttell=0;;)
-      { switch(getc(hardfile))
+      { switch(getc(hardfile))			    /* step through the file */
 	 { case '\n':
-	      if(!lnl)
+	      if(!lnl)			    /* looking for trailing newlines */
 		 lnl=1,lasttell=ftell(hardfile);
 	      continue;
 	   default:lnl=0;continue;
-	   case EOF:;
+	   case EOF:;				   /* or the end of the file */
 	 }
 	break;
-      }
+      }				     /* go back there, and add the new entry */
      fseek(hardfile,lasttell,SEEK_SET);fprintf(hardfile,"%s\n",addit);
      printf("Added: %s\n",addit);fclose(hardfile);return EX_OK;
    }
@@ -335,15 +337,19 @@ shftleft:     tmemmove(chp,chp+1,strlen(chp));
 	meter=(int)((unsigned long)SCALE_WEIGHT/2*minlen/
 	 (hardlen==minlen?fuzzlen:hardlen))-SCALE_WEIGHT/2;
 	do
-	 { register lmeter=0;
+	 { register lmeter=0;		    /* reset local multigram counter */
 	   ;{ register const char*fzz,*hrd;
 	      fzz=fuzzstr.itext;
 	      do
-		 for(hrd=hardstr.itext;hrd=strchr(hrd,*fzz);)
-		    if(!strncmp(++hrd,fzz+1,gramsize))
-		     { lmeter++;break;
+	       { for(hrd=fzz+1;hrd=strchr(hrd,*fzz);)	 /* is it present in */
+		    if(!strncmp(++hrd,fzz+1,gramsize))	      /* own string? */
+		       goto double_gram; /* then skip it until it's the last */
+		 for(hrd=hardstr.itext;hrd=strchr(hrd,*fzz);)	/* otherwise */
+		    if(!strncmp(++hrd,fzz+1,gramsize))	 /* search it in the */
+		     { lmeter++;break;			       /* dist entry */
 		     }
-	      while(*(++fzz+gramsize));
+double_gram:;  }
+	      while(*(++fzz+gramsize));				/* next gram */
 	    }
 	   if(lmeter)
 	    { unsigned weight;
@@ -353,8 +359,8 @@ shftleft:     tmemmove(chp,chp+1,strlen(chp));
 	       minlen;
 	    }
 	 }
-	while(gramsize--);
-	free(hardstr.itext);
+	while(gramsize--);		 /* search all gramsizes down to one */
+	free(hardstr.itext);			 /* check if we had any luck */
 	if(meter>maxmetric&&(remov_delim||!renam&&!remov))
 	 { curmatch->metric=maxmetric=meter;curmatch->lentry=linentry;
 	   free(curmatch->hard);hardlen++;
@@ -365,11 +371,11 @@ shftleft:     tmemmove(chp,chp+1,strlen(chp));
 	 }
       }
      free(fuzzstr.itext);
-     if(curmatch->metric>=0)
-      { struct match*mp,**mmp;
+     if(curmatch->metric>=0)	 /* maybe this match can be put in the array */
+      { struct match*mp,**mmp;			   /* of best matches so far */
 	free((mp= *(mmp=best+best_matches))->fuzz);free(mp->hard);free(mp);
 	while(--mmp>=best&&(mp= *mmp)->metric<curmatch->metric)
-	   mmp[1]=mp;
+	   mmp[1]=mp;					   /* keep it sorted */
 	mmp[1]=curmatch;curmatch=0;
       }
      else

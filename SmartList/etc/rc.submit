@@ -6,7 +6,7 @@
 # shortly before writing out the new version of this file (remove the lockfile
 # afterwards of course)
 
-#$Id: rc.submit,v 1.7 1993/01/18 16:11:05 berg Exp $
+#$Id: rc.submit,v 1.8 1993/01/20 14:24:58 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -36,7 +36,7 @@ METOO=	| multigram -b1 -m -l$submit_threshold dist
 # archive the message.
 #
 
-	:1 ${foreign_submit} c
+	:1A c
 	!^X-Mailing-List:
 	archive/latest/.
 
@@ -45,7 +45,7 @@ METOO=	| multigram -b1 -m -l$submit_threshold dist
 # housekeeping chores to keep the archive current).
 #
 
-	:1 ${foreign_submit} c
+	:1A c
 	!^X-Mailing-List:
 	ARCHIVE=| arch_trunc "$-"
 
@@ -53,7 +53,7 @@ METOO=	| multigram -b1 -m -l$submit_threshold dist
 # Main header munger for submissions passing through this list.
 #
 
-	: ${foreign_submit} fh
+	: A wfh
 	| formail -b -IReceived: -IReturn-Receipt-To: -IErrors-To: \
 	   -iReturn-Path: -iX-Envelope-To: -iX-Envelope-From: \
 	   -I"Precedence: bulk" -i"Resent-Sender: $listreq" \
@@ -68,18 +68,20 @@ METOO=	| multigram -b1 -m -l$submit_threshold dist
 # is accessible to the outside world (can be queried and mailed to directly).
 #
 
-	: ${foreign_submit} : dist.lock
+	:1A w: dist.lock
+	!? test -z "$foreign_submit$METOO"
 	! $sendmailOPT $METOO $listdist
        #! $sendmailOPT $METOO `cat dist` ;
 	# alternate sendmail call
 
-#
-# The next recipe will be executed if sendmail failed to send the message to
-# all subscribers, if the submitter wasn't a subscriber, or if it seemed to
-# be a bounce message after all.
-#
+result=$?
 
-	:Afh
+	:1Awfh
+	? test 0 != $result
+	| formail -A "X-Diagnostic: $SENDMAIL $listdist failed"
+
+	:1Awfh
+	? test -z "$foreign_submit$METOO"
 	| formail -A "X-Diagnostic: Not on the subscriber list"
 
 HOST=continue_with_rc.request

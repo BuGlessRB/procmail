@@ -30,13 +30,16 @@
 # rc.request	rcfile used when processing requests
 # rc.custom	rcfile that contains all the customisations per list
 
-#$Id: rc.init,v 1.2 1993/01/15 14:40:59 berg Exp $
+#$Id: rc.init,v 1.3 1993/01/20 14:24:51 berg Exp $
 
 PATH=.:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises
 
 defaults=.etc
-LOCKTIMEOUT=256				# about 4 minutes to avoid congestion
+
+LOCKTIMEOUT=3660			# set these values this high (1 hour)
+TIMEOUT=3600				# to give sendmail the time to
+					# resolve big aliases
 
 ###############################################################################
 # You have to setup the following two assignments, make sure that the address
@@ -100,15 +103,14 @@ archive_log	=	log		# log file for archive retrievals
 maxhist		=	8		# bounce history limit
 minbounce	=	3		# no. of bounces before removal
 cutoff_bounce	=	256		# lines to keep in bounce processing
-match_threshold =	30720		# for close matches to the list
-off_threshold	=	24576		# for loosely finding your name
+match_threshold =	28672		# for close matches to the list
+off_threshold	=	20480		# for loosely finding your name
 
 reject_threshold=      $match_threshold # to determine if you may subscribe
 submit_threshold=      $match_threshold # to determine if you may submit
-foreign_submit	=	A
-#foreign_submit =	a		# uncomment this line if you *don't*
-					# want to allow non-subscribers to
-					# submit
+foreign_submit	#=	not		# uncomment this assignment if you
+					# *don't* want to allow
+					# non-subscribers to submit
 
 X_COMMAND	=	X-Command
 X_COMMAND_PASSWORD =	password	# put the global password for

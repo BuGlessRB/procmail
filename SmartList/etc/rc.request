@@ -6,7 +6,7 @@
 # shortly before writing out the new version of this file (remove the lockfile
 # afterwards of course)
 
-#$Id: rc.request,v 1.4 1993/01/15 18:16:00 berg Exp $
+#$Id: rc.request,v 1.5 1993/01/20 14:24:55 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -92,7 +92,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 # Or is it a remote X-Command from our maintainer?
 #
 
-:2f:dist.lock
+:2wf:dist.lock
 $^$X_COMMAND:.*$maintainer.*$X_COMMAND_PASSWORD
 $!^X-Loop: $listaddr
 | x_command `formail -x$X_COMMAND:`
@@ -108,15 +108,15 @@ LOGFILE=log				# log -request arrivals
 # problem (by adding X-Diagnostic: fields to the header).
 #
 
-:fh
+:wfh
 !< $size_limit
 | formail -A "X-Diagnostic: Submission size exceeds $size_limit bytes"
 
-:fh
+:wfh
 ^FROM_DAEMON
 | formail -A "X-Diagnostic: Mail coming from a daemon, ignored"
 
-:BH fh
+:BH wfh
 $^X-Loop: $listaddr
 | formail -A "X-Diagnostic: Possible loopback problem"
 
@@ -124,16 +124,16 @@ $^X-Loop: $listaddr
 !^X-(Diagnostic|Processed):
 /dev/null
 
-	:1A fh
+	:1A wfh
 	$^$X_COMMAND:
 	| formail -A "X-Diagnostic: Suspicious $X_COMMAND format"
 
-	:1A BH fh
+	:1A BH wfh
 	?multigram -b1 -l$reject_threshold reject
 	| formail -A "X-Diagnostic: Found on the reject list" \
 	   -A "X-Diagnostic: `multigram -b1 -l$reject_threshold reject`"
 
-	:2A BH fh
+	:2A BH wfh
 	^((Subject:)?[	 ]*(add|sub.*[@!])|(.*[^a-z])?(subscri.*|\
 				      (add .* to|put .* on) .* list)([^a-z]|$))
 	?multigram -b1 -l$reject_threshold dist
@@ -156,7 +156,7 @@ request
 | formail -R"From X-Envelope-From:" -iReturn-Receipt-To: \
    | $SENDMAIL $sendmailOPT -oep $maintainer
 
-:0fh
+:0wfh
 | formail -A"X-Diagnostic: Maintainer $maintainer could not be reached"
 
 HOST=continue_with_../.etc/rc.post

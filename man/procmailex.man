@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.8 1993/01/18 18:17:26 berg Exp $
+.Id $Id: procmailex.man,v 1.9 1993/01/20 14:25:02 berg Exp $
 .de Sx
 .PP
 .ne \\$1
@@ -164,8 +164,8 @@ is created automatically:
 .Sx 9
 MONTHFOLDER=`date +%y-%m`
 
-:i
-? test ! -d $MONTHFOLDER
+:+IGNORE_WRITERR+
+? test ! \-d $MONTHFOLDER
 | mkdir $MONTHFOLDER
 
 ::
@@ -175,7 +175,7 @@ ${MONTHFOLDER}/meeting
 The same as above, but now by slightly different means:
 .Sx 6
 MONTHFOLDER=`date +%y-%m`
-DUMMY=`test -d $MONTHFOLDER || mkdir $MONTHFOLDER`
+DUMMY=`test \-d $MONTHFOLDER || mkdir $MONTHFOLDER`
 
 ::
 meeting
@@ -184,18 +184,18 @@ ${MONTHFOLDER}/meeting
 To extract certain headers from a mail and put them into environment
 variables you can use any of the following constructs:
 .Sx 5
-SUBJECT=`formail -xSubject:`    # regular field
-FROM=`formail -rt -xTo:`        # special case
+SUBJECT=`formail \-+FM_EXTRACT+Subject:`    # regular field
+FROM=`formail \-+FM_REPLY++FM_TRUST+ \-+FM_EXTRACT+To:`        # special case
 
-:0h                             # alternate method
-KEYWORDS=| formail -xKeywords:
+:0+PASS_HEAD+                             # alternate method
+KEYWORDS=| formail \-+FM_EXTRACT+Keywords:
 .Ex
 If you are using temporary files in a procmailrc file, and want to make
 sure that they are removed just before procmail exits, you could use
 something along the lines of:
 .Sx 2
 TEMPORARY=/tmp/pmail.$$
-TRAP="/bin/rm -f $TEMPORARY"
+TRAP="/bin/rm \-f $TEMPORARY"
 .Ex
 The TRAP keyword can also be used to change the exitcode of procmail.
 I.e. if you want procmail to return an exitcode of `1' instead of its
@@ -207,7 +207,7 @@ TRAP="exit 1;"   # The trailing semi-colon is important
 The following recipe prints every incoming mail that looks like a postscript
 file.
 .Sx 3
-:Bb
+:+BODY_GREP++PASS_BODY+
 ^^%!
 | lpr
 .Ex
@@ -219,7 +219,7 @@ right after the
 .B first
 empty line).
 .Sx
-:2 HB b
+:2 +HEAD_GREP++BODY_GREP+ +PASS_BODY+
 ^^(.+$)*From[ :].*print-server
 ^^(.+$)*^%!
 | lpr
