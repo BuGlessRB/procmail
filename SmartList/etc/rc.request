@@ -5,7 +5,7 @@
 # New mails can be temporarily stalled by creating the file rc.lock (either in
 # ../.etc for all lists or in the current directory for this list only).
 
-#$Id: rc.request,v 1.10 1993/03/05 14:39:58 berg Exp $
+#$Id: rc.request,v 1.11 1993/03/05 18:01:30 berg Exp $
 
 INCLUDERC=$RC_INIT
 INCLUDERC=$RC_CUSTOM
@@ -48,7 +48,8 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 
 ###############################################################################
 # Reader beware, the following four regular expressions are not for the faint #
-# of heart.  It'll suffice to say that do their job 98% of time.	      #
+# of heart.  It'll suffice to say that they accomplish their intended job 98% #
+# of time.								      #
 ###############################################################################
 
 #
@@ -66,7 +67,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 #
 
 	:1HBA:dist.lock
-	^^(.+$)*Subject:[	 ]*((($.+)*$^)?[	 ]*(remove|unsub)|\
+	^^(.+$)*Subject:[	 ]*((($.+)*$(^[	 ]*)+)?(remove|unsub)|\
 	 ($(.*$)*)?(.*[^a-z])?(unsubscri|(remove .* from|take .* off) .* list\
 	 ([^a-z]|$)))
 	| unsubscribe | $SENDMAIL $sendmailOPT `cat tmp.from`
@@ -79,7 +80,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 
 	:3HBA:dist.lock
 	^^(.+$)*Subject:[	 ]*\
-	 ((($.+)*$^)?[	 ]*(add|sub(scri|	| |$)?)|\
+	 ((($.+)*$(^[	 ]*)+)?(add|sub(scri|	| |$)?)|\
 	 ($(.*$)*)?(.*[^a-z])?(subscri|(add .* to|put .* on) .* list\
 	 ([^a-z]|$)))
 	!?multigram -b1 -l$reject_threshold reject
@@ -91,7 +92,7 @@ $!^(X-(Loop: $listaddr|Diagnostic:)|$X_COMMAND)
 #
 
 	:1HBA
-	^^(.+$)*Subject:[	 ]*(($.+)*$^)?\
+	^^(.+$)*Subject:[	 ]*(($.+)*$(^[	 ]*)+)?\
 	 [a-z,.	 ]*(help|info(rm(ation)?)?)([^a-z]|$)
 	| (formail -i"From: $listreq" -rtA"X-Loop: $listaddr"; \
 	   cat help.txt) | $SENDMAIL $sendmailOPT -t

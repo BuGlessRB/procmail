@@ -1,8 +1,9 @@
 Discusses:
 		1. Getting the lot to compile
-		2. DEBUGGING AID
-		3. Setting up the environment
-		4. Extra options if you are a system administrator
+		2. IMPORTANT info for people with remote filesystems (like NFS)
+		3. DEBUGGING AID
+		4. Setting up the environment
+		5. Extra options if you are a system administrator
 
 				---
 
@@ -69,7 +70,44 @@ N.B. If you encounter any difficulty at all in installing procmail (e.g. if you
 
 				---
 
-2. DEBUGGING AID
+2. IMPORTANT info for people with remote filesystems (like NFS)
+   ------------------------------------------------------------
+
+The autoconf script tries to determine what kernel locking functions are
+available *and* reliable on your system.  In order to do this it exercises
+all the available locking methods (fcntl(), lockf() and flock()) on some
+sample files extensively.
+
+These tests produce results which depend on the filesystem which is being
+used to perform the tests.  Autoconf uses the filesystem which the procmail
+sources are on.	 If you have a local file system and a remote filesystem it
+would be advisable to copy the whole procmail distribution over to the
+remote filesystem in order to compile it from there.  This makes sure
+that the locking tests will properly reflect the locking capabilities on
+all filesystems (including the remote ones).
+
+If however you have a very heterogenous environment (like several OS versions
+on machines (perhaps even from different vendors) that have NFS mounted file
+systems all over each other), then it could happen that some tests which
+are reliable with one remote filesystem, turn out to be unreliable across
+another (it all depends on the OS versions of clients and servers).
+For those instances there are three defines in the config.h file
+(NO_fcntl_LOCK, NO_lockf_LOCK and NO_flock_LOCK).  These can be uncommented
+by hand if you know for sure that you don't want/have a particular locking
+method (or if it is known to be unreliable).
+
+The most typical case would be if you happen to be using NFS.  Autoconf
+normally is very well capable of finding out if your lockd is reliable enough.
+In a very heterogenous environment (many different servers, many different
+lockd's (of perhaps different version and patchlevel)) however, it might
+be hard to determine if all the lockd's are equally reliable.  In such a
+case (typically on SunOS :-), you might consider uncommenting both
+NO_fcntl_LOCK and NO_lockf_LOCK (NO_flock_LOCK normally doesn't rely on the
+infamous lockd, so you can leave it commented out).
+
+				---
+
+3. DEBUGGING AID
    -------------
 
 Since procmail is intended to run completely independent of any terminals, it
@@ -104,7 +142,7 @@ itself.
 
 				---
 
-3. Setting up the environment
+4. Setting up the environment
    --------------------------
 
 Every user that wants to use procmail should have a .forward and a
@@ -116,7 +154,7 @@ MMDF users should note that they need a .maildelivery file *instead* of the
 
 				---
 
-4. Extra options if you are a system administrator
+5. Extra options if you are a system administrator
    -----------------------------------------------
 
 If you are a system administrator you can decide to install procmail

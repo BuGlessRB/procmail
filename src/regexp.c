@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: regexp.c,v 1.16 1993/03/05 14:40:20 berg Exp $";
+ "$Id: regexp.c,v 1.17 1993/03/05 18:01:34 berg Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -208,7 +208,7 @@ static por(e)const struct eps*const e;
   if(!e)
    { rvold=r;
      if(cachea==(pvold=p))
-      { p=cachep;r=epso(rvold,cacher);return;
+      { p=cachep;r=epso(rvold,cacher);goto ret0;
       }
    }
   for(;;)
@@ -225,7 +225,9 @@ static por(e)const struct eps*const e;
 	      else
 		 p=pold,pnorm(e);			/* normal last group */
 	      if(!e)
-	       { cachea=pvold;cachep=p;cacher=(char*)r-(char*)rvold;goto ret0;
+	       { if(*p)
+		    p++;
+		 cachea=pvold;cachep=p;cacher=(char*)r-(char*)rvold;goto ret0;
 	       }
 	      if(*p)
 	       { p++;
