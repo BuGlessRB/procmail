@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.122 1998/11/10 06:42:43 guenther Exp $";
+ "$Id: procmail.c,v 1.123 1998/12/17 07:07:38 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -73,6 +73,7 @@ ret: return spass;
 
 #if 0
 #define wipetcrc()	(etcrc&&(etcrc=0,closerc(),1))
+#define setfdef(v)	(fdefault=(v))
 #else
 static int wipetcrc P((void))	  /* stupid function to avoid a compiler bug */
 { if(etcrc)
@@ -80,6 +81,9 @@ static int wipetcrc P((void))	  /* stupid function to avoid a compiler bug */
      return 1;
    }
   return 0;
+}
+static const char*setfdef(v)const char*v;
+{ return (fdefault=v);
 }
 #endif
 
@@ -485,13 +489,13 @@ Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
 	    }
 	 }
       }		/* set fdefault and find out the name of our system lockfile */
-     sgetcp=fdefault;readparse(buf,sgetc,2);fdefault=tstrdup(buf);
+     sgetcp=fdefault;readparse(buf,sgetc,2);setfdef(tstrdup(buf));
      strcpy(chp2=strchr(strcpy(buf,chp=(char*)getenv(orgmail)),'\0'),lockext);
      defdeflock=tstrdup(buf);sgid=egid;accspooldir=3;	/* presumed innocent */
      if(mailfilter||!screenmailbox(chp,chp2,egid,Deliverymode))
       { rcst_nosgid();sputenv(orgmail);	 /* nix delivering to system mailbox */
 	if(!strcmp(chp,fdefault))			/* DEFAULT the same? */
-	   free((char*)fdefault),fdefault="";			 /* so panic */
+	   free((char*)fdefault),setfdef("");			 /* so panic */
       }						/* bad news, be conservative */
      doumask(INIT_UMASK);
      while(chp=(char*)argv[argc])      /* interpret command line specs first */
