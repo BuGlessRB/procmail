@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.40 1994/10/18 14:29:53 berg Exp $
+.Id $Id: procmailex.man,v 1.41 1994/10/18 16:49:05 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -151,7 +151,7 @@ SHELL=/bin/sh    # for other shells, this might need adjustment
 * !^X-Loop: your@own.mail.address
 | formail \-@FM_REPLY@@FM_DUPLICATE@ 8192 vacation.cache
 
-  :0 @ALSO_N_IF_SUCC@
+  :0 @ERROR_DO@         # if the name was not in the cache
   | (formail \-@FM_REPLY@@FM_ADD_ALWAYS@"Precedence: junk" \e
        \-@FM_ADD_ALWAYS@"X-Loop: your@own.mail.address" ; \e
      echo "I received your mail,"; \e
