@@ -13,14 +13,15 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.43 1999/11/16 06:32:56 guenther Exp $";
+ "$Id: lockfile.c,v 1.44 1999/12/12 08:50:55 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1999/11/16 06:32:56 $";
+static /*const*/char rcsdate[]="$Date: 1999/12/12 08:50:55 $";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"
 #include "mcommon.h"
 #include "authenticate.h"
+#include "lastdirsep.h"
 #include "../patchlevel.h"
 
 static volatile int exitflag;
@@ -36,9 +37,8 @@ static void failure P((void))				      /* signal trap */
 }
 				    /* see locking.c for comment on xcreat() */
 static int xcreat(name,tim)const char*const name;time_t*const tim;
-{ char*p,*q;int j= -1;size_t i;struct stat stbuf;
-  for(q=(char*)name;p=strpbrk(q,dirsep);q=p+1);
-  i=q-name;
+{ char*p;int j= -1;size_t i;struct stat stbuf;
+  i=lastdirsep(name)-name;
   if(!(p=malloc(i+UNIQnamelen)))
      return exitflag=1;
   strncpy(p,name,i);

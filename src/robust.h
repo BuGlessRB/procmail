@@ -1,8 +1,9 @@
-/*$Id: robust.h,v 1.9 1999/04/19 06:42:26 guenther Exp $*/
+/*$Id: robust.h,v 1.10 1999/12/12 08:51:04 guenther Exp $*/
 
 void
  *tmalloc Q((const size_t len)),
  *trealloc Q((void*const old,const size_t len)),
+ *frealloc Q((void*const old,const size_t len)),
  tfree P((void*const p)),
  opnlog P((const char*file)),
  ssleep P((const unsigned seconds)),

@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.152 1999/11/16 06:35:07 guenther Exp $";
+ "$Id: procmail.c,v 1.153 1999/12/12 08:51:00 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -21,23 +21,25 @@ static /*const*/char rcsid[]=
 #include "robust.h"
 #include "shell.h"
 #include "misc.h"
+#include "memblk.h"
 #include "pipes.h"
 #include "common.h"
 #include "cstdio.h"
 #include "exopen.h"
-#include "regexp.h"
 #include "mcommon.h"
 #include "goodies.h"
 #include "locking.h"
 #include "mailfold.h"
 #include "lastdirsep.h"
 #include "authenticate.h"
+#include "lmtp.h"
 
 static const char*const nullp,From_[]=FROM,exflags[]=RECFLAGS,
  drcfile[]="Rcfile:",pmusage[]=PM_USAGE,*etcrc=ETCRC,
  misrecpt[]="Missing recipient\n",extrns[]="Extraneous ",ignrd[]=" ignored\n",
  pardir[]=chPARDIR,curdir[]={chCURDIR,'\0'},
  insufprivs[]="Insufficient privileges\n",
+ Fakefield[]=FAKE_FIELD,
  attemptst[]="Attempt to fake stamp by";
 char*buf,*buf2,*loclock,*tolock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
@@ -47,17 +49,19 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  procmailn[]="procmail",whilstwfor[]=" whilst waiting for ",home[]="HOME",
  host[]="HOST",*defdeflock=empty,*argv0=empty,pathtoolong[]=" path too long",
  slogstr[]="%s \"%s\"",conflicting[]="Conflicting ",orgmail[]="ORGMAIL",
- exceededlb[]="Exceeded LINEBUF\n",errwwriting[]="Error while writing to";
+ exceededlb[]="Exceeded LINEBUF\n",errwwriting[]="Error while writing to",
+ Version[]=VERSION;
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rcstate,rc= -1,
  ignwerr,lexitcode=EXIT_SUCCESS,asgnlastf,accspooldir,crestarg,skiprc,
- savstdout,berkeley,mailfilter,erestrict,ifdepth;      /* depth of outermost */
-struct dyna_long ifstack;	      /* brace in this rcfile, and the stack */
+ savstdout,berkeley,mailfilter,erestrict,Deliverymode,ifdepth;
+struct dyna_long ifstack;
 size_t linebuf=mx(DEFlinebuf+XTRAlinebuf,1024/*STRLEN(systm_mbox)<<1*/);
 volatile int nextexit;			       /* if termination is imminent */
 pid_t thepid;
 long filled,lastscore;	       /* the length of the mail, and the last score */
-char*themail,*thebody;			    /* the head and body of the mail */
+memblk themail;							 /* the mail */
+char*thebody;					  /* the body of the message */
 uid_t uid;
 gid_t gid,sgid;
 
@@ -91,7 +95,7 @@ int main(argc,argv)const char*const argv[];
   kill(getpid(),SIGSTOP);/*raise(SIGSTOP);*/
 #endif
   newid();
-  ;{ int presenviron,Deliverymode,override;char*fromwhom=0;
+  ;{ int presenviron,override;char*fromwhom=0;
      const char*idhint=0;gid_t egid=getegid();
      Deliverymode=mailfilter=override=0;
      Openlog(procmailn,LOG_PID,LOG_MAIL);		  /* for the syslogd */
@@ -101,7 +105,7 @@ int main(argc,argv)const char*const argv[];
 	for(presenviron=argc=0;(chp2=(char*)argv[++argc])&&*chp2=='-';)
 	   for(;;)				       /* processing options */
 	    { switch(*++chp2)
-	       { case VERSIONOPT:elog(procmailn);elog(VERSION);
+	       { case VERSIONOPT:elog(procmailn);elog(Version);
 		    elog("\nLocking strategies:\tdotlocking");
 #ifndef NOfcntl_lock
 		    elog(", fcntl()");		    /* a peek under the hood */
@@ -162,6 +166,11 @@ setarg:		       *argv1=chp2;restargv=argv1;crestarg=1;
 		     { Deliverymode=1;
 		       goto last_option;
 		     }
+#ifdef LMTP
+		 case LMTPOPT:
+		    Deliverymode=2;
+		    goto last_option;
+#endif
 		 case '-':
 		    if(!*chp2)
 		     { argc++;
@@ -174,23 +183,32 @@ setarg:		       *argv1=chp2;restargv=argv1;crestarg=1;
 	      break;
 	    }
       }
-     if(Deliverymode&&!(chp=chp2))
+     if(Deliverymode==1&&!(chp=chp2))
 	nlog(misrecpt),Deliverymode=0;
 last_option:
-     if(Deliverymode&&presenviron)
-      { presenviron=0;					   /* -d disables -p */
-	goto conflopt;
+     switch(Deliverymode)
+      { case 0:
+	   if(!Deliverymode)
+	      idhint=getenv(lgname);
+	   if(mailfilter&&crestarg)
+	    { crestarg=0;			     /* -m will supersede -a */
+conflopt:     nlog(conflicting);elog("options\n");elog(pmusage);
+	    }
+	   break;
+#ifdef LMTP
+	case 2:
+	   if(fromwhom)
+	    { fromwhom=0;				  /* -z disabled -f, */
+	      goto confldopt;					/* -p and -m */
+	    }
+#endif
+	case 1:
+	   if(presenviron||mailfilter)
+confldopt:  { presenviron=mailfilter=0;		    /* -d disables -p and -m */
+	      goto conflopt;
+	    }
+	   break;
       }
-     if(mailfilter)
-      { if(Deliverymode)				 /* -d supersedes -m */
-	 { mailfilter=0;
-	   goto conflopt;
-	 }
-	if(crestarg)				     /* -m will supersede -a */
-conflopt:  nlog(conflicting),elog("options\n"),elog(pmusage);
-      }
-     if(!Deliverymode)
-	idhint=getenv(lgname);
      if(!presenviron)				     /* drop the environment */
       { const char**emax=(const char**)environ,**ep,*const*kp;
 	static const char*const keepenv[]=KEEPENV;
@@ -267,12 +285,48 @@ nodevnull:
 #ifdef SIGCHLD
 	signal(SIGCHLD,SIG_DFL);
 #endif
-	signal(SIGPIPE,SIG_IGN);qsignal(SIGTERM,srequeue);
-	qsignal(SIGINT,sbounce);qsignal(SIGHUP,sbounce);
-	qsignal(SIGQUIT,slose);signal(SIGALRM,(void(*)())ftimeout);
+	signal(SIGPIPE,SIG_IGN);
 	ultstr(0,(unsigned long)uid,buf);filled=0;
 	if(!passinvk||!(chp2=(char*)auth_username(passinvk)))
 	   chp2=buf;
+#ifdef LMTP
+	if(Deliverymode==2)
+	 { auth_identity**rcpts,**lastrcpt,**currcpt;
+	   currcpt=rcpts=lmtp(&lastrcpt,chp2,privs|(override<<1));
+	   while(currcpt<lastrcpt)
+	    { if(!(pidchild=sfork()))
+	       { qsignal(SIGTERM,srequeue);qsignal(SIGINT,sbounce);
+		 qsignal(SIGHUP,sbounce);qsignal(SIGQUIT,slose);
+		 signal(SIGALRM,(void(*)())ftimeout);
+		 pass=*currcpt;
+		 while(++currcpt<lastrcpt)
+		    auth_freeid(*currcpt);
+		 free(rcpts);
+		 free(overread);
+		 newid();
+		 gargv=&nullp;
+		 goto dorcpt;
+	       }
+	      if(forkerr(pidchild,procmailn))
+		 lexitcode=EX_OSERR;
+	      else
+		 waitfor(pidchild);
+	      lmtpresponse(lexitcode);
+	      pidchild=0;		/* ??? */
+	      auth_freeid(*currcpt++);
+	    }
+	   free(rcpts);
+	   while(overlen)
+	    { i=rwrite(ctopfd,overread,overlen);
+	      overlen-=i;
+	      overread+=i;
+	    }
+	   exit(EXIT_SUCCESS);
+	 }
+#endif
+	qsignal(SIGTERM,srequeue);qsignal(SIGINT,sbounce);
+	qsignal(SIGHUP,sbounce);qsignal(SIGQUIT,slose);
+	signal(SIGALRM,(void(*)())ftimeout);
 	;{ const char*fwhom;size_t lfr,linv;int tstamp;
 	   tstamp=fromwhom&&*fromwhom==REFRESH_TIME&&!fromwhom[1];fwhom=chp2;
 	   if(fromwhom&&!tstamp)
@@ -286,10 +340,12 @@ nodevnull:
 	      else
 		 fwhom=fromwhom;
 	    }
-	   thebody=themail=
-	    malloc(2*linebuf+(lfr=strlen(fwhom))+(linv=strlen(chp2)));
+	   makeblock(&themail,2*linebuf+(lfr=strlen(fwhom))
+					+(linv=strlen(chp2)));
+	   private(1);				    /* we're not yet sharing */
+	   thebody=themail.p;
 	   if(Deliverymode||fromwhom)  /* need to peek for a leading From_ ? */
-	    { char*rstart;int r;static const char Fakefield[]=FAKE_FIELD;
+	    { char*rstart;int r;
 	      ;{ time_t t;				 /* the current time */
 		 t=time((time_t*)0);strcat(strcpy(buf2,"  "),ctime(&t));
 	       }
@@ -300,23 +356,23 @@ nodevnull:
 		 linv=0;		 /* yes, so no need to insert >From_ */
 	      else
 		 linv+=STRLEN(Fakefield)+r;
-	      while(1==(r=rread(STDIN,themail,1))&&*themail=='\n');
-	      i=0;rstart=themail;			     /* skip garbage */
+	      while(1==(r=rread(STDIN,themail.p,1))&&themail.p[0]=='\n');
+	      i=0;rstart=themail.p;			     /* skip garbage */
 	      if(r>0&&STRLEN(From_)<=(i=rread(	      /* is it a From_ line? */
-	       STDIN,rstart+1,(int)(linebuf-2-1))+1)&&eqFrom_(themail))
+	       STDIN,rstart+1,(int)(linebuf-2-1))+1)&&eqFrom_(themail.p))
 	       { rstart[i]='\0';
 		 if(!(rstart=strchr(rstart,'\n')))
 		  { do				     /* drop long From_ line */
-		     { if((i=rread(STDIN,themail,(int)(linebuf-2)))<=0)
+		     { if((i=rread(STDIN,themail.p,(int)(linebuf-2)))<=0)
 			  break;
-		       themail[i]='\0';		  /* terminate it for strchr */
+		       themail.p[i]='\0';	  /* terminate it for strchr */
 		     }
-		    while(!(rstart=strchr(themail,'\n')));
-		    i=rstart?i-(++rstart-themail):0;
+		    while(!(rstart=strchr(themail.p,'\n')));
+		    i=rstart?i-(++rstart-themail.p):0;
 		    goto no_from;
 		  }
 		 ;{ size_t tfrl;
-		    i-=tfrl= ++rstart-themail;	     /* demarcate From_ line */
+		    i-=tfrl= ++rstart-themail.p;     /* demarcate From_ line */
 		    if(Deliverymode&&override&&!privs)
 		     { if(verbose)		  /* discard the bogus From_ */
 			  nlog(insufprivs);
@@ -324,8 +380,8 @@ nodevnull:
 		       goto no_from;
 		     }
 		    if(tstamp)
-		       lfr=findtstamp(themail+STRLEN(From_),rstart)
-			-themail+tstamp;
+		       lfr=findtstamp(themail.p+STRLEN(From_),rstart)
+			-themail.p+tstamp;
 		    else if(!fromwhom)	       /* leave the From_ line alone */
 		       if(linv)				      /* fake alert? */
 			  lfr=tfrl;  /* yes, so separate From_ from the rest */
@@ -340,22 +396,22 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 	       }
 	      filled=lfr+linv+i;		    /* From_ + >From_ + rest */
 	      if(lfr||linv)	     /* move read text beyond our From_ line */
-	       { r= *rstart;tmemmove(themail+lfr+linv,rstart,i);
-		 rstart=themail+lfr;	      /* skip the From_ line, if any */
+	       { r= *rstart;tmemmove(themail.p+lfr+linv,rstart,i);
+		 rstart=themail.p+lfr;	      /* skip the From_ line, if any */
 		 if(!linv)				    /* no fake alert */
 		  { rstart[-tstamp]='\0';	       /* where do we append */
 		    if(!tstamp)		 /* no timestamp, so generate it all */
-		       strcat(strcpy(themail,From_),fwhom);	/* From user */
+		       strcat(strcpy(themail.p,From_),fwhom);	/* From user */
 		  }
 		 else
 		  { if(lfr)			/* did we skip a From_ line? */
 		       if(tstamp)	 /* copy the timestamp over the tail */
 			  strcpy(rstart-tstamp,buf2);
 		       else if(fromwhom)		 /* whole new From_? */
-			  strcat(strcat(strcpy(themail,From_),fwhom),buf2);
+			  strcat(strcat(strcpy(themail.p,From_),fwhom),buf2);
 		    strcat(strcpy(rstart,Fakefield),chp2);     /* fake alert */
 		  }			  /* overwrite the trailing \0 again */
-		 strcat(themail,buf2);themail[lfr+linv]=r;
+		 strcat(themail.p,buf2);themail.p[lfr+linv]=r;
 	       }
 	    }
 	 }
@@ -372,6 +428,7 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 		  }
 		 else
 		  { newid();
+		    private(0);				    /* time to share */
 		    while(argv[++argc]);    /* skip till end of command line */
 		  }
 	    }
@@ -383,7 +440,7 @@ no_from:       { tstamp=0;	   /* no existing From_, so nothing to stamp */
 	      nlog(unkuser);logqnl(chp2);syslog(LOG_ERR,slogstr,unkuser,chp2);
 	      return EX_NOUSER;			/* we don't handle strangers */
 	    }
-	   if(enoughprivs(passinvk,euid,egid,auth_whatuid(pass),
+dorcpt:	   if(enoughprivs(passinvk,euid,egid,auth_whatuid(pass),
 	    auth_whatgid(pass)))
 	      goto Setuser;
 	   nlog(insufprivs);
@@ -692,42 +749,54 @@ commint:   do skipspace();				  /* skip whitespace */
 		 break;
 	       }			      /* parse & test the conditions */
 	      i=conditions(flags,prevcond,lastsucc,lastcond,nrcond);
-	      if(!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC])
-		 lastcond=i==1;		   /* save the outcome for posterity */
-	      if(!prevcond||!flags[ELSE_DO])
-		 prevcond=i==1;	 /* same here, for `else if' like constructs */
+	      if(!skiprc)
+	       { if(!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC])
+		    lastcond=i==1;	   /* save the outcome for posterity */
+		 if(!prevcond||!flags[ELSE_DO])
+		    prevcond=i==1;    /* ditto for `else if' like constructs */
+	       }
 	    }
 	   while(i==2);			     /* missing in action, reiterate */
-	   startchar=themail;tobesent=filled;
+	   startchar=themail.p;tobesent=filled;
 	   if(flags[PASS_HEAD])			    /* body, header or both? */
 	    { if(!flags[PASS_BODY])
-		 tobesent=thebody-themail;
+		 tobesent=thebody-themail.p;
 	    }
 	   else if(flags[PASS_BODY])
-	      tobesent-=(startchar=thebody)-themail;
+	      tobesent-=(startchar=thebody)-themail.p;
 	   Stdout=0;succeed=sh=0;
 	   pwait=flags[WAIT_EXIT]|flags[WAIT_EXIT_QUIET]<<1;
 	   ignwerr=flags[IGNORE_WRITERR];skipspace();
 	   if(i)
 	      zombiecollect(),concon('\n');
 progrm:	   if(testB('!'))				 /* forward the mail */
-	    { chp=buf2;
+	    { char*fencepost=buf+linebuf-1;
+	      if(!i)
+		 skiprc|=1;
+	      *fencepost='\0';
+	      strncpy(buf,sendmail,linebuf-1);
+	      if((chp=strchr(buf,'\0'))==fencepost)
+		 goto fail;
+	      if(*flagsendmail)
+	       { char*q;int got=0;
+		 if(!(q=simplesplit(chp+1,flagsendmail,fencepost,&got)))
+		    goto fail;
+		 *(chp=q)='\0';
+	       }
+	      if(readparse(chp+1,getb,0))
+		 goto fail;
 	      if(i)
-	       { *chp='$';chp=strchr(strcpy(chp+1,SendMail),'\0');
-		 if(*flagsendmail)
-		  { *chp++=' ';
-		    *chp++='$';chp=strchr(strcpy(chp,FlagSendMail),'\0');
-		  }
-		 if(startchar==themail)
+	       { if(startchar==themail.p)
 		  { startchar[filled]='\0';		     /* just in case */
 		    startchar=(char*)skipFrom_(startchar,&tobesent);
 		  }   /* leave off leading From_ -- it confuses some mailers */
+		 goto forward;
 	       }
-	      goto forward;
+	      skiprc--;
 	    }
 	   else if(testB('|'))				    /* pipe the mail */
 	    { chp=buf2;
-forward:      if(getlline(chp,buf2+linebuf))	 /* get the command to start */
+	      if(getlline(chp,buf2+linebuf))	 /* get the command to start */
 		 goto commint;
 	      if(i)
 	       { metaparse(buf2);
@@ -735,7 +804,7 @@ forward:      if(getlline(chp,buf2+linebuf))	 /* get the command to start */
 		  { *buf='|';*(char*)(Tmnate++)='\0';		  /* fake it */
 		    goto tostdout;
 		  }
-		 if(locknext)
+forward:	 if(locknext)
 		  { if(!tolock)	   /* an explicit lockfile specified already */
 		     { *buf2='\0';  /* find the implicit lockfile ('>>name') */
 		       for(chp=buf;i= *chp++;)
@@ -766,12 +835,15 @@ nolock:			{ nlog("Couldn't determine implicit lockfile from");
 		 if(flags[CONTINUE]&&(flags[FILTER]||Stdout))
 		    nlog(extrns),elog("copy-flag"),elog(ignrd);
 		 if(flags[FILTER])
-		  { if(startchar==themail&&tobesent!=filled)  /* if only 'h' */
+		  { if(startchar==themail.p&&tobesent!=filled)/* if only 'h' */
 		     { if(!pipthrough(buf,startchar,tobesent))
 			  readmail(1,tobesent),succeed=!pipw;
 		     }
 		    else if(!pipthrough(buf,startchar,tobesent))
-		       filled=startchar-themail,readmail(0,0L),succeed=!pipw;
+		     { filled=startchar-themail.p;
+		       readmail(0,tobesent);
+		       succeed=!pipw;
+		     }
 		  }
 		 else if(Stdout)		  /* capturing stdout again? */
 		  { if(!pipthrough(buf,startchar,tobesent))
@@ -814,7 +886,7 @@ nolock:			{ nlog("Couldn't determine implicit lockfile from");
 	       }		 /* find the end, start of a nesting recipe? */
 	      else if((chp=strchr(buf,'\0'))==buf&&
 		      testB('{')&&
-		      (*chp++='{',*chp='\0',testB(' ')||
+		      (*chp++='{',*chp='\0',testB(' ')||	/* } } */
 		       testB('\t')||
 		       testB('\n')))
 	       { if(locknext&&!flags[CONTINUE])
@@ -840,7 +912,7 @@ nolock:			{ nlog("Couldn't determine implicit lockfile from");
 		    succeed=1;
 		    if(flags[CONTINUE])
 		     { yell("Forking",procmailn);inittmout(procmailn);
-		       onguard();
+		       onguard();private(0);	      /* can't share anymore */
 		       if(!(pidchild=sfork()))		   /* clone yourself */
 			{ if(loclock)	      /* lockfiles are not inherited */
 			     free(loclock),loclock=0;
@@ -877,7 +949,7 @@ fail:	       { succeed=0;setoverflow();
 	       }
 	      if(i)
 	       { if(ofiltflag)	       /* protect who use bogus filter-flags */
-		    startchar=themail,tobesent=filled;	    /* whole message */
+		    startchar=themail.p,tobesent=filled;    /* whole message */
 tostdout:	 rawnonl=flags[RAW_NONL];
 		 if(locknext)		     /* write to a file or directory */
 		  { if(!tolock)strcpy(buf2,buf);
@@ -898,7 +970,7 @@ jsetlsucc:	 lastsucc=succeed;lasttell= -1;		       /* for comsat */
 	       }
 	      skiprc&=~1;			     /* reenable subprograms */
 	    }
-	 }
+	 }	/* { */
 	else if(testB('}'))					/* end block */
 	 { if(skiprc>1)					    /* just skipping */
 	      skiprc-=2;				   /* decrease level */
@@ -948,12 +1020,12 @@ nomore_rc:
 	setuid(uid);			   /* make sure we have enough space */
 	if(linebuf<(len=strlen(chp)+strlen(lockext)+XTRAlinebuf+UNIQnamelen))
 	   mallocbuffers(linebuf=len,1);   /* to perform the lock & delivery */
-	if(writefolder(chp,(char*)0,themail,filled,0,1))	  /* default */
+	if(writefolder(chp,(char*)0,themail.p,filled,0,1))	  /* default */
 	   succeed=1;
       }						       /* if all else failed */
      if(!succeed&&*(chp2=(char*)tgetenv(orgmail))&&strcmp(chp2,chp))
       { rawnonl=0;
-	if(writefolder(chp2,(char*)0,themail,filled,0,0))     /* don't panic */
+	if(writefolder(chp2,(char*)0,themail.p,filled,0,0))   /* don't panic */
 	   succeed=1;				      /* try the last resort */
       }
      if(succeed)				     /* should we panic now? */
@@ -965,6 +1037,34 @@ mailed: rawnonl=0,retval=EXIT_SUCCESS;	  /* we're home free, mail delivered */
 int eqFrom_(a)const char*const a;
 { return !strncmp(a,From_,STRLEN(From_));
 }
+
+#ifdef LMTP
+void lmtpFrom(from,invoker,privs)char*from,*invoker;int privs;
+{ static const char*mdaemon=MAILERDAEMON;const char*fwhom;size_t lfr,linv,lts;
+  fwhom=invoker;linv=strlen(invoker);
+  if(!(privs&1)&&!strncmp(from,fwhom,linv+1))
+     privs|=1;	  /* if mail from: user is the same as the invoker, allow it */
+  if(privs==2)
+     syslog(LOG_ERR,slogstr,attemptst,fwhom);
+  else if(*from)
+     fwhom=from;
+  else
+     fwhom=mdaemon;
+  lfr=strlen(fwhom);
+  ;{ time_t t;						 /* the current time */
+     t=time((time_t*)0);strcat(strcpy(buf2,"  "),ctime(&t));
+   }
+  lfr+=STRLEN(From_)+(lts=strlen(buf2));
+  if((privs&1)||!from)				 /* privileged user? no -f ? */
+     linv=0;				 /* yes, so no need to insert >From_ */
+  else
+     linv+=STRLEN(Fakefield)+lts;
+  makeblock(&themail,filled=lfr+linv);thebody=themail.p;   /* From_ + >From_ */
+  strcat(strcat(strcpy(themail.p,From_),fwhom),buf2);
+  if(linv)						       /* fake alert */
+     strcat(strcat(strcpy(themail.p,Fakefield),invoker),buf2);
+}
+#endif
 
 const char*skipFrom_(startchar,tobesentp)const char*startchar;long*tobesentp;
 { if(eqFrom_(startchar))

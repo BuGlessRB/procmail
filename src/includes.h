@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.63 1999/11/04 23:11:42 guenther Exp $*/
+/*$Id: includes.h,v 1.64 1999/12/12 08:50:54 guenther Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -477,6 +477,10 @@ extern void*memmove();
 
 #ifdef NOmemmove
 #define memmove(to,from,count) smemmove(to,from,count)
+#endif
+
+#ifdef NOstpcpy
+#define stpcpy(to,from) sstpcpy(to,from)
 #endif
 
 #ifdef SLOWstrstr

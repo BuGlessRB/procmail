@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: sublib.c,v 1.19 1999/04/19 06:42:28 guenther Exp $";
+ "$Id: sublib.c,v 1.20 1999/12/12 08:51:05 guenther Exp $";
 #endif
 #include "includes.h"
 #include "sublib.h"
@@ -174,9 +174,11 @@ fault:
 }
 #else /* NOstrtol */
 #ifndef SLOWstrstr
+#ifndef NOstpcpy
 #ifndef NOstrpbrk
 #ifndef NOmemmove
 int sublib_dummy_var;		      /* to prevent insanity in some linkers */
+#endif
 #endif
 #endif
 #endif

@@ -11,7 +11,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: authenticate.c,v 1.5 1997/04/28 00:27:45 srb Exp $";
+ "$Id: authenticate.c,v 1.6 1999/12/12 08:50:46 guenther Exp $";
 #endif
 
 #ifdef PROCMAIL
@@ -37,6 +37,9 @@ static /*const*/char rcsid[]=
 
 #ifndef MAILSPOOLDIR
 #define MAILSPOOLDIR	"/var/spool/mail/"	     /* watch the trailing / */
+#endif
+#ifndef MAILSPOOLSUFFIX
+#define MAILSPOOLSUFFIX ""	      /* suffix to force maildir or MH style */
 #endif
 #ifndef MAILSPOOLHASH
 #define MAILSPOOLHASH	0      /* 2 would deliver to /var/spool/mail/b/a/bar */
@@ -157,8 +160,8 @@ const char*auth_mailboxname(pass)auth_identity*const pass;
      strcpy(pass->mbox+i,mailfile);
 #else
    { static const char mailspooldir[]=MAILSPOOLDIR;
-     if(!(pass->mbox=malloc(
-      STRLEN(mailspooldir)+MAILSPOOLHASH*2+strlen(pass->pw->pw_name)+1)))
+     if(!(pass->mbox=malloc(STRLEN(mailspooldir)+MAILSPOOLHASH*2+
+      strlen(pass->pw->pw_name)+1+STRLEN(MAILSPOOLSUFFIX))))
 	return "";
      strcpy(pass->mbox,mailspooldir);
      ;{ char*p,*n;size_t i;int c;
@@ -169,6 +172,8 @@ const char*auth_mailboxname(pass)auth_identity*const pass;
 	   *p++=c;
 	 }
 	strcpy(p,pass->pw->pw_name);
+	if(STRLEN(MAILSPOOLSUFFIX))
+	   strcat(p,MAILSPOOLSUFFIX);
       }
 #endif /* MAILSPOOLHOME */
    }

@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.99 1999/11/18 01:59:48 guenther Exp $";
+ "$Id: misc.c,v 1.100 1999/12/12 08:50:57 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -27,6 +27,7 @@ static /*const*/char rcsid[]=
 #endif
 #include "mailfold.h"
 #include "lastdirsep.h"
+#include "memblk.h"
 #include "authenticate.h"
 
 struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
@@ -631,7 +632,9 @@ int screenmailbox(chp,egid,Deliverymode)
   if(chp<buf+3)
      chp=buf+1;
   else if(!chp[0]||(chp[0]==chCURDIR&&!chp[1]))		/* take into account */
-     for(chp-=2;chp>buf+1&&!strchr(dirsep,*chp--););/* folder type indicator */
+     for(chp-=2;chp>buf+1&&!strchr(dirsep,*chp);chp--);	  /* the folder type */
+  else								/* indicator */
+     chp--;
   ch=*chp;*chp='\0';sgid=gid;
   if(!stat(buf,&stbuf))
    { unsigned wwsdir;
@@ -773,7 +776,7 @@ int conditions(flags,prevcond,lastsucc,lastcond,nrcond)char flags[];
   if(nrcond<0)		      /* assume appropriate default nr of conditions */
      nrcond=!flags[ALSO_NEXT_RECIPE]&&!flags[ALSO_N_IF_SUCC]&&!flags[ELSE_DO]&&
       !flags[ERROR_DO];
-  startchar=themail;tobesent=thebody-themail;
+  startchar=themail.p;tobesent=thebody-themail.p;
   if(flags[BODY_GREP])			       /* what needs to be egrepped? */
      if(flags[HEAD_GREP])
 	tobesent=filled;
@@ -857,9 +860,9 @@ copydone: { switch(*(sgetcp=buf2))
 		   { char*chp3;
 		     while(alphanum(*++chp2));
 		     if(!strncmp(chp3=skpspace(chp2),"??",2))
-		      { *chp2='\0';lstartchar=themail;
+		      { *chp2='\0';lstartchar=themail.p;
 			if(!chp[1])
-			 { ltobesent=thebody-themail;
+			 { ltobesent=thebody-themail.p;
 			   switch(*chp)
 			    { case 'B':lstartchar=thebody;
 				 ltobesent=filled-ltobesent;

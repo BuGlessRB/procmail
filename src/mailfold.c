@@ -6,14 +6,14 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.90 1999/11/04 23:26:18 guenther Exp $";
+ "$Id: mailfold.c,v 1.91 1999/12/12 08:50:56 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
 #include "sublib.h"
 #include "robust.h"
-#include "shell.h"
 #include "misc.h"
+#include "memblk.h"
 #include "pipes.h"
 #include "common.h"
 #include "exopen.h"
@@ -21,6 +21,7 @@ static /*const*/char rcsid[]=
 #include "locking.h"
 #include "lastdirsep.h"
 #include "mailfold.h"
+#include "shell.h"
 
 int logopened,tofile,rawnonl;
 off_t lasttell;
@@ -47,7 +48,7 @@ static long getchunk(s,fromw,len)const int s;const char*fromw;const long len;
   if(fromw<thebody)			   /* are we writing the header now? */
      ffrom=fifrom(fromw,realstart,thebody);		      /* scan header */
   if(!ffrom&&(endp=fromw+len)>restbody)	       /* nothing yet? but in range? */
-   { if((endp+=STRLEN(from_expr)-1)>(ffrom=themail+filled))	/* add slack */
+   { if((endp+=STRLEN(from_expr)-1)>(ffrom=themail.p+filled))	/* add slack */
 	endp=(char*)ffrom;		  /* make sure we stay within bounds */
      ffrom=fifrom(fromw,restbody,endp);			  /* scan body block */
    }
@@ -200,12 +201,12 @@ int rnmbogus(name,stbuf,i,dolog)const char*const name;	      /* move a file */
 /* return the named object's mode, making it a directory if it doesn't exist
  * and renaming it out of the way if it's not _just_right_ and we're being
  * paranoid */
-static mode_t trymkdir(dir,paranoid,i)const char*const dir;const int paranoid,i;
-{ int(*dostat)P((const char*,struct stat*));struct stat stbuf;int tries;
-  dostat=paranoid?&lstat:&stat;tries=3-1;    /* minus one for post-decrement */
+static mode_t trymkdir(dir,paranoid,i)const char*const dir;
+ const int paranoid,i;
+{ struct stat stbuf;int tries=3-1;	     /* minus one for post-decrement */
   do
-   { if(!dostat(dir,&stbuf))		      /* does it exist?	 Is it okay? */
-      { if(!paranoid||				  /* if we're trusting it is */
+   { if(!(paranoid?lstat(dir,&stbuf):stat(dir,&stbuf)))	   /* does it exist? */
+      { if(!paranoid||		     /* is it okay?  If we're trusting it is */
 	   (S_ISDIR(stbuf.st_mode)&&	      /* else it must be a directory */
 	    (stbuf.st_uid==uid||	       /* and have the correct owner */
 	     !stbuf.st_uid&&!chown(dir,uid,sgid))))  /* or be safely fixable */
@@ -236,9 +237,7 @@ static int mkmaildir(chp,paranoid)char*chp;const int paranoid;
 
 int foldertype(chp,modep,forcedir,paranoid)char*chp;mode_t*const modep;
  int forcedir;struct stat*const paranoid;
-{ struct stat stbuf;mode_t mode;int type,i;
-  int(*dostat)(const char*,struct stat*);
-  i=0;dostat=paranoid?&lstat:&stat;
+{ struct stat stbuf;mode_t mode;int type,i=0;
   if(chp>=buf+1&&chp[-1]==*MCDIRSEP_&&*chp==chCURDIR)
    { *--chp='\0';type=to_MH;
    }
@@ -249,7 +248,7 @@ int foldertype(chp,modep,forcedir,paranoid)char*chp;mode_t*const modep;
   else
    { chp++;					    /* resolve the ambiguity */
      if(!forcedir)
-      { if(dostat(buf,&stbuf))
+      { if(paranoid?lstat(buf,&stbuf):stat(buf,&stbuf))
 	 { if(paranoid)
 	    { type=to_NOTYET;
 	      goto ret;
@@ -296,7 +295,7 @@ int writefolder(boxname,linkfolder,source,len,ignwerr,dolock)
   asgnlastf=1;
   if(*boxname=='|'&&(!linkfolder||linkfolder==Tmnate))
    { setlastfolder(boxname);
-     fd=rdup(savstdout);
+     fd=rdup(Deliverymode==2?STDOUT:savstdout);
      goto dump;
    }
   if(boxname!=buf)
@@ -354,7 +353,7 @@ retf:	if(linkfolder)
 	strcpy(chp+=MAILDIRLEN,MCDIRSEP_);
 	if(0>(fd=unique(buf,++chp,linebuf,NORMperm,verbose,doFD)))
 	   goto nfail;
-	if(source==themail)			      /* skip leading From_? */
+	if(source==themail.p)			      /* skip leading From_? */
 	   source=skipFrom_(source,&len);
 	if(dump(fd,source,len)&&!ignwerr)
 	   goto failed;
@@ -371,7 +370,7 @@ nfail:	   nlog("Couldn't create or rename temp file");logqnl(buf);
      default: /* case to_MH: */
 	strcpy(chp-1,MCDIRSEP_);
 #if 0
-	if(tofile==to_MH&&source==themail)
+	if(tofile==to_MH&&source==themail.p)
 	   source=skipFrom_(source,&len);			      /* XXX */
 #endif
 	chp2=buf2+(chp-buf);
@@ -426,12 +425,12 @@ void logabstract(lstfolder)const char*const lstfolder;
    { char*chp,*chp2;int i;static const char sfolder[]=FOLDER;
      if(mailread)			  /* is the mail completely read in? */
       { i= *thebody;*thebody='\0';     /* terminate the header, just in case */
-	if(eqFrom_(chp=themail))		       /* any "From " header */
-	 { if(chp=strchr(themail,'\n'))
+	if(eqFrom_(chp=themail.p))		       /* any "From " header */
+	 { if(chp=strchr(themail.p,'\n'))
 	      *chp='\0';
 	   else
 	      chp=thebody;			  /* preserve mailbox format */
-	   elog(themail);elog(newline);*chp='\n';	     /* (any length) */
+	   elog(themail.p);elog(newline);*chp='\n';	     /* (any length) */
 	 }
 	*thebody=i;			   /* eliminate the terminator again */
 	if(!(lcking&lck_ALLOCLIB)&&		/* don't reenter malloc/free */
@@ -459,35 +458,55 @@ void concon(ch)const int ch;   /* flip between concatenated and split fields */
   if(concnd!=ch)				   /* is this run redundant? */
    { concnd=ch;			      /* no, but note this one for next time */
      for(i=confield.filled;i;)		   /* step through the saved offsets */
-	themail[acc_vall(confield,--i)]=ch;	       /* and flip every one */
+	themail.p[acc_vall(confield,--i)]=ch;	       /* and flip every one */
    }
 }
 
 void readmail(rhead,tobesent)const long tobesent;
 { char*chp,*pastend;static size_t contlengthoffset;
   ;{ long dfilled;
-     if(rhead)					/* only read in a new header */
-      { dfilled=mailread=0;chp=readdyn(malloc(1),&dfilled);filled-=tobesent;
-	if(tobesent<dfilled)		   /* adjust buffer size (grow only) */
-	 { char*oldp=themail;
-	   thebody=(themail=realloc(themail,dfilled+filled))+(thebody-oldp);
+     if(rhead==2)		  /* already read, just examine what we have */
+	dfilled=mailread=0;
+     else if(rhead)				/* only read in a new header */
+      { memblk new;
+	dfilled=mailread=0;makeblock(&new,0);readdyn(&new,&dfilled,0);
+	if(tobesent>dfilled&&isprivate)		     /* put it in place here */
+	 { tmemmove(themail.p+dfilled,thebody,filled-=tobesent);
+	   tmemmove(themail.p,new.p,dfilled);
+	   resizeblock(&themail,filled+=dfilled,1);
+	   freeblock(&new);
 	 }
-	tmemmove(themail+dfilled,thebody,filled);tmemmove(themail,chp,dfilled);
-	free(chp);themail=realloc(themail,1+(filled+=dfilled));
+	else			   /* too big or must share -- switch blocks */
+	 { resizeblock(&new,filled-tobesent+dfilled,0);
+	   tmemmove(new.p+dfilled,thebody,filled-=tobesent);
+	   freeblock(&themail);
+	   themail=new;private(1);
+	   filled+=dfilled;
+	 }
       }
      else
       { if(!mailread||!filled)
 	   rhead=1;	 /* yup, we read in a new header as well as new mail */
-	mailread=0;dfilled=thebody-themail;themail=readdyn(themail,&filled);
+	mailread=0;dfilled=thebody-themail.p;
+	if(!isprivate)
+	 { memblk new;
+	   makeblock(&new,filled);
+	   if(filled)
+	      tmemmove(new.p,themail.p,filled);
+	   freeblock(&themail);
+	   themail=new;private(1);
+	 }
+	readdyn(&themail,&filled,filled+tobesent);
       }
-     *(pastend=filled+(thebody=themail))='\0';		   /* terminate mail */
+     pastend=filled+(thebody=themail.p);
      while(thebody<pastend&&*thebody++=='\n');	     /* skip leading garbage */
      realstart=thebody;
      if(rhead)			      /* did we read in a new header anyway? */
       { confield.filled=0;concnd='\n';
 	while(thebody=strchr(thebody,'\n'))
 	   switch(*++thebody)			    /* mark continued fields */
-	    { case '\t':case ' ':app_vall(confield,(long)(thebody-1-themail));
+	    { case '\t':case ' ':
+		 app_vall(confield,(long)(thebody-1-themail.p));
 	      default:
 		 continue;		   /* empty line marks end of header */
 	      case '\n':thebody++;
@@ -497,18 +516,19 @@ void readmail(rhead,tobesent)const long tobesent;
 eofheader:
 	contlengthoffset=0;		      /* traditional Berkeley format */
 	if(!berkeley&&				  /* ignores Content-Length: */
-	   (chp=egrepin("^Content-Length:",themail,(long)(thebody-themail),0)))
-	   contlengthoffset=chp-themail;
+	   (chp=egrepin("^Content-Length:",themail.p,
+			(long)(thebody-themail.p),0)))
+	   contlengthoffset=chp-themail.p;
       }
      else			       /* no new header read, keep it simple */
-	thebody=themail+dfilled; /* that means we know where the body starts */
+	thebody=themail.p+dfilled;	    /* we know where the body starts */
    }		      /* to make sure that the first From_ line is uninjured */
-  if((chp=thebody)>themail)
+  if((chp=thebody)>themail.p)
      chp--;
   if(contlengthoffset)
    { unsigned places;long cntlen,actcntlen;charNUM(num,cntlen);
-     chp=themail+contlengthoffset;cntlen=filled-(thebody-themail);
-     if(filled>1&&themail[filled-2]=='\n')		 /* no phantom '\n'? */
+     chp=themail.p+contlengthoffset;cntlen=filled-(thebody-themail.p);
+     if(filled>1&&themail.p[filled-2]=='\n')		 /* no phantom '\n'? */
 	cntlen--;		     /* make sure it points to the last '\n' */
      for(actcntlen=places=0;;)
       { switch(*chp)
@@ -526,7 +546,7 @@ eofheader:
 	cntlen=0;
      ultstr(places,cntlen,num);			       /* our preferred size */
      if(!num[places])		       /* does it fit in the existing space? */
-	tmemmove(themail+contlengthoffset,num,places),actcntlen=cntlen;
+	tmemmove(themail.p+contlengthoffset,num,places),actcntlen=cntlen;
      chp=thebody+actcntlen;		  /* skip the actual no we specified */
    }
   restbody=chp;mailread=1;

@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.75 1999/11/23 06:08:57 guenther Exp $
+.Id $Id: procmailrc.man,v 1.76 1999/12/12 08:50:43 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -446,7 +446,7 @@ If you're not using the
 facility don't worry about this one.  It specifies the program being
 called to forward any mail.
 .br
-It gets invoked as: $SENDMAIL $SENDMAILFLAGS "$@";
+It gets invoked as: "$SENDMAIL" $SENDMAILFLAGS "$@";
 .TP
 .B NORESRETRY
 Number of retries that are to be made if any `\fBprocess table full\fP',
@@ -701,7 +701,8 @@ whereby $\ename will be substituted by the
 all-magic-regular-expression-characters-disarmed
 equivalent of $name, $_ by the name of the current rcfile, $\- by
 $LASTFOLDER and $= will contain the score of the last recipe.
-When the
+Furthermore, the result of $\ename substituion will never be split on
+whitespace.  When the
 .B \-@ARGUMENTOPT@
 or
 .B \-@MAILFILTOPT@
@@ -710,7 +711,7 @@ options are used, "$@" will expand to respectively the specified argument
 then only one such occurence will be expanded.
 .PP
 Unquoted variable expansions performed by procmail are always split on
-whitespace; the IFS variable is not used internally.
+space, tab, and newline characters; the IFS variable is not used internally.
 .PP
 Procmail does not support the expansion of `~'.
 .PP

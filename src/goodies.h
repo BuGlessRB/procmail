@@ -1,7 +1,9 @@
-/*$Id: goodies.h,v 1.19 1999/11/08 07:06:08 guenther Exp $*/
+/*$Id: goodies.h,v 1.20 1999/12/12 08:50:53 guenther Exp $*/
 
 int
  readparse P((char*p,int(*const fpgetc)(),const int sarg));
+char
+ *simplesplit P((char*to,const char*from,const char*fencepost,int*gotp));
 void
  ltstr P((const int minwidth,const long val,char*dest)),
  primeStdout P((const char*const varname)),

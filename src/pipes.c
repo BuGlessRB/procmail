@@ -6,16 +6,15 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.62 1999/11/08 07:06:09 guenther Exp $";
+ "$Id: pipes.c,v 1.63 1999/12/12 08:50:58 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
 #include "shell.h"
 #include "misc.h"
+#include "memblk.h"
 #include "pipes.h"
 #include "common.h"
-#include "cstdio.h"
-#include "exopen.h"
 #include "mcommon.h"
 #include "goodies.h"
 #include "mailfold.h"
@@ -31,6 +30,13 @@ static long backlen;	       /* length of backblock, filter recovery block */
 static pid_t pidfilt;
 static int pbackfd[2];			       /* the emergency backpipe :-) */
 int pipw;
+
+#define PRDO	poutfd[0]
+#define PWRO	poutfd[1]
+#define PRDI	pinfd[0]
+#define PWRI	pinfd[1]
+#define PRDB	pbackfd[0]
+#define PWRB	pbackfd[1]
 
 void inittmout(progname)const char*const progname;
 { lastexec=cstr(lastexec,progname);toutflag=0;
@@ -175,9 +181,14 @@ perr:	      progerr(line,excode,pwait==4);  /* I'm going to tell my mommy! */
   if(forkerr(pidchild,procmailn))
      return -1;
   if(Stdout)
-   { char*name;
+   { char*name;memblk temp;		    /* ick.  This is inefficient XXX */
      *eq='=';name=Stdout;Stdout=0;primeStdout(name);free(name);
-     Stdout=readdyn(Stdout,&Stdfilled);
+     makeblock(&temp,Stdfilled);
+     tmemmove(temp.p,Stdout,Stdfilled);
+     readdyn(&temp,&Stdfilled,0);
+     Stdout=realloc(Stdout,&Stdfilled+1);
+     tmemmove(Stdout,temp.p,Stdfilled+1);
+     freeblock(&temp);
      retStdout(Stdout,!backblock&&pwait&&pipw);
      return pipw;
    }
@@ -241,24 +252,24 @@ builtin:
   return len;
 }
 
-#undef realloc				/* unshell realloc for finer control */
-
-char*readdyn(bf,filled)char*bf;long*const filled;
-{ int blksiz=BLKSIZ;long oldsize= *filled;unsigned shift=EXPBLKSIZ;char*np;
+char*readdyn(mb,filled,oldfilled)memblk*const mb;long*const filled;
+ const long oldfilled;
+{ int blksiz=BLKSIZ,ok;long oldsize= *filled;unsigned int shift=EXPBLKSIZ;
   for(;;)
    {
 #ifdef SMALLHEAP
      if((size_t)*filled>=(size_t)(*filled+blksiz))
 	lcking|=lck_MEMORY,nomemerr(*filled);
 #endif				       /* dynamically adjust the buffer size */
-		       /* use the real realloc so that we can retry failures */
-     while(EXPBLKSIZ&&(np=0,blksiz>BLKSIZ)&&!(np=realloc(bf,*filled+blksiz)))
-	blksiz>>=1;				  /* try a smaller increment */
-     bf=EXPBLKSIZ&&np?np:trealloc(bf,(size_t)(*filled+blksiz));	 /* last try */
+     while(EXPBLKSIZ&&(ok=0,blksiz>BLKSIZ)&&	   /* backed up all the way? */
+      !(ok=resizeblock(mb,*filled+blksiz,1)))	  /* no?  Then try this size */
+	blksiz>>=1;			 /* failed!  Try a smaller increment */
+     if(!EXPBLKSIZ||!ok)
+	resizeblock(mb,*filled+blksiz,0);	    /* last (maybe only) try */
 jumpback:;
      ;{ int got,left=blksiz;
 	do
-	   if(0>=(got=rread(STDIN,bf+*filled,left)))		/* read mail */
+	   if(0>=(got=rread(STDIN,mb->p+*filled,left)))		/* read mail */
 	      goto eoffound;
 	while(*filled+=got,left-=got);		/* change listed buffer size */
       }
@@ -273,8 +284,9 @@ eoffound:
    { if(PRDB>=0)
       { getstdin(PRDB);			       /* filter ready, get backpipe */
 	if(1==rread(STDIN,buf,1))		      /* backup pipe closed? */
-	 { bf=trealloc(bf,(size_t)((*filled=oldsize+1)+blksiz));
-	   bf[oldsize]= *buf;
+	 { resizeblock(mb,*filled=oldfilled,0);
+	   mb->p[oldsize]= *buf;
+	   *filled=oldsize++;
 	   PRDB= -1;pwait=2;		      /* break loop, definitely reap */
 	   goto jumpback;		       /* filter goofed, rescue data */
 	 }
@@ -283,10 +295,9 @@ eoffound:
 	pipw=waitfor(pidchild);		      /* reap your child in any case */
    }
   pidchild=0;					/* child must be gone by now */
-  return (np=realloc(bf,*filled+1))?np:bf;    /* minimise+1 for housekeeping */
+  resizeblock(mb,*filled+1,1);		      /* minimise+1 for housekeeping */
+  return mb->p;
 }
-
-#define realloc foobar		      /* make sure don't accidentally use it */
 
 char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
 { int pinfd[2],poutfd[2];int i;char*p;
@@ -298,7 +309,7 @@ char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
      rclose(PWRI);rclose(PRDO);
      if(forkerr(pidfilt,name))
 	rclose(PWRO),stermchild();
-     dump(PWRO,themail,filled);waitfor(pidfilt);exit(lexitcode);
+     dump(PWRO,themail.p,filled);waitfor(pidfilt);exit(lexitcode);
    }
   rclose(PWRI);p=dest;
   if(!forkerr(pidchild,name))
@@ -338,7 +349,7 @@ void exectrap(tp)const char*const tp;
      rclose(PRDO);					     /* neat & clean */
      if(!forkerr(pidchild,buf))
       { int newret;
-	dump(PWRO,themail,filled);	      /* try and shove down the mail */
+	dump(PWRO,themail.p,filled);	      /* try and shove down the mail */
 	if((newret=waitfor(pidchild))!=EXIT_SUCCESS&&forceret==-2)
 	   retval=newret;		       /* supersede the return value */
 	pidchild=0;

@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.88 1999/08/20 04:41:37 guenther Exp $*/
+/*$Id: config.h,v 1.89 1999/12/12 08:50:41 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -37,6 +37,13 @@
 	group and procmail can therefore trust a $HOME/.procmailrc that
 	is group writable or contained in a group writable home directory
 	if the group involved is the user's default group. */
+
+/*#define USE_MMAP				/* uncomment this if procmail
+						   should use an mmap()ed
+	temporary file instead of just core for large messages.	 Messages
+	under MAXinMEM (defined below) bytes in size will still be kept
+	completely in memory.  MMAP_DIR specifies where the temp files
+	will be placed. */
 
 /************************************************************************
  * Only edit below this line if you have viewed/edited this file before *
@@ -125,7 +132,16 @@
 #define DEFlinebuf	512
 #define BLKSIZ		1024
 #define STDBUF		128
+#undef USE_MMAP				       /* don't bother on these guys */
 #endif /* SMALLHEAP */
+#ifdef USE_MMAP
+#ifndef INEFFICIENTrealloc
+#define INEFFICIENTrealloc			  /* don't pussy-foot around */
+#endif
+#define MAXinMEM	(1024*1024)		 /* when to switch to mmap() */
+#define MMAP_DIR	"/var/spool/procmail/"		     /* where to put */
+#endif								/* the files */
+#define MAILERDAEMON	"MAILER-DAEMON"	      /* From_ address to replace <> */
 #define FAKE_FIELD	">From "
 #define RETRYunique	8	   /* # of tries at making a unique filename */
 #define BOGUSprefix	"BOGUS."	     /* prepended to bogus mailboxes */
@@ -201,11 +217,13 @@ MMGR)\
 #define ALTBERKELEYOPT	'y'			/* same effect as -Y, kludge */
 #define ARGUMENTOPT	'a'					   /* set $1 */
 #define DELIVEROPT	'd'		  /* deliver mail to named recipient */
+#define LMTPOPT		'z'			/* talk LTMP on stdin/stdout */
 #define PM_USAGE	\
  "Usage: procmail [-vptoY] [-f fromwhom] [parameter=value | rcfile] ...\
 \n   Or: procmail [-toY] [-f fromwhom] [-a argument] -d recipient ...\
 \n\
    Or: procmail [-ptY] [-f fromwhom] -m [parameter=value] ... rcfile [arg] ...\
+\n   Or: procmail [-otY] [-a argument] -z\
 \n"
 #define PM_HELP		\
  "\t-v\t\tdisplay the version number and exit\
@@ -216,6 +234,7 @@ MMGR)\
 \n\t-Y\t\tBerkeley format mailbox, disregard Content-Length:\
 \n\t-a argument\twill set $1\
 \n\t-d recipient\texplicit delivery mode\
+\n\t-z\t\tact as an LMTP server\
 \n\t-m\t\tact as a general purpose mail filter\n"
 #define PM_QREFERENCE	\
  "Recipe flag quick reference:\

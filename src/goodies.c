@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.64 1999/11/20 23:24:32 guenther Exp $";
+ "$Id: goodies.c,v 1.65 1999/12/12 08:50:52 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -279,38 +279,33 @@ finsb:		    *startb='\0';
 		       for(;CHECKINC(),*startb;*p++= *startb++)
 			  if(strchr("(|)*?+.^$[\\",*startb))	/* specials? */
 			     *p++='\\';		      /* take them literally */
-		       goto newchar;
+normchar:	       quoted=0;
 		     }
-		    break;
-normchar:	    quoted=0;
+		    else
+		       break;
 		  }
-		 *p++='$';
+		 else				       /* not a substitution */
+		    *p++='$';			 /* pretend nothing happened */
+		 if(got<=SKIPPING_SPACE)
+		    got=NORMAL_TEXT;
 		 if(quoted)
-		    goto Quoted;		 /* pretend nothing happened */
-		 goto newchar;			       /* not a substitution */
+		    goto Quoted;
+		 goto eeofstr;
 	       }
 	    }
 	   if(got!=DOUBLE_QUOTED)
-simplsplit: { if(sarg)
+simplsplit: { char*q;
+	      if(sarg)
 		 goto copyit;
-	      for(;;startb++)		  /* simply split it up in arguments */
-	       { CHECKINC();
-		 switch(*startb)
-		  { case ' ':case '\t':case '\n':
-		       if(got<=SKIPPING_SPACE)
-			  continue;
-		       *p++='\0';got=SKIPPING_SPACE;
-		       continue;
-		    case '\0':
-		       goto eeofstr;
-		  }
-		 *p++= *startb;got=NORMAL_TEXT;
-	       }
+	      if(q=simplesplit(p,startb,fencepost,&got))     /* simply split */
+		 p=q;				       /* it up in arguments */
+	      else
+		 skiprc|=1,overflow=1,p=fencepost;
 	    }
 	   else
 copyit:	    { strncpy(p,startb,fencepost-p+2);		   /* simply copy it */
 	      if(fencepost[1]!='\0')		      /* did we truncate it? */
-		 skiprc|=1,overflow=1,fencepost[1]='\0';
+		 skiprc|=1,overflow=1,*fencepost='\0';
 	      if(got<=SKIPPING_SPACE)		/* can only occur if sarg!=0 */
 		 got=NORMAL_TEXT;
 	      p=strchr(p,'\0');
@@ -336,6 +331,26 @@ nodelim:
      if(got<=SKIPPING_SPACE)		 /* should we bother to change mode? */
 	got=NORMAL_TEXT;
    }
+}
+
+char*simplesplit(to,from,fencepost,gotp)char*to;const char*from,*fencepost;
+ int*gotp;
+{ register int got=*gotp;
+  for(;to<=fencepost;from++)
+   { switch(*from)
+      { case ' ':case '\t':case '\n':
+	   if(got>SKIPPING_SPACE)
+	      *to++='\0',got=SKIPPING_SPACE;
+	   continue;
+	case '\0':
+	   goto ret;
+      }
+     *to++= *from;got=NORMAL_TEXT;
+   }
+  to=0;
+ret:
+  *gotp=got;
+  return to;
 }
 
 void ltstr(minwidth,val,dest)const int minwidth;const long val;char*dest;

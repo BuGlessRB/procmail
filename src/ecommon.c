@@ -6,11 +6,10 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: ecommon.c,v 1.9 1997/04/03 01:58:41 srb Exp $";
+ "$Id: ecommon.c,v 1.10 1999/12/12 08:50:50 guenther Exp $";
 #endif
 #include "includes.h"
 #include "ecommon.h"
-#include "common.h"
 
 void
  nlog P((const char*const a));
