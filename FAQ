@@ -80,8 +80,10 @@ http://www.cis.ohio-state.edu/hypertext/faq/usenet/mail/filtering-faq/faq.html
 	No, no problem at all, it just means I wrote the code :-).
 	That's just about the only uncommon coding technique I use (don't
 	think I don't try to avoid those jumps in loops, it's just that
-	sometimes they are the best way to code it).  Use gcc if you want
-	to avoid these warnings.
+	sometimes they are the best way to code it).  This warning, as
+	well as "statement not reached", can be ignored -- the compiler
+	will still generate correct code.  Use gcc if they really bother
+	you.
 
 5. The compiler complains about unmodifiable lvalues or assignments to const
    variables.  Now what?
