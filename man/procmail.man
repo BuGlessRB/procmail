@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.43 1994/04/08 15:22:08 berg Exp $
+.Id $Id: procmail.man,v 1.44 1994/04/14 12:23:49 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -149,7 +149,7 @@ Procmail will setuid to the intended recipients and shall
 .I only
 read the recipient's @PROCMAILRC@ file (if present, if not, delivery is like
 ordinary mail).  This option is incompatible with
-.BR \-@PRESERVEOPT@ .
+.BR \-@PRESERVOPT@ .
 .TP
 .B \-@MAILFILTOPT@
 Turns procmail into a general purpose mail filter.  In this mode one rcfile

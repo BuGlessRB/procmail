@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.25 1994/04/12 16:28:25 berg Exp $*/
+/*$Id: misc.h,v 1.26 1994/04/14 12:23:57 berg Exp $*/
 
 struct dyna_long{size_t filled,tspace;off_t*offs;};
 struct dynstring{struct dynstring*enext;char ename[255];};
@@ -14,6 +14,7 @@ void
  readerr P((const char*const file)),
  verboff P((void)),
  verbon P((void)),
+ newid P((void)),
  yell P((const char*const a,const char*const b)),
  nlog P((const char*const a)),
  logqnl P((const char*const a)),
