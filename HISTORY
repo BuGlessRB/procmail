@@ -78,11 +78,14 @@
 	       demand (examples/mailstat)
 	    Gave procmail, formail, lockfile and mailstat a more verbose
 	       command line help (called up by -h or -?)
-1992/12/10: v2.80
+1993/01/15: v2.80
 	    Started using CVS to manage the source (god's gift to programmers)
 	    In procmail, lockfile and formail I built in a sanity check now,
 	       in case they would be called with argc==0
 	    Provided an extensive generic mailinglist example
+	    Extended the man pages (including more examples)
+	    Substantially changed the examples/advanced mailer integration
+	       instructions (especially for smail)
 	    Enhanced lockfile a lot:
 	       - the -r option really specifies *re*tries now
 	       - concatenated and/or seperate options are allowed now
@@ -152,7 +155,8 @@
 	       - a condition line of a recipe can now start with '?' in order
 		 to use the exitcode of a program as true or false
 	       - the ^TO and ^FROM_DAEMON special keywords can now be used
-		 anywhere in the regular expression (^TO is extended as well)
+		 anywhere in the regular expression (^TO has been extended
+		 as well)
 	       - taught the ^^ special token to the internal egrep
 	       - more than doubled the speed of the builtin regexp library
 		 (which was already fast :-)

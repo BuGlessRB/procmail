@@ -1,6 +1,6 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: subscribe,v 1.4 1993/01/15 14:40:50 berg Exp $
+#$Id: subscribe,v 1.5 1993/01/15 15:10:57 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -57,7 +57,7 @@ $formail -k -xSubject: <$tmprequest |
 $multigram -a "$subscraddr$NOT_METOO" dist >/dev/null
 
 $formail -i"Sender: $listreq" -i"From: $listaddr" -rtA"X-Loop: $listaddr" \
- <$tmprequest
+ -I"Precedence: bulk" <$tmprequest
 
 $echo "You have added to the subscriber list of:"
 $echo

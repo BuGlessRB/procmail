@@ -1,4 +1,4 @@
-.Id $Id: procmailex.man,v 1.6 1993/01/13 15:20:34 berg Exp $
+.Id $Id: procmailex.man,v 1.7 1993/01/15 15:11:05 berg Exp $
 .de Sx
 .PP
 .ne \\$1
@@ -140,15 +140,69 @@ named texmail (this directory has to exist); there is no need to use lockfiles
 in this case, so we won't.
 .Sx 3
 :
-^(To|Apparently-To|Cc|Subject):.*tex[^t]
+(^TO|^Subject:.*)TeX[^t]
 texmail
 .Ex
 The same as above, except now we store the mails in numbered files (MH mail
 folder), again the texmail directory has to exist already.
 .Sx 3
 :
-^(To|Apparently-To|Cc|Subject):.*tex[^t]
+(^TO|^Subject:.*)TeX[^t]
 texmail/.
+.Ex
+Store all the messages about meetings in a folder that is in a directory
+date changes every month.  E.g. if it were January 1994, the folder
+would have the name `94-01/meeting' and the locallockfile would be
+`94-01/meeting.lock'.
+.Sx 3
+::
+meeting
+`date +%y-%m`/meeting
+.Ex
+The same as above, but, if the `94-01' directory wouldn't have existed, it
+is automatically created:
+.Sx 9
+MONTHFOLDER=`date +%y-%m`
+
+:i
+? test -d $MONTHFOLDER
+| mkdir $MONTHFOLDER
+
+::
+meeting
+${MONTHFOLDER}/meeting
+.Ex
+The same as above, but now by slightly different means:
+.Sx 6
+MONTHFOLDER=`date +%y-%m`
+DUMMY=`test -d $MONTHFOLDER || mkdir $MONTHFOLDER`
+
+::
+meeting
+${MONTHFOLDER}/meeting
+.Ex
+To extract certain headers from a mail and put them into environment
+variables you can use any of the following constructs:
+.Sx 5
+SUBJECT=`formail -xSubject:`    # regular field
+FROM=`formail -rt -xTo:`        # special case
+
+:0h                             # alternate method
+KEYWORDS=| formail -xKeywords:
+.Ex
+If you are using temporary files in a procmailrc file, and want to make
+sure that they are removed just before procmail exits, you could use
+something along the lines of:
+.Sx 2
+TEMPORARY=/tmp/pmail.$$
+TRAP="/bin/rm -f $TEMPORARY"
+.Ex
+The TRAP keyword can also be used to change the exitcode of procmail.
+I.e. if you want procmail to return an exitcode of `1' instead of its
+regular exitcodes, you could simply use:
+.Sx 1
+TRAP="exit 1;"          # The trailing semi-colon is important
+                        # since exit is not a standalone program
 .Ex
 Suppose you have two accounts, you use both accounts regularly, but they are
 in very distinct places (i.e. you can only read mail that arrived at either one
