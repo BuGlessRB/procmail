@@ -4,7 +4,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.2 1992/11/11 20:16:07 berg Exp $
+#$Id: createlist,v 1.3 1992/11/13 14:59:21 berg Exp $
 
 defaults=.listadmin
 
@@ -44,7 +44,11 @@ then
   echo "createlist: You should be near the main list directory to do this" 1>&2
   exit $EX_USAGE
 fi
-if $grep "^domain=INSERT.YOUR.MAIL.DOMAIN.HERE" $defaults/listrc.main >$DEVNULL
+
+domain=`$sed -n -e 's/^[^#]*domain= *\([^	 ]*\).*$/\1/p' \
+ $defaults/listrc.main`
+
+if test .$domain = .INSERT.YOUR.MAIL.DOMAIN.HERE
 then
   echo "I refuse to do anything useful until you have edited the" 1>&2
   echo "listrc.main file.  \`domain' must be set to some sane value." 1>&2
@@ -107,7 +111,7 @@ listdir=`$pwd`
 
 echo "Now make the following entries in your /usr/lib/aliases file:" 1>&2
 echo \#########################################################################
-echo "$list:		$listuser"
-echo "$list-request:	$listuser"
+echo "$list:		$listuser@$domain"
+echo "$list-request:	$listuser@$domain"
 echo "$list-dist:		:include:$listdir/$list/dist"
 echo \#########################################################################
