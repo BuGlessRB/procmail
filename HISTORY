@@ -226,3 +226,6 @@
 	       expression starts with an epsilon transition
 	    Fixed a few typos in the man pages
 	    Made sure the logfile was flushed before procmail exits
+	    Forgot to redirect output of a test in autoconf to /dev/null
+	    Stripping off leading "From " lines now before passing mails
+	       through the mailinglist
