@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.27 1994/01/17 14:39:50 berg Exp $
+#$Id: Makefile.1,v 1.28 1994/01/18 16:10:19 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -47,8 +47,8 @@ recommend: src/Makefile
 	@if $(FGREP) CF_no_procmail_yet autoconf.h >$(DEVNULL); \
 	 then echo If you are a system administrator you should consider \
 integrating procmail; echo into the mail-delivery system -- for advanced \
-functionality AND SECURITY --.; echo For more information about this topic \
-you should look in the examples/advanced; echo file.; elif \
+functionality, speed AND; echo SECURITY "--.  For" more information about \
+this topic you should look in the; echo examples/advanced file.; elif \
 	 cat /usr/lib/sendmail.cf /etc/sendmail.cf 2>$(DEVNULL) | \
 	 grep 'Mlocal.*procmail.*F=[a-zA-Z]*u' >$(DEVNULL) ; then \
 	 echo The recommendation for the sendmail.cf entry of procmail has \

@@ -86,7 +86,7 @@
 	    Forgot to redirect output of a test in autoconf to /dev/null
 	    Reached the doubtful milestone to sometimes crash an Ultrix
 	       machine (due to the lockingtests, not procmail itself)
-1993/11/24: v2.92
+1994/01/18: v2.92
 	    Changes to procmail:
 	       - It was still occasionally trying to lock /dev/null, which
 		 is of course silly, fixed that
@@ -120,6 +120,10 @@
 	       - Implicit delivery somehow got broken: fixed
 	       - Default umask is always 077 now for deliverymode
 	       - Extended ^FROM_DAEMON and ^FROM_MAILER macro regexps again
+	       - The -f option became less strict, everyone can use it now,
+		 except that unpriviliged users will get an additional >From_
+		 they didn't bargain for (in order to make fakes identifiable)
+	       - The date on the From_ line can now be refreshed with -f-
 	    Changes to formail:
 	       - Fixed a sender-determination-weight problem, it mixed up
 		 the weights when autoreplying and when regenerating the From_
@@ -132,6 +136,7 @@
 	       - Parsed return-addresses starting with a \ incorrectly
 		 (causing it to coredump on occasion)
 	       - Supports the -s option withouth a program argument
+	       - Recognise extra UUCP >From_ lines
 	    Miscellaneous changes:
 	       - Detecting and dodging buggy zshs everywhere
 	       - Slightly adjusted autoconf for the new non-standard 386BSD
@@ -142,3 +147,4 @@
 		 man page
 	       - Fixed the "procmail"-mailer definition in the procmail man
 		 page
+	       - Created a new procmailsc man page

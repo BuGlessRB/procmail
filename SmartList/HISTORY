@@ -11,7 +11,7 @@
 	       "#define console"
 	    Stripping off leading "From " lines now before passing mails
 	       through the mailinglist
-1993/11/24: v2.92
+1994/01/18: v2.92
 	    Cleaned up install.sh* for the mailinglists: starting su with
 	       commands on stdin, checking some permissions now in the
 	       filesystem to prevent silly mistakes during the installation
@@ -51,3 +51,10 @@
 	       diagnostics
 	    Subscription notifications will be done to both the sender
 	       and the new subscriber (in case the addresses differ)
+	    Fixed the problem of sometimes subscribing "please"
+	    Educated subscribe about some caveats when extracting the
+	       subscription addresses from the signatures
+	    Provided for standard hooks where people can plug in their
+	       semi-permanent local customisations in the rcfiles
+	    Split off the mailinglist scripts in a separate package called
+	       "SmartList"

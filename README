@@ -35,7 +35,7 @@ For a more complete list of all library references see "src/includes.h"
 
 ------------------------------ DESCRIPTION -----------------------------------
 
-The procmail mail processing program. (v2.91 1993/07/02)
+The procmail mail processing program. (v2.92pre10 1994/01/18)
 
 Can be used to create mail-servers, mailing lists, sort your incoming mail
 into separate folders/files (real convenient when subscribing to one or more
@@ -129,7 +129,7 @@ The latest version can be obtained directly from the ftp-archive at:
 
 	ftp.informatik.rwth-aachen.de (137.226.112.172)
 
-as (g)zipped tar file:	   /pub/packages/procmail/procmail.tar.zip	<160KB
-as compressed tar file:	   /pub/packages/procmail/procmail.tar.Z	<216KB
-in compressed shar format: /pub/packages/procmail/procmail.??.Z	      11 parts
+as (g)zipped tar file:	   /pub/packages/procmail/procmail.tar.zip	<136KB
+as compressed tar file:	   /pub/packages/procmail/procmail.tar.Z	<192KB
+in compressed shar format: /pub/packages/procmail/procmail.??.Z	      10 parts
 ----------------------

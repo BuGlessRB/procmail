@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.24 1994/01/11 13:24:36 berg Exp $
+#$Id: arch_retrieve,v 1.25 1994/01/18 16:10:37 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -56,7 +56,7 @@ $wrongaddress"
       set `cd $archivedir; $echo dummy $line`
       shift
       case "$1" in
-	 archive|ARCHIVE) shift
+	 archive|ARCHIVE|archive:|ARCHIVE:) shift
 	    $test ! -z "$wrongaddress" && wrongaddress="$oldwrongaddress";;
       esac
       case "$1" in

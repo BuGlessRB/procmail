@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.36 1994/01/17 14:40:16 berg Exp $
+#$Id: install.sh,v 1.37 1994/01/18 16:10:33 berg Exp $
 
 IFS="	 \
 
@@ -144,7 +144,7 @@ echo "Finished installing, now you should"
 if test -f $target/.etc/rc.init.new
 then
   echo "edit $target/.etc/rc.init.new,"
-  echo "AND *cat* (preserving hardlinks) it into the"
+  echo "AND *cat* (preserving hardlinks!) it into the"
   echo "old $target/.etc/rc.init to make sure"
 else
   echo "edit $target/.etc/rc.init to make sure"
@@ -152,7 +152,8 @@ fi
 echo "that \`PATH', \`domain' and \`listmaster' reflect your installation."
 if test -f $target/.etc/rc.init.new
 then
-  echo "Then remove the $target/.etc/rc.lock file."
+  echo "Then execute:"
+  echo "		/bin/rm -f $target/.etc/rc.lock"
   touch "$target/.etc/rc.lock"
 fi
 echo '**********************************************************************'
