@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: goodies.c,v 1.51 1999/01/29 22:12:41 guenther Exp $";
+ "$Id: goodies.c,v 1.52 1999/02/02 07:06:13 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -52,8 +52,9 @@ int readparse(p,fpgetc,sarg)register char*p;int(*const fpgetc)();
   overflow=bracelev=qbracelev=0;All_args=0;
   for(got=NOTHING_YET;;)		    /* buf2 is used as scratch space */
 loop:
-   { i=fgetc();fencepost[1]='\0';CHECKINC();
+   { i=fgetc();
 newchar:
+     fencepost[1]='\0';CHECKINC();
      switch(i)
       { case EOF:	/* check sarg too to prevent warnings in the recipe- */
 	   if(sarg<2&&got>NORMAL_TEXT)		 /* condition expansion code */
@@ -310,14 +311,12 @@ simplsplit: { if(sarg)
 	       }
 	    }
 	   else
-copyit:	    { strncpy(p,startb,fencepost-p+1);		   /* simply copy it */
+copyit:	    { strncpy(p,startb,fencepost-p+2);		   /* simply copy it */
+	      if(fencepost[1]!='\0')		      /* did we truncate it? */
+		 overflow||skiprc++,overflow=1;
 eofstr:	      if(got<=SKIPPING_SPACE)		/* can only occur if sarg!=0 */
 		 got=NORMAL_TEXT;
-	      ;{ char*oldp=p;
-		 p=strchr(p,'\0');
-		 if(startb[p-oldp]!='\0')	     /* strncpy truncated it */
-		    overflow||skiprc++,overflow=1;
-	       }
+	      p=strchr(p,'\0');
 	    }
 eeofstr:   if(i)			     /* already read next character? */
 	      goto newchar;
