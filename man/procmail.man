@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.78 1999/04/13 07:46:06 guenther Exp $
+.Id $Id: procmail.man,v 1.79 1999/07/16 15:57:09 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -340,7 +340,7 @@ The program or filter "x" tried to produce too much output for the current
 LINEBUF, the rest was discarded.
 .TP
 Extraneous x ignored
-The action line of this recipe makes flag x meaningless.
+The action line or other flags on this recipe makes flag x meaningless.
 .TP
 Failed forking "x"
 Process table is full (and NORESRETRY has been exhausted).

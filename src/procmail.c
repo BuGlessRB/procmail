@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.144 1999/06/09 07:44:25 guenther Exp $";
+ "$Id: procmail.c,v 1.145 1999/07/16 15:57:07 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -765,7 +765,9 @@ nolock:			{ nlog("Couldn't determine implicit lockfile from");
 		  }
 		 rawnonl=flags[RAW_NONL];inittmout(buf);asgnlastf=1;
 		 if(flags[FILTER])
-		  { if(startchar==themail&&tobesent!=filled)  /* if only 'h' */
+		  { if(flags[CONTINUE])
+		       nlog(extrns),elog("copy-flag"),elog(ignrd);
+		    if(startchar==themail&&tobesent!=filled)  /* if only 'h' */
 		     { if(!pipthrough(buf,startchar,tobesent))
 			  readmail(1,tobesent),succeed=!pipw;
 		     }
