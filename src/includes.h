@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.16 1993/01/28 14:22:09 berg Exp $*/
+/*$Id: includes.h,v 1.17 1993/02/04 12:44:52 berg Exp $*/
 
 #include "../autoconf.h"
 #include "../config.h"
@@ -8,6 +8,9 @@
 
 #ifndef _HPUX_SOURCE
 #define _HPUX_SOURCE	      /* sad, but needed on HP-UX when compiling -Aa */
+#endif
+#ifndef _CONVEX_SOURCE
+#define _CONVEX_SOURCE			  /* same story with Convex and -std */
 #endif
 
 #include <sys/types.h>		/* pid_t mode_t uid_t gid_t */
@@ -48,7 +51,7 @@
 #ifndef STRING_H_MISSING
 #include <string.h>		/* strcpy() strncpy() strcat() strlen()
 				/* strspn() strcspn() strchr() strcmp()
-				   strncmp() strpbrk() memmove() */
+				   strncmp() strpbrk() strstr() memmove() */
 #endif
 #include <errno.h>		/* EINTR EEXIST ENFILE EACCES EAGAIN */
 #ifndef SYSEXITS_H_MISSING
@@ -242,14 +245,6 @@ extern errno;
 #endif
 #endif
 
-#ifdef NOrename
-#define rename(old,new) (-(link(old,new)||unlink(old)))
-#endif
-
-#ifdef NOmemmove
-#define memmove(to,from,count) smemmove(to,from,count)
-#endif
-
 #ifndef NOuname
 #ifndef P		  /* SINIX V5.23 has the wrong prototype for uname() */
 extern int uname();					 /* so we fix it :-) */
@@ -259,9 +254,28 @@ extern int uname();					 /* so we fix it :-) */
 #endif /* P */
 #endif /* NOuname */
 				 /* NEWS OS 5.X has the wrong prototype here */
-#define fdopen_(fd,type)	((FILE*)fdopen(fd,type))
+#define Fdopen(fd,type)		((FILE*)fdopen(fd,type))
 
-#define Const			/*const*/	 /* Convex doesn't grok this */
+#ifndef strchr		   /* for very old K&R compatible include files with */
+#ifdef P						/* new K&R libraries */
+#ifdef const
+extern char*strchr();
+extern char*strpbrk();
+extern char*strstr();
+extern void*memmove();
+#endif
+#endif
+#endif
+
+#define Const			/*const*/     /* Convex cc doesn't grok this */
+
+#ifdef NOrename
+#define rename(old,new) (-(link(old,new)||unlink(old)))
+#endif
+
+#ifdef NOmemmove
+#define memmove(to,from,count) smemmove(to,from,count)
+#endif
 
 #ifndef P
 #define P(args)		args

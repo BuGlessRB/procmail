@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: autoconf,v 1.31 1993/01/27 20:33:07 berg Exp $
+#$Id: autoconf,v 1.32 1993/02/04 12:44:45 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -55,14 +55,14 @@
 #Ok	#define GOT_bin_test
 #Ok	#define SMALLHEAP
 #	#define NOfcntl_lock
-#	#define USElockf
-#	#define USEflock
+#Ok	#define USElockf
+#Ok	#define USEflock
 #Ok	#define SYSTEM_MAILBOX "/usr/spool/mail/$LOGNAME"
 #Ok	#define SENDMAIL "/usr/lib/sendmail"
 #Ok	#define CF_no_procmail_yet
 
-# A conforming ANSI compiler and POSIX library should only have the defines
-# preceded by "Ok" in the autoconf.h file.
+# A conforming ANSI compiler and POSIX library should not have any defines not
+# marked as "Ok" in the autoconf.h file.
 # Anything else indicates failure of your system to comply with either
 # the ANSI or POSIX standards (but procmail should be installable anyway).
 
@@ -185,18 +185,27 @@ echo   '* then it would be advisable to compile these sources from within  *'
 echo   '* that filesystem, otherwise the locking tests might produce false *'
 echo   '* results (locking capability is file-system dependent)		   *'
 echo   '********************************************************************'
-if $MAKE _autotst.$O >_autotst.rrr 2>&1
+if $MAKE _autotst.$O >$DEVNULL 2>&1
 then
 :
 else
-  echo 2>&1 "Whoeaaa!  There's something fishy going on here."
-  echo 2>&1 "You have a look and see if you detect anything uncanny:"
-  echo 2>&1 "*******************************************************"
-  cat 2>&1 _autotst.rrr
-  echo 2>&1 "*******************************************************"
-  echo 2>&1 "I suggest you take a look at the definition of CFLAGS* and CC"
-  echo 2>&1 "in the Makefile before you try make again."
-  kill -15 $$
+  $RM _autotst.$O
+  echo 'Oops, your <sys/file.h> file seems to be incorrect.'
+  echo 'Retrying without it.'
+  echo "#define SYS_FILE_H_MISSING" >>$ACONF
+  if $MAKE _autotst.$O >_autotst.rrr 2>&1
+  then
+  :
+  else
+     echo 2>&1 "Whoeaaa!  There's something fishy going on here."
+     echo 2>&1 "You have a look and see if you detect anything uncanny:"
+     echo 2>&1 "*******************************************************"
+     cat 2>&1 _autotst.rrr
+     echo 2>&1 "*******************************************************"
+     echo 2>&1 "I suggest you take a look at the definition of CFLAGS* and CC"
+     echo 2>&1 "in the Makefile before you try make again."
+     kill -15 $$
+  fi
 fi
 $MAKE _autotst >_autotst.rrr 2>&1
 $RM _autotst.$O _autotst

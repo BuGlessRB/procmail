@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.18 1993/02/02 15:27:10 berg Exp $";
+ "$Id: mailfold.c,v 1.19 1993/02/04 12:44:55 berg Exp $";
 #endif
 #include "procmail.h"
 #include "sublib.h"
@@ -155,7 +155,7 @@ void logabstract P((void))
      if(lasttell>=0&&!strchr(dirsep,*lastfolder))      /* relative filename? */
 	catlim(tgetenv(maildir)),catlim(_MCDIRSEP);   /* prepend current dir */
      catlim(lastfolder);s=socket(AF_INET,SOCK_DGRAM,UDP_protocolno);
-     sendto(s,buf,strlen(buf),0,&addr,sizeof(addr));rclose(s);
+     sendto(s,buf,strlen(buf),0,(const void*)&addr,sizeof(addr));rclose(s);
      yell("Notified comsat:",buf);
    }
 #endif /* NO_COMSAT */
