@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.91 1994/08/12 17:34:22 berg Exp $";
+ "$Id: procmail.c,v 1.92 1994/08/12 17:58:04 berg Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -40,11 +40,11 @@ static const char orgmail[]="ORGMAIL",*const nullp,From_[]=FROM,
 char*buf,*buf2,*loclock,*tolock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*const*restargv= &nullp,*sgetcp,
- *rcfile=pmrc,dirsep[]=DIRSEP,devnull[]=DevNull,lgname[]="LOGNAME",
- executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",procmailn[]="procmail",
- whilstwfor[]=" whilst waiting for ",home[]="HOME",host[]="HOST",*defdeflock,
- *argv0="",errwwriting[]="Error while writing to",slogstr[]="%s \"%s\"",
- pmrc[]=PROCMAILRC;
+ pmrc[]=PROCMAILRC,*rcfile=pmrc,dirsep[]=DIRSEP,devnull[]=DevNull,
+ lgname[]="LOGNAME",executing[]="Executing",oquote[]=" \"",cquote[]="\"\n",
+ procmailn[]="procmail",whilstwfor[]=" whilst waiting for ",home[]="HOME",
+ host[]="HOST",*defdeflock,*argv0="",errwwriting[]="Error while writing to",
+ slogstr[]="%s \"%s\"";
 char*Stdout;
 int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,lcking,rcstate,rc= -1,
  ignwerr,lexitcode=EXIT_SUCCESS,asgnlastf,accspooldir,crestarg,skiprc,
