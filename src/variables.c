@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.11 2001/06/03 21:56:09 guenther Exp $";
+ "$Id: variables.c,v 1.12 2001/06/06 04:34:12 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -259,7 +259,7 @@ int setexitcode(trapisset)int trapisset;
 char*gobenv(chp,end)char*chp,*end;
 { int found,i;
   found=0;end--;
-  if(alphanum(i=getb())&&!numeric(i))
+  if(alphanum(i=getb())==1)
      for(found=1;*chp++=i,chp<end&&alphanum(i=getb()););
   *chp='\0';ungetb(i);
   if(chp==end)							 /* overflow */

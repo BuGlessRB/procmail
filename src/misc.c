@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.110 2000/11/22 01:30:02 guenther Exp $";
+ "$Id: misc.c,v 1.111 2001/06/06 04:34:11 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -519,7 +519,7 @@ copydone: { switch(*(sgetcp=buf2))
 		  goto normalregexp;
 		}
 	       default:chp--;		     /* no special character, backup */
-		{ if(alphanum(*(chp2=chp)))
+		{ if(alphanum(*(chp2=chp))==1)
 		   { char*chp3;
 		     while(alphanum(*++chp2));
 		     if(!strncmp(chp3=skpspace(chp2),"??",2))
