@@ -1,4 +1,4 @@
-$Id: Manual,v 1.1 1993/01/15 14:40:34 berg Exp $
+$Id: Manual,v 1.2 1993/01/15 16:59:50 berg Exp $
 
 Contents:
 ---------	1. Creating and removing mailinglists
@@ -26,6 +26,9 @@ The second command does the same, but it also specifies joe@somewhere.edu
 to be the responsible contact person for this list.
 
 The third command removes all traces of the "testing" mailinglist again.
+
+There is one other convenience-utility that can be used: "delink"
+It will unlink a file from its hardlinked counterpart(s).
 
 
 2. Remote maintenance of mailinglists
@@ -91,9 +94,9 @@ The mailinglists can be customised in several ways:
 	- Every list directory contains an "rc.custom" rcfile which can
 	  be edited to your hearts content to customise certain parameters
 	  for this list only.
-	- For graver customisation you can remove the hardlink to any of the
-	  files in a list directory and provide that list with its own copy
-	  in order to edit that to taste.
+	- For graver customisation you can remove the hardlink (using
+	  .bin/delink for example) to any of the files in a list directory and
+	  provide that list with its own copy in order to edit that to taste.
 	- Since the current directory is in the PATH before the .bin
 	  directory you can create per-list copies of any of the Bourne shell
 	  scripts in .bin which can then be changed without affecting the

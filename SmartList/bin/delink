@@ -1,0 +1,22 @@
+#! /bin/sh
+: &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
+#$Id: delink,v 1.1 1993/01/15 16:59:55 berg Exp $
+
+echo=echo		# /bin/echo
+test=test		# /bin/test
+rm=rm			# /bin/rm
+mv=mv			# /bin/mv
+cp=cp			# /bin/cp
+dirname=dirname		# /bin/dirname
+
+$test 0 = $# && $echo "Usage: delink filename ..." 1>&2 && exit 64
+
+TMPF=delink.$$
+
+trap "$rm -f \$TMPF; exit 1" 1 2 3 15
+
+for a in "$@"
+do
+  TMPF="`dirname \"\$a\"`"/delink.$$
+  $cp -p "$a" "$TMPF" && $mv -f "$TMPF" "$a"
+done
