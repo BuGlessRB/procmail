@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.43 1994/10/28 18:35:33 berg Exp $
+.Id $Id: procmailex.man,v 1.44 1994/10/31 20:11:52 berg Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -74,10 +74,10 @@ be preserved.  In order for it to work as intended, you have to create
 a directory named `backup' in $MAILDIR prior to inserting these two recipes.
 .Sx 5
 :0 @CONTINUE@
-backup/
+backup
 
 :0 @IGNORE_WRITERR@@CONTINUE@
-| rm \-f dummy `ls \-t backup/msg.* | sed \-e 1,32d`
+| cd backup && rm \-f dummy `ls \-t msg.* | sed \-e 1,32d`
 .Ex
 If your system doesn't generate or generates incorrect leading `@FROM@'
 lines on every mail, you can fix this by calling up procmail with
