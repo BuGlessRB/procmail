@@ -626,3 +626,4 @@
 2001/09/13: v3.23pre
 	    Changes to procmail:
 	       - Don't coredump in comsat code if interrupted early
+	       - Correctly handle COMSAT=on

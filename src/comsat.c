@@ -9,7 +9,7 @@
 
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: comsat.c,v 1.6 2001/09/13 09:16:31 guenther Exp $";
+ "$Id: comsat.c,v 1.7 2001/09/13 19:08:49 guenther Exp $";
 #endif
 
 #include "procmail.h"
@@ -92,7 +92,7 @@ int setcomsat(chp)const char*chp;
    }
   if(newvalid)						  /* so far, so good */
    { int s;
-     if(!*chp)						       /* no service */
+     if(!chad||!*chp)					       /* no service */
 	chp=BIFF_serviceport;				/* new balls please! */
      s=strtol(chp,&chad,10);
      if(chp!=chad)			       /* the service is not numeric */
