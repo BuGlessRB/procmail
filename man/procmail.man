@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.76 1999/03/30 18:17:38 guenther Exp $
+.Id $Id: procmail.man,v 1.77 1999/04/02 19:33:38 guenther Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -618,7 +618,7 @@ If @MAILSPOOLDIR@$LOGNAME already is a valid mailbox, but has got too loose
 permissions on it, procmail will correct this.  To prevent procmail from doing
 this make sure the u+x bit is set.
 .PP
-When delivering to directories (or to MH folders) you
+When delivering to directories, MH folders, or maildir folders, you
 .B don't
 need to use lockfiles to prevent several concurrently running procmail
 programs from messing up.

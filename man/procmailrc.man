@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.69 1999/02/26 01:00:42 guenther Exp $
+.Id $Id: procmailrc.man,v 1.70 1999/04/02 19:33:39 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -255,12 +255,19 @@ directory, absolute or relative to the current directory (see MAILDIR)).
 If it is a (possibly yet nonexistent) filename, the mail will be appended to
 it.
 .PP
-If it is a directory, the mail will be delivered to a newly created, guaranteed
-to be unique file named $MSGPREFIX* in the specified directory.  If the
-directory name ends in "@MCDIRSEP@@chCURDIR@", then this directory is presumed
-to be an MH folder; i.e. procmail will use the next number it finds available.
-When procmail is delivering to directories, you can specify multiple
-directories to deliver to (procmail will do so utilising hardlinks).
+If it is a directory, the mail will be delivered to a newly created,
+guaranteed to be unique file named $MSGPREFIX* in the specified directory.
+If the mailbox name ends in "@MCDIRSEP@@chCURDIR@", then this directory is
+presumed to be an MH folder; i.e., procmail will use the next number it
+finds available.  If the mailbox name ends in "@MCDIRSEP@", then this
+directory is presumed to be a maildir folder; i.e., procmail will deliver
+the message to a file in a subdirectory named "tmp" and rename it to be
+inside a subdirectory named "new".  If the mailbox is specified to be an MH
+folder or maildir folder, procmail will create the necessary directories if
+they don't exist, rather than treat the mailbox as a non-existent
+filename.  When procmail is delivering to directories, you can specify
+multiple directories to deliver to (procmail will do so utilising
+hardlinks).
 .SS "Environment variable defaults"
 .TP 2.2i
 .B "LOGNAME, HOME and SHELL"
@@ -403,7 +410,7 @@ child has terminated; if not specified, it defaults to @DEFtimeout@ seconds.
 .TP
 .B MSGPREFIX
 Filename prefix that is used when delivering to a directory (not used when
-delivering to an MH directory).
+delivering to a maildir or an MH directory).
 .TP
 .B HOST
 If this is not the
