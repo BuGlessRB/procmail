@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.146 1999/07/16 16:09:36 guenther Exp $";
+ "$Id: procmail.c,v 1.147 1999/08/13 14:26:26 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -631,9 +631,10 @@ susp_rc:      closerc();nlog(susprcf);logqnl(buf);
 	   */
 	   yell(drcfile,buf);
 	   if(!didchd)			       /* have we done this already? */
-	    { if((chp=lastdirsep(pmrc2buf()))>buf)	/* not the root dir? */
-		 chp[-1]='\0';		     /* eliminate trailing separator */
-	      if(buf[0]=='\0')					   /* arrrg! */
+	    { if((chp=lastdirsep(pmrc2buf()))>buf+1)	/* not the root dir? */
+		 chp--;
+	      *chp='\0';		     /* eliminate trailing separator */
+	      if(chp==buf)					   /* arrrg! */
 	       { nlog("procmailrc");elog(pathtoolong);elog(newline);
 		 syslog(LOG_CRIT,"procmailrc%s for LINEBUF for uid \"%lu\"\n",
 		  pathtoolong,(unsigned long)uid);
