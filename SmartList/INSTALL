@@ -5,6 +5,7 @@
 		3. Sharing the scripts on multiple architectures
 		4. If you don't have a sendmail compatible mailer
 		5. Upgrading from previous versions of SmartList
+		6. Moving an existing list to a different directory
 
 				---
 
@@ -175,3 +176,54 @@ simply typing something like:
 
 After you are finished, remove the rc.lock file again.	If it is older
 than 17 minutes it is ignored anyway, but it's cleaner this way.
+
+				---
+
+6. Moving an existing list to a different directory
+   ------------------------------------------------
+
+This can be safely done by following these steps:
+a.Create the .etc/rc.lock file.
+b.Copy the tree to the new location.  Be sure to preserve hard and
+  softlinks while doing this, tar can do this for you.	If you'd like to
+  use tar to copy the tree, a suggested /bin/sh command line would be:
+
+	cd olddir; tar cf - . | (cd newdir; tar xvf -)
+
+  If you are moving the tree instead, make sure you create a symbolic link
+  from the old location to the new immediately after moving the tree (there
+  is a race condition here, mail arriving after having moved, but before having
+  created the symbolic link will bounce).
+c.Create a symbolic link to the new location with (if your filesystem does not
+  support symbolic links, see below):
+
+	ln -s newdir olddir/.etc/Moved
+
+d.If the home directory of the list user needs to be changed, do it now.
+  Make sure the change is in effect before proceeding with step e.
+  You can buy some time by doing a "touch olddir/.etc/rc.lock" every 16
+  minutes.
+e.Install SmartList from the distribution again, on top of newdir, i.e. simply
+  regard it as an upgrade (you can skip this part if "flist -v" indicates that
+  it is using the same path relative to the (changed) home directory of the
+  list user).
+f.Update your /usr/lib/aliases (or equivalent) file, make sure the aliases run
+  the new flist binary.
+g.Remove both the olddir/.etc/rc.lock and any newdir/.etc/rc.lock file.
+h.Wait at least 30 seconds before removing the olddir tree (if at all), in
+  order to give the already running flists a chance to wake up and follow the
+  symbolic link (if necessary, check that no old flists are running anymore).
+
+The alternative way to move the lists (mandatory for filesystems that do not
+support symbolic links):
+a.Remove all */rc.lock files, kill the sendmail daemon (in other words: do
+  whatever is necessary to prevent further invocations of the old flist binary)
+  and check if any flist or procmail programs belonging to the lists are still
+  running, if they do, wait until they are gone.
+b.As above.
+c.This step is irrelevant now.
+d.As above.
+e.As above.
+f.As above.
+g.This step is irrelevant now.
+h.You can remove the olddir tree without further ado (if you like).

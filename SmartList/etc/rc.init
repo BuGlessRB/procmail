@@ -37,16 +37,22 @@
 #		the various info.txt files are optionally gathered in
 #		order to advertise the availability of the mailinglists
 # subscribe.txt file sent to new subscribers
+# subscribe.file file containing an arbitrary number of archive server commands
+#		to be executed on behalf of new subscribers
 # unsubscribe.txt file sent to unsubscribers
 # accept.txt	file sent to people not on the accept list
+# archive.txt	file sent to people requesting help from the archive server
+# archive	(link to a) directory below which files can be accessed through
+#		the archive server
 # bounces	directory containing the bounce history files
 # rc.submit	rcfile used when distributing submissions
 # rc.request	rcfile used when processing requests
 # rc.custom	rcfile that contains all the customisations per list
-# rc.out	optional rcfile for any local transformations on outgoing
-#		submissions
+# rc.local.*	optional rcfiles for any local extensions (to be used in
+#		conjunction with the RC_LOCAL_* variables which can be set
+#		in rc.init or rc.custom files)
 
-#$Id: rc.init,v 1.32 1994/05/26 14:11:32 berg Exp $
+#$Id: rc.init,v 1.33 1994/06/01 17:22:01 berg Exp $
 
 DELIVERED=yes	# we're in control of the mail now, tell sendmail to go away
 
@@ -134,7 +140,7 @@ sendmailOPTp=-oep
 # understands the -t option of sendmail, then you have to uncomment the
 # following line:
 #
-#sendmailOPT sendmailOPTp SENDMAIL=SedHomeDir/.bin/sendmails
+#sendmailOPT sendmailOPTp SENDMAIL=../SedBinDir/sendmails
 #
 ########################
 

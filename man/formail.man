@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.22 1994/05/26 14:12:00 berg Exp $
+.Id $Id: formail.man,v 1.23 1994/06/01 17:22:08 berg Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -83,13 +83,14 @@ Generate an auto-reply header.  This will normally throw away all the existing
 fields (except X-Loop:) in the original message, fields you wish to preserve
 need to be named using the
 .B \-@FM_REN_INSERT@
-option.
+option.  If you use this option in conjunction with
+.BR \-@FM_KEEPB@ ,
+you can prevent the body from being `escaped' by also specifying
+.BR \-@FM_BOGUS@ .
 .TP
 .B \-@FM_KEEPB@
-When generating the auto-reply header, keep the body as well.  If used
-together with the
-.B \-@FM_BOGUS@
-option then the body will not be escaped.
+When generating the auto-reply header or when extracting fields, keep
+the body as well.
 .TP
 .B \-@FM_TRUST@
 Trust the sender to have used a valid return address in his header.  This
@@ -220,6 +221,16 @@ formail @FM_SKIP@1 \-@FM_DIGEST@@FM_SPLIT@ >>the_mailbox_of_your_choice
 or
 .RS
 formail @FM_SKIP@1 \-@FM_DIGEST@@FM_SPLIT@ procmail
+.RE
+.PP
+To remove all Received: fields from the header:
+.RS
+formail \-@FM_DEL_INSERT@ Received:
+.RE
+.PP
+To remove all fields except From: and Subject: from the header:
+.RS
+formail \-@FM_KEEP@ \-@FM_EXTRC_KEEP@ From: \-@FM_EXTRC_KEEP@ Subject:
 .RE
 .PP
 To supersede the Reply-To: field in a header you could use:

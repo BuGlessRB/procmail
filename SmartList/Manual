@@ -4,6 +4,9 @@
 	Copyright (c) 1993-1994, Stephen R. van den Berg, The Netherlands.
 				 <berg@pool.informatik.rwth-aachen.de>
 
+NOTE: Run "flist -v" to find out more about your installed version of
+      SmartList.
+
 Contents:
 ---------	1. Creating and removing mailinglists or archive servers
 		2. Remote maintenance of mailinglists
@@ -12,17 +15,18 @@ Contents:
 		3b.Restricting subscriptions
 		3c.Restricting submissions
 		3d.Auto subscription on first submission
-		3e.Moderated lists
-		3f.List of lists
-		3g.Positively discriminate certain daemons
-		3h.Schematic overview of what goes on behind the scenes
+		3e.Autosending files to new subscribers
+		3f.Moderated lists
+		3g.List of lists
+		3h.Positively discriminate certain daemons
+		3i.Schematic overview of what goes on behind the scenes
 		4. The archive server
 		5. The format of the dist file
 		6. Multigram and the thresholds in rc.init/rc.custom
 		7. Choplist & sendmail
 		8. FTP addresses & the SmartList mailinglist
 
-$Id: Manual,v 1.33 1994/05/26 14:10:54 berg Exp $
+$Id: Manual,v 1.34 1994/06/01 17:21:31 berg Exp $
 
 
 1. Creating and removing mailinglists or archive servers
@@ -138,7 +142,7 @@ has been changed.
 The mailinglists can be customised in several ways:
 
 - For all the lists:
-	- Since all the lists initially share the same help.txt, subscibe.txt,
+	- Since all the lists initially share the same help.txt, subscribe.txt,
 	  unsubscribe.txt, rc.init, rc.submit and rc.request files
 	  (hardlinked), any change to them will affect all lists.
 	- Since all the lists have the .bin directory in their PATH, any
@@ -231,10 +235,10 @@ If you create a file named digest.admin in either the main directory of
 the digested list or in the archive/latest directory belonging to it, it
 will be picked up by the next flush_digests and included up front to the
 actual digest under the heading "Administrivia".
-The digest.admin file in the main directory of the digested list will be
-automatically removed after the digest has been pushed out.
-The archive/latest/digest.admin will not be removed and is included in
-every digest.
+The archive/latest/digest.admin file digested list will be automatically
+removed after the digest has been pushed out.
+The digest.admin file in the main directory of the digested list will not be
+removed and is included in every digest.
 
 If you want to give your subscribers the choice of receiving digests or not.
 This is what you can do:
@@ -302,7 +306,15 @@ mails to the list to be autosubscribed to the list if they were not in the
 dist file.
 
 
-3e.Moderated lists
+3e.Autosending files to new subscribers
+   ------------------------------------
+
+You can create a file named "subscribe.files".	It can contain any
+number of archive-server commands.  The results (i.e. the files requested)
+will be sent to the new subscriber.
+
+
+3f.Moderated lists
    ---------------
 
 First create a file named "moderators", it should contain the fully
@@ -322,7 +334,7 @@ filter out duplicates anyway (i.e. only the first one will go out and
 be archived).
 
 
-3f.List of lists
+3g.List of lists
    -------------
 
 If you want people to be able to get an overview of which lists are
@@ -340,7 +352,7 @@ archive directory of a procmail-managed mail-archive server (e.g. under
 the mail-alias "metalist").
 
 
-3g.Positively discriminate certain daemons
+3h.Positively discriminate certain daemons
    ---------------------------------------
 
 SmartList usually does not accept submissions or subscriptions from daemons.
@@ -352,7 +364,7 @@ can just specify a weight.  You'll then have to make sure that the variable
 is set only when mail from your special daemons arrives.
 
 
-3h.Schematic overview of what goes on behind the scenes
+3i.Schematic overview of what goes on behind the scenes
    ----------------------------------------------------
 
 Suppose you have two entries in the aliases file, one for thelist@domain

@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands
-#$Id: unsubscribe,v 1.21 1994/05/26 14:11:27 berg Exp $
+#$Id: unsubscribe,v 1.22 1994/06/01 17:21:58 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -62,4 +62,4 @@ $echo "$fromaddr" >>$tmpfrom
 $echo ""
 $cat $unsubscribetxt
 
-$sed -e 's/^\(.\)/>\1/' $tmprequest
+$sed -e 's/^/>/' $tmprequest

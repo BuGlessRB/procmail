@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.45 1994/05/26 14:10:58 berg Exp $
+#$Id: install.sh,v 1.46 1994/06/01 17:21:34 berg Exp $
 
 if test -z "$IFS"
 then IFS=" \
@@ -96,14 +96,13 @@ then
   fi
 else
   /bin/rm -f $TMPF
-  if ( exec 2>/dev/null; echo Id test >id.test )
+  if ( exec 2>/dev/null; echo Id test >targetdir.tmp )
   then
   :
   else	# You can run install.sh WITHOUT root permissions as well!
      echo "Please run install.sh with root permissions instead"
      exit 77
   fi
-  /bin/rm -f id.test
   listid=`ls -l install.sh |
    sed -e 's/^[^ ]* *[0-9][0-9]*[^0-9] *\([^ ]*\) .*$/\1/'`
 fi

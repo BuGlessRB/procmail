@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.51 1994/05/26 14:13:15 berg Exp $";
+ "$Id: multigram.c,v 1.52 1994/06/01 17:22:27 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/05/26 14:13:15 $";
+static /*const*/char rcsdate[]="$Date: 1994/06/01 17:22:27 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -46,6 +46,7 @@ static /*const*/char rcsdate[]="$Date: 1994/05/26 14:13:15 $";
 #define GLOCKFILE	"../.etc/rc.lock"
 #define RCMAIN		"./../.etc/rc.main"
 #define LLOCKFILE	"rc.lock"
+#define LINKMOVED	"../.etc/Moved"
 #define REQUEST		"-request"
 #define RCSUBMIT	"./rc.submit"
 #define RCREQUEST	"./rc.request"
@@ -170,11 +171,11 @@ static const char*progname="multigram";
  (!strncmp(curname,refname,STRLEN(refname)))
 
 void nlog(a)const char*const a;		    /* log error with identification */
-{ elog(progname);elog(": ");elog(a);
+{ fprintf(stderr,"%s: %s",progname,a);
 }
 
 void logqnl(a)const char*const a;
-{ elog(" \"");elog(a);elog("\"\n");
+{ fprintf(stderr," \"%s\"\n",a);
 }
 						 /* finds the next character */
 static char*lastdirsep(filename)const char*filename;
@@ -273,14 +274,25 @@ main(argc,argv)int argc;char*argv[];
   if(argc)			      /* sanity check, any arguments at all? */
    { char*chp;						 /* suid flist prog? */
      if(ISPROGRAM(chp=lastdirsep(argv[0]),flist))
-      { struct stat stbuf;char*arg;uid_t euid;
+      { struct stat stbuf;struct passwd*pass;char*arg;uid_t euid;
 	static const char request[]=REQUEST,listid[]=LISTID,
 	 rcrequest[]=RCREQUEST,rcpost[]=RCPOST,list[]=LIST,
 	 defdir[]=DEFAULTS_DIR,targetdir[]=TARGETDIR,
 	 *pmexec[]={PROCMAIL,RCSUBMIT,RCINIT,0,0,0,rcrequest,rcpost,0};
 #define Endpmexec(i)	(pmexec[maxindex(pmexec)-(i)])
 	progname=flist;*chp='\0';euid=geteuid();
-	;{ struct passwd*pass;uid_t euid;
+	if(argc!=2)			       /* wrong number of arguments? */
+	 { elog("\
+Usage: flist listname[-request]\n\
+   Or: flist -v\n");
+	   return EX_USAGE;
+	 }
+	if(!strcmp(arg=argv[1],"-v"))
+	 { fprintf(stderr,"%s\nUser: %s\nDirectory: %s\n",listid,targetdir,
+	    SLVERSION);
+	   return EX_OK;
+	 }
+	;{ uid_t euid;
 	   if((euid=geteuid())==ROOT_uid)
 	    { if(!(pass=getpwnam(listid)))
 	       { nlog("User \"");elog(listid);elog("\"");goto bailout;
@@ -297,8 +309,8 @@ bailout:      elog(" unknown\n");return EX_NOUSER;
 	    }
 	   else
 	     /*
-	      * we weren't root, so try to get the uid and gid of the .etc
-	      * directory
+	      * we weren't root, so try to get the uid and gid belonging to
+	      * the euid we started under
 	      */
 	    { int error;
 	      setrgid(pass->pw_gid);error=setgid(pass->pw_gid);setruid(euid);
@@ -317,31 +329,35 @@ nochdir: { nlog("Couldn't chdir to");logqnl(targetdir);return EX_NOPERM;
 	   return EX_NOINPUT;
 	 }
 	if(pass->pw_uid!=stbuf.st_uid||pass->pw_gid!=stbuf.st_gid)
-	   nlog("Strange group or user id\n");
-	if(argc!=2)			       /* wrong number of arguments? */
-	 { elog("Usage: flist listname[-request]\n");return EX_USAGE;
-	 }
-	chp=strchr(arg=argv[1],'\0');		       /* check for -request */
-	if(chp-arg>STRLEN(request)&&!strcmp(chp-=STRLEN(request),request))
+	   nlog("Strange group or user id\n");	       /* check for -request */
+	if((chp=strchr(arg,'\0'))-arg>STRLEN(request)&&
+	   !strcmp(chp-=STRLEN(request),request))
 	   *chp='\0',pmexec[1]=rcrequest,Endpmexec(1)=0,Endpmexec(2)=rcpost;
 	else
 	   chp=0;
 	if(!strcmp(arg,chPARDIR)||strpbrk(arg,dirsep))
 	 { nlog("Bogus listname\n");return EX_NOPERM;
 	 }
-	if(chdir(arg))			     /* goto the list's subdirectory */
-	   pmexec[1]=RCMAIN,Endpmexec(2)=0,chdir(defdir);
+	;{ int foundlock;
+	   do
+	    { foundlock=0;
+	      if(chdir(arg))		     /* goto the list's subdirectory */
+		 pmexec[1]=RCMAIN,Endpmexec(2)=0,chdir(defdir);
+	      for(rclock(GLOCKFILE,&stbuf)||rclock(LLOCKFILE,&stbuf))
+		 foundlock=1;					    /* stall */
+	    }
+	   while(foundlock&&!chdir(LINKMOVED));	      /* did the lists move? */
+	 }
 	Endpmexec(5)=INIT_PATH;
 	Endpmexec(4)=argstr(list,arg);		    /* pass on the list name */
 	if(chp)					  /* was it a -request list? */
 	   *chp= *request;		     /* then restore the leading '-' */
 	Endpmexec(3)=argstr(XENVELOPETO,arg);
-	while(rclock(GLOCKFILE,&stbuf)||rclock(LLOCKFILE,&stbuf));  /* stall */
 	execve(pmexec[0],(char*const*)pmexec,environ);nlog("Couldn't exec");
 	logqnl(pmexec[0]);return EX_UNAVAILABLE;		    /* panic */
       }
     /*
-     *	revoke the any suid permissions now, since we're not flist
+     *	revoke any suid permissions now, since we're not flist
      */
      setgid(getgid());setuid(getuid());
      if(ISPROGRAM(chp,idhash))				  /* idhash program? */

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.30 1994/05/26 14:11:05 berg Exp $
+#$Id: arch_retrieve,v 1.31 1994/06/01 17:21:42 berg Exp $
 
 test=test		# /bin/test
 expr=expr		# /bin/expr
@@ -28,6 +28,7 @@ maxfiles=16			# the maximum number of files returned (per
 tmprequest=tmp.request
 tmpfrom=tmp.from
 
+archivetxt=archive.txt		# the helpfile
 archivedir=archive
 
 export tmprequest archivedir	# for mimesend
@@ -208,25 +209,7 @@ Truncating after '$breakoff_search' matches...' -e ${breakoff_search}q
 	 esac
 	 $test ! -z "$ILLEGAL" && $echo "Illegal filename $ILLEGAL requested."
 	 $echo ""
-	 $echo "This archive server knows the following commands:"
-	 $echo ""
-	 $echo "get filename ..."
-	 $echo "ls directory ..."
-	 $echo "egrep case_insensitive_regular_expression filename ..."
-	 $echo "maxfiles nnn"
-	 $echo ""
-	 $echo "Aliases for 'get': send, sendme, getme, gimme, retrieve, mail"
-	 $echo "Aliases for 'ls': dir, directory, list, show"
-	 $echo "Aliases for 'egrep': search, grep, fgrep, find"
-	 $echo ""
-	 $echo "Lines starting with a '#' are ignored."
-	 $echo "Multiple commands per mail are allowed."
-	 $echo "Setting maxfiles to zero will remove the limit."
-	 $echo ""
-	 $echo "Examples:"
-	 $echo "ls latest"
-	 $echo "get latest/12"
-	 $echo "egrep some.word latest/*"
+	 $cat $archivetxt
 	 if $test ! -z "$standalone"
 	 then
 	    $echo ""

@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands
-#$Id: procbounce,v 1.25 1994/05/26 15:06:21 berg Exp $
+#$Id: procbounce,v 1.26 1994/06/01 17:21:53 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -49,7 +49,7 @@ then
      serial=$3$4$2
   fi
   $echo "$addr" >>$bounces/$serial
-  $rm -f _dummy_ `$ls -t $bounces/* | $sed -e '1,'$maxhist' d' `
+  $rm -f _dummy_ `$ls -td $bounces/* | $sed -e '1,'$maxhist' d' `
 
   bounced=0
   for a in $bounces/*
@@ -73,9 +73,32 @@ then
 	fi | $sed -e '/^Removed:/ d' \
 	 -e '1 s/^ *[0-9]* \([^ ]* *[0-9]*\).*$/Removed: \1/' \
 	  -e 's/^ *[0-9]/	/'`
-     $test ! -z "$subscribe_log" &&
-      $expr "X$fieldcontent" : 'XRemoved:' >/dev/null &&
-      $echo "procbounce: $fieldcontent" >>$subscribe_log
+     if realaddr=`$expr "X$fieldcontent" : 'XRemoved: \([^ ]*\)'`
+     then
+	$test ! -z "$subscribe_log" &&
+	 $echo "procbounce: $fieldcontent" >>$subscribe_log
+	( $cat <<HERE
+To: $realaddr
+From: $listreq
+Subject: You have been removed from the list
+X-Loop: $listaddr (bounce)
+X-Loop: $listaddr
+Precedence: junk
+
+Your mail address $realaddr has been removed
+from the $listaddr mailinglist.
+It generated an excessive amount of bounced mails.
+
+Before sending in a subscription request to
+$listreq again, please ensure that
+this problem has been resolved.	 When in doubt, ask your system
+administrator or send mail to "postmaster".
+
+The last one of those bounced mails has been quoted below:
+HERE
+	  $sed -e 's/^/>/' $tmprequest
+	) | $SENDMAIL $sendmailOPT "$realaddr"
+     fi
      addfield="$addfield
 X-Diagnostic: Bounces exceed threshold of $minbounce
 X-Diagnostic: $fieldcontent"

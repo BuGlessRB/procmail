@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1993-1994, S.R. van den Berg, The Netherlands
-#$Id: subscribe,v 1.23 1994/05/26 14:11:25 berg Exp $
+#$Id: subscribe,v 1.24 1994/06/01 17:21:56 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -10,6 +10,7 @@ sed=sed			# /bin/sed
 grep=grep		# /bin/grep
 formail=formail		# /usr/local/bin/formail
 multigram=multigram	# ../SedBinDir/multigram
+arch_retrieve=arch_retrieve	# ../.bin/arch_retrieve
 
 $test -z "$listaddr" &&
  $echo "Don't start this script directly, it is used in rc.request" && exit 64
@@ -17,6 +18,7 @@ $test -z "$listaddr" &&
 tmprequest=tmp.request
 tmpfrom=tmp.from
 subscribetxt=subscribe.txt
+subscribefiles=subscribe.files
 
 case "$X_ENVELOPE_TO" in
   *$list-request*) wrongaddress="" ;;
@@ -109,5 +111,15 @@ esac
 
   $cat $subscribetxt
 
-  $sed -e 's/^\(.\)/>\1/' $tmprequest
+  $sed -e 's/^/>/' $tmprequest
 ) | $SENDMAIL $sendmailOPT $sender
+
+if $test -f $subscribefiles
+then
+  $formail -X "" -I "Subject: archive" <$tmprequest >$tmpfrom
+  $cat $tmpfrom >$tmprequest
+  $echo "" >>$tmprequest
+  $cat $subscribefiles >>$tmprequest		# setup fake archive commands
+  $echo $sender >$tmpfrom
+  exec $arch_retrieve <$tmprequest		# the point of no return
+fi

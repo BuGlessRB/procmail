@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.40 1994/05/26 14:12:58 berg Exp $*/
+/*$Id: includes.h,v 1.41 1994/06/01 17:22:23 berg Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -56,7 +56,7 @@
 				/* struct dirent */
 #endif
 #ifndef SYS_WAIT_H_MISSING
-#include <sys/wait.h>		/* wait() WIFEXITED() WIFSTOPPED()
+#include <sys/wait.h>		/* wait() waitpid() WIFEXITED() WIFSTOPPED()
 				/* WEXITSTATUS() WTERMSIG() */
 #else
 #undef SYS_WAIT_H_MISSING

@@ -3,8 +3,8 @@
  *			of the list user.				*
  *	This program is used by the SmartList installation script only. *
  ************************************************************************/
-/*$Id: gethome.c,v 1.1 1994/05/24 15:37:08 berg Exp $*/
-#include "includes.h"				       /* also for fprintf() */
+/*$Id: gethome.c,v 1.2 1994/06/01 17:22:21 berg Exp $*/
+#include "includes.h"
 
 main(argc,argv)const int argc;const char*const argv[];
 { struct stat homest;
@@ -25,7 +25,10 @@ main(argc,argv)const int argc;const char*const argv[];
 	    }
 #define EQ(what)       (homest.what==walk.what)
 	   if(!res&&EQ(st_dev)&&EQ(st_ino)&&EQ(st_uid)&&EQ(st_gid))
+	    { if(*chp)
+		 chp++;
 	      break;				      /* found the directory */
+	    }
 	 }
 	do
 	   if(chp==first)			   /* sorry, end of the line */

@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1994, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.84 1994/05/26 14:14:18 berg Exp $
+#$Id: autoconf,v 1.85 1994/06/01 17:22:17 berg Exp $
 
 # All possible entries in autoconf.h:
 
@@ -175,7 +175,7 @@ do
   TESTDIRS=""
   for a in $testdirs
   do $RM -r $a/_locktest
-     if mkdir $a/_locktest
+     if mkdir $a/_locktest 2>$DEVNULL
      then
 	b="$b $a"
 	TESTDIRS="$TESTDIRS $a/_locktest"
@@ -874,7 +874,7 @@ main(){char a[2];
 HERE
 
 echo 'Testing for memmove, strchr, strpbrk, strcspn, strtol, strstr,'
-echo '	rename, setrgid, setegid, pow, opendir & mkdir'
+echo '	rename, setrgid, setegid, pow, opendir, mkdir & waitpid'
 if $MAKE _autotst.$O >$DEVNULL 2>&1
 then
 :

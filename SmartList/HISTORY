@@ -84,3 +84,11 @@
 	    If possible, the lists are now installed relative to the home
 	       directory of the `list' account
 	    Install the examples directory to .examples
+	    Fixed the automatic archive history truncation for digests, they
+	       previously were not truncated at all
+	    Flist -v displays information about the currently installed version
+	       of SmartList
+	    Extracted the hardcoded help from the archive server into the
+	       archive.txt file
+	    Changed procbounce to send a final unsubscription message to
+	       people that were taken off the list due to too many bounces
