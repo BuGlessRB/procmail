@@ -8,9 +8,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.49 1994/06/09 14:18:42 berg Exp $";
+ "$Id: formail.c,v 1.50 1994/06/09 14:44:57 berg Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1994/06/09 14:18:42 $";
+static /*const*/char rcsdate[]="$Date: 1994/06/09 14:44:57 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -389,11 +389,13 @@ startover:
 	   if(saddr)			    /* any useful mailaddress found? */
 	    { if(*saddr)			  /* did it have any length? */
 	       { if(!strpbrk(saddr,"@!/"))
-		    nowm-=(maxindex(sest)+2)*3;		/* depreciate "user" */
+		    nowm-=(maxindex(sest)+2)*4;		/* depreciate "user" */
 		 else if(strstr(saddr,".UUCP"))
-		    nowm-=(maxindex(sest)+2)*2;	 /* depreciate .UUCP address */
+		    nowm-=(maxindex(sest)+2)*3;	 /* depreciate .UUCP address */
 		 else if(strchr(saddr,'@')&&!strchr(saddr,'.'))
-		    nowm-=maxindex(sest)+2;	     /* depreciate user@host */
+		    nowm-=(maxindex(sest)+2)*2;	     /* depreciate user@host */
+		 else if(strchr(saddr,'!'))
+		    nowm-=(maxindex(sest)+2)*1;	     /* depreciate bangpaths */
 		 if(!namep||nowm>lastm)		/* better than previous ones */
 		  { saddr=strcpy(malloc(strlen(saddr)+1),saddr);lastm=nowm;
 		    goto newnamep;
