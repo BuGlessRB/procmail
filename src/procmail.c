@@ -12,7 +12,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.128 1999/01/29 22:05:00 guenther Exp $";
+ "$Id: procmail.c,v 1.129 1999/01/29 23:53:07 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -560,7 +560,6 @@ pm_overflow:	  { strcpy(buf,pmrc);
 	      else		     /* prepend default procmailrc directory */
 		 if(*lastdirsep(pmrc2buf())='\0',buf[0]=='\0')
 		    goto pm_overflow;
-
 	      strcat(buf,rcfile);			/* append the rcfile */
 	      if(mailfilter!=2&&			 /* nothing special? */
 		 (stat(buf,&stbuf)?			      /* accessible? */
