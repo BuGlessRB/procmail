@@ -181,20 +181,29 @@
 	       turns out to be /dev/null
 	    Added a paragraph to the mailinglist/Manual (explaining multigram
 	       and threshold values)
-1993/03/05: v2.82
+1993/04/13: v2.82
 	    Fixed sleeptime argument to lockfile
 	    Refined the ^FROM_DAEMON macro again
+	    Added a ^FROM_MAILER macro
 	    Allowed for the archive server of the mailinglists to be installed
 	       standalone
-	    Tuned a few of the mailinglist scripts
-	    The mailinglist scripts now support digested lists
-	    Fixed a conflict with the NeXT Mach 2.1 library (openlog)
+	    Fixed the library conflict with openlog
+	    Removed the dependencies on the structure of /usr/include
 	    Made the internal egrep in procmail warn about mismatching parens
 	       in a regexp
+	    Made the regexp lib faster again (worst case performance improved)
 	    Extended recommend.c, it advises changing the permissions on
 	       the system mail spool directory as well now (if needed)
 	    Procmail can now deliver to multiple directories (using hardlinks)
 	    Added the LASTFOLDER variable to procmail
-	    Flist can and should be setuid root now, POSIX setuid semantics
-	       require it <sigh>
 	    Programs started from within TRAP can read the mail from stdin
+	    Worked my way around the !@#$%^&*() POSIX setgid() semantics (if
+	       your OS supports setrgid() or setregid())
+	    Changes to the mailinglist scripts:
+	       - Finetuned some scripts
+	       - Added digested lists
+	       - Added standalone archive servers
+	       - Extended logging for (un)subscription requests
+	       - Flist can and should be setuid root now, POSIX setuid
+		 semantics require it <sigh>
+	       - Added support for multiple architectures

@@ -1,13 +1,13 @@
 #! /bin/sh
 :
-#$Id: x_command,v 1.5 1993/03/02 14:40:52 berg Exp $
+#$Id: x_command,v 1.6 1993/04/13 15:48:10 berg Exp $
 
 echo=echo		# /bin/echo
 test=test		# /bin/test
 cat=cat			# /bin/cat
 formail=formail		# /usr/local/bin/formail
-subscribe=subscribe	# ../.bin/subscribe
-unsubscribe=unsubscribe # ../.bin/unsubscribe
+subscribe=subscribe	# ../SedBinDir/subscribe
+unsubscribe=unsubscribe # ../SedBinDir/unsubscribe
 
 tmprequest=tmp.request
 tmpfrom=tmp.from
@@ -29,6 +29,8 @@ do
 	 $echo "To: $listreq" >>$tmprequest
 	 $echo "Subject: subscribe $2" >>$tmprequest
 	 $echo "$2" >$tmpfrom
+	 $test -z "$subscribe_log" ||
+	  $echo "x_command: subscribe" >>$subscribe_log
 	 $subscribe <$tmprequest | $SENDMAIL $sendmailOPT -t
 	 shift ;;
      _unsubscribe)
@@ -38,6 +40,8 @@ do
 	 $echo "To: $listreq" >>$tmprequest
 	 $echo "Subject: unsubscribe $2" >>$tmprequest
 	 $echo "$maintainer" "$2" >$tmpfrom
+	 $test -z "$subscribe_log" ||
+	  $echo "x_command: unsubscribe" >>$subscribe_log
 	 $unsubscribe <$tmprequest | $SENDMAIL $sendmailOPT `cat $tmpfrom`
 	 shift ;;
      _showdist)

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: procbounce,v 1.6 1993/03/02 14:40:43 berg Exp $
+#$Id: procbounce,v 1.7 1993/04/13 15:48:03 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -13,8 +13,8 @@ find=find		# /bin/find
 expr=expr		# /bin/expr
 date=date		# /bin/date
 formail=formail		# /usr/local/bin/formail
-multigram=multigram	# ../.bin/multigram
-idhash=idhash		# ../.bin/idhash
+multigram=multigram	# ../SedBinDir/multigram
+idhash=idhash		# ../SedBinDir/idhash
 
 $test -z "$listaddr" &&
  $echo "Don't start this script directly, it is used in rc.request" && exit 64

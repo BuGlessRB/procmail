@@ -24,10 +24,13 @@ Restarting sendmail is not necessary.
 
 Now, back to installing the mailinglist scripts:
 
-Suppose you have created this pseudo user "list" and its home directory would
-be /home/list
-Simply execute the "install.sh" script (preferably as user "list") present in
-this directory by typing something like:
+Suppose you have created this pseudo user "list" with a specified home
+directory of /home/list
+
+Now create /home/list by hand and make sure that you chown it to "list".
+
+Next, make sure that you are running as root (su root) and execute the
+"install.sh" script present in this directory by typing something like:
 
 	sh install.sh /home/list
 
@@ -35,10 +38,19 @@ This script will then create two subdirectories (.bin and .etc) in
 /home/list.  These directories will be filled with the files contained
 in the bin and etc subdirectories here.	 It will also make sure that
 the "multigram" program is compiled from the procmail*/src directory and
-copied into /home/list/.bin.  Furthermore it will link
-/home/list/.etc/rc.main to /home/list/.procmailrc.  The latter is of
-course superfluous if you are still using this account to receive
-regular mail.
+copied into /home/list/.bin.
+
+	For people that want to run the lists on a shared filesystem across
+	different architectures there exists the possibility using several
+	.bin directories.  Simply use something like:
+		sh install.sh /home/list .bin.sun4
+	to install to a different .bin directory.  Repeat the complete
+	procmail and mailinglist installation for every architecture,
+	specifying a different .bin directory every time.
+
+Furthermore install.sh will link /home/list/.etc/rc.main to
+/home/list/.procmailrc.	 This is of course superfluous if you are still
+using this account to receive regular mail.
 
 Depending on your mail configuration, if procmail has not been integrated
 in the maildelivery system (see procmail*/examples/advanced for more

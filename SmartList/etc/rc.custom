@@ -15,6 +15,7 @@ maintainer	=
 #maxhist	=	8		# bounce history limit
 #minbounce	=	3		# no. of bounces before removal
 #cutoff_bounce	=	256		# lines to keep in bounce processing
+#subscribe_log	=	log		# log file for (un)subscriptions
 #match_threshold=	30730		# for close matches to the list
 #off_threshold	=	24476		# for loosely finding your name
 

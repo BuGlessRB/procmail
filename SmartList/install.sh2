@@ -1,0 +1,20 @@
+#! /bin/sh
+: &&O= || exec /bin/sh install.sh2 # we're in a csh, feed myself to sh
+#$Id: install.sh2,v 1.1 1993/04/13 15:47:47 berg Exp $
+
+test -z "$bindir" && echo "Call install.sh instead" && exit 64
+
+hfile=targetdir.h
+
+cat >$hfile <<HERE
+#define TARGETDIR	"$target"
+#define LISTID		"$listid"
+#define PROCMAIL	"../$bindir/procmail"
+#define INIT_PATH	"PATH=../$bindir"
+HERE
+
+cmp $hfile ../src/$hfile 2>/dev/null 1>&2 || cp $hfile ../src/$hfile
+
+cd ../src
+make multigram
+cd ../mailinglist

@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: subscribe,v 1.12 1993/03/04 15:31:05 berg Exp $
+#$Id: subscribe,v 1.13 1993/04/13 15:48:06 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
@@ -8,7 +8,7 @@ cat=cat			# /bin/cat
 sed=sed			# /bin/sed
 grep=grep		# /bin/grep
 formail=formail		# /usr/local/bin/formail
-multigram=multigram	# ../.bin/multigram
+multigram=multigram	# ../SedBinDir/multigram
 
 $test -z "$listaddr" &&
  $echo "Don't start this script directly, it is used in rc.request" && exit 64
@@ -19,8 +19,7 @@ subscribetxt=subscribe.txt
 
 case "$X_ENVELOPE_TO" in
   *$list-request*) wrongaddress="" ;;
-  *) wrongaddress="
-WARNING:
+  *) wrongaddress="WARNING:
 	Please try to use '$listreq'
 	the next time when issuing (un)subscribe requests.
 " ;;
@@ -64,6 +63,10 @@ $formail -k -xSubject: <$tmprequest |
  $grep 'no.*[^a-z]cop.*[^a-z]please' >/dev/null && NOT_METOO=" (-n)"
 
 $multigram -a "$subscraddr$NOT_METOO" dist >/dev/null
+
+$test -z "$subscribe_log" ||
+ $echo "subscribe: $subscraddr by `$formail -rtx <$tmprequest`" \
+ >>$subscribe_log
 
 $formail -i"From: $listreq" -rtA"X-Loop: $listaddr" -I"Precedence: bulk" \
  <$tmprequest

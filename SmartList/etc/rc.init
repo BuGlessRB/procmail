@@ -33,7 +33,7 @@
 # rc.request	rcfile used when processing requests
 # rc.custom	rcfile that contains all the customisations per list
 
-#$Id: rc.init,v 1.10 1993/04/02 12:38:21 berg Exp $
+#$Id: rc.init,v 1.11 1993/04/13 15:48:16 berg Exp $
 
 PATH=.:$PATH:../.bin:/bin:/usr/bin:/usr/local/bin	# setup a decent path
 SHELL=/bin/sh				# to prevent surprises
@@ -97,6 +97,7 @@ archive_log	=	log		# log file for archive retrievals
 maxhist		=	8		# bounce history limit
 minbounce	=	3		# no. of bounces before removal
 cutoff_bounce	=	256		# lines to keep in bounce processing
+subscribe_log	=	log		# log file for (un)subscriptions
 match_threshold =	30730		# for close matches to the list
 off_threshold	=	24476		# for loosely finding your name
 

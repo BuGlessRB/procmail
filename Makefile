@@ -1,4 +1,4 @@
-#$Id: Makefile,v 1.19 1993/02/11 12:21:22 berg Exp $
+#$Id: Makefile,v 1.20 1993/04/13 15:47:27 berg Exp $
 
 # change BASENAME to your home directory if need be
 BASENAME = /usr/local
@@ -43,8 +43,6 @@ MAN5DIR	  = $(MANDIR)/man$(MAN5SUFFIX)
 
 # Makefile.0 - mark, don't (re)move this, a sed script needs it
 
-# Directory for the system include files
-USRINCLUDE = /usr/include
 # Paths for system libraries
 LIBPATHS   = /lib /usr/lib /usr/local/lib /lib/386
 
@@ -81,7 +79,7 @@ make:
 
 init:
 	$(BSHELL) ./initmake $(BSHELL) "$(SHELL)" "$(RM)" "$(MV)" "$(LN)" \
-	 $(USRINCLUDE) "$(LIBPATHS)" $(DEVNULL) "$(HIDEMAKE)" $(O) \
+	 "$(LIBPATHS)" $(DEVNULL) "$(HIDEMAKE)" $(O) \
 	 "$(CC)" "$(CFLAGS1)" "$(LDFLAGS1)" "$(BINSS)" \
 	 "$(MANS1S)" "$(MANS5S)" "$(SUBDIRS)"
 

@@ -1,4 +1,4 @@
-#$Id: Makefile.1,v 1.15 1993/04/02 12:38:10 berg Exp $
+#$Id: Makefile.1,v 1.16 1993/04/13 15:47:29 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
@@ -108,6 +108,7 @@ deinstall:
 
 clean: config.check
 	-for a in $(SUBDIRS); do cd $$a; $(MAKE) $@; cd ..; done; exit 0
+	cd mailinglist; $(RM) targetdir.h list.id.* id.test
 	$(RM) $(MANS) $(BINS) libcheck install.man install.bin suid.sh \
 	 _Makefile core autoconf.h.tmp
 

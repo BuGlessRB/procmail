@@ -1,67 +1,81 @@
 #! /bin/sh
 : &&O= || exec /bin/sh $0 $argv:q # we're in a csh, feed myself to sh
-#$Id: install.sh,v 1.14 1993/04/02 12:38:18 berg Exp $
+#$Id: install.sh,v 1.15 1993/04/13 15:47:44 berg Exp $
 
-test $# != 1 && echo "Usage: install.sh target-directory [.bin]" && exit 1
+test $# != 1 -a $# != 2 && echo "Usage: install.sh target-directory [.bin]" &&
+ exit 64
 
 target="$1"
+bindir="$2"
+
+test -z "$bindir" && bindir=.bin
 
 test ! -d "$target" && echo "Please create the target directory first" &&
- echo "Make sure that the target directory has the right owner" && exit 2
+ exit 2
 
-FRAGILE="rc.init "
-DIRS="bin etc"
+if expr match "$bindir" .bin >/dev/null
+then
+:
+else
+  echo "I prefer a bin directory that starts with .bin"
+  echo "If you want to enforce a different name, patch install.sh first :-)."
+  exit 64
+fi
 
-echo "Preserving any old files: $FRAGILE"
+export target bindir
 
-for a in $FRAGILE
-do
-  test -f "$target/.etc/$a" &&
-   mv -f "$target/.etc/$a" "$target/.etc/$a.old"
-done
+TMPF=/tmp/list.id.$$
 
-echo Installing...
+trap "/bin/rm -f $TMPF; exit 1" 1 2 3 15
 
-for a in $DIRS
-do
-  mkdir "$target/.$a" 2>/dev/null
-  cp $a/* "$target/.$a"
-done
+/bin/rm -f $TMPF
 
-chmod 0640 "$target/.etc/rc.custom" "$target/.etc/rc.init"
+echo Id test >$TMPF
 
-for a in $FRAGILE
-do
-  if test -f "$target/.etc/$a.old"
+AM_ROOT=no
+
+if ls -l $TMPF | grep '^[^ ]*  *[0-9][0-9]*  *root ' >/dev/null
+then
+  /bin/rm -f $TMPF
+  AM_ROOT=yes
+  installerid=`ls -l install.sh |
+   sed -e 's/^[^ ]*  *[0-9][0-9]*  *\([^ ]*\) /\1/'`
+  listid=`ls -ld $target/. |
+   sed -e 's/^[^ ]*  *[0-9][0-9]*  *\([^ ]*\) /\1/'`
+  if test root = $listid
   then
-     mv -f "$target/.etc/$a" "$target/.etc/$a.new"
-     mv -f "$target/.etc/$a.old" "$target/.etc/$a"
+     echo "Please give $target the right owner & group first"
+     exit 2
   fi
-done
+else
+  /bin/rm -f $TMPF
+  if echo Id test >id.test 2>/dev/null
+  then
+  :
+  else
+     echo "Please run install.sh with root permissions instead"
+     exit 77
+  fi
+  /bin/rm -f id.test
+  listid=`ls -l install.sh |
+   sed -e 's/^[^ ]*  *[0-9][0-9]*  *\([^ ]*\) /\1/'`
+fi
 
-cd ../src
-test -f multigram || make multigram
-cp multigram "$target/.bin"
-cd ../mailinglist
+trap "" 1 2 3 15
 
-cp Manual "$target/.etc"
-mv -f "$target/.bin/procmail" "$target/.bin/.procmail" 2>/dev/null
-chmod 0755 $target/.bin/*
-for a in flist senddigest idhash
-do
-  ln -f "$target/.bin/multigram" "$target/.bin/$a" 2>/dev/null
-done
-chmod 04755 "$target/.bin/flist"
-mv -f "$target/.bin/.procmail" "$target/.bin/procmail" 2>/dev/null
+export listid
 
-for a in $DIRS
-do
-  ls -ld "$target/.$a" $target/.$a/*
-done
-
-echo Creating link from .etc/rc.main to .procmailrc
-rm -f "$target/.procmailrc"
-ln "$target/.etc/rc.main" "$target/.procmailrc"
+if test $AM_ROOT = yes
+then
+  su $installerid install.sh2
+  su $listid install.sh3
+  echo "Making $target/$bindir/flist suid root..."
+  chown root "$target/$bindir/flist"
+  chmod 04755 "$target/$bindir/flist"
+else
+  . install.sh2
+  . install.sh3
+fi
 
 echo '**********************************************************************'
 echo "Finished installing, now you should"

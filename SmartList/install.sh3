@@ -1,0 +1,71 @@
+#! /bin/sh
+: &&O= || exec /bin/sh install.sh3 # we're in a csh, feed myself to sh
+#$Id: install.sh3,v 1.1 1993/04/13 15:47:52 berg Exp $
+
+test -z "$bindir" && echo "Call install.sh instead" && exit 64
+
+target="$1"
+
+test ! -d "$target" && echo "Please create the target directory first" &&
+ echo "Make sure that the target directory has the right owner" && exit 2
+
+FRAGILE="rc.init "
+DIRS="etc"
+
+echo "Preserving any old files: $FRAGILE"
+
+for a in $FRAGILE
+do
+  test -f "$target/.etc/$a" &&
+   mv -f "$target/.etc/$a" "$target/.etc/$a.old"
+done
+
+echo Installing...
+
+mkdir "$target/$bindir" 2>/dev/null
+cd bin; a=`echo *`
+cd ..
+for b in $a
+do
+   sed -e "s/SedBinDir/$bindir/" <"bin/$b" >"$target/$bindir/$b"
+done
+
+for a in $DIRS
+do
+  mkdir "$target/.$a" 2>/dev/null
+  cp $a/* "$target/.$a"
+done
+
+chmod 0640 "$target/.etc/rc.custom" "$target/.etc/rc.init"
+
+for a in $FRAGILE
+do
+  if test -f "$target/.etc/$a.old"
+  then
+     mv -f "$target/.etc/$a" "$target/.etc/$a.new"
+     mv -f "$target/.etc/$a.old" "$target/.etc/$a"
+  fi
+done
+
+cp ../src/multigram "$target/$bindir"
+
+cp Manual "$target/.etc"
+mv -f "$target/$bindir/procmail" "$target/$bindir/.procmail" 2>/dev/null
+chmod 0755 $target/$bindir/*
+for a in flist senddigest idhash
+do
+  ln -f "$target/$bindir/multigram" "$target/$bindir/$a" 2>/dev/null
+done
+chmod 04755 "$target/$bindir/flist"
+mv -f "$target/$bindir/.procmail" "$target/$bindir/procmail" 2>/dev/null
+
+ls -ld "$target/$bindir" $target/$bindir/*
+
+for a in $DIRS
+do
+  ls -ld "$target/.$a" $target/.$a/*
+done
+
+echo Creating link from .etc/rc.main to .procmailrc
+rm -f "$target/.procmailrc"
+ln "$target/.etc/rc.main" "$target/.procmailrc"

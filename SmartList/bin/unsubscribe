@@ -1,13 +1,14 @@
 #! /bin/sh
 :
-#$Id: unsubscribe,v 1.10 1993/03/02 14:40:50 berg Exp $
+#$Id: unsubscribe,v 1.11 1993/04/13 15:48:08 berg Exp $
 
 test=test		# /bin/test
 echo=echo		# /bin/echo
 cat=cat			# /bin/cat
 sed=sed			# /bin/sed
+expr=expr		# /bin/expr
 formail=formail		# /usr/local/bin/formail
-multigram=multigram	# ../.bin/multigram
+multigram=multigram	# ../SedBinDir/multigram
 
 $test -z "$listaddr" &&
  $echo "Don't start this script directly, it is used in rc.request" && exit 64
@@ -18,8 +19,7 @@ dist=dist
 
 case "$X_ENVELOPE_TO" in
   *$list-request*) wrongaddress="" ;;
-  *) wrongaddress="
-WARNING:
+  *) wrongaddress="WARNING:
 	Please try to use '$listreq'
 	the next time when issuing (un)subscribe requests.
 " ;;
@@ -32,15 +32,27 @@ $test ! -z "$wrongaddress" && $echo "$wrongaddress" && wrongaddress=""
 
 fromaddr="`$cat $tmpfrom`"
 
-if $multigram -b1 -l$off_threshold -d $dist 2>/dev/null
-then
-  $echo
-  $echo "You have been removed from the list."
-else
-  $echo "You have not been removed, I couldn't find your name on the list."
-fi |
- $sed -e '1 s/^ *[0-9]* [^ ]* \(.*\)$/\1/' \
+remtext=`if $multigram -b1 -l$off_threshold -d $dist 2>/dev/null
+ then
+   $echo
+   $echo "You have been removed from the list."
+ else
+   $echo "You have not been removed, I couldn't find your name on the list."
+ fi`
+
+$echo "$remtext" | $sed -e '1 s/^ *[0-9]* [^ ]* \(.*\)$/\1/' \
   -e '2 s/^Removed: \(.*\)$/\1/w '$tmpfrom
+
+if $test ! -z "$subscribe_log"
+then
+  if $expr match "$remtext" ".*You have been removed" >/dev/null
+  then
+     $echo "unsubscribe: `$echo \"$remtext\" | $sed -e '2,\\\$d'` by $tmpfrom"
+  else
+     $echo \
+     "unsubscribe: attempt `$multigram -b1 -l0 $dist <$tmprequest` by $tmpfrom"
+  fi >>$subscribe_log
+fi
 
 $echo "$fromaddr" >>$tmpfrom
 

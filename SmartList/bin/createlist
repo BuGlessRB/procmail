@@ -5,7 +5,7 @@
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: createlist,v 1.14 1993/03/02 14:40:39 berg Exp $
+#$Id: createlist,v 1.15 1993/04/13 15:47:57 berg Exp $
 
 defaults=.etc
 
@@ -24,6 +24,8 @@ chmod=chmod		# /bin/chmod
 echo=echo		# /bin/echo
 grep=grep		# /bin/grep
 lockfile=lockfile	# /usr/local/bin/lockfile
+
+bin_procmail=SedBinDir/procmail
 
 DEVNULL=/dev/null
 EX_USAGE=64
@@ -51,7 +53,7 @@ then
   exit $EX_USAGE
 fi
 
-if $test ! -x .bin/procmail
+if $test ! -x $bin_procmail
 then
   OIFS="$IFS"
   IFS=:"$IFS"
@@ -65,18 +67,18 @@ then
   if $test -z "$procmail"
   then
      $echo "Where is \"procmail\"?" 1>&2
-     $echo "The symbolic link .bin/procmail must point to it" 1>&2
+     $echo "The symbolic link $bin_procmail must point to it" 1>&2
      exit $EX_UNAVAILABLE
   fi
-  $rm -f .bin/procmail
-  $ln -s $procmail .bin/procmail 2>/dev/null ||
-  $ln $procmail .bin/procmail 2>/dev/null ||
-   ( $cat >.bin/procmail <<HERE
+  $rm -f $bin_procmail
+  $ln -s $procmail $bin_procmail 2>/dev/null ||
+  $ln $procmail $bin_procmail 2>/dev/null ||
+   ( $cat >$bin_procmail <<HERE
 #! /bin/sh
 :
 exec $procmail "\$@"
 HERE
-     $chmod 0755 .bin/procmail
+     $chmod 0755 $bin_procmail
    )
 fi
 
@@ -166,11 +168,11 @@ test -f $HOME/$TMPF || listdir=`$pwd`
 $rm -f $TMPF
 trap 1 2 3 15
 
-flist=$listdir/.bin/flist
+flist=$listdir/SedBinDir/flist
 
 $echo "Now make the following entries in your /usr/lib/aliases file:" 1>&2
 $echo \########################################################################
-$echo "$list: |\"IFS=' ';exec $flist $list\""
-$echo "$list-request: |\"IFS=' ';exec $flist $list-request\""
+$echo "$list: \"|IFS=' ';exec $flist $list\""
+$echo "$list-request: \"|IFS=' ';exec $flist $list-request\""
 $test $archiveserver = no && $echo "$list-dist: :include:$listdir/$list/dist"
 $echo \########################################################################
