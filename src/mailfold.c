@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.102 2001/06/23 08:18:47 guenther Exp $";
+ "$Id: mailfold.c,v 1.103 2001/06/26 08:43:52 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -342,7 +342,7 @@ void logabstract(lstfolder)const char*const lstfolder;
 	   elog(themail.p);elog(newline);*chp='\n';	     /* (any length) */
 	 }
 	*thebody=i;			   /* eliminate the terminator again */
-	if(!(lcking&lck_ALLOCLIB)&&		/* don't reenter malloc/free */
+	if(!nextexit&&				/* don't reenter malloc/free */
 	 (chp=egrepin(NSUBJECT,chp,(long)(thebody-chp),0)))
 	 { size_t subjlen;
 	   for(chp2= --chp;*--chp2!='\n';);
