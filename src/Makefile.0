@@ -1,5 +1,5 @@
 
-#$Id: Makefile.0,v 1.34 1994/08/18 18:12:34 berg Exp $
+#$Id: Makefile.0,v 1.35 1994/08/19 18:15:05 berg Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) sublib.$(O) \
@@ -139,11 +139,11 @@ gethome: gethome.$(O) setid
 setid: setid.$(O)
 	@$(CC) $(CFLAGS) $@.$(O) -o $@ $(LDFLAGS)
 
-recommend: recommend.$(O) sublib.$(O)
+recommend: recommend.$(O) sublib.$(O) lastdirsep.$(O)
 	@$(CC) $(CFLAGS) $@.$(O) sublib.$(O) lastdirsep.$(O) -o $@ $(LDFLAGS)
 
 ../man/man.sed: manconf.c ../autoconf.h ../config.h includes.h procmail.h
-../man/man.sed: ../patchlevel.h lastdirsep.h
+../man/man.sed: ../patchlevel.h lastdirsep.h lastdirsep.$(O)
 	@$(CC) $(CFLAGS) "-DBINDIR=\"$(BINDIR)\"" -o _autotst manconf.c \
 	 lastdirsep.$(O) $(LDFLAGS)
 	@./_autotst $@ $@.0 $@.1

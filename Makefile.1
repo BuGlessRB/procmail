@@ -1,8 +1,11 @@
-#$Id: Makefile.1,v 1.38 1994/08/18 18:42:51 berg Exp $
+#$Id: Makefile.1,v 1.39 1994/08/19 18:14:46 berg Exp $
 
 HIDEMAKE=$(MAKE)
 
 all: bins mans recommend
+	@echo If you would like to inspect the results before running make \
+install:
+	@echo All installable files can be found in the new/ subdirectory.
 
 make:
 	@$(SHELL) -c "exit 0"

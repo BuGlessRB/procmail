@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmail.man,v 1.57 1994/08/12 17:33:41 berg Exp $
+.Id $Id: procmail.man,v 1.58 1994/08/19 18:14:59 berg Exp $
 .TH PROCMAIL 1 \*(Dt BuGless
 .na
 .SH NAME
@@ -674,11 +674,17 @@ PATH=/bin:/usr/bin:@BINDIR@
 MAILDIR=$HOME/Mail      #you'd better make sure it exists
 DEFAULT=$MAILDIR/mbox
 LOGFILE=$MAILDIR/from
+
 :0:
 * ^From.*berg
 from_me
+
 :0
 * ^Subject:.*Flame
 /dev/null
 .fi
 .ad
+.PP
+Other examples for rcfile recipes can be looked up in the
+.BR procmailex (5)
+man page.

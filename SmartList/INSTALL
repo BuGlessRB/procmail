@@ -155,24 +155,29 @@ the two sendmailOPT* assigments following it.
 
 You can simply use the install.sh script again to install directly over
 the old installation IF you customised ONLY the master rc.init and rc.custom
-files.	Once you ran the install.sh script, you'll have to merge the changes
+files.
+
+	Just like during the initial installation of SmartList, the upgrade
+	is best performed as root (i.e. su root prior to starting install.sh).
+
+Once you ran the install.sh script, you'll have to merge the changes
 you made to the old rc.init file (still there) into the rc.init.new file.
 If, during the installation, the diff and patch programs were available,
 an attempt is made to carry over all changes from the old rc.init file
 into the rc.init.new file (even if this has been done, you must still
-cat it back over the rc.init file).  The rc.init.dist file will contain
-a copy of the rc.init file as it came with the distribution.  Do not
-change this file, a future upgrade uses this file to generate the necessary
-diffs.
+cat it back over the rc.init file, unless the files turn out to be identical
+of course).  The rc.init.dist file will contain a copy of the rc.init file as
+it came with the distribution.	Do not change or remove this file, a future
+upgrade uses this file to generate the necessary diffs (if available).
 
 Since the install.sh script will create the .etc/rc.lock file for you,
-you have 17 minutes to do that.	 If it should take longer, touch the rc.lock
-file every so often.  As soon as the difference between its mtime and the
-current time exceeds 17 minutes, the flist programs start delivering mail to
-the lists again.
+you have 17 minutes to cat-over the rc.init.new file.  If it should take
+longer, touch the rc.lock file every so often.	As soon as the difference
+between its mtime and the current time exceeds 17 minutes, the flist programs
+start delivering mail to the lists again.
 
 Then cat (yes, use `cat', because you have to preserve any hardlinks) the
-rc.init.new file into the rc.init file.
+rc.init.new file into the rc.init file (e.g. cat rc.init.new >rc.init).
 
 If there are any new entries in the new rc.custom file template, their
 omission in the old rc.custom files should not cause any problems (i.e. the
@@ -240,3 +245,5 @@ e.As above.
 f.As above.
 g.This step is irrelevant now.
 h.You can remove the olddir tree without further ado (if you like).
+
+				---
