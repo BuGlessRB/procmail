@@ -405,7 +405,9 @@
 	    Changes to procmail:
 	       - Use BOGUS.$LOGNAME.inode for bogus files to ease recovery
 	       - Define RESTRICT_EXEC to restrict execution of programs
-	       - Perform continuous checks on heap overflow, everywhere
+	       - Perform continuous checks on heap overflow, everywhere.
+		 If overflow is occurs then new variable PROCMAIL_OVERFLOW
+		 is set
 	       - Catch overly long rcfile names
 	       - new variable PROCMAIL_VERSION
 	       - LOGABSTRACT=all no longer logs filtering or variable capture
