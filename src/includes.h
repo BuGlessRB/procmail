@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.65 1999/12/15 08:52:44 guenther Exp $*/
+/*$Id: includes.h,v 1.66 2000/10/23 09:04:20 guenther Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -494,7 +494,15 @@ extern void*memmove();
 #ifndef P
 #define P(args)		args
 #endif
-#define Q(args)		() /* needed until function definitions are ANSI too */
+
+/*
+ * Until function definitions are ANSI, any function whose argument list
+ * includes a size_t, uid_t, gid_t, mode_t, pid_t, or time_t type variable
+ * should be declared with Q() instead of P().	This is done to prevent
+ * problems caused by one of those types being shorter than int and thereby
+ * being passed differently under ANSI rules.
+ */
+#define Q(args)		()
 
 #ifdef oBRAIN_DAMAGE
 #undef oBRAIN_DAMAGE

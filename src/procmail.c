@@ -14,7 +14,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.157 2000/09/28 01:23:36 guenther Exp $";
+ "$Id: procmail.c,v 1.158 2000/10/23 09:04:24 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -36,6 +36,7 @@ static /*const*/char rcsid[]=
 #include "authenticate.h"
 #include "lmtp.h"
 #include "foldinfo.h"
+#include "variables.h"
 
 static const char*const nullp,From_[]=FROM,exflags[]=RECFLAGS,
  drcfile[]="Rcfile:",pmusage[]=PM_USAGE,*etcrc=ETCRC,
@@ -93,7 +94,7 @@ static int wipetcrc P((void))	  /* stupid function to avoid a compiler bug */
 }
 #endif
 
-int main(argc,argv)const char*const argv[];
+int main(argc,argv)int argc;const char*const argv[];
 { register char*chp,*chp2;register int i;int suppmunreadable;
 #if 0				/* enable this if you want to trace procmail */
   kill(getpid(),SIGSTOP);/*raise(SIGSTOP);*/
@@ -212,32 +213,7 @@ confldopt:  { presenviron=mailfilter=0;		    /* -d disables -p and -m */
 	    }
 	   break;
       }
-     if(!presenviron)				     /* drop the environment */
-      { const char**emax=(const char**)environ,**ep,*const*kp;
-	static const char*const keepenv[]=KEEPENV;
-	for(kp=keepenv;*kp;kp++)		     /* preserve a happy few */
-	   for(i=strlen(*kp),ep=emax;chp2=(char*)*ep;ep++)
-	      if(!strncmp(*kp,chp2,(size_t)i)&&(chp2[i]=='='||chp2[i-1]=='_'))
-	       { *ep= *emax;*emax++=chp2;			 /* swap 'em */
-		 break;
-	       }
-	*emax=0;					    /* drop the rest */
-      }
-#ifdef LD_ENV_FIX
-     ;{ const char**emax=(const char**)environ,**ep;
-	static const char*ld_[]=
-	 {"LD_","_RLD","LIBPATH=","ELF_LD_","AOUT_LD_",0};
-	for(ep=emax;*emax;emax++);	  /* find the end of the environment */
-	for(;*ep;ep++)
-	 { const char**ldp,*p;
-	   for(ldp=ld_;p= *ldp++;)
-	      if(!strncmp(*ep,p,strlen(p)))	/* if it starts with LD_ (or */
-	       { *ep--= *--emax;*emax=0;       /* similar) copy from the end */
-		 break;
-	       }
-	 }
-      }
-#endif /* LD_ENV_FIX */
+     cleanupenv(presenviron);
      ;{ auth_identity*pass,*passinvk;auth_identity*spassinvk;int privs;
 	uid_t euid=geteuid();
 	spassinvk=auth_newid();passinvk=savepass(spassinvk,uid=getuid());
@@ -516,40 +492,24 @@ nospecial:	     { static const char densppr[]=
 #endif
 	    }
 	 }
-	if(idhint&&(pass=auth_finduser((char*)idhint,0))&&
-	    passinvk&&auth_whatuid(passinvk)==auth_whatuid(pass)||
-	   (pass=passinvk))
-	  /*
-	   *	set preferred uid to the intended recipient
-	   */
+	pass=passinvk;
+	if(passinvk&&idhint)	      /* if same uid as $LOGNAME, use latter */
+	 { auth_identity*idpass=auth_finduser((char*)idhint,0);
+	   if(idpass)
+	    { if(auth_whatuid(passinvk)==auth_whatuid(idpass))
+		 pass=idpass;
+	    }
+	 }
+	if(pass)	      /* set preferred uid to the intended recipient */
 Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
-	   if(!*(chp=(char*)auth_username(pass)))
-	      chp=buf;
-	   setdef(lgname,chp);setdef(home,auth_homedir(pass));
 	   if(euid==ROOT_uid)
 	      initgroups(chp,gid);
 	   endgrent();
-	   if(!*(chp=(char*)auth_shell(pass)))
-	      chp=(char*)binsh;
-	   setdef(shell,chp);setdef(orgmail,auth_mailboxname(pass));
 	 }
-	else		 /* user could not be found, set reasonable defaults */
-	  /*
-	   *	to prevent security holes, drop any privileges now
-	   */
-	 { setdef(lgname,buf);setdef(home,RootDir);setdef(shell,binsh);
-	   setdef(orgmail,"/tmp/dead.letter");setids();
-	 }
-	endpwent();auth_freeid(spassinvk);
-      }
-     if(!presenviron||!mailfilter)	  /* by default override environment */
-      { setdef(host,hostname());sputenv(lastfolder);sputenv(exitcode);
-	initdefenv();
-	;{ const char*const*kp;static const char*const prestenv[]=PRESTENV;
-	   for(kp=prestenv;*kp;)	/* preset some environment variables */
-	      if(!eputenv(*kp++,buf))
-		 setoverflow();
-	 }
+	else					  /* user could not be found */
+	   setids();   /* to prevent security holes, drop any privileges now */
+	setupenv(pass,buf,!presenviron||!mailfilter);		 /* override */
+	endpwent();auth_freeid(spassinvk);	   /* environment by default */
       }
      /*
       * Processing point of proposed /etc/procmail.conf file
@@ -1075,10 +1035,10 @@ void lmtpFrom(from,invoker,privs)char*from,*invoker;int privs;
 
 const char*skipFrom_(startchar,tobesentp)const char*startchar;long*tobesentp;
 { if(eqFrom_(startchar))
-   { long tobesent;char i;
+   { long tobesent;char c;
      tobesent= *tobesentp;
      do
-	while(i= *startchar++,--tobesent&&i!='\n');
+	while(c= *startchar++,--tobesent&&c!='\n');
      while(*startchar=='>');
      *tobesentp=tobesent;
    }

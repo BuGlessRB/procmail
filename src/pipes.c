@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.64 2000/09/28 01:23:34 guenther Exp $";
+ "$Id: pipes.c,v 1.65 2000/10/23 09:04:23 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -16,9 +16,10 @@ static /*const*/char rcsid[]=
 #include "pipes.h"
 #include "common.h"
 #include "mcommon.h"
-#include "goodies.h"
 #include "foldinfo.h"
 #include "mailfold.h"
+#include "goodies.h"
+#include "variables.h"
 
 const char exitcode[]="EXITCODE";
 static const char comma[]=",";

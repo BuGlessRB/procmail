@@ -551,5 +551,8 @@
 	       - Use mmap() for large messages
 	       - SWITCHRC=zero-length-file didn't always abort the current
 		 rcfile
+	       - LC_ in KEEPENV would preserve only the first LC_foo variable
+	       - Strip runtime linker variables (LD_*) from environment on
+		 all platforms
 	    Changes to lockfile:
 	       - Include the system mailbox lockfile path in the -v output

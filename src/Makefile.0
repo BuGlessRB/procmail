@@ -1,9 +1,9 @@
-#$Id: Makefile.0,v 1.58 2000/09/28 01:23:12 guenther Exp $
+#$Id: Makefile.0,v 1.59 2000/10/23 09:04:16 guenther Exp $
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) foldinfo.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) \
  sublib.$(O) acommon.$(O) mcommon.$(O) lastdirsep.$(O) authenticate.$(O) \
- lmtp.$(O) memblk.$(O)
+ lmtp.$(O) memblk.$(O) variables.$(O)
 LF_OBJ=exopen.$(O) sublib.$(O) acommon.$(O) mcommon.$(O) authenticate.$(O) \
  lastdirsep.$(O)
 FM_OBJ=common.$(O) fields.$(O) formisc.$(O) sublib.$(O) ecommon.$(O) \
@@ -105,7 +105,7 @@ locking.$(O): misc.h pipes.h exopen.h locking.h lastdirsep.h
 
 mailfold.$(O): ../autoconf.h ../config.h includes.h procmail.h acommon.h
 mailfold.$(O): sublib.h robust.h shell.h misc.h pipes.h common.h exopen.h
-mailfold.$(O): goodies.h locking.h mailfold.h memblk.h
+mailfold.$(O): variables.h locking.h mailfold.h memblk.h
 
 mcommon.$(O): ../autoconf.h ../config.h includes.h mcommon.h
 
@@ -115,27 +115,31 @@ memblk.$(O): exopen.h memblk.h
 misc.$(O): ../autoconf.h ../config.h ../patchlevel.h includes.h procmail.h
 misc.$(O): acommon.h sublib.h robust.h shell.h misc.h pipes.h common.h cstdio.h
 misc.$(O): exopen.h regexp.h mcommon.h goodies.h locking.h network.h mailfold.h
-misc.$(O): lastdirsep.h authenticate.h memblk.h foldinfo.h
+misc.$(O): lastdirsep.h authenticate.h memblk.h foldinfo.h variables.h
 
 multigram.$(O): ../autoconf.h ../config.h includes.h sublib.h hsort.h shell.h
 multigram.$(O): ecommon.h mcommon.h lastdirsep.h targetdir.h
 
 pipes.$(O): ../autoconf.h ../config.h includes.h procmail.h robust.h shell.h
-pipes.$(O): misc.h pipes.h common.h cstdio.h mcommon.h goodies.h memblk.h
+pipes.$(O): misc.h pipes.h common.h cstdio.h mcommon.h variables.h memblk.h
 pipes.$(O): mailfold.h
 
 procmail.$(O): ../patchlevel.h ../autoconf.h ../config.h includes.h procmail.h
 procmail.$(O): acommon.h sublib.h robust.h shell.h misc.h pipes.h common.h
 procmail.$(O): cstdio.h exopen.h regexp.h mcommon.h goodies.h locking.h
 procmail.$(O): mailfold.h lastdirsep.h authenticate.h lmtp.h memblk.h
+procmail.$(O): variables.h
 
 regexp.$(O): ../autoconf.h ../config.h includes.h procmail.h sublib.h robust.h
-regexp.$(O): shell.h misc.h regexp.h goodies.h
+regexp.$(O): shell.h misc.h regexp.h variables.h
 
 robust.$(O): ../autoconf.h ../config.h includes.h procmail.h robust.h shell.h
 robust.$(O): misc.h pipes.h common.h mailfold.h shell.h
 
 sublib.$(O): ../autoconf.h ../config.h includes.h sublib.h shell.h
+
+variables.$(O): ../autoconf.h ../config.h includes.h procmail.h shell.h
+variables.$(O): authenticate.h goodies.h misc.h variables.h
 
 gethome.$(O) setid.$(O) recommend.$(O): ../autoconf.h ../config.h includes.h
 

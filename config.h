@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.90 2000/09/28 01:23:02 guenther Exp $*/
+/*$Id: config.h,v 1.91 2000/10/23 09:04:14 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -125,6 +125,7 @@
  ************************************************************************/
 
 #define ROOT_uid	0
+#define LDENV		{"LD_","_RLD","LIBPATH=","ELF_LD_","AOUT_LD_",0}
 
 #define UPDATE_MASK	S_IXOTH	   /* bit set on mailboxes when mail arrived */
 #define OVERRIDE_MASK	(S_IXUSR|S_ISUID|S_ISGID|S_ISVTX)    /* if found set */
@@ -203,7 +204,8 @@ MMGR)\
 #define DEFcomsat	"no"		/* when an rcfile has been specified */
 
 #define BinSh		"/bin/sh"
-#define RootDir		"/"
+#define ROOT_DIR	"/"
+#define DEAD_LETTER	"/tmp/dead.letter"    /* $ORGMAIL if no passwd entry */
 #define DevNull		"/dev/null"
 #define NICE_RANGE	39			  /* maximal nice difference */
 #define chCURDIR	'.'			    /* the current directory */

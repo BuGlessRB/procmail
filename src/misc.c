@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: misc.c,v 1.101 2000/09/28 01:23:32 guenther Exp $";
+ "$Id: misc.c,v 1.102 2000/10/23 09:04:22 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -31,6 +31,7 @@ static /*const*/char rcsid[]=
 #include "lastdirsep.h"
 #include "memblk.h"
 #include "authenticate.h"
+#include "variables.h"
 
 struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
  {"LOCKTIMEOUT",DEFlocktimeout},{"SUSPEND",DEFsuspend},
@@ -86,12 +87,13 @@ void shutdesc P((void))
 { rclose(savstdout);closelog();closerc();
 }
 
+/* On systems with `capabilities', setuid/setgid can fail for root! */
 void checkroot(c,Xid)const int c;const unsigned long Xid;
 { uid_t eff;
   if((eff=geteuid())!=ROOT_uid&&getuid()!=ROOT_uid)
      return;
   syslog(LOG_CRIT,"set%cid(%lu) failed with ruid/euid = %lu/%lu",c,Xid,
-   (unsigned long)getuid(),eff);
+   (unsigned long)getuid(),(unsigned long)eff);
   nlog(insufprivs);
   exit(EX_NOPERM);
 }
