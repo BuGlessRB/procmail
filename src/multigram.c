@@ -17,9 +17,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.85 1998/11/12 05:20:21 guenther Exp $";
+ "$Id: multigram.c,v 1.86 1998/11/16 03:37:31 srb Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 1998/11/12 05:20:21 $";
+static /*const*/char rcsdate[]="$Date: 1998/11/16 03:37:31 $";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"
@@ -181,10 +181,10 @@ static void castlower(str)register char*str;
 }
 
 static char*findatlast(str)const char*str;
-{ const char*p;
+{ const char*p,*found=0;
   while(p=strchr(str,'@'))			   /* find the last '@' sign */
-     str=p+1;
-  return (char*)str;
+     str=(found=p)+1;
+  return (char*)found;
 }
 
 static void lowcase(str)struct string*const str;	   /* make lowercase */
