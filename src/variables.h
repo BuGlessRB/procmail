@@ -1,4 +1,4 @@
-/* $Id: variables.h,v 1.7 2001/08/27 08:44:03 guenther Exp $ */
+/* $Id: variables.h,v 1.3 2005/07/13 11:24:59 guenther Exp $ */
 
 const char
  *sputenv P((const char*const a)),
@@ -10,8 +10,10 @@ void
  retbStdout P((char*const newmyenv)),
  appendlastvar P((const char*const value)),
  cleanupenv P((int preserve)),
- initdefenv Q((auth_identity*pass,const char*fallback,int do_presets)),
+ initdefenv Q2((auth_identity*pass,const char*fallback,int do_presets,
+  const char*mode)),
  asenv P((const char*const chp)),
+ setval P((const char*const name,const char*const value)),
  setdef P((const char*const name,const char*const value)),
  setlastfolder P((const char*const folder)),
  allocbuffers Q((size_t lineb,int setenv)),
@@ -28,5 +30,5 @@ long
 
 extern long Stdfilled;
 extern char*Stdout;
-extern const char lastfolder[],maildir[],scomsat[],offvalue[];;
+extern const char lastfolder[],maildir[],scomsat[],offvalue[];
 extern int didchd;

@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.57 2001/07/24 19:56:59 guenther Exp $
+#$Id: install.sh,v 1.1.1.2 2002/06/30 21:12:32 guenther Exp $
 
 umask 022				# set it to a sane value
 
@@ -183,11 +183,13 @@ then
      echo "Then run this script again."
      exit 64
   fi
+  exec 4<&0
   case $installerid in
-     [0-9]*) . ./install.sh2 4<&0 ;;
-     *) $setid $installerid 4<&0 <install.sh2 || exit 1;;
+     [0-9]*) . ./install.sh2 ;;
+     *) $setid $installerid <install.sh2 || exit 1;;
   esac
-  $setid $listid $target 4<&0 <install.sh3 || exit 64
+  $setid $listid $target <install.sh3 || exit 64
+  exec 4<&-
   echo "Making $target/$bindir/flist suid root..."
   if chown root "$target/$bindir/flist" && chmod 04755 "$target/$bindir/flist"
   then
@@ -201,8 +203,10 @@ then
      exit 64
   fi
 else
-  . ./install.sh2 4<&0
-  . ./install.sh3 4<&0
+  exec 4<&0
+  . ./install.sh2
+  . ./install.sh3
+  exec 4<&-
 fi
 
 chmod 0644 install.list

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: pipes.c,v 1.74 2001/09/18 22:01:27 guenther Exp $";
+ "$Id: pipes.c,v 1.2 2002/06/30 06:37:42 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -83,7 +83,7 @@ static void getstdin(pip)const int pip;
 static void callnewprog(newname)const char*const newname;
 {
 #ifdef RESTRICT_EXEC
-  if(erestrict&&uid>=RESTRICT_EXEC)
+  if(erestrict>0&&uid>=RESTRICT_EXEC)
    { syslog(LOG_ERR,slogstr,"Attempt to execute",newname);
      nlog("No permission to execute");logqnl(newname);
      return;
@@ -141,24 +141,14 @@ No_1st_comma: elog(*walkargs);					/* expand it */
 }
 
 int pipthrough(line,source,len)char*line,*source;const long len;
-{ int pinfd[2],poutfd[2];char*eq;
-  if(Stdout)
-   { *(eq=strchr(Stdout,'\0')-1)='\0';			     /* chop the '=' */
-     if(!(backblock=getenv(Stdout)))			/* no current value? */
-      { PRDB=PWRB= -1;
-	backlen=0;
-      }
-     else
-      { backlen=strlen(backblock);
-	goto pip;
-      }
-   }
+{ int pinfd[2],poutfd[2];
+  if(!source)				  /* if there's *no* source, then we */
+     source="",PRDB=PWRB= -1;			   /* don't need a back pipe */
   else
-pip: rpipe(pbackfd);
+     rpipe(pbackfd);
   rpipe(pinfd);						 /* main pipes setup */
   if(!(pidchild=sfork()))			/* create a sending procmail */
-   { if(!Stdout)
-	backblock=source,backlen=len;
+   { backblock=source;backlen=len;
      childsetup();rclose(PRDI);rclose(PRDB);
      rpipe(poutfd);rclose(STDOUT);
      if(!(pidfilt=sfork()))				/* create the filter */
@@ -188,54 +178,12 @@ perr:	      progerr(line,excode,pwait==4);  /* I'm going to tell my mommy! */
   rclose(PWRB);rclose(PWRI);getstdin(PRDI);
   if(forkerr(pidchild,procmailn))
      return -1;
-  if(Stdout)
-   { char*name;memblk temp;		    /* ick.  This is inefficient XXX */
-     *eq='=';name=Stdout;Stdout=0;primeStdout(name);free(name);
-     makeblock(&temp,Stdfilled);
-     tmemmove(temp.p,Stdout,Stdfilled);
-     readdyn(&temp,&Stdfilled,Stdfilled+backlen+1);
-     Stdout=realloc(Stdout,&Stdfilled+1);
-     tmemmove(Stdout,temp.p,Stdfilled+1);
-     freeblock(&temp);
-     retStdout(Stdout,pwait&&pipw,!backblock);
-     return pipw;
-   }
   return 0;		    /* we stay behind to read back the filtered text */
 }
 
 long pipin(line,source,len,asgnlastf)char*const line;char*source;long len;
  int asgnlastf;
 { int poutfd[2];
-#if 0						     /* not supported (yet?) */
-  if(!sh)					/* shortcut builtin commands */
-   { const char*t1,*t2,*t3;
-     static const char pbuiltin[]="Builtin";
-     t1=strchr(line,'\0')+1;
-     if(!strcmp(test,line))
-      { if(t1!=Tmnate)
-	 { t2=strchr(t1,'\0')+1;
-	   if(t2!=Tmnate)
-	    { t3=strchr(t2,'\0')+1;
-	      if(t3!=Tmnate&&!strcmp(t2,"=")&&strchr(t3,'\0')==Tmnate-1)
-	       { int excode;
-		 if(verbose)
-		  { nlog(pbuiltin);elog(oquote);elog(test);elog(comma),
-		 if(!ignwerr)
-		    writeerr(line);
-		 else
-		    len=0;
-		 if(pwait&&(excode=strcmp(t1,t3)?1:EXIT_SUCCESS)!=EXIT_SUCCESS)
-		  { if(!(pwait&2)||verbose)	  /* do we put it on report? */
-		       progerr(line,excode,pwait&2);
-		    len=1;
-		  }
-		 goto builtin;
-	       }
-	    }
-	 }
-      }
-   }
-#endif
   rpipe(poutfd);
   if(!(pidchild=sfork()))				    /* spawn program */
      rclose(PWRO),shutdesc(),getstdin(PRDO),callnewprog(line);
@@ -254,7 +202,6 @@ long pipin(line,source,len,asgnlastf)char*const line;char*source;long len;
       }
    }
   pidchild=0;
-builtin:
   if(!sh)
      concatenate(line);
   if(asgnlastf)
@@ -296,16 +243,26 @@ char*readdyn(mb,filled,oldfilled)memblk*const mb;long*const filled,oldfilled;
 { return read2blk(mb,filled,&read_read,&read_cleanup,&oldfilled);
 }
 
+int readvar(nameeq,value,len)char*const nameeq,*const value;const long len;
+{ memblk temp;
+  primeStdout(nameeq);
+  wrapblock(&temp,Stdout,Stdfilled);
+  readdyn(&temp,&Stdfilled,Stdfilled+len);
+  retStdout(temp.p,pwait&&pipw,!value);
+  return !pipw;
+}
+
 char*fromprog(name,dest,max)char*name;char*const dest;size_t max;
 { int pinfd[2],poutfd[2];int i;char*p;
-  concon('\n');rpipe(pinfd);inittmout(name);
+  rpipe(pinfd);inittmout(name);
   if(!(pidchild=sfork()))			/* create a sending procmail */
-   { Stdout=name;childsetup();rclose(PRDI);rpipe(poutfd);rclose(STDOUT);
+   { childsetup();rclose(PRDI);rpipe(poutfd);rclose(STDOUT);
      if(!(pidfilt=sfork()))			     /* spawn program/filter */
 	rclose(PWRO),rdup(PWRI),rclose(PWRI),getstdin(PRDO),callnewprog(name);
      rclose(PWRI);rclose(PRDO);
      if(forkerr(pidfilt,name))
 	rclose(PWRO),stermchild();
+     concon('\n');
      dump(PWRO,ft_PIPE,themail.p,filled);waitfor(pidfilt);exit(lexitcode);
    }
   rclose(PWRI);p=dest;

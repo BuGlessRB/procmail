@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: formail.man,v 1.46 2001/08/04 06:08:17 guenther Exp $
+.Id $Id: formail.man,v 1.2 2002/06/30 06:00:04 guenther Exp $
 .TH FORMAIL 1 \*(Dt BuGless
 .SH NAME
 formail \- mail (re)formatter
@@ -262,7 +262,7 @@ messages while splitting.
 When renaming, removing, or extracting fields, partial fieldnames may
 be used to specify all fields that start with the specified value.
 .PP
-By default, when generating an auto-reply header procmail selects the
+By default, when generating an auto-reply header formail selects the
 envelope sender from the input message.  This is correct for vacation
 messages and other automatic replies regarding the routing or delivery
 of the original message.  If the sender is expecting a reply or the

@@ -52,3 +52,11 @@ Backslash-newline inconsistencies
     Backslash-newline removal is almost completely inconsistent and
     should be straightened out some how, but without breaking
     anything that's in use.
+
+LFS aware compilation
+    Some people apparently want to save to mailbox files larger
+    than 2GB
+
+Logging to stderr after LOGFILE is set
+    c.f. https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=73937
+

@@ -1,4 +1,4 @@
-/*$Id: pipes.h,v 1.14 2001/06/07 21:03:51 guenther Exp $*/
+/*$Id: pipes.h,v 1.2 2002/06/30 06:37:42 guenther Exp $*/
 
 struct memblk;					       /* predeclare the tag */
 void
@@ -7,7 +7,8 @@ void
  resettmout P((void)),
  exectrap P((const char*const tp));
 int
- pipthrough P((char*line,char*source,const long len));
+ pipthrough P((char*line,char*source,const long len)),
+ readvar P((char*const nameeq,char*const value,const long len));
 long
  pipin P((char*const line,char*source,long len,int asgnlastf));
 char

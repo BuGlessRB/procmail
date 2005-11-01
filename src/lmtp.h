@@ -1,9 +1,12 @@
-/* $Id: lmtp.h,v 1.4 2001/02/20 09:35:23 guenther Exp $ */
+/* $Id: lmtp.h,v 1.2 2005/07/13 11:24:59 guenther Exp $ */
 
 extern int childserverpid;
+extern char detaildelim;
 
-struct auth_identity
- **lmtp P((struct auth_identity***lrout,char*invoker));
+struct lmtp_rcpt{struct auth_identity*id;char*detail;char*domain;};
+
+struct lmtp_rcpt
+ *lmtp P((struct lmtp_rcpt**lrout,char*invoker));
 void
  flushoverread P((void)),
  freeoverread P((void)),

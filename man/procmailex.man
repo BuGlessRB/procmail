@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailex.man,v 1.54 2001/08/04 06:08:20 guenther Exp $
+.Id $Id: procmailex.man,v 1.2 2002/06/30 06:02:32 guenther Exp $
 .TH PROCMAILEX 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -82,8 +82,8 @@ backup
 If your system doesn't generate or generates incorrect leading `@FROM@'
 lines on every mail, you can fix this by calling up procmail with
 the \-@FROMWHOPT@@REFRESH_TIME@ option.  To fix the same problem by
-different means, you could have inserted the following two
-recipes above all other recipes in your rcfile.  They will filter the header
+different means, you could have inserted the following
+recipe above all other recipes in your rcfile.  They will filter the header
 of any mail through formail which will strip any leading `@FROM@', and
 automatically regenerates it subsequently.
 .Sx 2
@@ -168,7 +168,7 @@ This is allowed.  Do
 .B not
 put comments on the same line as a condition though.
 .Sx 18
-SHELL=/bin/sh    # for other shells, this might need adjustment
+SHELL=/bin/sh    # only needed for older versions of procmail
 
 :0 @WAIT_EXIT_QUIET@@PASS_HEAD@@CONTINUE@: vacation.lock
  # Perform a quick check to see if the mail was addressed to us

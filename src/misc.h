@@ -1,4 +1,4 @@
-/*$Id: misc.h,v 1.56 2001/06/30 01:14:19 guenther Exp $*/
+/*$Id: misc.h,v 1.2 2002/06/30 06:54:02 guenther Exp $*/
 
 struct dyna_array{int filled,tspace;char*vals;};
 union offori{off_t o;int i;};
@@ -49,7 +49,7 @@ int
  forkerr Q((const pid_t pid,const char*const a)),
  buildpath P((const char*name,const char*const path,const char*const file)),
  nextrcfile P((void)),
- enoughprivs Q((const auth_identity*const passinvk,const uid_t euid,
+ enoughprivs Q2((const auth_identity*const passinvk,const uid_t euid,
   const gid_t egid,const uid_t uid,const gid_t gid)),
  conditions P((char flags[],const int prevcond,const int lastsucc,
   const int lastcond,const int skipping,int nrcond));

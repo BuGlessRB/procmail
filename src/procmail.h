@@ -1,4 +1,4 @@
-/*$Id: procmail.h,v 1.57 2001/08/25 04:38:40 guenther Exp $*/
+/*$Id: procmail.h,v 1.2 2002/06/30 07:12:51 guenther Exp $*/
 
 #include "includes.h"
 
@@ -82,10 +82,9 @@ extern struct varstr{const char*const sname,*sval;}strenstr[];
 #define msgprefix	(strenstr[2].sval)
 #define traps		(strenstr[3].sval)
 #define shellflags	(strenstr[4].sval)
-#define fdefault	(*(const char*volatile*)&strenstr[5].sval)
-#define sendmail	(strenstr[6].sval)
-#define flagsendmail	(strenstr[7].sval)
-/* #define PM_version	(strenstr[8].sval) */
+#define sendmail	(strenstr[5].sval)
+#define flagsendmail	(strenstr[6].sval)
+/* #define PM_version	(strenstr[7].sval) */
 
 
 extern char*buf,*buf2,*loclock,*thebody;
@@ -93,7 +92,7 @@ extern const char shell[],lockfile[],newline[],binsh[],unexpeof[],*const*gargv,
  *const*restargv,*sgetcp,pmrc[],*rcfile,dirsep[],devnull[],empty[],lgname[],
  executing[],oquote[],cquote[],whilstwfor[],procmailn[],Mail[],home[],host[],
  *defdeflock,*argv0,exceededlb[],curdir[],slogstr[],conflicting[],orgmail[],
- insufprivs[],defpath[],errwwriting[],Version[];
+ insufprivs[],defpath[],errwwriting[],Version[],vdefault[];
 extern long filled,lastscore;
 extern int sh,pwait,retval,retvl2,rc,privileged,ignwerr,
  lexitcode,accspooldir,crestarg,savstdout,berkeley,mailfilter,erestrict,

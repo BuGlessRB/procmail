@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.101 2001/08/27 08:43:57 guenther Exp $*/
+/*$Id: config.h,v 1.3 2005/07/13 11:24:59 guenther Exp $*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)
@@ -125,6 +125,11 @@
 	the uid of the owner of the rcfile (this only happens if procmail is
 	called with the -m option, without variable assignments on the command
 	line). */
+
+#define CONFRC	"/etc/procmail.conf"	/* optional global procmail
+					   configuration file.  It is processed
+	after all variable except ORGMAIL are preset.  Filtering and delivering
+	actions will not be processed in this rcfile. */
 
 /*#define console	"/dev/console"	/* uncomment if you want procmail to
 					   use the console (or any other
@@ -258,7 +263,7 @@ MMGR)\
 \n   Or: procmail [-toY] [-f fromwhom] [-a argument] ... -d recipient ...\
 \n\
    Or: procmail [-ptY] [-f fromwhom] -m [parameter=value] ... rcfile [arg] ...\
-\n   Or: procmail [-toY] [-a argument] ... -z\
+\n   Or: procmail [-toY] [-a argument] ... -z [delim]\
 \n"
 #define PM_HELP		\
  "\t-v\t\tdisplay the version number and exit\

@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.73 2001/08/27 08:43:58 guenther Exp $*/
+/*$Id: manconf.c,v 1.2 2002/06/30 06:14:23 guenther Exp $*/
 
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -233,7 +233,7 @@ a security violation was found (e.g. \1.B \2-@PRESERVOPT@\1or variable\
  \2-@PRESERVOPT@\1and\1.BR \2-@FROMWHOPT@ .\1");
   pc("LMTPOPT",LMTPOPT);
 #else
-  ps("LMTPOPTdesc","");ps("LMTPusage","");
+  ps("LMTPOPTdesc","");ps("LMTPusage","\1");
 #endif
   pname("INIT_UMASK",0);printf("0%lo/g\n",(unsigned long)INIT_UMASK);lines--;
   pn("DEFlinebuf",DEFlinebuf);

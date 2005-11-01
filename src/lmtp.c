@@ -1,13 +1,13 @@
 /************************************************************************
  *	LMTP (Local Mail Transfer Protocol) routines			*
  *									*
- *	Copyright (c) 1997-2001, Philip Guenther, The United States	*
- *							of America	*
+ *	Copyright (c) 1997-2003,2005, Philip Guenther, The United	*
+ *						States of America	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lmtp.c,v 1.14 2001/09/23 20:17:57 guenther Exp $"
+ "$Id: lmtp.c,v 1.3 2005/07/13 11:24:59 guenther Exp $"
 #endif
 #include "procmail.h"
 #ifdef LMTP
@@ -50,6 +50,7 @@ rset		=> if in child, die.
 static int lreaddyn P((void));
 
 int childserverpid;
+char detaildelim='\0';
 
 static ctopfd;
 static char*overread;
@@ -60,7 +61,6 @@ static char*bufcur;
 static const char
  lhlomsg[]=
 "250-localhost\r\n\
-250-SIZE\r\n\
 250-8BITMIME\r\n\
 250-PIPELINING\r\n\
 250-CHUNKING\r\n\
@@ -135,21 +135,22 @@ static char *slurpaddress P((void))
 	   continue;
 	case '"':
 	   while(++p<last)
-	      switch(*p=getL())
+	    { switch(*p=getL())
 	       { case '\\':
 		    if(++p==last)
+		 case '\r':
 		       goto syntax_error;
 		    *p=getL();
 		    continue;
 		 case '"':
 		    break;
-		 case '\r':
-			goto syntax_error;
 		 case '\n':
 		    return 0;
 		 default:
 		    continue;
 	       }
+	      break;
+	    }
 	   continue;
 	case '\00':case '\01':case '\02':case '\03':case '\04':
 	case '\05':case '\06':case '\07':case '\10':case '\11':
@@ -172,7 +173,7 @@ syntax_error:
 }
 
 /* given a path from slurpaddress() extract the local-part and strip quoting */
-static char *extractaddress(path)char *path;
+static char *extractaddress(path,domain)char *path,**domain;
 { char *p=path+1,*q=path;		       /* +1 to skip the leading '<' */
   if(*p=='@')		    /* route address.  Perhaps we should assume that */
      while(1)			/* sendmail will strip these for recipients? */
@@ -204,8 +205,9 @@ found:
 		 *q++= *p;
 	   p++;
 	   continue;
-	case '\0':case '>':	 /* no final host part?	 That's fine with us */
 	case '@':
+	   if(domain)*domain=p+1;
+	case '\0':case '>':	 /* no final host part?	 That's fine with us */
 	   *q='\0';
 	   return path;
       }
@@ -234,13 +236,13 @@ linebuf MUST be at least 256, and should be at least 1024 or so for buffering
    wrong, and it can't do the necessary calls to lmtpresponse(), then
    it should exit with some non-zero status.  The parent will then
    syslog it, and exit with EX_SOFTWARE.  (See getL() in cstdio.c) */
-struct auth_identity **lmtp(lrout,invoker)
-struct auth_identity***lrout;char*invoker;
+struct lmtp_rcpt *lmtp(lrout,invoker)
+struct lmtp_rcpt**lrout;char*invoker;
 { static const char cLHLO[]="LHLO ",cMAIL[]="MAIL FROM:",cRCPT[]="RCPT TO:",
    cDATA[]="DATA",cBDAT[]="BDAT",cRSET[]="RSET",cVRFY[]="VRFY ",cQUIT[]="QUIT",
    cNOOP[]="NOOP";
   const char*msg,*msgcmd;int flush=0,c,lmtp_state=S_START;long size=0;
-  auth_identity**rcpts,**lastrcpt,**currcpt;
+  struct lmtp_rcpt*rcpts,*lastrcpt,*currcpt;
 
   pushfd(STDIN);overread=0;overlen=0;nliseol=1;
   bufinit;ctopfd=-1;					 /* setup our output */
@@ -293,14 +295,7 @@ struct auth_identity***lrout;char*invoker;
 	      goto jumpin;
 	      do
 	       { switch(c)
-		  { case 's':case 'S':
-		       if(unexpect("IZE="))			  /* rfc1653 */
-			  goto unknown_param;
-		       size=slurpnumber();
-		       if(size<0)		/* will be zerod at loop top */
-			  goto unknown_param;
-		       break;
-		    case 'b':case 'B':
+		  { case 'b':case 'B':
 		       if(unexpect("ODY="))			  /* rfc1652 */
 			  goto unknown_param;
 		       while((c=getL())!='\r')		      /* just ignore */
@@ -336,11 +331,7 @@ jumpout:      rpipe(pipefds);
 		 makeFrom(from+1,invoker);
 		 /* bufinit;	only needed if buf2 might be realloced */
 		 free(from);
-		 if(size&&!resizeblock(&themail,size+=filled+3,1))/* try for */
-		  { status=1;	      /* the memory now, +3 for the "." CRLF */
-		    bufwrite(nomemmsg,STRLEN(nomemmsg),1);
-		  }
-		 if(rwrite(pipefds[1],&status,sizeof(status))!=sizeof(status))
+		 if(rwrite(pipefds[1],&status,1)!=1)
 		    exit(EX_OSERR);
 		 if(status)
 		    exit(0);
@@ -350,9 +341,9 @@ jumpout:      rpipe(pipefds);
 	       }
 	      rclose(pipefds[1]);
 	      if(!forkerr(childserverpid,buf))
-	       { char status=1;
-		 rread(pipefds[0],&status,sizeof(status));
-		 if(!status)
+	       { char status=1;				 /* assume it failed */
+		 rread(pipefds[0],&status,1);	    /* unless told otherwise */
+		 if(!status)				       /* looks good */
 		  { pushfd(pipefds[0]);		   /* pick up what the child */
 		    lmtp_state=S_MAIL;			/* left lying around */
 		    bufinit;
@@ -386,20 +377,24 @@ jumpout:      rpipe(pipefds);
 	      rcpts=realloc(rcpts,(num+INCR_RCPTS)*sizeof*rcpts);
 	      currcpt=rcpts+num;lastrcpt=currcpt+INCR_RCPTS;
 	    }
-	   ;{ char *path,*mailbox;auth_identity*temp;
+	   ;{ char *path,*mailbox,*detail,*dom=0;auth_identity*temp;
 		    /* if it errors, extractaddress() will free its argument */
-	      if(!(path=slurpaddress())||!(mailbox=extractaddress(path)))
+	      if(!(path=slurpaddress())||!(mailbox=extractaddress(path,&dom)))
 	       { msg="550 5.1.3 address syntax error\r\n";
 		 goto message;
 	       }
 /* if we were to handle ESMTP params on the RCPT verb, we would do so here */
 	      skiptoeol;
+	      if(detail=strchr(mailbox,detaildelim))
+		 *detail++='\0';
 	      if(!(temp=auth_finduser(mailbox,0)))
 	       { msg="550 5.1.1 mailbox unknown\r\n";
 		 free(path);
 		 goto message;
 	       }
-	      auth_copyid(*currcpt=auth_newid(),temp);
+	      auth_copyid(currcpt->id=auth_newid(),temp);
+	      currcpt->detail=detail&&detaildelim?tstrdup(detail):0;
+	      currcpt->domain=dom?tstrdup(dom):0;
 	      free(path);
 	      currcpt++;
 	      msg="250 2.1.5 ok\r\n";
@@ -528,13 +523,14 @@ bad_bdat_param:	    msg="504 5.5.4 parameter unknown\r\n";
 	   if(NOTcommand(cVRFY,1))
 	      goto unknown_command;
 	   flush=1;
-	   ;{ char *path,*mailbox;
-	      auth_identity *temp;
-	      if(!(path=slurpaddress())||!(mailbox=extractaddress(path)))
+	   ;{ char *path,*mailbox,*detail;auth_identity *temp;
+	      if(!(path=slurpaddress())||!(mailbox=extractaddress(path,0)))
 	       { msg="501 5.1.3 address syntax error\r\n";
 		 goto message;
 	       }
 	      skiptoeol;
+	      if(detail=strchr(mailbox,detaildelim))
+		 *detail='\0';
 	      if(!(temp=auth_finduser(mailbox,0)))
 	       { msg="550 5.1.1 user unknown\r\n";
 		 free(path);

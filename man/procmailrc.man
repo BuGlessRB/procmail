@@ -1,6 +1,6 @@
 Please read the README file in this directory first.
 .ex
-.Id $Id: procmailrc.man,v 1.85 2001/08/04 06:08:21 guenther Exp $
+.Id $Id: procmailrc.man,v 1.3 2005/07/13 11:23:47 guenther Exp $
 .TH PROCMAILRC 5 \*(Dt BuGless
 .na
 .SH NAME
@@ -270,8 +270,11 @@ multiple directories to deliver to (procmail will do so utilising
 hardlinks).
 .SS "Environment variable defaults"
 .TP 2.2i
-.B "LOGNAME, HOME and SHELL"
+.B "LOGNAME, HOME and USER_SHELL"
 Your (the recipient's) defaults
+.TP
+.B SHELL
+\&@BinSh@
 .TP
 .B PATH
 .na
@@ -779,7 +782,7 @@ one trailing newline will be stripped.
 .PP
 Some non-optimal and non-obvious regexps set MATCH to an incorrect
 value.  The regexp can be made to work by removing one or more unneeded
-'*', '+', or '?' operator on the left-hand side of the \e/ token.
+\&'*', '+', or '?' operators on the left-hand side of the \e/ token.
 .SH MISCELLANEOUS
 If the regular expression contains `\fB@TO_key@\fP' it will be substituted by
 .na

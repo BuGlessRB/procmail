@@ -10,14 +10,18 @@ typedef struct memblk {
 typedef char*(read_func_type) P((char*,long,void*));
 typedef int(cleanup_func_type) P((memblk*,long*,long,void*));
 
-void
- makeblock P((memblk*const,const long)), /* create block of the given length */
- freeblock P((memblk*const)),				    /* deallocate it */
- lockblock P((memblk*const));	   /* protect this block from future changes */
+void							  /* create block of */
+ makeblock P((memblk*const mb,const long len)),		     /* given length */
+ wrapblock P((memblk*const mb,char*const p,const long len)),   /* put memblk */
+		    /* wrapper around an existing allocation, never use mmap */
+ freeblock P((memblk*const mb)),			    /* deallocate it */
+ lockblock P((memblk*const mb));   /* protect this block from future changes */
 int							  /* by this process */
- resizeblock P((memblk*const,const long,const int));	  /* change the size */
+ resizeblock P((memblk*const mb,const long len,		  /* change the size */
+  const int nonfatal));		    /* nonfatal means return error if nonmem */
 char		      /* dynamically grow a block to fit data as it comes in */
- *read2blk P((memblk*const,long*const,read_func_type*,cleanup_func_type*,void*));
+ *read2blk P((memblk*const mb,long*const filledp,read_func_type*read_func,
+  cleanup_func_type*cleanup_func,void*data));
 
 #ifdef USE_MMAP
 extern int ISprivate;		     /* is themail a private copy or shared? */

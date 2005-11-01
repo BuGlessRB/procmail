@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.77 2001/08/25 04:38:37 guenther Exp $*/
+/*$Id: includes.h,v 1.2 2002/06/30 06:53:34 guenther Exp $*/
 
 #include "../autoconf.h"
 #ifdef NO_const
@@ -530,7 +530,14 @@ extern void*memmove();
  * problems caused by one of those types being shorter than int and thereby
  * being passed differently under ANSI rules.
  */
+#if ! __GNUC__
 #define Q(args)		()
+#else
+#define Q(args)		args
+#endif
+
+/* for prototypes that refer to 'auth_identity' outside of authenticate.h */
+#define Q2(args)	()
 
 #ifdef oBRAIN_DAMAGE
 #undef oBRAIN_DAMAGE

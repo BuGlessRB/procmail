@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mailfold.c,v 1.104 2001/08/04 07:16:26 guenther Exp $";
+ "$Id: mailfold.c,v 1.2 2002/06/30 06:47:04 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"
@@ -252,32 +252,34 @@ retf:	if(linkfolder)
 	if(source==themail.p)			      /* skip leading From_? */
 	   source=skipFrom_(source,&len);
 	strcpy(buf2,buf);
-	chp2=buf2+(chp-buf)-MAILDIRLEN;
-	*chp++= *MCDIRSEP_;
+	chp2=buf2+(chp-buf);
+	chp-=MAILDIRLEN;
+	*chp2++= *MCDIRSEP_;
 	;{ int retries=MAILDIRretries;
 	   for(;;)
 	    { struct stat stbuf;
-	      if(0>(fd=unique(buf,chp,linebuf,NORMperm,verbose,doFD|doMAILDIR)))
+	      if(0>(fd=unique(buf2,chp2,linebuf,NORMperm,
+	       verbose,doFD|doMAILDIR)))
 		 goto nfail;
 	      if(dump(fd,ft_MAILDIR,source,len)&&!ignwerr)
 		 goto failed;
-	      strcpy(chp2,maildirnew);
-	      chp2+=MAILDIRLEN;
-	      *chp2++= *MCDIRSEP_;
-	      strcpy(chp2,chp);
-	      if(!rlink(buf,buf2,0))
-	       { unlink(buf);
+	      strcpy(chp,maildirnew);
+	      chp+=MAILDIRLEN;
+	      *chp++= *MCDIRSEP_;
+	      strcpy(chp,chp2);
+	      if(!rlink(buf2,buf,0))
+	       { unlink(buf2);
 		 break;
 	       }
-	      else if(errno!=EEXIST&&lstat(buf2,&stbuf)&&errno==ENOENT&&
-	       !rename(buf,buf2))
+	      else if(errno!=EEXIST&&lstat(buf,&stbuf)&&errno==ENOENT&&
+	       !rename(buf2,buf))
 		 break;
-	      unlink(buf);
+	      unlink(buf2);
 	      if(!retries--)
 		 goto nfail;
 	    }
 	 }
-	setlastfolder(buf2);
+	setlastfolder(buf);
 	break;
      case ft_MH:
 #if 0
@@ -371,14 +373,15 @@ void concon(ch)const int ch;   /* flip between concatenated and split fields */
    }
 }
 
-void readmail(rhead,tobesent)const long tobesent;
+int readmail(rhead,tobesent)int rhead;const long tobesent;
 { char*chp,*pastend;static size_t contlengthoffset;
   ;{ long dfilled;
      if(rhead==2)		  /* already read, just examine what we have */
 	dfilled=mailread=0;
      else if(rhead)				/* only read in a new header */
       { memblk new;
-	dfilled=mailread=0;makeblock(&new,0);readdyn(&new,&dfilled,0);
+	dfilled=mailread=0;makeblock(&new,0);
+	readdyn(&new,&dfilled,thebody-themail.p);
 	if(tobesent>dfilled&&isprivate)		     /* put it in place here */
 	 { tmemmove(themail.p+dfilled,thebody,filled-=tobesent);
 	   tmemmove(themail.p,new.p,dfilled);
@@ -458,4 +461,5 @@ eofheader:
      chp=thebody+actcntlen;		  /* skip the actual no we specified */
    }
   restbody=chp;mailread=1;
+  return !pipw;
 }

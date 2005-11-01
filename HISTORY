@@ -627,4 +627,25 @@
 	    Changes to procmail:
 	       - Don't coredump in comsat code if interrupted early
 	       - Correctly handle COMSAT=on
-	       - Once used the 'H' flag would never be cleared
+	       - Once used, the 'H' and 'r' flags would never be cleared
+	       - Fix possible buffer overflow in variable-capture actions
+	       - Fix up the parsing of variable-capture actions
+	       - LMTP code assumed sizeof(long)==sizeof(int)
+	       - SHELL is now always preset to /bin/sh.  USER_SHELL contains
+		 the shell from the user's passwd entry
+	       - When HOST is mismatched, reset it for the next rcfile
+	       - Always read in a new, global rcfile (/etc/procmail.conf)
+		 to allow runtime configuration of variables like DEFAULT.
+		 This rcfile cannot deliver or filter messages
+	       - Mismatched HOST in /etc/procmailrc didn't discard the message
+	       - backquote expansion in a condition disabled header
+		 concatenation for that condition
+	       - LMTP didn't correctly handle quoted localparts
+	       - Removed SIZE extension from LMTP (unsupportable semantics)
+	       - Don't coredump if unable to exec /bin/sh
+	       - Enable "+detail" processing in LMTP mode by passing the
+		 delimiter (e.g., "+") as an optional argument after -z
+	       - In LMTP mode, save the domain of the recipient in
+		 PROCMAIL_DOMAIN
+	       - Set PROCMAIL_MODE to one of "d", "m", "z", or "" to reflect
+		 the mode option it was invoked with, if any

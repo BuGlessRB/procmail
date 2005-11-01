@@ -8,13 +8,13 @@
  *	Seems to be perfect.						*
  *									*
  *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
- *	Copyright (c) 1999-2001, Philip Guenther, The United States	*
- *							of America	*
+ *	Copyright (c) 1999-2003,2005, Philip Guenther, The United	*
+ *						States of America	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: procmail.c,v 1.184 2001/09/14 05:54:19 guenther Exp $";
+ "$Id: procmail.c,v 1.3 2005/07/13 11:24:59 guenther Exp $";
 #endif
 #include "../patchlevel.h"
 #include "procmail.h"
@@ -43,7 +43,8 @@ static /*const*/char rcsid[]=
 static const char*const nullp,exflags[]=RECFLAGS,drcfile[]="Rcfile:",
  pmusage[]=PM_USAGE,*etcrc=ETCRC,misrecpt[]="Missing recipient\n",
  extrns[]="Extraneous ",ignrd[]=" ignored\n",pardir[]=chPARDIR,
- defspath[]=DEFSPATH,defmaildir[]=DEFmaildir;
+ defspath[]=DEFSPATH,defmaildir[]=DEFmaildir,confrc[]=CONFRC,
+ pdomain[]="PROCMAIL_DOMAIN";
 char*buf,*buf2,*loclock;
 const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  unexpeof[]="Unexpected EOL\n",*const*gargv,*const*restargv= &nullp,*sgetcp,
@@ -54,7 +55,7 @@ const char shell[]="SHELL",lockfile[]="LOCKFILE",newline[]="\n",binsh[]=BinSh,
  slogstr[]="%s \"%s\"",conflicting[]="Conflicting ",orgmail[]="ORGMAIL",
  insufprivs[]="Insufficient privileges\n",defpath[]=DEFPATH,
  exceededlb[]="Exceeded LINEBUF\n",errwwriting[]="Error while writing to",
- Version[]=VERSION;
+ Version[]=VERSION,vdefault[]="DEFAULT";
 int retval=EX_CANTCREAT,retvl2=EXIT_SUCCESS,sh,pwait,rc= -1,
  privileged=priv_START,lexitcode=EXIT_SUCCESS,ignwerr,crestarg,savstdout,
  berkeley,mailfilter,erestrict,Deliverymode,ifdepth;   /* depth of outermost */
@@ -92,7 +93,7 @@ static void
  usage P((void));
 static int
  tryopen P((const int delay_setid,const int rctype,const int dowarning)),
- mainloop P((void));
+ mainloop P((const int varonly));
 
 int main(argc,argv)int argc;const char*const argv[];
 { register char*chp,*chp2;
@@ -101,7 +102,8 @@ int main(argc,argv)int argc;const char*const argv[];
 #endif
   newid();
   ;{ int presenviron,override;char*fromwhom=0;
-     const char*idhint=0;gid_t egid=getegid();
+     const char*idhint=0;gid_t egid;
+     sgid=egid=getegid();
      presenviron=Deliverymode=mailfilter=override=0;
      Openlog(procmailn,LOG_PID,LOG_MAIL);		  /* for the syslogd */
      if(argc)			       /* sanity check, any argument at all? */
@@ -160,6 +162,13 @@ setarg:		       app_valp(newargv,(const char*)chp2);
 		 case LMTPOPT:
 #ifdef LMTP
 		    Deliverymode=2;
+		    if(*(chp= ++chp2)||((chp=(char*)argv[++argc])&&*chp))
+		     { detaildelim= *chp++;
+		       if(*chp)
+			{ nlog("LMTP delimiter must be a single character");
+			  return EX_USAGE;
+			}
+		     }
 		    goto last_option;
 #else
 		    nlog("LMTP support not enabled in this binary\n");
@@ -192,12 +201,17 @@ conflopt:     nlog(conflicting);elog("options\n");elog(pmusage);
 	case 2:
 	   if(fromwhom)
 	    { fromwhom=0;				  /* -z disables -f, */
-	      goto confldopt;					/* -p and -m */
+	      presenviron=1;					/* -p and -m */
+	    }
+	   if(detaildelim&&crestarg)		     /* -z delim disables -a */
+	    { crestarg=0;
+	      restargv=&nullp;
+	      presenviron=1;
 	    }
 #endif
 	case 1:
 	   if(presenviron||mailfilter)
-confldopt:  { presenviron=mailfilter=0;		    /* -d disables -p and -m */
+	    { presenviron=mailfilter=0;		    /* -d disables -p and -m */
 	      goto conflopt;
 	    }
 	   break;
@@ -248,7 +262,7 @@ nodevnull:
 	   chp2=buf;
 #ifdef LMTP
 	if(Deliverymode==2)
-	 { auth_identity**rcpts,**lastrcpt,**currcpt;
+	 { struct lmtp_rcpt*rcpts,*lastrcpt,*currcpt;
 	   currcpt=rcpts=lmtp(&lastrcpt,chp2);
 	   if(currcpt+1!=lastrcpt)     /* if there's more than one recipient */
 	      lockblock(&themail);     /* then no one can write to the block */
@@ -257,9 +271,22 @@ nodevnull:
 	   while(currcpt<lastrcpt)
 	    { if(!(pidchild=sfork()))
 	       { setupsigs();
-		 pass= *currcpt++;
+		 if(currcpt->detail)
+		  { char**a=malloc(2*sizeof*a);
+		    *a=currcpt->detail;a[1]=0;
+		    restargv=(const char**)a;
+		    crestarg++;
+		  }
+		 if(currcpt->domain)
+		    setval(pdomain,currcpt->domain);
+		 else
+		    sputenv(pdomain);
+		 pass= currcpt++->id;
 		 while(currcpt<lastrcpt)
-		    auth_freeid(*currcpt++);
+		 { if(currcpt->detail)free(currcpt->detail);
+		   if(currcpt->domain)free(currcpt->domain);
+		   auth_freeid(currcpt++->id);
+		 }
 		 freeoverread();
 		 free(rcpts);newid();gargv=&nullp;
 		 goto dorcpt;
@@ -270,7 +297,9 @@ nodevnull:
 		 waitfor(pidchild);
 	      lmtpresponse(lexitcode);
 	      pidchild=0;
-	      auth_freeid(*currcpt++);
+	      if(currcpt->detail)free(currcpt->detail);
+	      if(currcpt->domain)free(currcpt->domain);
+	      auth_freeid(currcpt++->id);
 	    }
 	   free(rcpts);
 	   flushoverread();		 /* pass upwards the extra LMTP data */
@@ -402,28 +431,55 @@ Setuser: { gid=auth_whatgid(pass);uid=auth_whatuid(pass);
 	 }
 	else					  /* user could not be found */
 	   setids();   /* to prevent security holes, drop any privileges now */
-	initdefenv(pass,buf,!presenviron||!mailfilter);		 /* override */
+	initdefenv(pass,buf,!presenviron||!mailfilter,		 /* override */
+	 Deliverymode?Deliverymode==2?"z":"d":mailfilter?"m":"");
 	endpwent();auth_freeid(spassinvk);	   /* environment by default */
       }
-     if(buildpath(orgmail,fdefault,(char*)0))	/* setup DEFAULT and ORGMAIL */
-      { fdefault=empty;			   /* uh, Houston, we have a problem */
-	goto nix_sysmbox;
+     if(0<=bopen(confrc))
+      { static const char pathvar[]="PATH";
+	const char*oldpath=NULL;
+	if(mailfilter&&presenviron)
+	   oldpath=tgetenv(pathvar);
+	eputenv(defspath,buf);			      /* use the secure PATH */
+	erestrict= -1;		     /* disable irreversible magic variables */
+	yell(drcfile,confrc);
+	mainloop(1);					/* ignore the status */
+	if(oldpath)
+	   setval(pathvar,oldpath);
       }
-     /*
-      * Processing point of proposed /etc/procmail.conf file
-      */
-     fdefault=tstrdup(buf);sgid=egid;
-     chp=(char*)tgetenv(orgmail);
-     if(mailfilter||!screenmailbox(chp,egid,Deliverymode))
-nix_sysmbox:
-      { sputenv(orgmail);		 /* nix delivering to system mailbox */
-	if(privileged)			       /* don't need this any longer */
-	   privileged=priv_DONTNEED;
-	if(!strcmp(chp,fdefault))			/* DEFAULT the same? */
-	   free((char*)fdefault),fdefault=empty;		 /* so panic */
-      }						/* bad news, be conservative */
+     erestrict=0;
+     if(mailfilter)
+      { sputenv(orgmail);sputenv(vdefault);	     /* just clear them both */
+	privileged=priv_DONTNEED;
+      }
+     else
+      { int same;
+	chp=(char*)tgetenv(vdefault);chp2=(char*)tgetenv(orgmail);
+	same=!strcmp(chp,chp2);
+	if(*chp)
+	 { if(!screenmailbox(chp,egid,Deliverymode))
+	    { sputenv(vdefault);	 /* nix delivering to system mailbox */
+	      if(same)
+	       { sputenv(orgmail);
+		 privileged=priv_DONTNEED;     /* don't need this any longer */
+	       }
+	    }
+	   else if(!*chp2)
+	    { setval(orgmail,chp);
+	      same=1;
+	    }
+	 }
+#if 0
+        if(!same&&*chp2&&!screenmailbox(chp2,egid,0))
+	 { sputenv(orgmail);
+	   if(!*tgetenv(vdefault))
+	      privileged=priv_DONTNEED;        /* don't need this any longer */
+	 }
+#endif
+      }
    }
   doumask(INIT_UMASK);
+  eputenv(defpath,buf);
   while(chp=(char*)argv[argc])	       /* interpret command line specs first */
    { argc++;
      if(!asenvcpy(chp)&&mailfilter)
@@ -440,7 +496,7 @@ nix_sysmbox:
 	   verbose=0;			    /* no peeking in /etc/procmailrc */
 #endif
 	eputenv(defspath,buf);			      /* use the secure PATH */
-	if(mainloop()==rcs_DELIVERED)			   /* run the rcfile */
+	if(mainloop(0)!=rcs_EOF)			   /* run the rcfile */
 	   goto mailed;
 	eputenv(defpath,buf);		 /* switch back to the insecure PATH */
       }
@@ -458,7 +514,7 @@ nix_sysmbox:
 	   if(buildpath(maildir,defmaildir,rcfile))
 	      break;
 	if(tryopen(0,rctype,dowarning))
-	 { register int rcs=mainloop();				   /* run it */
+	 { register int rcs=mainloop(0);			   /* run it */
 	   if(rcs==rcs_DELIVERED)
 	      goto mailed;					 /* success! */
 	   if(rcs==rcs_EOF)
@@ -485,7 +541,7 @@ nix_sysmbox:
 	strcpy(buf,rcfile);
       }
      if(tryopen(mailfilter==2,rctype,DEFverbose||mailfilter))
-	if(mainloop()!=rcs_EOF)
+	if(mainloop(0)!=rcs_EOF)
 	   goto mailed;
    }
 nomore_rc:
@@ -493,7 +549,7 @@ nomore_rc:
      free(ifstack.vals);
   ;{ int succeed;
      concon('\n');succeed=0;
-     if(*(chp=(char*)fdefault))				     /* DEFAULT set? */
+     if(*(chp=(char*)tgetenv(vdefault)))		     /* DEFAULT set? */
       { int len;
 	setuid(uid);			   /* make sure we have enough space */
 	if(linebuf<(len=strlen(chp)+strlen(lockext)+UNIQnamelen))
@@ -625,8 +681,8 @@ suspicious_rc:
   return 1;						 /* we're good to go */
 }
 
-static int mainloop P((void))
-{ int lastsucc,lastcond,prevcond,i,skiprc;register char*chp,*tolock;
+static int mainloop(varonly)const int varonly;
+{ int lastsucc,lastcond,prevcond,i,skiprc;char*chp,*tolock,*capture;
   lastsucc=lastcond=prevcond=skiprc=0;
   tolock=0;
   do
@@ -652,7 +708,7 @@ commint:do skipspace();					  /* skip whitespace */
 	      nrcond= -1;
 	   if(tolock)		 /* clear temporary buffer for lockfile name */
 	      free(tolock);
-	   bbzero(flags,maxindex(flags));		  /* clear the flags */
+	   bbzero(flags,sizeof(flags));			  /* clear the flags */
 	   for(tolock=0,locknext=0;;)
 	    { chp=skpspace(chp);
 	      switch(i= *chp++)
@@ -691,13 +747,13 @@ commint:do skipspace();					  /* skip whitespace */
 	 }
 	else if(flags[PASS_BODY])
 	   tobesent-=(startchar=thebody)-themail.p;
-	Stdout=0;succeed=sh=0;
+	capture=0;succeed=sh=0;
 	pwait=flags[WAIT_EXIT]|flags[WAIT_EXIT_QUIET]<<1;
 	ignwerr=flags[IGNORE_WRITERR];skipspace();
 	if(i)
 	   zombiecollect(),concon('\n');
 progrm: if(testB('!'))					 /* forward the mail */
-	 { if(!i)
+	 { if(!i||(varonly&&!capture))
 	      skiprc|=1;
 	   if(strlcpy(buf,sendmail,linebuf)>=linebuf)
 	      goto fail;
@@ -723,7 +779,7 @@ progrm: if(testB('!'))					 /* forward the mail */
 	 { chp=buf2;
 	   if(getlline(chp,buf2+linebuf))	 /* get the command to start */
 	      goto commint;
-	   if(i)
+	   if(i||(varonly&&!capture))
 	    { metaparse(buf2);
 	      if(!sh&&buf+1==Tmnate)		      /* just a pipe symbol? */
 	       { *buf='|';*(char*)(Tmnate++)='\0';		  /* fake it */
@@ -757,22 +813,27 @@ nolock:		     { nlog("Couldn't determine implicit lockfile from");
 		    pwait=2;			   /* blissful ignorance :-) */
 	       }
 	      rawnonl=flags[RAW_NONL];
-	      if(flags[CONTINUE]&&(flags[FILTER]||Stdout))
+	      if(flags[CONTINUE]&&(flags[FILTER]||capture))
 		 nlog(extrns),elog("copy-flag"),elog(ignrd);
 	      inittmout(buf);
 	      if(flags[FILTER])
 	       { if(startchar==themail.p&&tobesent!=filled)   /* if only 'h' */
 		  { if(!pipthrough(buf,startchar,tobesent))
-		       readmail(1,tobesent),succeed=!pipw;
+		       succeed=readmail(1,tobesent);
 		  }
 		 else if(!pipthrough(buf,startchar,tobesent))
 		  { filled=startchar-themail.p;
-		    readmail(0,tobesent);
-		    succeed=!pipw;
+		    succeed=readmail(0,tobesent);
 		  }
 	       }
-	      else if(Stdout)			  /* capturing stdout again? */
-		 succeed=!pipthrough(buf,startchar,tobesent);
+	      else if(capture)			  /* capturing stdout again? */
+	       { *(chp=strchr(capture,'='))='\0';
+		 startchar=getenv(capture);*chp='=';	  /* *NOT* tgetenv() */
+		 tobesent=startchar?strlen(startchar):0;
+		 if(!pipthrough(buf,startchar,tobesent))
+		    succeed=readvar(capture,startchar,tobesent);
+		 free(capture);
+	       }
 	      else if(!pipin(buf,startchar,tobesent,1))	  /* regular program */
 	       { succeed=1;
 		 if(flags[CONTINUE])
@@ -790,7 +851,8 @@ nolock:		     { nlog("Couldn't determine implicit lockfile from");
 	   if(ofiltflag=flags[FILTER])
 	      flags[FILTER]=0,nlog(extrns),elog("filter-flag"),elog(ignrd);
 	   if(chp=gobenv(buf,end))	   /* can it be an environment name? */
-	    { if(chp==end)
+	    { char*varend=chp;
+	      if(chp==end)
 	       { getlline(buf,buf+linebuf);
 		 goto fail;
 	       }
@@ -805,7 +867,9 @@ nolock:		     { nlog("Couldn't determine implicit lockfile from");
 		 switch(c)
 		  { case '!':case '|':			  /* ok, it's a pipe */
 		       if(i)
-			  Stdout = tstrdup(buf);
+			{ *varend++='=';*varend='\0';	      /* zap the '=' */
+			  capture=tstrdup(buf);	   /* copy the variable name */
+			}
 		       goto progrm;
 		  }
 	       }
@@ -868,7 +932,7 @@ nolock:		     { nlog("Couldn't determine implicit lockfile from");
 	       }
 	      continue;
 	    }
-	   if(!i)						/* no match? */
+	   if(!i||varonly)					/* no match? */
 	      skiprc|=1;		  /* temporarily disable subprograms */
 	   if(readparse(chp,getb,0,skiprc))
 fail:	    { succeed=0;
@@ -895,7 +959,7 @@ setlsucc:     rawnonl=0;lastsucc=succeed;lasttell= -1;	       /* for comsat */
 	    }
 	   skiprc&=~1;				     /* reenable subprograms */
 	 }
-      } /* { */
+      }									/* { */
      else if(testB('}'))					/* end block */
       { if(skiprc>1)					    /* just skipping */
 	   skiprc-=2;					   /* decrease level */

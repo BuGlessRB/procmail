@@ -1,7 +1,7 @@
-/*$Id: exopen.h,v 1.20 2001/06/23 08:18:42 guenther Exp $*/
+/*$Id: exopen.h,v 1.2 2002/06/30 06:24:09 guenther Exp $*/
 
 int
- unique Q((const char*const full,char*p,const size_t len,const mode_t mode,
+ unique Q((char*const full,char*p,const size_t len,const mode_t mode,
   const int verbos,const int flags)),
  myrename P((const char*const old,const char*const newn)),
  rlink P((const char*const old,const char*const newn,struct stat*st)),

@@ -1,7 +1,7 @@
 #! /bin/sh
 :
 # Copyright (c) 1990-1997, S.R. van den Berg, The Netherlands
-#$Id: autoconf,v 1.136 2001/08/10 18:52:30 guenther Exp $
+#$Id: autoconf,v 1.2 2002/07/01 04:39:00 guenther Exp $
 
 # All possible entries in autoconf.h:
 
@@ -1418,14 +1418,16 @@ found=no
 
 for a in /var/spool/mail /usr/spool/mail /var/mail /usr/mail /spool/mail
 do
-  test -d $a -a $found != yes &&
-   echo '#define MAILSPOOLDIR "'$a'/"' >>$ACONF && found=yes
+  test -d $a -a $found = no && found=$a
 done
-if test $found != yes
+if test $found = no
 then
- echo '#define MAILSPOOLDIR "/var/spool/mail/"' >>$ACONF
+ found=/var/spool/mail
  echo Could not find the system-mailbox directory, supplied default.
 fi
+echo '#ifndef MAILSPOOLDIR' >>$ACONF
+echo '#define MAILSPOOLDIR "'$found'/"' >>$ACONF
+echo '#endif' >>$ACONF
 
 cat >lookfor <<HERE
 for a in /usr/sbin /usr/lib /lib /usr/etc /etc /usr/bin /bin /usr/local/bin \

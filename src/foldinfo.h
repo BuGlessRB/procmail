@@ -18,7 +18,7 @@
 int
  foldertype Q((int type,int forcedir,mode_t*const modep,
   struct stat*const paranoid)),
- screenmailbox Q((char*chp,const gid_t egid,const int Deliverymode));
+ screenmailbox Q((char*chp,const gid_t egid,const int doautoforward));
 
 extern const char maildirnew[];
 extern int accspooldir;

@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: foldinfo.c,v 1.11 2001/08/04 07:07:42 guenther Exp $";
+ "$Id: foldinfo.c,v 1.2 2002/06/30 06:27:36 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "misc.h"
@@ -167,9 +167,8 @@ ret:
   return type;
 }
 
-			     /* lifted out of main() to reduce main()'s size */
-int screenmailbox(chp,egid,Deliverymode)
- char*chp;const gid_t egid;const int Deliverymode;
+int screenmailbox(chp,egid,doautoforward)
+ char*chp;const gid_t egid;const int doautoforward;
 { char ch;struct stat stbuf;int basetype,type;
   /*
    *	  do we need sgidness to access the mail-spool directory/files?
@@ -202,7 +201,9 @@ int screenmailbox(chp,egid,Deliverymode)
 keepgid:			   /* keep the gid from the parent directory */
 	if((sgid=stbuf.st_gid)!=egid&&		  /* we were started nosgid, */
 	 setgid(sgid))				     /* but we might need it */
-	   checkroot('g',(unsigned long)sgid);
+	 { checkroot('g',(unsigned long)sgid);
+	   sgid=egid;
+	 }
    }
   else				/* panic, mail-spool directory not available */
    { setids();mkdir(buf,NORMdirperm);	     /* try creating the last member */
@@ -260,7 +261,7 @@ keepgid:			   /* keep the gid from the parent directory */
 	   if(lstat(buf,&stbuf))
 	      goto nobox;
 	 }					/* SysV type autoforwarding? */
-	if(Deliverymode&&(stbuf.st_mode&S_ISUID||
+	if(doautoforward&&(stbuf.st_mode&S_ISUID||
 	 !S_ISDIR(stbuf.st_mode)&&stbuf.st_mode&S_ISGID))
 	 { nlog("Autoforwarding mailbox found\n");
 	   exit(EX_NOUSER);

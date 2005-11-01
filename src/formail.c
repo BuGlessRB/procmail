@@ -10,9 +10,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: formail.c,v 1.102 2001/08/04 07:07:43 guenther Exp $";
+ "$Id: formail.c,v 1.2 2003/12/30 08:13:28 guenther Exp $";
 #endif
-static /*const*/char rcsdate[]="$Date: 2001/08/04 07:07:43 $";
+static /*const*/char rcsdate[]="$Date: 2003/12/30 08:13:28 $";
 #include "includes.h"
 #include <ctype.h>		/* iscntrl() */
 #include "formail.h"
@@ -418,24 +418,26 @@ int main(lastm,argv)int lastm;const char*const argv[];
 		 goto xusg;
 	      case FM_DUPLICATE:case FM_MINFIELDS:Qnext_arg();chp++;
 	      default:chp--;
-number:		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
+number:	       { long val;
+		 if(*chp-'0'>(unsigned)9)	    /* the number is not >=0 */
 		    goto usg;
-		 i=strtol(chp,&chp,10);
+		 val=strtol(chp,&chp,10);
 		 switch(lastm)			/* where does the number go? */
-		  { case FM_SKIP:nrskip=i;
+		  { case FM_SKIP:nrskip=val;
 		       break;
-		    case FM_DUPLICATE:maxlen=i;Qnext_arg();
+		    case FM_DUPLICATE:maxlen=val;Qnext_arg();
 		       if(!(idcache=fopen(chp,"r+b"))&&	  /* existing cache? */
 			  !(idcache=fopen(chp,"w+b")))	    /* create cache? */
 			{ nlog("Couldn't open");logqnl(chp);
 			  return EX_CANTCREAT;
 			}
 		       goto nextarg;
-		    case FM_MINFIELDS:minfields=i;
+		    case FM_MINFIELDS:minfields=val;
 		       break;
-		    default:nrtotal=i;
+		    default:nrtotal=val;
 		  }
 		 continue;
+	       }
 	      case FM_BOGUS:bogus=0;
 		 continue;
 	      case FM_BERKELEY:berkeley=1;

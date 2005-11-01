@@ -2,13 +2,13 @@
  *	Environment and variable handling routines used by procmail	*
  *									*
  *	Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands	*
- *	Copyright (c) 2000-2001, Philip Guenther, The United States	*
- *							of America	*
+ *	Copyright (c) 2000-2001,2005, Philip Guenther, The United	*
+ *						States of America	*
  *	#include "../README"						*
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: variables.c,v 1.22 2001/08/27 08:53:15 guenther Exp $";
+ "$Id: variables.c,v 1.3 2005/07/13 11:24:59 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "acommon.h"		/* for hostname() */
@@ -30,7 +30,7 @@ struct varval strenvvar[]={{"LOCKSLEEP",DEFlocksleep},
  {"LOGABSTRACT",DEFlogabstract}};
 struct varstr strenstr[]={{"SHELLMETAS",DEFshellmetas},{"LOCKEXT",DEFlockext},
  {"MSGPREFIX",DEFmsgprefix},{"TRAP",empty},
- {"SHELLFLAGS",DEFshellflags},{"DEFAULT",DEFdefault},{"SENDMAIL",DEFsendmail},
+ {"SHELLFLAGS",DEFshellflags},{"SENDMAIL",DEFsendmail},
  {"SENDMAILFLAGS",DEFflagsendmail},{"PROCMAIL_VERSION",PM_VERSION}};
 
 #define MAXvarvals	 maxindex(strenvvar)
@@ -44,8 +44,7 @@ char*Stdout;
 
 static void asenvtext P((const char*const chp));      /* needed by retStdout */
 
-static const char slinebuf[]="LINEBUF",pmoverflow[]="PROCMAIL_OVERFLOW=yes",
- exitcode[]="EXITCODE";
+static const char slinebuf[]="LINEBUF",exitcode[]="EXITCODE";
 static int setxit;
 
 static struct dynstring*myenv;
@@ -85,10 +84,10 @@ wipenv:
 }
 	   /* between calling primeStdout() and retStdout() *no* environment */
 void primeStdout(varname)const char*const varname;   /* changes are allowed! */
-{ if(!Stdout)
+{ if(varname)
      sputenv(varname);
   Stdout=(char*)myenv;
-  Stdfilled=ioffsetof(struct dynstring,ename[0])+strlen(varname);
+  Stdfilled=ioffsetof(struct dynstring,ename[0])+(varname?strlen(varname):0);
 }
 
 void retStdout(newmyenv,fail,unset)		/* see note on primeStdout() */
@@ -116,11 +115,10 @@ void retbStdout(newmyenv)char*const newmyenv;	/* see note on primeStdout() */
 { newmyenv[Stdfilled]='\0';*lastenv=(myenv=(struct dynstring*)newmyenv)->ename;
   Stdout=0;
 }
-
 		 /* Append a space and then `value' to the last variable set */
 void appendlastvar(value)const char*const value;
 { size_t len;char*p;
-  Stdout=(char*)value;primeStdout(empty);
+  primeStdout(0);
   len=Stdfilled+strlen(Stdout+Stdfilled);	     /* Skip over the header */
   p=realloc(Stdout,(Stdfilled=len+1+strlen(value))+1);
   p[len]=' ';strcpy(p+len+1,buf);retbStdout(p);	  /* WARNING: no magic here! */
@@ -129,6 +127,16 @@ void appendlastvar(value)const char*const value;
 const char*eputenv(src,dst)const char*const src;char*const dst;
 { sgetcp=src;
   return readparse(dst,sgetc,2,0)?0:sputenv(buf);
+}
+
+void setval(name,value)const char*const name,*const value;  /* destroys buf2 */
+{ size_t len,total;char*p;
+  total=(len=strlen(name))+strlen(value)+2;
+  p=linebuf>=total?buf2:malloc(total);
+  memcpy(p,name,len);p[len]='=';
+  strcpy(p+len+1,value);
+  sputenv(p);
+  if(p!=buf2)free(p);
 }
 
 void setdef(name,value)const char*const name,*const value;
@@ -145,7 +153,8 @@ const char*tgetenv(a)const char*const a;
 }
 
 void setoverflow P((void))
-{ sputenv(pmoverflow);
+{ static const char pmoverflow[]="PROCMAIL_OVERFLOW=yes";
+  sputenv(pmoverflow);
 }
 
 void cleanupenv(preserve)int preserve;
@@ -188,9 +197,10 @@ drop: { *ep= *--emax;*emax=0;				/* copy from the end */
    }
 }
 
-void initdefenv(pass,fallback,do_presets)auth_identity*pass;
- const char*fallback;int do_presets;
-{ const char*p;
+void initdefenv(pass,fallback,do_presets,mode)auth_identity*pass;
+ const char*fallback,*mode;int do_presets;
+{ static const char usershell[]="USER_SHELL",pmode[]="PROCMAIL_MODE";
+  const char*p;
   if(pass)
    { p=auth_username(pass);
      if(!p||!*p)
@@ -199,14 +209,16 @@ void initdefenv(pass,fallback,do_presets)auth_identity*pass;
      p=auth_shell(pass);
      if(!p||!*p)
 	p=binsh;
-     setdef(shell,p);
-     setdef(home,auth_homedir(pass));setdef(orgmail,auth_mailboxname(pass));
+     setdef(usershell,p);
+     setdef(home,auth_homedir(pass));setdef(vdefault,auth_mailboxname(pass));
    }
   else
-   { setdef(lgname,fallback);setdef(shell,binsh);
-     setdef(home,ROOT_DIR);setdef(orgmail,DEAD_LETTER);
+   { setdef(lgname,fallback);setdef(usershell,binsh);
+     setdef(home,ROOT_DIR);setdef(vdefault,DEAD_LETTER);
    }
+  setdef(shell,binsh);				     /* yes, this is by fiat */
   setlgcs(tgetenv(lgname));		  /* make sure sendcomsat has a copy */
+  setval(pmode,mode);
   if(do_presets)
    { static const char*const prestenv[]=PRESTENV;
      const char*const*pp;
@@ -218,7 +230,6 @@ void initdefenv(pass,fallback,do_presets)auth_identity*pass;
      setdef(host,hostname());		       /* the other standard presets */
      sputenv(lastfolder);
      sputenv(exitcode);
-     eputenv(defpath,buf);
      for(pp=prestenv;*pp;pp++)			     /* non-standard presets */
 	eputenv(*pp,buf);
    }
@@ -245,19 +256,13 @@ int alphanum(c)const unsigned c;
 }
 
 void setmaildir(newdir)const char*const newdir;		    /* destroys buf2 */
-{ char*chp;
-  didchd=1;*(chp=strcpy(buf2,maildir)+STRLEN(maildir))='=';
-  strcpy(++chp,newdir);sputenv(buf2);
+{ didchd=1;
+  setval(maildir,newdir);
 }
 
-void setlastfolder(folder)const char*const folder;
-{ char*chp;size_t len;
-  setlfcs(folder);
-  len=STRLEN(lastfolder)+2+strlen(folder);
-  strcpy(chp=malloc(len),lastfolder);
-  strlcat(chp,"=",len);
-  strlcat(chp,folder,len);
-  sputenv(chp);free(chp);
+void setlastfolder(folder)const char*const folder;	    /* destroys buf2 */
+{ setlfcs(folder);
+  setval(lastfolder,folder);
 }
 
 int setexitcode(trapisset)int trapisset;
@@ -377,7 +382,7 @@ void asenv(chp)const char*const chp;
    { if(!setcomsat(chp))
 	setdef(scomsat,offvalue);		/* set it to "no" on failure */
    }
-  else if(!strcmp(buf,shift))
+  else if(!strcmp(buf,shift)&&erestrict>=0)
    { int i;
      if((i=renvint(0L,chp))>0)
       { if(i>crestarg)
@@ -392,7 +397,7 @@ void asenv(chp)const char*const chp;
 	setids();
       }
    }
-  else if(!strcmp(buf,sdelivered))			    /* fake delivery */
+  else if(!strcmp(buf,sdelivered)&&erestrict>=0)	    /* fake delivery */
    { if(renvint(0L,chp))				    /* is it really? */
       { onguard();
 	if((thepid=sfork())>0)
@@ -417,13 +422,14 @@ void asenv(chp)const char*const chp;
 	changerc(chp);
    }
   else if(!strcmp(buf,host))
-   { const char*name;
-     if(strcmp(chp,name=hostname()))
+   { const char*name=hostname();
+     if(strcmp(chp,name)&&erestrict>=0)
       { yell("HOST mismatched",name);
 	if(rc<0)				  /* if no rcfile opened yet */
 	   retval=EXIT_SUCCESS,Terminate();	  /* exit gracefully as well */
 	closerc();
       }
+     setdef(host,name);				   /* restore original value */
    }
   else
    { int i=MAXvarvals;

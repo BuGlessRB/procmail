@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: memblk.c,v 1.7 2001/09/18 21:59:08 guenther Exp $"
+ "$Id: memblk.c,v 1.2 2002/06/30 06:31:31 guenther Exp $";
 #endif
 #include "procmail.h"
 #include "robust.h"
@@ -33,6 +33,10 @@ void makeblock(mb,len)memblk*const mb;const long len;
 { mb->len=0;mb->p=malloc(1);set_fd(mb,-1);
   if(len)
      resizeblock(mb,len,0);
+}
+
+void wrapblock(mb,p,len)memblk*const mb;char*const p;const long len;
+{ mb->len=len;mb->p=p;set_fd(mb,-2);
 }
 
 void freeblock(mb)memblk*const mb;
@@ -72,7 +76,7 @@ int resizeblock(mb,len,nonfatal)memblk*const mb;const long len;
      goto ret1;
    }
 #ifdef USE_MMAP
-  if(len>MAXinMEM&&mb->fd<0)			      /* time to switch over */
+  if(len>MAXinMEM&&mb->fd==-1)			      /* time to switch over */
    { char filename[MMAP_FILE_LEN];
      strcpy(filename,MMAP_DIR);
      if(unique(filename,strchr(filename,'\0'),MMAP_FILE_LEN,MMAP_PERM,0,0)&&
@@ -162,7 +166,7 @@ jumpin:
    }
   if(cleanup_func&&(*cleanup_func)(mb,&filled,origfilled,data))
      goto jumpin;
-  resizeblock(mb,filled+1,1);		      /* minimise+1 for housekeeping */
+  resizeblock(mb,filled,1);			/* minimise for housekeeping */
   *filledp=filled;				 /* write back the new value */
   return mb->p;
 }
