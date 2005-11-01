@@ -1,4 +1,4 @@
-/*$Id: formail.h,v 1.15 1999/02/14 04:43:31 srb Exp $*/
+/*$Id$*/
 
 #define Bsize		128
 

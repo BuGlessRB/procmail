@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: mimesend,v 1.16 1995/03/20 14:50:17 berg Exp $
+#$Id$
 
 echo=echo		# /bin/echo
 test=test		# /bin/test

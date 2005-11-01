@@ -9,7 +9,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: sendmails,v 1.6 1995/03/20 14:50:22 berg Exp $
+#$Id$
 
 test=test		# /bin/test
 echo=echo		# /bin/echo

@@ -1,4 +1,4 @@
-/*$Id: exopen.h,v 1.2 2002/06/30 06:24:09 guenther Exp $*/
+/*$Id$*/
 
 int
  unique Q((char*const full,char*p,const size_t len,const mode_t mode,

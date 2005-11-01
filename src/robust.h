@@ -1,4 +1,4 @@
-/*$Id: robust.h,v 1.13 2001/06/21 09:43:53 guenther Exp $*/
+/*$Id$*/
 
 void
  nomemerr Q((const size_t len))	 __attribute__((noreturn)),

@@ -12,7 +12,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #	This script will not be automatically overwritten by the next	#
 #	upgrade.							#
 #########################################################################
-#$Id: cronlist,v 1.6 1995/03/20 14:50:43 berg Exp $
+#$Id$
 
 test=test			# /bin/test
 echo=echo			# /bin/echo

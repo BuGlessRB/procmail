@@ -6,7 +6,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: mcommon.c,v 1.5 1997/04/03 01:58:45 srb Exp $";
+ "$Id$";
 #endif
 #include "includes.h"
 #include "mcommon.h"

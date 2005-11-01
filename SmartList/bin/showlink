@@ -9,7 +9,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #	If you can figure out and understand everything in this script, #
 #	you can consider yourself an awk guru!				#
 #########################################################################
-#$Id: showlink,v 1.6 1994/05/26 14:11:24 berg Exp $
+#$Id$
 
 defaults=.etc
 

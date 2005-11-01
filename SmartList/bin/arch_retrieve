@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: arch_retrieve,v 1.52 2000/01/29 06:52:16 guenther Exp $
+#$Id$
 
 test=test		# /bin/test
 expr=expr		# /bin/expr

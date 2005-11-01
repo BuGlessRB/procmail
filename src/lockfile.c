@@ -15,9 +15,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lockfile.c,v 1.49 2001/08/04 07:12:16 guenther Exp $";
+ "$Id$";
 #endif
-static /*const*/char rcsdate[]="$Date: 2001/08/04 07:12:16 $";
+static /*const*/char rcsdate[]="$Date$";
 #include "includes.h"
 #include "sublib.h"
 #include "exopen.h"

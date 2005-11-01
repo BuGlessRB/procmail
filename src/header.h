@@ -8,7 +8,7 @@
  *	I might be interested in including it in the next release.	*
  *									*
  ************************************************************************/
-/*$Id: header.h,v 1.45 2001/09/24 03:38:08 guenther Exp $*/
+/*$Id$*/
 
 X(returnpath,		"Return-Path:")				  /* RFC 822 */
 X(received,		"Received:")				/* ditto ... */

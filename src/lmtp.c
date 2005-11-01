@@ -7,7 +7,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: lmtp.c,v 1.3 2005/07/13 11:24:59 guenther Exp $"
+ "$Id$"
 #endif
 #include "procmail.h"
 #ifdef LMTP

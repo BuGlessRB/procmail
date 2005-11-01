@@ -1,4 +1,4 @@
-/*$Id: includes.h,v 1.2 2002/06/30 06:53:34 guenther Exp $*/
+/*$Id$*/
 
 #include "../autoconf.h"
 #ifdef NO_const

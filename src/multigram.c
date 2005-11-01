@@ -21,9 +21,9 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: multigram.c,v 1.98 2001/06/07 21:03:49 guenther Exp $";
+ "$Id$";
 #endif
-static /*const*/char rcsdate[]="$Date: 2001/06/07 21:03:49 $";
+static /*const*/char rcsdate[]="$Date$";
 #include "includes.h"
 #include "sublib.h"
 #include "hsort.h"

@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by Alan K. Stebbens <aks@hub.ucsb.edu>			#
 #########################################################################
-# $Id: showlist,v 1.1 1995/10/30 02:58:34 srb Exp $
+# $Id$
 
 echo showlist: Customise first
 exit 64

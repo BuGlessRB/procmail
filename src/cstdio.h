@@ -1,4 +1,4 @@
-/*$Id: cstdio.h,v 1.15 2000/09/28 01:23:16 guenther Exp $*/
+/*$Id$*/
 
 void
  pushrc P((const char*const name)),

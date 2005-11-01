@@ -3,7 +3,7 @@
  *			of the list user.				*
  *	This program is used by the SmartList installation script only. *
  ************************************************************************/
-/*$Id: gethome.c,v 1.8 1999/04/19 06:42:16 guenther Exp $*/
+/*$Id$*/
 #include "includes.h"
 
 int main(argc,argv)const int argc;const char*const argv[];

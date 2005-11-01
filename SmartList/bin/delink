@@ -6,7 +6,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: delink,v 1.7 1995/03/20 14:49:56 berg Exp $
+#$Id$
 
 echo=echo		# /bin/echo
 test=test		# /bin/test

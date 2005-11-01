@@ -9,7 +9,7 @@
 
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: comsat.c,v 1.7 2001/09/13 19:08:49 guenther Exp $";
+ "$Id$";
 #endif
 
 #include "procmail.h"

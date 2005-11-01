@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: subscreen,v 1.2 1994/08/18 13:44:37 berg Exp $
+#$Id$
 
 # $1 contains the mail address of the prospective subscriber
 # We return zero if subscription is allowed, and one if not.

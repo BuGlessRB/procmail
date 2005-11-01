@@ -1,4 +1,4 @@
-/*$Id: goodies.h,v 1.26 2000/11/22 01:29:58 guenther Exp $*/
+/*$Id$*/
 
 int
  readparse P((char*p,int(*const fpgetc)(),const int sarg,int skipping));

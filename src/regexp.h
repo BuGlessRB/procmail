@@ -1,4 +1,4 @@
-/*$Id: regexp.h,v 1.13 1994/10/07 15:25:09 berg Exp $*/
+/*$Id$*/
 
 struct eps
 { unsigned opc;struct eps*next;

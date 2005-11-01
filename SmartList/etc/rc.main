@@ -1,4 +1,4 @@
-#$Id: rc.main,v 1.7 1994/10/26 19:37:15 berg Exp $
+#$Id$
 
 LOGFILE=/dev/null
 MAILDIR=.etc				# chdir to the defaults directory

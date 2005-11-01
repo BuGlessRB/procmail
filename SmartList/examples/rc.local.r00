@@ -1,4 +1,4 @@
-#$Id: rc.local.r00,v 1.2 1995/04/10 19:28:16 berg Exp $
+#$Id$
 #
 # This file contains several examples of how you can customise SmartList
 # through the RC_LOCAL_REQUEST_00 hook.

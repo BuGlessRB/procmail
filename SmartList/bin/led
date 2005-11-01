@@ -11,7 +11,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by S.R. van den Berg, The Netherlands			#
 #########################################################################
-#$Id: led,v 1.8 1995/11/14 04:27:25 srb Exp $
+#$Id$
 
 test=test				# /bin/test
 touch=touch				# /bin/touch

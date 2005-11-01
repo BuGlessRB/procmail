@@ -1,5 +1,5 @@
 #!/bin/sh
-#$Id: retrieve.local,v 1.4 1995/03/20 14:50:54 berg Exp $
+#$Id$
 
 # This script provides an example on how to extend the default archive
 # server with your own custom commands (for more info, look in the

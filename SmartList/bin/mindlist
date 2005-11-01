@@ -7,7 +7,7 @@ $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
 #									#
 #	Created by Alan K. Stebbens <aks@hub.ucsb.edu>			#
 #########################################################################
-# $Id: mindlist,v 1.2 1999/03/30 18:17:37 guenther Exp $
+# $Id$
 
 echo mindlist: Customise first
 exit 64

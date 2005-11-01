@@ -1,4 +1,4 @@
-#$Id: rc.post,v 1.9 1995/03/20 14:50:33 berg Exp $
+#$Id$
 MAILDIR=../$defaults		# back to the defaults directory
 LOGFILE=log			# enabled by default, because when processing
 				# reaches this point, some unusual circumstance

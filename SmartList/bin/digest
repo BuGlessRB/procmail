@@ -1,6 +1,6 @@
 #! /bin/sh
 :
-#$Id: digest,v 1.27 1999/11/22 05:40:48 guenther Exp $
+#$Id$
 
 test=test		# /bin/test
 echo=echo		# /bin/echo

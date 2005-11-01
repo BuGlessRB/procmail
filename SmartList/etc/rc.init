@@ -53,7 +53,7 @@
 #		conjunction with the RC_LOCAL_* variables which can be set
 #		in rc.init or rc.custom files)
 
-#$Id: rc.init,v 1.45 1999/12/17 07:04:50 guenther Exp $
+#$Id$
 
 DELIVERED=yes	# we're in control of the mail now, tell sendmail to go away
 

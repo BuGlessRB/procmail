@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: robust.c,v 1.33 2001/06/23 08:18:50 guenther Exp $";
+ "$Id$";
 #endif
 #include "procmail.h"
 #include "robust.h"

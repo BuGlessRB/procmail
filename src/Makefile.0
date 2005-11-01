@@ -1,4 +1,4 @@
-#$Id: Makefile.0,v 1.63 2001/06/21 11:59:25 guenther Exp $
+#$Id$
 
 PM_OBJ=cstdio.$(O) common.$(O) exopen.$(O) goodies.$(O) locking.$(O) \
  mailfold.$(O) foldinfo.$(O) misc.$(O) pipes.$(O) regexp.$(O) robust.$(O) \

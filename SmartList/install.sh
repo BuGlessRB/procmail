@@ -1,7 +1,7 @@
 #! /bin/sh
 : &&O='cd .' || exec /bin/sh "$0" $argv:q # we're in a csh, feed myself to sh
 $O || exec /bin/sh "$0" "$@"		  # we're in a buggy zsh
-#$Id: install.sh,v 1.1.1.2 2002/06/30 21:12:32 guenther Exp $
+#$Id$
 
 umask 022				# set it to a sane value
 

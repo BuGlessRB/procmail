@@ -1,4 +1,4 @@
-/*$Id: config.h,v 1.3 2005/07/13 11:24:59 guenther Exp $*/
+/*$Id$*/
 
 /*#define sMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* sTART- and eNDing separ.  */
 /*#define eMAILBOX_SEPARATOR	"\1\1\1\1\n"	/* uncomment (one or both)

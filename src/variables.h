@@ -1,4 +1,4 @@
-/* $Id: variables.h,v 1.3 2005/07/13 11:24:59 guenther Exp $ */
+/* $Id$ */
 
 const char
  *sputenv P((const char*const a)),

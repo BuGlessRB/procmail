@@ -1,4 +1,4 @@
-/*$Id: locking.h,v 1.8 2001/06/03 21:56:11 guenther Exp $*/
+/*$Id$*/
 
 void
  unlock P((char**const lockp));

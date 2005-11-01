@@ -1,4 +1,4 @@
-/*$Id: pipes.h,v 1.2 2002/06/30 06:37:42 guenther Exp $*/
+/*$Id$*/
 
 struct memblk;					       /* predeclare the tag */
 void

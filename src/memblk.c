@@ -8,7 +8,7 @@
  ************************************************************************/
 #ifdef RCS
 static /*const*/char rcsid[]=
- "$Id: memblk.c,v 1.2 2002/06/30 06:31:31 guenther Exp $";
+ "$Id$";
 #endif
 #include "procmail.h"
 #include "robust.h"

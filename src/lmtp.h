@@ -1,4 +1,4 @@
-/* $Id: lmtp.h,v 1.2 2005/07/13 11:24:59 guenther Exp $ */
+/* $Id$ */
 
 extern int childserverpid;
 extern char detaildelim;

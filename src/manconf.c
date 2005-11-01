@@ -1,6 +1,6 @@
 /* A sed script generator (for transmogrifying the man pages automagically) */
 
-/*$Id: manconf.c,v 1.2 2002/06/30 06:14:23 guenther Exp $*/
+/*$Id$*/
 
 #include "../patchlevel.h"
 #include "procmail.h"

@@ -1,4 +1,4 @@
-/*$Id: common.h,v 1.14 2001/06/23 08:18:40 guenther Exp $*/
+/*$Id$*/
 
 void
  shexec P((const char*const*argv))  __attribute__((noreturn)),
