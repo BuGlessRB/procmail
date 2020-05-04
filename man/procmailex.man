@@ -19,8 +19,7 @@ man page.
 This man page shows several example recipes.  For examples of complete rcfiles
 you can check the NOTES section in
 .BR procmail (1),
-or look at the example rcfiles part of the procmail source distribution
-(procmail*/examples/?procmailrc).
+or look at the example rcfiles in /usr/share/doc/procmail/examples.
 .SH EXAMPLES
 Sort out all mail coming from the scuba-dive mailing list into the mailfolder
 scubafile (uses the locallockfile scubafile.lock).
