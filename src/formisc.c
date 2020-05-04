@@ -105,7 +105,7 @@ void loadsaved(sp)const struct saved*const sp;	     /* load some saved text */
 							    /* append to buf */
 void loadbuf(text,len)const char*const text;const size_t len;
 { if(buffilled+len>buflen)			  /* buf can't hold the text */
-     buf=realloc(buf,buflen+=Bsize);
+     buf=realloc(buf,buflen=buffilled+len+Bsize);
   tmemmove(buf+buffilled,text,len);buffilled+=len;
 }
 
