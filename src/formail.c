@@ -760,9 +760,9 @@ startover:
 	lputssn(buf,buffilled),ctlength-=buffilled,buffilled=lnl=0;
      ;{ int tbl=buflast,lwr='\n';
 	while(--ctlength>=0&&tbl!=EOF)	       /* skip Content-Length: bytes */
-	   lnl=lwr==tbl&&lwr=='\n',putcs(lwr=tbl),tbl=getchar();
+	   lnl=lwr==tbl&&lwr=='\n',lputcs(lwr=tbl),tbl=getchar();
 	if((buflast=tbl)=='\n'&&lwr!=tbl)	/* just before a line break? */
-	   putcs('\n'),buflast=getchar();		/* wrap up loose end */
+	   lputcs('\n'),buflast=getchar();		/* wrap up loose end */
       }
      if(!quiet&&ctlength>0)
       { charNUM(num,ctlength);
