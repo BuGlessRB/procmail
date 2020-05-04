@@ -205,7 +205,7 @@ int writefolder(boxname,linkfolder,source,len,ignwerr,dolock)
   if(linkfolder)		    /* any additional directories specified? */
    { size_t blen;
      if(blen=Tmnate-linkfolder)		       /* copy the names into safety */
-	Tmnate=(linkfolder=tmemmove(malloc(blen),linkfolder,blen))+blen;
+	Tmnate=(linkfolder=tmemmove(malloc(blen+1),linkfolder,blen))+blen;
      else
 	linkfolder=0;
    }
