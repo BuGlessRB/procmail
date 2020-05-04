@@ -17,4 +17,4 @@ void
 char*
  skipwords P((char*start));
 int
- getline P((void));
+ cgetline P((void));

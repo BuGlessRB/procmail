@@ -821,7 +821,7 @@ splitit:       { if(!lnl)   /* did the previous mail end with an empty line? */
       { if(split)		       /* gobble up the next start separator */
 	 { buffilled=0;
 #ifdef sMAILBOX_SEPARATOR
-	   getline();buffilled=0;		 /* but only if it's defined */
+	   cgetline();buffilled=0;		 /* but only if it's defined */
 #endif
 	   if(buflast!=EOF)					   /* if any */
 	      goto splitit;
