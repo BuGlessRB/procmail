@@ -190,16 +190,16 @@ if $test .$MSmergerror = .
 then
   $sed	-e '/^From /d' -e '/^ [Ss][uU][bB][jJ][eE][cC][tT]:/d' \
    -e '/^  Folder/s/		*/	/' \
-   -e '/^  Folder/s/\/msg\.[-0-9A-Za-z_][-0-9A-Za-z_]*	/\/	/' \
-   -e '/^  Folder/s/\/new\/[-0-9A-Za-z_][-0-9A-Za-z_.,+:%@]*	/\/	/' \
+   -e '/^  Folder/s/\/msg\.[-[:alnum:]_][-[:alnum:]_]*	/\/	/' \
+   -e '/^  Folder/s/\/new\/[-[:alnum:]_][-[:alnum:]_.,+:%@]*	/\/	/' \
    -e '/^  Folder/s/\/[0-9][0-9]*	/\/.	/' \
    -e 's/^  Folder: \(.*\)/\1/' -e t -e 's/	/\\t/g' \
    -e 's/^/ ## /' $OLDLOGFILE | $sort | $awk "$awkscript" -
 else
   $sed	-e '/^From /d' -e '/^ [Ss][uU][bB][jJ][eE][cC][tT]:/d' \
    -e '/^  Folder/s/		*/	/' \
-   -e '/^  Folder/s/\/msg\.[-0-9A-Za-z_][-0-9A-Za-z_]*	/\/	/' \
-   -e '/^  Folder/s/\/new\/[-0-9A-Za-z_][-0-9A-Za-z_.,+:%@]*	/\/	/' \
+   -e '/^  Folder/s/\/msg\.[-[:alnum:]_][-[:alnum:]_]*	/\/	/' \
+   -e '/^  Folder/s/\/new\/[-[:alnum:]_][-[:alnum:]_.,+:%@]*	/\/	/' \
    -e '/^  Folder/s/\/[0-9][0-9]*	/\/.	/' \
    -e 's/^  Folder: \(.*\)/\1/' -e t \
    -e 's/.*/ ## diagnostic messages ##/' $OLDLOGFILE | $sort | \
