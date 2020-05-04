@@ -166,7 +166,8 @@ must be specified on the command line.  After the rcfile, procmail will
 accept an unlimited number of arguments.@ETCRCS_desc@
 For some advanced usage of this option you should look in the
 .B EXAMPLES
-section below.@LMTPOPTdesc@.SH ARGUMENTS
+section below.@LMTPOPTdesc@
+.SH ARGUMENTS
 Any arguments containing an '=' are considered to be environment variable
 assignments, they will
 .I all
