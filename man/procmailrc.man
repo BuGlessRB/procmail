@@ -591,7 +591,10 @@ to @COMSATservice@@SERV_ADDRsep@@COMSAThost@.@DROPPRIVS@
 The following tokens are known to both the procmail internal egrep and the
 standard
 .BR egrep (1)
-(beware that some egrep implementations include other non-standard extensions):
+(beware that some egrep implementations include other non-standard
+extensions; in particular, the repetition operator
+.B {
+is not supported by procmail's egrep):
 .TP 1.0i
 .B ^
 Start of a line.
