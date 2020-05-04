@@ -144,7 +144,7 @@ int getbl(p,end)char*p,*end;					  /* my gets */
       { case '\n':case EOF:*q='\0';
 	   return overflow?-1:p!=q;	     /* did we read anything at all? */
       }
-     if(q==end)	    /* check here so that a trailing backslash won't be lost */
+     if(q>=end)	    /* check here so that a trailing backslash won't be lost */
 	q=p,overflow=1;
      *q++=i;
    }
@@ -199,7 +199,7 @@ int getlline(target,end)char*target,*end;
 	   if(*(target=strchr(target,'\0')-1)=='\\')
 	    { if(chp2!=target)				  /* non-empty line? */
 		 target++;		      /* then preserve the backslash */
-	      if(target>end-2)			  /* space enough for getbl? */
+	      if(target>=end-2)			  /* space enough for getbl? */
 		 target=end-linebuf,overflow=1;		/* toss what we have */
 	      continue;
 	    }
