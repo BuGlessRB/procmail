@@ -268,7 +268,6 @@ temporary `unique' zero-length files created by procmail
 .BR csh (1),
 .BR mail (1),
 .BR mailx (1),
-.BR binmail (1),
 .BR uucp (1),
 .BR aliases (5),
 .BR sendmail (8),

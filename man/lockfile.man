@@ -122,7 +122,6 @@ in /etc/passwd
 .nh
 .BR rm (1),
 .BR mail (1),
-.BR binmail (1),
 .BR sendmail (8),
 .BR procmail (1)
 .hy
