@@ -183,10 +183,10 @@ void startprog(argv)const char*Const*const argv;
 		 retval=excode;
 	    }					       /* reap some children */
 	while(childlimit&&children>=childlimit||(child=fork())==-1&&children)
-	   for(--children;(excode=waitfor((pid_t)0))!=NO_PROCESS;)
+	   for(--children;(excode=waitfor((pid_t)0))!=NO_PROCESS;--children)
 	    { if(excode!=EXIT_SUCCESS)
 		 retval=excode;
-	      if(--children<=maxchild)
+	      if(children<=maxchild)
 		 break;
 	    }
       }
