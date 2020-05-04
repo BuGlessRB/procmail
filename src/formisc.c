@@ -83,13 +83,10 @@ normal:	   *target++= *start++;
 	   break;
 	case '"':*target++=delim='"';start++;
       }
-     ;{ int i;
-	do
-	   if((i= *target++= *start++)==delim)	 /* corresponding delimiter? */
-	      break;
-	   else if(i=='\\'&&*start)		    /* skip quoted character */
-	      *target++= *start++;
-	while(*start);						/* anything? */
+     ;{ int i;				   /* search corresponding delimiter */
+        while ((i = *target++ = *start++) && i != delim)
+	   if (i == '\\' && *start)		    /* skip quoted character */
+	      *target++ = *start++;
       }
      hitspc=2;
    }
