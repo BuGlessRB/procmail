@@ -219,7 +219,7 @@ static char*getsender(namep,fldp,headreply)char*namep;struct field*fldp;
   if(i>=0&&(i!=maxindex(sest)||fldp==rdheader))		  /* found anything? */
    { char*saddr;char*tmp;			     /* determine the weight */
      nowm=areply&&headreply?headreply==1?sest[i].wrepl:sest[i].wrrepl:i;chp+=j;
-     tmp=malloc(j=fldp->Tot_len-j);tmemmove(tmp,chp,j);(chp=tmp)[j-1]='\0';
+     tmp=malloc((j=fldp->Tot_len-j) + 1);tmemmove(tmp,chp,j);(chp=tmp)[j-1]='\0';
      if(sest[i].head==From_)
       { char*pastad;
 	if(strchr(saddr=chp,'\n'))		     /* multiple From_ lines */

@@ -66,7 +66,7 @@ inc:	   start++;
 retz:	      *target='\0';
 ret:	      return start;
 	    }
-	   if(*start=='\\')
+	   if(*start=='\\' && *(start + 1))
 	      *target++='\\',start++;
 	   hitspc=2;
 	   goto normal;					      /* normal word */
