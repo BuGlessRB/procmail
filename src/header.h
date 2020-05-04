@@ -167,3 +167,5 @@ X(encrkey,		"Encrypt-Key:")
 X(readreceiptto,	"Read-Receipt-To:")	  /* miscellaneous extension */
 X(fakesender,		"Fake-Sender:")
 X(envelopeto,		"Envelope-To:")			   /* exim extension */
+X(useragent,		"User-Agent:")
+X(nntppostingdate,	"NNTP-Posting-Date:")
