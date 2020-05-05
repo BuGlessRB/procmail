@@ -602,19 +602,19 @@ static void usage P((void))
 static int tryopen(delay_setid,rctype,dowarning)
  const int delay_setid,rctype,dowarning;
 { struct stat stbuf;
+  int serrno, dids;
+  errno = serrno = dids = 0;
   if(!delay_setid&&privileged&&	  /* if we can setid now and we haven't yet, */
-      (privileged==priv_DONTNEED||!stat(buf,&stbuf))) /* and we either don't */
-     setids();	   /* need the privileges or it's accessible, then setid now */
+      (privileged==priv_DONTNEED||!stat(buf,&stbuf)))        /* and we don't */
+     dids = 1, serrno = errno, setids();	      /* need the privileges */
+  if (serrno == ENOENT)				  /* no rcfile, return early */
+     return 0;
+  if (!dids && privileged)		  /* drop privs, if not done already */
+     setids();
   if(0>bopen(buf))				   /* try opening the rcfile */
    { if(dowarning)
 rerr:	readerr(buf);
      return 0;
-   }
-  if(!delay_setid&&privileged)		   /* if we're not supposed to delay */
-   { closerc();		       /* and we haven't changed yet, then close it, */
-     setids();				 /* transmogrify to prevent peeking, */
-     if(0>bopen(buf))					    /* and try again */
-	goto rerr;		   /* they couldn't read it, so it was bogus */
    }
 #ifndef NOfstat
   if(fstat(rc,&stbuf))					    /* the right way */
@@ -627,8 +627,6 @@ suspicious_rc:
      syslog(LOG_ALERT,slogstr,susprcf,buf);
      goto rerr;
    }
-  if(delay_setid)			 /* change now if we haven't already */
-     setids();
   if(rctype==rct_CURRENT)	  /* opened rcfile in the current directory? */
    { if(!didchd)
 	setmaildir(curdir);
