@@ -251,14 +251,14 @@ procmail with mailsurr the following two lines should be inserted in the
    --------------------------------------------------------
 
 There are many different reasons why more and more sites decide not to
-store mail in /usr/spool/mail or /usr/mail anymore.
+store mail in /var/spool/mail or /var/mail anymore.
 Some of the obvious advantages when storing mail in the recipient's home
 directory are:
 	- Mail is automatically subject to the user's quota limitations.
 	- Often there is more room on the home partition(s) than on that
-	  one /usr/mail partition.
+	  one /var/mail partition.
 
-The quota limitations also apply to /usr/spool/mail or /usr/mail if procmail
+The quota limitations also apply to /var/spool/mail or /var/mail if procmail
 does the delivery.  These quota limitations often do not work with the
 regular /bin/mail since that usually writes the mailbox with root permissions
 (eluding the quota restrictions).
@@ -276,7 +276,7 @@ by default, this is what you have to do:
 	defined SYSTEM_MBOX to be.  Some braindamaged mail programs
 	do not pick up the MAIL environment variable, these either
 	have to be patched/recompiled or you have to create symbolic
-	links in /usr/mail to every person's new mailbox.
+	links in /var/mail to every person's new mailbox.
 
 				---
 

@@ -57,8 +57,8 @@
 		Forward to |/usr/bin/procmail
 	or if that doesn't work, try:
 		Pipe to /usr/bin/procmail
-	as the only line in your mail spool file (e.g. /usr/mail/$LOGNAME), as
-	well as doing a "chmod 06660 /usr/mail/$LOGNAME".  For more information
+	as the only line in your mail spool file (e.g. /var/mail/$LOGNAME), as
+	well as doing a "chmod 06660 /var/mail/$LOGNAME".  For more information
 	on such systems, do a "man mail".
 
 	If all of this doesn't work, procmail can be called on a periodical
@@ -210,14 +210,14 @@
 	procmail with both the fcntl() and lockf() locking method
 	disabled (see config.h).
 
-17. I sometimes get these `Lock failure on "/usr/mail/$LOGNAME.lock"' errors
+17. I sometimes get these `Lock failure on "/var/mail/$LOGNAME.lock"' errors
     from procmail.  What do I do about it?
 
 	The problem here is that as long as procmail has not read a
 	$HOME/.procmailrc file, it can hang on to the sgid mail permission
-	(which it needs in order to create a lockfile in /usr/mail).
+	(which it needs in order to create a lockfile in /var/mail).
 	I.e. if procmail delivers mail to a user without a $HOME/.procmailrc
-	file, procmail *can* (and does) use the /usr/mail/$LOGNAME.lock file.
+	file, procmail *can* (and does) use the /var/mail/$LOGNAME.lock file.
 
 	If, however, it finds a $HOME/.procmailrc file, procmail has to let go
 	of the sgid mail permission because otherwise any ordinary user could
@@ -226,7 +226,7 @@
 	There are several solutions to this problem:
 	- Some systems support the sticky bit on directories (when set only
 	  allows the owner of a file in that directory to rename or remove
-	  it).	This enables you to make /usr/spool/mail drwxrwxrwt.  It is
+	  it).	This enables you to make /var/mail drwxrwxrwt.  It is
 	  thus effectively world writable, but all the mailboxes in it are
 	  protected because only the mailbox owner can remove or rename it.
 	- If your system did not exhibit the !@#$%^&* POSIX semantics for
@@ -245,9 +245,9 @@
 			:0
 			$DEFAULT
 
-	- You could, instead of using /usr/mail/$LOGNAME, use a file below
+	- You could, instead of using /var/mail/$LOGNAME, use a file below
 	  your home directory as your default mailbox.
-	- Or, you could still use /usr/mail/$LOGNAME as the mailbox, but
+	- Or, you could still use /var/mail/$LOGNAME as the mailbox, but
 	  simply instruct procmail to use a different lockfile.	 This can
 	  be achieved by putting following recipe at the bottom of
 	  your .procmailrc file:

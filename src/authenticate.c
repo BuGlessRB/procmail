@@ -39,13 +39,13 @@ static /*const*/char rcsid[]=
 #include "authenticate.h"
 
 #ifndef MAILSPOOLDIR
-#define MAILSPOOLDIR	"/var/spool/mail/"	     /* watch the trailing / */
+#define MAILSPOOLDIR	"/var/mail/"		     /* watch the trailing / */
 #endif
 #ifndef MAILSPOOLSUFFIX
 #define MAILSPOOLSUFFIX ""	      /* suffix to force maildir or MH style */
 #endif
 #ifndef MAILSPOOLHASH
-#define MAILSPOOLHASH	0      /* 2 would deliver to /var/spool/mail/b/a/bar */
+#define MAILSPOOLHASH	0	     /* 2 would deliver to /var/mail/b/a/bar */
 #endif
 /*#define MAILSPOOLHOME "/.mail"		      /* watch the leading / */
 						  /* delivers to $HOME/.mail */

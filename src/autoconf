@@ -89,7 +89,7 @@
 #	#define NOfcntl_lock
 #Ok	#define USElockf
 #Ok	#define USEflock
-#Ok	#define MAILSPOOLDIR "/var/spool/mail/"
+#Ok	#define MAILSPOOLDIR "/var/mail/"
 #Ok	#define SENDMAIL "/usr/sbin/sendmail"
 #	#define buggy_SENDMAIL
 #	#define DEFflagsendmail ""

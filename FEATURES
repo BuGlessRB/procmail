@@ -30,7 +30,7 @@ Feature summary for procmail:
 	  per message, the similar MH directory folders (numbered files),
 	  and Maildir directory folders (a multi-directory format that requires
 	  no locking)
-	+ Native support for /var/spool/mail/b/a/bar type mailspools
+	+ Native support for /var/mail/b/a/bar type mailspools
 	+ Variable assignment and substitution is an extremely complete subset
 	  of the standard /bin/sh syntax
 	+ Provides a mail log file, which logs all mail arrival, shows
