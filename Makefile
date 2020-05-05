@@ -108,7 +108,7 @@ MKDIRS	= new/mkinstalldirs
 
 SUBDIRS = src man
 BINSS	= procmail lockfile formail mailstat
-MANS1S	= procmail formail lockfile
+MANS1S	= procmail formail lockfile mailstat
 MANS5S	= procmailrc procmailsc procmailex
 
 # Possible locations for the sendmail.cf file

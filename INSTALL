@@ -33,7 +33,7 @@ this one.
       - create three stripped binaries, a shell script and five man pages in
 	the new/ subdirectory (all that is needed to install):
 	procmail, lockfile, formail, mailstat, procmail.1, lockfile.1,
-	formail.1, procmailrc.5, procmailsc.5, procmailex.5
+	formail.1, mailstat.1, procmailrc.5, procmailsc.5, procmailex.5
       - copy these binaries and mailstat to $(BINDIR)
       - copy the man pages to $(MAN1DIR) and $(MAN5DIR)
       - BEWARE: the installation obeys the current umask setting.  If you

@@ -12,5 +12,6 @@ init:
 
 Makefile makefile Makefiles makefiles: init
 
-procmail.1 procmailrc.5 procmailsc.5 procmailex.5 lockfile.1 formail.1: init
+procmail.1 procmailrc.5 procmailsc.5 procmailex.5 lockfile.1 formail.1 \
+ mailstat.1: init
 	$(MAKE) make $@
