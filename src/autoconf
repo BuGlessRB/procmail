@@ -1476,10 +1476,10 @@ cat /usr/lib/sendmail.cf /etc/sendmail.cf /etc/mail/sendmail.cf 2>$DEVNULL |
  grep '^V' >$DEVNULL ||
  echo '#define buggy_SENDMAIL' >>$ACONF
 
-lpath='/bin'
+lpath='/usr/local/bin:/bin'
 bins="/bin"
 
-for newd in /usr/bin /usr/ucb /usr/5bin $BINDIR /local/bin /usr/local/bin \
+for newd in /usr/bin /usr/ucb /usr/5bin $BINDIR /local/bin \
  /global/bin /usr/bin/X11 /usr/X*/bin
 do
   if test -d $newd

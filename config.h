@@ -33,8 +33,8 @@
  * override those settings you should uncomment and possibly change the
  * DEFSPATH and DEFPATH defines below
  */
-/*#define DEFSPATH	"PATH=/bin:/usr/bin"			/* */
-/*#define DEFPATH	"PATH=$HOME/bin:/bin:/usr/bin"		/* */
+/*#define DEFSPATH "PATH=/usr/local/bin:/bin:/usr/bin"			/* */
+/*#define DEFPATH  "PATH=$HOME/bin:/usr/local/bin:/bin:/usr/bin"	/* */
 
 /* every environment variable appearing in PRESTENV will be set or wiped
  * out of the environment (variables without an '=' sign will be thrown
