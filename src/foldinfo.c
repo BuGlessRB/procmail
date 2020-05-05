@@ -11,6 +11,7 @@ static /*const*/char rcsid[]=
  "$Id$";
 #endif
 #include "procmail.h"
+#include "acommon.h"
 #include "misc.h"
 #include "lastdirsep.h"
 #include "robust.h"

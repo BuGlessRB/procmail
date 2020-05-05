@@ -14,7 +14,7 @@ pid_t
  sfork P((void));
 int
  opena P((const char*const a)),
- ropen Q((const char*const name,const mode,const mode_t mask)),
+ ropen Q((const char*const name,const int mode,const mode_t mask)),
  rpipe P((int fd[2])),
  rdup P((const int p)),
  rclose P((const int fd)),

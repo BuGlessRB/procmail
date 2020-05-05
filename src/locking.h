@@ -6,7 +6,7 @@ int
  lockit P((char*name,char**const lockp)),
  lcllock P((const char*const noext,const char*const withext)),
  xcreat Q((const char*const name,const mode_t mode,time_t*const tim,
-  const chownit));
+  const int chownit));
 
 #ifdef NOfcntl_lock
 #ifndef USElockf
