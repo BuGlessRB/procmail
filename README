@@ -1,8 +1,8 @@
 For installation instructions see the INSTALL file.
 ----------------------
 Procmail & formail mail processing package.
-Copyright (c) 1990-1999, S.R. van den Berg, The Netherlands.
-Copyright (c) 1997-2002, Philip Guenther, The United States of America
+Copyright (c) 1990-2022, S.R. van den Berg, The Netherlands.
+Copyright (c) 1997-2005, Philip Guenther, The United States of America
 
 Some legal stuff:
 
@@ -143,8 +143,8 @@ Cheers,
 Internet E-mail:		<srb@cuci.nl>
 
 Snail-Mail:	Procmail Foundation
-		P.O.Box 21074
-		6369 ZG Simpelveld
+		Bouwensstraat 24
+		6369 BG Simpelveld
 		The Netherlands
 
 Procmail mailinglist:		<procmail-users-request@procmail.org>
