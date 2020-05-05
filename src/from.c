@@ -117,7 +117,10 @@ void makeFrom(from,invoker)const char*from,*const invoker;
 	      themail.p[extra]='\0';		  /* terminate it for strchr */
 	    }
 	   while(!(rstart=strchr(themail.p,'\n')));
-	   extra=rstart?extra-(++rstart-themail.p):0;
+	   if (rstart)
+	     extra -= ++rstart - themail.p;
+	   else
+	     extra = 0, rstart = themail.p;
 	 }
 	else
 	 { size_t tfrl= ++rstart-themail.p; /* length of existing From_ line */
