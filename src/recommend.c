@@ -47,7 +47,7 @@ int main(argc,argv)const int argc;const char*const argv[];
      printf("chmod %lo %s\n",(unsigned long)(sgid|PERMIS),argv[2]);
   else if(chmdir==1)
      goto nogchmod;
-  if(chmdir)
+  if (!SANEvarmail && chmdir)
      printf("chmod %c+w %s/.\n",chmdir==1?'g':'a',mailspooldir);
 nogchmod:
   return EXIT_SUCCESS;

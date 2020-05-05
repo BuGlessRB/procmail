@@ -142,6 +142,8 @@
  * Only edit below this line if you *think* you know what you are doing *
  ************************************************************************/
 
+#define DEFAULTdotlock	1             /* set to 0 to default to kernel locks */
+#define SANEvarmail	0      /* set to 1 if /var/mail has sane permissions */
 #define ROOT_uid	0
 #define LDENV		{"LD_","_RLD","LIBPATH=","ELF_LD_","AOUT_LD_",0}
 
