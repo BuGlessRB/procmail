@@ -649,3 +649,7 @@
 		 PROCMAIL_DOMAIN
 	       - Set PROCMAIL_MODE to one of "d", "m", "z", or "" to reflect
 		 the mode option it was invoked with, if any
+2022/03/02: v3.24
+	       - Fixed all bugs collected by Debian and others
+                 during the past 21 years.  See the git commit history
+                 for detailed descriptions.
