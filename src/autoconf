@@ -437,7 +437,7 @@ unsigned sfork()
   return pid;
 }
 
-int main(argc,argv)char*argv[];
+int main(int argc, char*argv[])
 { int goodlock,testlock,i,pip[2],pipw[2];time_t otimet;unsigned dtimet;
   static char filename[]="_locktst.l0";
   close(0);goodlock=0;testlock=FIRST_lock;signal(SIGPIPE,SIG_DFL);
@@ -587,13 +587,13 @@ int killchildren()
   return 0;
 }
 
-int sfdlock(fd)
+int sfdlock(int fd)
 { int i;unsigned gobble[GOBBLE>>2];
   for(i=GOBBLE>>2;i;gobble[--i]=~(unsigned)0);		 /* SunOS crash test */
   return fdlock(fd);
 }
 
-static oldfdlock;
+static int oldfdlock;
 #ifdef F_SETLKW
 static struct flock flck;		/* why can't it be a local variable? */
 #endif
@@ -601,7 +601,7 @@ static struct flock flck;		/* why can't it be a local variable? */
 static off_t oldlockoffset;
 #endif
 
-int fdlock(fd)
+int fdlock(int fd)
 { int i;unsigned gobble[GOBBLE>>2];
   for(i=GOBBLE>>2;i;gobble[--i]=~(unsigned)0);		 /* SunOS crash test */
   oldfdlock=fd;fd=0;

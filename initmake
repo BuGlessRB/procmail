@@ -124,7 +124,7 @@ else
 fi
 
 cat >_autotst.c <<HERE
-main()
+int main()
 { return 0;
 }
 HERE
@@ -151,6 +151,7 @@ case "$LDFLAGS1" in
 esac
 
 cc=""
+CFLAGS ?=""
 
 for a in "$CC" cc gcc
 do
@@ -200,12 +201,12 @@ cat >_autotst.c <<HERE
 #include <sys/types.h>
 #include <stdio.h>
 #include <sys/stat.h>
-main()
+int main()
 { struct stat buf;return!&buf;
 }
 HERE
 
-CFLAGS=""
+
 
 case "$CFLAGS1" in
   *-D_POSIX_SOURCE*);;
