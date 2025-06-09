@@ -825,9 +825,7 @@ nolock:		     { nlog("Couldn't determine implicit lockfile from");
 		  }
 	       }
 	      else if(capture)			  /* capturing stdout again? */
-	       { *(chp=strchr(capture,'='))='\0';
-		 startchar=getenv(capture);*chp='=';	  /* *NOT* tgetenv() */
-		 tobesent=startchar?strlen(startchar):0;
+	       { tobesent=startchar?strlen(startchar):0;
 		 if(!pipthrough(buf,startchar,tobesent))
 		    succeed=readvar(capture,startchar,tobesent);
 		 free(capture);
