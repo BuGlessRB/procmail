@@ -1,4 +1,4 @@
-#! /bin/sh
+#!/bin/sh
 :
 # Copyright (c) 1992-1999, S.R. van den Berg, The Netherlands
 #$Id$
@@ -124,7 +124,7 @@ else
 fi
 
 cat >_autotst.c <<HERE
-main()
+int main()
 { return 0;
 }
 HERE
@@ -200,7 +200,7 @@ cat >_autotst.c <<HERE
 #include <sys/types.h>
 #include <stdio.h>
 #include <sys/stat.h>
-main()
+int main()
 { struct stat buf;return!&buf;
 }
 HERE
@@ -219,6 +219,12 @@ case "$CFLAGS1" in
 	 CFLAGS=" -D_POSIX_SOURCE"
      fi;;
 esac
+
+# See if we can add this, to ensure the link-tests work in one go.
+$RM _autotst.$O
+$cc -c -std=gnu89 $CFLAGS \
+  _autotst.c && #>$DEVNULL 2>&1 &&
+ CFLAGS=" -std=gnu89 $CFLAGS "
 
 LDFLAGSC=""
 
