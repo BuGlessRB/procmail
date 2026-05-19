@@ -565,7 +565,9 @@ nomore_rc:
      if(succeed)				     /* should we panic now? */
 mailed: retval=EXIT_SUCCESS;		  /* we're home free, mail delivered */
    }
-  unlock(&loclock);Terminate();
+  unlock(&loclock);
+  setids();
+  Terminate();
 }
 
 static void usage P((void))
