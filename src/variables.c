@@ -103,8 +103,11 @@ void retStdout(newmyenv,fail,unset)		/* see note on primeStdout() */
   retbStdout(newmyenv);
   var=newmyenv+ioffsetof(struct dynstring,ename[0]);	    /* setup to copy */
   p=strchr(var,'=');			       /* the variable name into buf */
-  tmemmove(buf,var,p-var);			     /* so that we can check */
-  buf[p-var]='\0';						/* for magic */
+  if (p - var < linebuf)
+   { tmemmove(buf, var, p - var);		     /* so that we can check */
+     buf[p - var] = '\0';					/* for magic */
+   } else
+     buf[0] = '\0';				  /* too long to check magic */
   if(fail)
      asenvtext(p+1);	  /* we always have to update the pointers for these */
   else
@@ -141,10 +144,12 @@ void setval(name,value)const char*const name,*const value;  /* destroys buf2 */
 
 void setdef(name,value)const char*const name,*const value;
 { char*p;
-  strcpy(buf,name);				 /* insert the variable name */
-  p=strchr(buf,'\0');					   /* (find the end) */
-  *p++='=';						       /* then the = */
-  eputenv(value,p);			/* expand the value and call sputenv */
+  if (strlen(name) + strlen(value) < linebuf) {
+    strcpy(buf, name);				 /* insert the variable name */
+    p = strchr(buf,'\0');				   /* (find the end) */
+    *p++ = '=';						       /* then the = */
+    eputenv(value, p);			/* expand the value and call sputenv */
+  }
 }
 
 const char*tgetenv(a)const char*const a;

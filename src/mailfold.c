@@ -200,8 +200,11 @@ int writefolder(boxname,linkfolder,source,len,ignwerr,dolock)
      type=ft_PIPE;
      goto dumpc;
    }
-  if(boxname!=buf)
+  if (boxname != buf)
+   { if (strlen(boxname) >= linebuf)
+       goto retf;
      strcpy(buf,boxname);		 /* boxname can be found back in buf */
+   }
   if(linkfolder)		    /* any additional directories specified? */
    { size_t blen;
      if(blen=Tmnate-linkfolder)		       /* copy the names into safety */

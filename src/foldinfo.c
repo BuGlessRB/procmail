@@ -55,17 +55,21 @@ int rnmbogus(name,stbuf,i,dolog)const char*const name;	      /* move a file */
  const struct stat*const stbuf;const int i,dolog;	   /* out of the way */
 { static const char renbogus[]="Renamed bogus \"%s\" into \"%s\"",
    renfbogus[]="Couldn't rename bogus \"%s\" into \"%s\"",
-   bogusprefix[]=BOGUSprefix;char*p;
-  p=strchr(strcpy(strcpy(buf2+i,bogusprefix)+STRLEN(bogusprefix),
-   getenv(lgname)),'\0');
-  *p++='.';ultoan((unsigned long)stbuf->st_ino,p);	  /* i-node numbered */
-  if(dolog)
-   { nlog("Renaming bogus mailbox \"");elog(name);elog("\" info");
-     logqnl(buf2);
-   }
-  if(rename(name,buf2))			   /* try and move it out of the way */
-   { syslog(LOG_ALERT,renfbogus,name,buf2);		 /* danger!  danger! */
-     return 1;
+   bogusprefix[]=BOGUSprefix;
+  char *p = getenv(lgname);
+  if (i + STRLEN(bogusprefix) + strlen(p) + 1
+    + (sizeof(stbuf->st_ino) * 8 + 7) / 3 <= linebuf)
+   { p = strchr(strcpy(strcpy(buf2 + i, bogusprefix) + STRLEN(bogusprefix),
+                       p), '\0');
+     *p++='.';ultoan((unsigned long)stbuf->st_ino,p);	  /* i-node numbered */
+     if(dolog)
+      { nlog("Renaming bogus mailbox \"");elog(name);elog("\" info");
+        logqnl(buf2);
+      }
+     if(rename(name,buf2))		   /* try and move it out of the way */
+      { syslog(LOG_ALERT,renfbogus,name,buf2);		 /* danger!  danger! */
+        return 1;
+      }
    }
   syslog(LOG_CRIT,renbogus,name,buf2);
   return 0;
@@ -298,7 +302,10 @@ fishy:
    }
   if(!S_ISDIR(stbuf.st_mode))
    { int isgrpwrite=stbuf.st_mode&S_IWGRP;
-     strcpy(chp=strchr(buf,'\0'),lockext);
+     chp = strchr(buf,'\0');
+     if (chp - buf + STRLEN(lockext) >= linebuf)
+        goto nl;			      /* not enough room for lockext */
+     strcpy(chp, lockext);
      defdeflock=tstrdup(buf);
      if(!isgrpwrite&&!lstat(defdeflock,&stbuf)&&stbuf.st_uid!=uid&&
       stbuf.st_uid!=ROOT_uid)
