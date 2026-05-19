@@ -40,7 +40,7 @@ const char*skipFrom_(startchar,tobesentp)const char*startchar;long*tobesentp;
 			  /* tries to locate the timestamp on the From_ line */
 static char*findtstamp(start,end)const char*start,*end;
 { end-=25;
-  if(*start==' '&&(++start==end||*start==' '&&++start==end))
+  if(*start == ' ' && (++start >= end || *start == ' ' && ++start >= end))
      return (char*)start-1;
   start=skpspace(start);start+=strcspn(start," \t\n");	/* jump over address */
   if(skpspace(start)>=end)			       /* enough space left? */
