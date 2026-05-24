@@ -331,7 +331,7 @@ extern int errno;
 
 #ifndef NOuname
 #ifndef P		  /* SINIX V5.23 has the wrong prototype for uname() */
-extern int uname();					 /* so we fix it :-) */
+extern int uname(struct utsname *);
 #define Uname(name)		((int(*)(struct utsname*))uname)(name)
 #else
 #define Uname(name)		uname(name)		    /* no fix needed */

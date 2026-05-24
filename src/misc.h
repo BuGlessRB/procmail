@@ -1,4 +1,5 @@
 /*$Id$*/
+#include "authenticate.h"
 
 struct dyna_array{int filled,tspace;char*vals;};
 union offori{off_t o;int i;};

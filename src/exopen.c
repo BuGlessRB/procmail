@@ -51,7 +51,7 @@ static const char*safehost P((void)) /* return a hostname safe for filenames */
   return sname;
 }
 
-int unique(full,p,len,mode,verbos,flags)char*const full;char*p;
+int unique(full,p,len,mode,verbos,flags)const char*const full;char*p;
  const size_t len;const mode_t mode;const int verbos,flags;
 { static const char s2c[]=".,+%";static int serial=STRLEN(s2c);
   static time_t t;char*dot,*end,*host;struct stat filebuf;
