@@ -43,7 +43,7 @@ config.check: config.h
       echo '   * Having backquotes in there could be unhealthy! *';\
  echo;fi;exit 0
 
-recommend: autoconf.h src/Makefile
+recommend: autoconf.h src/Makefile bins
 	@cd src; $(MAKE) $@
 	@echo ================================================================\
 ===============
