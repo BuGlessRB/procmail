@@ -27,6 +27,10 @@ export X_ENVELOPE_TO		# address
 $cat >$tmprequest
 $formail -R$X_COMMAND: X-Processed: <$tmprequest
 
+test "_$X_COMMAND_PASSWORD" = "_password" &&
+ $echo "X-Diagnostic: default X_COMMAND_PASSWORD unchanged, refusing" &&
+ exit 64
+
 set dummy `$formail -x$X_COMMAND: <$tmprequest`
 shift; shift
 test "_$X_COMMAND_PASSWORD" = "_$1" && shift
