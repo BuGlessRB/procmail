@@ -1,5 +1,5 @@
 #define VERSION "\
- v3.29 2026/05/19\n\
+ v3.29 2026/07/06\n\
     Copyright (c) 1990-2026, Stephen R. van den Berg\t<srb@cuci.nl>\n\
 \n\
 Submit questions/answers to the procmail-related mailinglist by sending to:\n\
