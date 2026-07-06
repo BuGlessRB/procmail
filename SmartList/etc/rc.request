@@ -304,7 +304,7 @@ LOGABSTRACT=yes
 # Or is it a remote X-Command from our maintainer?
 #
 
-:0 wf:dist.lock
+:0 Dwf:dist.lock
 * $^$X_COMMAND:.*$\maintainer[	 ]*$\X_COMMAND_PASSWORD
 * $!^X-Loop: $\listaddr
 | x_command
