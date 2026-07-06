@@ -491,9 +491,10 @@ statd:		    if((size+=stbuf.st_size)>maxsize)	  /* digest too big? */
 #endif
 	signal(SIGPIPE,SIG_DFL);unlink(mailfile);
 #ifndef O_CREAT
-	if(0>(mailfd=creat(mailfile,NORMperm)))
+	if (0 > (mailfd = creat(mailfile, S_IRUSR|S_IWUSR)))
 #else
-	if(0>(mailfd=open(mailfile,O_RDWR|O_CREAT|O_EXCL,NORMperm)))
+	if (0 > (mailfd = open(mailfile, O_RDWR|O_CREAT|O_EXCL,
+	                                 S_IRUSR|S_IWUSR)))
 #endif
 	 { nlog("Can't create temporary file");logqnl(mailfile);
 	   return EX_CANTCREAT;
