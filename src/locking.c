@@ -23,7 +23,8 @@ static /*const*/char rcsid[]=
 char*globlock;
 
 int lockit(name,lockp)char*name;char**const lockp;
-{ int permanent=nfsTRY,triedforce=0,locktype=doLOCK;struct stat stbuf;time_t t;
+{ int permanent=nfsTRY,triedforce=0,locktype=doLOCK;struct stat stbuf;
+  time_t t=time((time_t*)0);
   zombiecollect();
   if(*lockp)
    { if(!strcmp(name,*lockp))	/* compare the previous lockfile to this one */

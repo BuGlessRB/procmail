@@ -350,7 +350,7 @@ void logabstract(lstfolder)const char*const lstfolder;
 	if(!nextexit&&				/* don't reenter malloc/free */
 	 (chp=egrepin(NSUBJECT,chp,(long)(thebody-chp),0)))
 	 { size_t subjlen;
-	   for(chp2= --chp;*--chp2!='\n';);
+	   for(chp2= --chp;chp2>themail.p&&*--chp2!='\n';);
 	   if((subjlen=chp-++chp2)>MAXSUBJECTSHOW)
 	      subjlen=MAXSUBJECTSHOW;		    /* keep it within bounds */
 	   ((char*)tmemmove(buf,chp2,subjlen))[subjlen]='\0';detab(buf);

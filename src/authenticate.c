@@ -193,7 +193,7 @@ const char*auth_mailboxname(pass)auth_identity*const pass;
       strlen(pass->pw->pw_name)+1+STRLEN(MAILSPOOLSUFFIX))))
 	return "";
      strcpy(pass->mbox,mailspooldir);
-     ;{ char*p,*n;size_t i;int c;
+     ;{ char*p,*n;size_t i;int c=0;
 	for(p=pass->mbox+STRLEN(mailspooldir),n=pass->pw->pw_name,
 	 i=MAILSPOOLHASH;i--;*p++='/')
 	 { if(*n)

@@ -94,7 +94,7 @@ Quoted:	   switch(i)
 		    goto nodelim;
 	    }
 	   if(got>NORMAL_TEXT)
-noesc:	      *p++='\\';		/* nothing to escape, just echo both */
+noesc:	      CHECKINC();*p++='\\';	/* nothing to escape, just echo both */
 	   break;
 	case '`':
 	   if(got==SINGLE_QUOTED)

@@ -196,12 +196,15 @@ int getlline(target,end)char*target,*end;
      switch(getbl(chp2=target,end))			   /* read line-wise */
       { case -1:overflow=1;
 	case 1:
-	   if(*(target=strchr(target,'\0')-1)=='\\')
-	    { if(chp2!=target)				  /* non-empty line? */
-		 target++;		      /* then preserve the backslash */
-	      if(target>=end-2)			  /* space enough for getbl? */
-		 target=end-linebuf,overflow=1;		/* toss what we have */
-	      continue;
+	   ;{ char*eol;
+	      if((eol=strchr(target,'\0'))>chp2&&eol[-1]=='\\')
+	       { target=eol-1;
+		 if(chp2!=target)			  /* non-empty line? */
+		    target++;		      /* then preserve the backslash */
+		 if(target>=end-2)			  /* space enough for getbl? */
+		    target=end-linebuf,overflow=1;	/* toss what we have */
+		 continue;
+	       }
 	    }
 	case 0:
 	   if(overflow)

@@ -47,7 +47,9 @@ void inittmout(progname)const char*const progname;
 }
 
 void ftimeout P((void))
-{ alarm(0);alrmtime=0;toutflag=1;nlog("Timeout, ");	 /* careful, killing */
+{ alarm(0); alrmtime=0; toutflag=1;			 /* careful, killing */
+  lcking |= lck_DELAYSIG;
+  nlog("Timeout, ");
   elog(pidchild>0&&!kill(pidchild,SIGTERM)?"terminating":"was waiting for");
   logqnl(lastexec);signal(SIGALRM,(void(*)())ftimeout);
 }

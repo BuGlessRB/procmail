@@ -40,7 +40,8 @@ void elog(newt)const char*const newt;
   if(lnew&&				/* if this is not a forced flush and */
    (lmax>=i||		      /* either we have enough room in the buffer or */
     (MAXlogbuf>=i&&			 /* the buffer won't get too big and */
-     !nextexit)))	    /* we're not in a signal handler, then it's safe */
+     !nextexit				    /* we're not in a signal handler */
+     && !(lcking&lck_LOGGING))))
    { if(i>lmax)				      /* to use or expand the buffer */
       { char*p;size_t newmax=lmax*2;	 /* exponential expansion by default */
 	if(i>newmax)				   /* ...unless we need more */
