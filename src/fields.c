@@ -51,9 +51,10 @@ struct field**addfield(pointer,text,totlen)struct field**pointer;
  const char*const text;const size_t totlen;    /* add field to a linked list */
 { register struct field*p,**pp;int idlen;
   for(pp=pointer;*pp;pp= &(*pp)->fld_next);   /* skip to the end of the list */
-  (*pp=p=malloc(FLD_HEADSIZ+totlen))->fld_next=0;idlen=breakfield(text,totlen);
+  (*pp=p=malloc(FLD_HEADSIZ+totlen+1))->fld_next=0;idlen=breakfield(text,totlen);
   p->id_len=idlen>0?idlen:pp==&rdheader?0:-idlen;	    /* copy contents */
   tmemmove(p->fld_text,text,p->Tot_len=totlen);
+  ((char*)p->fld_text)[totlen]='\0';   /* terminate, so it can be printed safely */
   return pp;
 }
 

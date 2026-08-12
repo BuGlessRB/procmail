@@ -144,8 +144,9 @@ replaceall:
   p->id_len+=(int)newl-(int)oldl;p->fld_text[p->Tot_len-1]='\n';
   p->Tot_len=(i=p->Tot_len-oldl)+newl;
   if(newl>oldl)
-     *pointer=p=realloc(p,FLD_HEADSIZ+p->Tot_len);
+     *pointer=p=realloc(p,FLD_HEADSIZ+p->Tot_len+1);
   chp=p->fld_text;tmemmove(chp+newl,chp+oldl,i);tmemmove(chp,newname,newl);
+  chp[p->Tot_len]='\0';		   /* keep the field NUL-terminated */
 }
 
 static void procfields(sareply)const int sareply;
@@ -501,9 +502,10 @@ invfield:	     { nlog("Invalid field-name:");logqnl(chp?chp:"");
 		       goto usg;
 		     }
 		    *afldp=fldp=
-		     realloc(fldp,FLD_HEADSIZ+(fldp->Tot_len=lnl+i));
+		     realloc(fldp,FLD_HEADSIZ+(fldp->Tot_len=lnl+i)+1);
 		    if(!copied)			   /* if not squeezed on yet */
 		       tmemmove((char*)fldp->fld_text+lnl,chp,i);  /* do now */
+		    ((char*)fldp->fld_text)[fldp->Tot_len]='\0';
 		  }
 	      case '\0':;
 	    }
@@ -619,8 +621,9 @@ startover:
 	   if(chp[-1]==HEAD_DELIMITER)
 	      if((*chp!=' '&&*chp!='\t')&&fldp->Tot_len>j+1)
 	       { chp=j+(*afldp=fldp=
-		  realloc(fldp,FLD_HEADSIZ+(i=fldp->Tot_len++)+1))->fld_text;
+		  realloc(fldp,FLD_HEADSIZ+(i=fldp->Tot_len++)+2))->fld_text;
 		 tmemmove(chp+1,chp,i-j);*chp=' ';
+		 ((char*)fldp->fld_text)[fldp->Tot_len]='\0';
 	       }
 	      else if(fldp->Tot_len<=j+2)
 	       { *afldp=fldp->fld_next;free(fldp);fldp= *afldp;
@@ -813,6 +816,7 @@ splitit:       { if(!lnl)   /* did the previous mail end with an empty line? */
 	 }
 	else if(eqFrom_(buf))			 /* special case, From_ line */
 	 { addbuf();		       /* add it manually, readhead() didn't */
+	   chp=buf;		    /* point chp at it, fromanyway needs it */
 	   goto fromanyway;
 	 }
 	else if(split&&digest&&(lnl||every)&&artheadr())

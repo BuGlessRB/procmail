@@ -20,11 +20,16 @@ static /*const*/char rcsid[]=
 static const char*skipcomment(start)const char*start;
 { for(;;)
      switch(*++start)
-      { case '\0':start--;
+      { case '\0':return start;		       /* stop at the end of the string */
 	case ')':return start;
-	case '\\':start++;
-	   break;	     /* Prithee, breaking the 11th commandment here: */
-	case '(':start=skipcomment(start);	 /* Thou shalt not re-curse! */
+	case '\\':
+	   if(*++start=='\0')	       /* a trailing backslash, the string */
+	      start--;		      /* ends right here, don't skip past it */
+	   break;
+	case '(':
+	   if(!*(start=skipcomment(start)))	  /* the string ended right */
+	      return start;		     /* inside the comment, stop here */
+	   continue;		      /* skipcomment stopped at ')', skip past it */
       }
 }
 
@@ -41,7 +46,9 @@ char*skipwords(start)char*start;		 /* skips an RFC 822 address */
 	      goto inc;
 	    }
 	   goto ret;
-	case '(':start=(char*)skipcomment(start);		  /* comment */
+	case '(':
+	   if(!*(start=(char*)skipcomment(start)))	/* unterminated comment? */
+	      goto retz;				  /* stop right here */
 	case ' ':case '\t':case '\n':hitspc|=1;	       /* linear white space */
 inc:	   start++;
 	   continue;
@@ -87,6 +94,9 @@ normal:	   *target++= *start++;
         while ((i = *target++ = *start++) && i != delim)
 	   if (i == '\\' && *start)		    /* skip quoted character */
 	      *target++ = *start++;
+	if(!i)				       /* the string ended, so back up */
+	 { target--;start--;		  /* to the NUL and stop there */
+	 }
       }
      hitspc=2;
    }
