@@ -48,10 +48,14 @@ void inittmout(progname)const char*const progname;
 
 void ftimeout P((void))
 { alarm(0); alrmtime=0; toutflag=1;			 /* careful, killing */
-  lcking |= lck_DELAYSIG;
+  lcking |= lck_DELAYSIG;	       /* defer Terminate while we log */
   nlog("Timeout, ");
   elog(pidchild>0&&!kill(pidchild,SIGTERM)?"terminating":"was waiting for");
-  logqnl(lastexec);signal(SIGALRM,(void(*)())ftimeout);
+  logqnl(lastexec);
+  lcking &= ~lck_DELAYSIG;		/* restore normal signal semantics */
+  if(nextexit==1)		       /* reap a termination signal that */
+     Terminate();			     /* arrived while we were logging */
+  signal(SIGALRM,(void(*)())ftimeout);
 }
 
 void resettmout P((void))
