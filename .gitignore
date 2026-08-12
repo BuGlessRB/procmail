@@ -3,6 +3,10 @@ Makefile
 *.o
 *.log
 *.0
+*.tmp
+.aider*
+reasonix.toml
+.reasonix
 autoconf.h
 config.check
 src/setid
@@ -16,3 +20,4 @@ man/*.[15]
 man/man.sed*
 new/*
 suid.sh
+.nfs*
