@@ -7,7 +7,7 @@ typedef struct auth_identity auth_identity;
 
 #ifndef P
 #define P(x)	x
-#define Q(x)	()
+#define Q(x)	x
 #endif
 
 /*const*/auth_identity
