@@ -71,6 +71,8 @@ int rnmbogus(name,stbuf,i,dolog)const char*const name;	      /* move a file */
         return 1;
       }
    }
+  else
+     return 1;
   syslog(LOG_CRIT,renbogus,name,buf2);
   return 0;
 }
