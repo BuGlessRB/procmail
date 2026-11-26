@@ -303,7 +303,7 @@ fishy:
   if(!S_ISDIR(stbuf.st_mode))
    { int isgrpwrite=stbuf.st_mode&S_IWGRP;
      chp = strchr(buf,'\0');
-     if (chp - buf + STRLEN(lockext) >= linebuf)
+     if (chp - buf + strlen(lockext) >= linebuf)
         goto nl;			      /* not enough room for lockext */
      strcpy(chp, lockext);
      defdeflock=tstrdup(buf);
