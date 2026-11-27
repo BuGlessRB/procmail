@@ -175,10 +175,11 @@ xusg:		       retval=EX_USAGE;
      else if(sleepsec<0)      /* second pass, release everything we acquired */
 	unlink(cp);
      else
-      { time_t t=time((time_t*)0);int permanent;gid_t gid=getgid();
+      { time_t t;int permanent;gid_t gid=getgid();
 	if(setgid(gid)||getegid()!=gid)	      /* just to be on the safe side */
 	   goto sp;
-stilv:	virgin=0;permanent=nfsTRY;
+stilv:	t=time((time_t*)0);
+	virgin=0;permanent=nfsTRY;
 	while(0>xcreat(cp,&t))				     /* try and lock */
 	 { struct stat stbuf;
 	   if(exitflag)					    /* time to stop? */
